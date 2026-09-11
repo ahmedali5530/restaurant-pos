@@ -4,6 +4,8 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {ResponsiveLine} from "@nivo/line";
+import {useNivoTheme, useNivoColors} from "@/lib/nivo-theme.ts";
+import {cssVarRgb} from "@/lib/theme.ts";
 import {DateTime} from "luxon";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
@@ -117,10 +119,10 @@ const SectionCard = ({
   subtitle?: string;
   children: ReactNode;
 }) => (
-  <div className="bg-white p-5 rounded-lg shadow-xl border">
+  <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
     <div className="mb-4">
-      <h2 className="text-2xl font-bold text-neutral-700">{title}</h2>
-      {subtitle ? <p className="text-sm text-neutral-500 mt-1">{subtitle}</p> : null}
+      <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+      {subtitle ? <p className="text-sm text-muted mt-1">{subtitle}</p> : null}
     </div>
     {children}
   </div>
@@ -134,6 +136,9 @@ const OperationsLineChart = ({
   isLoading: boolean;
 }) => {
   const {t} = useTranslation("reports");
+  const nivoTheme = useNivoTheme();
+  const COLORS = useNivoColors();
+  const muted = cssVarRgb("--muted", "115 115 115");
   return (
     <SectionCard
       title={t("labels.inventoryOperationsTrend")}
@@ -141,10 +146,10 @@ const OperationsLineChart = ({
     >
       <div className="h-[300px] relative">
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-elevated/80 z-10">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
-              <p className="mt-2 text-sm text-neutral-500">{t("loading.chart")}</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+              <p className="mt-2 text-sm text-muted">{t("loading.chart")}</p>
             </div>
           </div>
         ) : null}
@@ -182,13 +187,14 @@ const OperationsLineChart = ({
             colors={COLORS}
             lineWidth={3}
             pointSize={6}
-            pointColor="#ffffff"
+            pointColor="rgb(var(--surface-elevated))"
             pointBorderWidth={2}
             pointBorderColor={{from: "serieColor"}}
             enableArea={true}
             areaOpacity={0.05}
             useMesh={true}
             enableSlices="x"
+            theme={nivoTheme}
             legends={[
               {
                 anchor: "bottom",
@@ -197,14 +203,14 @@ const OperationsLineChart = ({
                 itemsSpacing: 10,
                 itemWidth: 100,
                 itemHeight: 14,
-                itemTextColor: "#525252",
+                itemTextColor: muted,
                 symbolSize: 10,
                 symbolShape: "circle",
               },
             ]}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-neutral-500">
+          <div className="h-full flex items-center justify-center text-muted">
             {t("labels.noInventoryOperationsData")}
           </div>
         )}
@@ -230,24 +236,24 @@ const DataTable = ({
 }) => {
   const {t} = useTranslation("reports");
   const colorMap: Record<string, {bg: string; icon: string; badge: string; badgeText: string}> = {
-    primary: {bg: "bg-primary-100", icon: "text-primary-600", badge: "bg-primary-100", badgeText: "text-primary-500"},
+    primary: {bg: "bg-primary-100", icon: "text-primary-600", badge: "bg-primary-100", badgeText: "text-primary"},
     success: {bg: "bg-success-100", icon: "text-success-600", badge: "bg-success-100", badgeText: "text-success-500"},
-    warning: {bg: "bg-warning-100", icon: "text-warning-600", badge: "bg-warning-100", badgeText: "text-warning-500"},
+    warning: {bg: "bg-warning-100", icon: "text-warning-600", badge: "bg-warning-100", badgeText: "text-warning"},
     danger: {bg: "bg-danger-100", icon: "text-danger-600", badge: "bg-danger-100", badgeText: "text-danger-500"},
     info: {bg: "bg-info-100", icon: "text-info-600", badge: "bg-info-100", badgeText: "text-info-500"},
   };
   const colors = colorMap[color] || colorMap.primary;
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className={`p-3 rounded-full ${colors.bg}`}>
             <Icon className={`w-5 h-5 ${colors.icon}`} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">{title}</h2>
-            <p className="text-xs text-neutral-500">{t("labels.latest20Records")}</p>
+            <h2 className="text-xl font-bold text-foreground">{title}</h2>
+            <p className="text-xs text-muted">{t("labels.latest20Records")}</p>
           </div>
         </div>
         <span className={`${colors.badge} ${colors.badgeText} text-xs font-semibold px-3 py-1.5 rounded-full`}>
@@ -256,33 +262,33 @@ const DataTable = ({
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider ${col.className || ""}`}
+                  className={`py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider ${col.className || ""}`}
                 >
                   {col.label}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {loading ? (
               <tr>
                 <td colSpan={columns.length} className="py-8 text-center">
                   <div className="flex items-center justify-center">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mr-2" />
-                    <span className="text-sm text-neutral-500">{t("common:actions.loading")}</span>
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2" />
+                    <span className="text-sm text-muted">{t("common:actions.loading")}</span>
                   </div>
                 </td>
               </tr>
             ) : data.length > 0 ? (
               data.slice(0, 20).map((row, idx) => (
-                <tr key={idx} className="hover:bg-neutral-50 transition-colors">
+                <tr key={idx} className="hover:bg-surface transition-colors">
                   {columns.map((col) => (
-                    <td key={col.key + idx} className={`py-3 px-3 text-sm text-neutral-700 ${col.className || ""}`}>
+                    <td key={col.key + idx} className={`py-3 px-3 text-sm text-foreground ${col.className || ""}`}>
                       {row[col.key]}
                     </td>
                   ))}
@@ -290,7 +296,7 @@ const DataTable = ({
               ))
             ) : (
               <tr>
-                <td colSpan={columns.length} className="py-8 text-center text-sm text-neutral-500">
+                <td colSpan={columns.length} className="py-8 text-center text-sm text-muted">
                   {t("labels.noRecordsFound")}
                 </td>
               </tr>
@@ -304,6 +310,8 @@ const DataTable = ({
 
 export const InventoryDashboardReport = () => {
   const {t} = useTranslation("reports");
+  const nivoTheme = useNivoTheme();
+  const primary = cssVarRgb("--primary", "0 70 254");
   const db = useDB();
   const queryRef = useRef(db);
   const [loading, setLoading] = useState(true);
@@ -738,9 +746,9 @@ export const InventoryDashboardReport = () => {
               title={t("labels.adjustments")}
               value={formatNumber(totals?.adjustmentQty ?? 0)}
               gradientClass="from-neutral-100 to-neutral-200"
-              borderColor="border-neutral-300"
-              textColor="text-neutral-900"
-              labelColor="text-neutral-700"
+              borderColor="border-border"
+              textColor="text-foreground"
+              labelColor="text-foreground"
             />
             <KPIMetricWidget
               title={t("labels.stockValue")}
@@ -830,19 +838,19 @@ export const InventoryDashboardReport = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.itemName")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.issued")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.consumed")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.variance")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.uom")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.itemName")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.issued")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.consumed")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.variance")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.uom")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-sm text-neutral-500">{t("common:actions.loading")}</td>
+                    <td colSpan={5} className="py-8 text-center text-sm text-muted">{t("common:actions.loading")}</td>
                   </tr>
                 ) : (compare?.rows.length ?? 0) > 0 ? (
                   compare!.rows.map((row) => (
@@ -850,24 +858,24 @@ export const InventoryDashboardReport = () => {
                       key={row.itemId}
                       className={
                         row.variance > 0.01
-                          ? "bg-warning-50/40"
+                          ? "bg-warning/10/40"
                           : row.variance < -0.01
-                            ? "bg-danger-50/40"
+                            ? "bg-danger/10/40"
                             : ""
                       }
                     >
-                      <td className="py-3 px-3 text-sm font-medium text-neutral-900">{row.name}</td>
+                      <td className="py-3 px-3 text-sm font-medium text-foreground">{row.name}</td>
                       <td className="py-3 px-3 text-sm text-right">{formatNumber(row.issuedQty)}</td>
                       <td className="py-3 px-3 text-sm text-right">{formatNumber(row.consumedQty)}</td>
-                      <td className={`py-3 px-3 text-sm text-right font-semibold ${row.variance > 0 ? "text-warning-700" : row.variance < 0 ? "text-danger-700" : "text-neutral-700"}`}>
+                      <td className={`py-3 px-3 text-sm text-right font-semibold ${row.variance > 0 ? "text-warning-700" : row.variance < 0 ? "text-danger-700" : "text-foreground"}`}>
                         {formatNumber(row.variance)}
                       </td>
-                      <td className="py-3 px-3 text-sm text-neutral-600">{row.uom || "-"}</td>
+                      <td className="py-3 px-3 text-sm text-muted">{row.uom || "-"}</td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-sm text-neutral-500">{t("labels.noRecordsFound")}</td>
+                    <td colSpan={5} className="py-8 text-center text-sm text-muted">{t("labels.noRecordsFound")}</td>
                   </tr>
                 )}
               </tbody>
@@ -946,7 +954,7 @@ export const InventoryDashboardReport = () => {
             />
           </div>
           {(today?.salesTrendPercent != null || today?.consumptionTrendPercent != null) && (
-            <p className="mt-4 text-sm text-neutral-600">
+            <p className="mt-4 text-sm text-muted">
               {t("labels.todayTrendDetail", {
                 salesPct: today?.salesTrendPercent != null ? formatNumber(today.salesTrendPercent) : "—",
                 consumptionPct: today?.consumptionTrendPercent != null ? formatNumber(today.consumptionTrendPercent) : "—",
@@ -1001,20 +1009,20 @@ export const InventoryDashboardReport = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.itemName")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.onHand")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.todayConsumed")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.projectedNeed")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.shortfall")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.uom")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.itemName")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.onHand")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.todayConsumed")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.projectedNeed")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.shortfall")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.uom")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
                 {(needed?.rows.length ?? 0) > 0 ? (
                   needed!.rows.map((row) => (
-                    <tr key={row.itemId} className={row.shortfall > 0.001 ? "bg-danger-50/50" : ""}>
+                    <tr key={row.itemId} className={row.shortfall > 0.001 ? "bg-danger/10/50" : ""}>
                       <td className="py-3 px-3 text-sm font-medium">{row.name}</td>
                       <td className="py-3 px-3 text-sm text-right">{formatNumber(row.onHand)}</td>
                       <td className="py-3 px-3 text-sm text-right">{formatNumber(row.todayConsumed)}</td>
@@ -1027,7 +1035,7 @@ export const InventoryDashboardReport = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">{t("labels.noRecordsFound")}</td>
+                    <td colSpan={6} className="py-8 text-center text-sm text-muted">{t("labels.noRecordsFound")}</td>
                   </tr>
                 )}
               </tbody>
@@ -1048,20 +1056,21 @@ export const InventoryDashboardReport = () => {
                   xScale={{type: "point"}}
                   yScale={{type: "linear", min: 0, max: "auto"}}
                   curve="monotoneX"
-                  colors={["#0046FE"]}
+                  colors={[primary]}
                   enableArea
                   areaOpacity={0.08}
                   pointSize={5}
                   useMesh
                   axisBottom={{tickRotation: -45}}
+                  theme={nivoTheme}
                 />
               ) : (
-                <div className="h-full flex items-center justify-center text-sm text-neutral-500">
+                <div className="h-full flex items-center justify-center text-sm text-muted">
                   {t("labels.insufficientForecastData")}
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2 justify-center text-sm text-neutral-600">
+            <div className="flex flex-col gap-2 justify-center text-sm text-muted">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-primary-600" />
                 <span>{t("labels.forecastBasedOnSales")}</span>
@@ -1074,14 +1083,14 @@ export const InventoryDashboardReport = () => {
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.itemName")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.onHand")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.avgDailyConsumption")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.daysOfCover")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.stockoutInDays")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.suggestedReorder")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.itemName")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.onHand")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.avgDailyConsumption")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.daysOfCover")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.stockoutInDays")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.suggestedReorder")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
@@ -1091,16 +1100,16 @@ export const InventoryDashboardReport = () => {
                       key={row.itemId}
                       className={
                         row.daysOfCover != null && row.daysOfCover <= 3
-                          ? "bg-danger-50/50"
+                          ? "bg-danger/10/50"
                           : row.daysOfCover != null && row.daysOfCover <= 7
-                            ? "bg-warning-50/40"
+                            ? "bg-warning/10/40"
                             : ""
                       }
                     >
                       <td className="py-3 px-3 text-sm font-medium">
                         {row.name}
                         {row.insufficientData ? (
-                          <span className="ml-2 text-xs text-neutral-500">({t("labels.insufficientData")})</span>
+                          <span className="ml-2 text-xs text-muted">({t("labels.insufficientData")})</span>
                         ) : null}
                       </td>
                       <td className="py-3 px-3 text-sm text-right">{formatNumber(row.onHand)}</td>
@@ -1118,7 +1127,7 @@ export const InventoryDashboardReport = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">
+                    <td colSpan={6} className="py-8 text-center text-sm text-muted">
                       {t("labels.insufficientForecastData")}
                     </td>
                   </tr>
@@ -1130,21 +1139,21 @@ export const InventoryDashboardReport = () => {
 
         <OperationsLineChart data={chartData} isLoading={loading} />
 
-        <div className="bg-white p-5 rounded-lg shadow-xl border">
+        <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
           <div className="flex items-center gap-2 mb-4">
             <div className="p-3 rounded-full bg-primary-100">
               <Package className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-neutral-700">{t("inventory:tabs.locations")}</h2>
-              <p className="text-xs text-neutral-500">{t("labels.stockByLocationHelp")}</p>
+              <h2 className="text-xl font-bold text-foreground">{t("inventory:tabs.locations")}</h2>
+              <p className="text-xs text-muted">{t("labels.stockByLocationHelp")}</p>
             </div>
           </div>
           <Tabs className="w-full" defaultSelectedKey={locationStock[0]?.locationName || ""}>
             <TabList aria-label="Location tabs" className="flex flex-row gap-3 mb-4 flex-wrap">
               {locationStock.map((location) => (
                 <Tab
-                  activeClass="bg-neutral-900 text-warning-500"
+                  activeClass="bg-neutral-900 text-warning"
                   id={location.locationName}
                   key={location.locationName}
                   className="whitespace-nowrap"
@@ -1156,25 +1165,25 @@ export const InventoryDashboardReport = () => {
             {locationStock.map((location) => (
               <TabPanel id={location.locationName} key={location.locationName}>
                 <table className="table">
-                  <thead className="bg-neutral-50">
+                  <thead className="bg-surface">
                     <tr>
-                      <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.itemName")}</th>
-                      <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.code")}</th>
-                      <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("columns.quantity")}</th>
-                      <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-600 uppercase">{t("labels.value")}</th>
-                      <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase">{t("columns.uom")}</th>
-                      <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase">{t("labels.reorder")}</th>
+                      <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.itemName")}</th>
+                      <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.code")}</th>
+                      <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("columns.quantity")}</th>
+                      <th className="py-3 px-3 text-right text-xs font-semibold text-muted uppercase">{t("labels.value")}</th>
+                      <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase">{t("columns.uom")}</th>
+                      <th className="py-3 pr-4 text-left text-xs font-semibold text-muted uppercase">{t("labels.reorder")}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 bg-white">
+                  <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                     {location.items.length > 0 ? (
                       location.items.map((item) => (
-                        <tr key={item.id} className={item.belowReorder ? "bg-danger-50/40" : "hover:bg-neutral-50"}>
-                          <td className="py-3 pl-4 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-600 font-mono">{item.code}</td>
+                        <tr key={item.id} className={item.belowReorder ? "bg-danger/10/40" : "hover:bg-surface"}>
+                          <td className="py-3 pl-4 pr-3 text-sm font-medium text-foreground">{item.name}</td>
+                          <td className="py-3 px-3 text-sm text-muted font-mono">{item.code}</td>
                           <td className="py-3 px-3 text-right text-sm font-semibold">{formatNumber(item.quantity)}</td>
                           <td className="py-3 px-3 text-right text-sm">{withCurrency(item.value)}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-600">{item.uom || "-"}</td>
+                          <td className="py-3 px-3 text-sm text-muted">{item.uom || "-"}</td>
                           <td className="py-3 pr-4 text-sm">
                             {item.belowReorder ? (
                               <span className="text-danger-600 font-semibold">{t("labels.belowReorder")}</span>
@@ -1188,7 +1197,7 @@ export const InventoryDashboardReport = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">
+                        <td colSpan={6} className="py-8 text-center text-sm text-muted">
                           {t("labels.noStockForLocation")}
                         </td>
                       </tr>
@@ -1198,7 +1207,7 @@ export const InventoryDashboardReport = () => {
               </TabPanel>
             ))}
             {locationStock.length === 0 && (
-              <div className="py-12 text-center text-sm text-neutral-500">{t("labels.noLocationStock")}</div>
+              <div className="py-12 text-center text-sm text-muted">{t("labels.noLocationStock")}</div>
             )}
           </Tabs>
         </div>

@@ -201,10 +201,10 @@ export const DeliveryBannersSection = () => {
   return (
     <div className="border-t pt-4 mt-6">
       <h3 className="text-lg font-semibold mb-1">{t("settings.banners.title")}</h3>
-      <p className="text-sm text-neutral-600 mb-4">{t("settings.banners.description")}</p>
+      <p className="text-sm text-muted mb-4">{t("settings.banners.description")}</p>
 
       {loading ? (
-        <div className="text-center py-6 text-neutral-500">{t("settings.loading")}</div>
+        <div className="text-center py-6 text-muted">{t("settings.loading")}</div>
       ) : (
         <>
           <div className="mb-4">
@@ -214,7 +214,7 @@ export const DeliveryBannersSection = () => {
               accept="image/*"
               multiple
               onChange={handleFileChange}
-              className="block w-full text-sm text-neutral-700
+              className="block w-full text-sm text-foreground
                          file:mr-4 file:py-2 file:px-4
                          file:rounded-full file:border-0
                          file:text-sm file:font-semibold
@@ -224,13 +224,13 @@ export const DeliveryBannersSection = () => {
           </div>
 
           {!hasBanners ? (
-            <div className="text-sm text-neutral-500 py-4">{t("settings.banners.noBanners")}</div>
+            <div className="text-sm text-muted py-4">{t("settings.banners.noBanners")}</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-4">
               {existingBanners.map((banner) => (
                 <div
                   key={banner.id}
-                  className="relative group rounded-lg overflow-hidden border border-neutral-300 bg-neutral-100 aspect-video"
+                  className="relative group rounded-lg overflow-hidden border border-border bg-surface aspect-video"
                 >
                   <img
                     src={banner.previewUrl}
@@ -253,7 +253,7 @@ export const DeliveryBannersSection = () => {
               {pendingBanners.map((banner) => (
                 <div
                   key={banner.id}
-                  className="relative group rounded-lg overflow-hidden border border-primary-300 bg-primary-50 aspect-video"
+                  className="relative group rounded-lg overflow-hidden border border-primary-300 bg-primary/10 aspect-video"
                 >
                   <img
                     src={banner.previewUrl}

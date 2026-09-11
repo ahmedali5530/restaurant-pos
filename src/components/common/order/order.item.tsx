@@ -23,7 +23,7 @@ export const OrderItemName = ({
   const lineTotal = unitPrice * (item.quantity || 1);
 
   return (
-    <div className="hover:bg-neutral-200 flex-1">
+    <div className="hover:bg-surface dark:bg-neutral-700 flex-1">
       <div className="pl-x flex text-lg gap-1" style={{
         '--padding': (item.level * 0.875) + 'rem'
       } as any}>

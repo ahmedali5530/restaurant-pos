@@ -86,7 +86,7 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
 
   return (
     <>
-      <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="rounded-xl border border-border bg-surface-elevated p-4">
         <h3 className="mb-3 text-lg font-semibold">{t("kitchenReconciliation.revisionHistory")}</h3>
         <ul className="max-h-48 space-y-1 overflow-y-auto text-sm">
           {revisions.map((rev) => {
@@ -97,14 +97,14 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
                 <button
                   type="button"
                   onClick={() => setSelected(rev)}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left transition hover:border-neutral-200 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left transition hover:border-border hover:bg-surface focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <span>
                     <span className="font-medium capitalize">{changeTypeLabel(rev.change_type)}</span>
                     {" · "}
                     {userLabel(rev)}
                   </span>
-                  <span className="shrink-0 text-neutral-500">{label}</span>
+                  <span className="shrink-0 text-muted">{label}</span>
                 </button>
               </li>
             );
@@ -129,11 +129,11 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
           <div className="space-y-5">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <div>
-                <div className="text-sm text-neutral-500">{t("kitchenReconciliation.changedBy")}</div>
+                <div className="text-sm text-muted">{t("kitchenReconciliation.changedBy")}</div>
                 <div className="font-medium">{userLabel(selected)}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("kitchenReconciliation.changedAt")}</div>
+                <div className="text-sm text-muted">{t("kitchenReconciliation.changedAt")}</div>
                 <div className="font-medium">
                   {DateTime.fromJSDate(toJsDate(selected.changed_at)).toLocaleString(
                     DateTime.DATETIME_MED
@@ -141,7 +141,7 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
                 </div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("kitchenReconciliation.changeType")}</div>
+                <div className="text-sm text-muted">{t("kitchenReconciliation.changeType")}</div>
                 <div className="font-medium capitalize">{changeTypeLabel(selected.change_type)}</div>
               </div>
             </div>
@@ -149,21 +149,21 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
             {(selected.snapshot_before || selected.snapshot_after) && (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {selected.snapshot_before && (
-                  <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                    <div className="mb-2 text-sm font-medium text-neutral-600">
+                  <div className="rounded-lg border border-border bg-surface p-3">
+                    <div className="mb-2 text-sm font-medium text-muted">
                       {t("kitchenReconciliation.snapshotBefore")}
                     </div>
-                    <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-neutral-700">
+                    <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-foreground">
                       {JSON.stringify(selected.snapshot_before, null, 2)}
                     </pre>
                   </div>
                 )}
                 {selected.snapshot_after && (
-                  <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3">
-                    <div className="mb-2 text-sm font-medium text-neutral-600">
+                  <div className="rounded-lg border border-border bg-surface p-3">
+                    <div className="mb-2 text-sm font-medium text-muted">
                       {t("kitchenReconciliation.snapshotAfter")}
                     </div>
-                    <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-neutral-700">
+                    <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-foreground">
                       {JSON.stringify(selected.snapshot_after, null, 2)}
                     </pre>
                   </div>
@@ -174,11 +174,11 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
             <div>
               <h4 className="mb-2 font-semibold">{t("kitchenReconciliation.fieldChanges")}</h4>
               {fieldChanges.length === 0 ? (
-                <p className="text-sm text-neutral-500">{t("kitchenReconciliation.noFieldChanges")}</p>
+                <p className="text-sm text-muted">{t("kitchenReconciliation.noFieldChanges")}</p>
               ) : (
-                <div className="max-h-[50vh] overflow-auto rounded-lg border border-neutral-200">
+                <div className="max-h-[50vh] overflow-auto rounded-lg border border-border">
                   <table className="w-full text-sm">
-                    <thead className="sticky top-0 bg-neutral-50 text-left">
+                    <thead className="sticky top-0 bg-surface text-left">
                       <tr>
                         <th className="px-3 py-2">{t("kitchenReconciliation.revisionItem")}</th>
                         <th className="px-3 py-2">{t("kitchenReconciliation.revisionField")}</th>
@@ -188,10 +188,10 @@ export const RevisionHistory = ({revisions, items = []}: Props) => {
                     </thead>
                     <tbody>
                       {fieldChanges.map((change, index) => (
-                        <tr key={`${change.item_id ?? ""}-${change.field}-${index}`} className="border-t border-neutral-100">
+                        <tr key={`${change.item_id ?? ""}-${change.field}-${index}`} className="border-t border-border">
                           <td className="px-3 py-2">{itemLabel(change.item_id)}</td>
                           <td className="px-3 py-2">{fieldLabel(change.field)}</td>
-                          <td className="px-3 py-2 text-neutral-600">{formatCellValue(change.old)}</td>
+                          <td className="px-3 py-2 text-muted">{formatCellValue(change.old)}</td>
                           <td className="px-3 py-2 font-medium">{formatCellValue(change.new)}</td>
                         </tr>
                       ))}

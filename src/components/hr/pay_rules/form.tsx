@@ -436,13 +436,13 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
           </div>
         </div>
 
-        <fieldset className="border border-neutral-300 rounded-lg p-3 flex flex-col gap-3">
+        <fieldset className="border border-border rounded-lg p-3 flex flex-col gap-3">
           <legend className="px-1 text-sm font-semibold">{t("forms.payRule.effects")}</legend>
           {errors.effects?.message && (
             <p className="text-sm text-danger-600">{String(errors.effects.message)}</p>
           )}
           {fields.map((field, index) => (
-            <div key={field.id} className="flex flex-wrap gap-3 items-end border-b border-neutral-100 pb-3">
+            <div key={field.id} className="flex flex-wrap gap-3 items-end border-b border-border pb-3">
               <div className="min-w-[160px] flex-1">
                 <HrStringSelectField
                   label={t("forms.payRule.effectType")}
@@ -491,7 +491,7 @@ export const PayRuleForm = ({open, onClose, data}: Props) => {
           </Button>
         </fieldset>
 
-        <fieldset className="border border-neutral-300 rounded-lg p-3 flex flex-col gap-3">
+        <fieldset className="border border-border rounded-lg p-3 flex flex-col gap-3">
           <legend className="px-1 text-sm font-semibold">{t("forms.payRule.conditions")}</legend>
 
           <HrFormField label={t("forms.schedule.department")}>

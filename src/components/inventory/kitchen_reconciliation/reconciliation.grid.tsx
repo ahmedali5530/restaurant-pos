@@ -175,7 +175,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
 
   if (fields.length === 0) {
     return (
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center text-neutral-600">
+      <div className="rounded-lg border border-border bg-surface p-8 text-center text-muted">
         {t("kitchenReconciliation.noItems")}
       </div>
     );
@@ -193,12 +193,12 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           >
             {t("kitchenReconciliation.saveDraft")}
           </Button>
-          <p className="text-xs text-neutral-500">{t("kitchenReconciliation.keyboardHint")}</p>
+          <p className="text-xs text-muted">{t("kitchenReconciliation.keyboardHint")}</p>
         </div>
       )}
-      <KeyboardGrid className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+      <KeyboardGrid className="overflow-x-auto rounded-xl border border-border bg-surface-elevated">
       <table className="w-full text-sm">
-        <thead className="bg-neutral-50 text-left">
+        <thead className="bg-surface text-left">
           <tr>
             <th className="px-3 py-2">{t("columns.name")}</th>
             <th className="px-3 py-2">{t("columns.code")}</th>
@@ -220,7 +220,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           {fields.map((field, index) => {
             const row = rows?.[index];
             return (
-              <tr key={field.id} className="border-t border-neutral-100">
+              <tr key={field.id} className="border-t border-border">
                 <td className="px-3 py-2 whitespace-nowrap">{row?.itemName}</td>
                 <td className="px-3 py-2">{row?.itemCode ?? "—"}</td>
                 <td className="px-3 py-2">{formatNumber(row?.openingStock ?? 0)}</td>

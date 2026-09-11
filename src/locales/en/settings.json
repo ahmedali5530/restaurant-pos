@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Appearance",
+    "description": "Choose light, dark, or follow this device’s system setting. Only applies to this device.",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "brandTitle": "Brand colors",
+    "brandDescription": "Pick a color pack for this device. Shell, buttons, selects, and charts update immediately.",
+    "brand": {
+      "classic": "Classic",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "cream": "Cream",
+      "ruby": "Ruby",
+      "sapphire": "Sapphire"
+    }
+  },
   "touch": {
     "title": "On screen keyboard",
     "description": "Enable or disable on screen keyboard. Only applies to this device."

@@ -74,7 +74,7 @@ export const InventoryDocumentPrintPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100 p-4 print:bg-white print:p-0">
+    <div className="min-h-screen bg-surface p-4 print:bg-white print:p-0">
       <DocumentTitle
         parts={[doc ? `${doc.docType} #${doc.invoiceNumber}` : t("print.previewTitle", {docType: type, number: id})]}
       />
@@ -100,7 +100,7 @@ export const InventoryDocumentPrintPage = () => {
       `}</style>
 
       <div className="mx-auto max-w-4xl flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-neutral-100 py-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-surface py-2">
           <Button
             variant="primary"
             size="sm"
@@ -131,7 +131,7 @@ export const InventoryDocumentPrintPage = () => {
         </div>
 
         {loading && (
-          <div className="py-12 text-center text-neutral-500 print:hidden">
+          <div className="py-12 text-center text-muted print:hidden">
             {t("common:actions.loading", "Loading...")}
           </div>
         )}
@@ -141,7 +141,7 @@ export const InventoryDocumentPrintPage = () => {
         )}
 
         {doc && (
-          <div className="overflow-auto bg-neutral-200/60 p-4 print:bg-transparent print:p-0 print:overflow-visible">
+          <div className="overflow-auto bg-surface/60 dark:bg-neutral-700 p-4 print:bg-transparent print:p-0 print:overflow-visible">
             <div ref={documentRef}>
               <InventoryInvoice doc={doc} />
             </div>

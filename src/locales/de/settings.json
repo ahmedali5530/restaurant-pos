@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Darstellung",
+    "description": "Wählen Sie Hell, Dunkel oder die Systemeinstellung dieses Geräts. Gilt nur für dieses Gerät.",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System",
+    "brandTitle": "Markenfarben",
+    "brandDescription": "Wählen Sie ein Farbschema für dieses Gerät. Oberfläche, Schaltflächen, Auswahlfelder und Diagramme aktualisieren sich sofort.",
+    "brand": {
+      "classic": "Klassisch",
+      "ocean": "Ozean",
+      "forest": "Wald",
+      "cream": "Creme",
+      "ruby": "Rubin",
+      "sapphire": "Saphir"
+    }
+  },
   "touch": {
     "title": "Bildschirmtastatur",
     "description": "Bildschirmtastatur aktivieren oder deaktivieren. Gilt nur für dieses Gerät."

@@ -236,7 +236,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
         <div className="space-y-6">
           {/* Navigation Buttons */}
           {deliveryOrders.length > 1 && (
-            <div className="flex justify-between items-center pb-3 border-b border-neutral-200">
+            <div className="flex justify-between items-center pb-3 border-b border-border">
               <Button
                 variant="primary"
                 onClick={handlePrevious}
@@ -245,7 +245,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
               >
                 Previous
               </Button>
-              <span className="text-sm text-neutral-600">
+              <span className="text-sm text-muted">
               Order {currentIndex + 1} of {deliveryOrders.length}
             </span>
               <Button
@@ -260,7 +260,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           )}
 
           {/* Action Buttons - Moved to Top */}
-          <div className="flex gap-3 justify-end pb-4 border-b border-neutral-200">
+          <div className="flex gap-3 justify-end pb-4 border-b border-border">
             {order.status === OrderStatus.Pending && (
               <>
                 <DeleteConfirm
@@ -318,9 +318,9 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 <span>Select Rider</span>
               </h3>
               {loadingRiders ? (
-                <p className="text-sm text-neutral-600">Loading riders...</p>
+                <p className="text-sm text-muted">Loading riders...</p>
               ) : riders.length === 0 ? (
-                <p className="text-sm text-neutral-600">No riders available</p>
+                <p className="text-sm text-muted">No riders available</p>
               ) : (
                 <>
                   <div className="grid grid-cols-4 gap-2 mb-4">
@@ -365,7 +365,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                     {delivery.rider.first_name} {delivery.rider.last_name}
                   </p>
                   {delivery.rider.login && (
-                    <p className="text-sm text-neutral-500">{delivery.rider.login}</p>
+                    <p className="text-sm text-muted">{delivery.rider.login}</p>
                   )}
                 </div>
               </div>
@@ -391,24 +391,24 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
 
           {/* Customer Information */}
           {customer && (
-            <div className="bg-gray-200 p-4 rounded-lg border-2 border-gray-300">
+            <div className="bg-surface p-4 rounded-lg border-2 border-border">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                 <span>{t('order.customerInformation')}</span>
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium text-neutral-600">{t('common:actions.name')}</label>
+                  <label className="text-sm font-medium text-muted">{t('common:actions.name')}</label>
                   <p className="text-base">{customer.name}</p>
                 </div>
                 {customer.phone && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Phone</label>
+                    <label className="text-sm font-medium text-muted">Phone</label>
                     <p className="text-base"><a href={`tel:${customer.phone}`}>{customer.phone}</a></p>
                   </div>
                 )}
                 {customer.email && (
                   <div>
-                    <label className="text-sm font-medium text-neutral-600">Email</label>
+                    <label className="text-sm font-medium text-muted">Email</label>
                     <p className="text-base"><a href={`mailto:${customer.email}`}>{customer.email}</a></p>
                   </div>
                 )}
@@ -417,7 +417,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           )}
 
           {/* Delivery Address Section */}
-          <div className="bg-primary-100 p-4 rounded-lg border-2 border-primary-200">
+          <div className="bg-primary-100 p-4 rounded-lg border-2 border-primary/40">
             <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
               <FontAwesomeIcon icon={faMapMarkerAlt} className="text-primary-600"/>
               <span>{t('order.deliveryAddress')}</span>
@@ -430,21 +430,21 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
               ) : customer?.address ? (
                 <p className="text-base font-medium">{customer.address}</p>
               ) : (
-                <p className="text-base text-neutral-500 italic">No delivery address provided</p>
+                <p className="text-base text-muted italic">No delivery address provided</p>
               )}
               {(delivery?.lat && delivery?.lng) && (
-                <div className="mt-2 pt-2 border-t border-primary-200">
-                  <label className="text-sm font-medium text-neutral-600 flex items-center gap-2">
+                <div className="mt-2 pt-2 border-t border-primary/40">
+                  <label className="text-sm font-medium text-muted flex items-center gap-2">
                     <span>Coordinates</span>
-                    <span className="text-xs text-neutral-500">({delivery.lat}, {delivery.lng})</span>
+                    <span className="text-xs text-muted">({delivery.lat}, {delivery.lng})</span>
                   </label>
                 </div>
               )}
               {(customer?.lat && customer?.lng && !delivery?.lat) && (
-                <div className="mt-2 pt-2 border-t border-primary-200">
+                <div className="mt-2 pt-2 border-t border-primary/40">
                   <label className="text-sm font-medium text-primary-600 flex items-center gap-2">
                     <span>Coordinates</span>
-                    <span className="text-xs text-neutral-500">({customer.lat}, {customer.lng})</span>
+                    <span className="text-xs text-muted">({customer.lat}, {customer.lng})</span>
                   </label>
                 </div>
               )}
@@ -456,11 +456,11 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
             <h3 className="text-lg font-semibold mb-3">Order Details</h3>
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-neutral-600">Status:</span>
+                <span className="text-sm font-medium text-muted">Status:</span>
                 <span className="text-base font-semibold">{order.status}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-neutral-600">Created:</span>
+                <span className="text-sm font-medium text-muted">Created:</span>
                 <span className="text-base">
                 {toLuxonDateTime(order.created_at).toFormat("yyyy-MM-dd hh:mm a")}
               </span>

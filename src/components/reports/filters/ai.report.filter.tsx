@@ -79,7 +79,7 @@ export const AiReportFilter = () => {
 
   return (
     <div className="flex flex-col gap-3 items-start w-full">
-      <label className="text-sm text-gray-600 w-full">
+      <label className="text-sm text-muted w-full form-label">
         {t("filters.prompt")}
         <Textarea
           className="mt-1 min-h-40 w-full"
@@ -109,7 +109,7 @@ export const AiReportFilter = () => {
           {t("filters.run")}
         </Button>
         {usageLabel && (
-          <span className="text-sm text-gray-500">{usageLabel}</span>
+          <span className="text-sm text-muted">{usageLabel}</span>
         )}
         {usage && !usage.enabled && (
           <span className="text-sm text-danger-600">{t("filters.aiDisabled")}</span>

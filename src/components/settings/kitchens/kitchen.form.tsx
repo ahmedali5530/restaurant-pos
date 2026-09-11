@@ -187,7 +187,7 @@ export const KitchenForm = ({
               </div>
               <Controller
                 render={({ field }) => (
-                  <div className="mt-2 rounded border border-neutral-300 p-3 max-h-96 overflow-auto">
+                  <div className="mt-2 rounded border border-border p-3 max-h-96 overflow-auto">
                     {(() => {
                       const searchTerm = dishSearch.trim().toLowerCase();
                       const selectedItems = Array.isArray(field.value) ? field.value : [];
@@ -268,7 +268,7 @@ export const KitchenForm = ({
 
                       if (!categories.length) {
                         return (
-                          <p className="text-neutral-500">
+                          <p className="text-muted">
                             {searchTerm ? t('forms.noDishesMatch') : t('forms.noDishesFound')}
                           </p>
                         );
@@ -282,11 +282,11 @@ export const KitchenForm = ({
                             const isAllSelected = categoryDishIds.length > 0 && selectedCount === categoryDishIds.length;
 
                             return (
-                              <div key={category.id} className="rounded border border-neutral-200">
+                              <div key={category.id} className="rounded border border-border">
                                 <button
                                   type="button"
                                   onClick={() => toggleCategory(category.dishes)}
-                                  className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-neutral-100"
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-surface"
                                 >
                                   <Checkbox
                                     checked={isAllSelected}

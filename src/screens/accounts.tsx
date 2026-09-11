@@ -78,7 +78,7 @@ export const AccountsScreen = () => {
             </TabList>
           </ScrollContainer>
           {Object.keys(pages).map((key) => (
-            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+            <TabPanel id={key} key={key} className="bg-surface-elevated shadow flex-grow flex-shrink-0">
               <div data-testid={`accounts-panel-${key}`}>
                 {pages[key].component}
               </div>

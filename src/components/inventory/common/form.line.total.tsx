@@ -15,11 +15,11 @@ const LineTotalDisplay = ({total, className}: DisplayProps) => {
     <div
       className={
         className ??
-        "mt-3 flex items-center justify-end gap-2 border-t border-neutral-200 pt-3 text-sm"
+        "mt-3 flex items-center justify-end gap-2 border-t border-border pt-3 text-sm"
       }
     >
-      <span className="text-neutral-600">{t("totals.lineTotal")}</span>
-      <span className="font-semibold text-neutral-900">{withCurrency(total)}</span>
+      <span className="text-muted">{t("totals.lineTotal")}</span>
+      <span className="font-semibold text-foreground">{withCurrency(total)}</span>
     </div>
   );
 };

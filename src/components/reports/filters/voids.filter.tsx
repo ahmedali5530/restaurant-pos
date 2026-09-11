@@ -49,7 +49,7 @@ export const VoidsFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-reasons">Reasons</label>
+          <label htmlFor="voids-reasons" className="form-label">Reasons</label>
           <ReactSelect
             id="voids-reasons"
             name="reasons[]"
@@ -60,7 +60,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-managers">Managers</label>
+          <label htmlFor="voids-managers" className="form-label">Managers</label>
           <ReactSelect
             id="voids-managers"
             name="managers[]"
@@ -76,7 +76,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-cashiers">{t('metrics.cashiers')}</label>
+          <label htmlFor="voids-cashiers" className="form-label">{t('metrics.cashiers')}</label>
           <ReactSelect
             id="voids-cashiers"
             name="cashiers[]"
@@ -92,7 +92,7 @@ export const VoidsFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="voids-menu-items">{t('filters.menuItems')}</label>
+          <label htmlFor="voids-menu-items" className="form-label">{t('filters.menuItems')}</label>
           <ReactSelect
             id="voids-menu-items"
             name="menu_items[]"

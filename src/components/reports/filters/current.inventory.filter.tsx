@@ -44,7 +44,7 @@ export const CurrentInventoryFilter = () => {
       target="_blank"
     >
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="current-inventory-items">{t('labels.inventoryItems')}</label>
+        <label htmlFor="current-inventory-items" className="form-label">{t('labels.inventoryItems')}</label>
         <ReactSelect
           id="current-inventory-items"
           name="items[]"

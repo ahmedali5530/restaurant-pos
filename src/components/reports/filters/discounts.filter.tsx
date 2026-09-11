@@ -28,7 +28,7 @@ export const DiscountsFilter = () => {
     >
       <DateRange isRequired label={t('filters.selectRange')} />
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="discount-filter-discount">{t('reports.discount')}</label>
+        <label htmlFor="discount-filter-discount" className="form-label">{t('reports.discount')}</label>
         <ReactSelect
           id="discount-filter-discount"
           name="discount_id"

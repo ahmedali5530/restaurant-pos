@@ -145,7 +145,7 @@ export const DataImportUploadStep = ({
         tabIndex={0}
         role="button"
         className={cn(
-          "rounded-xl border-2 border-dashed border-neutral-300 bg-neutral-50 px-6 py-10 text-center transition-colors outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
+          "rounded-xl border-2 border-dashed border-border bg-surface px-6 py-10 text-center transition-colors outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
           dragging && "border-primary bg-primary/5",
           disabled && "opacity-60 pointer-events-none"
         )}
@@ -163,17 +163,17 @@ export const DataImportUploadStep = ({
           handlePasteEvent(e.nativeEvent);
         }}
       >
-        <FontAwesomeIcon icon={faUpload} className="text-2xl text-neutral-500 mb-3" />
-        <p className="text-neutral-800 font-medium mb-1">
+        <FontAwesomeIcon icon={faUpload} className="text-2xl text-muted mb-3" />
+        <p className="text-foreground font-medium mb-1">
           {t("dataImport.dropOrBrowse")}
         </p>
-        <p className="text-sm text-neutral-500 mb-2">
+        <p className="text-sm text-muted mb-2">
           {t("dataImport.acceptedTypes")}
         </p>
-        <p className="text-sm text-neutral-500 mb-4">
+        <p className="text-sm text-muted mb-4">
           {t("dataImport.pasteHint")}
         </p>
-        <p className="text-xs text-neutral-400 mb-4">
+        <p className="text-xs text-muted mb-4">
           {t("dataImport.maxSize", {max: formatFileSize(MAX_IMPORT_UPLOAD_BYTES)})}
         </p>
         <label className="btn btn-primary inline-flex cursor-pointer">

@@ -496,7 +496,7 @@ const OrderPaymentReceivingContent = ({
 
   return (
     <div className="grid grid-cols-2 gap-5 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-receiving">
-      <div className="bg-white rounded-xl h-full" data-testid="payment-tender-panel">
+      <div className="bg-surface-elevated rounded-xl h-full" data-testid="payment-tender-panel">
         <div className="mb-3 text-5xl p-5 text-center " data-testid="payment-tendered">
           {withCurrency(tendered)}
         </div>
@@ -542,7 +542,7 @@ const OrderPaymentReceivingContent = ({
               >{withCurrency(item)}</span>
             ))}
           </ScrollContainer>
-          {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-neutral-100/50 h-[48px]"></div>}*/}
+          {/*{!isCash && <div className="payment-disabled absolute w-full z-10 top-0 bg-surface/50 h-[48px]"></div>}*/}
         </div>
 
         <ScrollContainer className="gap-5 flex overflow-x-auto mb-5" data-testid="payment-types">
@@ -657,7 +657,7 @@ const OrderPaymentReceivingContent = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2 p-3 bg-white rounded-xl h-full" data-testid="payment-lines">
+      <div className="flex flex-col gap-2 p-3 bg-surface-elevated rounded-xl h-full" data-testid="payment-lines">
         <RemotePaymentPendingSlot/>
         {payments.map(payment => (
           <div

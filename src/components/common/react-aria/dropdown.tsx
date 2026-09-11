@@ -33,7 +33,7 @@ export function Dropdown<T extends object>(
         iconButton={btnIconButton}
         data-testid={testId}
       >{label}</Button>
-      <Popover className="bg-white p-1 shadow-xl rounded-lg border">
+      <Popover className="bg-surface-elevated text-foreground p-1 shadow-xl rounded-lg border border-border">
         <Menu {...menuProps}>
           {children}
         </Menu>
@@ -52,11 +52,11 @@ export function DropdownItem(props: MenuItemProps & {isActive?: boolean}) {
       isDisabled={props.isDisabled}
       className={({ isFocused, isOpen }) => {
         return cn(
-          'cursor-pointer text-center bg-white p-3 rounded-lg',
+          'cursor-pointer text-center bg-surface-elevated p-3 rounded-lg',
           isFocused ? 'focused' : '',
           isOpen ? 'open' : '',
-          props.isDisabled ? 'text-neutral-400' : 'hover:bg-neutral-900 hover:text-warning-500',
-          props.isActive ? 'bg-neutral-900 text-warning-500' : '',
+          props.isDisabled ? 'text-muted' : 'hover:bg-neutral-900 hover:text-warning dark:hover:bg-neutral-700',
+          props.isActive ? 'bg-neutral-900 text-warning dark:bg-neutral-700' : '',
           props.className
         )
       }}
@@ -77,6 +77,6 @@ export function DropdownItem(props: MenuItemProps & {isActive?: boolean}) {
 
 export function DropdownSeparator(){
   return (
-    <Separator className="bg-gray-300 h-[1px] mx-3 my-1" />
+    <Separator className="bg-border h-[1px] mx-3 my-1" />
   );
 }

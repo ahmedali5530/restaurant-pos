@@ -112,11 +112,11 @@ export const ReceiptSectionEditor = ({control, name, label}: Props) => {
       </div>
 
       {fields.length === 0 && (
-        <p className="text-sm text-neutral-500">{t('forms.noReceiptSections')}</p>
+        <p className="text-sm text-muted">{t('forms.noReceiptSections')}</p>
       )}
 
       {fields.map((field, index) => (
-        <div key={field.id} className="border border-neutral-200 rounded-lg p-3 flex flex-col gap-3">
+        <div key={field.id} className="border border-border rounded-lg p-3 flex flex-col gap-3">
           <div className="flex flex-wrap items-end gap-3">
             <Controller
               name={`${name}.${index}.enabled`}
@@ -198,7 +198,7 @@ export const ReceiptSectionEditor = ({control, name, label}: Props) => {
                             <img
                               src={preview}
                               alt={t('forms.sectionImagePreview')}
-                              className="max-h-20 max-w-full object-contain border border-neutral-300 rounded p-2"
+                              className="max-h-20 max-w-full object-contain border border-border rounded p-2"
                             />
                             <button
                               type="button"

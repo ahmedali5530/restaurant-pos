@@ -308,18 +308,18 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
 
         <div className="grid grid-cols-5 gap-4 mt-4">
           <div className="col-span-2">
-            <label className="block mb-2 text-sm font-medium text-gray-900">{t('upload.attachDocuments')}</label>
+            <label className="block mb-2 text-sm font-medium text-foreground">{t('upload.attachDocuments')}</label>
             <input
               type="file"
               multiple
               {...register("documents")}
-              className="w-full px-3 py-2 border border-neutral-400 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm"
             />
           </div>
         </div>
 
-        <div className="mt-6 bg-white border rounded-lg">
-          <div className="grid grid-cols-12 gap-3 p-3 border-b font-semibold text-gray-600">
+        <div className="mt-6 bg-surface-elevated border rounded-lg">
+          <div className="grid grid-cols-12 gap-3 p-3 border-b font-semibold text-muted">
             <div className="col-span-4">{t('reports.account')}</div>
             <div className="col-span-2">{t('columns.debit')}</div>
             <div className="col-span-2">{t('columns.credit')}</div>
@@ -435,7 +435,7 @@ export const CreateJournalEntry: FC<CreateJournalEntryProps> = ({addModal, accou
           </div>
         </div>
 
-        <div className="mt-5 p-4 bg-gray-100 rounded-lg flex justify-between items-center">
+        <div className="mt-5 p-4 bg-surface rounded-lg flex justify-between items-center">
           <div className="text-sm">
             <span className="mr-4">{t('reports.debitTotal')}: <strong>{debitTotal.toFixed(2)}</strong></span>
             <span>{t('reports.creditTotal')}: <strong>{creditTotal.toFixed(2)}</strong></span>

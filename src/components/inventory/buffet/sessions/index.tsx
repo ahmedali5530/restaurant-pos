@@ -35,7 +35,7 @@ export const BuffetSessions = () => {
       case "closing":
         return "bg-warning-100 text-warning-800";
       default:
-        return "bg-neutral-100";
+        return "bg-surface";
     }
   };
 

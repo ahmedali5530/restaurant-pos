@@ -56,7 +56,7 @@ export const OrderHeader = ({
               <FontAwesomeIcon icon={faPrint} />
             </span>
           )}
-          <span className="text-lg font-bold bg-neutral-200 px-2 rounded">{order?.user?.first_name}</span>
+          <span className="text-lg font-bold bg-surface dark:bg-neutral-700 px-2 rounded">{order?.user?.first_name}</span>
         </div>
         {order?.customer && (
           <>

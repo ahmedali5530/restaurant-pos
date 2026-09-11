@@ -244,7 +244,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
               label={t(baseRateLabelKey(payType))}
                   error={typeof errors.base_rate?.message === "string" ? errors.base_rate.message : undefined}
             />
-            <p className="text-xs text-neutral-500 mt-1">{t(baseRateHelpKey(payType))}</p>
+            <p className="text-xs text-muted mt-1">{t(baseRateHelpKey(payType))}</p>
           </div>
           {showWorkDays && (
             <>
@@ -257,7 +257,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
                   label={t("forms.payProfile.expectedWorkDays")}
                   error={typeof errors.expected_work_days?.message === "string" ? errors.expected_work_days.message : undefined}
                 />
-                <p className="text-xs text-neutral-500 mt-1">{t("forms.payProfile.expectedWorkDaysHelp")}</p>
+                <p className="text-xs text-muted mt-1">{t("forms.payProfile.expectedWorkDaysHelp")}</p>
               </div>
               <HrFormField label={t("forms.payProfile.workWeekdays")}>
                 <div className="flex flex-wrap gap-3">
@@ -270,7 +270,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
                     />
                   ))}
                 </div>
-                <p className="text-xs text-neutral-500 mt-1">{t("forms.payProfile.workWeekdaysHelp")}</p>
+                <p className="text-xs text-muted mt-1">{t("forms.payProfile.workWeekdaysHelp")}</p>
               </HrFormField>
             </>
           )}

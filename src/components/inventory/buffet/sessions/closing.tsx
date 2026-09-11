@@ -137,7 +137,7 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
             {t("buffet.backToDashboard")}
           </Button>
           <h2 className="text-2xl font-semibold mt-3">{t("buffet.closingTitle")}</h2>
-          <p className="text-neutral-600">{session?.session_number}</p>
+          <p className="text-muted">{session?.session_number}</p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" isLoading={busy} onClick={handleSave}>
@@ -157,20 +157,20 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
 
       {summary && (
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-neutral-50 rounded-lg p-4">
-            <div className="text-sm text-neutral-500">{t("buffet.totalFoodCost")}</div>
+          <div className="bg-surface rounded-lg p-4">
+            <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
             <div className="text-xl font-semibold">{formatNumber(summary.totalFoodCost)}</div>
           </div>
-          <div className="bg-neutral-50 rounded-lg p-4">
-            <div className="text-sm text-neutral-500">{t("buffet.costPerGuest")}</div>
+          <div className="bg-surface rounded-lg p-4">
+            <div className="text-sm text-muted">{t("buffet.costPerGuest")}</div>
             <div className="text-xl font-semibold">{formatNumber(summary.costPerGuest)}</div>
           </div>
-          <div className="bg-neutral-50 rounded-lg p-4">
-            <div className="text-sm text-neutral-500">{t("buffet.wastePercent")}</div>
+          <div className="bg-surface rounded-lg p-4">
+            <div className="text-sm text-muted">{t("buffet.wastePercent")}</div>
             <div className="text-xl font-semibold">{summary.wastePercent}%</div>
           </div>
-          <div className="bg-neutral-50 rounded-lg p-4">
-            <div className="text-sm text-neutral-500">{t("buffet.profit")}</div>
+          <div className="bg-surface rounded-lg p-4">
+            <div className="text-sm text-muted">{t("buffet.profit")}</div>
             <div className={classNames("text-xl font-semibold", summary.profit >= 0 ? "text-success-700" : "text-danger-700")}>
               {formatNumber(summary.profit)}
             </div>
@@ -179,7 +179,7 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
       )}
 
       <KeyboardGrid>
-      <table className="table table-sm bg-white w-full">
+      <table className="table table-sm bg-surface-elevated w-full">
         <thead>
           <tr>
             <th>{t("buttons.item")}</th>

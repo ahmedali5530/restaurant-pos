@@ -201,7 +201,7 @@ export const TipDistributionScreen = () => {
     <Layout containerClassName="p-5 flex flex-col gap-5">
       <DocumentTitle parts={[tNav('sidebar.tipDist')]} />
       <div data-testid="tip-distribution-page" className="flex flex-col gap-5">
-      <div className="bg-white rounded-xl shadow p-4 grid grid-cols-3 gap-4 items-end" data-testid="tip-distribution-filters">
+      <div className="bg-surface-elevated rounded-xl shadow p-4 grid grid-cols-3 gap-4 items-end" data-testid="tip-distribution-filters">
         <div>
           <label>{t("summary:tipDistribution.shift")}</label>
           <ReactSelect
@@ -229,7 +229,7 @@ export const TipDistributionScreen = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow p-4" data-testid="tip-distribution-table">
+      <div className="bg-surface-elevated rounded-xl shadow p-4" data-testid="tip-distribution-table">
         <div className="mb-3 text-lg font-semibold">{t("summary:tipDistribution.totalTips", {amount: withCurrency(totalTips)})}</div>
         <table className="table-auto w-full border-collapse">
           <thead>
@@ -243,7 +243,7 @@ export const TipDistributionScreen = () => {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-4 text-neutral-500">{t("summary:tipDistribution.empty")}</td>
+                <td colSpan={4} className="py-4 text-muted">{t("summary:tipDistribution.empty")}</td>
               </tr>
             ) : (
               rows.map((row) => (

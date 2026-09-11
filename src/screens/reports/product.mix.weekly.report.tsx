@@ -264,7 +264,7 @@ export const ProductMixWeeklyReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.productMixWeekly')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.productMixWeekly')}</div>
       </ReportsLayout>
     );
   }
@@ -280,67 +280,67 @@ export const ProductMixWeeklyReport = () => {
   return (
     <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-          <thead className="bg-neutral-50">
+        <table className="min-w-full divide-y divide-neutral-200 border border-border">
+          <thead className="bg-surface">
             <tr>
-              <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+              <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground border-r border-border">
                 Order Taker
               </th>
               {dayHeaders.map(({day, dateLabel}) => (
-                <th key={day} colSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+                <th key={day} colSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-foreground border-r border-border">
                   <div>{day}</div>
-                  <div className="text-xs text-neutral-500 font-normal">{dateLabel}</div>
+                  <div className="text-xs text-muted font-normal">{dateLabel}</div>
                 </th>
               ))}
-              <th colSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-neutral-700">
+              <th colSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-foreground">
                 Weekly Total
               </th>
             </tr>
             <tr>
               {dayHeaders.flatMap(({day}) => [
-                <th key={`${day}-qty`} className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
+                <th key={`${day}-qty`} className="py-2 px-3 text-center text-xs font-semibold text-muted bg-surface border-r border-border">
                   Qty
                 </th>,
-                <th key={`${day}-total`} className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
+                <th key={`${day}-total`} className="py-2 px-3 text-center text-xs font-semibold text-muted bg-surface border-r border-border">
                   Total
                 </th>
               ])}
-              <th className="py-2 px-3 text-center text-xs font-semibold text-neutral-600 bg-neutral-50 border-r border-neutral-200">
+              <th className="py-2 px-3 text-center text-xs font-semibold text-muted bg-surface border-r border-border">
                 Qty
               </th>
-              <th className="py-2 pr-6 text-center text-xs font-semibold text-neutral-600 bg-neutral-50">
+              <th className="py-2 pr-6 text-center text-xs font-semibold text-muted bg-surface">
                 Total
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {orderTakerMetrics.map((metrics) => (
-              <tr key={metrics.userId} className="hover:bg-neutral-50">
-                <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900 border-r border-neutral-200">
+              <tr key={metrics.userId} className="hover:bg-surface">
+                <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground border-r border-border">
                   {metrics.userName}
                 </td>
                 {dayHeaders.flatMap(({dateKey}) => {
                   const dayMetrics = metrics.days[dateKey] || {quantity: 0, total: 0};
                   return [
-                    <td key={`${dateKey}-qty`} className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                    <td key={`${dateKey}-qty`} className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                       {formatNumber(dayMetrics.quantity)}
                     </td>,
-                    <td key={`${dateKey}-total`} className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                    <td key={`${dateKey}-total`} className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                       {withCurrency(dayMetrics.total)}
                     </td>
                   ];
                 })}
-                <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900 border-r border-neutral-200">
+                <td className="py-3 px-3 text-right text-sm font-semibold text-foreground border-r border-border">
                   {formatNumber(metrics.weeklyTotal.quantity)}
                 </td>
-                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                   {withCurrency(metrics.weeklyTotal.total)}
                 </td>
               </tr>
             ))}
             {orderTakerMetrics.length === 0 && (
               <tr>
-                <td colSpan={dayHeaders.length * 2 + 3} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={dayHeaders.length * 2 + 3} className="py-6 text-center text-sm text-muted">
                   No data available for the selected filters
                 </td>
               </tr>

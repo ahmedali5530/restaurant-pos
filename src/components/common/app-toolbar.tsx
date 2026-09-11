@@ -96,10 +96,10 @@ function SyncConflictPanel({ onChanged }: { onChanged: () => void }) {
 
   return (
     <div
-      className="absolute bottom-full right-0 mb-2 w-[min(100vw-1rem,28rem)] max-h-[40vh] overflow-y-auto rounded-lg border border-danger-200 bg-white text-neutral-800 shadow-lg text-sm"
+      className="absolute bottom-full right-0 mb-2 w-[min(100vw-1rem,28rem)] max-h-[40vh] overflow-y-auto rounded-lg border border-danger-200 bg-surface-elevated text-foreground shadow-lg text-sm"
       data-testid="sync-conflict-panel"
     >
-      <div className="flex items-start gap-3 px-4 py-2 text-xs text-neutral-600 border-b border-neutral-100">
+      <div className="flex items-start gap-3 px-4 py-2 text-xs text-muted border-b border-border">
         <div className="flex-1 min-w-0 pt-0.5">{t("common:offline.conflictsHint")}</div>
         <button
           type="button"
@@ -121,11 +121,11 @@ function SyncConflictPanel({ onChanged }: { onChanged: () => void }) {
             <div className="flex-1 min-w-0">
               <div className="font-semibold truncate">
                 {t("common:offline.conflictOrder", { id: shortId(conflict.aggregateId) })}
-                <span className="ml-2 font-normal text-neutral-500">
+                <span className="ml-2 font-normal text-muted">
                   {conflict.operationType} · {conflict.code}
                 </span>
               </div>
-              <div className="text-xs text-neutral-500 truncate" title={conflict.message}>
+              <div className="text-xs text-muted truncate" title={conflict.message}>
                 {conflict.message}
               </div>
             </div>
@@ -141,7 +141,7 @@ function SyncConflictPanel({ onChanged }: { onChanged: () => void }) {
               type="button"
               disabled={panelBusy}
               onClick={() => void act(conflict.operationId, "discard")}
-              className="px-3 py-1 rounded border border-danger-500 text-danger-700 text-xs font-bold hover:bg-danger-50 disabled:opacity-50"
+              className="px-3 py-1 rounded border border-danger-500 text-danger-700 text-xs font-bold hover:bg-danger/10 disabled:opacity-50"
             >
               {t("common:offline.discardOp")}
             </button>
@@ -220,7 +220,7 @@ export function AppToolbar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-end gap-3 border-t border-neutral-200 bg-white px-4"
+      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-end gap-3 border-t border-border bg-surface-elevated px-4"
       data-testid="app-toolbar"
       style={{ height: APP_TOOLBAR_HEIGHT }}
     >
@@ -236,7 +236,7 @@ export function AppToolbar() {
           data-testid="sync-status-dot"
           data-sync-kind={kind}
           onClick={onDotClick}
-          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-neutral-100"
+          className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-surface"
         >
           <span
             className={cn(
@@ -244,7 +244,7 @@ export function AppToolbar() {
               kind === "offline" || kind === "conflict"
                 ? "bg-danger-500"
                 : kind === "syncing" || kind === "pending"
-                  ? "bg-warning-500"
+                  ? "bg-warning"
                   : "bg-success-500",
               kind === "syncing" && "animate-pulse",
             )}

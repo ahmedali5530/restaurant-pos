@@ -32,7 +32,7 @@ export const TimePicker = ({
 
   return (
     <div className="flex flex-col" data-react-aria-top-layer="true">
-      {label && <label>{label}</label>}
+      {label && <label className="form-label">{label}</label>}
       <AntTimePicker
         className="w-full app-ant-picker"
         value={selectedTime}

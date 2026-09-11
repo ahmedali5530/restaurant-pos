@@ -37,7 +37,7 @@ export const Slider = ({
               style={{ width: state.getThumbPercent(0) * 100 + '%' }}
             />
             <SliderThumb
-              className="h-5 w-5 top-[50%] rounded-full border border-neutral-800/75 transition dragging:bg-neutral-100 outline-none bg-neutral-500"/>
+              className="h-5 w-5 top-[50%] rounded-full border border-border/75 transition dragging:bg-surface outline-none bg-neutral-500"/>
           </>
         )}
       </SliderTrack>

@@ -123,7 +123,7 @@ export const AdminDiscounts = () => {
   return (
     <>
       <Tabs selectedKey={tab} onSelectionChange={key => setTab(String(key))}>
-        <TabList className="flex gap-3 p-3 bg-white border-b border-neutral-200" data-testid="admin-discounts-tabs">
+        <TabList className="flex gap-3 p-3 bg-surface-elevated border-b border-border" data-testid="admin-discounts-tabs">
           <Tab id="rules" data-testid="admin-discounts-tab-rules">{t('discountEngine.tabs.rules')}</Tab>
           <Tab id="reasons" data-testid="admin-discounts-tab-reasons">{t('discountEngine.tabs.reasons')}</Tab>
           <Tab id="permissions" data-testid="admin-discounts-tab-permissions">{t('discountEngine.tabs.permissions')}</Tab>

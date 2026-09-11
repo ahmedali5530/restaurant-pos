@@ -121,19 +121,19 @@ export const MenusSettings = () => {
   };
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-menus">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-menus">
       <h2 className="text-xl font-semibold mb-1">{t('settings:menus.title')}</h2>
-      <p className="text-sm text-neutral-500 mb-4"></p>
+      <p className="text-sm text-muted mb-4"></p>
 
       {loading ? (
-        <div className="text-center py-6 text-neutral-500">{t('settings:menus.loading')}</div>
+        <div className="text-center py-6 text-muted">{t('settings:menus.loading')}</div>
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
           description: t('settings:menus.saveDescription'),
           module: 'settings.menus'
         })} className="flex flex-col gap-4 max-w-xl">
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:menus.activateMenus')}</label>
+            <label className="form-label">{t('settings:menus.activateMenus')}</label>
             <Controller
               name="menus"
               control={control}

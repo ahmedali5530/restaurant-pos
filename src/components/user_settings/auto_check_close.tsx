@@ -120,9 +120,9 @@ export const AutoCheckCloseSettingsCard = () => {
   }, [settings, paymentTypeOptions, reset]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-auto-check-close">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-auto-check-close">
       <h2 className="text-xl font-semibold mb-1">{t('settings:autoCheckClose.title')}</h2>
-      <p className="text-sm text-neutral-500 mb-5">
+      <p className="text-sm text-muted mb-5">
         {t('settings:autoCheckClose.description')}
       </p>
       <form
@@ -156,7 +156,7 @@ export const AutoCheckCloseSettingsCard = () => {
             rules={{ required: enabled ? t('settings:autoCheckClose.paymentTypeRequiredField') : false }}
             render={({ field }) => (
               <div>
-                <label>{t('settings:autoCheckClose.paymentType')}</label>
+                <label className="form-label">{t('settings:autoCheckClose.paymentType')}</label>
                 <ReactSelect
                   options={paymentTypeOptions}
                   value={field.value}

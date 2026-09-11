@@ -160,11 +160,11 @@ export const OrderPaymentDiscountEngine = ({
             {automaticLines.map((line, idx) => (
               <div
                 key={`auto:${line.discountId}:${idx}`}
-                className="flex justify-between items-center text-neutral-600"
+                className="flex justify-between items-center text-muted"
               >
                 <div className="flex flex-col gap-0.5">
                   <span>{line.name}</span>
-                  <span className="text-xs text-neutral-500">{t('discount.automaticBadge')}</span>
+                  <span className="text-xs text-muted">{t('discount.automaticBadge')}</span>
                 </div>
                 <span>{withCurrency(line.appliedAmount)}</span>
               </div>

@@ -73,25 +73,25 @@ export const BuffetReport = () => {
       {!loading && !error && (
         <>
       <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-sm text-neutral-500">{t("buffet.totalSales")}</div>
+        <div className="bg-surface-elevated rounded-lg p-4 shadow">
+          <div className="text-sm text-muted">{t("buffet.totalSales")}</div>
           <div className="text-xl font-semibold">{formatNumber(totals.sales)}</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-sm text-neutral-500">{t("buffet.totalFoodCost")}</div>
+        <div className="bg-surface-elevated rounded-lg p-4 shadow">
+          <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
           <div className="text-xl font-semibold">{formatNumber(totals.foodCost)}</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-sm text-neutral-500">{t("buffet.profit")}</div>
+        <div className="bg-surface-elevated rounded-lg p-4 shadow">
+          <div className="text-sm text-muted">{t("buffet.profit")}</div>
           <div className="text-xl font-semibold">{formatNumber(totals.profit)}</div>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow">
-          <div className="text-sm text-neutral-500">{t("buffet.totalGuests")}</div>
+        <div className="bg-surface-elevated rounded-lg p-4 shadow">
+          <div className="text-sm text-muted">{t("buffet.totalGuests")}</div>
           <div className="text-xl font-semibold">{totals.guests}</div>
         </div>
       </div>
 
-      <table className="table table-sm bg-white w-full">
+      <table className="table table-sm bg-surface-elevated w-full">
         <thead>
           <tr>
             <th>{t("buffet.sessionNumber")}</th>

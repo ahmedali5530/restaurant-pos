@@ -92,9 +92,9 @@ export const AutoClockOutSettingsCard = () => {
   }, [reset, settings]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-auto-clock-out">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-auto-clock-out">
       <h2 className="text-xl font-semibold mb-1">{t('settings:autoClockOut.title')}</h2>
-      <p className="text-sm text-neutral-500 mb-5">
+      <p className="settings-card-desc mb-5">
         {t('settings:autoClockOut.description')}
       </p>
       <form
@@ -139,12 +139,15 @@ export const AutoClockOutSettingsCard = () => {
               </Switch>
             )}
           />
-          <TimeField
-            name="defined_time"
-            control={control}
-            label={t('settings:autoClockOut.definedTime')}
-            className={!enabled || !onDefinedTime ? 'opacity-50 pointer-events-none' : ''}
-          />
+          <div>
+            <label className="form-label">{t('settings:autoClockOut.definedTime')}</label>
+            <div className={!enabled || !onDefinedTime ? 'opacity-50 pointer-events-none' : ''}>
+              <TimeField
+                name="defined_time"
+                control={control}
+              />
+            </div>
+          </div>
         </div>
         <button className="btn btn-primary" type="submit">
           {t('common:actions.save')}

@@ -98,34 +98,34 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
           <h2 className="text-2xl font-semibold mt-3">
             {session.session_number} — {session.menu?.name}
           </h2>
-          <p className="text-neutral-600">
+          <p className="text-muted">
             {session.business_date} · {t(`buffet.sessionTypes.${session.session_type}`)} · {session.location?.name}
           </p>
         </div>
         <span className={classNames("tag text-sm", {
           "bg-info-100 text-info-800": session.status === "in_progress",
           "bg-success-100 text-success-800": session.status === "closed",
-          "bg-neutral-100": !["in_progress", "closed"].includes(session.status),
+          "bg-surface": !["in_progress", "closed"].includes(session.status),
         })}>
           {t(`buffet.statuses.${session.status}`)}
         </span>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="text-sm text-neutral-500">{t("buffet.expectedGuests")}</div>
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-muted">{t("buffet.expectedGuests")}</div>
           <div className="text-2xl font-semibold">{session.expected_guests}</div>
         </div>
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="text-sm text-neutral-500">{t("buffet.actualGuests")}</div>
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-muted">{t("buffet.actualGuests")}</div>
           <div className="text-2xl font-semibold">{session.actual_guests}</div>
         </div>
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="text-sm text-neutral-500">{t("buffet.buffetPrice")}</div>
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-muted">{t("buffet.buffetPrice")}</div>
           <div className="text-2xl font-semibold">{formatNumber(session.buffet_price)}</div>
         </div>
-        <div className="bg-neutral-50 rounded-lg p-4">
-          <div className="text-sm text-neutral-500">{t("buffet.projectedSales")}</div>
+        <div className="bg-surface rounded-lg p-4">
+          <div className="text-sm text-muted">{t("buffet.projectedSales")}</div>
           <div className="text-2xl font-semibold">
             {formatNumber((session.actual_guests || session.expected_guests) * session.buffet_price)}
           </div>
@@ -240,7 +240,7 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
 
       <div>
         <h3 className="text-lg font-semibold mb-3">{t("buffet.productionStatus")}</h3>
-        <table className="table table-sm bg-white w-full">
+        <table className="table table-sm bg-surface-elevated w-full">
           <thead>
             <tr>
               <th>{t("production.recipe")}</th>
@@ -252,7 +252,7 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
           <tbody>
             {productionRows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center text-neutral-500 py-4">
+                <td colSpan={4} className="text-center text-muted py-4">
                   {t("buffet.noProductionPlan")}
                 </td>
               </tr>
@@ -273,7 +273,7 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
       {(session.snapshots?.length ?? 0) > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-3">{t("buffet.stockSnapshots")}</h3>
-          <table className="table table-sm bg-white w-full">
+          <table className="table table-sm bg-surface-elevated w-full">
             <thead>
               <tr>
                 <th>{t("buttons.item")}</th>

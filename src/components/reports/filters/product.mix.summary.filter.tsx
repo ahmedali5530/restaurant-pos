@@ -64,7 +64,7 @@ export const ProductMixSummaryFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-order-takers">{t('filters.orderTakers')}</label>
+          <label htmlFor="product-mix-summary-order-takers" className="form-label">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="product-mix-summary-order-takers"
             name="order_takers[]"
@@ -80,7 +80,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-order-types">{t('filters.orderTypes')}</label>
+          <label htmlFor="product-mix-summary-order-types" className="form-label">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="product-mix-summary-order-types"
             name="order_types[]"
@@ -94,7 +94,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-categories">{t('filters.categories')}</label>
+          <label htmlFor="product-mix-summary-categories" className="form-label">{t('filters.categories')}</label>
           <ReactSelect
             id="product-mix-summary-categories"
             name="categories[]"
@@ -108,7 +108,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-menu-items">{t('filters.menuItems')}</label>
+          <label htmlFor="product-mix-summary-menu-items" className="form-label">{t('filters.menuItems')}</label>
           <ReactSelect
             id="product-mix-summary-menu-items"
             name="menu_items[]"
@@ -122,7 +122,7 @@ export const ProductMixSummaryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-summary-modifiers">{t('filters.modifiers')}</label>
+          <label htmlFor="product-mix-summary-modifiers" className="form-label">{t('filters.modifiers')}</label>
           <ReactSelect
             id="product-mix-summary-modifiers"
             name="modifiers[]"

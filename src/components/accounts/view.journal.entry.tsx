@@ -62,39 +62,39 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-300 border-t-primary-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
         </div>
       )}
 
       {!loading && viewEntry && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 flex flex-col gap-3">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="text-lg font-semibold">
                 {t('forms.journalEntry')} #{viewEntry.entry_number}
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-muted">
                 {viewEntry.date ? toJsDate(viewEntry.date).toLocaleString() : "—"}
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-neutral-700">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-foreground">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.module')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.module')}</div>
                 <div>{viewEntry.source_module ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.sourceId')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.sourceId')}</div>
                 <div>{viewEntry.source_id ?? "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewEntry.created_by?.first_name} {viewEntry?.created_by?.last_name}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.status')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.status')}</div>
                 <div className={
                   viewEntry.status === 'posted' ? "text-success-600 font-medium"
-                    : viewEntry.status === 'reversed' ? "text-neutral-500 font-medium"
+                    : viewEntry.status === 'reversed' ? "text-muted font-medium"
                       : "text-warning-600 font-medium"
                 }>
                   {viewEntry.status === 'posted' ? t('status.posted')
@@ -103,20 +103,20 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                 </div>
               </div>
               <div className="md:col-span-4">
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.memo')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.memo')}</div>
                 <div>{viewEntry.memo || "—"}</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow border border-neutral-200">
-            <div className="text-sm font-semibold text-neutral-800 p-4 border-b border-neutral-200">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border">
+            <div className="text-sm font-semibold text-foreground p-4 border-b border-border">
               {t('tabs.lines')}
             </div>
             {viewEntry.lines && viewEntry.lines.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                  <thead className="bg-neutral-50 text-neutral-500 uppercase text-xs">
+                  <thead className="bg-surface text-muted uppercase text-xs">
                     <tr>
                       <th className="px-4 py-2">{t('reports.account')}</th>
                       <th className="px-4 py-2">{t('reports.description')}</th>
@@ -127,10 +127,10 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                   <tbody className="divide-y divide-neutral-200">
                     {viewEntry.lines.map((line: any) => (
                       <tr key={line.id}>
-                        <td className="px-4 py-3 font-medium text-neutral-800">
+                        <td className="px-4 py-3 font-medium text-foreground">
                           {line.account?.code} - {line.account?.name}
                         </td>
-                        <td className="px-4 py-3 text-neutral-600">
+                        <td className="px-4 py-3 text-muted">
                           {line.description || "—"}
                         </td>
                         <td className="px-4 py-3 text-right">
@@ -142,7 +142,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                       </tr>
                     ))}
                   </tbody>
-                  <tfoot className="bg-neutral-50 font-semibold">
+                  <tfoot className="bg-surface font-semibold">
                     <tr>
                       <td colSpan={2} className="px-4 py-3 text-right">{t('reports.total')}</td>
                       <td className="px-4 py-3 text-right">{formatMoney(debitTotal)}</td>
@@ -152,16 +152,16 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                 </table>
               </div>
             ) : (
-              <div className="p-4 text-sm text-neutral-500">
+              <div className="p-4 text-sm text-muted">
                 {t('messages.noJournalLines')}
               </div>
             )}
           </div>
 
           {viewEntry.documents && viewEntry.documents.length > 0 && (
-            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
+            <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
+                <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                   <FontAwesomeIcon icon={faFile}/>
                   <span>{t('upload.documents')}</span>
                 </div>
@@ -170,17 +170,17 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                 {viewEntry.documents.map((doc: any, index: number) => (
                   <div
                     key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-neutral-200 bg-neutral-50"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
                         <FontAwesomeIcon icon={faFile}/>
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-neutral-800 truncate">
+                        <span className="text-sm font-medium text-foreground truncate">
                           {doc.name ?? t('upload.documentN', {n: index + 1})}
                         </span>
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-xs text-muted">
                           {doc.mimeType ?? t('upload.file')}
                         </span>
                       </div>

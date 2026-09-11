@@ -21,7 +21,7 @@ export const OrderPaymentNotes = ({
   return (
     <div className="flex flex-col h-full" data-testid="payment-panel-notes">
       <h5 className="text-3xl">{t('notes.title')}</h5>
-      <p className="text-neutral-500">{t('notes.hint')}</p>
+      <p className="text-muted">{t('notes.hint')}</p>
       <Textarea
         value={notes}
         onChange={(e) => setNotes(e.currentTarget.value)}

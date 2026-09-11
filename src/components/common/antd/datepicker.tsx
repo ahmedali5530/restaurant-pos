@@ -28,7 +28,7 @@ export const DatePicker = ({
 
   return (
     <div className="flex flex-col" data-react-aria-top-layer="true">
-      {label && <label>{label}</label>}
+      {label && <label className="form-label">{label}</label>}
       <AntDatePicker
         className="w-full app-ant-picker"
         value={selectedDate}

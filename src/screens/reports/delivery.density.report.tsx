@@ -311,7 +311,7 @@ export const DeliveryDensityReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.deliveryDensity')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.deliveryDensity')}</div>
       </ReportsLayout>
     );
   }
@@ -327,10 +327,10 @@ export const DeliveryDensityReport = () => {
   return (
     <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
       <div className="space-y-8">
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <div className="bg-neutral-100 px-6 py-3 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-neutral-700">Order Density Map</h3>
-            <span className="text-xs text-neutral-600">
+        <div className="overflow-hidden rounded-lg border border-border">
+          <div className="bg-surface px-6 py-3 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Order Density Map</h3>
+            <span className="text-xs text-muted">
               {formatNumber(filteredOrders.length)} orders • {formatNumber(locationCount)} locations
             </span>
           </div>
@@ -349,58 +349,58 @@ export const DeliveryDensityReport = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <div className="bg-neutral-100 px-6 py-3">
-            <h3 className="text-sm font-semibold text-neutral-700">{t('categories.orders')}</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <div className="bg-surface px-6 py-3">
+            <h3 className="text-sm font-semibold text-foreground">{t('categories.orders')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200 table-hover">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.status')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Area</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Address</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.invoice')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.status')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Area</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Address</th>
                 {filters.showMenuItems && (
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.menuItems')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.menuItems')}</th>
                 )}
                 {filters.showDetails && (
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.lineTotal')}</th>
                 )}
-                <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Paid Amount</th>
+                <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">Paid Amount</th>
               </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {filteredOrders.map(order => {
                 const orderDate = toLuxonDateTime(order.created_at);
                 const lineTotal = safeNumber((order.items ?? []).reduce((sum, item) => sum + calculateOrderItemPrice(item), 0));
                 const paidAmount = safeNumber((order.payments ?? []).reduce((sum, p) => sum + safeNumber(p.payable), 0));
                 return (
                   <tr key={String(order.id)}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
+                    <td className="py-3 pl-6 pr-3 text-sm text-foreground">
                       <div>{orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT)}</div>
-                      <div className="text-neutral-500">{orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT)}</div>
+                      <div className="text-muted">{orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT)}</div>
                     </td>
-                    <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-700">{order.status}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-700">{getAddressArea(order?.delivery?.address)}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-700">{order?.delivery?.address || "-"}</td>
+                    <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
+                    <td className="py-3 px-3 text-sm text-foreground">{order.status}</td>
+                    <td className="py-3 px-3 text-sm text-foreground">{getAddressArea(order?.delivery?.address)}</td>
+                    <td className="py-3 px-3 text-sm text-foreground">{order?.delivery?.address || "-"}</td>
                     {filters.showMenuItems && (
-                      <td className="py-3 px-3 text-sm text-neutral-700">
+                      <td className="py-3 px-3 text-sm text-foreground">
                         {(order.items ?? []).map(item => item.item?.name).filter(Boolean).join(", ") || "-"}
                       </td>
                     )}
                     {filters.showDetails && (
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(lineTotal)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(lineTotal)}</td>
                     )}
-                    <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(paidAmount)}</td>
+                    <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{withCurrency(paidAmount)}</td>
                   </tr>
                 );
               })}
               {filteredOrders.length === 0 && (
                 <tr>
-                  <td colSpan={filters.showMenuItems ? (filters.showDetails ? 8 : 7) : (filters.showDetails ? 7 : 6)} className="py-6 text-center text-sm text-neutral-500">
+                  <td colSpan={filters.showMenuItems ? (filters.showDetails ? 8 : 7) : (filters.showDetails ? 7 : 6)} className="py-6 text-center text-sm text-muted">
                     No delivery orders found for the selected filters.
                   </td>
                 </tr>

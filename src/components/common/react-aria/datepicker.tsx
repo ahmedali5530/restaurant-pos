@@ -30,7 +30,7 @@ export function DatePicker<T extends DateValue>({
     <>
       <BaseDatePicker className="group flex flex-col" {...props}>
         {label && <Label>{label}</Label>}
-        <Group className="flex rounded-lg text-neutral-500 border-2 border-neutral-900 h-[40px] gap-3">
+        <Group className="flex rounded-lg text-muted border-2 border-border h-[40px] gap-3">
           <DateInput className="flex flex-1 py-2 px-3">
             {(segment) => (
               <DateSegment
@@ -43,7 +43,7 @@ export function DatePicker<T extends DateValue>({
             <DatePickerClearButton/>
           )}
           <Button
-            className="outline-none px-3 flex items-center text-gray-700 transition border-0 border-solid border-l border-l-purple-200 bg-transparent rounded-r-lg pressed:bg-purple-100 focus-visible:ring-2 ring-black">
+            className="outline-none px-3 flex items-center text-foreground transition border-0 border-solid border-l border-l-purple-200 bg-transparent rounded-r-lg pressed:bg-purple-100 focus-visible:ring-2 ring-black">
             <FontAwesomeIcon icon={faCalendar} size="xs"/>
           </Button>
         </Group>

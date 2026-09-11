@@ -203,7 +203,7 @@ export const MenuDish = ({
         }}
       >
         <div
-          className="flex-1 bg-white w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-neutral-900 active:text-warning-500"
+          className="flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning"
           style={{
             '--padding': '0'
           } as any}
@@ -226,15 +226,15 @@ export const MenuDish = ({
                 </span>
               )}
               <span
-                className="bg-neutral-900 text-warning-500 rounded-full border-2 border-warning-500 py-1 px-3 text-sm font-bold">{withCurrency(price)}</span>
+                className="bg-neutral-900 text-warning rounded-full border-2 border-warning py-1 px-3 text-sm font-bold">{withCurrency(price)}</span>
             </span>
-            <h6 className="text-ellipsis line-clamp-2 flex-shrink flex-grow-0 text-pretty text-neutral-700"
+            <h6 className="text-ellipsis line-clamp-2 flex-shrink flex-grow-0 text-pretty text-foreground"
                 title={item.name}>
               {item.name}
             </h6>
           </div>
         </div>
-        <span className="absolute bottom-2 right-2 text-primary-500 text-xs font-bold">{dishCount(item)}</span>
+        <span className="absolute bottom-2 right-2 text-primary text-xs font-bold">{dishCount(item)}</span>
       </div>
 
       {modifierGroups.length > 0 && modifiersModal && (

@@ -37,7 +37,7 @@ export const CartItemName = ({ item, mainItem }: Omit<Props, "index">) => {
         <div className="italic text-sm">({item.comments})</div>
       )}
       {item?.selectedGroups?.map(group =>
-        <div className="border-[3px] border-l-warning-500 border-r-0 border-y-0 mb-2" key={group.out?.id}>
+        <div className="border-[3px] border-l-warning border-r-0 border-y-0 mb-2" key={group.out?.id}>
           {group?.selectedModifiers?.map(modifier => (
             <CartItemName key={modifier.id} item={modifier} mainItem={mainItem} />
           ))}

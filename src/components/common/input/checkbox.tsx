@@ -35,7 +35,7 @@ export const Checkbox = (props: InputProps) => {
           )
         }
       />
-      {label && <label htmlFor={id} className="font-bold cursor-pointer">{label}</label>}
+      {label && <label htmlFor={id} className="text-sm font-medium text-foreground cursor-pointer">{label}</label>}
     </div>
   );
 };

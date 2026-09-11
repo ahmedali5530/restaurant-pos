@@ -38,23 +38,23 @@ export const AiReportHistory = ({onSelect}: AiReportHistoryProps) => {
   };
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 print:hidden w-full">
+    <div className="rounded-lg border border-border bg-surface print:hidden w-full">
       <button
         type="button"
         onClick={handleToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-neutral-700"
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-foreground"
       >
         <span>{t("filters.aiHistory", {count: history.length})}</span>
-        <span className="text-neutral-400">{open ? "−" : "+"}</span>
+        <span className="text-muted">{open ? "−" : "+"}</span>
       </button>
       {open && (
-        <ul className="border-t border-neutral-200 px-4 py-3 space-y-2 max-h-48 overflow-y-auto">
+        <ul className="border-t border-border px-4 py-3 space-y-2 max-h-48 overflow-y-auto">
           {history.map(entry => (
             <li key={entry.savedAt} className="flex items-start gap-2">
               <button
                 type="button"
                 onClick={() => onSelect(entry)}
-                className="flex-1 text-left text-sm text-neutral-700 hover:text-primary-600 p-2 rounded-full border border-neutral-100"
+                className="flex-1 text-left text-sm text-foreground hover:text-primary-600 p-2 rounded-full border border-border"
               >
                 {entry.prompt}
               </button>

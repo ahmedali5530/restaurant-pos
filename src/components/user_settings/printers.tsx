@@ -231,13 +231,13 @@ export const Printersettings = () => {
   };
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-printers">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-printers">
       <h2 className="text-xl font-semibold mb-1">{t('settings:printers.title')}</h2>
-      <p className="text-sm text-neutral-500 mb-4">
+      <p className="text-sm text-muted mb-4">
         {t('settings:printers.description')}
       </p>
 
-      <div className="mb-6 pb-4 border-b border-neutral-200">
+      <div className="mb-6 pb-4 border-b border-border">
         <Switch
           checked={!!systemSettings.useSystemPrinters}
           onChange={(e) => {
@@ -249,20 +249,20 @@ export const Printersettings = () => {
         >
           {t('settings:printers.useSystemPrinters')}
         </Switch>
-        <p className="text-sm text-neutral-500 mt-2">
+        <p className="text-sm text-muted mt-2">
           {t('settings:printers.useSystemPrintersDescription')}
         </p>
       </div>
 
-      <div className="mb-6 pb-4 border-b border-neutral-200">
-        <h3 className="text-lg font-medium mb-1">{t('settings:printers.systemTitle')}</h3>
-        <p className="text-sm text-neutral-500 mb-4">
+      <div className="mb-6 pb-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground mb-1">{t('settings:printers.systemTitle')}</h3>
+        <p className="text-sm text-muted mb-4">
           {t('settings:printers.systemDescription')}
         </p>
         <div className="flex flex-col gap-4 max-w-xl">
           {SYSTEM_PRINTER_KEYS.map((key) => (
             <div key={key}>
-              <label className="block text-sm font-medium mb-1">{systemFieldLabels[key]}</label>
+              <label className="form-label">{systemFieldLabels[key]}</label>
               <ReactSelect<PrinterOption, true>
                 isMulti
                 value={idsToOptions(systemSettings[key] ?? [], printers)}
@@ -275,13 +275,13 @@ export const Printersettings = () => {
         </div>
       </div>
 
-      <h3 className="text-lg font-medium mb-1">{t('settings:printers.userTitle')}</h3>
-      <p className="text-sm text-neutral-500 mb-4">
+      <h3 className="text-lg font-semibold text-foreground mb-1">{t('settings:printers.userTitle')}</h3>
+      <p className="text-sm text-muted mb-4">
         {t('settings:printers.userDescription')}
       </p>
 
       {loading ? (
-        <div className="text-center py-6 text-neutral-500">{t('settings:printers.loading')}</div>
+        <div className="text-center py-6 text-muted">{t('settings:printers.loading')}</div>
       ) : (
         <form onSubmit={protectFormSubmit((handleSubmit(onSubmit)), {
           description: t('settings:printers.saveDescription'),
@@ -289,7 +289,7 @@ export const Printersettings = () => {
         })} className="flex flex-col gap-4 max-w-xl">
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:printers.tempPrint')}</label>
+            <label className="form-label">{t('settings:printers.tempPrint')}</label>
             <Controller
               name="temp_print_printers"
               control={control}
@@ -306,7 +306,7 @@ export const Printersettings = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:printers.finalPrint')}</label>
+            <label className="form-label">{t('settings:printers.finalPrint')}</label>
             <Controller
               name="final_print_printers"
               control={control}
@@ -323,7 +323,7 @@ export const Printersettings = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:printers.refundPrint')}</label>
+            <label className="form-label">{t('settings:printers.refundPrint')}</label>
             <Controller
               name="refund_print_printers"
               control={control}
@@ -340,7 +340,7 @@ export const Printersettings = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:printers.deliveryPrint')}</label>
+            <label className="form-label">{t('settings:printers.deliveryPrint')}</label>
             <Controller
               name="delivery_print_printers"
               control={control}
@@ -357,7 +357,7 @@ export const Printersettings = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">{t('settings:printers.summaryPrint')}</label>
+            <label className="form-label">{t('settings:printers.summaryPrint')}</label>
             <Controller
               name="summary_print_printers"
               control={control}

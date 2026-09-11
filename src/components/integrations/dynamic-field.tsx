@@ -184,7 +184,7 @@ const ImageField = ({ value, onChange, field }: DynamicFieldProps) => {
           <img
             src={preview}
             alt={field.label}
-            className="h-20 w-20 object-contain rounded border border-neutral-200 bg-white"
+            className="h-20 w-20 object-contain rounded border border-border bg-surface-elevated"
           />
           <Button type="button" variant="secondary" size="lg" onClick={() => onChange('')}>
             Remove
@@ -196,7 +196,7 @@ const ImageField = ({ value, onChange, field }: DynamicFieldProps) => {
           ref={inputRef}
           type="file"
           accept="image/*"
-          className="block w-full text-sm text-neutral-600 file:mr-3 file:rounded file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-neutral-200"
+          className="block w-full text-sm text-muted file:mr-3 file:rounded file:border-0 file:bg-surface file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-surface dark:bg-neutral-700"
           onChange={(event) => {
             const file = event.target.files?.[0];
             void onFile(file);

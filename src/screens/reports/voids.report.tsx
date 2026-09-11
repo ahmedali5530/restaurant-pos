@@ -266,7 +266,7 @@ export const VoidsReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.voids')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.voids')}</div>
       </ReportsLayout>
     );
   }
@@ -288,32 +288,32 @@ export const VoidsReport = () => {
         {/* Summary sections */}
         <div className="grid grid-cols-3 gap-4">
           {/* Voids by Reason */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Reason</h3>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Voids by Reason</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.reason')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {voidsByReason.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">
                         No voids by reason
                       </td>
                     </tr>
                   ) : (
                     voidsByReason.map((item) => (
                       <tr key={item.reason}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.reason}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.reason}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.quantity)}</td>
+                        <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                           {withCurrency(item.amount)}
                         </td>
                       </tr>
@@ -325,32 +325,32 @@ export const VoidsReport = () => {
           </div>
 
           {/* Voids by Managers */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Managers</h3>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Voids by Managers</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Manager</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {voidsByManager.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">
                         No voids by manager
                       </td>
                     </tr>
                   ) : (
                     voidsByManager.map((item) => (
                       <tr key={item.manager}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.manager}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.manager}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.quantity)}</td>
+                        <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                           {withCurrency(item.amount)}
                         </td>
                       </tr>
@@ -362,32 +362,32 @@ export const VoidsReport = () => {
           </div>
 
           {/* Voids by Menu Items */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids by Menu Items</h3>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Voids by Menu Items</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Menu Item</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {voidsByMenuItem.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">
                         No voids by menu item
                       </td>
                     </tr>
                   ) : (
                     voidsByMenuItem.map((item) => (
                       <tr key={item.menuItem}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.menuItem}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.menuItem}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.quantity)}</td>
+                        <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                           {withCurrency(item.amount)}
                         </td>
                       </tr>
@@ -400,28 +400,28 @@ export const VoidsReport = () => {
         </div>
 
         {/* Detailed voids table */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Voids Detail</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Voids Detail</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('common:actions.time')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.reason')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Menu Item</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.lineTotal')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Manager</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Order #</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('common:actions.time')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.reason')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Menu Item</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.lineTotal')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Manager</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('metrics.cashier')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Order #</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-foreground">{t('columns.comments')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {orderVoids.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={10} className="py-6 text-center text-sm text-muted">
                       No voids found for the selected filters
                     </td>
                   </tr>
@@ -442,10 +442,10 @@ export const VoidsReport = () => {
 
                     return (
                       <tr key={voidItem.id}>
-                        <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{timeStr}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{voidItem.reason}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">
+                        <td className="py-3 pl-6 pr-3 text-sm text-foreground">{dateStr}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{timeStr}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{voidItem.reason}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">
                           <div className="space-y-2">
                             {voidItems.length === 0 ? (
                               <div>{t('common:actions.unknown')}</div>
@@ -455,27 +455,27 @@ export const VoidsReport = () => {
                                 return (
                                   <div
                                     key={`${recordToString(voidItem.id)}-item-${itemIndex}`}
-                                    className="rounded-md border border-neutral-200 bg-neutral-50/60 px-2.5 py-2"
+                                    className="rounded-md border border-border bg-surface/60 px-2.5 py-2"
                                   >
-                                    <div className="font-semibold text-neutral-900">{item?.item?.name || 'Unknown'}</div>
+                                    <div className="font-semibold text-foreground">{item?.item?.name || 'Unknown'}</div>
                                     {modifiers.length > 0 ? (
                                       <div className="mt-1.5 space-y-1">
                                         {modifiers.map((modifier, modifierIndex) => (
                                           <div
                                             key={`${recordToString(voidItem.id)}-item-${itemIndex}-modifier-${modifierIndex}`}
-                                            className="flex items-center justify-between gap-2 rounded bg-white px-2 py-1 text-xs text-neutral-700 border border-neutral-200"
+                                            className="flex items-center justify-between gap-2 rounded bg-surface-elevated px-2 py-1 text-xs text-foreground border border-border"
                                             style={{marginLeft: `${Math.max(0, modifier.depth - 1) * 14}px`}}
                                           >
-                                            <span className="font-medium text-neutral-800">{modifier.name}</span>
-                                            <span className="inline-flex items-center gap-2 text-neutral-600">
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
-                                              <span className="rounded bg-neutral-100 px-1.5 py-0.5">{withCurrency(modifier.price)}</span>
+                                            <span className="font-medium text-foreground">{modifier.name}</span>
+                                            <span className="inline-flex items-center gap-2 text-muted">
+                                              <span className="rounded bg-surface px-1.5 py-0.5">Qty {formatNumber(modifier.quantity)}</span>
+                                              <span className="rounded bg-surface px-1.5 py-0.5">{withCurrency(modifier.price)}</span>
                                             </span>
                                           </div>
                                         ))}
                                       </div>
                                     ) : (
-                                      <div className="mt-1 text-xs text-neutral-500">No modifiers</div>
+                                      <div className="mt-1 text-xs text-muted">No modifiers</div>
                                     )}
                                   </div>
                                 );
@@ -483,25 +483,25 @@ export const VoidsReport = () => {
                             )}
                           </div>
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(voidItem.quantity)}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(lineTotal)}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{managerName}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{cashierName}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{orderNumber}</td>
-                        <td className="py-3 pr-6 text-sm text-neutral-700">{voidItem.comments || '-'}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(voidItem.quantity)}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(lineTotal)}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{managerName}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{cashierName}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{orderNumber}</td>
+                        <td className="py-3 pr-6 text-sm text-foreground">{voidItem.comments || '-'}</td>
                       </tr>
                     );
                   })
                 )}
               </tbody>
               {orderVoids.length > 0 && (
-                <tfoot className="bg-neutral-50">
+                <tfoot className="bg-surface">
                   <tr>
-                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {formatNumber(orderVoids.reduce((sum, v) => sum + safeNumber(v.quantity), 0))}
                     </td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {withCurrency(orderVoids.reduce((sum, v) => sum + getVoidItems(v).reduce((lineSum, item) => lineSum + getVoidLineAmount(v, item), 0), 0))}
                     </td>
                     <td colSpan={4}></td>

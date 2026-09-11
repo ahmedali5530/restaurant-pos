@@ -154,19 +154,19 @@ export const ConfigurationPanel = ({
   };
 
   if (!selectedProvider) {
-    return <div className="p-5 text-sm text-neutral-500">{t('description')}</div>;
+    return <div className="p-5 text-sm text-muted">{t('description')}</div>;
   }
 
   return (
     <div className="p-5">
       {isOAuth && (
-        <div className="mb-6 p-4 border border-neutral-200 rounded-lg bg-neutral-50">
+        <div className="mb-6 p-4 border border-border rounded-lg bg-surface">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm">
                 {isConnected ? t('connectedTo', { company: String(formValues.companyName || formValues.tenantId || formValues.realmId || '') }) : t('notConnected')}
               </p>
-              {isConnected && <p className="text-xs text-neutral-500 mt-0.5">{t('connectionRequired')}</p>}
+              {isConnected && <p className="text-xs text-muted mt-0.5">{t('connectionRequired')}</p>}
             </div>
             <div className="flex items-center gap-2">
               {!isConnected ? (
@@ -225,7 +225,7 @@ export const ConfigurationPanel = ({
                   setFormValues((previous) => ({ ...previous, [field.key]: next }));
                 }}
               />
-              {field.helpText && <p className="text-xs text-neutral-500 mt-1">{field.helpText}</p>}
+              {field.helpText && <p className="text-xs text-muted mt-1">{field.helpText}</p>}
             </div>
           ))}
         </div>

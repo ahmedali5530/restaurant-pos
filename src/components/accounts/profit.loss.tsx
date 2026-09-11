@@ -114,7 +114,7 @@ export const ProfitLoss = () => {
 
       {!isLoading && (
         <div className="grid grid-cols-2 gap-4">
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-surface-elevated">
             <div className="border-b p-3 font-semibold text-success-700">{t('reports.income')}</div>
             <div className="p-3 space-y-2">
               {incomeRows.map((item, index) => (
@@ -123,7 +123,7 @@ export const ProfitLoss = () => {
                   <span>{formatMoney(Number(item.total_credit || 0) - Number(item.total_debit || 0))}</span>
                 </div>
               ))}
-              {incomeRows.length === 0 && <div className="text-gray-500">{t('reports.noIncome')}</div>}
+              {incomeRows.length === 0 && <div className="text-muted">{t('reports.noIncome')}</div>}
             </div>
             <div className="border-t p-3 font-semibold flex justify-between">
               <span>{t('reports.totalIncome')}</span>
@@ -131,7 +131,7 @@ export const ProfitLoss = () => {
             </div>
           </div>
 
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-surface-elevated">
             <div className="border-b p-3 font-semibold text-danger-700">{t('reports.expense')}</div>
             <div className="p-3 space-y-2">
               {expenseRows.map((item, index) => (
@@ -140,7 +140,7 @@ export const ProfitLoss = () => {
                   <span>{formatMoney(Number(item.total_debit || 0) - Number(item.total_credit || 0))}</span>
                 </div>
               ))}
-              {expenseRows.length === 0 && <div className="text-gray-500">{t('reports.noExpense')}</div>}
+              {expenseRows.length === 0 && <div className="text-muted">{t('reports.noExpense')}</div>}
             </div>
             <div className="border-t p-3 font-semibold flex justify-between">
               <span>{t('reports.totalExpense')}</span>
@@ -148,7 +148,7 @@ export const ProfitLoss = () => {
             </div>
           </div>
 
-          <div className="col-span-2 border rounded-lg bg-primary-50 border-primary-200 p-4 font-semibold flex justify-between">
+          <div className="col-span-2 border rounded-lg bg-primary/10 border-primary/40 p-4 font-semibold flex justify-between">
             <span>{t('reports.netProfitLoss')}</span>
             <span className={netProfit >= 0 ? "text-success-700" : "text-danger-700"}>
               {formatMoney(netProfit)}

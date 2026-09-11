@@ -290,7 +290,7 @@ export const InventoryItemForm = ({
                   />
                 )}
               />
-              <p className="text-sm text-neutral-600 mt-1">{t('itemType.hint')}</p>
+              <p className="text-sm text-muted mt-1">{t('itemType.hint')}</p>
               {errors?.item_types && <InputError error={errors?.item_types?.message as string}/>}
             </div>
             <div className="flex-1 flex gap-2 self-start items-end">
@@ -422,7 +422,7 @@ export const InventoryItemForm = ({
           {selectedLocations && selectedLocations.length > 0 && (
             <div className="mb-3">
               <label className="block mb-1">{t('columns.reorderLevels')}</label>
-              <p className="text-sm text-neutral-600 mb-2">{t('forms.reorderLevelHint')}</p>
+              <p className="text-sm text-muted mb-2">{t('forms.reorderLevelHint')}</p>
               <div className="grid grid-cols-2 gap-3">
                 {selectedLocations.map(loc => (
                   <Input

@@ -47,7 +47,7 @@ export const AdminModifierGroups = () => {
           <span className="tag" key={`${item.id}-${index}`}>
             {item.modifier.name} — {item.price}
             {item.allowed_next_groups != null && item.allowed_next_groups.length > 0 && (
-              <span className="text-neutral-500"> ({t('columns.nextCount', { count: item.allowed_next_groups.length })})</span>
+              <span className="text-muted"> ({t('columns.nextCount', { count: item.allowed_next_groups.length })})</span>
             )}
           </span>
         ))}

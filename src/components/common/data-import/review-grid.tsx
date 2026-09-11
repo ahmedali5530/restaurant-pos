@@ -140,7 +140,7 @@ const ImportReviewRow = memo(function ImportReviewRow({
       className={cn(record.skipped && "opacity-50", hasError && "bg-danger/5")}
       style={{height: ROW_HEIGHT, maxHeight: ROW_HEIGHT}}
     >
-      <td className="text-neutral-400 align-middle !py-1.5">{rowIndex + 1}</td>
+      <td className="text-muted align-middle !py-1.5">{rowIndex + 1}</td>
       <td className="align-middle !py-1.5">
         <div>
           <Checkbox
@@ -329,7 +329,7 @@ export const DataImportReviewGrid = ({
   return (
     <div className="flex flex-col gap-3">
       {enableImportModes && (
-        <div className="rounded-xl border border-neutral-200 p-3 flex flex-col gap-3">
+        <div className="rounded-xl border border-border p-3 flex flex-col gap-3">
           <h3 className="text-sm font-medium">{t("csvImport.importMode")}</h3>
           <div className="flex flex-wrap gap-4">
             <div>
@@ -383,7 +383,7 @@ export const DataImportReviewGrid = ({
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-muted">
           {t("dataImport.reviewHelp", {count: records.length})}
           {errorCount > 0 && (
             <span className="text-danger ml-2">
@@ -402,7 +402,7 @@ export const DataImportReviewGrid = ({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm text-neutral-600 mr-1">
+        <span className="text-sm text-muted mr-1">
           {t("dataImport.filterLabel")}
         </span>
         <Button
@@ -441,12 +441,12 @@ export const DataImportReviewGrid = ({
 
       <div
         ref={scrollRef}
-        className="overflow-auto max-h-[55vh] rounded-xl border border-neutral-200 [overflow-anchor:none]"
+        className="overflow-auto max-h-[55vh] rounded-xl border border-border [overflow-anchor:none]"
         style={{overflowAnchor: "none"}}
       >
         <KeyboardGrid className="w-full">
           <table className="table table-sm w-full min-w-max text-sm whitespace-nowrap">
-            <thead className="sticky top-0 bg-white z-10">
+            <thead className="sticky top-0 bg-surface-elevated z-10">
               <tr>
                 <th className="w-10">#</th>
                 <th className="w-16">{t("dataImport.skip")}</th>
@@ -462,14 +462,14 @@ export const DataImportReviewGrid = ({
             <tbody>
               {records.length === 0 && (
                 <tr>
-                  <td colSpan={colSpan} className="text-center text-neutral-500 py-8">
+                  <td colSpan={colSpan} className="text-center text-muted py-8">
                     {t("dataImport.noRecords")}
                   </td>
                 </tr>
               )}
               {records.length > 0 && filteredRows.length === 0 && (
                 <tr>
-                  <td colSpan={colSpan} className="text-center text-neutral-500 py-8">
+                  <td colSpan={colSpan} className="text-center text-muted py-8">
                     {t("dataImport.noMatchingFilter")}
                   </td>
                 </tr>

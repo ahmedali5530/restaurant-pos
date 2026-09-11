@@ -131,7 +131,7 @@ const ModifierNextGroups = ({
 
   if (loading) {
     return (
-      <p className="text-sm text-neutral-500 col-span-full">
+      <p className="text-sm text-muted col-span-full">
         {t('forms.loadingModifierGroups')}
       </p>
     );
@@ -139,7 +139,7 @@ const ModifierNextGroups = ({
 
   if (attachableGroups.length === 0) {
     return (
-      <p className="text-sm text-neutral-500 col-span-full">
+      <p className="text-sm text-muted col-span-full">
         {t('forms.attachModifierGroupsFirst')}
       </p>
     );
@@ -419,7 +419,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
           </div>
 
           <div className="mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend>{t('columns.modifiers')}</legend>
 
               <div className="flex gap-3 mb-3">
@@ -438,7 +438,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
               </div>
 
               {fields.map((item, index) => (
-                <div className="flex flex-wrap gap-3 mb-3 pb-3 border-b border-neutral-100 last:border-0" key={item.id}>
+                <div className="flex flex-wrap gap-3 mb-3 pb-3 border-b border-border last:border-0" key={item.id}>
                   <div className="shrink grow-0 min-w-[250px]">
                     <label htmlFor="modifier">{t('entities.modifier')}</label>
                     <Controller

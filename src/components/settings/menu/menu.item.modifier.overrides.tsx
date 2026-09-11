@@ -268,7 +268,7 @@ export const MenuItemModifierOverridesEditor = ({
         size="lg"
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-neutral-600">{t("forms.menuModifierPricesHelp")}</p>
+          <p className="text-sm text-muted">{t("forms.menuModifierPricesHelp")}</p>
 
           <div className="flex gap-2">
             <Button variant="secondary" type="button" onClick={resetAll}>
@@ -286,13 +286,13 @@ export const MenuItemModifierOverridesEditor = ({
           </div>
 
           {loading && (
-            <div className="text-center text-neutral-500 py-6">
+            <div className="text-center text-muted py-6">
               {t("forms.loadingModifierGroups")}
             </div>
           )}
 
           {!loading && groups.length === 0 && (
-            <div className="text-center text-neutral-500 py-6">
+            <div className="text-center text-muted py-6">
               {t("forms.attachModifierGroupsFirst")}
             </div>
           )}
@@ -300,8 +300,8 @@ export const MenuItemModifierOverridesEditor = ({
           {!loading && groups.length > 0 && (
             <ScrollContainer className="max-h-[55vh] flex flex-col gap-4">
               {groups.map((grp) => (
-                <div key={grp.id.toString()} className="border border-neutral-200 rounded-lg p-3">
-                  <h4 className="font-semibold text-neutral-900 mb-3">{grp.out.name}</h4>
+                <div key={grp.id.toString()} className="border border-border rounded-lg p-3">
+                  <h4 className="font-semibold text-foreground mb-3">{grp.out.name}</h4>
                   <div className="flex flex-col gap-2">
                     {(grp.out.modifiers ?? []).map((mod: Modifier) => {
                       const modifierId = mod.id.toString();
@@ -311,14 +311,14 @@ export const MenuItemModifierOverridesEditor = ({
                       return (
                         <div
                           key={modifierId}
-                          className="flex flex-col gap-2 py-2 border-b border-neutral-100 last:border-0"
+                          className="flex flex-col gap-2 py-2 border-b border-border last:border-0"
                         >
                           <div className="flex items-end gap-3">
                             <div className="flex-1 min-w-[180px]">
                               <div className="text-sm font-medium">
                                 {mod.modifier?.name ?? modifierId}
                               </div>
-                              <div className="text-xs text-neutral-500">
+                              <div className="text-xs text-muted">
                                 {t("forms.templatePrice")}: {templatePrice}
                               </div>
                             </div>
@@ -400,7 +400,7 @@ export const MenuItemModifierOverridesEditor = ({
           size="lg"
         >
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-neutral-600">
+            <p className="text-sm text-muted">
               {t("forms.menuNestedModifierPricesHelp")}
             </p>
             <div className="flex gap-2">
@@ -432,13 +432,13 @@ export const MenuItemModifierOverridesEditor = ({
                 return (
                   <div
                     key={modifierId}
-                    className="flex items-end gap-3 py-2 border-b border-neutral-100 last:border-0"
+                    className="flex items-end gap-3 py-2 border-b border-border last:border-0"
                   >
                     <div className="flex-1 min-w-[180px]">
                       <div className="text-sm font-medium">
                         {mod.modifier?.name ?? modifierId}
                       </div>
-                      <div className="text-xs text-neutral-500">
+                      <div className="text-xs text-muted">
                         {t("forms.templatePrice")}: {Number(mod.price)}
                       </div>
                     </div>

@@ -437,7 +437,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
             </div>
           </div>
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend>{t("tabs.items")}</legend>
             <div className="mb-3">
               <Button
@@ -485,7 +485,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     )}
                   />
                   {rowNetQuantities[index] !== undefined && (
-                    <p className="text-xs text-neutral-500 mt-1">
+                    <p className="text-xs text-muted mt-1">
                       {t("stockTransfer.available", {qty: rowNetQuantities[index]})}
                     </p>
                   )}

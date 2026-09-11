@@ -39,29 +39,29 @@ export const WhatsNewDialog = () => {
       size="md"
     >
       <div className="space-y-4">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted">
           {t('whatsNew.dateLabel', {date: latest.date})}
         </p>
 
-        <ul className="list-disc pl-5 space-y-2 text-neutral-800">
+        <ul className="list-disc pl-5 space-y-2 text-muted">
           {latest.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
 
         {priorReleases.length > 0 && (
-          <div className="pt-3 border-t border-neutral-200 space-y-3 overflow-auto max-h-[calc(100vh_-_350px_-_var(--app-toolbar-h))]">
-            <p className="text-sm font-medium text-neutral-600">{t('whatsNew.previousReleases')}</p>
+          <div className="pt-3 border-t border-border space-y-3 overflow-auto max-h-[calc(100vh_-_350px_-_var(--app-toolbar-h))]">
+            <p className="text-sm font-medium text-muted">{t('whatsNew.previousReleases')}</p>
             {priorReleases.map((release, index) => (
               <div key={`${release.date}-${release.title ?? index}`}>
-                <p className="text-sm font-semibold text-neutral-700">
+                <p className="text-sm font-semibold text-foreground">
                   {release.title ?? release.date}
-                  <span className="font-normal text-neutral-500">
+                  <span className="font-normal text-muted">
                     {' '}
                     ({release.date})
                   </span>
                 </p>
-                <ul className="list-disc pl-5 mt-1 space-y-1 text-sm text-neutral-700">
+                <ul className="list-disc pl-5 mt-1 space-y-1 text-sm text-foreground">
                   {release.items.map((item) => (
                     <li key={item}>{item}</li>
                   ))}

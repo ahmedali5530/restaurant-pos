@@ -102,7 +102,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
         {/* Actor roles */}
         {alert.actor_roles.length > 0 && (
           <div className="text-sm">
-            <span className="text-neutral-500">{t("admin:securityAlerts.actorRoles", { defaultValue: "Actor roles" })}: </span>
+            <span className="text-muted">{t("admin:securityAlerts.actorRoles", { defaultValue: "Actor roles" })}: </span>
             <span className="font-mono text-xs">{alert.actor_roles.join(", ")}</span>
           </div>
         )}
@@ -120,7 +120,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
                 : t("admin:securityAlerts.showDetails", { defaultValue: "▶ Show details" })}
             </button>
             {showDetails && (
-              <pre className="mt-2 p-3 bg-neutral-50 dark:bg-neutral-900 border rounded text-xs overflow-x-auto max-h-48" data-testid="security-alert-details-json">
+              <pre className="mt-2 p-3 bg-surface dark:bg-neutral-900 border rounded text-xs overflow-x-auto max-h-48" data-testid="security-alert-details-json">
                 {JSON.stringify(alert.details, null, 2)}
               </pre>
             )}
@@ -169,7 +169,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
 function DetailField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs text-neutral-500">{label}</div>
+      <div className="text-xs text-muted">{label}</div>
       <div className="font-medium break-all">{value}</div>
     </div>
   );

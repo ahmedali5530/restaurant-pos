@@ -199,7 +199,7 @@ export const PayrollRunSnapshots = ({open, onClose, run, onChanged}: Props) => {
     >
       {canEdit && snapshots.length > 0 && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm text-neutral-600">{t("payroll.overrideHelp")}</p>
+          <p className="text-sm text-muted">{t("payroll.overrideHelp")}</p>
           <DeleteConfirm
             title={t("payroll.resetOverrides")}
             message={t("payroll.confirmResetOverrides")}
@@ -210,14 +210,14 @@ export const PayrollRunSnapshots = ({open, onClose, run, onChanged}: Props) => {
         </div>
       )}
       {loading ? (
-        <p className="text-sm text-neutral-600">{t("buttons.loading")}</p>
+        <p className="text-sm text-muted">{t("buttons.loading")}</p>
       ) : snapshots.length === 0 ? (
-        <p className="text-sm text-neutral-600">{t("payroll.noRuns")}</p>
+        <p className="text-sm text-muted">{t("payroll.noRuns")}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
             <thead>
-              <tr className="text-left text-xs font-semibold uppercase text-neutral-600">
+              <tr className="text-left text-xs font-semibold uppercase text-muted">
                 <th className="px-3 py-2">{t("forms.adjustment.employee")}</th>
                 <th className="px-3 py-2">{t("payroll.payType")}</th>
                 <th className="px-3 py-2 text-right">{t("payroll.paidDays")}</th>
@@ -274,7 +274,7 @@ export const PayrollRunSnapshots = ({open, onClose, run, onChanged}: Props) => {
                     </tr>
                     {expanded && (
                       <tr>
-                        <td colSpan={7} className="px-3 py-3 bg-neutral-50">
+                        <td colSpan={7} className="px-3 py-3 bg-surface">
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                             <div>
                               <Input

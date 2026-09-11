@@ -435,7 +435,7 @@ export const FloorLayout = () => {
       <div className="flex flex-col h-full min-h-0 transition-all delay-75" data-testid="menu-floor" style={{
         background: state.floor?.background
       }}>
-        <div className="h-[80px] bg-white p-3 flex items-center">
+        <div className="h-[80px] bg-surface-elevated p-3 flex items-center">
           {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> {t('floor.switchTable', {
             table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
           })}</div>}
@@ -447,7 +447,7 @@ export const FloorLayout = () => {
         </div>
         <div className="layout relative flex-1 min-h-0 p-3 overflow-hidden" data-testid="menu-floor-tables">
           {catalogLoading && (
-            <div className="flex items-center justify-center text-2xl text-neutral-500">
+            <div className="flex items-center justify-center text-2xl text-muted">
               {t('common:offline.syncing', { count: 0, defaultValue: 'Loading floors…' })}
             </div>
           )}

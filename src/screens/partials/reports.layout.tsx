@@ -141,7 +141,7 @@ export const ReportsLayout = ({
     <div className={cn("flex flex-col h-full", className)}>
       <DocumentTitle parts={[title, tNav('sidebar.reports')]} />
       {/* Action Buttons */}
-      <div className="flex items-center justify-between gap-3 p-4 bg-white shadow-sm border-b print:hidden">
+      <div className="flex items-center justify-between gap-3 p-4 bg-surface-elevated shadow-sm border-b print:hidden">
         <div className="flex items-center gap-2">
           <Button
             variant="primary"
@@ -188,33 +188,33 @@ export const ReportsLayout = ({
       </div>
 
       {/* Report Container */}
-      <div className="flex-1 overflow-auto bg-gray-50" ref={reportRef}>
+      <div className="flex-1 overflow-auto bg-surface" ref={reportRef}>
         <div className="max-w-full">
           {/* Header Section */}
-          <div className="bg-white shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
+          <div className="bg-surface-elevated shadow-sm rounded-lg p-3 mb-3 print:shadow-none text-center">
             <h1 className="text-3xl font-bold mb-1">{title}</h1>
             {subtitle && (
-              <p className="text-lg text-gray-600 mb-1">{subtitle}</p>
+              <p className="text-lg text-muted mb-1">{subtitle}</p>
             )}
-            <div className="space-y-[3px] text-sm text-gray-700">
+            <div className="space-y-[3px] text-sm text-foreground">
               {restaurantName && (
                 <p className="font-semibold">{restaurantName}</p>
               )}
               {restaurantAddress && <p>{restaurantAddress}</p>}
-              <p className="text-gray-500 mt-2">
+              <p className="text-muted mt-2">
                 Generated at: {generatedAt}
               </p>
             </div>
           </div>
 
           {/* Report Content */}
-          <div className="bg-white shadow-sm rounded-lg p-6 print:shadow-none">
+          <div className="bg-surface-elevated shadow-sm rounded-lg p-6 print:shadow-none">
             {children}
           </div>
 
           {/* Pagination */}
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-6 bg-white shadow-sm rounded-lg p-4">
+            <div className="flex items-center justify-center gap-2 mt-6 bg-surface-elevated shadow-sm rounded-lg p-4">
               <Button
                 variant="primary"
                 onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
@@ -224,7 +224,7 @@ export const ReportsLayout = ({
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-700 px-4">
+              <span className="text-sm text-foreground px-4">
                 Page {pagination.currentPage} of {pagination.totalPages}
               </span>
               <Button

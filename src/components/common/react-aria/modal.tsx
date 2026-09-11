@@ -100,11 +100,11 @@ export const Modal: FunctionComponent<ModalProps> = ({
             >
               <div
                 style={{
-                  backgroundColor: props.backgroundColor ?? 'rgb(255, 255, 255)',
+                  backgroundColor: props.backgroundColor ?? 'rgb(var(--surface-elevated))',
                   backdropFilter: 'blur(10px)'
                 }}
                 className={cn(
-                  "rounded-lg",
+                  "rounded-lg text-foreground",
                   size === "full" && "modal-full-shell"
                 )}
               >
@@ -124,7 +124,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 )}
 
                 <div className={cn(
-                  "p-5 border-b border-neutral-100",
+                  "p-5 border-b border-border",
                   size === "full" && "shrink-0"
                 )}>
                   <Heading slot="title" className="text-2xl">{props?.title}</Heading>
@@ -132,7 +132,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 </div>
                 <div
                   className={cn(
-                    "pb-5 modal-container px-5 py-3 bg-neutral-100",
+                    "pb-5 modal-container px-5 py-3 bg-surface",
                     size === "full" ? "overflow-hidden" : "overflow-auto"
                   )}
                 >

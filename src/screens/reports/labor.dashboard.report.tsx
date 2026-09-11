@@ -7,17 +7,21 @@ import {getLaborDashboardSnapshot, getLaborDashboardTrend} from '@/api/reports/l
 import type {LaborDashboardSnapshot, LaborCostResult} from '@/api/reports/labor/shared/types.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
 import {ResponsiveLine} from '@nivo/line';
+import {useNivoTheme} from '@/lib/nivo-theme.ts';
+import {cssVarRgb} from '@/lib/theme.ts';
 
 const MetricCard = ({label, value, subtitle}: {label: string; value: string; subtitle?: string}) => (
-  <div className="bg-white border rounded-lg p-4 shadow-sm">
-    <p className="text-sm text-neutral-500">{label}</p>
-    <p className="text-2xl font-bold text-neutral-900 mt-1">{value}</p>
-    {subtitle ? <p className="text-xs text-neutral-400 mt-1">{subtitle}</p> : null}
+  <div className="bg-surface-elevated border rounded-lg p-4 shadow-sm">
+    <p className="text-sm text-muted">{label}</p>
+    <p className="text-2xl font-bold text-foreground mt-1">{value}</p>
+    {subtitle ? <p className="text-xs text-muted mt-1">{subtitle}</p> : null}
   </div>
 );
 
 export const LaborDashboardReport = () => {
   const {t} = useTranslation('reports');
+  const nivoTheme = useNivoTheme();
+  const primary = cssVarRgb('--primary', '0 70 254');
   const db = useDB();
   const queryRef = useRef(db.query);
   const [snapshot, setSnapshot] = useState<LaborDashboardSnapshot | null>(null);
@@ -59,7 +63,7 @@ export const LaborDashboardReport = () => {
   }], [trend]);
 
   if (loading) {
-    return <ReportsLayout title={t('titles.laborDashboard')}><div className="py-12 text-center text-neutral-500">{t('loading.chart')}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.laborDashboard')}><div className="py-12 text-center text-muted">{t('loading.chart')}</div></ReportsLayout>;
   }
 
   if (error || !snapshot) {
@@ -84,8 +88,8 @@ export const LaborDashboardReport = () => {
           <MetricCard label={t('hr:dashboard.avgHourlyCost')} value={withCurrency(snapshot.avgHourlyCost)} />
         </div>
 
-        <div className="bg-white border rounded-lg p-5 shadow-sm h-[320px]">
-          <h2 className="text-lg font-semibold text-neutral-700 mb-4">{t('hr:dashboard.laborTrend')}</h2>
+        <div className="bg-surface-elevated border rounded-lg p-5 shadow-sm h-[320px]">
+          <h2 className="text-lg font-semibold text-foreground mb-4">{t('hr:dashboard.laborTrend')}</h2>
           {chartData[0].data.length > 0 ? (
             <ResponsiveLine
               data={chartData}
@@ -94,12 +98,13 @@ export const LaborDashboardReport = () => {
               yScale={{type: 'linear', min: 0}}
               axisBottom={{tickRotation: -35}}
               axisLeft={{format: value => withCurrency(value).replace(/\.00$/, '')}}
-              colors={['#0046FE']}
+              colors={[primary]}
               pointSize={8}
               useMesh
+              theme={nivoTheme}
             />
           ) : (
-            <div className="h-full flex items-center justify-center text-neutral-500">No trend data</div>
+            <div className="h-full flex items-center justify-center text-muted">No trend data</div>
           )}
         </div>
       </div>

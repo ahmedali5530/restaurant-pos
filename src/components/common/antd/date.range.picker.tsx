@@ -37,7 +37,7 @@ export const DateRangePicker = ({
 
   return (
     <div className="flex flex-col" data-react-aria-top-layer="true">
-      {label && <label>{label}</label>}
+      {label && <label className="form-label">{label}</label>}
       <RangePicker
         className="w-full app-ant-picker"
         value={selectedValue}

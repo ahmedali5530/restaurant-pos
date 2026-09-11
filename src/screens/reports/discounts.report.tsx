@@ -280,7 +280,7 @@ export const DiscountsReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t("loading.discounts")}</div>
+        <div className="py-12 text-center text-muted">{t("loading.discounts")}</div>
       </ReportsLayout>
     );
   }
@@ -297,49 +297,49 @@ export const DiscountsReport = () => {
     <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="grid grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("categories.orders")}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t("categories.orders")}</div>
             <div className="text-xl font-semibold">{formatNumber(orderCount)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("labels.discountLines")}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t("labels.discountLines")}</div>
             <div className="text-xl font-semibold">{formatNumber(detailRows.length)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t("labels.totalDiscount")}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t("labels.totalDiscount")}</div>
             <div className="text-xl font-semibold">{withCurrency(totalDiscount)}</div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">
               {t("labels.discountTypes")}
             </h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.name")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.quantity")}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t("columns.name")}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.valueType")}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.quantity")}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t("columns.amount")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {discountTypes.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">
                         {t("empty.noDiscountTypes")}
                       </td>
                     </tr>
                   ) : (
                     discountTypes.map((item) => (
                       <tr key={`${item.name}-${item.rateLabel}`}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.name}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{item.rateLabel}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.quantity)}</td>
+                        <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                           {withCurrency(item.total)}
                         </td>
                       </tr>
@@ -350,34 +350,34 @@ export const DiscountsReport = () => {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">
               {t("labels.discountsByUsers")}
             </h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.user")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.quantity")}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t("columns.user")}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.valueType")}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.quantity")}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t("columns.amount")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {discountsByUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">
                         {t("empty.noDiscountsByUsers")}
                       </td>
                     </tr>
                   ) : (
                     discountsByUsers.map((item) => (
                       <tr key={`${item.name}-${item.rateLabel}`}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.name}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{item.rateLabel}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.quantity)}</td>
-                        <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.name}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{item.rateLabel}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.quantity)}</td>
+                        <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                           {withCurrency(item.total)}
                         </td>
                       </tr>
@@ -389,63 +389,63 @@ export const DiscountsReport = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">
             {t("labels.discountDetails")}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.date")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.order")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("metrics.cashier")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.discount")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.scope")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.valueType")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("columns.amount")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.applicationType")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.reason")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.appliedBy")}</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t("columns.approvedBy")}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t("columns.date")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.order")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("metrics.cashier")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.discount")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.scope")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.valueType")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("columns.amount")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.applicationType")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.reason")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.appliedBy")}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-foreground">{t("columns.approvedBy")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {detailRows.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={11} className="py-6 text-center text-sm text-muted">
                       {t("empty.noDiscountRows")}
                     </td>
                   </tr>
                 ) : (
                   detailRows.map((row) => (
                     <tr key={row.key}>
-                      <td className="py-3 pl-6 pr-3 text-sm text-neutral-900 whitespace-nowrap">
+                      <td className="py-3 pl-6 pr-3 text-sm text-foreground whitespace-nowrap">
                         {toLuxonDateTime(row.createdAt as any).toFormat("yyyy-LL-dd HH:mm")}
                       </td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.invoiceLabel}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.cashierName || "-"}</td>
-                      <td className="py-3 px-3 text-sm font-medium text-neutral-900">{row.discountName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.scope}</td>
-                      <td className="py-3 px-3 text-right text-sm text-neutral-700">{row.valueTypeLabel}</td>
-                      <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
+                      <td className="py-3 px-3 text-sm text-foreground">{row.invoiceLabel}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{row.cashierName || "-"}</td>
+                      <td className="py-3 px-3 text-sm font-medium text-foreground">{row.discountName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground capitalize">{row.scope}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{row.valueTypeLabel}</td>
+                      <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">
                         {withCurrency(row.amount)}
                       </td>
-                      <td className="py-3 px-3 text-sm text-neutral-700 capitalize">{row.applicationType}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.reason}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{row.appliedBy}</td>
-                      <td className="py-3 pr-6 text-sm text-neutral-700">{row.approvedBy}</td>
+                      <td className="py-3 px-3 text-sm text-foreground capitalize">{row.applicationType}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{row.reason}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{row.appliedBy}</td>
+                      <td className="py-3 pr-6 text-sm text-foreground">{row.approvedBy}</td>
                     </tr>
                   ))
                 )}
               </tbody>
               {detailRows.length > 0 && (
-                <tfoot className="bg-neutral-50">
+                <tfoot className="bg-surface">
                   <tr>
-                    <td colSpan={6} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">
+                    <td colSpan={6} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">
                       {t("columns.total")}
                     </td>
-                    <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
+                    <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">
                       {withCurrency(totalDiscount)}
                     </td>
                     <td colSpan={4} />

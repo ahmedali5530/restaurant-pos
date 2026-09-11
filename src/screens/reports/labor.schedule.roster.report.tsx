@@ -59,28 +59,28 @@ export const LaborScheduleRosterReport = () => {
           @page { size: A4 landscape; margin: 8mm; }
         }
       `}</style>
-      {loading ? <div className="py-12 text-center text-neutral-500">{t('loading.chart')}</div> : null}
+      {loading ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
       {error ? <div className="py-12 text-center text-danger-500">{error}</div> : null}
       {!loading && !error && roster.weeks.length === 0 ? (
-        <div className="py-12 text-center text-neutral-500">{t('empty.noScheduleRoster')}</div>
+        <div className="py-12 text-center text-muted">{t('empty.noScheduleRoster')}</div>
       ) : null}
       {!loading && !error && roster.weeks.length > 0 ? (
         <div className="space-y-6 print:overflow-visible">
           {roster.weeks.map(week => (
             <div key={week.weekStart} className="overflow-x-auto border rounded-lg break-inside-avoid">
-              <h2 className="px-4 py-2 text-sm font-semibold bg-neutral-50 border-b text-neutral-700">
+              <h2 className="px-4 py-2 text-sm font-semibold bg-surface border-b text-foreground">
                 {t('weekOf', {date: DateTime.fromISO(week.weekStart).toFormat(dateFormat)})}
               </h2>
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-neutral-600">
+                    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-muted">
                       {t('columns.employee')}
                     </th>
                     {week.days.map((day, index) => (
-                      <th key={day} className="px-2 py-2 text-center text-xs font-semibold uppercase text-neutral-600">
+                      <th key={day} className="px-2 py-2 text-center text-xs font-semibold uppercase text-muted">
                         <div>{t(`weekdays.${index + 1}`)}</div>
-                        <div className="font-normal normal-case text-neutral-500">
+                        <div className="font-normal normal-case text-muted">
                           {DateTime.fromISO(day).toFormat('dd MMM')}
                         </div>
                       </th>
@@ -90,14 +90,14 @@ export const LaborScheduleRosterReport = () => {
                 <tbody className="divide-y divide-neutral-100">
                   {week.rows.map(row => (
                     <tr key={row.employeeId}>
-                      <td className="px-3 py-2 text-sm text-neutral-800 whitespace-nowrap">
+                      <td className="px-3 py-2 text-sm text-foreground whitespace-nowrap">
                         <div className="font-medium">{row.employeeName}</div>
                         {row.departmentName ? (
-                          <div className="text-xs text-neutral-500">{row.departmentName}</div>
+                          <div className="text-xs text-muted">{row.departmentName}</div>
                         ) : null}
                       </td>
                       {week.days.map(day => (
-                        <td key={day} className="px-2 py-2 text-center text-xs text-neutral-800 align-top">
+                        <td key={day} className="px-2 py-2 text-center text-xs text-foreground align-top">
                           {(row.days[day] ?? []).map(shift => (
                             <div key={`${shift.start}-${shift.end}`}>
                               {shift.start}–{shift.end}

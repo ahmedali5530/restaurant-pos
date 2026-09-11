@@ -124,10 +124,10 @@ export const MenuPersons = () => {
     }
   }, [error]);
 
-  const btnClasses = 'size-[85px] sm:size-[100px] md:size-[120px] p-0 text-neutral-900 active:scale-[0.95] transition-all duration-75 bg-neutral-100 active:text-neutral-100 active:bg-neutral-900 rounded-full text-3xl';
+  const btnClasses = 'size-[85px] sm:size-[100px] md:size-[120px] p-0 text-foreground active:scale-[0.95] transition-all duration-75 bg-surface active:text-neutral-100 active:bg-neutral-900 rounded-full text-3xl';
 
   return (
-    <div className="flex h-full w-full justify-center items-center flex-col gap-5 bg-white" data-testid="menu-persons-screen">
+    <div className="flex h-full w-full justify-center items-center flex-col gap-5 bg-surface-elevated" data-testid="menu-persons-screen">
       <h3 className={
         cn("text-4xl", error && 'login-error')
       }>{t('persons.chooseCount')}</h3>

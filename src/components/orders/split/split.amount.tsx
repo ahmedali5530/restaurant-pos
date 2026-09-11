@@ -297,15 +297,15 @@ export const SplitAmount = ({
         size="full"
         onClose={onClose}
       >
-        <div className="flex flex-col h-full gap-6 p-6 bg-gradient-to-br from-gray-50 to-white">
+        <div className="flex flex-col h-full gap-6 p-6 bg-gradient-to-br from-surface to-white">
           {/* Header with Order Total */}
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="bg-surface-elevated rounded-xl shadow-lg border border-border p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                <h3 className="text-xl font-semibold text-foreground mb-1">
                   {t('split.byAmount.orderTotal')}
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted">
                   {t('split.byAmount.assignHint')}
                 </p>
               </div>
@@ -313,7 +313,7 @@ export const SplitAmount = ({
                 <div className="text-3xl font-bold text-green-600">
                   {withCurrency(orderTotal)}
                 </div>
-                <div className="text-sm text-gray-500 mt-1">
+                <div className="text-sm text-muted mt-1">
                   {t('split.byAmount.assigned', {amount: withCurrency(assignedTotal)})}
                 </div>
                 <div className={`text-sm font-medium mt-1 ${
@@ -335,11 +335,11 @@ export const SplitAmount = ({
                 return (
                   <div
                     key={split.id}
-                    className="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 flex flex-col"
+                    className="bg-surface-elevated rounded-xl shadow-lg border border-border hover:shadow-xl transition-all duration-300 flex flex-col"
                   >
                     <div
-                      className="p-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-transparent flex-shrink-0">
-                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                      className="p-4 border-b border-border flex justify-between items-center bg-gradient-to-r from-blue-50 to-transparent flex-shrink-0">
+                      <h4 className="font-semibold text-foreground flex items-center gap-2">
                         <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                         {split.name}
                       </h4>
@@ -376,7 +376,7 @@ export const SplitAmount = ({
                           enableKeyboard
                         />
                         {split.amount > 0 && (
-                          <div className="mt-2 text-sm text-gray-600">
+                          <div className="mt-2 text-sm text-muted">
                             {t('split.byAmount.percentage', {value: percentage})}
                           </div>
                         )}
@@ -384,12 +384,12 @@ export const SplitAmount = ({
 
                       {/* All Items Display */}
                       <div className="flex-1 min-h-[100px]">
-                        <div className="text-xs font-medium text-gray-500 mb-2">
+                        <div className="text-xs font-medium text-muted mb-2">
                           {t('split.byAmount.itemsCount', {count: allItems.length})}
                         </div>
                         <div className="max-h-[300px] overflow-y-auto space-y-1">
                           {allItems.length === 0 ? (
-                            <div className="text-center py-4 text-gray-400 text-sm">
+                            <div className="text-center py-4 text-muted text-sm">
                               {t('split.byAmount.noItemsInOrder')}
                             </div>
                           ) : (
@@ -402,16 +402,16 @@ export const SplitAmount = ({
                               return (
                                 <div
                                   key={item.id}
-                                  className="p-2 border border-gray-100 rounded-lg bg-gradient-to-r from-gray-50 to-transparent text-sm"
+                                  className="p-2 border border-border rounded-lg bg-gradient-to-r from-surface to-transparent text-sm"
                                 >
                                   <div className="flex justify-between items-center mb-1">
                                     <span className="flex-1 truncate">{item.item?.name || t('split.byAmount.itemFallback')}</span>
-                                    <span className="text-gray-400 text-xs line-through ml-2">
+                                    <span className="text-muted text-xs line-through ml-2">
                                       {formatNumber(originalPrice)}
                                     </span>
                                   </div>
                                   <div className="flex justify-between items-center">
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-muted">
                                       {priceChangePercent !== 0 && (
                                         <span className={priceChangePercent > 0 ? 'text-green-600' : 'text-orange-600'}>
                                           {priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(1)}%
@@ -428,9 +428,9 @@ export const SplitAmount = ({
                           )}
                         </div>
                         {split.amount > 0 && (
-                          <div className="mt-2 pt-2 border-t border-gray-200">
+                          <div className="mt-2 pt-2 border-t border-border">
                             <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">{t('split.byAmount.subtotal')}</span>
+                              <span className="text-sm font-medium text-foreground">{t('split.byAmount.subtotal')}</span>
                               <span className="text-sm font-bold text-green-600">
                                 {formatNumber(splitTotals[index])}
                               </span>
@@ -447,7 +447,7 @@ export const SplitAmount = ({
 
           {/* Footer Actions */}
           <div
-            className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 flex items-center justify-between flex-shrink-0">
+            className="bg-surface-elevated rounded-xl shadow-lg border border-border p-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <Button
                 variant="primary"

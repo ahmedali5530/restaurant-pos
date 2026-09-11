@@ -193,7 +193,7 @@ export const DishView = ({
         <div className="space-y-5">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div
-              className="rounded-lg border border-neutral-200 bg-white p-3 flex items-center justify-center min-h-[220px] md:col-span-1">
+              className="rounded-lg border border-border bg-surface-elevated p-3 flex items-center justify-center min-h-[220px] md:col-span-1">
               <img
                 src={imageSrc}
                 alt={data.name}
@@ -201,45 +201,45 @@ export const DishView = ({
               />
             </div>
 
-            <div className="rounded-lg border border-neutral-200 bg-white p-4 md:col-span-2">
+            <div className="rounded-lg border border-border bg-surface-elevated p-4 md:col-span-2">
               <h4 className="font-semibold text-lg mb-3">{t('dishView.detailsTitle')}</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-neutral-500">{t('columns.name')}</p>
+                  <p className="text-muted">{t('columns.name')}</p>
                   <p className="font-medium">{data.name || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('columns.number')}</p>
+                  <p className="text-muted">{t('columns.number')}</p>
                   <p className="font-medium">{data.number || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('columns.priority')}</p>
+                  <p className="text-muted">{t('columns.priority')}</p>
                   <p className="font-medium">{data.priority ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('columns.salePrice')}</p>
+                  <p className="text-muted">{t('columns.salePrice')}</p>
                   <p className="font-medium">{withCurrency(data.price ?? 0)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('columns.costPrice')}</p>
+                  <p className="text-muted">{t('columns.costPrice')}</p>
                   <p className="font-medium">{withCurrency(data.cost ?? 0)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('dishView.discount')}</p>
+                  <p className="text-muted">{t('dishView.discount')}</p>
                   <p className="font-medium">{data.discount ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('dishView.allowHalf')}</p>
+                  <p className="text-muted">{t('dishView.allowHalf')}</p>
                   <p className="font-medium">{yesNo(data.allow_half)}</p>
                 </div>
                 <div>
-                  <p className="text-neutral-500">{t('dishView.allowServiceCharges')}</p>
+                  <p className="text-muted">{t('dishView.allowServiceCharges')}</p>
                   <p className="font-medium">{yesNo(data.allow_service_charges)}</p>
                 </div>
               </div>
 
               <div className="mt-4">
-                <p className="text-neutral-500 text-sm mb-2">{t('columns.categories')}</p>
+                <p className="text-muted text-sm mb-2">{t('columns.categories')}</p>
                 {categories.length > 0 ? (
                   <div className="flex gap-2 flex-wrap">
                     {categories.map((category) => (
@@ -252,7 +252,7 @@ export const DishView = ({
               </div>
 
               <div className="mt-4">
-                <p className="text-neutral-500 text-sm mb-2">{t('columns.usedAsModifier')}</p>
+                <p className="text-muted text-sm mb-2">{t('columns.usedAsModifier')}</p>
                 {usedAsModifier.length > 0 ? (
                   <div className="flex gap-2 flex-wrap">
                     {usedAsModifier.map((item: { name?: string }, index: number) => (
@@ -266,15 +266,15 @@ export const DishView = ({
             </div>
           </div>
 
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
+          <div className="rounded-lg border border-border bg-surface-elevated p-4">
             <h4 className="font-semibold text-lg mb-3">{t('dishView.attachedModifierGroups')}</h4>
 
             {modifierGroups.length === 0 ? (
-              <p className="text-sm text-neutral-500">{t('dishView.noModifierGroupsAttached')}</p>
+              <p className="text-sm text-muted">{t('dishView.noModifierGroupsAttached')}</p>
             ) : (
               <div className="space-y-3">
                 {modifierGroups.map((group) => (
-                  <div key={group.id} className="rounded-md border border-neutral-200 p-3">
+                  <div key={group.id} className="rounded-md border border-border p-3">
                     <div className="flex flex-wrap gap-2 items-center mb-2">
                       <span className="font-medium">{group.out?.name ?? '-'}</span>
                       <span className="tag">{t('dishView.priority', { value: group.priority ?? 0 })}</span>
@@ -291,7 +291,7 @@ export const DishView = ({
                           </span>
                         ))
                       ) : (
-                        <p className="text-sm text-neutral-500">{t('dishView.noModifiersInGroup')}</p>
+                        <p className="text-sm text-muted">{t('dishView.noModifiersInGroup')}</p>
                       )}
                     </div>
                   </div>
@@ -300,17 +300,17 @@ export const DishView = ({
             )}
           </div>
 
-          <div className="rounded-lg border border-neutral-200 bg-white p-4">
+          <div className="rounded-lg border border-border bg-surface-elevated p-4">
             <h4 className="font-semibold text-lg mb-3">{t('dishView.recipeItems')}</h4>
 
             {recipes.length === 0 ? (
-              <p className="text-sm text-neutral-500">{t('dishView.noRecipeItems')}</p>
+              <p className="text-sm text-muted">{t('dishView.noRecipeItems')}</p>
             ) : (
               <>
                 <div className="overflow-auto">
                   <table className="table-auto w-full">
                     <thead>
-                    <tr className="text-left border-b border-neutral-200">
+                    <tr className="text-left border-b border-border">
                       <th className="py-2">{t('dishView.item')}</th>
                       <th className="py-2">{t('dishView.quantity')}</th>
                       <th className="py-2">{t('dishView.cost')}</th>
@@ -324,7 +324,7 @@ export const DishView = ({
                       const cost = Number(recipe.cost ?? 0);
                       const lineTotal = quantity * cost;
                       return (
-                        <tr key={recipe.id} className="border-b border-neutral-100">
+                        <tr key={recipe.id} className="border-b border-border">
                           <td className="py-2">{recipe.item?.name ?? '-'}</td>
                           <td className="py-2">{quantity}</td>
                           <td className="py-2">{withCurrency(cost)}</td>

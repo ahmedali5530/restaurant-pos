@@ -84,7 +84,7 @@ export const PasswordAuth: React.FC<PasswordAuthProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-foreground mb-1">
           {t('security.enterPassword')}
         </label>
         <Input

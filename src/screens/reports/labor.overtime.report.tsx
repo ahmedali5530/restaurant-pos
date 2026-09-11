@@ -43,29 +43,29 @@ export const LaborOvertimeReport = () => {
 
   return (
     <ReportsLayout title={t('titles.overtimeReport')} subtitle={subtitle}>
-      {loading ? <div className="py-12 text-center text-neutral-500">{t('loading.chart')}</div> : null}
+      {loading ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
       {error ? <div className="py-12 text-center text-danger-500">{error}</div> : null}
       {!loading && !error ? (
         <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-neutral-600">{t('columns.name')}</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-neutral-600">Department</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Regular</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">OT</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Double</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">OT Pay</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">{t('columns.total')}</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-muted">{t('columns.name')}</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-muted">Department</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Regular</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">OT</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Double</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">OT Pay</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">{t('columns.total')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {rows.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-neutral-500">No overtime records</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-muted">No overtime records</td></tr>
               ) : rows.map(row => (
                 <tr key={row.employeeId}>
-                  <td className="px-4 py-2 text-sm text-neutral-800">{row.employeeName}</td>
-                  <td className="px-4 py-2 text-sm text-neutral-600">{row.departmentName || '-'}</td>
+                  <td className="px-4 py-2 text-sm text-foreground">{row.employeeName}</td>
+                  <td className="px-4 py-2 text-sm text-muted">{row.departmentName || '-'}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.regularHours)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.overtimeHours)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.doubleTimeHours)}</td>

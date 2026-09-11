@@ -42,7 +42,7 @@ export function SecurityAlertsPanel() {
 
   if (!hasAccess) {
     return (
-      <div className="p-6 text-center text-neutral-500" data-testid="security-alerts-no-access">
+      <div className="p-6 text-center text-muted" data-testid="security-alerts-no-access">
         {t("admin:securityAlerts.noAccess", { defaultValue: "Admin role required to view security alerts." })}
       </div>
     );
@@ -50,7 +50,7 @@ export function SecurityAlertsPanel() {
 
   if (isLoading) {
     return (
-      <div className="p-6 text-center text-neutral-500" data-testid="security-alerts-loading">
+      <div className="p-6 text-center text-muted" data-testid="security-alerts-loading">
         {t("admin:securityAlerts.loading", { defaultValue: "Loading alerts…" })}
       </div>
     );
@@ -85,7 +85,7 @@ export function SecurityAlertsPanel() {
 
       {/* Alert list */}
       {alerts.length === 0 ? (
-        <div className="p-8 text-center text-neutral-500 border rounded-lg" data-testid="security-alerts-empty">
+        <div className="p-8 text-center text-muted border rounded-lg" data-testid="security-alerts-empty">
           <p className="text-lg">{t("admin:securityAlerts.noAlerts", { defaultValue: "No open alerts" })}</p>
           <p className="text-sm mt-1">
             {t("admin:securityAlerts.noAlertsDescription", {
@@ -118,7 +118,7 @@ function SeveritySummary({ label, count, severity }: { label: string; count: num
       <span className={`px-2 py-1 rounded text-xs font-medium border ${SEVERITY_BADGE_CLASSES[severity]}`}>
         {count}
       </span>
-      <span className="text-sm text-neutral-600 dark:text-neutral-400">{label}</span>
+      <span className="text-sm text-muted dark:text-muted">{label}</span>
     </div>
   );
 }
@@ -130,7 +130,7 @@ function AlertRow({ alert, onSelect }: { alert: SecurityAlert; onSelect: () => v
   return (
     <button
       onClick={onSelect}
-      className="w-full text-left p-3 border rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors flex items-start gap-3"
+      className="w-full text-left p-3 border rounded-lg hover:bg-surface dark:hover:bg-neutral-900 transition-colors flex items-start gap-3"
       data-testid={`security-alert-row-${alert.id}`}
     >
       <span className={`px-2 py-1 rounded text-xs font-medium border whitespace-nowrap ${SEVERITY_BADGE_CLASSES[alert.severity]}`}>
@@ -140,12 +140,12 @@ function AlertRow({ alert, onSelect }: { alert: SecurityAlert; onSelect: () => v
         <div className="flex items-center gap-2">
           <span className="font-medium truncate">{alert.rule_name}</span>
           {alert.count > 1 && (
-            <span className="text-xs text-neutral-500 whitespace-nowrap">
+            <span className="text-xs text-muted whitespace-nowrap">
               ({t("admin:securityAlerts.count", { defaultValue: "×{{n}}", n: alert.count })})
             </span>
           )}
         </div>
-        <div className="text-xs text-neutral-500 mt-1 flex flex-wrap gap-x-3 gap-y-1">
+        <div className="text-xs text-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
           {alert.actor_login && (
             <span>
               {t("admin:securityAlerts.actor", { defaultValue: "Actor" })}: <strong>{alert.actor_login}</strong>

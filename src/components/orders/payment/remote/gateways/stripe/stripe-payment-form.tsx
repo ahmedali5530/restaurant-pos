@@ -8,6 +8,7 @@ import { verifyPayment } from "@/lib/payment.service.ts";
 import { toast } from "sonner";
 import i18n from "@/lib/i18n.ts";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "@/providers/theme.provider.tsx";
 
 type Props = {
   intent: PendingRemoteIntent;
@@ -80,6 +81,7 @@ function StripePaymentFormInner({ intent }: Props) {
 }
 
 export function StripePaymentForm({ intent }: Props) {
+  const { isDark } = useTheme();
   const publishableKey = intent.gatewayPayload?.publishableKey;
   const stripePromise = useMemo(
     () =>
@@ -95,7 +97,7 @@ export function StripePaymentForm({ intent }: Props) {
 
   const options: StripeElementsOptions = {
     clientSecret: intent.clientToken,
-    appearance: { theme: "stripe" },
+    appearance: { theme: isDark ? "night" : "stripe" },
   };
 
   return (

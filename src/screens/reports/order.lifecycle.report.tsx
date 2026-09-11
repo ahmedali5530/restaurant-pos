@@ -273,13 +273,13 @@ export const OrderLifecycleReport = () => {
   const reportTitle = 'Order lifecycle report';
 
   if (loading) {
-    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.orderLifecycle')}</div></ReportsLayout>;
+    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.orderLifecycle')}</div></ReportsLayout>;
   }
   if (error) {
     return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
   }
   if (!state.order) {
-    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('errors.noOrderFound')}</div></ReportsLayout>;
+    return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('errors.noOrderFound')}</div></ReportsLayout>;
   }
 
   return (
@@ -289,10 +289,10 @@ export const OrderLifecycleReport = () => {
       onRefresh={fetchData}
     >
       <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('columns.order')}</div>
+        <div className="border rounded-lg p-4 bg-surface">
+          <div className="text-sm text-muted">{t('columns.order')}</div>
           <div className="text-xl font-semibold">{state.order.invoice_number ? `#${state.order.invoice_number}` : state.order.id.toString()}</div>
-          <div className="text-sm text-neutral-600 mt-1">Status: {state.order.status}</div>
+          <div className="text-sm text-muted mt-1">Status: {state.order.status}</div>
           <a
             href={orderReceiptUrl({
               id: state.order.id.toString(),
@@ -309,16 +309,16 @@ export const OrderLifecycleReport = () => {
 
         <div className="space-y-3">
           {events.length === 0 ? (
-            <div className="py-6 text-center text-sm text-neutral-500 border rounded-lg">No lifecycle events found for this order.</div>
+            <div className="py-6 text-center text-sm text-muted border rounded-lg">No lifecycle events found for this order.</div>
           ) : events.map((event) => (
             <div key={event.key} className="border rounded-lg p-4 flex items-start gap-3">
-              <div className="h-8 w-8 rounded-full bg-neutral-100 flex items-center justify-center">
-                <FontAwesomeIcon icon={iconByType(event.type)} className="text-neutral-700" />
+              <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center">
+                <FontAwesomeIcon icon={iconByType(event.type)} className="text-foreground" />
               </div>
               <div className="flex-1">
-                <div className="font-semibold text-neutral-900">{event.title}</div>
-                <div className="text-sm text-neutral-600">{toLuxonDateTime(event.timestamp as any).toFormat("yyyy-LL-dd HH:mm:ss")}</div>
-                {event.details && <div className="text-sm text-neutral-700 mt-1">{event.details}</div>}
+                <div className="font-semibold text-foreground">{event.title}</div>
+                <div className="text-sm text-muted">{toLuxonDateTime(event.timestamp as any).toFormat("yyyy-LL-dd HH:mm:ss")}</div>
+                {event.details && <div className="text-sm text-foreground mt-1">{event.details}</div>}
               </div>
             </div>
           ))}

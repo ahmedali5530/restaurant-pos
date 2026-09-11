@@ -244,7 +244,7 @@ export const PrintForm = ({
                     <img
                       src={currentLogoUrl}
                       alt={t('forms.logoPreview')}
-                      className="max-h-20 max-w-full object-contain border border-neutral-300 rounded p-2"
+                      className="max-h-20 max-w-full object-contain border border-border rounded p-2"
                     />
                     <button
                       type="button"
@@ -291,7 +291,7 @@ export const PrintForm = ({
                           field.onChange(raw === '' ? 0 : Number(raw));
                         }}
                       />
-                      <p className="text-xs text-neutral-500 mt-1">{t('forms.logoOffsetXHint')}</p>
+                      <p className="text-xs text-muted mt-1">{t('forms.logoOffsetXHint')}</p>
                     </div>
                   )}
                 />

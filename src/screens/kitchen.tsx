@@ -619,7 +619,7 @@ export const KitchenScreen = () => {
           </div>
           <div className="input-group flex-1 justify-end flex gap-3 items-center h-full">
             <span
-              className="rounded-xl bg-neutral-900 text-warning-500 text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
+              className="rounded-xl bg-neutral-900 text-warning text-2xl h-full flex items-center px-3">{t("kitchen:labels.avgTime", {time: avgTime})}</span>
           </div>
         </div>
         <div className="grid grid-cols-5 gap-5 h-[calc(100vh_-_100px_-_var(--app-toolbar-h))]">
@@ -650,7 +650,7 @@ export const KitchenScreen = () => {
           </ScrollContainer>
 
           {dishesModal && (
-            <div className="flex flex-col col-span-1 bg-white rounded-xl">
+            <div className="flex flex-col col-span-1 bg-surface-elevated rounded-xl">
               <button
                 onClick={() => setDishesModal(false)}
                 className="bg-black text-white self-end mb-5 inline-flex h-12 w-12 justify-center items-center">
@@ -660,9 +660,12 @@ export const KitchenScreen = () => {
                 'flex-1 min-h-0 select-none',
               )}>
                 {allDishes.map((item, index) => (
-                  <div className="flex justify-between text-2xl odd:bg-gray-200 p-3" key={index}>
+                  <div
+                    className="flex justify-between text-2xl text-foreground odd:bg-surface even:bg-surface-elevated p-3"
+                    key={index}
+                  >
                     <strong>{item[0]}</strong>
-                    <span className="bg-black text-warning-500 w-12 text-center">{item[1]}</span>
+                    <span className="bg-neutral-900 text-warning w-12 text-center rounded">{item[1]}</span>
                   </div>
                 ))}
               </ScrollContainer>
@@ -681,7 +684,7 @@ export const KitchenScreen = () => {
       >
         <div className="space-y-3 max-h-[70vh] overflow-auto">
           {!loadingCompletedOrders && completedOrders.length === 0 && (
-            <div className="p-4 rounded bg-white text-center text-neutral-600">
+            <div className="p-4 rounded bg-surface-elevated text-center text-muted">
               {t("kitchen:modal.noCompletedOrders")}
             </div>
           )}
@@ -690,15 +693,15 @@ export const KitchenScreen = () => {
             const completedAt = item.items?.[0]?.completed_at ?? item.items?.[0]?.created_at;
 
             return (
-              <div key={item.batchKey} className="bg-white rounded-lg p-4 flex justify-between gap-4 items-center">
+              <div key={item.batchKey} className="bg-surface-elevated rounded-lg p-4 flex justify-between gap-4 items-center">
                 <div className="flex flex-col">
                   <strong className="text-lg">
                     {item.order?.order_type?.name} / {item.order ? getInvoiceNumber(item.order) : '-'}
                   </strong>
-                  <span className="text-neutral-600">
+                  <span className="text-muted">
                     {t("kitchen:labels.completed", {time: toLuxonDateTime(completedAt).toFormat('hh:mm a')})}
                   </span>
-                  <span className="text-neutral-600">
+                  <span className="text-muted">
                     {t("kitchen:labels.items", {count: item.items.length})}
                   </span>
                 </div>

@@ -131,10 +131,10 @@ export const Lock = () => {
         <h1 className="text-2xl font-bold mb-2">
           {t("common:lock.lockedTitle", { defaultValue: "Session Locked" })}
         </h1>
-        <p className="text-neutral-400">
+        <p className="text-muted">
           {t("common:lock.lockedBy", { name: lockedUserName, defaultValue: "Locked by {{name}}" })}
         </p>
-        <p className="text-sm text-neutral-500 mt-1">
+        <p className="text-sm text-muted mt-1">
           {t("common:lock.enterPinToUnlock", { defaultValue: "Enter your PIN to unlock" })}
         </p>
       </div>
@@ -144,8 +144,8 @@ export const Lock = () => {
         {Array.from({ length: PIN_LENGTH }).map((_, i) => (
           <div
             key={i}
-            className={`w-4 h-4 rounded-full border-2 border-neutral-500 ${
-              i < pin.length ? "bg-white border-white" : ""
+            className={`w-4 h-4 rounded-full border-2 border-border ${
+              i < pin.length ? "bg-surface-elevated border-white" : ""
             }`}
           />
         ))}
@@ -204,7 +204,7 @@ export const Lock = () => {
           setPage((prev: any) => ({ ...prev, lock: false, user: null, page: "Login" }));
           navigate("/");
         }}
-        className="mt-8 text-sm text-neutral-500 hover:text-neutral-300 underline"
+        className="mt-8 text-sm text-muted hover:text-neutral-300 underline"
         data-testid="lock-switch-user"
       >
         {t("common:lock.switchUser", { defaultValue: "Switch user" })}

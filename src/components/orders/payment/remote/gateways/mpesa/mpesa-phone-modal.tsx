@@ -30,7 +30,7 @@ export const MpesaPhoneModal = memo(function MpesaPhoneModal({
       shouldCloseOnEsc={!isSubmitting}
       hideCloseButton={isSubmitting}
     >
-      <p className="text-sm text-neutral-600 mb-3">
+      <p className="text-sm text-muted mb-3">
         {isSubmitting
           ? "Sending STK push to the customer phone…"
           : "Enter the customer M-Pesa number to send an STK push."}

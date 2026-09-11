@@ -137,7 +137,7 @@ export const IssueReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.issue')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.issue')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.issue')}</div>
       </ReportsLayout>
     );
   }
@@ -158,43 +158,43 @@ export const IssueReport = () => {
       <div className="space-y-8">
         {/* Summary */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">Total Issues</p>
-            <p className="text-2xl font-bold text-neutral-900">{formatNumber(issues.length)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">Total Issues</p>
+            <p className="text-2xl font-bold text-foreground">{formatNumber(issues.length)}</p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">Total Items</p>
-            <p className="text-2xl font-bold text-neutral-900">{formatNumber(totals.totalItems)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">Total Items</p>
+            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">Total Amount</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">Total Amount</p>
+            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
         {/* Detailed table */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('labels.issueDetails')}</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('labels.issueDetails')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.location')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.issuedTo')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.comments')}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.invoice')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.location')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.item')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.price')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.issuedTo')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.createdBy')}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-foreground">{t('columns.comments')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {issues.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={10} className="py-6 text-center text-sm text-muted">
                       No issues found for the selected filters
                     </td>
                   </tr>
@@ -218,11 +218,11 @@ export const IssueReport = () => {
 
                       return (
                         <tr key={`${issue.id}-${index}`}>
-                          <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">
+                          <td className="py-3 pl-6 pr-3 text-sm text-foreground">{dateStr}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">
                             {issue.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-neutral-700"
+                                className="text-primary-600 underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("issue", String(issue.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -233,14 +233,14 @@ export const IssueReport = () => {
                               issue.invoice_number || 'N/A'
                             )}
                           </td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{locationName}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{issuedToName}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{createdByName}</td>
-                          <td className="py-3 pr-6 text-sm text-neutral-700">{item.comments || '-'}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{locationName}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{issuedToName}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{createdByName}</td>
+                          <td className="py-3 pr-6 text-sm text-foreground">{item.comments || '-'}</td>
                         </tr>
                       );
                     }) || [];
@@ -248,14 +248,14 @@ export const IssueReport = () => {
                 )}
               </tbody>
               {issues.length > 0 && (
-                <tfoot className="bg-neutral-50">
+                <tfoot className="bg-surface">
                   <tr>
-                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {formatNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {withCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={3}></td>

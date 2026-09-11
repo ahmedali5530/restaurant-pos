@@ -14,7 +14,7 @@ export const Loader = ({lines = 5, lineItems = 5}: LoaderProps) => {
       const b: ReactNode[] = [];
       for(let j = 1; j <= lineItems; j++){
         b.push(
-          <div className="h-5 bg-gray-300 rounded-full w-24" key={uniqueId()}></div>
+          <div className="h-5 bg-muted/30 rounded-full w-24" key={uniqueId()}></div>
         );
       }
       a.push(

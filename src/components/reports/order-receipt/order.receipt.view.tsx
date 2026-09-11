@@ -32,18 +32,18 @@ export const OrderReceiptView = ({
     <div
       data-print-document
       data-testid="order-receipt"
-      className="mx-auto w-full max-w-md bg-white text-neutral-900 border border-neutral-300 shadow-sm print:shadow-none print:border-0"
+      className="mx-auto w-full max-w-md bg-surface-elevated text-foreground border border-border shadow-sm print:bg-surface-elevated print:text-neutral-900 print:shadow-none print:border-0"
     >
       <div className="p-4 flex flex-col gap-4">
         {(restaurantName || restaurantAddress) && (
-          <div className="text-center border-b border-neutral-200 pb-3">
+          <div className="text-center border-b border-border pb-3">
             {restaurantName && (
-              <div className="text-lg font-semibold tracking-tight text-neutral-900">
+              <div className="text-lg font-semibold tracking-tight text-foreground">
                 {restaurantName}
               </div>
             )}
             {restaurantAddress && (
-              <div className="mt-1 text-xs text-neutral-600 whitespace-pre-line">
+              <div className="mt-1 text-xs text-muted whitespace-pre-line">
                 {restaurantAddress}
               </div>
             )}
@@ -56,7 +56,7 @@ export const OrderReceiptView = ({
 
         <div>
           {items.length === 0 ? (
-            <div className="py-4 text-center text-sm text-neutral-500">
+            <div className="py-4 text-center text-sm text-muted">
               {t("receipt.noItems")}
             </div>
           ) : (
@@ -89,7 +89,7 @@ export const OrderReceiptView = ({
                 )}
                 <ReactQrCode value={qr.value} size={128} />
                 {qr.description && (
-                  <div className="text-xs text-neutral-600 text-center">
+                  <div className="text-xs text-muted text-center">
                     {qr.description}
                   </div>
                 )}

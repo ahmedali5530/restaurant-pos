@@ -92,7 +92,7 @@ export const DiscountPermissionMatrix = () => {
           </div>
         )
       })}
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-muted">
         {t('discountEngine.fields.allowedCategoriesHint')}: {categoryLabels}
       </p>
     </div>

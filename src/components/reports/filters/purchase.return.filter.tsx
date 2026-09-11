@@ -47,7 +47,7 @@ export const PurchaseReturnFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-suppliers">Suppliers</label>
+          <label htmlFor="purchase-return-suppliers" className="form-label">Suppliers</label>
           <ReactSelect
             id="purchase-return-suppliers"
             name="suppliers[]"
@@ -61,7 +61,7 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-locations">{t('filters.location')}</label>
+          <label htmlFor="purchase-return-locations" className="form-label">{t('filters.location')}</label>
           <ReactSelect
             id="purchase-return-locations"
             name="locations[]"
@@ -75,7 +75,7 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-items">{t('columns.items')}</label>
+          <label htmlFor="purchase-return-items" className="form-label">{t('columns.items')}</label>
           <ReactSelect
             id="purchase-return-items"
             name="items[]"
@@ -89,7 +89,7 @@ export const PurchaseReturnFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-return-users">{t('columns.createdBy')}</label>
+          <label htmlFor="purchase-return-users" className="form-label">{t('columns.createdBy')}</label>
           <ReactSelect
             id="purchase-return-users"
             name="users[]"

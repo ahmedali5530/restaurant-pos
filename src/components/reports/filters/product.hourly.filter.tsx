@@ -40,7 +40,7 @@ export const ProductHourlyFilter = () => {
       <DateRange isRequired label="Select a range" />
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="product-hourly-menu-items">{t('filters.menuItems')}</label>
+        <label htmlFor="product-hourly-menu-items" className="form-label">{t('filters.menuItems')}</label>
         <ReactSelect
           id="product-hourly-menu-items"
           name="menu_items[]"
@@ -54,7 +54,7 @@ export const ProductHourlyFilter = () => {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="product-hourly-hours">{t('metrics.hours')}</label>
+        <label htmlFor="product-hourly-hours" className="form-label">{t('metrics.hours')}</label>
         <ReactSelect
           name="hours[]"
           isMulti

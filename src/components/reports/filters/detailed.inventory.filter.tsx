@@ -59,7 +59,7 @@ export const DetailedInventoryFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="detailed-inventory-items">{t('labels.inventoryItems')}</label>
+          <label htmlFor="detailed-inventory-items" className="form-label">{t('labels.inventoryItems')}</label>
           <ReactSelect
             id="detailed-inventory-items"
             name="items[]"
@@ -73,7 +73,7 @@ export const DetailedInventoryFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="detailed-inventory-types">Transaction Types</label>
+          <label htmlFor="detailed-inventory-types" className="form-label">Transaction Types</label>
           <ReactSelect
             id="detailed-inventory-types"
             name="types[]"

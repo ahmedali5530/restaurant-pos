@@ -36,7 +36,7 @@ export const InventoryRecipes = () => {
         <span
           className={classNames(
             "tag",
-            info.getValue() ? "bg-success-100 text-success-800" : "bg-neutral-100"
+            info.getValue() ? "bg-success-100 text-success-800" : "bg-surface"
           )}
         >
           {info.getValue() ? t("production.active") : t("production.inactive")}

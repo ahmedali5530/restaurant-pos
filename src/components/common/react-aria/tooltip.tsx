@@ -15,7 +15,7 @@ export function Tooltip({children, className, ...props}: MyTooltipProps) {
       offset={8}
       className={cn(
         'react-aria-Tooltip z-[1200]',
-        'bg-neutral-900 text-white border border-neutral-900',
+        'bg-neutral-900 text-white border border-border',
         'px-3 py-1.5 text-sm font-medium rounded-lg shadow-lg',
         'outline-none',
         className,

@@ -109,7 +109,7 @@ export const TrialBalance = () => {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center text-gray-500">{t('reports.noTrialBalance')}</td>
+                <td colSpan={5} className="text-center text-muted">{t('reports.noTrialBalance')}</td>
               </tr>
             )}
             </tbody>

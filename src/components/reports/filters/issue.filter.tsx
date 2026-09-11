@@ -45,7 +45,7 @@ export const IssueFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="issue-locations">{t('filters.location')}</label>
+          <label htmlFor="issue-locations" className="form-label">{t('filters.location')}</label>
           <ReactSelect
             id="issue-locations"
             name="locations[]"
@@ -59,7 +59,7 @@ export const IssueFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="issue-items">{t('columns.items')}</label>
+          <label htmlFor="issue-items" className="form-label">{t('columns.items')}</label>
           <ReactSelect
             id="issue-items"
             name="items[]"
@@ -73,7 +73,7 @@ export const IssueFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="issue-users">{t('columns.createdBy')}</label>
+          <label htmlFor="issue-users" className="form-label">{t('columns.createdBy')}</label>
           <ReactSelect
             id="issue-users"
             name="users[]"

@@ -90,7 +90,7 @@ export const OrderPaymentServiceCharges = ({
   return (
     <div className="flex flex-col justify-between h-full" data-testid="payment-panel-service-charges">
       <div className="mb-5 flex justify-between flex-col gap-5">
-        <div className="text-xl bg-warning-500 px-3 py-5 text-white">
+        <div className="text-xl bg-warning px-3 py-5 text-white">
           {t('serviceCharges.defaultFromSettings')} <span className="font-semibold ">{defaultFromSettings.label}</span>
         </div>
         <Button

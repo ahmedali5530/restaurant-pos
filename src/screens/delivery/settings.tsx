@@ -251,7 +251,7 @@ export const DeliverySettings = () => {
 
   return (
     <>
-      <div className="bg-white p-4">
+      <div className="bg-surface-elevated p-4">
         <div className="">
           <h2 className="text-xl font-bold mb-4">{t('settings.title')}</h2>
           
@@ -422,7 +422,7 @@ export const DeliverySettings = () => {
                       const isDefaultDay = isDayOfWeek(field.day_or_date);
                       const isDayOff = deliveryTimingValues?.[index]?.enable_delivery ?? false;
                       return (
-                        <div key={field.id} className="border rounded-lg p-1 bg-gray-50">
+                        <div key={field.id} className="border rounded-lg p-1 bg-surface">
                           <div className="flex items-end gap-3">
                             <div className="flex-1 min-w-[150px]">
                               <Controller

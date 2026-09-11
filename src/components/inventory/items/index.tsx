@@ -68,7 +68,7 @@ export const InventoryItems = () => {
           .filter(Boolean);
 
         if (tags.length === 0) {
-          return <span className="text-neutral-400">-</span>;
+          return <span className="text-muted">-</span>;
         }
 
         return (

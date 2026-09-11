@@ -128,20 +128,20 @@ export const RoleModulesModal = ({ open, onClose, roleName, modules }: Props) =>
         </div>
 
         {modules.length === 0 ? (
-          <div className="text-center text-neutral-500 py-8">
+          <div className="text-center text-muted py-8">
             {t("forms.noModulesAssigned")}
           </div>
         ) : filteredGroups.length === 0 ? (
-          <div className="text-center text-neutral-500 py-8">
+          <div className="text-center text-muted py-8">
             {t("forms.noModulesFound", { term: searchTerm })}
           </div>
         ) : (
           <div className="max-h-[28rem] overflow-y-auto space-y-4 pr-1">
             {filteredGroups.map((group) => (
-              <div key={group.key} className="border border-neutral-200 rounded-lg overflow-hidden">
-                <div className="bg-neutral-100 px-3 py-2 font-medium text-sm flex items-center justify-between">
+              <div key={group.key} className="border border-border rounded-lg overflow-hidden">
+                <div className="bg-surface px-3 py-2 font-medium text-sm flex items-center justify-between">
                   <span>{group.label}</span>
-                  <span className="text-neutral-500 text-xs font-normal">
+                  <span className="text-muted text-xs font-normal">
                     {t("forms.moduleCount", { count: group.items.length })}
                   </span>
                 </div>

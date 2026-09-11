@@ -126,7 +126,7 @@ export const AdminTipDistribution = () => {
 
   return (
     <div className="p-3 grid grid-cols-2 gap-5">
-      <div className="shadow p-4 rounded bg-white">
+      <div className="shadow p-4 rounded bg-surface-elevated">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">{t('forms.byRoles')}</h3>
           <Button
@@ -150,7 +150,7 @@ export const AdminTipDistribution = () => {
 
         <div className="flex flex-col gap-3">
           {roleRows.length === 0 && (
-            <div className="text-sm text-neutral-500">{t('forms.noRoleWeight')}</div>
+            <div className="text-sm text-muted">{t('forms.noRoleWeight')}</div>
           )}
           {roleRows.map((row, index) => (
             <div key={`role-${index}`} className="grid grid-cols-3 gap-3 items-end">
@@ -199,7 +199,7 @@ export const AdminTipDistribution = () => {
         </div>
       </div>
 
-      <div className="shadow p-4 rounded bg-white">
+      <div className="shadow p-4 rounded bg-surface-elevated">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">{t('forms.specificUsers')}</h3>
           <Button
@@ -223,7 +223,7 @@ export const AdminTipDistribution = () => {
 
         <div className="flex flex-col gap-3">
           {userRows.length === 0 && (
-            <div className="text-sm text-neutral-500">{t('forms.noUserWeight')}</div>
+            <div className="text-sm text-muted">{t('forms.noUserWeight')}</div>
           )}
           {userRows.map((row, index) => (
             <div key={`user-${index}`} className="grid grid-cols-3 gap-3 items-end">

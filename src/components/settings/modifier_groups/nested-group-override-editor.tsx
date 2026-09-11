@@ -96,7 +96,7 @@ export const NestedGroupOverrideEditor = ({
       size="lg"
     >
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-muted">
           Changes apply only to this modifier row. The base group &quot;{groupName}&quot; is unchanged.
         </p>
 
@@ -123,7 +123,7 @@ export const NestedGroupOverrideEditor = ({
             return (
               <div
                 key={row.nested_modifier_id}
-                className="flex items-center gap-3 py-2 border-b border-neutral-100 last:border-0"
+                className="flex items-center gap-3 py-2 border-b border-border last:border-0"
               >
                 <div className="grow-0 min-w-[250px]">
                   <Switch

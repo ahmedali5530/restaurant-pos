@@ -11,6 +11,8 @@ import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {ResponsivePie} from "@nivo/pie";
+import {useNivoTheme, useNivoColors} from "@/lib/nivo-theme.ts";
+import {cssVarRgb} from "@/lib/theme.ts";
 import {DateTime} from "luxon";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import type {IconDefinition} from "@fortawesome/fontawesome-svg-core";
@@ -168,6 +170,8 @@ const SalesLineChart = ({
   isLoading: boolean;
 }) => {
   const { t } = useTranslation('reports');
+  const nivoTheme = useNivoTheme();
+  const primary = cssVarRgb('--primary', '0 70 254');
   const chartData = useMemo(() => [
     {
       id: 'Sales',
@@ -176,19 +180,19 @@ const SalesLineChart = ({
   ], [data]);
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Sales Trend</h2>
-          <p className="text-sm text-neutral-500">Revenue over time</p>
+          <h2 className="text-2xl font-bold text-foreground">Sales Trend</h2>
+          <p className="text-sm text-muted">Revenue over time</p>
         </div>
       </div>
       <div className="h-[300px] relative">
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-elevated/80 z-10">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-              <p className="mt-2 text-sm text-neutral-500">{t('loading.chart')}</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-2 text-sm text-muted">{t('loading.chart')}</p>
             </div>
           </div>
         ) : null}
@@ -220,10 +224,10 @@ const SalesLineChart = ({
             enableGridX={false}
             enableGridY={true}
             gridYValues={6}
-            colors={['#0046FE']}
+            colors={[primary]}
             lineWidth={3}
             pointSize={12}
-            pointColor="#0046FE"
+            pointColor={primary}
             pointBorderWidth={2}
             pointBorderColor={{from: 'serieColor'}}
             pointLabelYOffset={-12}
@@ -233,37 +237,19 @@ const SalesLineChart = ({
             useMesh={true}
             enableSlices="x"
             tooltip={({point}) => (
-              <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
-                <p className="text-sm font-medium text-neutral-900">
+              <div className="bg-surface-elevated border border-border rounded-lg shadow-lg p-3">
+                <p className="text-sm font-medium text-foreground">
                   {DateTime.fromISO(point.data.x || '').toFormat('MMM dd, HH:mm')}
                 </p>
-                <p className="text-sm text-primary-500 font-semibold">
+                <p className="text-sm text-primary font-semibold">
                   {withCurrency(point.data.y || 0)}
                 </p>
               </div>
             )}
-            theme={{
-              axis: {
-                ticks: {
-                  text: {fill: '#737373', fontSize: 11},
-                },
-              },
-              grid: {
-                line: {stroke: '#e5e5e5', strokeWidth: 1},
-              },
-              crosshair: {
-                line: {stroke: '#0046FE', strokeWidth: 1, strokeDasharray: '4 4'},
-              },
-              tooltip: {
-                container: {
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                },
-              },
-            }}
+            theme={nivoTheme}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-neutral-500">
+          <div className="h-full flex items-center justify-center text-muted">
             No sales data for this period
           </div>
         )}
@@ -280,6 +266,8 @@ const OrdersPerHourChart = ({
   isLoading: boolean;
 }) => {
   const { t } = useTranslation('reports');
+  const nivoTheme = useNivoTheme();
+  const success = cssVarRgb('--success', '61 229 103');
   const chartData = useMemo(() => [
     {
       id: 'Orders',
@@ -288,19 +276,19 @@ const OrdersPerHourChart = ({
   ], [data]);
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-neutral-700">Orders Per Hour</h2>
-          <p className="text-sm text-neutral-500">Order volume by hour</p>
+          <h2 className="text-2xl font-bold text-foreground">Orders Per Hour</h2>
+          <p className="text-sm text-muted">Order volume by hour</p>
         </div>
       </div>
       <div className="h-[300px] relative">
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-elevated/80 z-10">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
-              <p className="mt-2 text-sm text-neutral-500">{t('loading.chart')}</p>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-2 text-sm text-muted">{t('loading.chart')}</p>
             </div>
           </div>
         ) : null}
@@ -330,10 +318,10 @@ const OrdersPerHourChart = ({
             enableGridX={false}
             enableGridY={true}
             gridYValues={6}
-            colors={['#3DE567']}
+            colors={[success]}
             lineWidth={3}
             pointSize={12}
-            pointColor="#3DE567"
+            pointColor={success}
             pointBorderWidth={2}
             pointBorderColor={{from: 'serieColor'}}
             pointLabelYOffset={-12}
@@ -343,8 +331,8 @@ const OrdersPerHourChart = ({
             useMesh={true}
             enableSlices="x"
             tooltip={({point}) => (
-              <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
-                <p className="text-sm font-medium text-neutral-900">
+              <div className="bg-surface-elevated border border-border rounded-lg shadow-lg p-3">
+                <p className="text-sm font-medium text-foreground">
                   Hour: {point.data.x}
                 </p>
                 <p className="text-sm text-success-500 font-semibold">
@@ -352,28 +340,10 @@ const OrdersPerHourChart = ({
                 </p>
               </div>
             )}
-            theme={{
-              axis: {
-                ticks: {
-                  text: {fill: '#737373', fontSize: 11},
-                }
-              },
-              grid: {
-                line: {stroke: '#e5e5e5', strokeWidth: 1},
-              },
-              crosshair: {
-                line: {stroke: '#3DE567', strokeWidth: 1, strokeDasharray: '4 4'},
-              },
-              tooltip: {
-                container: {
-                  background: '#ffffff',
-                  borderRadius: '8px',
-                },
-              }
-            }}
+            theme={nivoTheme}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-neutral-500">
+          <div className="h-full flex items-center justify-center text-muted">
             No orders data
           </div>
         )}
@@ -405,14 +375,14 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
   );
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-3 rounded-full bg-warning-100">
           <Clock className="w-5 h-5 text-warning-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Sales by Day Part</h2>
-          <p className="text-xs text-neutral-500">{dayPartSummary}</p>
+          <h2 className="text-xl font-bold text-foreground">Sales by Day Part</h2>
+          <p className="text-xs text-muted">{dayPartSummary}</p>
         </div>
       </div>
       <div className="h-[250px]">
@@ -436,15 +406,15 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
             tooltip={({datum}) => {
               const dayPartData = dayParts.find(p => p.label === datum.label);
               return (
-                <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+                <div className="bg-surface-elevated border border-border rounded-lg shadow-lg p-3">
                   <div className="flex items-center gap-2 mb-1">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{backgroundColor: datum.color}}
                     />
-                    <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
+                    <p className="text-sm font-medium text-foreground">{datum.label}</p>
                   </div>
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-muted">
                     {formatNumber(dayPartData?.orders || 0)} orders • {withCurrency(datum.value)}
                   </p>
                 </div>
@@ -460,7 +430,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
                 itemsSpacing: 10,
                 itemWidth: 90,
                 itemHeight: 14,
-                itemTextColor: '#525252',
+                itemTextColor: 'rgb(var(--muted))',
                 itemDirection: 'left-to-right',
                 itemOpacity: 1,
                 symbolSize: 10,
@@ -469,7 +439,7 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
             ]}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-neutral-500">
+          <div className="h-full flex items-center justify-center text-muted">
             No day part data
           </div>
         )}
@@ -482,14 +452,14 @@ const DayPartsWidget = ({dayParts}: {dayParts: {label: string; orders: number; r
 const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
   const { t } = useTranslation('reports');
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-3 rounded-full bg-success-100">
           <Tag className="w-5 h-5 text-success-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Sales by Category</h2>
-          <p className="text-xs text-neutral-500">{t('labels.distribution')}</p>
+          <h2 className="text-xl font-bold text-foreground">Sales by Category</h2>
+          <p className="text-xs text-muted">{t('labels.distribution')}</p>
         </div>
       </div>
       <div className="h-[250px]">
@@ -506,15 +476,15 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
             enableArcLabels={false}
             enableArcLinkLabels={false}
             tooltip={({datum}) => (
-              <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
+              <div className="bg-surface-elevated border border-border rounded-lg shadow-lg p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{backgroundColor: datum.color}}
                   />
-                  <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
+                  <p className="text-sm font-medium text-foreground">{datum.label}</p>
                 </div>
-                <p className="text-sm text-neutral-600">
+                <p className="text-sm text-muted">
                   {formatNumber(datum.value)} items • {withCurrency(datum.value)}
                 </p>
               </div>
@@ -529,7 +499,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
                 itemsSpacing: 10,
                 itemWidth: 80,
                 itemHeight: 14,
-                itemTextColor: '#525252',
+                itemTextColor: 'rgb(var(--muted))',
                 itemDirection: 'left-to-right',
                 itemOpacity: 1,
                 symbolSize: 10,
@@ -538,7 +508,7 @@ const CategoryPieWidget = ({categories}: {categories: CategorySales[]}) => {
             ]}
           />
         ) : (
-          <div className="h-full flex items-center justify-center text-neutral-500">
+          <div className="h-full flex items-center justify-center text-muted">
             No category data
           </div>
         )}
@@ -572,22 +542,22 @@ const BreakdownTabsWidget = ({
   }));
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`p-3 rounded-full ${colorClass.bg}`}>
             <Icon className={`w-5 h-5 ${colorClass.text}`} />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">{title}</h2>
-            <p className="text-xs text-neutral-500">{subtitle}</p>
+            <h2 className="text-xl font-bold text-foreground">{title}</h2>
+            <p className="text-xs text-muted">{subtitle}</p>
           </div>
         </div>
       </div>
       <Tabs selectedKey={selectedTab} onSelectionChange={(key) => setSelectedTab(key as 'chart' | 'table')}>
         <TabList aria-label={`${title} tabs`} className="flex flex-row gap-3 mb-4">
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="chart" key="chart">{t('labels.chart')}</Tab>
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">{t('filters.table')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning" id="chart" key="chart">{t('labels.chart')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning" id="table" key="table">{t('filters.table')}</Tab>
         </TabList>
         <TabPanel id="chart" key="chart">
           <div className="h-[260px]">
@@ -604,12 +574,12 @@ const BreakdownTabsWidget = ({
                 enableArcLabels={false}
                 enableArcLinkLabels={false}
                 tooltip={({datum}) => (
-                  <div className="bg-white border border-neutral-200 rounded-lg shadow-lg p-3">
-                    <p className="text-sm font-medium text-neutral-900">{datum.label}</p>
-                    <p className="text-xs text-neutral-500">
+                  <div className="bg-surface-elevated border border-border rounded-lg shadow-lg p-3">
+                    <p className="text-sm font-medium text-foreground">{datum.label}</p>
+                    <p className="text-xs text-muted">
                       {countLabel}: {formatNumber(rows.find(row => row.name === datum.label)?.count || 0)}
                     </p>
-                    <p className="text-sm text-neutral-700">{withCurrency(datum.value)}</p>
+                    <p className="text-sm text-foreground">{withCurrency(datum.value)}</p>
                   </div>
                 )}
                 legends={[
@@ -622,7 +592,7 @@ const BreakdownTabsWidget = ({
                     itemsSpacing: 10,
                     itemWidth: 90,
                     itemHeight: 14,
-                    itemTextColor: '#525252',
+                    itemTextColor: 'rgb(var(--muted))',
                     itemDirection: 'left-to-right',
                     itemOpacity: 1,
                     symbolSize: 10,
@@ -631,30 +601,30 @@ const BreakdownTabsWidget = ({
                 ]}
               />
             ) : (
-              <div className="h-full flex items-center justify-center text-neutral-500">No data available</div>
+              <div className="h-full flex items-center justify-center text-muted">No data available</div>
             )}
           </div>
         </TabPanel>
         <TabPanel id="table" key="table">
-          <div className="max-h-[260px] overflow-auto rounded border border-neutral-200">
+          <div className="max-h-[260px] overflow-auto rounded border border-border">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-2 px-3 text-left text-xs font-semibold uppercase text-neutral-600">{t('columns.name')}</th>
-                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">{countLabel}</th>
-                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-neutral-600">{t('columns.amount')}</th>
+                  <th className="py-2 px-3 text-left text-xs font-semibold uppercase text-muted">{t('columns.name')}</th>
+                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-muted">{countLabel}</th>
+                  <th className="py-2 px-3 text-right text-xs font-semibold uppercase text-muted">{t('columns.amount')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
                 {rows.length > 0 ? rows.map(row => (
                   <tr key={row.name}>
-                    <td className="py-2 px-3 text-sm text-neutral-700">{row.name}</td>
-                    <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(row.count)}</td>
-                    <td className="py-2 px-3 text-sm text-right font-semibold text-neutral-900">{withCurrency(row.amount)}</td>
+                    <td className="py-2 px-3 text-sm text-foreground">{row.name}</td>
+                    <td className="py-2 px-3 text-sm text-right text-muted">{formatNumber(row.count)}</td>
+                    <td className="py-2 px-3 text-sm text-right font-semibold text-foreground">{withCurrency(row.amount)}</td>
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">No data available</td>
+                    <td colSpan={3} className="py-6 text-center text-sm text-muted">No data available</td>
                   </tr>
                 )}
               </tbody>
@@ -669,26 +639,26 @@ const BreakdownTabsWidget = ({
 const PeriodComparisonSection = ({periodSales}: {periodSales: PeriodSalesItem[]}) => {
   const { t } = useTranslation('reports');
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
         <div className="p-3 rounded-full bg-info-100">
           <TrendingUp className="w-5 h-5 text-info-600" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">Period Comparison</h2>
-          <p className="text-xs text-neutral-500">{t('labels.databaseSnapshots')}</p>
+          <h2 className="text-xl font-bold text-foreground">Period Comparison</h2>
+          <p className="text-xs text-muted">{t('labels.databaseSnapshots')}</p>
         </div>
       </div>
-      <div className="rounded border border-neutral-200 overflow-hidden">
+      <div className="rounded border border-border overflow-hidden">
         {periodSales.map((item, idx) => (
           <div
             key={item.label}
             className={`flex items-center justify-between px-4 py-3 ${
-              idx % 2 === 0 ? 'bg-white' : 'bg-neutral-50'
+              idx % 2 === 0 ? 'bg-surface-elevated' : 'bg-surface'
             }`}
           >
-            <p className="text-sm text-neutral-600">{item.label}</p>
-            <p className="text-sm font-semibold text-neutral-900">{withCurrency(item.amount)}</p>
+            <p className="text-sm text-muted">{item.label}</p>
+            <p className="text-sm font-semibold text-foreground">{withCurrency(item.amount)}</p>
           </div>
         ))}
       </div>
@@ -724,31 +694,31 @@ const ActivitySection = () => {
   }, []);
 
   return (
-    <div className="bg-white p-5 shadow-xl xl:col-span-1 rounded-lg border border-neutral-200">
-      <h3 className="text-lg font-semibold text-neutral-700">{t('labels.latestActivity')}</h3>
-      <p className="text-xs text-neutral-500 mb-3">Top 100 records from tracking</p>
-      <div className="max-h-[420px] overflow-y-auto rounded-md border border-neutral-200 bg-white">
+    <div className="bg-surface-elevated p-5 shadow-xl xl:col-span-1 rounded-lg border border-border">
+      <h3 className="text-lg font-semibold text-foreground">{t('labels.latestActivity')}</h3>
+      <p className="text-xs text-muted mb-3">Top 100 records from tracking</p>
+      <div className="max-h-[420px] overflow-y-auto rounded-md border border-border bg-surface-elevated">
         {trackingLoading ? (
-          <div className="p-4 text-sm text-neutral-500">{t('loading.latestActivity')}</div>
+          <div className="p-4 text-sm text-muted">{t('loading.latestActivity')}</div>
         ) : trackingRows.length === 0 ? (
-          <div className="p-4 text-sm text-neutral-500">No activity found</div>
+          <div className="p-4 text-sm text-muted">No activity found</div>
         ) : (
           
           <table className="table table-xs">
             {trackingRows.map((row) => (
               <tr key={String(row.id)}>
-                <td className="text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat(import.meta.env.VITE_DATE_FORMAT)}</td>
-                <td className="text-sm text-neutral-700">
+                <td className="text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat(import.meta.env.VITE_DATE_FORMAT)}</td>
+                <td className="text-sm text-foreground">
                   <span className="tag">{String(row.user || "-")}</span>
                 </td>
-                {/*<td className="text-sm text-neutral-700">{String(row.user_role || "-")}</td>*/}
-                <td className="text-sm text-neutral-700">{row.module || "-"}</td>
-                {/*<td className="text-sm text-neutral-700">{row.auth_method || "-"}</td>*/}
-                <td className="text-sm text-neutral-700">{displayValue(row.manager)}</td>
-                {/*<td className="text-sm text-neutral-700">{displayValue(row.manager_role)}</td>*/}
-                <td className="text-sm text-neutral-700">
+                {/*<td className="text-sm text-foreground">{String(row.user_role || "-")}</td>*/}
+                <td className="text-sm text-foreground">{row.module || "-"}</td>
+                {/*<td className="text-sm text-foreground">{row.auth_method || "-"}</td>*/}
+                <td className="text-sm text-foreground">{displayValue(row.manager)}</td>
+                {/*<td className="text-sm text-foreground">{displayValue(row.manager_role)}</td>*/}
+                <td className="text-sm text-foreground">
                   <div>{detectBrowser(row.user_agent)}</div>
-                  {/*<div className="sm text-neutral-500">{row.resolution || "-"}</div>*/}
+                  {/*<div className="sm text-muted">{row.resolution || "-"}</div>*/}
                 </td>
               </tr>
             ))}
@@ -805,10 +775,10 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
     'map': {
       title: 'Map View',
       component: mapLoading ? (
-        <div className="h-[400px] w-full rounded-lg bg-neutral-100 flex items-center justify-center">
+        <div className="h-[400px] w-full rounded-lg bg-surface flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500 mb-2"></div>
-            <p className="text-sm text-neutral-500">{t('loading.map')}</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+            <p className="text-sm text-muted">{t('loading.map')}</p>
           </div>
         </div>
       ) : (
@@ -843,19 +813,19 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                   <Popup>
                     <div className="p-2 min-w-[200px]">
                       <p className="font-bold text-sm mb-1">Order #{order.invoice_number}</p>
-                      <p className="text-xs text-gray-600 mb-1">
+                      <p className="text-xs text-muted mb-1">
                         Status: <span className="font-semibold">{order.status}</span>
                       </p>
-                      <p className="text-xs text-gray-600 mb-1">
+                      <p className="text-xs text-muted mb-1">
                         Customer: <span className="font-semibold">{customerName}</span>
                       </p>
                       {address && (
-                        <p className="text-xs text-gray-600 mb-1">
+                        <p className="text-xs text-muted mb-1">
                           Address: <span className="font-semibold">{address}</span>
                         </p>
                       )}
-                      <p className="text-xs text-gray-600">
-                        Total: <span className="font-bold text-primary-500">{withCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
+                      <p className="text-xs text-muted">
+                        Total: <span className="font-bold text-primary">{withCurrency(getOrderPaymentTotals(order).amountCollected)}</span>
                       </p>
                     </div>
                   </Popup>
@@ -871,26 +841,26 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
       component: (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Order #</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Customer</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.type')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.time')}</th>
-                <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.total')}</th>
+                <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Order #</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Customer</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('common:actions.type')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('filters.status')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('common:actions.time')}</th>
+                <th className="py-3 pr-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">{t('columns.total')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {orders.length > 0 ? orders.slice(0, 10).map(order => (
-                <tr key={order.id} className="hover:bg-neutral-50 transition-colors">
+                <tr key={order.id} className="hover:bg-surface transition-colors">
                   <td className="py-3 pl-4 pr-3 text-sm">
-                    <span className="font-mono text-sm font-semibold text-primary-500">#{order.invoice_number}</span>
+                    <span className="font-mono text-sm font-semibold text-primary">#{order.invoice_number}</span>
                   </td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">
+                  <td className="py-3 px-3 text-sm text-foreground">
                     {order.customer?.name || 'Walk-in'}
                   </td>
-                  <td className="py-3 px-3 text-sm text-neutral-600">
+                  <td className="py-3 px-3 text-sm text-muted">
                     {order.order_type?.name || 'Dine-in'}
                   </td>
                   <td className="py-3 px-3 text-sm">
@@ -902,16 +872,16 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                       {order.status}
                     </span>
                   </td>
-                  <td className="py-3 px-3 text-sm text-neutral-600">
+                  <td className="py-3 px-3 text-sm text-muted">
                     {toLuxonDateTime(order.created_at).toFormat('HH:mm')}
                   </td>
-                  <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
+                  <td className="py-3 pr-4 text-right text-sm font-semibold text-foreground">
                     {withCurrency(getOrderPaymentTotals(order).amountCollected)}
                   </td>
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-sm text-neutral-500">
+                  <td colSpan={6} className="py-8 text-center text-sm text-muted">
                     No active delivery orders
                   </td>
                 </tr>
@@ -924,18 +894,18 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border col-span-2">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border col-span-2">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-3 rounded-full bg-primary-100">
             <Truck className="w-5 h-5 text-primary-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">Delivery Orders</h2>
-            <p className="text-xs text-neutral-500">{t('labels.activeDeliveries')}</p>
+            <h2 className="text-xl font-bold text-foreground">Delivery Orders</h2>
+            <p className="text-xs text-muted">{t('labels.activeDeliveries')}</p>
           </div>
         </div>
-        <span className="bg-primary-100 text-primary-500 text-xs font-semibold px-3 py-1.5 rounded-full">
+        <span className="bg-primary-100 text-primary text-xs font-semibold px-3 py-1.5 rounded-full">
           {orders.length} active
         </span>
       </div>
@@ -946,8 +916,8 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
         onSelectionChange={(key: string) => setSelectedTab(key as 'map' | 'table')}
       >
         <TabList aria-label="Delivery tabs" className="flex flex-row gap-3 mb-4">
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="map" key="map">{t('labels.mapView')}</Tab>
-          <Tab activeClass="bg-neutral-900 text-warning-500" id="table" key="table">{t('labels.tableView')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning" id="map" key="map">{t('labels.mapView')}</Tab>
+          <Tab activeClass="bg-neutral-900 text-warning" id="table" key="table">{t('labels.tableView')}</Tab>
         </TabList>
         <TabPanel id="map" key="map">
           {tabs.map.component}
@@ -1047,15 +1017,15 @@ const UserSessionsWidget = () => {
   }, []);
 
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-3 rounded-full bg-info-100">
             <UserCheck className="w-5 h-5 text-info-600" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-neutral-700">User Sessions</h2>
-            <p className="text-xs text-neutral-500">{t('labels.latestTimeEntries')}</p>
+            <h2 className="text-xl font-bold text-foreground">User Sessions</h2>
+            <p className="text-xs text-muted">{t('labels.latestTimeEntries')}</p>
           </div>
         </div>
         <span className="bg-info-100 text-info-500 text-xs font-semibold px-3 py-1.5 rounded-full">
@@ -1064,55 +1034,55 @@ const UserSessionsWidget = () => {
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
             <tr>
-              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.user')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Role</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Shift</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock In</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">Clock Out</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.duration')}</th>
-              <th className="py-3 pr-4 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
+              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('filters.user')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Shift</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Clock In</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Clock Out</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('columns.duration')}</th>
+              <th className="py-3 pr-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('filters.status')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {loading ? (
               <tr>
                 <td colSpan={7} className="py-8 text-center">
                   <div className="flex items-center justify-center">
-                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500 mr-2"></div>
-                    <span className="text-sm text-neutral-500">{t('loading.sessions')}</span>
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mr-2"></div>
+                    <span className="text-sm text-muted">{t('loading.sessions')}</span>
                   </div>
                 </td>
               </tr>
             ) : sessions.length > 0 ? sessions.map((session, idx) => (
-              <tr key={idx} className="hover:bg-neutral-50 transition-colors">
+              <tr key={idx} className="hover:bg-surface transition-colors">
                 <td className="py-3 pl-4 pr-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-neutral-200 text-neutral-600 flex items-center justify-center text-sm font-bold">
+                    <div className="w-8 h-8 rounded-full bg-surface dark:bg-neutral-700 text-muted flex items-center justify-center text-sm font-bold">
                       {session.user.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-medium text-neutral-900">{session.user}</span>
+                    <span className="font-medium text-foreground">{session.user}</span>
                   </div>
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-700">
+                <td className="py-3 px-3 text-sm text-muted">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface dark:bg-neutral-700 text-foreground">
                     {session.role}
                   </span>
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
+                <td className="py-3 px-3 text-sm text-muted">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
                     {session.shift}
                   </span>
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-700 font-medium">
+                <td className="py-3 px-3 text-sm text-foreground font-medium">
                   {session.clockIn}
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
+                <td className="py-3 px-3 text-sm text-muted">
                   {session.clockOut || '-'}
                 </td>
                 <td className="py-3 px-3 text-sm">
-                  <span className={`font-semibold ${session.isActive ? 'text-success-600' : 'text-neutral-700'}`}>
+                  <span className={`font-semibold ${session.isActive ? 'text-success-600' : 'text-foreground'}`}>
                     {session.duration}
                   </span>
                 </td>
@@ -1123,7 +1093,7 @@ const UserSessionsWidget = () => {
                       Active
                     </span>
                   ) : (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-600">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface dark:bg-neutral-700 text-muted">
                       Completed
                     </span>
                   )}
@@ -1131,7 +1101,7 @@ const UserSessionsWidget = () => {
               </tr>
             )) : (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-sm text-neutral-500">
+                <td colSpan={7} className="py-8 text-center text-sm text-muted">
                   No user sessions found
                 </td>
               </tr>
@@ -1146,43 +1116,43 @@ const UserSessionsWidget = () => {
 const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
   const { t } = useTranslation('reports');
   return (
-    <div className="bg-white p-5 rounded-lg shadow-xl border">
+    <div className="bg-surface-elevated p-5 rounded-lg shadow-xl border">
       <div className="flex items-center gap-2 mb-4">
-        <div className="p-3 rounded-full bg-neutral-100">
-          <Clock className="w-5 h-5 text-neutral-600" />
+        <div className="p-3 rounded-full bg-surface">
+          <Clock className="w-5 h-5 text-muted" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-neutral-700">{t('labels.latestOrders')}</h2>
-          <p className="text-xs text-neutral-500">{t('labels.last10Orders')}</p>
+          <h2 className="text-xl font-bold text-foreground">{t('labels.latestOrders')}</h2>
+          <p className="text-xs text-muted">{t('labels.last10Orders')}</p>
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
             <tr>
-              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.invoice')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('metrics.cashier')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.type')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.status')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('filters.table')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.items')}</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('common:actions.time')}</th>
-              <th className="py-3 pr-4 text-right text-xs font-semibold text-neutral-600 uppercase tracking-wider">{t('columns.total')}</th>
+              <th className="py-3 pl-4 pr-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('columns.invoice')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('metrics.cashier')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('common:actions.type')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('filters.status')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('filters.table')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('columns.items')}</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{t('common:actions.time')}</th>
+              <th className="py-3 pr-4 text-right text-xs font-semibold text-muted uppercase tracking-wider">{t('columns.total')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {orders.length > 0 ? orders.slice(0, 10).map(order => (
-              <tr key={order.id} className="hover:bg-neutral-50 transition-colors">
+              <tr key={order.id} className="hover:bg-surface transition-colors">
                 <td className="py-3 pl-4 pr-3 text-sm">
-                  <span className="font-mono text-sm font-semibold text-primary-500">#{order.invoice_number}</span>
+                  <span className="font-mono text-sm font-semibold text-primary">#{order.invoice_number}</span>
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-700">
+                <td className="py-3 px-3 text-sm text-foreground">
                   <span>
                     {order.cashier?.first_name || 'Unknown'}
                   </span>
                 </td>
                 <td className="py-3 px-3 text-sm">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-neutral-200 text-neutral-700">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface dark:bg-neutral-700 text-foreground">
                     {order.order_type?.name || 'Dine-in'}
                   </span>
                 </td>
@@ -1195,24 +1165,24 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                       {order.status}
                     </span>
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
+                <td className="py-3 px-3 text-sm text-muted">
                   {order?.table?.name || '-'}{order?.table?.number}
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
+                <td className="py-3 px-3 text-sm text-muted">
                   {order.items?.length || 0}
                 </td>
-                <td className="py-3 px-3 text-sm text-neutral-600">
+                <td className="py-3 px-3 text-sm text-muted">
                   {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT)}
                   <br/>
                   {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}
                 </td>
-                <td className="py-3 pr-4 text-right text-sm font-semibold text-neutral-900">
+                <td className="py-3 pr-4 text-right text-sm font-semibold text-foreground">
                   {withCurrency(getOrderPaymentTotals(order).amountCollected)}
                 </td>
               </tr>
             )) : (
               <tr>
-                <td colSpan={8} className="py-8 text-center text-sm text-neutral-500">
+                <td colSpan={8} className="py-8 text-center text-sm text-muted">
                   No orders yet
                 </td>
               </tr>

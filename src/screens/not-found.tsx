@@ -108,18 +108,18 @@ export const NotFound = () => {
       <NotFoundIllustration/>
 
       <div className="z-10 flex max-w-md flex-col items-center gap-3 text-center">
-        <h1 className="text-4xl font-bold text-neutral-100">{t('notFound.title')}</h1>
-        <p className="text-lg text-neutral-400">{t('notFound.description')}</p>
+        <h1 className="text-4xl font-bold text-foreground">{t('notFound.title')}</h1>
+        <p className="text-lg text-muted">{t('notFound.description')}</p>
       </div>
 
       <Button variant="primary" size="lg" icon={faArrowLeft} onClick={() => navigate(MENU)}>
         {t('notFound.backToMenu')}
       </Button>
 
-      <div className="pointer-events-none absolute right-[20%] top-10 size-[100px] rounded-full bg-warning-500/10 blur-lg transition-all"/>
-      <div className="pointer-events-none absolute bottom-[100px] right-24 size-[200px] rotate-45 bg-white/20 blur-2xl transition-all"/>
+      <div className="pointer-events-none absolute right-[20%] top-10 size-[100px] rounded-full bg-warning/10 blur-lg transition-all"/>
+      <div className="pointer-events-none absolute bottom-[100px] right-24 size-[200px] rotate-45 bg-surface-elevated/20 blur-2xl transition-all"/>
       <div className="pointer-events-none absolute bottom-[30%] left-[150px] size-[200px] bg-[tomato]/20 blur-2xl transition-all"/>
-      <div className="pointer-events-none absolute left-[20%] top-20 size-[200px] animate-bounce rounded-full bg-primary-500/10 blur-2xl transition-all"/>
+      <div className="pointer-events-none absolute left-[20%] top-20 size-[200px] animate-bounce rounded-full bg-primary/10 blur-2xl transition-all"/>
     </div>
   );
 };

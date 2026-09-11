@@ -264,7 +264,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
   if (!rows.length) {
     return (
       <ReportsLayout title={t('reports.salesHourlyLabourWeekly')} subtitle={subtitle}>
-        <div className="text-center p-6 text-gray-500">
+        <div className="text-center p-6 text-muted">
           No data available for the selected week.
         </div>
       </ReportsLayout>
@@ -285,7 +285,7 @@ export const SalesHourlyLabourWeeklyReport = () => {
               {dayHeaders.map(({day, dateLabel}) => (
                 <th key={day} className="text-right">
                   <div>{day}</div>
-                  <div className="text-xs text-gray-500">{dateLabel}</div>
+                  <div className="text-xs text-muted">{dateLabel}</div>
                 </th>
               ))}
               <th className="text-right">Weekly Total</th>

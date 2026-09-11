@@ -29,34 +29,38 @@ export const Index = () => {
   }), [t]);
 
   return (
-    <Layout>
+    <Layout overflowHidden>
       <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.delivery')]} />
-      <div data-testid="delivery-page">
-      <Tabs
-        className="w-full flex flex-col rounded-xl"
-        selectedKey={selected}
-        onSelectionChange={(key: string) => {
-          protectAction(() => setSelected(key), {
-            module: DELIVERY_TAB_MODULES[key],
-            description: t('security.accessTab', { module: pages[key].title })
-          });
-        }}
-      >
-        <TabList aria-label="Tabs"
-                 className="flex flex-row gap-3 px-1 py-3 flex-nowrap"
-                 data-testid="delivery-tabs">
-          {Object.keys(pages).map(key => (
-            <Tab id={key} key={key} data-testid={`delivery-tab-${key}`}>{pages[key].title}</Tab>
+      <div data-testid="delivery-page" className="h-full min-h-0 flex flex-col">
+        <Tabs
+          className="w-full flex flex-col flex-1 min-h-0 rounded-xl"
+          selectedKey={selected}
+          onSelectionChange={(key: string) => {
+            protectAction(() => setSelected(key), {
+              module: DELIVERY_TAB_MODULES[key],
+              description: t('security.accessTab', { module: pages[key].title })
+            });
+          }}
+        >
+          <TabList aria-label="Tabs"
+                   className="flex flex-row gap-3 px-1 py-3 flex-nowrap shrink-0"
+                   data-testid="delivery-tabs">
+            {Object.keys(pages).map(key => (
+              <Tab id={key} key={key} data-testid={`delivery-tab-${key}`}>{pages[key].title}</Tab>
+            ))}
+          </TabList>
+          {Object.keys(pages).map((key) => (
+            <TabPanel
+              id={key}
+              key={key}
+              className="bg-surface-elevated shadow flex-1 min-h-0 overflow-auto flex flex-col !mt-0"
+            >
+              <div className="flex-1 min-h-0 h-full">
+                {pages[key].component}
+              </div>
+            </TabPanel>
           ))}
-        </TabList>
-        {Object.keys(pages).map((key) => (
-          <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
-            <div>
-              {pages[key].component}
-            </div>
-          </TabPanel>
-        ))}
-      </Tabs>
+        </Tabs>
       </div>
     </Layout>
   )

@@ -24,7 +24,7 @@ interface FormFieldProps {
 
 export const FormField = ({label, error, children, className = ''}: FormFieldProps) => (
   <div className={`flex flex-col gap-1 ${className}`.trim()}>
-    {label && <label>{label}</label>}
+    {label && <label className="form-label">{label}</label>}
     {children}
     {error && <InputError error={error}/>}
   </div>

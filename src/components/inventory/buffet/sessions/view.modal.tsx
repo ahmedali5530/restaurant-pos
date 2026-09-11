@@ -26,49 +26,49 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
         <div className="space-y-6">
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <div className="text-sm text-neutral-500">{t("buffet.businessDate")}</div>
+              <div className="text-sm text-muted">{t("buffet.businessDate")}</div>
               <div className="font-medium">{session.business_date}</div>
             </div>
             <div>
-              <div className="text-sm text-neutral-500">{t("columns.location")}</div>
+              <div className="text-sm text-muted">{t("columns.location")}</div>
               <div className="font-medium">{session.location?.name}</div>
             </div>
             <div>
-              <div className="text-sm text-neutral-500">{t("buffet.actualGuests")}</div>
+              <div className="text-sm text-muted">{t("buffet.actualGuests")}</div>
               <div className="font-medium">{session.actual_guests}</div>
             </div>
             <div>
-              <div className="text-sm text-neutral-500">{t("buffet.buffetPrice")}</div>
+              <div className="text-sm text-muted">{t("buffet.buffetPrice")}</div>
               <div className="font-medium">{formatNumber(session.buffet_price)}</div>
             </div>
           </div>
 
           {analytics && (
-            <div className="grid grid-cols-5 gap-4 bg-neutral-50 rounded-lg p-4">
+            <div className="grid grid-cols-5 gap-4 bg-surface rounded-lg p-4">
               <div>
-                <div className="text-sm text-neutral-500">{t("buffet.totalSales")}</div>
+                <div className="text-sm text-muted">{t("buffet.totalSales")}</div>
                 <div className="text-lg font-semibold">{formatNumber(analytics.totalSales)}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("buffet.totalFoodCost")}</div>
+                <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
                 <div className="text-lg font-semibold">{formatNumber(analytics.totalFoodCost)}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("buffet.costPerGuest")}</div>
+                <div className="text-sm text-muted">{t("buffet.costPerGuest")}</div>
                 <div className="text-lg font-semibold">{formatNumber(analytics.costPerGuest)}</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("buffet.wastePercent")}</div>
+                <div className="text-sm text-muted">{t("buffet.wastePercent")}</div>
                 <div className="text-lg font-semibold">{analytics.wastePercent}%</div>
               </div>
               <div>
-                <div className="text-sm text-neutral-500">{t("buffet.profit")}</div>
+                <div className="text-sm text-muted">{t("buffet.profit")}</div>
                 <div className="text-lg font-semibold">{formatNumber(analytics.profit)}</div>
               </div>
             </div>
           )}
 
-          <table className="table table-sm bg-white w-full">
+          <table className="table table-sm bg-surface-elevated w-full">
             <thead>
               <tr>
                 <th>{t("buttons.item")}</th>

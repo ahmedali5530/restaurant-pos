@@ -30,7 +30,7 @@ export function Calendar<T extends DateValue> (
       <CalendarGrid className="border-spacing-1 border-separate">
         <CalendarGridHeader>
           {(day) => (
-            <CalendarHeaderCell className="text-xs text-gray-500 font-semibold">
+            <CalendarHeaderCell className="text-xs text-muted font-semibold">
               {day}
             </CalendarHeaderCell>
           )}
@@ -39,7 +39,7 @@ export function Calendar<T extends DateValue> (
           {(date) => (
             <CalendarCell
               date={date}
-              className="react-aria-CalendarCell w-12 h-12 outline-none cursor-default rounded-full flex items-center justify-center outside-month:text-gray-300 hover:bg-gray-100 pressed:bg-gray-200 selected:bg-neutral-700 selected:text-white focus-visible:ring ring-violet-600/70 ring-offset-2"
+              className="react-aria-CalendarCell w-12 h-12 outline-none cursor-default rounded-full flex items-center justify-center outside-month:text-muted hover:bg-surface dark:hover:bg-neutral-700 pressed:bg-muted/20 selected:bg-neutral-700 selected:text-white focus-visible:ring ring-violet-600/70 ring-offset-2"
             />
           )}
         </CalendarGridBody>
@@ -52,7 +52,7 @@ export function RoundButton(props: ButtonProps) {
   return (
     <Button
       {...props}
-      className="w-10 h-10 outline-none cursor-default bg-transparent text-gray-600 border-0 rounded-full flex items-center justify-center hover:bg-gray-100 pressed:bg-gray-200 focus-visible:ring ring-violet-600/70 ring-offset-2"
+      className="w-10 h-10 outline-none cursor-default bg-transparent text-muted border-0 rounded-full flex items-center justify-center hover:bg-surface dark:hover:bg-neutral-700 pressed:bg-muted/20 focus-visible:ring ring-violet-600/70 ring-offset-2"
     />
   );
 }

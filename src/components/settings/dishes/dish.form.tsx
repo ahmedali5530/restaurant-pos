@@ -616,7 +616,7 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
               <legend>{t('forms.productionWorkflow')}</legend>
               <div className="flex gap-2 items-end mb-3">
                 <div className="flex-1">
@@ -636,7 +636,7 @@ export const DishForm = ({
 
               {workflowOption && workflowStages.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm text-neutral-600">
+                  <p className="text-sm text-muted">
                     Stages run in order. Override a stage's kitchen for this product if needed.
                   </p>
                   {workflowStages.map((stage, index) => {
@@ -646,7 +646,7 @@ export const DishForm = ({
                     const selectedKitchen = kitchens?.data?.find(k => k.id.toString() === selectedKitchenId);
                     return (
                       <div className="flex gap-3 items-end" key={stageId}>
-                        <div className="flex-0 self-center text-neutral-500 font-bold w-6 text-center">
+                        <div className="flex-0 self-center text-muted font-bold w-6 text-center">
                           {index + 1}
                         </div>
                         <div className="flex-1">
@@ -686,7 +686,7 @@ export const DishForm = ({
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
-                className="block w-full text-sm text-neutral-700
+                className="block w-full text-sm text-foreground
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
                            file:text-sm file:font-semibold
@@ -696,7 +696,7 @@ export const DishForm = ({
             </div>
             {photoPreview && (
               <div
-                className="w-24 h-24 rounded-lg overflow-hidden border border-neutral-300 flex items-center justify-center bg-neutral-100">
+                className="w-24 h-24 rounded-lg overflow-hidden border border-border flex items-center justify-center bg-surface">
                 <img
                   src={photoPreview}
                   alt={t('forms.dishPhotoPreview')}
@@ -707,7 +707,7 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
               <legend>{t('columns.modifierGroups')}</legend>
               <div className="mb-3 flex gap-3">
                 <Button type="button" icon={faPlus} variant="primary" onClick={() => {
@@ -818,7 +818,7 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
               <legend>{t('forms.recipe')}</legend>
               <div className="mb-3">
                 <Button type="button" icon={faPlus} variant="primary" onClick={() => {

@@ -52,39 +52,39 @@ export const LaborDailyCostReport = () => {
 
   return (
     <ReportsLayout title={t('titles.dailyLaborCost')} subtitle={subtitle}>
-      {loading ? <div className="py-12 text-center text-neutral-500">{t('loading.chart')}</div> : null}
+      {loading ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
       {error ? <div className="py-12 text-center text-danger-500">{error}</div> : null}
       {!loading && !error ? (
         <div className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <div className="bg-primary/10 border border-primary/40 rounded-lg p-4">
               <p className="text-sm text-primary-700">Total cost</p>
               <p className="text-xl font-bold text-primary-900">{withCurrency(totals.totalCost)}</p>
             </div>
-            <div className="bg-info-50 border border-info-200 rounded-lg p-4">
+            <div className="bg-info/10 border border-info-200 rounded-lg p-4">
               <p className="text-sm text-info-700">Total hours</p>
               <p className="text-xl font-bold text-info-900">{formatNumber(totals.totalHours)}</p>
             </div>
-            <div className="bg-warning-50 border border-warning-200 rounded-lg p-4">
+            <div className="bg-warning/10 border border-warning/40 rounded-lg p-4">
               <p className="text-sm text-warning-700">Overtime hours</p>
               <p className="text-xl font-bold text-warning-900">{formatNumber(totals.overtimeHours)}</p>
             </div>
           </div>
           <div className="overflow-x-auto border rounded-lg">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-neutral-600">Date</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Hours</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">OT Hours</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Employees</th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Cost</th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-muted">Date</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Hours</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">OT Hours</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Employees</th>
+                  <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Cost</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100">
                 {rows.map(row => (
                   <tr key={row.period}>
-                    <td className="px-4 py-2 text-sm text-neutral-800">{row.period}</td>
+                    <td className="px-4 py-2 text-sm text-foreground">{row.period}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.totalHours)}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.overtimeHours)}</td>
                     <td className="px-4 py-2 text-sm text-right">{formatNumber(row.employeeCount)}</td>

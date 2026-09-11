@@ -166,7 +166,7 @@ export const WorkflowForm = ({
           </div>
 
           <div className="flex-1">
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend>Production stages (in order)</legend>
               <div className="mb-3">
                 <Button type="button" icon={faPlus} variant="primary" onClick={() => {
@@ -178,7 +178,7 @@ export const WorkflowForm = ({
 
               {fields.map((item, index) => (
                 <div className="flex gap-3 mb-3 items-end" key={item.id}>
-                  <div className="flex-0 self-center text-neutral-500 font-bold w-6 text-center">
+                  <div className="flex-0 self-center text-muted font-bold w-6 text-center">
                     {index + 1}
                   </div>
                   <div className="flex-1">

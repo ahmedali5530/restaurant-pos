@@ -44,7 +44,7 @@ const NestedModifiersSummary = ({groups}: { groups: CartModifierGroup[] }) => (
       >
         <div className="text-sm font-bold bg-slate-600 text-white self-start rounded px-[3px]">{getGroupSidebarLabel(grp, groups)}</div>
         {(grp.selectedModifiers ?? []).map((modifier) => (
-          <div key={modifier.id} className="text-sm border-l-2 border-warning-500">
+          <div key={modifier.id} className="text-sm border-l-2 border-warning">
             <div className="flex justify-between gap-2 pl-1">
               <span className="min-w-0 truncate">{modifier.dish.name}</span>
               <span className="shrink-0">{formatNumber(modifier.price ?? 0)}</span>
@@ -240,10 +240,10 @@ export const MenuDishModifiers = (props: Props) => {
     if (grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) < grp.required_modifiers) {
       return 'bg-danger-200';
     } else if (grp.has_required_modifiers && (grp.selectedModifiers?.length ?? 0) === grp.required_modifiers) {
-      return 'bg-white';
+      return 'bg-surface-elevated';
     }
 
-    return 'bg-white';
+    return 'bg-surface-elevated';
   }
 
   useEffect(() => {
@@ -311,7 +311,7 @@ export const MenuDishModifiers = (props: Props) => {
     >
       {props.dish && (
         <div className="!grid h-full min-h-0 grid-cols-7 gap-3">
-          <div className="col-span-1 flex min-h-0 flex-col rounded-3xl bg-neutral-100 overflow-hidden">
+          <div className="col-span-1 flex min-h-0 flex-col rounded-3xl bg-surface overflow-hidden">
             <ScrollContainer className="modifiers-swiper flex flex-col gap-[5px]">
               {groups.map((item, index) => (
                 <span
@@ -371,7 +371,7 @@ export const MenuDishModifiers = (props: Props) => {
               </Swiper>
             )}
           </div>
-          <div className="col-span-2 flex min-h-0 flex-col overflow-hidden bg-white p-3 rounded-3xl">
+          <div className="col-span-2 flex min-h-0 flex-col overflow-hidden bg-surface-elevated p-3 rounded-3xl">
             <Button
               variant="danger"
               onClick={() => {

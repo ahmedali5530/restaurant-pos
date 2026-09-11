@@ -488,7 +488,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
           </Button>
         </fieldset>
 
-        <p className="text-sm text-neutral-600">{t("production.recipeHint")}</p>
+        <p className="text-sm text-muted">{t("production.recipeHint")}</p>
 
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={closeModal}>

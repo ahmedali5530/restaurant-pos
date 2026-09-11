@@ -37,7 +37,7 @@ export const ProductionReportFilter = () => {
       <DateRange isRequired label={t("filters.selectRange")} />
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("filters.location")}</label>
+        <label className="form-label">{t("filters.location")}</label>
         <ReactSelect
           name="locationId"
           isClearable
@@ -51,7 +51,7 @@ export const ProductionReportFilter = () => {
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("labels.recipe")}</label>
+        <label className="form-label">{t("labels.recipe")}</label>
         <ReactSelect
           name="recipe"
           isClearable

@@ -128,9 +128,9 @@ export const InventoryStockTransfers = () => {
 
   return (
     <>
-      <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-neutral-200">
+      <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-border">
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("stockTransfer.filterLocation")}</label>
+          <label className="text-sm text-muted">{t("stockTransfer.filterLocation")}</label>
           <ReactSelect
             value={filterLocation}
             onChange={setFilterLocation}

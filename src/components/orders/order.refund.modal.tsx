@@ -209,14 +209,14 @@ export const OrderRefundModal = ({
           {/* Left side - Order items */}
           <div className="flex-1 flex flex-col min-w-0">
             <label className="block text-sm font-semibold mb-2">{t('refund.selectItems')}</label>
-            <div className="flex-1 overflow-auto border border-neutral-200 rounded-lg p-3 bg-neutral-50" style={{ minHeight: 0 }}>
+            <div className="flex-1 overflow-auto border border-border rounded-lg p-3 bg-surface" style={{ minHeight: 0 }}>
               {getOrderFilteredItems(order).map(item => (
                 <div
                   key={item.id}
                   className={`flex items-start gap-3 p-3 rounded-lg mb-2 cursor-pointer transition ${
                     selectedItems.has(item.id)
-                      ? 'bg-primary-50 border-2 border-neutral-900'
-                      : 'bg-white border-2 border-transparent hover:bg-neutral-100'
+                      ? 'bg-primary/10 border-2 border-border'
+                      : 'bg-surface-elevated border-2 border-transparent hover:bg-surface'
                   }`}
                   onClick={() => toggleItem(item.id)}
                 >
@@ -232,7 +232,7 @@ export const OrderRefundModal = ({
               ))}
             </div>
             {selectedItems.size > 0 && (
-              <div className="mt-3 p-3 bg-primary-50 rounded-lg flex-shrink-0 space-y-2">
+              <div className="mt-3 p-3 bg-primary/10 rounded-lg flex-shrink-0 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold">{t('refund.itemsTotal')}</span>
                   <span className="font-semibold">{withCurrency(refundCharges.itemsTotal)}</span>
@@ -267,13 +267,13 @@ export const OrderRefundModal = ({
                     <span>{withCurrency(refundCharges.tipAmount)}</span>
                   </div>
                 ) : null}
-                <div className="border-t border-neutral-200 pt-2 mt-2">
+                <div className="border-t border-border pt-2 mt-2">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">{t('refund.refundTotal')}</span>
                     <span className="font-bold text-lg">{withCurrency(refundTotal)}</span>
                   </div>
                 </div>
-                <div className="text-sm text-neutral-600 mt-1">
+                <div className="text-sm text-muted mt-1">
                   {t('refund.itemsSelected', {count: selectedItems.size})}
                 </div>
               </div>
@@ -298,7 +298,7 @@ export const OrderRefundModal = ({
         </div>
 
         {/* Action buttons */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+        <div className="flex justify-end gap-3 pt-4 border-t border-border">
           <Button
             flat
             variant="primary"

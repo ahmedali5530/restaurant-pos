@@ -74,13 +74,13 @@ const SummaryCard = ({
 }) => (
   <div
     className={cn(
-      "rounded-xl border border-neutral-200 p-3 text-center",
+      "rounded-xl border border-border p-3 text-center",
       tone === "success" && "border-success/40 bg-success/5",
       tone === "warning" && "border-warning/40 bg-warning/5",
       tone === "danger" && "border-danger/40 bg-danger/5"
     )}
   >
     <div className="text-2xl font-semibold">{value}</div>
-    <div className="text-xs text-neutral-500 mt-1">{label}</div>
+    <div className="text-xs text-muted mt-1">{label}</div>
   </div>
 );

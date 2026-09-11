@@ -442,7 +442,7 @@ export const SalesServerReport = () => {
   if (!sections.length) {
     return (
       <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
-        <div className="text-center p-6 text-gray-500">
+        <div className="text-center p-6 text-muted">
           No server sales found for the selected filters.
         </div>
       </ReportsLayout>
@@ -498,7 +498,7 @@ export const SalesServerReport = () => {
             <section key={section.userId} className="space-y-6">
               <div>
                 <h2 className="text-2xl font-bold">{section.userName}</h2>
-                <p className="text-sm text-gray-500">Server ID: {section.userId}</p>
+                <p className="text-sm text-muted">Server ID: {section.userId}</p>
               </div>
 
               <div className="overflow-x-auto">
@@ -536,7 +536,7 @@ export const SalesServerReport = () => {
                     })}
                     {section.categories.length === 0 && (
                       <tr>
-                        <td colSpan={9} className="text-center text-gray-500 py-4">
+                        <td colSpan={9} className="text-center text-muted py-4">
                           No category data found for this server.
                         </td>
                       </tr>
@@ -581,7 +581,7 @@ export const SalesServerReport = () => {
                       <tr key={row.label}>
                         <td>
                           <div>{row.label}</div>
-                          <div className="text-xs text-gray-500">{getDayPartTimeRangeLabel(row.label)}</div>
+                          <div className="text-xs text-muted">{getDayPartTimeRangeLabel(row.label)}</div>
                         </td>
                         <td className="text-right">{withCurrency(row.netSales)}</td>
                         <td className="text-right">{formatNumber(row.guests)}</td>

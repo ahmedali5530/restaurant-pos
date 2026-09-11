@@ -135,7 +135,7 @@ export const PinAuth: React.FC<PinAuthProps> = ({
     }
   }, [pin]);
 
-  const btnClasses = 'size-[60px] sm:size-[60px] md:size-[90px] p-0 text-neutral-900 transition-all duration-75 bg-neutral-100 rounded-full text-3xl';
+  const btnClasses = 'size-[60px] sm:size-[60px] md:size-[90px] p-0 text-foreground transition-all duration-75 bg-surface rounded-full text-3xl';
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" data-testid="security-pin-auth">
@@ -155,12 +155,12 @@ export const PinAuth: React.FC<PinAuthProps> = ({
               key={i}
               className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                 i < pin.length 
-                  ? 'bg-gray-900 border-gray-900' 
-                  : 'bg-gray-100 border-gray-300'
+                  ? 'bg-foreground border-foreground' 
+                  : 'bg-surface border-border'
               }`}
             >
               {i < pin.length && (
-                <div className="w-3 h-3 bg-white rounded-full" />
+                <div className="w-3 h-3 bg-surface-elevated rounded-full" />
               )}
             </div>
           ))}

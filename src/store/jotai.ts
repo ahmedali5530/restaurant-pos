@@ -23,6 +23,7 @@ import {DiscountReason} from "@/api/model/discount_reason.ts";
 import {Coupon} from "@/api/model/coupon.ts";
 import {Setting} from "@/api/model/setting.ts";
 import {DEFAULT_LANGUAGE, DEFAULT_TEXT_DIRECTION, type AppTextDirection} from "@/lib/languages.ts";
+import type {AppBrandId, AppThemePreference, BrandPalette} from "@/lib/theme.ts";
 
 
 export interface AppStateInterface {
@@ -107,6 +108,12 @@ export interface AppPageInterface {
   touch?: boolean
   language?: string
   direction?: AppTextDirection
+  /** Appearance preference for this device (light / dark / follow OS). */
+  theme?: AppThemePreference
+  /** Brand color pack for this device (default / ocean / forest). */
+  brand?: AppBrandId
+  /** Reserved for Phase 3 custom color picker; applied via applyBrandPalette. */
+  customPalette?: BrandPalette
   /** Last What's New release date dismissed on this device (YYYY-MM-DD). */
   whatsNewDismissedDate?: string
   /** @deprecated Prefer whatsNewDismissedDate */
@@ -122,6 +129,8 @@ export const appPage = atomWithStorage<AppPageInterface>(
     touch: true,
     language: DEFAULT_LANGUAGE,
     direction: DEFAULT_TEXT_DIRECTION,
+    theme: "system",
+    brand: "classic",
     menuConfig: {
       showTotalInCart: false,
       showTotalInOrderCard: false,

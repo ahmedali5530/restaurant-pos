@@ -7,7 +7,7 @@ export const OrderLifecycleFilter = () => {
   return (
     <form action={REPORTS_ORDER_LIFECYCLE} className="flex flex-col gap-3 items-start w-full" target="_blank">
       <div className="w-full">
-        <label htmlFor="order-id">{t('filters.orderId')}</label>
+        <label htmlFor="order-id" className="form-label">{t('filters.orderId')}</label>
         <input
           id="order-id"
           name="order_id"

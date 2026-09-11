@@ -496,7 +496,7 @@ export const SalesAdvancedReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.salesAdvanced')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.salesAdvanced')}</div>
       </ReportsLayout>
     );
   }
@@ -513,61 +513,61 @@ export const SalesAdvancedReport = () => {
     <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
       <div className="space-y-8">
         {/* Summary Totals */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Summary</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Summary</h3>
           <div className="p-4">
             <table className="min-w-full text-sm table-hover">
               <tbody className="divide-y divide-neutral-100">
               <tr>
-                <td className="py-2 text-neutral-700">Total Orders</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{formatNumber(totals.ordersCount)}</td>
+                <td className="py-2 text-foreground">Total Orders</td>
+                <td className="py-2 text-right font-semibold text-foreground">{formatNumber(totals.ordersCount)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Sale Price w/o Tax</td>
+                <td className="py-2 text-foreground">Sale Price w/o Tax</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.salePriceWithoutTax)}</td>
+                  className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.salePriceWithoutTax)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Taxes</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.taxes)}</td>
+                <td className="py-2 text-foreground">Taxes</td>
+                <td className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.taxes)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Service Charges</td>
+                <td className="py-2 text-foreground">Service Charges</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.serviceCharges)}</td>
+                  className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.serviceCharges)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('metrics.discounts')}</td>
+                <td className="py-2 text-foreground">{t('metrics.discounts')}</td>
                 <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totals.discounts)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('metrics.coupons')}</td>
+                <td className="py-2 text-foreground">{t('metrics.coupons')}</td>
                 <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totals.coupons)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('reports.voids')}</td>
+                <td className="py-2 text-foreground">{t('reports.voids')}</td>
                 <td className="py-2 text-right font-semibold text-red-600">{withCurrency(-totalVoids)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('reports.tips')}</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.tips)}</td>
+                <td className="py-2 text-foreground">{t('reports.tips')}</td>
+                <td className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.tips)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('labels.amountDue')}</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.amountDue)}</td>
+                <td className="py-2 text-foreground">{t('labels.amountDue')}</td>
+                <td className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.amountDue)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">{t('labels.amountCollected')}</td>
+                <td className="py-2 text-foreground">{t('labels.amountCollected')}</td>
                 <td
-                  className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.amountCollected)}</td>
+                  className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.amountCollected)}</td>
               </tr>
               <tr>
-                <td className="py-2 text-neutral-700">Rounding</td>
-                <td className="py-2 text-right font-semibold text-neutral-900">{withCurrency(totals.rounding)}</td>
+                <td className="py-2 text-foreground">Rounding</td>
+                <td className="py-2 text-right font-semibold text-foreground">{withCurrency(totals.rounding)}</td>
               </tr>
-              <tr className="border-t-2 border-neutral-300">
-                <td className="py-2 font-semibold text-neutral-900">{t('metrics.net')}</td>
-                <td className="py-2 text-right font-bold text-neutral-900">{withCurrency(totals.net)}</td>
+              <tr className="border-t-2 border-border">
+                <td className="py-2 font-semibold text-foreground">{t('metrics.net')}</td>
+                <td className="py-2 text-right font-bold text-foreground">{withCurrency(totals.net)}</td>
               </tr>
               </tbody>
             </table>
@@ -575,60 +575,60 @@ export const SalesAdvancedReport = () => {
         </div>
 
         {/* Orders Table */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <div className="bg-neutral-100 px-6 py-3 flex items-center gap-3">
+        <div className="overflow-hidden rounded-lg border border-border">
+          <div className="bg-surface px-6 py-3 flex items-center gap-3">
             {filters.showMenuItems && ordersWithItems.length > 0 && (
               <button
                 type="button"
                 onClick={toggleAllOrderItems}
-                className="print:hidden h-6 w-6 rounded border border-neutral-300 text-xs font-bold text-neutral-700 hover:bg-neutral-100"
+                className="print:hidden h-6 w-6 rounded border border-border text-xs font-bold text-foreground hover:bg-surface"
                 aria-label={areAllExpanded ? 'Hide menu items' : 'Show menu items'}
               >
                 {areAllExpanded ? '-' : '+'}
               </button>
             )}
-            <h3 className="text-sm font-semibold text-neutral-700">{t('categories.orders')}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t('categories.orders')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200 table-hover">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
               <tr>
                 {filters.showMenuItems && (
-                  <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-neutral-700 print:hidden">{t('columns.items')}</th>
+                  <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-foreground print:hidden">{t('columns.items')}</th>
                 )}
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order #</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Order Taker</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.table')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.floor')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.orderType')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.status')}</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Order #</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.invoice')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Order Taker</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('metrics.cashier')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.table')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.floor')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.orderType')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.status')}</th>
                 {filters.showDetails && (
                   <>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.items')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.covers')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale w/o Tax</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Taxes</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Tip</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.discounts')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.coupons')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.amountDue')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.amountCollected')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.changeDue')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Payment Breakdown</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.net')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Notes</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.items')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.covers')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Sale w/o Tax</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Taxes</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Tip</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Service Charges</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.discounts')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.coupons')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('labels.amountDue')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('labels.amountCollected')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.changeDue')}</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Payment Breakdown</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.net')}</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Notes</th>
                   </>
                 )}
                 {!filters.showDetails && (
-                  <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('metrics.net')}</th>
+                  <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('metrics.net')}</th>
                 )}
               </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {filteredOrders.map(order => {
                 const orderId = recordToString(order.id);
                 const isExpanded = expandedOrderIds.has(orderId);
@@ -654,12 +654,12 @@ export const SalesAdvancedReport = () => {
                   <Fragment key={orderId}>
                     <tr key={order.id} className={hasItems ? 'border-b-0' : ''}>
                       {filters.showMenuItems && (
-                        <td className="py-3 pl-6 pr-2 text-sm text-neutral-700 print:hidden">
+                        <td className="py-3 pl-6 pr-2 text-sm text-foreground print:hidden">
                           {hasItems ? (
                             <button
                               type="button"
                               onClick={() => toggleOrderItems(orderId)}
-                              className="h-6 w-6 rounded border border-neutral-300 text-xs font-bold text-neutral-700 hover:bg-neutral-100"
+                              className="h-6 w-6 rounded border border-border text-xs font-bold text-foreground hover:bg-surface"
                               aria-label={isExpanded ? 'Hide menu items' : 'Show menu items'}
                             >
                               {isExpanded ? '-' : '+'}
@@ -667,25 +667,25 @@ export const SalesAdvancedReport = () => {
                           ) : null}
                         </td>
                       )}
-                      <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
+                      <td className="py-3 pl-6 pr-3 text-sm text-foreground">
                         <div>{dateStr}</div>
-                        <div className="text-neutral-500">{timeStr}</div>
+                        <div className="text-muted">{timeStr}</div>
                       </td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{order.auto_id}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{orderTakerName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{cashierName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{tableName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{floorName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">{orderTypeName}</td>
-                      <td className="py-3 px-3 text-sm text-neutral-700">
+                      <td className="py-3 px-3 text-sm text-foreground">{order.auto_id}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{orderTakerName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{cashierName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{tableName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{floorName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">{orderTypeName}</td>
+                      <td className="py-3 px-3 text-sm text-foreground">
                           <span className={`px-2 py-1 rounded text-xs ${
                             order.status === OrderStatus.Paid ? 'bg-success-100 text-success-800' :
                               order.status === OrderStatus.Cancelled ? 'bg-danger-100 text-danger-800' :
                                 order.status === OrderStatus.Merged ? 'bg-primary-100 text-primary-800' :
                                   order.status === OrderStatus.Refunded ? 'bg-warning-100 text-warning-800' :
                                     order.status === OrderStatus.Spilt ? 'bg-info-100 text-info-800' :
-                                      'bg-gray-100 text-gray-800'
+                                      'bg-surface text-foreground'
                           }`}>
                             {order.status}
                           </span>
@@ -693,54 +693,54 @@ export const SalesAdvancedReport = () => {
                       {filters.showDetails && (
                         <>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(orderTotals.itemsCount)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.itemsCount)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(orderTotals.covers)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.covers)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.taxes)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.taxes)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.tips)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.tips)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.serviceCharges)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.serviceCharges)}</td>
                           <td
                             className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.discounts)}</td>
                           <td
                             className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.coupons)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountDue)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountDue)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(orderTotals.changeDue)}</td>
+                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.changeDue)}</td>
                           <td
-                            className="py-3 px-3 text-sm text-neutral-700 whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
+                            className="py-3 px-3 text-sm text-foreground whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
                           <td
-                            className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(orderTotals.net)}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700 max-w-xs whitespace-pre-wrap break-words">
+                            className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
+                          <td className="py-3 px-3 text-sm text-foreground max-w-xs whitespace-pre-wrap break-words">
                             {notesText || '—'}
                           </td>
                         </>
                       )}
                       {!filters.showDetails && (
                         <td
-                          className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(orderTotals.net)}</td>
+                          className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
                       )}
                     </tr>
                     {hasItems && isExpanded && (
-                      <tr key={`${order.id}-items`} className="bg-neutral-50">
+                      <tr key={`${order.id}-items`} className="bg-surface">
                         <td colSpan={tableColSpan} className="py-3 pl-6 pr-6">
                           <div className="space-y-2">
-                            {/*<div className="text-xs font-semibold text-neutral-700 mb-2">Menu Items:</div>*/}
+                            {/*<div className="text-xs font-semibold text-foreground mb-2">Menu Items:</div>*/}
                             <table className="w-full text-xs">
                               <thead>
-                              <tr className="border-b border-neutral-200">
-                                <th className="text-left py-2 pr-4 font-semibold text-neutral-600">{t('filters.item')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-neutral-600">{t('columns.quantity')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-neutral-600">{t('columns.price')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-neutral-600">{t('reports.discount')}</th>
-                                <th className="text-right py-2 pl-2 font-semibold text-neutral-600">{t('columns.total')}</th>
+                              <tr className="border-b border-border">
+                                <th className="text-left py-2 pr-4 font-semibold text-muted">{t('filters.item')}</th>
+                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.quantity')}</th>
+                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.price')}</th>
+                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('reports.discount')}</th>
+                                <th className="text-right py-2 pl-2 font-semibold text-muted">{t('columns.total')}</th>
                               </tr>
                               </thead>
                               <tbody className="divide-y divide-neutral-100">
@@ -754,17 +754,17 @@ export const SalesAdvancedReport = () => {
                                     key={`${order.id}-item-${idx}`}
                                     className={item.deleted_at ? 'text-danger-500' : ''}
                                   >
-                                    <td className="py-2 pr-4 text-neutral-700">
+                                    <td className="py-2 pr-4 text-foreground">
                                       <OrderItemName item={item} showQuantity={false} showPrice={false}
                                                      showGroups={false}/>
                                     </td>
                                     <td
-                                      className="py-2 px-2 text-right text-neutral-700">{formatNumber(item.quantity)}</td>
-                                    <td className="py-2 px-2 text-right text-neutral-700">{withCurrency(itemPrice)}</td>
+                                      className="py-2 px-2 text-right text-foreground">{formatNumber(item.quantity)}</td>
+                                    <td className="py-2 px-2 text-right text-foreground">{withCurrency(itemPrice)}</td>
                                     <td
                                       className="py-2 px-2 text-right text-danger-600">{withCurrency(-itemDiscount)}</td>
                                     <td
-                                      className="py-2 pl-2 text-right font-semibold text-neutral-900">{withCurrency(itemTotal)}</td>
+                                      className="py-2 pl-2 text-right font-semibold text-foreground">{withCurrency(itemTotal)}</td>
                                   </tr>
                                 );
                               })}
@@ -779,7 +779,7 @@ export const SalesAdvancedReport = () => {
               })}
               {filteredOrders.length === 0 && (
                 <tr>
-                  <td colSpan={tableColSpan} className="py-6 text-center text-sm text-neutral-500">
+                  <td colSpan={tableColSpan} className="py-6 text-center text-sm text-muted">
                     No orders found for the selected filters.
                   </td>
                 </tr>

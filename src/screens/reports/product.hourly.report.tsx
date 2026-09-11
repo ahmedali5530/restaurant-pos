@@ -235,7 +235,7 @@ export const ProductHourlyReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.productHourly')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.productHourly')}</div>
       </ReportsLayout>
     );
   }
@@ -252,73 +252,73 @@ export const ProductHourlyReport = () => {
     <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
       <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-          <thead className="bg-neutral-50">
+        <table className="min-w-full divide-y divide-neutral-200 border border-border">
+          <thead className="bg-surface">
             <tr>
-              <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+              <th rowSpan={2} className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground border-r border-border">
                 Menu Item
               </th>
               {displayHours.map(hour => (
-                <th key={hour} colSpan={1} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+                <th key={hour} colSpan={1} className="py-3 px-3 text-center text-xs font-semibold text-foreground border-r border-border">
                   {hour === 0 ? '12am' : 
                    hour === 12 ? '12pm' :
                    hour < 12 ? `${hour}am` : `${hour - 12}pm`}
                 </th>
               ))}
-              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-foreground border-r border-border">
                 Total Qty
               </th>
-              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-foreground border-r border-border">
                 Subtotal
               </th>
-              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700 border-r border-neutral-200">
+              <th rowSpan={2} className="py-3 px-3 text-center text-xs font-semibold text-foreground border-r border-border">
                 Taxes
               </th>
-              <th rowSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-neutral-700">
+              <th rowSpan={2} className="py-3 pr-6 text-center text-xs font-semibold text-foreground">
                 Final Total
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {menuItemMetrics.map((metrics) => (
-              <tr key={metrics.menuItemId} className="hover:bg-neutral-50">
-                <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900 border-r border-neutral-200">
+              <tr key={metrics.menuItemId} className="hover:bg-surface">
+                <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground border-r border-border">
                   {metrics.menuItemName}
                 </td>
                 {displayHours.map(hour => {
                   const hourKey = hour.toString();
                   const hourMetrics = metrics.hours[hourKey] || {quantity: 0, subtotal: 0, tax: 0};
                   return (
-                    <td key={hour} className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                    <td key={hour} className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                       {formatNumber(hourMetrics.quantity)}
                     </td>
                   );
                 })}
-                <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900 border-r border-neutral-200">
+                <td className="py-3 px-3 text-right text-sm font-semibold text-foreground border-r border-border">
                   {formatNumber(metrics.totalQuantity)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                <td className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                   {withCurrency(metrics.totalSubtotal)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-700 border-r border-neutral-200">
+                <td className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                   {withCurrency(metrics.totalTax)}
                 </td>
-                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                   {withCurrency(metrics.finalTotal)}
                 </td>
               </tr>
             ))}
             {menuItemMetrics.length === 0 && (
               <tr>
-                <td colSpan={displayHours.length + 5} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={displayHours.length + 5} className="py-6 text-center text-sm text-muted">
                   No data available for the selected filters
                 </td>
               </tr>
             )}
           </tbody>
-          <tfoot className="bg-neutral-50 font-semibold">
+          <tfoot className="bg-surface font-semibold">
             <tr>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900 border-r border-neutral-200">
+              <td className="py-3 pl-6 pr-3 text-sm text-foreground border-r border-border">
                 Totals
               </td>
               {displayHours.map(hour => {
@@ -328,21 +328,21 @@ export const ProductHourlyReport = () => {
                   return sum + hourMetrics.quantity;
                 }, 0);
                 return (
-                  <td key={hour} className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
+                  <td key={hour} className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                     {formatNumber(hourTotal)}
                   </td>
                 );
               })}
-              <td className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
+              <td className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                 {formatNumber(grandTotals.quantity)}
               </td>
-              <td className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
+              <td className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                 {withCurrency(grandTotals.subtotal)}
               </td>
-              <td className="py-3 px-3 text-right text-sm text-neutral-900 border-r border-neutral-200">
+              <td className="py-3 px-3 text-right text-sm text-foreground border-r border-border">
                 {withCurrency(grandTotals.tax)}
               </td>
-              <td className="py-3 pr-6 text-right text-sm text-neutral-900">
+              <td className="py-3 pr-6 text-right text-sm text-foreground">
                 {withCurrency(grandTotals.finalTotal)}
               </td>
             </tr>

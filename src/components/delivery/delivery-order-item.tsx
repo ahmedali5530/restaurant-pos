@@ -76,7 +76,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-lg p-4 mb-3 shadow-md hover:shadow-lg transition-shadow cursor-pointer border-2 border-neutral-200 hover:border-primary-400"
+      className="bg-surface-elevated rounded-lg p-4 mb-3 shadow-md hover:shadow-lg transition-shadow cursor-pointer border-2 border-border hover:border-primary-400"
     >
       {deliveryState && (
         <div className={`${deliveryState.className} border-2 p-2 rounded text-sm mb-2 flex items-center gap-2`}>
@@ -87,12 +87,12 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
       {/* Header with Invoice Number and Status */}
       <div className="flex justify-between items-start mb-3">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-neutral-800">
+          <h3 className="text-lg font-bold text-foreground">
             #{getInvoiceNumber(order)}
           </h3>
           <div className="flex items-center gap-2 mt-1">
-            <FontAwesomeIcon icon={faClock} className="text-xs text-neutral-500" />
-            <span className="text-xs text-neutral-500">
+            <FontAwesomeIcon icon={faClock} className="text-xs text-muted" />
+            <span className="text-xs text-muted">
               {toLuxonDateTime(order.created_at).toFormat("hh:mm a")}
             </span>
           </div>
@@ -100,7 +100,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
         <span
           className={cn(
             "px-3 py-1 rounded-lg text-xs font-bold uppercase border",
-            statusColors[order.status] || "bg-neutral-100 text-neutral-700 border-neutral-300"
+            statusColors[order.status] || "bg-surface text-foreground border-border"
           )}
         >
           {order.status}
@@ -110,11 +110,11 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
       {/* Customer Name */}
       {customer?.name && (
         <div className="mb-2">
-          <p className="text-base font-semibold text-neutral-800">
+          <p className="text-base font-semibold text-foreground">
             {customer.name}
           </p>
           {customer.phone && (
-            <p className="text-sm text-neutral-600 mt-1">
+            <p className="text-sm text-muted mt-1">
               <a href={`tel:${customer.phone}`} className="hover:text-primary-600" onClick={(e) => e.stopPropagation()}>
                 {customer.phone}
               </a>
@@ -130,18 +130,18 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
           className="text-primary-600 mt-1 flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-neutral-700 line-clamp-2">{address}</p>
+          <p className="text-sm text-foreground line-clamp-2">{address}</p>
           {secondaryAddress && (
-            <p className="text-xs text-neutral-500 mt-1">{secondaryAddress}</p>
+            <p className="text-xs text-muted mt-1">{secondaryAddress}</p>
           )}
         </div>
       </div>
 
       {/* Order Summary */}
-      <div className="flex items-center justify-between pt-3 border-t border-neutral-200">
+      <div className="flex items-center justify-between pt-3 border-t border-border">
         <div className="flex items-center gap-2">
-          <FontAwesomeIcon icon={faShoppingBag} className="text-neutral-500 text-sm" />
-          <span className="text-sm text-neutral-600">
+          <FontAwesomeIcon icon={faShoppingBag} className="text-muted text-sm" />
+          <span className="text-sm text-muted">
             {items.length} {items.length === 1 ? "item" : "items"}
           </span>
         </div>

@@ -56,7 +56,7 @@ export const SalesAdvancedFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-order-takers">{t('filters.orderTakers')}</label>
+          <label htmlFor="sales-advanced-order-takers" className="form-label">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="sales-advanced-order-takers"
             name="order_takers[]"
@@ -72,7 +72,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-cashiers">{t('metrics.cashiers')}</label>
+          <label htmlFor="sales-advanced-cashiers" className="form-label">{t('metrics.cashiers')}</label>
           <ReactSelect
             id="sales-advanced-cashiers"
             name="cashiers[]"
@@ -88,7 +88,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-tables">Tables</label>
+          <label htmlFor="sales-advanced-tables" className="form-label">Tables</label>
           <ReactSelect
             id="sales-advanced-tables"
             name="tables[]"
@@ -102,7 +102,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-floors">{t('metrics.floors')}</label>
+          <label htmlFor="sales-advanced-floors" className="form-label">{t('metrics.floors')}</label>
           <ReactSelect
             id="sales-advanced-floors"
             name="floors[]"
@@ -116,7 +116,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-order-types">{t('filters.orderTypes')}</label>
+          <label htmlFor="sales-advanced-order-types" className="form-label">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="sales-advanced-order-types"
             name="order_types[]"
@@ -130,7 +130,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Tax Filter</label>
+          <label className="form-label">Tax Filter</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="with_tax" value="1" label="With Tax" />
             <Checkbox name="without_tax" value="1" label="Without Tax" />
@@ -138,7 +138,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-discounts">Discount Filter</label>
+          <label htmlFor="sales-advanced-discounts" className="form-label">Discount Filter</label>
           <div className="flex flex-col gap-3 mb-2">
             <Checkbox name="with_discount" value="1" label="With Discount" />
             <Checkbox name="without_discount" value="1" label="Without Discount" />
@@ -157,7 +157,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-payment-types">Payment Types</label>
+          <label htmlFor="sales-advanced-payment-types" className="form-label">Payment Types</label>
           <ReactSelect
             id="sales-advanced-payment-types"
             name="payment_types[]"
@@ -171,7 +171,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-menus">{t('filters.menus')}</label>
+          <label htmlFor="sales-advanced-menus" className="form-label">{t('filters.menus')}</label>
           <ReactSelect
             id="sales-advanced-menus"
             name="menus[]"
@@ -185,7 +185,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-menu-items">{t('filters.menuItems')}</label>
+          <label htmlFor="sales-advanced-menu-items" className="form-label">{t('filters.menuItems')}</label>
           <ReactSelect
             id="sales-advanced-menu-items"
             name="menu_items[]"
@@ -199,7 +199,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-advanced-menu-items-match">Menu Items Match</label>
+          <label htmlFor="sales-advanced-menu-items-match" className="form-label">Menu Items Match</label>
           <select
             id="sales-advanced-menu-items-match"
             name="menu_items_match"
@@ -212,7 +212,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Status Filters</label>
+          <label className="form-label">Status Filters</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="refund" value="1" label="Refund" />
             <Checkbox name="merged" value="1" label="Merged" />
@@ -222,7 +222,7 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>{t('labels.displayOptions')}</label>
+          <label className="form-label">{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="show_menu_items" value="1" label="Show Menu Items for Details" />
             <Checkbox name="show_details" value="1" label="Show Details" />
@@ -231,7 +231,7 @@ export const SalesAdvancedFilter = () => {
 
         <div className="flex flex-row gap-3">
           <div className="flex flex-col flex-1">
-            <label htmlFor="sales-advanced-sort-by">Sort result by</label>
+            <label htmlFor="sales-advanced-sort-by" className="form-label">Sort result by</label>
             <select
               id="sales-advanced-sort-by"
               name="sortBy"
@@ -246,7 +246,7 @@ export const SalesAdvancedFilter = () => {
           </div>
 
           <div className="flex flex-col flex-1">
-            <label htmlFor="sales-advanced-sort-by">Sort result by</label>
+            <label htmlFor="sales-advanced-sort-by" className="form-label">Sort result by</label>
             <select
               id="sales-advanced-sort-by"
               name="sortDirection"

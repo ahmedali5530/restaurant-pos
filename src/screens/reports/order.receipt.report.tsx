@@ -164,7 +164,7 @@ export const OrderReceiptReport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100 p-4 print:bg-white print:p-0">
+    <div className="min-h-screen bg-surface p-4 print:bg-surface-elevated print:p-0">
       <DocumentTitle
         parts={[t("titles.orderReceipt"), invoiceLabel, tNav("sidebar.reports")].filter(Boolean) as string[]}
       />
@@ -190,7 +190,7 @@ export const OrderReceiptReport = () => {
       `}</style>
 
       <div className="mx-auto max-w-xl flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-neutral-100 py-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-surface py-2">
           <Button
             variant="primary"
             size="sm"
@@ -221,7 +221,7 @@ export const OrderReceiptReport = () => {
         </div>
 
         {loading && (
-          <div className="py-12 text-center text-neutral-500 print:hidden">
+          <div className="py-12 text-center text-muted print:hidden">
             {t("loading.orderReceipt")}
           </div>
         )}
@@ -231,7 +231,7 @@ export const OrderReceiptReport = () => {
         )}
 
         {order && (
-          <div className="overflow-auto bg-neutral-200/60 p-4 print:bg-transparent print:p-0 print:overflow-visible">
+          <div className="overflow-auto bg-surface/60 dark:bg-neutral-700 p-4 print:bg-transparent print:p-0 print:overflow-visible">
             <div ref={documentRef}>
               <OrderReceiptView order={order} qrcodes={qrcodes} />
             </div>

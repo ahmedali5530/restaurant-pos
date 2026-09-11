@@ -28,7 +28,7 @@ export const OrderFiscalFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="order-fiscal-providers">{t('filters.provider')}</label>
+          <label htmlFor="order-fiscal-providers" className="form-label">{t('filters.provider')}</label>
           <div className="w-full">
             <ReactSelect
               id="order-fiscal-providers"
@@ -42,7 +42,7 @@ export const OrderFiscalFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="order-fiscal-statuses">{t('filters.status')}</label>
+          <label htmlFor="order-fiscal-statuses" className="form-label">{t('filters.status')}</label>
           <div className="w-full">
             <ReactSelect
               id="order-fiscal-statuses"

@@ -128,13 +128,13 @@ export const InventoryProductionHistory = () => {
 
   return (
     <>
-      <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-neutral-200">
+      <div className="flex flex-wrap gap-3 items-end px-4 py-3 border-b border-border">
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("columns.location")}</label>
+          <label className="text-sm text-muted">{t("columns.location")}</label>
           <ReactSelect value={filterLocation} onChange={setFilterLocation} options={locationOptions} isClearable />
         </div>
         <div className="w-56">
-          <label className="text-sm text-neutral-600">{t("production.recipe")}</label>
+          <label className="text-sm text-muted">{t("production.recipe")}</label>
           <ReactSelect value={filterRecipe} onChange={setFilterRecipe} options={recipeOptions} isClearable />
         </div>
         <Button variant="primary" onClick={applyFilters}>

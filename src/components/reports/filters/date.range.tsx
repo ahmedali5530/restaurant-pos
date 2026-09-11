@@ -41,7 +41,7 @@ export function DateRange({
 
   return (
     <div className="flex flex-col w-full">
-      <label htmlFor="date-preset">{label}</label>
+      <label htmlFor="date-preset" className="form-label">{label}</label>
       <select
         id="date-preset"
         onChange={(event) => {

@@ -205,7 +205,7 @@ export const DiscountForm = ({
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]">
         <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4">
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.basic')}</legend>
             <div className="flex flex-col gap-3 mt-2">
               <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string}/>
@@ -247,7 +247,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('scope')?.value && (
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend className="px-2 font-semibold">{t('discountEngine.sections.targets')}</legend>
               <div className="mt-2">
                 <DiscountTargetsEditor
@@ -260,7 +260,7 @@ export const DiscountForm = ({
             </fieldset>
           )}
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.value')}</legend>
             <div className="flex flex-col gap-3 mt-2">
               <div>
@@ -352,7 +352,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.stacking')}</legend>
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div>
@@ -378,7 +378,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.options')}</legend>
             <div className="flex flex-wrap gap-4 mt-2">
               <Controller
@@ -444,7 +444,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend className="px-2 font-semibold">{t('discountEngine.sections.schedule')}</legend>
             <div className="mt-2">
               <DiscountScheduleEditor value={schedules} onChange={setSchedules} />
@@ -452,7 +452,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('category')?.value === 'buy_x_get_y' && (
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend className="px-2 font-semibold">{t('discountEngine.sections.bxgy')}</legend>
               <div className="mt-2">
                 <DiscountConditionsEditor open={open} value={conditions} onChange={setConditions} />

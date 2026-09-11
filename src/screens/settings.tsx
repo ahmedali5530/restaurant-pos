@@ -9,6 +9,7 @@ import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
+import {ThemeSettings} from "@/components/user_settings/theme.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
@@ -36,6 +37,7 @@ export const Settings = () => {
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
+        <MasonryItem><ThemeSettings /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
         <MasonryItem><Printersettings /></MasonryItem>
         <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>

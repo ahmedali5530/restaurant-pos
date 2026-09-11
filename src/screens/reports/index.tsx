@@ -255,13 +255,13 @@ export const Reports = () => {
       <DocumentTitle parts={[tNav('sidebar.reports')]} />
       <div className="grid grid-cols-9 gap-5" data-testid="reports-page">
         <div className="col-span-2">
-          <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-categories">
-            <h1 className="text-xl text-gray-600 px-5">{t('page.title')}</h1>
+          <div className="bg-surface-elevated shadow py-5 rounded-lg" data-testid="reports-categories">
+            <h1 className="text-xl text-muted px-5">{t('page.title')}</h1>
             <div className="py-5">
               <ul>
                 {reportCategories.map((category) => (
                   <li
-                    className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
+                    className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-surface dark:hover:bg-neutral-700 items-center"
                     data-testid={`reports-category-${category.id}`}
                     onClick={() => {
                       setSelectedCategoryId(category.id);
@@ -282,13 +282,13 @@ export const Reports = () => {
           </div>
         </div>
         <div className="col-span-2">
-          <div className="bg-white shadow py-5 rounded-lg" data-testid="reports-subreports">
-            <h1 className="text-xl text-gray-600 px-5">{t('page.subReports')}</h1>
+          <div className="bg-surface-elevated shadow py-5 rounded-lg" data-testid="reports-subreports">
+            <h1 className="text-xl text-muted px-5">{t('page.subReports')}</h1>
             <div className="py-5">
               <ul>
                 {subReports.map((entry) => (
                   <li
-                    className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-gray-100 items-center"
+                    className="border-b py-2 px-5 flex justify-between cursor-pointer hover:bg-surface dark:hover:bg-neutral-700 items-center"
                     data-testid={`reports-report-${entry.reportKey}`}
                     onClick={() => {
                       protectAction(() => {
@@ -312,10 +312,10 @@ export const Reports = () => {
           </div>
         </div>
         <div className="col-span-5">
-          <div className="bg-white shadow p-5 rounded-lg" data-testid="reports-filters">
+          <div className="bg-surface-elevated shadow p-5 rounded-lg" data-testid="reports-filters">
             <h1 className="text-xl">
               {selectedCategoryId && selectedReportKey ? (
-                <span className="text-gray-600">{selectedCategoryTitle} <FontAwesomeIcon icon={faChevronRight} size="xs" /> {selectedReportLabel}</span>
+                <span className="text-muted">{selectedCategoryTitle} <FontAwesomeIcon icon={faChevronRight} size="xs" /> {selectedReportLabel}</span>
               ) : t('page.reportFilters')}
             </h1>
             <div className="py-5">

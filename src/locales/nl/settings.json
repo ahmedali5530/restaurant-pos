@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Weergave",
+    "description": "Kies licht, donker of volg de systeeminstelling van dit apparaat. Geldt alleen voor dit apparaat.",
+    "light": "Licht",
+    "dark": "Donker",
+    "system": "Systeem",
+    "brandTitle": "Merkkleuren",
+    "brandDescription": "Kies een kleurenpakket voor dit apparaat. Shell, knoppen, selects en grafieken worden meteen bijgewerkt.",
+    "brand": {
+      "classic": "Klassiek",
+      "ocean": "Oceaan",
+      "forest": "Bos",
+      "cream": "Crème",
+      "ruby": "Robijn",
+      "sapphire": "Saffier"
+    }
+  },
   "touch": {
     "title": "Schermtoetsenbord",
     "description": "Schermtoetsenbord in- of uitschakelen. Geldt alleen voor dit apparaat."

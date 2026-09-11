@@ -129,7 +129,7 @@ export const CashFlow = () => {
 
       {!isLoading && (
         <div className="grid grid-cols-2 gap-4">
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-surface-elevated">
             <div className="border-b p-3 font-semibold">{t('reports.cashFlowBySource')}</div>
             <div className="overflow-x-auto">
               <table className="table w-full">
@@ -155,7 +155,7 @@ export const CashFlow = () => {
                 })}
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="text-center text-gray-500">{t('reports.noCashFlow')}</td>
+                    <td colSpan={3} className="text-center text-muted">{t('reports.noCashFlow')}</td>
                   </tr>
                 )}
                 </tbody>
@@ -163,7 +163,7 @@ export const CashFlow = () => {
             </div>
           </div>
 
-          <div className="border rounded-lg bg-white">
+          <div className="border rounded-lg bg-surface-elevated">
             <div className="border-b p-3 font-semibold">{t('reports.cashFlowSummary')}</div>
             <div className="p-3 space-y-3">
               <div className="flex justify-between">

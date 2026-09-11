@@ -197,14 +197,14 @@ export const OrderBox = ({
 
   return (
     <>
-      <div ref={rootRef} className="rounded-xl p-3 bg-white gap-5 flex flex-col shadow select-none" data-testid="order-card">
+      <div ref={rootRef} className="rounded-xl p-3 bg-surface-elevated gap-5 flex flex-col shadow select-none" data-testid="order-card">
         <OrderHeader order={order} tempPrinted={tempPrinted}/>
         <OrderTimes order={order}/>
         <div className="separator h-[2px]" style={{'--size': '10px', '--space': '5px'} as CSSProperties}></div>
         <ScrollContainer>
           <div className="overflow-auto max-h-[400px] min-h-[80px]">
             {!cardReady && (
-              <div className="py-6 text-center text-sm text-neutral-500">
+              <div className="py-6 text-center text-sm text-muted">
                 {hydrateError ? (
                   <button type="button" className="underline" onClick={() => void retryHydrate()}>
                     {t('retryLoad')}
@@ -232,7 +232,7 @@ export const OrderBox = ({
         {cardReady ? (
           <OrderTotals order={order} />
         ) : (
-          <div className="h-8 rounded bg-neutral-100 animate-pulse" />
+          <div className="h-8 rounded bg-surface animate-pulse" />
         )}
         <div className="flex gap-5" data-testid="order-card-actions">
           {merging && (order.status === OrderStatus['In Progress']) ? (

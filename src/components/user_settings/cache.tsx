@@ -65,11 +65,11 @@ export const CacheSettings = () => {
   };
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-cache">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-cache">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
-          <p className="text-sm text-neutral-500">{t('cache.description')}</p>
+          <p className="text-sm text-muted">{t('cache.description')}</p>
           {!isEffectivelyConnected && (
             <p className="text-sm text-warning-700 mt-2" data-testid="cache-offline-hint">
               {t('cache.offlineHint')}

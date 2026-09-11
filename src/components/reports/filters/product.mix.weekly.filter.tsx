@@ -150,11 +150,11 @@ export const ProductMixWeeklyReportFilter = () => {
       target="_blank"
     >
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="product-mix-weekly-week">Week</label>
+        <label htmlFor="product-mix-weekly-week" className="form-label">Week</label>
         <select
           id="product-mix-weekly-week"
           name="week"
-          className="input bg-white min-w-[260px]"
+          className="input bg-surface-elevated min-w-[260px]"
           disabled={loading || !!error}
           value={selectedWeek}
           onChange={(event) => setSelectedWeek(event.target.value)}
@@ -165,13 +165,13 @@ export const ProductMixWeeklyReportFilter = () => {
           )}
           {weekOptions}
         </select>
-        {loading && <p className="text-sm text-gray-500">Loading weeks...</p>}
+        {loading && <p className="text-sm text-muted">Loading weeks...</p>}
         {error && <p className="text-sm text-danger-600">{error}</p>}
       </div>
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-order-takers">{t('filters.orderTakers')}</label>
+          <label htmlFor="product-mix-weekly-order-takers" className="form-label">{t('filters.orderTakers')}</label>
           <ReactSelect
             id="product-mix-weekly-order-takers"
             name="order_takers[]"
@@ -187,7 +187,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-order-types">{t('filters.orderTypes')}</label>
+          <label htmlFor="product-mix-weekly-order-types" className="form-label">{t('filters.orderTypes')}</label>
           <ReactSelect
             id="product-mix-weekly-order-types"
             name="order_types[]"
@@ -201,7 +201,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-categories">{t('filters.categories')}</label>
+          <label htmlFor="product-mix-weekly-categories" className="form-label">{t('filters.categories')}</label>
           <ReactSelect
             id="product-mix-weekly-categories"
             name="categories[]"
@@ -215,7 +215,7 @@ export const ProductMixWeeklyReportFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="product-mix-weekly-menu-items">{t('filters.menuItems')}</label>
+          <label htmlFor="product-mix-weekly-menu-items" className="form-label">{t('filters.menuItems')}</label>
           <ReactSelect
             id="product-mix-weekly-menu-items"
             name="menu_items[]"

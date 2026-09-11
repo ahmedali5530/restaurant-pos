@@ -102,7 +102,7 @@ export const ProductionReport = () => {
       {error && <p className="text-danger-600">{error}</p>}
       {!loading && !error && (
         <>
-      <table className="table table-hover table-sm bg-white w-full">
+      <table className="table table-hover table-sm bg-surface-elevated w-full">
         <thead>
           <tr>
             <th>{t("production.batchNumber")}</th>
@@ -138,7 +138,7 @@ export const ProductionReport = () => {
           <h3 className="text-lg font-medium mb-2">
             {batch.batchNumber} — {t("production.lineDetails")}
           </h3>
-          <table className="table table-sm bg-white w-full">
+          <table className="table table-sm bg-surface-elevated w-full">
             <thead>
               <tr>
                 <th>{t("labels.item")}</th>

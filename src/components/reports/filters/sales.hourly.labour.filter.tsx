@@ -15,7 +15,7 @@ export const SalesHourlyLabourFilter = () => {
       <DateRange isRequired label="Select a range"/>
 
       <div>
-        <label htmlFor="hours">{t('metrics.hours')}</label>
+        <label htmlFor="hours" className="form-label">{t('metrics.hours')}</label>
         <ReactSelect name="hours[]" isMulti options={Array.from({length: 23}, (_, i) => i).map(item => ({
           label: item,
           value: item

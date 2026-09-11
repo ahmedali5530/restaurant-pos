@@ -145,7 +145,7 @@ export const PurchaseOrderReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.purchaseOrder')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.purchaseOrder')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.purchaseOrder')}</div>
       </ReportsLayout>
     );
   }
@@ -165,45 +165,45 @@ export const PurchaseOrderReport = () => {
     >
       <div className="space-y-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t('reports.purchaseOrder')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{formatNumber(orders.length)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t('reports.purchaseOrder')}</p>
+            <p className="text-2xl font-bold text-foreground">{formatNumber(orders.length)}</p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t('columns.items')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{formatNumber(totals.totalItems)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t('columns.items')}</p>
+            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t('columns.quantity')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{formatNumber(totals.totalQuantity)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t('columns.quantity')}</p>
+            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalQuantity)}</p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t('columns.total')}</p>
-            <p className="text-2xl font-bold text-neutral-900">{withCurrency(totals.totalAmount)}</p>
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t('columns.total')}</p>
+            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('titles.purchaseOrder')}</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('titles.purchaseOrder')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.invoice')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.status')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.supplier')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('filters.item')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('columns.createdBy')}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.invoice')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.status')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.supplier')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.item')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.price')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-foreground">{t('columns.createdBy')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {orders.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={9} className="py-6 text-center text-sm text-muted">
                       No purchase orders found for the selected filters
                     </td>
                   </tr>
@@ -234,11 +234,11 @@ export const PurchaseOrderReport = () => {
 
                       return (
                         <tr key={`${order.id}-${index}`}>
-                          <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">
+                          <td className="py-3 pl-6 pr-3 text-sm text-foreground">{dateStr}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">
                             {order.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-neutral-700"
+                                className="text-primary-600 underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("purchase-order", String(order.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -249,13 +249,13 @@ export const PurchaseOrderReport = () => {
                               `#${order.po_number}`
                             )}
                           </td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{order.status}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{supplierName}</td>
-                          <td className="py-3 px-3 text-sm text-neutral-700">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(amount)}</td>
-                          <td className="py-3 pr-6 text-sm text-neutral-700">{createdByName}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{order.status}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{supplierName}</td>
+                          <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 pr-6 text-sm text-foreground">{createdByName}</td>
                         </tr>
                       );
                     });
@@ -263,14 +263,14 @@ export const PurchaseOrderReport = () => {
                 )}
               </tbody>
               {orders.length > 0 && (
-                <tfoot className="bg-neutral-50">
+                <tfoot className="bg-surface">
                   <tr>
-                    <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {formatNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
                       {withCurrency(totals.totalAmount)}
                     </td>
                     <td></td>

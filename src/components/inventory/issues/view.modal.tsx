@@ -71,85 +71,85 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-300 border-t-primary-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
         </div>
       )}
 
       {!loading && viewIssue && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 flex flex-col gap-3">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="text-lg font-semibold">
                 Issue #{viewIssue.invoice_number}
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-muted">
                 {viewIssue.created_at ? formatDateTime(viewIssue.created_at) : "—"}
               </div>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.createdBy')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.createdBy')}</div>
                 <div>{viewIssue.created_by?.first_name} {viewIssue.created_by?.last_name}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.issuedTo')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.issuedTo')}</div>
                 <div>{viewIssue.issued_to ? `${viewIssue.issued_to.first_name} ${viewIssue.issued_to.last_name}` : "—"}</div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">{t('columns.location')}</div>
+                <div className="text-muted text-xs uppercase">{t('columns.location')}</div>
                 <div>{viewIssue.location?.name ?? "—"}</div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
-            <div className="text-sm font-semibold text-neutral-800 mb-3">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
+            <div className="text-sm font-semibold text-foreground mb-3">
               {t('tabs.items')}
             </div>
             {viewIssue.items && viewIssue.items.length > 0 ? (
-              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-neutral-200">
+              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-border">
                 <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                  <thead className="bg-neutral-50 sticky top-0">
+                  <thead className="bg-surface sticky top-0">
                     <tr>
-                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-neutral-600">{t('columns.name')}</th>
-                      <th className="py-2 px-2 text-left text-xs font-semibold text-neutral-600">{t('columns.location')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('forms.quantity')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.requested')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.price')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-neutral-600">{t('columns.amount')}</th>
-                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-neutral-600">{t('forms.comments')}</th>
+                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-muted">{t('columns.name')}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold text-muted">{t('columns.location')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('forms.quantity')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.requested')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.price')}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.amount')}</th>
+                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-muted">{t('forms.comments')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100 bg-white">
+                  <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                     {viewIssue.items.map((item) => {
                       const price = Number(item.price) || 0;
                       const amount = lineAmount(price, Number(item.quantity) || 0);
                       return (
                         <tr key={item.id}>
                           <td className="py-2 pl-3 pr-2 align-top">
-                            <div className="font-medium text-neutral-900">
+                            <div className="font-medium text-foreground">
                               {(item.item as any)?.name ?? "Item"}
                             </div>
                             {(item.item as any)?.code && (
-                              <div className="text-xs text-neutral-500">{(item.item as any).code}</div>
+                              <div className="text-xs text-muted">{(item.item as any).code}</div>
                             )}
                           </td>
-                          <td className="py-2 px-2 align-top text-neutral-700">
+                          <td className="py-2 px-2 align-top text-foreground">
                             {item.location?.name ?? "—"}
                           </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
                             {formatNumber(item.quantity)}
                           </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-500">
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-muted">
                             {item.requested !== undefined ? formatNumber(item.requested) : "—"}
                           </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-neutral-700">
+                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
                             {price > 0 ? withCurrency(price) : "—"}
                           </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-neutral-900">
+                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-foreground">
                             {amount > 0 ? withCurrency(amount) : "—"}
                           </td>
-                          <td className="py-2 pl-2 pr-3 align-top text-neutral-600 max-w-[160px] truncate" title={item.comments ?? undefined}>
+                          <td className="py-2 pl-2 pr-3 align-top text-muted max-w-[160px] truncate" title={item.comments ?? undefined}>
                             {item.comments || "—"}
                           </td>
                         </tr>
@@ -159,35 +159,35 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
                 </table>
               </div>
             ) : (
-              <div className="text-sm text-neutral-500">
+              <div className="text-sm text-muted">
                 No items found for this issue.
               </div>
             )}
           </div>
 
           {totals && (
-            <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 text-sm space-y-1">
-              <div className="text-sm font-semibold text-neutral-800 mb-2">
+            <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 text-sm space-y-1">
+              <div className="text-sm font-semibold text-foreground mb-2">
                 {t('common:actions.total')}
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-600">{t('tabs.items')}</span>
+                <span className="text-muted">{t('tabs.items')}</span>
                 <span className="font-medium">{totals.totalItems}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-600">{t('forms.quantity')}</span>
+                <span className="text-muted">{t('forms.quantity')}</span>
                 <span className="font-medium">{formatNumber(totals.totalQty)}</span>
               </div>
-              <div className="flex justify-between border-t border-neutral-200 pt-1 font-semibold">
+              <div className="flex justify-between border-t border-border pt-1 font-semibold">
                 <span>{t('columns.amount')}</span>
                 <span>{withCurrency(totals.totalValue)}</span>
               </div>
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
                 <FontAwesomeIcon icon={faFile}/>
                 <span>{t('upload.attachDocuments')}</span>
               </div>
@@ -197,17 +197,17 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
                 {viewIssue.documents.map((doc, index) => (
                   <div
                     key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-neutral-200 bg-neutral-50"
+                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center">
+                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
                         <FontAwesomeIcon icon={faFile}/>
                       </div>
                       <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-neutral-800 truncate">
+                        <span className="text-sm font-medium text-foreground truncate">
                           {doc.name ?? `Document ${index + 1}`}
                         </span>
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-xs text-muted">
                           {doc.mimeType ?? "File"}
                         </span>
                       </div>
@@ -230,7 +230,7 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
                 ))}
               </div>
             ) : (
-              <div className="text-sm text-neutral-500">
+              <div className="text-sm text-muted">
                 No documents attached to this issue.
               </div>
             )}

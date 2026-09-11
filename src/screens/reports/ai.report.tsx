@@ -237,7 +237,7 @@ export const AiReport = () => {
     >
       <div className="flex flex-col gap-6">
         <div className="print:hidden">
-          <label className="text-sm text-gray-600 w-full block">
+          <label className="text-sm text-muted w-full block">
             {t("filters.prompt")}
             <Textarea
               className="mt-1 min-h-32 w-full"
@@ -281,7 +281,7 @@ export const AiReport = () => {
               {t("filters.run")}
             </Button>
             {usageLabel && (
-              <span className="text-sm text-gray-500">{usageLabel}</span>
+              <span className="text-sm text-muted">{usageLabel}</span>
             )}
             {usage && !usage.enabled && (
               <span className="text-sm text-danger-600">{t("filters.aiDisabled")}</span>
@@ -290,18 +290,18 @@ export const AiReport = () => {
         </div>
 
         {loading && (
-          <div className="text-gray-600">{loadingMessage}</div>
+          <div className="text-muted">{loadingMessage}</div>
         )}
 
         {error && (
-          <div className="rounded-lg border border-danger-200 bg-danger-50 p-4 text-danger-700">
+          <div className="rounded-lg border border-danger-200 bg-danger/10 p-4 text-danger-700">
             {error}
           </div>
         )}
 
         {(response || charts.length > 0) && (
           <div>
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">{t("filters.aiResponse")}</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-3">{t("filters.aiResponse")}</h2>
             {receiptHref && (
               <div className="mb-3 print:hidden">
                 <Button
@@ -319,7 +319,7 @@ export const AiReport = () => {
               </div>
             )}
             {response && (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-gray-800">
+              <div className="rounded-lg border border-border bg-surface p-4 text-foreground">
                 <AiMarkdown orderRefs={orderRefs}>{response}</AiMarkdown>
               </div>
             )}

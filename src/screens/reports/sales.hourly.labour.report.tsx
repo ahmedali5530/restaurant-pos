@@ -299,7 +299,7 @@ export const SalesHourlyLabourReport = () => {
           ))}
           {hourlyData.length === 0 && (
             <tr>
-              <td colSpan={9} className="text-center p-8 text-gray-500">
+              <td colSpan={9} className="text-center p-8 text-muted">
                 No data available for the selected date range
               </td>
             </tr>

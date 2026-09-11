@@ -174,22 +174,22 @@ export const AdminUsers = () => {
         });
       }}
     >
-      <TabList aria-label={t('users.manageTabs')} className="flex gap-3 p-3 bg-white border-b border-neutral-200" data-testid="admin-users-tabs">
+      <TabList aria-label={t('users.manageTabs')} className="flex gap-3 p-3 bg-surface-elevated border-b border-border" data-testid="admin-users-tabs">
         <Tab id="admin.users" data-testid="admin-users-tab-users">{t('tabs.users')}</Tab>
         <Tab id="admin.roles" data-testid="admin-users-tab-roles">{t('tabs.roles')}</Tab>
         <Tab id="admin.shifts" data-testid="admin-users-tab-shifts">{t('tabs.shifts')}</Tab>
         <Tab id="admin.tips_definition" data-testid="admin-users-tab-tips_definition">{t('tabs.tipsDefinition')}</Tab>
       </TabList>
-      <TabPanel id="admin.users" className="bg-white">
+      <TabPanel id="admin.users" className="bg-surface-elevated">
         <AdminUsersList />
       </TabPanel>
-      <TabPanel id="admin.roles" className="bg-white">
+      <TabPanel id="admin.roles" className="bg-surface-elevated">
         <AdminUserRoles />
       </TabPanel>
-      <TabPanel id="admin.shifts" className="bg-white">
+      <TabPanel id="admin.shifts" className="bg-surface-elevated">
         <AdminShifts />
       </TabPanel>
-      <TabPanel id="admin.tips_definition" className="bg-white">
+      <TabPanel id="admin.tips_definition" className="bg-surface-elevated">
         <AdminTipDistribution />
       </TabPanel>
     </Tabs>

@@ -15,28 +15,28 @@ export const InventoryInvoice = ({doc}: Props) => {
   return (
     <div
       data-print-document
-      className="mx-auto w-full max-w-[210mm] bg-white text-neutral-900 border border-neutral-300 shadow-sm print:shadow-none print:border-0"
+      className="mx-auto w-full max-w-[210mm] bg-surface-elevated text-foreground border border-border shadow-sm print:bg-white print:text-neutral-900 print:shadow-none print:border-0"
     >
       <div className="px-8 py-8 sm:px-10 sm:py-10">
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between border-b border-neutral-800 pb-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between border-b border-border pb-6">
           <div className="min-w-0">
-            <div className="text-2xl font-semibold tracking-tight text-neutral-900">
+            <div className="text-2xl font-semibold tracking-tight text-foreground">
               {doc.restaurantName || "Restaurant"}
             </div>
             {doc.restaurantAddress && (
-              <div className="mt-1 text-sm text-neutral-600 whitespace-pre-line max-w-sm">
+              <div className="mt-1 text-sm text-muted whitespace-pre-line max-w-sm">
                 {doc.restaurantAddress}
               </div>
             )}
           </div>
           <div className="sm:text-right shrink-0">
-            <div className="text-xs uppercase tracking-[0.16em] text-neutral-500">
+            <div className="text-xs uppercase tracking-[0.16em] text-muted">
               {doc.docType}
             </div>
             <div className="mt-1 text-2xl font-semibold tracking-tight">
               #{doc.invoiceNumber}
             </div>
-            <div className="mt-2 text-sm text-neutral-600">{doc.date}</div>
+            <div className="mt-2 text-sm text-muted">{doc.date}</div>
           </div>
         </div>
 
@@ -44,10 +44,10 @@ export const InventoryInvoice = ({doc}: Props) => {
           <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 sm:grid-cols-3">
             {doc.meta.map((field) => (
               <div key={`${field.label}-${field.value}`}>
-                <div className="text-[11px] uppercase tracking-wide text-neutral-500">
+                <div className="text-[11px] uppercase tracking-wide text-muted">
                   {field.label}
                 </div>
-                <div className="mt-0.5 text-sm font-medium text-neutral-800">
+                <div className="mt-0.5 text-sm font-medium text-foreground">
                   {field.value}
                 </div>
               </div>
@@ -58,7 +58,7 @@ export const InventoryInvoice = ({doc}: Props) => {
         <div className="mt-8">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="border-b-2 border-neutral-800 text-left">
+              <tr className="border-b-2 border-border text-left">
                 <th className="py-2 pr-2 font-semibold">#</th>
                 <th className="py-2 pr-2 font-semibold">Item</th>
                 <th className="py-2 pr-2 font-semibold text-right">Qty</th>
@@ -79,7 +79,7 @@ export const InventoryInvoice = ({doc}: Props) => {
                 <tr>
                   <td
                     colSpan={showCost ? 6 : 5}
-                    className="py-6 text-center text-neutral-500"
+                    className="py-6 text-center text-muted"
                   >
                     No items
                   </td>
@@ -88,25 +88,25 @@ export const InventoryInvoice = ({doc}: Props) => {
                 doc.lines.map((line, index) => (
                   <tr
                     key={`${line.name}-${index}`}
-                    className="border-b border-neutral-200 align-top"
+                    className="border-b border-border align-top"
                   >
-                    <td className="py-2.5 pr-2 text-neutral-500">{index + 1}</td>
+                    <td className="py-2.5 pr-2 text-muted">{index + 1}</td>
                     <td className="py-2.5 pr-2">
-                      <div className="font-medium text-neutral-900">{line.name}</div>
+                      <div className="font-medium text-foreground">{line.name}</div>
                       {line.sku && (
-                        <div className="text-xs text-neutral-500">SKU: {line.sku}</div>
+                        <div className="text-xs text-muted">SKU: {line.sku}</div>
                       )}
                       {showCost && line.location && (
-                        <div className="text-xs text-neutral-500">Location: {line.location}</div>
+                        <div className="text-xs text-muted">Location: {line.location}</div>
                       )}
                       {line.note && (
-                        <div className="text-xs text-neutral-500 mt-0.5">{line.note}</div>
+                        <div className="text-xs text-muted mt-0.5">{line.note}</div>
                       )}
                     </td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">
                       {formatNumber(line.qty)}
                     </td>
-                    <td className="py-2.5 pr-2 text-neutral-600">{line.unit || "—"}</td>
+                    <td className="py-2.5 pr-2 text-muted">{line.unit || "—"}</td>
                     {showCost ? (
                       <>
                         <td className="py-2.5 pr-2 text-right tabular-nums">
@@ -117,7 +117,7 @@ export const InventoryInvoice = ({doc}: Props) => {
                         </td>
                       </>
                     ) : (
-                      <td className="py-2.5 text-neutral-600">{line.location || "—"}</td>
+                      <td className="py-2.5 text-muted">{line.location || "—"}</td>
                     )}
                   </tr>
                 ))
@@ -134,15 +134,15 @@ export const InventoryInvoice = ({doc}: Props) => {
                   key={total.label}
                   className={
                     total.label === "Grand total" || total.label === "Total"
-                      ? "flex items-center justify-between border-t border-neutral-800 pt-3"
-                      : "flex items-center justify-between border-t border-neutral-200 pt-2"
+                      ? "flex items-center justify-between border-t border-border pt-3"
+                      : "flex items-center justify-between border-t border-border pt-2"
                   }
                 >
                   <span
                     className={
                       total.label === "Grand total" || total.label === "Total"
                         ? "text-sm font-semibold uppercase tracking-wide"
-                        : "text-sm text-neutral-600"
+                        : "text-sm text-muted"
                     }
                   >
                     {total.label}
@@ -163,13 +163,13 @@ export const InventoryInvoice = ({doc}: Props) => {
         )}
 
         {doc.notes && (
-          <div className="mt-8 border-t border-neutral-200 pt-4">
-            <div className="text-[11px] uppercase tracking-wide text-neutral-500">Notes</div>
-            <div className="mt-1 text-sm text-neutral-700 whitespace-pre-wrap">{doc.notes}</div>
+          <div className="mt-8 border-t border-border pt-4">
+            <div className="text-[11px] uppercase tracking-wide text-muted">Notes</div>
+            <div className="mt-1 text-sm text-foreground whitespace-pre-wrap">{doc.notes}</div>
           </div>
         )}
 
-        <div className="mt-10 pt-4 border-t border-neutral-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-neutral-500">
+        <div className="mt-10 pt-4 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted">
           <div>Generated at {generatedAt}</div>
           <div>{doc.docType} #{doc.invoiceNumber}</div>
         </div>

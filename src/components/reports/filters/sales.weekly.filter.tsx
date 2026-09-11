@@ -118,11 +118,11 @@ export const SalesWeeklyFilter = () => {
       target="_blank"
     >
       <div>
-        <label htmlFor="week-select">Select a week</label>
+        <label htmlFor="week-select" className="form-label">Select a week</label>
         <select
           id="week-select"
           name="week"
-          className="input bg-white min-w-[260px]"
+          className="input bg-surface-elevated min-w-[260px]"
           disabled={loading || !!error}
           value={selectedWeek}
           onChange={(event) => setSelectedWeek(event.target.value)}
@@ -133,7 +133,7 @@ export const SalesWeeklyFilter = () => {
           )}
           {weekOptions}
         </select>
-        {loading && <p className="text-sm text-gray-500">Loading weeks...</p>}
+        {loading && <p className="text-sm text-muted">Loading weeks...</p>}
         {error && <p className="text-sm text-danger-600">{error}</p>}
       </div>
 

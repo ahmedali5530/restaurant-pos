@@ -356,92 +356,92 @@ export const Summary = ({
     <>
       <div style={{display: 'flex', flexDirection: 'column'}}>
         {/*<div style={{textAlign: 'center', marginBottom: '16px', fontSize: '24px'}}>Summary of {date}</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Exclusive amount</span>
           <span>{withCurrency(exclusive)}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>G sales</span>
             <span>{withCurrency(gSales)}</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgb(var(--muted))', marginTop: '0.25rem' }}>
             Items total (before tax)
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>Gross</span>
             <span>{withCurrency(gross)}</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgb(var(--muted))', marginTop: '0.25rem' }}>
             Amount collected + Refunds + Discounts
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Refunds</span>
           <span>{withCurrency(refunds)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Service charges</span>
           <span>{withCurrency(serviceCharges)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Discounts</span>
           <span>{withCurrency(discounts)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Coupons</span>
           <span>{withCurrency(couponsTotal)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Taxes</span>
           <span>{withCurrency(taxes)}</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span>Net</span>
             <span>{withCurrency(net)}</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgb(var(--muted))', marginTop: '0.25rem' }}>
             Amount collected - Service charges - Taxes
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span>Amount due</span>
           <span>{withCurrency(amountDue)}</span>
           </div>
-          <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+          <div style={{ fontSize: '0.75rem', color: 'rgb(var(--muted))', marginTop: '0.25rem' }}>
             Items total + Taxes + Service charges + Extras - Discounts - Coupons
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb', padding: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem' }}>
           <span>Amount collected</span>
           <span>{withCurrency(amountCollected)}</span>
         </div>*/}
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.extras')}</span>
           <span>{withCurrency(totalExtras)}</span>
         </div>
-        <div style={{display: 'flex', flexDirection: 'column', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}}>
+        <div style={{display: 'flex', flexDirection: 'column', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem'}}>
           <div style={{display: 'flex', justifyContent: 'space-between'}}>
             <span>{t('report.rows.rounding')}</span>
             <span>{withCurrency(rounding)}</span>
           </div>
-          <div style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem'}}>
+          <div style={{fontSize: '0.75rem', color: 'rgb(var(--muted))', marginTop: '0.25rem'}}>
             {t('report.hints.roundingLegacy')}
           </div>
         </div>
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.voids')}</span>
@@ -450,7 +450,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -459,7 +459,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -468,7 +468,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.rows.totalTips')}</span>
@@ -477,7 +477,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -486,7 +486,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.covers')}</span>
@@ -495,7 +495,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.averageCover')}</span>
@@ -504,7 +504,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.ordersChecks')}</span>
@@ -513,7 +513,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span>{t('report.legacy.averageOrderCheck')}</span>
@@ -522,7 +522,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -531,14 +531,14 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
           <span>{t('report.legacy.categories')}</span>
         </div>
         {Object.keys(categories).map(category => (
-          <div style={{display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}} key={category}>
+          <div style={{display: 'flex', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem'}} key={category}>
             <span style={{width: '40%', textAlign: 'left'}}>{category}</span>
             <span style={{width: '20%', textAlign: 'right'}}>{categories[category].quantity}</span>
             <span style={{width: '20%', textAlign: 'right'}}>{withCurrency(categories[category].total)}</span>
@@ -551,7 +551,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -560,14 +560,14 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
           <span>{t('report.legacy.dishes')}</span>
         </div>
         {Object.keys(dishes).map(dish => (
-          <div style={{display: 'flex', borderBottom: '1px solid #e5e7eb', padding: '0.75rem'}} key={dish}>
+          <div style={{display: 'flex', borderBottom: '1px solid rgb(var(--border))', padding: '0.75rem'}} key={dish}>
             <span style={{width: '40%', textAlign: 'left'}}>
               <div>{dishes[dish].name}</div>
               {dishes[dish].modifiers?.map((modifier: ModifierRow) => (
@@ -576,7 +576,7 @@ export const Summary = ({
                   style={{
                     paddingLeft: `${modifier.depth}rem`,
                     fontSize: '0.75rem',
-                    color: '#6b7280'
+                    color: 'rgb(var(--muted))'
                   }}
                 >
                   - {modifier.name}
@@ -594,7 +594,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -603,7 +603,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -613,7 +613,7 @@ export const Summary = ({
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid rgb(var(--border))',
             padding: '0.75rem'
           }} key={paymentType}>
             <span>{paymentType}</span>
@@ -624,7 +624,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -633,7 +633,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -643,7 +643,7 @@ export const Summary = ({
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid rgb(var(--border))',
             padding: '0.75rem'
           }} key={tax}>
             <span>{tax}%</span>
@@ -655,7 +655,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -665,7 +665,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -675,7 +675,7 @@ export const Summary = ({
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid rgb(var(--border))',
             padding: '0.75rem'
           }} key={discount}>
             <span>{discount}</span>
@@ -687,7 +687,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -697,7 +697,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -707,7 +707,7 @@ export const Summary = ({
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #e5e7eb',
+            borderBottom: '1px solid rgb(var(--border))',
             padding: '0.75rem'
           }} key={extra}>
             <span>{extra}</span>
@@ -718,7 +718,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem'
         }}>
           <span></span>
@@ -728,7 +728,7 @@ export const Summary = ({
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: '1px solid rgb(var(--border))',
           padding: '0.75rem',
           fontWeight: 700
         }}>
@@ -739,7 +739,7 @@ export const Summary = ({
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              borderBottom: '1px solid #e5e7eb',
+              borderBottom: '1px solid rgb(var(--border))',
               padding: '0.75rem'
             }}
             key={code}

@@ -82,7 +82,7 @@ export const InventoryDocumentPrintModal = ({open, doc, onClose}: Props) => {
       `}</style>
 
       <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-neutral-100 py-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-surface py-2">
           <Button
             variant="primary"
             size="sm"
@@ -112,7 +112,7 @@ export const InventoryDocumentPrintModal = ({open, doc, onClose}: Props) => {
           </Button>
         </div>
 
-        <div className="overflow-auto max-h-[70vh] print:max-h-none print:overflow-visible bg-neutral-200/60 p-4 print:bg-transparent print:p-0">
+        <div className="overflow-auto max-h-[70vh] print:max-h-none print:overflow-visible bg-surface/60 dark:bg-neutral-700 p-4 print:bg-transparent print:p-0">
           <div ref={documentRef}>
             <InventoryInvoice doc={doc} />
           </div>

@@ -38,7 +38,7 @@ export const BuffetReportFilter = () => {
       <DateRange isRequired label={t("filters.selectRange")} />
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("filters.location")}</label>
+        <label className="form-label">{t("filters.location")}</label>
         <ReactSelect
           name="locationId"
           isClearable
@@ -49,18 +49,18 @@ export const BuffetReportFilter = () => {
             value: recordToString(location.id) ?? "",
           }))}
         />
-        <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.location")}</p>
+        <p className="text-sm text-muted mt-1">{t("buffet.help.location")}</p>
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <label>{t("buffet.sessionType")}</label>
+        <label className="form-label">{t("buffet.sessionType")}</label>
         <ReactSelect
           name="sessionType"
           isClearable
           className="w-full"
           options={sessionTypeOptions}
         />
-        <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.sessionType")}</p>
+        <p className="text-sm text-muted mt-1">{t("buffet.help.sessionType")}</p>
       </div>
 
       <Button type="submit">{t("filters.generate")}</Button>

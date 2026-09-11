@@ -150,7 +150,7 @@ export const InventoryLocationForm = ({ open, onClose, data }: Props) => {
             )}
           />
           {linkedKitchen && (
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted">
               {t("columns.linkedKitchen")}: {linkedKitchen}
             </p>
           )}

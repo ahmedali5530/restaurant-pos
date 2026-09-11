@@ -172,7 +172,7 @@ export const JournalEntries = () => {
         const status = info.getValue();
         const className =
           status === 'posted' ? 'text-success-600'
-            : status === 'reversed' ? 'text-neutral-500'
+            : status === 'reversed' ? 'text-muted'
               : 'text-warning-600';
         const label =
           status === 'posted' ? t('status.posted')

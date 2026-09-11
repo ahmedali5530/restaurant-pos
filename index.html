@@ -7,6 +7,34 @@
     <title>Restaurant POS</title>
     <script>
       (function () {
+        try {
+          var theme = 'system';
+          var brand = 'classic';
+          var raw = localStorage.getItem('app-page');
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && (parsed.theme === 'light' || parsed.theme === 'dark' || parsed.theme === 'system')) {
+              theme = parsed.theme;
+            }
+            // Any brand slug is fine here; ThemeProvider validates against BRAND_IDS.
+            if (parsed && typeof parsed.brand === 'string' && /^[a-z][a-z0-9_-]{0,31}$/.test(parsed.brand)) {
+              brand = parsed.brand;
+            }
+          }
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.dataset.theme = 'dark';
+          } else {
+            document.documentElement.dataset.theme = 'light';
+          }
+          document.documentElement.dataset.brand = brand;
+        } catch (e) {}
+      })();
+    </script>
+    <script>
+      (function () {
         var gaId = '%VITE_GA4_ID%';
         if (!gaId) return;
 
@@ -23,7 +51,7 @@
       })();
     </script>
   </head>
-  <body class="bg-neutral-300">
+  <body class="bg-canvas">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

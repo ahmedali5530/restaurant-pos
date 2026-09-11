@@ -202,7 +202,7 @@ export const ChartOfAccounts = () => {
       />
 
       {importSummary && (
-        <div className="mt-2 text-sm bg-primary-50 border border-primary-200 rounded px-3 py-2">
+        <div className="mt-2 text-sm bg-primary/10 border border-primary/40 rounded px-3 py-2">
           {t('messages.importSummary', importSummary)}
         </div>
       )}

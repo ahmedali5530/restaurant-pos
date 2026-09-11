@@ -865,7 +865,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   type="file"
                   multiple
                   {...register("documents")}
-                  className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
+                  className="w-full px-3 py-2 border border-border rounded-lg"
                 />
                 <InputError error={get(errors, ["documents", "message"])}/>
               </div>
@@ -885,10 +885,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               </div>
             </div>
 
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend>{t('tabs.items')}</legend>
               {!isManualMethod && (
-                <p className="text-sm text-neutral-500 mb-2">
+                <p className="text-sm text-muted mb-2">
                   {isPurchaseOrderMethod
                     ? "Items are synchronized from the selected purchase order. Switch back to Manual to edit the list."
                     : "Upload a CSV to import items later. Switch back to Manual to edit the list here."}
@@ -932,7 +932,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     : globalLocationOptions;
 
                 return (
-                  <div className="flex flex-col gap-3 mb-4 border border-neutral-400 rounded-lg p-3" key={field.id}>
+                  <div className="flex flex-col gap-3 mb-4 border border-border rounded-lg p-3" key={field.id}>
                     <div className="flex gap-3">
                       <div className="flex-1">
                         <label>{t('buttons.item')}</label>
@@ -1173,21 +1173,21 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   )}
                 />
               </div>
-              <div className="ml-auto rounded-lg border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm space-y-1 min-w-[220px]">
+              <div className="ml-auto rounded-lg border border-border bg-surface px-4 py-3 text-sm space-y-1 min-w-[220px]">
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">{t('totals.subtotal')}</span>
+                  <span className="text-muted">{t('totals.subtotal')}</span>
                   <span className="font-medium">{withCurrency(purchaseTotals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">{t('totals.discount')}</span>
+                  <span className="text-muted">{t('totals.discount')}</span>
                   <span className="font-medium">{withCurrency(Number(discountValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">{t('totals.shipping')}</span>
+                  <span className="text-muted">{t('totals.shipping')}</span>
                   <span className="font-medium">{withCurrency(Number(shippingValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
-                  <span className="text-neutral-600">
+                  <span className="text-muted">
                     {t('totals.tax')}
                     {Number(taxRateValue) > 0 ? ` (${taxRateValue}%)` : ""}
                   </span>
@@ -1195,7 +1195,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 </div>
                 {(extrasValues?.length ?? 0) > 0 && (
                   <div className="flex justify-between gap-4">
-                    <span className="text-neutral-600">{t('totals.additionalCosts')}</span>
+                    <span className="text-muted">{t('totals.additionalCosts')}</span>
                     <span className="font-medium">
                       {withCurrency(
                         purchaseTotals.extrasTotal +
@@ -1205,7 +1205,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between gap-4 border-t border-neutral-300 pt-1 font-semibold">
+                <div className="flex justify-between gap-4 border-t border-border pt-1 font-semibold">
                   <span>{t('totals.grandTotal')}</span>
                   <span>{withCurrency(purchaseTotals.grandTotal)}</span>
                 </div>
@@ -1225,7 +1225,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             </div>
 
             {showAdditionalCosts && (
-              <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+              <fieldset className="border-2 border-border rounded-lg p-3">
                 <legend>{t('totals.additionalCosts')}</legend>
                 <div className="mb-3">
                   <Button

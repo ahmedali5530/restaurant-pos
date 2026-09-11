@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Apariencia",
+    "description": "Elija claro, oscuro o seguir la configuración del sistema de este dispositivo. Solo se aplica a este dispositivo.",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "system": "Sistema",
+    "brandTitle": "Colores de marca",
+    "brandDescription": "Elija un paquete de colores para este dispositivo. La interfaz, botones, selectores y gráficos se actualizan de inmediato.",
+    "brand": {
+      "classic": "Clásico",
+      "ocean": "Océano",
+      "forest": "Bosque",
+      "cream": "Crema",
+      "ruby": "Rubí",
+      "sapphire": "Zafiro"
+    }
+  },
   "touch": {
     "title": "Teclado en pantalla",
     "description": "Habilite o deshabilite el teclado en pantalla. Solo se aplica a este dispositivo."

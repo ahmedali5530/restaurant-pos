@@ -384,7 +384,7 @@ export const PaymentTypeForm = ({
             <div className="mb-3 border rounded p-3">
               <h4 className="font-medium mb-3">{t('forms.gatewayKeys')}</h4>
               {showEncryptedCredentialsHint && (
-                <div className="mb-3 p-2 bg-warning-50 border border-warning-200 rounded text-sm text-warning-800 dark:bg-warning-950/30 dark:border-warning-800 dark:text-warning-200">
+                <div className="mb-3 p-2 bg-warning/10 border border-warning/40 rounded text-sm text-warning-800 dark:bg-warning-950/30 dark:border-warning-800 dark:text-warning-200">
                   <strong>{t('admin:forms.encryptedCredentialsHint')}</strong>{' '}
                   {t('admin:forms.encryptedCredentialsExplanation')}
                 </div>
@@ -402,7 +402,7 @@ export const PaymentTypeForm = ({
                 ))}
               </div>
               {selectedGatewayDescriptor.helpText && (
-                <span className="text-sm text-neutral-500">
+                <span className="text-sm text-muted">
                   {selectedGatewayDescriptor.helpText}
                 </span>
               )}

@@ -143,7 +143,7 @@ export const SalesSummaryReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.salesSummary')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.salesSummary')}</div>
       </ReportsLayout>
     );
   }
@@ -159,32 +159,32 @@ export const SalesSummaryReport = () => {
   return (
     <ReportsLayout title={t('titles.salesSummary')} subtitle={subtitle}>
       <div className="space-y-8">
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
             <tr>
-              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">
                 Metric
               </th>
-              <th scope="col" className="py-3.5 px-6 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-6 text-left text-sm font-semibold text-foreground">
                 Value
               </th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {summaryRows.map(row => (
               <tr key={row.label}>
-                <th scope="row" className="w-1/3 py-4 pl-6 pr-3 text-left text-sm font-medium text-neutral-800">
+                <th scope="row" className="w-1/3 py-4 pl-6 pr-3 text-left text-sm font-medium text-foreground">
                   {row.label}
                 </th>
-                <td className="py-4 px-6 text-sm text-neutral-700">
-                  {row.value && <div className="font-semibold text-neutral-900">{row.value}</div>}
+                <td className="py-4 px-6 text-sm text-foreground">
+                  {row.value && <div className="font-semibold text-foreground">{row.value}</div>}
                   {row.breakdown && row.breakdown.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-sm text-neutral-600">
+                    <ul className="mt-2 space-y-1 text-sm text-muted">
                       {row.breakdown.map(item => (
                         <li key={`${row.label}-${item.label}`} className="flex items-center justify-between">
                           <span>{item.label}</span>
-                          <span className="font-medium text-neutral-900">{item.value}</span>
+                          <span className="font-medium text-foreground">{item.value}</span>
                         </li>
                       ))}
                     </ul>
@@ -194,7 +194,7 @@ export const SalesSummaryReport = () => {
             ))}
             {summaryRows.length === 0 && (
               <tr>
-                <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={2} className="py-6 text-center text-sm text-muted">
                   No sales activity for the selected period.
                 </td>
               </tr>
@@ -203,37 +203,37 @@ export const SalesSummaryReport = () => {
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
             <tr>
-              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">
                 Discount type
               </th>
-              <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-4 text-right text-sm font-semibold text-foreground">
                 Quantity
               </th>
-              <th scope="col" className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pr-6 text-right text-sm font-semibold text-foreground">
                 Amount
               </th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {discountRows.length > 0 ? (
               discountRows.map(discount => (
                 <tr key={discount.type}>
-                  <th scope="row" className="py-4 pl-6 pr-3 text-left text-sm font-medium text-neutral-800">
+                  <th scope="row" className="py-4 pl-6 pr-3 text-left text-sm font-medium text-foreground">
                     {discount.type}
                   </th>
-                  <td className="py-4 px-4 text-right text-sm text-neutral-700">{formatNumber(discount.quantity)}</td>
-                  <td className="py-4 pr-6 text-right text-sm font-semibold text-neutral-900">
+                  <td className="py-4 px-4 text-right text-sm text-foreground">{formatNumber(discount.quantity)}</td>
+                  <td className="py-4 pr-6 text-right text-sm font-semibold text-foreground">
                     {withCurrency(discount.amount)}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={3} className="py-6 text-center text-sm text-muted">
                   No discounts applied for the selected period.
                 </td>
               </tr>

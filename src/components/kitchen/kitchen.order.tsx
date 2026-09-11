@@ -119,8 +119,8 @@ export const KitchenOrder = ({
   return (
     <div
       className={cn(
-        "bg-white rounded-xl shadow flex flex-col w-full border-[3px]",
-        isNew && "ring-2 ring-primary-500 kitchen-new-order",
+        "bg-surface-elevated rounded-xl shadow flex flex-col w-full border-[3px]",
+        isNew && "ring-2 ring-primary kitchen-new-order",
         !groupColor && "border-transparent",
       )}
       style={groupColor ? { borderColor: groupColor } : undefined}
@@ -157,7 +157,7 @@ export const KitchenOrder = ({
           {(showKindLabel || isContinued) && (
             <span className={cn(
               "text-sm font-bold uppercase text-right",
-              isAddon || isContinued ? "text-primary-500" : "text-neutral-500"
+              isAddon || isContinued ? "text-primary" : "text-muted"
             )}>
               {isContinued
                 ? t("labels.continued")
@@ -171,7 +171,7 @@ export const KitchenOrder = ({
 
       <div className={cn(
         "p-2",
-        isNew && "bg-primary-50 kitchen-new-order-batch",
+        isNew && "bg-primary/10 kitchen-new-order-batch",
       )}>
         {batch.items.map(item => (
           <div

@@ -115,7 +115,7 @@ export const TipsReport = () => {
   }, [distributions]);
 
   if (loading) {
-    return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.tips')}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.tips')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.tips')}</div></ReportsLayout>;
   }
 
   if (error) {
@@ -125,35 +125,35 @@ export const TipsReport = () => {
   return (
     <ReportsLayout title={t('titles.tips')} subtitle={subtitle}>
       <div className="grid grid-cols-2 gap-4 mb-5">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">Total tips</div>
+        <div className="border rounded-lg p-4 bg-surface">
+          <div className="text-sm text-muted">Total tips</div>
           <div className="text-2xl font-semibold">{withCurrency(totalTips)}</div>
         </div>
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">Saved distributions</div>
+        <div className="border rounded-lg p-4 bg-surface">
+          <div className="text-sm text-muted">Saved distributions</div>
           <div className="text-2xl font-semibold">{totalDistributions}</div>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
+      <div className="overflow-hidden rounded-lg border border-border">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
             <tr>
-              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
-              <th className="py-3.5 pr-6 text-right text-sm font-semibold text-neutral-700">{t('reports.tips')}</th>
+              <th className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">{t('filters.user')}</th>
+              <th className="py-3.5 pr-6 text-right text-sm font-semibold text-foreground">{t('reports.tips')}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {tipsByUser.length > 0 ? (
               tipsByUser.map((item) => (
                 <tr key={item.name}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-800">{item.name}</td>
-                  <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">{withCurrency(item.amount)}</td>
+                  <td className="py-3 pl-6 pr-3 text-sm text-foreground">{item.name}</td>
+                  <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{withCurrency(item.amount)}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">No tips found for selected filters.</td>
+                <td colSpan={2} className="py-6 text-center text-sm text-muted">No tips found for selected filters.</td>
               </tr>
             )}
           </tbody>

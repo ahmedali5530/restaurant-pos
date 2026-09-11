@@ -7,11 +7,11 @@ export const TouchSettings = () => {
   const [page, setPage] = useAtom(appPage);
   const { t } = useTranslation(['settings', 'common']);
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-touch">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-touch">
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('settings:touch.title')}</h2>
-          <p className="text-sm text-neutral-500">{t('settings:touch.description')}</p>
+          <p className="settings-card-desc">{t('settings:touch.description')}</p>
         </div>
       </div>
       <Button variant={page.touch ? 'success' : 'danger'} size="lg" onClick={() => {

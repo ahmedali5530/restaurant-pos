@@ -5,8 +5,8 @@
 
   --border: 2px;
   --padding: 0.75rem;
-  --overlay: rgba(255, 255, 255, 0.9);
-  --color: theme('colors.neutral.900');
+  --overlay: rgb(var(--surface-elevated) / 0.9);
+  --color: rgb(var(--foreground));
   --duration: 3s;
 
   color: var(--color);

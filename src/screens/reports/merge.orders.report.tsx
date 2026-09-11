@@ -73,7 +73,7 @@ export const MergeOrdersReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.mergeOrders')}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.mergeOrders')}</div></ReportsLayout>;
   }
 
   if (error) {
@@ -82,27 +82,27 @@ export const MergeOrdersReport = () => {
 
   return (
     <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
+      <div className="overflow-hidden rounded-lg border border-border">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Merged at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Merged by</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">New order</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Old orders</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Merged at</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Merged by</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">New order</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Old orders</th>
           </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">No merge events for selected range.</td>
+              <td colSpan={4} className="py-6 text-center text-sm text-muted">No merge events for selected range.</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{`${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.new_order?.invoice_number ? `#${row.new_order.invoice_number}` : row.new_order?.id || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">
+              <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{`${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.new_order?.invoice_number ? `#${row.new_order.invoice_number}` : row.new_order?.id || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">
                 {(row.old_orders || []).length > 0
                   ? (row.old_orders || []).map((order) => order?.invoice_number ? `#${order.invoice_number}` : order?.id || "-").join(", ")
                   : "-"}
@@ -112,7 +112,7 @@ export const MergeOrdersReport = () => {
           </tbody>
         </table>
       </div>
-      <div className="mt-4 text-sm text-neutral-600">Total merge events: <span className="font-semibold">{formatNumber(rows.length)}</span></div>
+      <div className="mt-4 text-sm text-muted">Total merge events: <span className="font-semibold">{formatNumber(rows.length)}</span></div>
     </ReportsLayout>
   );
 };

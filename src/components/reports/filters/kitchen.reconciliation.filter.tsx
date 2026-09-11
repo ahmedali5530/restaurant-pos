@@ -73,7 +73,7 @@ export const KitchenReconciliationFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="kr-locations">{t("filters.location")}</label>
+          <label htmlFor="kr-locations" className="form-label">{t("filters.location")}</label>
           <ReactSelect
             id="kr-locations"
             name="locations[]"
@@ -85,7 +85,7 @@ export const KitchenReconciliationFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="kr-statuses">{t("filters.status")}</label>
+          <label htmlFor="kr-statuses" className="form-label">{t("filters.status")}</label>
           <ReactSelect
             id="kr-statuses"
             name="statuses[]"
@@ -99,7 +99,7 @@ export const KitchenReconciliationFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="kr-items">{t("columns.items")}</label>
+          <label htmlFor="kr-items" className="form-label">{t("columns.items")}</label>
           <ReactSelect
             id="kr-items"
             name="items[]"

@@ -234,7 +234,7 @@ export const Menu = () => {
             <MenuActions/>
           </div>*/}
         </div>
-        <div className="bg-white rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
+        <div className="bg-surface-elevated rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
           <MenuCart/>
         </div>
       </div>

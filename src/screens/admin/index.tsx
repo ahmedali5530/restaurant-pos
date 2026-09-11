@@ -146,7 +146,7 @@ export const Admin = () => {
             </TabList>
           </ScrollContainer>
           {ADMIN_TAB_KEYS.map((key) => (
-            <TabPanel id={key} key={key} className="bg-white shadow flex-grow flex-shrink-0">
+            <TabPanel id={key} key={key} className="bg-surface-elevated shadow flex-grow flex-shrink-0">
               <div data-testid={`admin-panel-${key}`}>
                 {pages[key].component}
               </div>

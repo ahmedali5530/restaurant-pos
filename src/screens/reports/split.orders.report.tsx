@@ -78,7 +78,7 @@ export const SplitOrdersReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.splitOrders')}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.splitOrders')}</div></ReportsLayout>;
   }
   if (error) {
     return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
@@ -86,31 +86,31 @@ export const SplitOrdersReport = () => {
 
   return (
     <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
+      <div className="overflow-hidden rounded-lg border border-border">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Split #</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.status')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.table')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.order')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Split #</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.status')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.table')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.user')}</th>
           </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">No split orders for selected range.</td>
+              <td colSpan={6} className="py-6 text-center text-sm text-muted">No split orders for selected range.</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.split ?? "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.status || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.table ? `${row.table.name || "Table"} ${row.table.number || ""}`.trim() : "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
+              <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.split ?? "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.status || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.table ? `${row.table.name || "Table"} ${row.table.number || ""}`.trim() : "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
             </tr>
           ))}
           </tbody>

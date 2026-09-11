@@ -138,7 +138,7 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
   if (type === 'number') {
     return (
       <>
-        {label && <label htmlFor={id}>{label}</label>}
+        {label && <label htmlFor={id} className="form-label">{label}</label>}
         <NumericFormat
           {...inputProps}
           name={name}
@@ -192,7 +192,7 @@ export const Input = forwardRef((props: InputProps, ref: Ref<any>) => {
   } else {
     return (
       <>
-        {label && <label htmlFor={id}>{label}</label>}
+        {label && <label htmlFor={id} className="form-label">{label}</label>}
         <input
           type={type || 'text'}
           onClick={onClick}

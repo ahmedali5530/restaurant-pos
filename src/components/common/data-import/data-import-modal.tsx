@@ -143,8 +143,8 @@ export const DataImportModal = ({
 
         {(importer.step === "extracting" || importer.step === "importing") && (
           <div className="flex flex-col items-center justify-center gap-4 py-12">
-            <div className="h-10 w-10 rounded-full border-4 border-neutral-200 border-t-primary animate-spin" />
-            <p className="text-neutral-700">{progressLabel}</p>
+            <div className="h-10 w-10 rounded-full border-4 border-border border-t-primary animate-spin" />
+            <p className="text-foreground">{progressLabel}</p>
             <Button type="button" flat onClick={() => importer.cancel()}>
               {t("dataImport.cancel")}
             </Button>

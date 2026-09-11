@@ -43,13 +43,13 @@ export const CartTotals = ({cart, itemCount, className}: CartTotalsProps) => {
       <div className="separator h-[2px]" style={separatorStyle}></div>
       {taxPreviewTotals.length > 0 ? (
         taxPreviewTotals.map(({tax, total}) => (
-          <div className="flex font-bold text-2xl text-success-900" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
+          <div className="flex font-bold text-2xl text-success-900 dark:text-success-400" key={tax.id?.toString() ?? `${tax.name}-${tax.rate}`}>
             <div className="flex-1">{t('totals.totalWithTax', {name: tax.name, rate: tax.rate})}</div>
             <div className="text-right">{withCurrency(total)}</div>
           </div>
         ))
       ) : (
-        <div className="flex font-bold text-2xl text-success-900">
+        <div className="flex font-bold text-2xl text-success-900 dark:text-success-400">
           <div className="flex-1">{t('totals.total')}</div>
           <div className="text-right">{withCurrency(itemsBase)}</div>
         </div>
@@ -226,7 +226,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         </div>
       ))}
       <div className="separator h-[2px]" style={separatorStyle}></div>
-      <div className="flex font-bold text-2xl text-success-900">
+      <div className="flex font-bold text-2xl text-success-900 dark:text-success-400">
         <div className="flex-1">{t('totals.total')}</div>
         <div className="text-right">{withCurrency(preview.total)}</div>
       </div>

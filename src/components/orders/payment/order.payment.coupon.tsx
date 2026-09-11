@@ -64,20 +64,20 @@ export const OrderPaymentCoupon = ({
           </Button>
         </div>
         {coupon && (
-          <div className="p-3 rounded bg-neutral-50 border border-neutral-200 text-sm">
+          <div className="p-3 rounded bg-surface border border-border text-sm">
             <div className="font-semibold mb-1">
               {t('coupon.applied', {code: coupon.code})}
             </div>
             {coupon.description && (
-              <div className="mb-1 text-neutral-700">{coupon.description}</div>
+              <div className="mb-1 text-foreground">{coupon.description}</div>
             )}
-            <div className="text-neutral-700">
+            <div className="text-foreground">
               {t('coupon.discount', {amount: withCurrency(couponAmount)})}
             </div>
           </div>
         )}
         {!coupon && couponAmount > 0 && (
-          <div className="p-3 rounded bg-neutral-50 border border-neutral-200 text-sm">
+          <div className="p-3 rounded bg-surface border border-border text-sm">
             {t('coupon.discountFromCoupon', {amount: withCurrency(couponAmount)})}
           </div>
         )}

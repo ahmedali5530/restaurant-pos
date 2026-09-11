@@ -47,7 +47,7 @@ export const PurchaseFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-suppliers">Suppliers</label>
+          <label htmlFor="purchase-suppliers" className="form-label">Suppliers</label>
           <ReactSelect
             id="purchase-suppliers"
             name="suppliers[]"
@@ -61,7 +61,7 @@ export const PurchaseFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-locations">{t('filters.location')}</label>
+          <label htmlFor="purchase-locations" className="form-label">{t('filters.location')}</label>
           <ReactSelect
             id="purchase-locations"
             name="locations[]"
@@ -75,7 +75,7 @@ export const PurchaseFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-items">{t('columns.items')}</label>
+          <label htmlFor="purchase-items" className="form-label">{t('columns.items')}</label>
           <ReactSelect
             id="purchase-items"
             name="items[]"
@@ -89,7 +89,7 @@ export const PurchaseFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-users">{t('columns.createdBy')}</label>
+          <label htmlFor="purchase-users" className="form-label">{t('columns.createdBy')}</label>
           <ReactSelect
             id="purchase-users"
             name="users[]"

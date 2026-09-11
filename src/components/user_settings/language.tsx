@@ -18,11 +18,11 @@ export const LanguageSettings = () => {
   const currentDirection: AppTextDirection = page.direction ?? DEFAULT_TEXT_DIRECTION;
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-language">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-language">
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('language.title')}</h2>
-          <p className="text-sm text-neutral-500">{t('language.description')}</p>
+          <p className="text-sm text-muted">{t('language.description')}</p>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 mb-6">
@@ -52,7 +52,7 @@ export const LanguageSettings = () => {
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('direction.title')}</h2>
-          <p className="text-sm text-neutral-500">{t('direction.description')}</p>
+          <p className="text-sm text-muted">{t('direction.description')}</p>
         </div>
       </div>
       <div className="flex flex-wrap gap-2">

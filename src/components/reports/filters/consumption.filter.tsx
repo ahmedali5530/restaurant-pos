@@ -43,7 +43,7 @@ export const ConsumptionFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="consumption-items">{t('labels.inventoryItems')}</label>
+          <label htmlFor="consumption-items" className="form-label">{t('labels.inventoryItems')}</label>
           <ReactSelect
             id="consumption-items"
             name="items[]"
@@ -57,7 +57,7 @@ export const ConsumptionFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="consumption-dishes">{t('metrics.dishes')}</label>
+          <label htmlFor="consumption-dishes" className="form-label">{t('metrics.dishes')}</label>
           <ReactSelect
             id="consumption-dishes"
             name="dishes[]"

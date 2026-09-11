@@ -69,7 +69,7 @@ export const OrderRow = ({
         onClick={() => {
           void openPayment();
         }}
-        className="flex flex-1 odd:bg-white even:bg-neutral-300 gap-1 select-none">
+        className="flex flex-1 odd:bg-surface-elevated even:bg-neutral-300 dark:even:bg-neutral-700 gap-1 select-none">
         <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{getInvoiceNumber(order)} - {order?.order_type?.name}</div>
         <div className="basis-[100px] flex flex-col justify-center items-center" style={{
           color: order?.table?.color,
@@ -90,14 +90,14 @@ export const OrderRow = ({
           {toLuxonDateTime(order.created_at).toFormat('yyyy-MM-dd hh:mm a')}
         </div>
         <div className="flex items-center px-3 gap-1">
-          <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-gray-900 text-white justify-center items-center">
+          <span className="inline-flex h-[24px] min-w-[24px] rounded-full bg-foreground text-primary-fg justify-center items-center">
             {cardReady ? getOrderFilteredItems(order).length : (isHydrating ? '…' : '—')}
           </span> {t('totals.itemsShort')}
         </div>
         <div className="flex px-3 gap-1 items-center basis-[150px]">
           {cardReady ? withCurrency(itemsTotal) : '…'}
         </div>
-        <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
+        <div className="flex items-center px-3 basis-[180px] border-x border-border">
           {order?.tax && (
             <>
               <div className="flex-1">
@@ -116,7 +116,7 @@ export const OrderRow = ({
           )}
         </div>
 
-        <div className="flex items-center px-3 basis-[180px] border-x border-neutral-500">
+        <div className="flex items-center px-3 basis-[180px] border-x border-border">
           {order?.extras && (
             <>
               <div className="flex-1">{t('totals.extras')}</div>

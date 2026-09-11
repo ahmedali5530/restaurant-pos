@@ -241,18 +241,18 @@ export const Delivery = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[20rem]">
-        <span className="text-neutral-600 text-lg">{t('map.loading')}</span>
+      <div className="flex items-center justify-center h-full min-h-0">
+        <span className="text-muted text-lg">{t('map.loading')}</span>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-5 gap-5 h-full min-h-0" data-testid="delivery-map-panel">
+    <div className="grid grid-cols-5 gap-5 h-full min-h-0 p-2" data-testid="delivery-map-panel">
       <div className="col-span-4 min-h-0 h-full">
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
           <Map
-            className="h-full min-h-[20rem]"
+            className="h-full w-full min-h-0 rounded-lg"
             defaultCenter={center}
             center={selectedOrderCenter ?? undefined}
             defaultZoom={11}

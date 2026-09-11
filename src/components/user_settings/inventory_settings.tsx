@@ -156,9 +156,9 @@ export const InventorySettingsCard = () => {
   }, [settings, reset, costingOptions, allocationOptions, taxBehaviorOptions]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-inventory">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-inventory">
       <h2 className="text-xl font-semibold mb-1">{t("inventory.title")}</h2>
-      <p className="text-sm text-neutral-500 mb-5">{t("inventory.description")}</p>
+      <p className="text-sm text-muted mb-5">{t("inventory.description")}</p>
       <form
         onSubmit={protectFormSubmit(handleSubmit(saveSettings), {
           module: "settings.inventory",
@@ -175,14 +175,14 @@ export const InventorySettingsCard = () => {
               </Switch>
             )}
           />
-          <p className="text-xs text-neutral-500 -mt-2">{t("inventory.ledgerHint")}</p>
+          <p className="text-xs text-muted -mt-2">{t("inventory.ledgerHint")}</p>
 
           <Controller
             name="costing"
             control={control}
             render={({ field }) => (
               <div>
-                <label className="block text-sm mb-1">{t("inventory.costingMethod")}</label>
+                <label className="form-label">{t("inventory.costingMethod")}</label>
                 <ReactSelect
                   options={costingOptions}
                   value={field.value}
@@ -193,8 +193,8 @@ export const InventorySettingsCard = () => {
             )}
           />
 
-          <hr className="border-neutral-200" />
-          <p className="text-sm font-medium">{t("inventory.landedCostsSection")}</p>
+          <hr className="border-border" />
+          <p className="text-sm font-semibold text-foreground">{t("inventory.landedCostsSection")}</p>
 
           <Controller
             name="enable_landed_costs"
@@ -229,7 +229,7 @@ export const InventorySettingsCard = () => {
             control={control}
             render={({ field }) => (
               <div>
-                <label className="block text-sm mb-1">
+                <label className="form-label">
                   {t("inventory.defaultAllocationMethod")}
                 </label>
                 <ReactSelect
@@ -247,7 +247,7 @@ export const InventorySettingsCard = () => {
             control={control}
             render={({ field }) => (
               <div>
-                <label className="block text-sm mb-1">
+                <label className="form-label">
                   {t("inventory.defaultPurchaseTaxBehavior")}
                 </label>
                 <ReactSelect
@@ -256,14 +256,14 @@ export const InventorySettingsCard = () => {
                   onChange={field.onChange}
                   isClearable={false}
                 />
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-muted mt-1">
                   {t("inventory.defaultPurchaseTaxBehaviorHint")}
                 </p>
               </div>
             )}
           />
 
-          <hr className="border-neutral-200" />
+          <hr className="border-border" />
 
           <Controller
             name="enableBatchTracking"

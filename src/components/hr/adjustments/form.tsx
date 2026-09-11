@@ -191,7 +191,7 @@ export const AdjustmentForm = ({open, onClose, data}: Props) => {
               options={adjustmentTypeOptions}
               error={errors.type?.message}
             />
-            <p className="text-sm text-neutral-600">{t("forms.adjustment.signHint")}</p>
+            <p className="text-sm text-muted">{t("forms.adjustment.signHint")}</p>
             <div>
               <HrInputField
                 type="number"

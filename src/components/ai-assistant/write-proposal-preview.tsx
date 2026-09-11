@@ -36,7 +36,7 @@ const RecordIssues = ({
   if (!errorMessages.length && !warnings.length) return null;
 
   return (
-    <div className="mt-2 border-t border-neutral-200 pt-2 text-xs">
+    <div className="mt-2 border-t border-border pt-2 text-xs">
       {errorMessages.length > 0 && (
         <div className="text-danger-600">{errorMessages.join("; ")}</div>
       )}
@@ -65,9 +65,9 @@ function ProposalRecordCard({
 
   return (
     <div
-      className={`rounded-md border border-neutral-200 bg-white p-2 ${hasError ? "border-danger-300 bg-danger-50" : ""}`}
+      className={`rounded-md border border-border bg-surface-elevated p-2 ${hasError ? "border-danger-300 bg-danger/10" : ""}`}
     >
-      <div className="mb-2 text-xs font-semibold text-neutral-700">
+      <div className="mb-2 text-xs font-semibold text-foreground">
         #{index + 1}
       </div>
       <dl className="grid grid-cols-1 gap-1.5">
@@ -76,10 +76,10 @@ function ProposalRecordCard({
             key={col.name}
             className="grid grid-cols-[minmax(8rem,42%)_1fr] gap-x-3 gap-y-0.5 text-xs"
           >
-            <dt className="truncate text-neutral-500" title={col.label}>
+            <dt className="truncate text-muted" title={col.label}>
               {col.label}
             </dt>
-            <dd className="break-words text-neutral-900">
+            <dd className="break-words text-foreground">
               {formatImportDisplayValue(col, record.values[col.name], t)}
             </dd>
           </div>
@@ -147,7 +147,7 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
 
   if (useCardLayout) {
     return (
-      <div className="overflow-hidden rounded-md border border-neutral-200">
+      <div className="overflow-hidden rounded-md border border-border">
         <div className="max-h-72 space-y-2 overflow-y-auto p-2">
           {proposal.records.map((record, index) => (
             <ProposalRecordCard
@@ -160,7 +160,7 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
             />
           ))}
         </div>
-        <div className="border-t border-neutral-200 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-600">
+        <div className="border-t border-border bg-surface px-2 py-1.5 text-xs text-muted">
           {proposal.records.length} {proposal.entityLabel} row{proposal.records.length === 1 ? "" : "s"} · {proposal.mode}
           {errorCount > 0 && (
             <span className="text-danger-600 ml-2">
@@ -173,9 +173,9 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-neutral-200">
+    <div className="overflow-hidden rounded-md border border-border">
       <div className="overflow-x-auto">
-        <div className="flex min-w-max items-center border-b border-neutral-200 bg-neutral-900 px-2 py-1.5 text-xs font-medium text-warning-500">
+        <div className="flex min-w-max items-center border-b border-border bg-neutral-900 px-2 py-1.5 text-xs font-medium text-warning">
           <div className="w-6 shrink-0">#</div>
           {tableColumns.map(col => (
             <div key={col.name} className="w-28 shrink-0 truncate pr-2">{col.label}</div>
@@ -207,10 +207,10 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
                     height: virtualRow.size,
                     transform: `translateY(${virtualRow.start}px)`,
                   }}
-                  className={`flex min-w-max items-center border-b border-neutral-100 px-2 text-sm ${hasError ? "bg-danger-100" : ""}`}
+                  className={`flex min-w-max items-center border-b border-border px-2 text-sm ${hasError ? "bg-danger-100" : ""}`}
                   title={[...errorMessages, ...warnings].join("; ") || undefined}
                 >
-                  <div className="w-6 shrink-0 text-neutral-400">{virtualRow.index + 1}</div>
+                  <div className="w-6 shrink-0 text-muted">{virtualRow.index + 1}</div>
                   {tableColumns.map(col => (
                     <div key={col.name} className="w-28 shrink-0 truncate pr-2">
                       {rowColumns.some(field => field.name === col.name)
@@ -231,7 +231,7 @@ export function WriteProposalPreview({proposal}: WriteProposalPreviewProps) {
         </div>
       </div>
 
-      <div className="border-t border-neutral-200 bg-neutral-50 px-2 py-1.5 text-xs text-neutral-600">
+      <div className="border-t border-border bg-surface px-2 py-1.5 text-xs text-muted">
         {proposal.records.length} {proposal.entityLabel} row{proposal.records.length === 1 ? "" : "s"} · {proposal.mode}
         {errorCount > 0 && (
           <span className="text-danger-600 ml-2">

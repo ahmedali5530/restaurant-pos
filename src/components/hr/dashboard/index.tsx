@@ -7,8 +7,8 @@ import {Button} from "@/components/common/input/button.tsx";
 import {formatNumber} from "@/lib/utils.ts";
 
 const StatCard = ({label, value}: { label: string; value: string | number }) => (
-  <div className="rounded-xl border-2 border-neutral-200 p-4 bg-white">
-    <div className="text-sm text-neutral-500">{label}</div>
+  <div className="rounded-xl border-2 border-border p-4 bg-surface-elevated">
+    <div className="text-sm text-muted">{label}</div>
     <div className="text-2xl font-semibold mt-1">{value}</div>
   </div>
 );

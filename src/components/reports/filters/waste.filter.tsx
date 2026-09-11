@@ -43,7 +43,7 @@ export const WasteFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="waste-items">{t('columns.items')}</label>
+          <label htmlFor="waste-items" className="form-label">{t('columns.items')}</label>
           <ReactSelect
             id="waste-items"
             name="items[]"
@@ -57,7 +57,7 @@ export const WasteFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="waste-users">{t('columns.createdBy')}</label>
+          <label htmlFor="waste-users" className="form-label">{t('columns.createdBy')}</label>
           <ReactSelect
             id="waste-users"
             name="users[]"

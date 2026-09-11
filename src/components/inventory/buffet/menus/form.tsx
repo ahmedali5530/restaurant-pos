@@ -199,7 +199,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
               />
             )}
           />
-          <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.sessionTypeMenu")}</p>
+          <p className="text-sm text-muted mt-1">{t("buffet.help.sessionTypeMenu")}</p>
         </div>
 
         <InputField name="notes" control={control} label={t("buffet.notes")} />
@@ -246,7 +246,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
                     />
                   )}
                 />
-                <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.recipe")}</p>
+                <p className="text-sm text-muted mt-1">{t("buffet.help.recipe")}</p>
               </div>
               <div className="col-span-4">
                 <InputField

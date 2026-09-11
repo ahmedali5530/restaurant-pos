@@ -10,7 +10,7 @@ export function Popover({ children, ...props }: MyPopoverProps) {
     <BasePopover
       {...props}
       className={({ isEntering, isExiting }) => `
-        placement-bottom:mt-2 placement-top:mb-2 group rounded-lg shadow-2xl ring-1 ring-black/10 bg-white
+        placement-bottom:mt-2 placement-top:mb-2 group rounded-lg shadow-2xl ring-1 ring-black/10 bg-surface-elevated
         ${
         isEntering
           ? 'animate-in fade-in placement-bottom:slide-in-from-top-1 placement-top:slide-in-from-bottom-1 ease-out duration-200'
@@ -26,12 +26,12 @@ export function Popover({ children, ...props }: MyPopoverProps) {
       <OverlayArrow>
         <svg
           viewBox="0 0 12 12"
-          className="block fill-white group-placement-bottom:rotate-180 w-4 h-4"
+          className="block fill-[rgb(var(--surface-elevated))] group-placement-bottom:rotate-180 w-4 h-4"
         >
           <path d="M0 0L6 6L12 0"/>
         </svg>
       </OverlayArrow>
-      <Dialog className="p-2 outline-none text-gray-700">
+      <Dialog className="p-2 outline-none text-foreground">
         {children}
       </Dialog>
     </BasePopover>

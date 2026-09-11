@@ -145,7 +145,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
               />
             )}
           />
-          <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.menu")}</p>
+          <p className="text-sm text-muted mt-1">{t("buffet.help.menu")}</p>
         </div>
 
         <div>
@@ -161,7 +161,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
               />
             )}
           />
-          <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.location")}</p>
+          <p className="text-sm text-muted mt-1">{t("buffet.help.location")}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -187,7 +187,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
                 />
               )}
             />
-            <p className="text-sm text-neutral-600 mt-1">{t("buffet.help.sessionType")}</p>
+            <p className="text-sm text-muted mt-1">{t("buffet.help.sessionType")}</p>
           </div>
         </div>
 

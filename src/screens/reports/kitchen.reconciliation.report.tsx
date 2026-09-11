@@ -225,7 +225,7 @@ export const KitchenReconciliationReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t("titles.kitchenReconciliation")} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">
+        <div className="py-12 text-center text-muted">
           {t("loading.kitchenReconciliation")}
         </div>
       </ReportsLayout>
@@ -246,61 +246,61 @@ export const KitchenReconciliationReport = () => {
     <ReportsLayout title={t("titles.kitchenReconciliation")} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t("labels.kitchenReconciliationCount")}</p>
-            <p className="text-2xl font-bold text-neutral-900">
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t("labels.kitchenReconciliationCount")}</p>
+            <p className="text-2xl font-bold text-foreground">
               {formatNumber(summary.reconciliationCount)}
             </p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t("labels.kitchenReconciliationVerified")}</p>
-            <p className="text-2xl font-bold text-neutral-900">
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t("labels.kitchenReconciliationVerified")}</p>
+            <p className="text-2xl font-bold text-foreground">
               {formatNumber(summary.verifiedCount)}
             </p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t("labels.kitchenReconciliationDraft")}</p>
-            <p className="text-2xl font-bold text-neutral-900">
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t("labels.kitchenReconciliationDraft")}</p>
+            <p className="text-2xl font-bold text-foreground">
               {formatNumber(summary.draftCount)}
             </p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t("labels.kitchenReconciliationMissed")}</p>
-            <p className="text-2xl font-bold text-neutral-900">
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t("labels.kitchenReconciliationMissed")}</p>
+            <p className="text-2xl font-bold text-foreground">
               {formatNumber(summary.missedCount)}
             </p>
           </div>
-          <div className="bg-neutral-50 p-4 rounded-lg">
-            <p className="text-sm text-neutral-600">{t("labels.kitchenReconciliationTotalVariance")}</p>
-            <p className="text-2xl font-bold text-neutral-900">
+          <div className="bg-surface p-4 rounded-lg">
+            <p className="text-sm text-muted">{t("labels.kitchenReconciliationTotalVariance")}</p>
+            <p className="text-2xl font-bold text-foreground">
               {formatNumber(summary.totalVariance)}
             </p>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">
             {t("labels.kitchenReconciliationHeaders")}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.location")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.businessDate")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("filters.status")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.revision")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.operationalWindow")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.verifiedBy")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.verifiedAt")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.lineCount")}</th>
-                  <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("labels.totalVariance")}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t("columns.location")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.businessDate")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("filters.status")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.revision")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.operationalWindow")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.verifiedBy")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.verifiedAt")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.lineCount")}</th>
+                  <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t("labels.totalVariance")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {headerRows.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={9} className="py-6 text-center text-sm text-muted">
                       {t("labels.kitchenReconciliationNoResults")}
                     </td>
                   </tr>
@@ -324,37 +324,37 @@ export const KitchenReconciliationReport = () => {
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">
             {t("labels.kitchenReconciliationDetails")}
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t("columns.location")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("labels.businessDate")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("filters.status")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.code")}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t("columns.name")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.opening")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.issued")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.transfersIn")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.transfersOut")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.theoretical")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.expected")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.physical")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.waste")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.staffMeal")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.complimentary")}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t("labels.actualConsumption")}</th>
-                  <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t("labels.variance")}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t("columns.location")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("labels.businessDate")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("filters.status")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.code")}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t("columns.name")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.opening")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.issued")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.transfersIn")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.transfersOut")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.theoretical")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.expected")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.physical")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.waste")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.staffMeal")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.complimentary")}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t("labels.actualConsumption")}</th>
+                  <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t("labels.variance")}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {detailRows.length === 0 ? (
                   <tr>
-                    <td colSpan={17} className="py-6 text-center text-sm text-neutral-500">
+                    <td colSpan={17} className="py-6 text-center text-sm text-muted">
                       {t("labels.kitchenReconciliationNoResults")}
                     </td>
                   </tr>

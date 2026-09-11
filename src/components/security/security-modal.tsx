@@ -93,7 +93,7 @@ export const SecurityModal = () => {
       onClose={handleAuthCancel}
       title={currentAction.description}
     >
-      <div className="bg-white rounded-lg p-6 max-w-full mx-4" data-testid="security-modal">
+      <div className="bg-surface-elevated rounded-lg p-6 max-w-full mx-4" data-testid="security-modal">
         <div className="mb-4">
           {/* Auth Type Selector */}
           {availableAuthTypes.length > 1 && (

@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Aspetto",
+    "description": "Scegli chiaro, scuro o segui l’impostazione di sistema di questo dispositivo. Si applica solo a questo dispositivo.",
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema",
+    "brandTitle": "Colori del brand",
+    "brandDescription": "Scegli una palette per questo dispositivo. Interfaccia, pulsanti, select e grafici si aggiornano subito.",
+    "brand": {
+      "classic": "Classico",
+      "ocean": "Oceano",
+      "forest": "Foresta",
+      "cream": "Crema",
+      "ruby": "Rubino",
+      "sapphire": "Zaffiro"
+    }
+  },
   "touch": {
     "title": "Tastiera su schermo",
     "description": "Abilita o disabilita la tastiera su schermo. Si applica solo a questo dispositivo."

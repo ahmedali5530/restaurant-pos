@@ -196,14 +196,14 @@ export const FloorTable = ({
       className={cn(
         "border absolute z-0 cursor-pointer flex flex-col justify-center items-center",
         settings.rounded,
-        isSelected && "ring-4 ring-primary-500 z-10"
+        isSelected && "ring-4 ring-primary z-10"
       )}
       onClick={() => {
         onClick && onClick();
       }}
     >
       {isSelected && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs bg-primary-500 text-white px-2 py-[2px] rounded-full">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-xs bg-primary text-white px-2 py-[2px] rounded-full">
           Selected
         </span>
       )}
@@ -222,7 +222,7 @@ export const FloorTable = ({
         <>
           {isLateOrder && (
             <span
-              className="absolute -top-3 -left-3 rounded-full h-6 w-6 flex items-center justify-center bg-white text-danger-500 shadow"
+              className="absolute -top-3 -left-3 rounded-full h-6 w-6 flex items-center justify-center bg-surface-elevated text-danger-500 shadow"
               title={t('forms.moreThanTwoHours')}
             >
               <FontAwesomeIcon icon={faExclamationCircle} beat/>

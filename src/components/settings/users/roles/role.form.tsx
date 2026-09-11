@@ -136,7 +136,7 @@ const ModuleCheckbox = memo(function ModuleCheckbox({
         {hasChildren && !term && (
           <button
             type="button"
-            className="w-5 h-5 flex items-center justify-center text-neutral-500 hover:text-neutral-800 shrink-0"
+            className="w-5 h-5 flex items-center justify-center text-muted hover:text-foreground shrink-0"
             onClick={() => onToggleExpand(module.key)}
             aria-expanded={expanded}
           >
@@ -378,7 +378,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
             />
           </div>
 
-          <div className="space-y-3 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+          <div className="space-y-3 max-h-96 overflow-y-auto border border-border rounded-lg p-4">
             {filteredModules.map((module) => (
               <ModuleCheckbox
                 key={module.key}
@@ -392,7 +392,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
             ))}
 
             {debouncedSearch.trim() && filteredModules.length === 0 && (
-              <div className="text-center text-gray-500 py-4">
+              <div className="text-center text-muted py-4">
                 {t("forms.noModulesFound", { term: debouncedSearch })}
               </div>
             )}

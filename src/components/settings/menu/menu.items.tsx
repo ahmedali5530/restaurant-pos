@@ -533,21 +533,21 @@ export const MenuItems = ({
           <InputError error={get(errors, ["items", "message"])}/>
 
           {loadingDishes && (
-            <div className="text-center text-neutral-500 py-8">
+            <div className="text-center text-muted py-8">
               Loading dishes...
             </div>
           )}
 
           {!loadingDishes && items.length === 0 && (
-            <div className="text-center text-neutral-500 py-8">
+            <div className="text-center text-muted py-8">
               No dishes found.
             </div>
           )}
 
           {!loadingDishes && items.length > 0 && (
             <>
-              <div className="mb-4 p-4 border border-neutral-300 rounded-lg bg-neutral-50">
-                <h3 className="text-lg font-semibold text-neutral-900 mb-3">{t('forms.bulkItemSettings')}</h3>
+              <div className="mb-4 p-4 border border-border rounded-lg bg-surface">
+                <h3 className="text-lg font-semibold text-foreground mb-3">{t('forms.bulkItemSettings')}</h3>
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-wrap items-end gap-3">
                     <div className="flex-1 min-w-[200px]">
@@ -644,8 +644,8 @@ export const MenuItems = ({
                 return (
                   <div key={categoryId} className="flex flex-col gap-2">
                     <div
-                      className="sticky top-0 bg-white z-10 py-2 border-b-2 border-neutral-900 flex items-center justify-between gap-2 flex-wrap">
-                      <h3 className="text-lg font-semibold text-neutral-900">{group.category.name}</h3>
+                      className="sticky top-0 bg-surface-elevated z-10 py-2 border-b-2 border-border flex items-center justify-between gap-2 flex-wrap">
+                      <h3 className="text-lg font-semibold text-foreground">{group.category.name}</h3>
                       <Switch
                         checked={allActive}
                         onChange={(event) => handleCategoryToggle(categoryId, event.currentTarget.checked)}
@@ -657,7 +657,7 @@ export const MenuItems = ({
                       {group.items.map((item: MenuItemFormValue) => {
                         const index = itemIndexMap.get(item.dish_id) ?? 0;
                         return (
-                          <div className="flex flex-col gap-3 rounded-lg hover:bg-neutral-200"
+                          <div className="flex flex-col gap-3 rounded-lg hover:bg-surface dark:bg-neutral-700"
                                key={item.dish_id}>
                             <div className="flex gap-3 items-end">
                               <div className="flex-1">

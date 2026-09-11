@@ -87,12 +87,12 @@ const getModifierRows = (modifiers: any[] = []): ModifierRow[] => {
 
 function Row({label, value, hint}: {label: string; value: string; hint?: string}) {
   return (
-    <div className="border-b border-neutral-200 py-2 last:border-b-0">
+    <div className="border-b border-border py-2 last:border-b-0">
       <div className="flex justify-between gap-3 text-sm">
         <span>{label}</span>
         <span className="tabular-nums font-medium">{value}</span>
       </div>
-      {hint ? <p className="mt-1 text-xs text-neutral-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
     </div>
   );
 }
@@ -107,9 +107,9 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="mb-4 rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
-      <h3 className="text-sm font-bold text-neutral-900">{title}</h3>
-      {subtitle ? <p className="mb-2 text-xs text-neutral-600">{subtitle}</p> : null}
+    <section className="mb-4 rounded-lg border border-border bg-surface-elevated p-3 shadow-sm">
+      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+      {subtitle ? <p className="mb-2 text-xs text-muted">{subtitle}</p> : null}
       <div>{children}</div>
     </section>
   );
@@ -363,7 +363,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
   return (
     <div className="mb-6 select-none">
-      <div className="mb-3 text-center text-lg font-semibold text-neutral-900">
+      <div className="mb-3 text-center text-lg font-semibold text-foreground">
         {t('report.title', {date})}
       </div>
 
@@ -426,12 +426,12 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           value={withCurrency(f.taxCollected)}
           hint={t('report.hints.taxes')}
         />
-        <div className="border-b border-neutral-300 py-2">
+        <div className="border-b border-border py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
             <span>{t('report.rows.totalRevenue')}</span>
             <span className="tabular-nums">{withCurrency(f.totalRevenue)}</span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">{t('report.hints.totalRevenue')}</p>
+          <p className="mt-1 text-xs text-muted">{t('report.hints.totalRevenue')}</p>
         </div>
       </Section>
 
@@ -446,12 +446,12 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           value={withCurrency(f.tips)}
           hint={t('report.hints.tips')}
         />
-        <div className="border-b border-neutral-200 py-2">
+        <div className="border-b border-border py-2">
           <div className="flex justify-between gap-3 text-sm font-bold">
             <span>{t('report.rows.grandTotalDue')}</span>
             <span className="tabular-nums">{withCurrency(f.grandTotalDue)}</span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">{t('report.hints.grandTotalDue')}</p>
+          <p className="mt-1 text-xs text-muted">{t('report.hints.grandTotalDue')}</p>
         </div>
         <Row
           label={t('report.rows.amountCollected')}
@@ -492,7 +492,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       </Section>
 
       <Section title={t('report.sections.productMix')} subtitle={t('report.subtitles.productMix')}>
-        <div className="border-b border-neutral-300 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+        <div className="border-b border-border py-2 text-xs font-semibold uppercase tracking-wide text-muted">
           <div className="flex">
             <span className="w-1/2">{t('report.columns.item')}</span>
             <span className="w-1/6 text-right">{t('report.columns.qty')}</span>
@@ -501,11 +501,11 @@ export function DailySalesSummaryReport({orders, date}: Props) {
           </div>
         </div>
         {f.categoryMix.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noCategoryData')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noCategoryData')}</p>
         ) : (
           f.categoryMix.map(category => (
             <div key={category.name}>
-              <div className="border-b border-neutral-200 bg-neutral-50 py-2 text-sm font-semibold">
+              <div className="border-b border-border bg-surface py-2 text-sm font-semibold">
                 <div className="flex">
                   <span className="w-1/2">{category.name}</span>
                   <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
@@ -516,14 +516,14 @@ export function DailySalesSummaryReport({orders, date}: Props) {
                 </div>
               </div>
               {category.dishes.map(dish => (
-                <div key={`${category.name}-${dish.key}`} className="border-b border-neutral-200 py-2 text-sm">
+                <div key={`${category.name}-${dish.key}`} className="border-b border-border py-2 text-sm">
                   <div className="flex">
                     <div className="w-1/2 pr-2">
                       <div className="pl-4">{dish.name}</div>
                       {dish.modifiers.map(modifier => (
                         <div
                           key={`${category.name}-${dish.key}-${modifier.path}`}
-                          className="text-xs text-neutral-500 flex"
+                          className="text-xs text-muted flex"
                         >
                           <div
                             className="w-3/5"
@@ -551,14 +551,14 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
       <Section title={t('report.sections.paymentTypes')} subtitle={t('report.subtitles.paymentTypes')}>
         {f.paymentTypes.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noPaymentData')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noPaymentData')}</p>
         ) : (
           f.paymentTypes.map(payment => (
-            <div key={payment.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+            <div key={payment.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{payment.name}</span>
                 <span className="tabular-nums font-medium">{withCurrency(payment.total)}</span>
-                <span className="tabular-nums text-neutral-600">
+                <span className="tabular-nums text-muted">
                   {formatNumber(f.amountDue > 0 ? (payment.total / f.amountDue) * 100 : 0)}%
                 </span>
               </div>
@@ -569,14 +569,14 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
       <Section title={t('report.sections.taxesBreakdown')} subtitle={t('report.subtitles.taxesBreakdown')}>
         {f.taxesList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noTaxRows')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noTaxRows')}</p>
         ) : (
           f.taxesList.map(tax => (
-            <div key={tax.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+            <div key={tax.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{tax.name}%</span>
                 <span className="tabular-nums font-medium">{withCurrency(tax.total)}</span>
-                <span className="tabular-nums text-neutral-600">
+                <span className="tabular-nums text-muted">
                   {formatNumber(f.taxCollected > 0 ? (tax.total / f.taxCollected) * 100 : 0)}%
                 </span>
               </div>
@@ -587,14 +587,14 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
       <Section title={t('report.sections.discountsBreakdown')} subtitle={t('report.subtitles.discountsBreakdown')}>
         {f.discountsList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noDiscountRows')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noDiscountRows')}</p>
         ) : (
           f.discountsList.map(discount => (
-            <div key={discount.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+            <div key={discount.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{discount.name}</span>
                 <span className="tabular-nums font-medium">{withCurrency(discount.total)}</span>
-                <span className="tabular-nums text-neutral-600">
+                <span className="tabular-nums text-muted">
                   {formatNumber(f.discounts > 0 ? (discount.total / f.discounts) * 100 : 0)}%
                 </span>
               </div>
@@ -605,14 +605,14 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
       <Section title={t('report.sections.extrasBreakdown')} subtitle={t('report.subtitles.extrasBreakdown')}>
         {f.extrasList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noExtras')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noExtras')}</p>
         ) : (
           f.extrasList.map(extra => (
-            <div key={extra.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+            <div key={extra.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{extra.name}</span>
                 <span className="tabular-nums font-medium">{withCurrency(extra.total)}</span>
-                <span className="tabular-nums text-neutral-600">
+                <span className="tabular-nums text-muted">
                   {formatNumber(f.totalExtras > 0 ? (extra.total / f.totalExtras) * 100 : 0)}%
                 </span>
               </div>
@@ -623,10 +623,10 @@ export function DailySalesSummaryReport({orders, date}: Props) {
 
       <Section title={t('report.sections.couponsBreakdown')} subtitle={t('report.subtitles.couponsBreakdown')}>
         {f.couponsList.length === 0 ? (
-          <p className="py-3 text-sm text-neutral-500">{t('report.empty.noCoupons')}</p>
+          <p className="py-3 text-sm text-muted">{t('report.empty.noCoupons')}</p>
         ) : (
           f.couponsList.map(coupon => (
-            <div key={coupon.name} className="border-b border-neutral-200 py-2 last:border-b-0">
+            <div key={coupon.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{coupon.name}</span>
                 <span className="tabular-nums font-medium">{withCurrency(coupon.total)}</span>
@@ -636,7 +636,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
-      <p className="text-xs leading-relaxed text-neutral-500">
+      <p className="text-xs leading-relaxed text-muted">
         {t('report.footer')}
       </p>
     </div>

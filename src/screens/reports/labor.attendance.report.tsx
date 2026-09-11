@@ -43,28 +43,28 @@ export const LaborAttendanceReport = () => {
 
   return (
     <ReportsLayout title={t('titles.attendanceReport')} subtitle={subtitle}>
-      {loading ? <div className="py-12 text-center text-neutral-500">{t('loading.chart')}</div> : null}
+      {loading ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
       {error ? <div className="py-12 text-center text-danger-500">{error}</div> : null}
       {!loading && !error ? (
         <div className="overflow-x-auto border rounded-lg">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-neutral-600">{t('columns.name')}</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Scheduled</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Worked</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Late</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Absent</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">On time</th>
-                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-neutral-600">Rate %</th>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase text-muted">{t('columns.name')}</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Scheduled</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Worked</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Late</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Absent</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">On time</th>
+                <th className="px-4 py-2 text-right text-xs font-semibold uppercase text-muted">Rate %</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100">
               {rows.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-neutral-500">No attendance data</td></tr>
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-muted">No attendance data</td></tr>
               ) : rows.map(row => (
                 <tr key={row.employeeId}>
-                  <td className="px-4 py-2 text-sm text-neutral-800">{row.employeeName}</td>
+                  <td className="px-4 py-2 text-sm text-foreground">{row.employeeName}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.scheduledShifts)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.workedShifts)}</td>
                   <td className="px-4 py-2 text-sm text-right">{formatNumber(row.lateCount)}</td>

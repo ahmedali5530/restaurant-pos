@@ -53,7 +53,7 @@ export const DiscountTargetsEditor = ({ open, scope, value, onChange }: Props) =
   const paymentTypesBlock = (
     <div className="flex flex-col gap-1">
       <label>{t('discountEngine.fields.targetPaymentTypes')}</label>
-      <p className="text-sm text-neutral-500 mb-1">{t('discountEngine.fields.targetPaymentTypesHint')}</p>
+      <p className="text-sm text-muted mb-1">{t('discountEngine.fields.targetPaymentTypesHint')}</p>
       <ReactSelect
         isMulti
         isLoading={loading}
@@ -133,7 +133,7 @@ export const DiscountTargetsEditor = ({ open, scope, value, onChange }: Props) =
               })}
             />
           </div>
-          <p className="text-sm text-neutral-500">{t('discountEngine.fields.customerTagsHint')}</p>
+          <p className="text-sm text-muted">{t('discountEngine.fields.customerTagsHint')}</p>
         </div>
         {paymentTypesBlock}
       </div>
@@ -145,7 +145,7 @@ export const DiscountTargetsEditor = ({ open, scope, value, onChange }: Props) =
       <div className="flex flex-col gap-3">
         <div>
           <label>{t('discountEngine.fields.targetFloors')}</label>
-          <p className="text-sm text-neutral-500 mb-2">{t('discountEngine.fields.targetFloorsOptional')}</p>
+          <p className="text-sm text-muted mb-2">{t('discountEngine.fields.targetFloorsOptional')}</p>
           <ReactSelect
             isMulti
             isLoading={loading}

@@ -152,7 +152,7 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
   }, [orders, metric]);
 
   if (loading) {
-    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">Loading {title.toLowerCase()}...</div></ReportsLayout>;
+    return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-muted">Loading {title.toLowerCase()}...</div></ReportsLayout>;
   }
   if (error) {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
@@ -161,31 +161,31 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
   return (
     <ReportsLayout title={title} subtitle={subtitle}>
       <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-neutral-50">
-          <div className="text-sm text-neutral-500">{t('categories.orders')}</div>
+        <div className="border rounded-lg p-4 bg-surface">
+          <div className="text-sm text-muted">{t('categories.orders')}</div>
           <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
-          <div className="text-sm text-neutral-500 mt-2">Total {metricHeader.toLowerCase()}</div>
+          <div className="text-sm text-muted mt-2">Total {metricHeader.toLowerCase()}</div>
           <div className="text-xl font-semibold">{withCurrency(totalMetric)}</div>
         </div>
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
             <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">Created at</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.order')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('metrics.gross')}</th>
+              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.order')}</th>
+              <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('metrics.cashier')}</th>
+              <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('metrics.gross')}</th>
               {metric === "tax_amount" && (
-                <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{t('columns.taxPercent')}</th>
+                <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('columns.taxPercent')}</th>
               )}
-              <th className="py-3 px-3 text-right text-sm font-semibold text-neutral-700">{metricHeader}</th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-neutral-700">{t('metrics.net')}</th>
+              <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{metricHeader}</th>
+              <th className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{t('metrics.net')}</th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {orders.length === 0 ? (
               <tr>
-                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-neutral-500">No rows found for selected range.</td>
+                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-muted">No rows found for selected range.</td>
               </tr>
             ) : orders.map((order) => {
               const gross = calculateGross(order);
@@ -196,15 +196,15 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
 
               return (
                 <tr key={order.id.toString()}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
-                  <td className="py-3 px-3 text-sm text-neutral-700">{cashierName || "-"}</td>
-                  <td className="py-3 px-3 text-right text-sm text-neutral-700">{withCurrency(gross)}</td>
+                  <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+                  <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
+                  <td className="py-3 px-3 text-sm text-foreground">{cashierName || "-"}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(gross)}</td>
                   {metric === "tax_amount" && (
-                    <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatTaxPercent(order)}</td>
+                    <td className="py-3 px-3 text-right text-sm text-foreground">{formatTaxPercent(order)}</td>
                   )}
-                  <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">{withCurrency(metricAmount)}</td>
-                  <td className="py-3 pr-6 text-right text-sm text-neutral-700">{withCurrency(net)}</td>
+                  <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(metricAmount)}</td>
+                  <td className="py-3 pr-6 text-right text-sm text-foreground">{withCurrency(net)}</td>
                 </tr>
               );
             })}

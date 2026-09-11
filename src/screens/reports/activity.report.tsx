@@ -98,7 +98,7 @@ export const ActivityReport = () => {
   }, [filters.endDate, filters.startDate]);
 
   if (loading) {
-    return <ReportsLayout title={t('titles.activity')} subtitle={subtitle}><div className="py-12 text-center text-neutral-500">{t('loading.activity')}</div></ReportsLayout>;
+    return <ReportsLayout title={t('titles.activity')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.activity')}</div></ReportsLayout>;
   }
   if (error) {
     return <ReportsLayout title={t('titles.activity')} subtitle={subtitle}><div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div></ReportsLayout>;
@@ -110,46 +110,46 @@ export const ActivityReport = () => {
       subtitle={subtitle}
       onRefresh={fetchData}
     >
-      <div className="overflow-hidden rounded-lg border border-neutral-200">
+      <div className="overflow-hidden rounded-lg border border-border">
         <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-neutral-50">
+          <thead className="bg-surface">
           <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">{t('common:actions.time')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('filters.user')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Role</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Shift</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('columns.module')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">{t('common:table.page')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Auth</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Manager Role</th>
-            {/* <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Coords</th> */}
-            <th className="py-3 px-3 text-left text-sm font-semibold text-neutral-700">Payload</th>
-            <th className="py-3 pr-6 text-left text-sm font-semibold text-neutral-700">{t('columns.device')}</th>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">{t('common:actions.time')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.user')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Role</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Shift</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.module')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('common:table.page')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Auth</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Manager</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Manager Role</th>
+            {/* <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Coords</th> */}
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Payload</th>
+            <th className="py-3 pr-6 text-left text-sm font-semibold text-foreground">{t('columns.device')}</th>
           </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={12} className="py-6 text-center text-sm text-neutral-500">No activity logs for selected range.</td>
+              <td colSpan={12} className="py-6 text-center text-sm text-muted">No activity logs for selected range.</td>
             </tr>
           ) : rows.map((row) => (
             <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm:ss")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{String(row.user || "-")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{String(row.user_role || "-")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{String(row.user_shift || "-")}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.module || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.page || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{row.auth_method || "-"}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{displayValue(row.manager)}</td>
-              <td className="py-3 px-3 text-sm text-neutral-700">{displayValue(row.manager_role)}</td>
-              {/* <td className="py-3 px-3 text-xs text-neutral-700 max-w-[220px] break-all">{displayValue(row.coords)}</td> */}
-              <td className="py-3 px-3 text-sm text-neutral-700 max-w-[280px] break-all">{displayValue(row.payload)}</td>
-              <td className="py-3 pr-6 text-sm text-neutral-700">
+              <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm:ss")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{String(row.user || "-")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{String(row.user_role || "-")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{String(row.user_shift || "-")}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.module || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.page || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{row.auth_method || "-"}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{displayValue(row.manager)}</td>
+              <td className="py-3 px-3 text-sm text-foreground">{displayValue(row.manager_role)}</td>
+              {/* <td className="py-3 px-3 text-xs text-foreground max-w-[220px] break-all">{displayValue(row.coords)}</td> */}
+              <td className="py-3 px-3 text-sm text-foreground max-w-[280px] break-all">{displayValue(row.payload)}</td>
+              <td className="py-3 pr-6 text-sm text-foreground">
                 <div>{detectBrowser(row.user_agent)} / {detectOS(row.user_agent)}</div>
-                <div className="sm text-neutral-500">{row.resolution || "-"}</div>
-                {/*<div className="text-xs text-neutral-500 max-w-[320px] break-all">{row.user_agent || "-"}</div>*/}
+                <div className="sm text-muted">{row.resolution || "-"}</div>
+                {/*<div className="text-xs text-muted max-w-[320px] break-all">{row.user_agent || "-"}</div>*/}
               </td>
             </tr>
           ))}

@@ -34,10 +34,12 @@ export const CartItem = ({ item, index }: Props) => {
     <>
       <div
         className={cn(
-          "flex rounded gap-3 cursor-pointer items-start select-none pr-2",
-          item.isSelected ? 'bg-neutral-300' : (
-            item.isHold ? 'bg-warning-100' : 'bg-neutral-100'
-          ),
+          "flex rounded gap-3 cursor-pointer items-start select-none pr-2 text-foreground",
+          item.isSelected
+            ? 'bg-neutral-300 dark:bg-neutral-700'
+            : item.isHold
+              ? 'bg-warning-100 dark:bg-warning-900/50'
+              : 'bg-surface',
         )}
         onClick={() => {
           if(item.deleted_at === undefined && (item.newOrOld === 'new' || item.isHold)) {
@@ -90,7 +92,7 @@ export const CartItem = ({ item, index }: Props) => {
                       })
                     }))
                   }}
-                  className="!w-[60px] !border-0 !bg-white !rounded-none"
+                  className="!w-[60px] !border-0 !bg-surface-elevated !rounded-none"
                 />
                 {item.quantity <= 1 ? (
                   <IconTooltipButton label={t('common:actions.remove')}
@@ -136,7 +138,7 @@ export const CartItem = ({ item, index }: Props) => {
 
             {item.newOrOld === MenuItemType.old && (
               <>
-                <span className="p-2 px-3 justify-center items-center flat !bg-white">{item.quantity}</span>
+                <span className="p-2 px-3 justify-center items-center flat !bg-surface-elevated">{item.quantity}</span>
                 {/*{item.deleted_at === undefined && (*/}
                 {/*  <IconTooltipButton label={t('common:actions.remove')}*/}
                 {/*    flat*/}

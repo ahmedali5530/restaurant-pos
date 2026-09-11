@@ -63,30 +63,30 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-neutral-300 border-t-primary-500" />
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary" />
         </div>
       )}
 
       {!loading && viewTransfer && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4 flex flex-col gap-3">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={classNames("tag", "bg-neutral-100 text-neutral-800")}>
+                <span className={classNames("tag", "bg-surface text-foreground")}>
                   {t("stockTransfer.typeLocation")}
                 </span>
                 <div className="text-lg font-semibold">{t("stockTransfer.viewTitle")}</div>
               </div>
-              <div className="text-xs text-neutral-500">
+              <div className="text-xs text-muted">
                 {viewTransfer.created_at
                   ? toLuxonDateTime(viewTransfer.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT)
                   : "—"}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-neutral-700">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
               <div>
-                <div className="text-neutral-500 text-xs uppercase">
+                <div className="text-muted text-xs uppercase">
                   {t("stockTransfer.fromLocation")}
                 </div>
                 <div>
@@ -94,7 +94,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
                 </div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">
+                <div className="text-muted text-xs uppercase">
                   {t("stockTransfer.toLocation")}
                 </div>
                 <div>
@@ -102,7 +102,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
                 </div>
               </div>
               <div>
-                <div className="text-neutral-500 text-xs uppercase">
+                <div className="text-muted text-xs uppercase">
                   {t("columns.createdBy")}
                 </div>
                 <div>
@@ -111,7 +111,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
               </div>
               {viewTransfer.notes && (
                 <div className="col-span-full">
-                  <div className="text-neutral-500 text-xs uppercase">
+                  <div className="text-muted text-xs uppercase">
                     {t("stockTransfer.notes")}
                   </div>
                   <div>{viewTransfer.notes}</div>
@@ -120,8 +120,8 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow border border-neutral-200 p-4">
-            <div className="text-sm font-semibold text-neutral-800 mb-3">
+          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
+            <div className="text-sm font-semibold text-foreground mb-3">
               {t("tabs.items")}
             </div>
             {viewTransfer.items && viewTransfer.items.length > 0 ? (
@@ -134,11 +134,11 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
                         {line.item?.code ? ` (${line.item.code})` : ""}
                       </div>
                       {line.item?.uom && (
-                        <div className="text-xs text-neutral-500">{line.item.uom}</div>
+                        <div className="text-xs text-muted">{line.item.uom}</div>
                       )}
                     </div>
                     <div className="w-24 text-right">
-                      <div className="text-neutral-700">
+                      <div className="text-foreground">
                         {t("forms.quantity")}: {line.quantity}
                       </div>
                     </div>
@@ -146,7 +146,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
                 ))}
               </div>
             ) : (
-              <div className="text-sm text-neutral-500">
+              <div className="text-sm text-muted">
                 {t("stockTransfer.noItems")}
               </div>
             )}

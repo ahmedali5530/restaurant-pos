@@ -31,7 +31,7 @@ export function RemotePaymentPendingList({
               <strong>{t('remote.remoteLabel', {name: intent.paymentType.name})}</strong>
               <span>{withCurrency(intent.amount)}</span>
             </div>
-            <div className="text-xs text-neutral-600 mb-2">
+            <div className="text-xs text-muted mb-2">
               {t('remote.status', {status: intent.status})}
               {adapter.renderPendingDetail?.(intent)}
             </div>

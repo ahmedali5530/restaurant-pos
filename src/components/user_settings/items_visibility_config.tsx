@@ -11,9 +11,9 @@ export const ItemsVisibilityConfig = () => {
   const [config, setConfig] = useAtom(appPage);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-items-visibility">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-items-visibility">
       <h2 className="text-xl font-semibold mb-1">{t('settings:visibilityConfig.title')}</h2>
-      <p className="text-sm text-neutral-500 mb-5">
+      <p className="text-sm text-muted mb-5">
         {t('settings:visibilityConfig.description')}
       </p>
 
@@ -36,7 +36,7 @@ export const ItemsVisibilityConfig = () => {
           </Switch>
         </div>
         <div>
-          <p className="text-sm font-medium mb-2">{t('settings:visibilityConfig.dishSearchType')}</p>
+          <p className="form-label">{t('settings:visibilityConfig.dishSearchType')}</p>
           <div className="flex flex-wrap gap-2">
             <Button
               size="lg"

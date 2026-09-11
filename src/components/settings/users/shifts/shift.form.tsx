@@ -123,7 +123,7 @@ export const ShiftForm = ({ open, onClose, data }: Props) => {
               />
             </div>
           </div>
-          <div className="text-sm text-neutral-600">
+          <div className="text-sm text-muted">
             {shiftDisplayTime({ start_time: startTime, end_time: endTime, ends_next_day: overnight })}
           </div>
         </div>

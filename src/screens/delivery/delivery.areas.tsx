@@ -908,14 +908,14 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
   return (
     <>
       <div className="absolute top-3 left-3 z-10 flex flex-col gap-2" key={selectedVersion}>
-        <div className="flex flex-row gap-1 rounded-md border border-neutral-300 bg-white p-1 shadow-sm">
+        <div className="flex flex-row gap-1 rounded-md border border-border bg-surface-elevated p-1 shadow-sm">
           <button
             type="button"
             title={t('map.drawPolygon')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "polygon"
-                ? "bg-primary-500 text-white"
-                : "text-neutral-700 hover:bg-neutral-50"
+                ? "bg-primary text-white"
+                : "text-foreground hover:bg-surface"
             }`}
             onClick={() => startDrawing("polygon")}
           >
@@ -926,8 +926,8 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
             title={t('map.drawRectangle')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "rectangle"
-                ? "bg-primary-500 text-white"
-                : "text-neutral-700 hover:bg-neutral-50"
+                ? "bg-primary text-white"
+                : "text-foreground hover:bg-surface"
             }`}
             onClick={() => startDrawing("rectangle")}
           >
@@ -938,8 +938,8 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
             title={t('map.drawCircle')}
             className={`rounded px-3 py-2 text-left text-sm font-medium ${
               drawingMode === "circle"
-                ? "bg-primary-500 text-white"
-                : "text-neutral-700 hover:bg-neutral-50"
+                ? "bg-primary text-white"
+                : "text-foreground hover:bg-surface"
             }`}
             onClick={() => startDrawing("circle")}
           >
@@ -948,13 +948,13 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
         </div>
 
         {drawingMode && (
-          <div className="max-w-xs rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-600 shadow-sm">
+          <div className="max-w-xs rounded-md border border-border bg-surface-elevated px-3 py-2 text-sm text-muted shadow-sm">
             {drawingMode === "rectangle" && <p>{t('map.drawRectangleHint')}</p>}
             {drawingMode === "circle" && <p>Click and drag from the center to set the radius.</p>}
             {drawingMode === "polygon" && <p>{t('map.drawPolygonHint')}</p>}
             <button
               type="button"
-              className="mt-2 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+              className="mt-2 rounded-md border border-border bg-surface-elevated px-3 py-1.5 text-sm font-medium text-foreground hover:bg-surface"
               onClick={cancelDrawing}
             >
               Cancel
@@ -968,7 +968,7 @@ const DeliveryAreasEditor = ({mapAreas, onSaveAreas}: DeliveryAreasEditorProps) 
         className={`absolute top-3 right-3 z-10 rounded-md border px-3 py-2 text-sm font-medium ${
           hasSelectedOverlay
             ? "border-danger-500 bg-danger-500 text-white hover:bg-danger-600"
-            : "cursor-not-allowed border-neutral-300 bg-white text-neutral-400"
+            : "cursor-not-allowed border-border bg-surface-elevated text-muted"
         }`}
         disabled={!hasSelectedOverlay}
         onClick={deleteSelectedOverlay}
@@ -1049,19 +1049,19 @@ export const DeliveryAreas = () => {
 
   return (
     <>
-      <div className="p-4">
-        <p className="text-xl text-neutral-600 mb-4">
+      <div className="p-2 h-full min-h-0 flex flex-col gap-3">
+        <p className="text-xl text-muted shrink-0">
           Draw delivery zones on the map. Choose a tool on the left, then click and drag to draw. Click a shape to select it, drag to move it, or use the handles to resize.
         </p>
         {loading ? (
-          <div className="flex items-center justify-center h-full min-h-[20rem]">
-            <div className="text-lg">{t('map.loadingAreas')}</div>
+          <div className="flex items-center justify-center flex-1 min-h-0">
+            <div className="text-lg text-muted">{t('map.loadingAreas')}</div>
           </div>
         ) : (
-          <div className="relative h-full min-h-0">
+          <div className="relative flex-1 min-h-0">
             <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
               <Map
-                className="h-[min(70vh,calc(100%_-_1rem))] min-h-[20rem] w-full rounded-lg border border-neutral-300"
+                className="h-full w-full min-h-0 rounded-lg border border-border"
                 defaultCenter={center}
                 defaultZoom={11}
                 gestureHandling="greedy"

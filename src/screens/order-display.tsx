@@ -166,7 +166,7 @@ export const OrderDisplayScreen = () => {
         />
       )}
       <div className="flex flex-col gap-3 p-3 h-full" data-testid="order-display-page">
-        <div className="h-[60px] flex-shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="order-display-filters">
+        <div className="h-[60px] flex-shrink-0 rounded-xl bg-surface-elevated flex items-center px-3 gap-3" data-testid="order-display-filters">
           <div className="min-w-[200px]">
             <ReactSelect
               options={[
@@ -211,8 +211,8 @@ export const OrderDisplayScreen = () => {
         </div>
 
         <div className="flex flex-1 gap-3 min-h-0" data-testid="order-display-boards">
-          <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
-            <div className="flex-shrink-0 px-4 py-3 bg-warning-500 text-white">
+          <div className="flex-1 flex flex-col rounded-xl bg-surface overflow-hidden">
+            <div className="flex-shrink-0 px-4 py-3 bg-warning text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">
                 {t('order-display:preparing')}
               </h2>
@@ -226,7 +226,7 @@ export const OrderDisplayScreen = () => {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col rounded-xl bg-neutral-100 overflow-hidden">
+          <div className="flex-1 flex flex-col rounded-xl bg-surface overflow-hidden">
             <div className="flex-shrink-0 px-4 py-3 bg-success-600 text-white">
               <h2 className="text-2xl font-bold uppercase tracking-wide">
                 {t('order-display:readyForPickup')}

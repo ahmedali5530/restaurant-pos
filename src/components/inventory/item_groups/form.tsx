@@ -238,7 +238,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
             </div>
           </div>
 
-          <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3">
             <legend>{t('columns.subItems')}</legend>
             <div className="mb-3">
               <Button

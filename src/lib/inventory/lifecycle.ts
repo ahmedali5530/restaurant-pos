@@ -72,7 +72,7 @@ export const statusBadgeClass = (status?: string | null): string => {
   const s = normalizeDocumentStatus(status);
   switch (s) {
     case "draft":
-      return "bg-neutral-200 text-neutral-800";
+      return "bg-surface text-foreground";
     case "approved":
       return "bg-info-100 text-info-800";
     case "posted":
@@ -82,6 +82,6 @@ export const statusBadgeClass = (status?: string | null): string => {
     case "voided":
       return "bg-danger-100 text-danger-800";
     default:
-      return "bg-neutral-200 text-neutral-800";
+      return "bg-surface text-foreground";
   }
 };

@@ -661,7 +661,7 @@ export const OrderPayment = ({
       size="full"
     >
       <div className="grid grid-cols-4 gap-5 mb-0 select-none" data-testid="payment-screen">
-        <div className="bg-white rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-order-summary">
+        <div className="bg-surface-elevated rounded-xl flex flex-col overflow-auto h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-order-summary">
           <div className="p-3 flex gap-3 flex-col">
             <OrderHeader order={order} tempPrinted={tempPrinted}/>
             <OrderTimes order={order}/>
@@ -679,7 +679,7 @@ export const OrderPayment = ({
                     showGroups={showGroupsInOrderCard}
                     showModifiers={showModifiersInOrderCard}
                   />
-                  // <div className="flex gap-3 hover:bg-neutral-100" key={item.id}>
+                  // <div className="flex gap-3 hover:bg-surface" key={item.id}>
                   //   <div className="flex-1 whitespace-break-spaces">{item.item.name}</div>
                   //   <div className="text-right w-[50px] flex-shrink-0">{formatNumber(item.quantity)}</div>
                   //   <div className="text-right w-[80px] flex-shrink-0">{formatNumber(item.price)}</div>
@@ -702,7 +702,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning'
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tax), {
@@ -727,7 +727,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning'
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Discount), {
@@ -751,7 +751,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions.Coupon && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions.Coupon && 'bg-neutral-900 text-warning'
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Coupon), {
@@ -771,7 +771,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning'
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions['Service Charges']), {
@@ -795,7 +795,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning'
               )
             } onClick={() => {
               protectAction(() => setMode(PaymentOptions.Tip), {
@@ -843,7 +843,7 @@ export const OrderPayment = ({
               className={
               cn(
                 "flex justify-between p-3 cursor-pointer",
-                mode === PaymentOptions.Notes && 'bg-neutral-900 text-warning-500'
+                mode === PaymentOptions.Notes && 'bg-neutral-900 text-warning'
               )
             } onClick={() => setMode(PaymentOptions.Notes)}>
               <div>{t('tabs.notes')} <FontAwesomeIcon icon={faPencil}/></div>
@@ -856,7 +856,7 @@ export const OrderPayment = ({
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-adjust-panel">
+        <div className="bg-surface-elevated rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
             <OrderPaymentTax tax={tax} setTax={setTax}/>
           )}
@@ -896,7 +896,7 @@ export const OrderPayment = ({
             <OrderPaymentNotes setNotes={setNotes} notes={notes}/>
           )}
         </div>
-        <div className="flex flex-col bg-neutral-100 rounded-xl col-span-2" data-testid="payment-receiving-column">
+        <div className="flex flex-col bg-surface rounded-xl col-span-2" data-testid="payment-receiving-column">
           <OrderPaymentReceiving
             order={order}
             total={total}

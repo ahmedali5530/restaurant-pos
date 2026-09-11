@@ -222,9 +222,9 @@ export const ProductionForm = ({open, onClose}: Props) => {
           )}
         />
 
-        <div className="border rounded-lg p-4 bg-neutral-50">
+        <div className="border rounded-lg p-4 bg-surface">
           <h4 className="font-medium mb-2">{t("production.preview")}</h4>
-          {previewLoading && <p className="text-sm text-neutral-500">{t("common:loading")}</p>}
+          {previewLoading && <p className="text-sm text-muted">{t("common:loading")}</p>}
           {!previewLoading && preview && (
             <>
               <p className="text-sm mb-2">

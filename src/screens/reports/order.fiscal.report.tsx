@@ -60,7 +60,7 @@ const statusBadgeClass = (status: string): string => {
     case 'failed':
       return 'bg-danger-100 text-danger-700';
     default:
-      return 'bg-neutral-100 text-neutral-600';
+      return 'bg-surface text-muted';
   }
 };
 
@@ -190,7 +190,7 @@ export const OrderFiscalReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.orderFiscal')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.orderFiscal')}</div>
       </ReportsLayout>
     );
   }
@@ -209,32 +209,32 @@ export const OrderFiscalReport = () => {
         {/* Summary sections */}
         <div className="grid grid-cols-2 gap-4">
           {/* By provider */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('orderFiscal.byProvider')}</h3>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byProvider')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.provider')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.statusCompleted')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.statusFailed')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.statusSkipped')}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('orderFiscal.provider')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('orderFiscal.statusCompleted')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('orderFiscal.statusFailed')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('orderFiscal.statusSkipped')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {byProvider.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
+                      <td colSpan={5} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
                     </tr>
                   ) : (
                     byProvider.map(item => (
                       <tr key={item.provider}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{item.provider}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{formatNumber(item.total)}</td>
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.provider}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.total)}</td>
                         <td className="py-3 px-3 text-right text-sm text-success-700">{formatNumber(item.completed)}</td>
                         <td className="py-3 px-3 text-right text-sm text-danger-700">{formatNumber(item.failed)}</td>
-                        <td className="py-3 pr-6 text-right text-sm text-neutral-600">{formatNumber(item.skipped)}</td>
+                        <td className="py-3 pr-6 text-right text-sm text-muted">{formatNumber(item.skipped)}</td>
                       </tr>
                     ))
                   )}
@@ -244,30 +244,30 @@ export const OrderFiscalReport = () => {
           </div>
 
           {/* By status */}
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
-            <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('orderFiscal.byStatus')}</h3>
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byStatus')}</h3>
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
-                <thead className="bg-neutral-50">
+                <thead className="bg-surface">
                   <tr>
-                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.status')}</th>
-                    <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('metrics.count')}</th>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.status')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100 bg-white">
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                   {byStatus.length === 0 ? (
                     <tr>
-                      <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
+                      <td colSpan={2} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
                     </tr>
                   ) : (
                     byStatus.map(item => (
                       <tr key={item.status}>
-                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">
                           <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(item.status)}`}>
                             {statusLabel(item.status)}
                           </span>
                         </td>
-                        <td className="py-3 pr-6 text-right text-sm text-neutral-700">{formatNumber(item.count)}</td>
+                        <td className="py-3 pr-6 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
                       </tr>
                     ))
                   )}
@@ -278,33 +278,33 @@ export const OrderFiscalReport = () => {
         </div>
 
         {/* Detail table */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('orderFiscal.detail')}</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.detail')}</h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
                 <tr>
-                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.date')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('common:actions.time')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.order')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.provider')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.fiscalInvoice')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.status')}</th>
-                  <th className="py-3 px-3 text-center text-xs font-semibold text-neutral-700">{t('orderFiscal.qr')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('orderFiscal.grossTotal')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.tax')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.discount')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.serviceCharges')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.extras')}</th>
-                  <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.grandTotal')}</th>
-                  <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('metrics.cashier')}</th>
-                  <th className="py-3 pr-6 text-left text-xs font-semibold text-neutral-700">{t('orderFiscal.error')}</th>
+                  <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('common:actions.time')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('orderFiscal.order')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('orderFiscal.provider')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('orderFiscal.fiscalInvoice')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.status')}</th>
+                  <th className="py-3 px-3 text-center text-xs font-semibold text-foreground">{t('orderFiscal.qr')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('orderFiscal.grossTotal')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.tax')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.discount')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.serviceCharges')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.extras')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.grandTotal')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('metrics.cashier')}</th>
+                  <th className="py-3 pr-6 text-left text-xs font-semibold text-foreground">{t('orderFiscal.error')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={15} className="py-6 text-center text-sm text-neutral-500">{t('orderFiscal.noRecords')}</td>
+                    <td colSpan={15} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
                   </tr>
                 ) : (
                   submissions.map(sub => {
@@ -316,38 +316,38 @@ export const OrderFiscalReport = () => {
                     const timeStr = date ? date.toFormat(import.meta.env.VITE_TIME_FORMAT) : '—';
                     return (
                       <tr key={String(sub.id)}>
-                        <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{dateStr}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{timeStr}</td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">{order?.invoice_number ?? '—'}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{providerLabel(sub.provider_id)}</td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{sub.invoice_number || '—'}</td>
+                        <td className="py-3 pl-6 pr-3 text-sm text-foreground">{dateStr}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{timeStr}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{order?.invoice_number ?? '—'}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{providerLabel(sub.provider_id)}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{sub.invoice_number || '—'}</td>
                         <td className="py-3 px-3 text-sm">
                           <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadgeClass(sub.status)}`}>
                             {statusLabel(sub.status)}
                           </span>
                         </td>
-                        <td className="py-3 px-3 text-center text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-center text-sm text-foreground">
                           {sub.qrcode ? t('orderFiscal.available') : t('orderFiscal.notAvailable')}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.itemsTotal) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.tax) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.discounts) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.serviceCharges) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm text-neutral-700">
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.extrasTotal) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-right text-sm font-semibold text-neutral-900">
+                        <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">
                           {figures ? withCurrency(figures.grandTotalDue) : '—'}
                         </td>
-                        <td className="py-3 px-3 text-sm text-neutral-700">{cashierName(order)}</td>
+                        <td className="py-3 px-3 text-sm text-foreground">{cashierName(order)}</td>
                         <td className="py-3 pr-6 text-sm text-danger-600">{sub.error || '—'}</td>
                       </tr>
                     );
@@ -355,17 +355,17 @@ export const OrderFiscalReport = () => {
                 )}
               </tbody>
               {submissions.length > 0 && (
-                <tfoot className="bg-neutral-50">
+                <tfoot className="bg-surface">
                   <tr>
-                    <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">{t('columns.total')}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{formatNumber(submissions.length)}</td>
+                    <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{formatNumber(submissions.length)}</td>
                     <td colSpan={4}></td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.gross)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.tax)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.discount)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.serviceCharges)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.extras)}</td>
-                    <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(detailTotals.total)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.gross)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.tax)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.discount)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.serviceCharges)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.extras)}</td>
+                    <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.total)}</td>
                     <td colSpan={2}></td>
                   </tr>
                 </tfoot>

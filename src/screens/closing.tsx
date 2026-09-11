@@ -532,28 +532,28 @@ export const Closing = () => {
       <ScrollContainer className="overflow-y-auto h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] select-none">
         <div className="p-6" data-testid="closing-page">
           <h1 className="text-3xl font-bold mb-3 text-center">{t("closing:title", {date: today})}</h1>
-          <div className="text-center mb-6 text-sm text-neutral-600">{closingWindowLabel}</div>
+          <div className="text-center mb-6 text-sm text-muted">{closingWindowLabel}</div>
 
           {!cycleEnabled && (
-            <div className="alert alert-warning mb-6 bg-white">
+            <div className="alert alert-warning mb-6 bg-surface-elevated">
               {t("closing:alerts.cycleDisabled")}
             </div>
           )}
 
           {cycleEnabled && isClosingCompleted && (
-            <div className="alert alert-success mb-6 bg-white">
+            <div className="alert alert-success mb-6 bg-surface-elevated">
               {t("closing:alerts.cycleCompleted")}
             </div>
           )}
 
           {!cycleEnabled && isClosingCompleted && (
-            <div className="alert alert-success mb-6 bg-white">
+            <div className="alert alert-success mb-6 bg-surface-elevated">
               {t("closing:alerts.periodCompleted")}
             </div>
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-surface-elevated rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.previousDayBalance")}</h2>
               <Input
                 type="number"
@@ -567,7 +567,7 @@ export const Closing = () => {
               />
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-surface-elevated rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.pettyCash")}</h2>
               <Input
                 type="number"
@@ -582,7 +582,7 @@ export const Closing = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="closing-terminal-cash-section">
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-terminal-cash-section">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.terminalCash")}</h2>
               <Button onClick={addTerminal} variant="primary" size="lg" type="button" disabled={isReadOnly}>
@@ -660,18 +660,18 @@ export const Closing = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 p-3 bg-gray-100 rounded-lg font-semibold">
+                  <div className="mt-4 p-3 bg-surface rounded-lg font-semibold text-foreground">
                     {t("closing:terminal.total", {amount: withCurrency(getTerminalAmount(terminal.terminal_id))})}
                   </div>
                 </div>
               ))}
             </div>
-            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+            <div className="mt-4 p-4 bg-surface rounded-lg text-foreground">
               <span className="text-lg font-semibold">{t("closing:totals.totalCash", {amount: withCurrency(totalCash)})}</span>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8" data-testid="closing-expenses-section">
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-expenses-section">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">{t("closing:sections.expenses")}</h2>
               <Button onClick={addExpense} variant="primary" size="lg" type="button" disabled={isReadOnly}>
@@ -723,13 +723,13 @@ export const Closing = () => {
             ))}
 
             {expenses.length > 0 && (
-              <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <div className="mt-4 p-4 bg-surface rounded-lg text-foreground">
                 <span className="text-lg font-semibold">{t("closing:totals.totalExpenses", {amount: withCurrency(totalExpenses)})}</span>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold mb-4">{t("closing:sections.notes")}</h2>
             <Textarea
               value={notes}
@@ -745,26 +745,26 @@ export const Closing = () => {
               <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                 <div>
-                  <div className="text-sm text-gray-600">{t("closing:totals.previousBalance")}</div>
+                  <div className="text-sm text-muted">{t("closing:totals.previousBalance")}</div>
                   <div className="text-xl font-semibold">{withCurrency(previousDayBalance)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">{t("closing:totals.totalCashShort")}</div>
+                  <div className="text-sm text-muted">{t("closing:totals.totalCashShort")}</div>
                   <div className="text-xl font-semibold">{withCurrency(totalCash + pettyCash)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">{t("closing:totals.otherPayments")}</div>
+                  <div className="text-sm text-muted">{t("closing:totals.otherPayments")}</div>
                   <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">{t("closing:totals.totalExpensesShort")}</div>
+                  <div className="text-sm text-muted">{t("closing:totals.totalExpensesShort")}</div>
                   <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
                 </div>
               </div>
-              <div className="mt-6 p-4 bg-white rounded-lg border-2 border-blue-200">
+              <div className="mt-6 p-4 bg-surface-elevated rounded-lg border-2 border-blue-200">
                 <div className="text-center">
-                  <div className="text-lg text-gray-600">{t("closing:totals.netAmount")}</div>
-                  <div className="text-3xl font-bold text-green-600">{withCurrency(netAmount)}</div>
+                  <div className="text-lg text-muted">{t("closing:totals.netAmount")}</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-success-400">{withCurrency(netAmount)}</div>
                 </div>
               </div>
             </div>

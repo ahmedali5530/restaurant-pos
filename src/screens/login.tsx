@@ -363,7 +363,7 @@ export const Login = () => {
             className={cn(
               "w-56 border-2 transition-all duration-150 btn btn-filled lg",
               loginMethod === 'pin'
-                ? "!bg-warning-500 text-black border-warning-500"
+                ? "!bg-warning text-black border-warning"
                 : "!bg-black text-white"
             )}
             onClick={() => {
@@ -382,7 +382,7 @@ export const Login = () => {
             className={cn(
               "w-56 border-2 transition-all duration-150 btn btn-filled lg",
               loginMethod === 'form'
-                ? "!bg-warning-500 text-black border-warning-500"
+                ? "!bg-warning text-black border-warning"
                 : "!bg-black text-white"
             )}
             onClick={() => {
@@ -466,9 +466,9 @@ export const Login = () => {
           </form>
         )}
       </div>
-      <div className="size-[100px] bg-warning-500/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
-      <div className="size-[200px] bg-primary-500/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>
-      <div className="size-[200px] bg-white/20 absolute bottom-[100px] transition-all right-24 pointer-events-none rotate-45 blur-2xl"></div>
+      <div className="size-[100px] bg-warning/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
+      <div className="size-[200px] bg-primary/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>
+      <div className="size-[200px] bg-surface-elevated/20 absolute bottom-[100px] transition-all right-24 pointer-events-none rotate-45 blur-2xl"></div>
       <div className="size-[200px] bg-[tomato]/20 absolute bottom-[30%] transition-all left-[150px] pointer-events-none blur-2xl"></div>
 
       {showClockInModal && (

@@ -297,8 +297,8 @@ export const AdminFloorLayout = ({
   return (
     <div className="flex justify-center items-center">
       <div
-        className="h-[calc(100vh_-_80px_-_100px_-_var(--app-toolbar-h))] bg-neutral-50 w-[calc(100vw_-_100px)] relative bg-grid overflow-hidden">
-        <div className="bg-white/90 rounded-lg p-3 flex items-end gap-3">
+        className="h-[calc(100vh_-_80px_-_100px_-_var(--app-toolbar-h))] bg-surface w-[calc(100vw_-_100px)] relative bg-grid overflow-hidden">
+        <div className="bg-surface-elevated/90 rounded-lg p-3 flex items-end gap-3">
           <div className="w-[100px]">
             <label className="text-sm block mb-1">{t('forms.gap')}</label>
             <Input
@@ -427,7 +427,7 @@ export const AdminFloorLayout = ({
           'transform': `scale(${zoom})`
         }}>
           <div
-            className="relative border-2 border-dashed border-gray-500"
+            className="relative border-2 border-dashed border-border"
             style={{
               width: effectiveGridWidth,
               height: effectiveGridHeight,

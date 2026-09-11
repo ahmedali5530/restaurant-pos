@@ -24,7 +24,7 @@ export const CouponFilter = () => {
     <form action={REPORTS_COUPON} className="flex flex-col gap-3 items-start w-full" target="_blank">
       <DateRange isRequired label="Select a range" />
       <div className="w-full flex flex-col gap-2">
-        <label htmlFor="coupon-filter-coupon">{t('reports.coupon')}</label>
+        <label htmlFor="coupon-filter-coupon" className="form-label">{t('reports.coupon')}</label>
         <ReactSelect
           id="coupon-filter-coupon"
           name="coupon_id"

@@ -11,7 +11,7 @@ export const MissedDaysBanner = ({missedDays}: Props) => {
   if (missedDays.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-warning-300 bg-warning-50 px-4 py-3 text-warning-900">
+    <div className="rounded-lg border border-warning-300 bg-warning/10 px-4 py-3 text-warning-900">
       <p className="font-medium">{t("kitchenReconciliation.missedDaysTitle")}</p>
       <p className="text-sm mt-1">{t("kitchenReconciliation.missedDaysDescription")}</p>
       <ul className="mt-2 flex flex-wrap gap-2">

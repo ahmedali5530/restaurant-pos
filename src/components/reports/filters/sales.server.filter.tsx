@@ -51,7 +51,7 @@ export const SalesServerFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-users">Users</label>
+          <label htmlFor="sales-server-users" className="form-label">Users</label>
           <ReactSelect
             id="sales-server-users"
             name="users[]"
@@ -67,7 +67,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-order-types">Order types</label>
+          <label htmlFor="sales-server-order-types" className="form-label">Order types</label>
           <ReactSelect
             id="sales-server-order-types"
             name="order_types[]"
@@ -81,7 +81,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-categories">{t('filters.categories')}</label>
+          <label htmlFor="sales-server-categories" className="form-label">{t('filters.categories')}</label>
           <ReactSelect
             id="sales-server-categories"
             name="categories[]"
@@ -95,7 +95,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-dishes">{t('metrics.dishes')}</label>
+          <label htmlFor="sales-server-dishes" className="form-label">{t('metrics.dishes')}</label>
           <ReactSelect
             id="sales-server-dishes"
             name="dishes[]"
@@ -109,7 +109,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-floors">{t('metrics.floors')}</label>
+          <label htmlFor="sales-server-floors" className="form-label">{t('metrics.floors')}</label>
           <ReactSelect
             id="sales-server-floors"
             name="floors[]"
@@ -123,7 +123,7 @@ export const SalesServerFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="sales-server-tables">Tables</label>
+          <label htmlFor="sales-server-tables" className="form-label">Tables</label>
           <ReactSelect
             id="sales-server-tables"
             name="tables[]"

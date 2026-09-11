@@ -368,7 +368,7 @@ export const SalesWeeklyReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.salesWeekly')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.salesWeekly')}</div>
       </ReportsLayout>
     );
   }
@@ -384,29 +384,29 @@ export const SalesWeeklyReport = () => {
   return (
     <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-          <thead className="bg-neutral-50">
+        <table className="min-w-full divide-y divide-neutral-200 border border-border">
+          <thead className="bg-surface">
             <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Metric</th>
+              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Metric</th>
               {dayHeaders.map(({day, dateLabel}) => (
-                <th key={day} className="py-3 px-3 text-center text-xs font-semibold text-neutral-700">
+                <th key={day} className="py-3 px-3 text-center text-xs font-semibold text-foreground">
                   <div>{day}</div>
-                  <div className="text-xs text-neutral-500 font-normal">{dateLabel}</div>
+                  <div className="text-xs text-muted font-normal">{dateLabel}</div>
                 </th>
               ))}
-              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Weekly Total</th>
+              <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">Weekly Total</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {rows.map((row, index) => (
-              <tr key={index} className="hover:bg-neutral-50">
-                <td className="py-3 pl-6 pr-3 text-sm font-medium text-neutral-900">{row.label}</td>
+              <tr key={index} className="hover:bg-surface">
+                <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{row.label}</td>
                 {row.values.map((value, idx) => (
-                  <td key={idx} className="py-3 px-3 text-right text-sm text-neutral-700">
+                  <td key={idx} className="py-3 px-3 text-right text-sm text-foreground">
                     {row.formatter(value)}
                   </td>
                 ))}
-                <td className="py-3 pr-6 text-right text-sm font-semibold text-neutral-900">
+                <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">
                   {row.formatter(row.total)}
                 </td>
               </tr>

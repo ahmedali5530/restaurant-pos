@@ -35,20 +35,20 @@ const ModifiersSummaryTable = ({
   const { t } = useTranslation('reports');
   return (
   <div className="mt-8 overflow-x-auto">
-    <h3 className="mb-3 text-sm font-semibold text-neutral-800">{title}</h3>
-    <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-      <thead className="bg-neutral-50">
+    <h3 className="mb-3 text-sm font-semibold text-foreground">{title}</h3>
+    <table className="min-w-full divide-y divide-neutral-200 border border-border">
+      <thead className="bg-surface">
         <tr>
-          <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
-          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-          <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.price')}</th>
-          <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">{t('columns.total')}</th>
+          <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Modifier</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+          <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.price')}</th>
+          <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.total')}</th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-neutral-100 bg-white">
+      <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
         {rows.map((modifier) => (
-          <tr key={modifier.rowKey} className="hover:bg-neutral-50">
-            <td className="py-3 pl-6 pr-3 text-sm text-neutral-700">
+          <tr key={modifier.rowKey} className="hover:bg-surface">
+            <td className="py-3 pl-6 pr-3 text-sm text-foreground">
               {showDepthIndent ? (
                 <span style={{paddingLeft: `${(modifier.depth - 1) * 1}rem`}}>
                   {modifier.modifierName}
@@ -57,25 +57,25 @@ const ModifiersSummaryTable = ({
                 modifier.modifierName
               )}
             </td>
-            <td className="py-3 px-3 text-sm text-right text-neutral-700">{formatNumber(modifier.quantity)}</td>
-            <td className="py-3 px-3 text-sm text-right text-neutral-700">{withCurrency(modifier.unitPrice)}</td>
-            <td className="py-3 pr-6 text-sm text-right font-semibold text-neutral-900">{withCurrency(modifier.total)}</td>
+            <td className="py-3 px-3 text-sm text-right text-foreground">{formatNumber(modifier.quantity)}</td>
+            <td className="py-3 px-3 text-sm text-right text-foreground">{withCurrency(modifier.unitPrice)}</td>
+            <td className="py-3 pr-6 text-sm text-right font-semibold text-foreground">{withCurrency(modifier.total)}</td>
           </tr>
         ))}
         {rows.length === 0 && (
           <tr>
-            <td colSpan={4} className="py-6 text-center text-sm text-neutral-500">
+            <td colSpan={4} className="py-6 text-center text-sm text-muted">
               {emptyMessage}
             </td>
           </tr>
         )}
       </tbody>
-      <tfoot className="bg-neutral-50 font-semibold">
+      <tfoot className="bg-surface font-semibold">
         <tr>
-          <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">Totals</td>
-          <td className="py-3 px-3 text-sm text-right text-neutral-900">{formatNumber(totals.quantity)}</td>
-          <td className="py-3 px-3 text-sm text-right text-neutral-900">-</td>
-          <td className="py-3 pr-6 text-sm text-right text-neutral-900">{withCurrency(totals.total)}</td>
+          <td className="py-3 pl-6 pr-3 text-sm text-foreground">Totals</td>
+          <td className="py-3 px-3 text-sm text-right text-foreground">{formatNumber(totals.quantity)}</td>
+          <td className="py-3 px-3 text-sm text-right text-foreground">-</td>
+          <td className="py-3 pr-6 text-sm text-right text-foreground">{withCurrency(totals.total)}</td>
         </tr>
       </tfoot>
     </table>
@@ -235,7 +235,7 @@ export const ProductMixSummaryReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('reports.productMixSummary')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.productMixSummary')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.productMixSummary')}</div>
       </ReportsLayout>
     );
   }
@@ -252,67 +252,67 @@ export const ProductMixSummaryReport = () => {
     <ReportsLayout onRefresh={fetchData} title={t('reports.productMixSummary')} subtitle={subtitle}>
       <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-neutral-200 border border-neutral-200">
-          <thead className="bg-neutral-50">
+        <table className="min-w-full divide-y divide-neutral-200 border border-border">
+          <thead className="bg-surface">
             <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700"></th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Rank</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">Item Number</th>
-              <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.name')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Num Sold</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Price Sold</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.cost')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.profit')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('labels.foodCostPercent')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Sale %</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.discount')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.tax')}</th>
-              <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
-              <th className="py-3 pr-6 text-right text-xs font-semibold text-neutral-700">Total Collected</th>
+              <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground"></th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Rank</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Item Number</th>
+              <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.name')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Num Sold</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Price Sold</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.cost')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.profit')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('labels.foodCostPercent')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Sale %</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('reports.discount')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('reports.tax')}</th>
+              <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Service Charges</th>
+              <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">Total Collected</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white">
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {categoryGroups.flatMap((category) => [
               // Category header row with totals
-              <tr key={`category-${category.categoryId}`} className="bg-neutral-200 font-bold border-b-2 border-neutral-400">
-                <td className="py-3 pl-6 pr-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900 uppercase">
+              <tr key={`category-${category.categoryId}`} className="bg-surface dark:bg-neutral-700 font-bold border-b-2 border-border">
+                <td className="py-3 pl-6 pr-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground uppercase">
                   {category.categoryName}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(category.totals.numSold)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.priceSold)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.amount)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.cost)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.profit)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(category.totals.foodCostPercent)}%
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(category.totals.salePercent)}%
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.discount)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.tax)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(category.totals.serviceCharges)}
                 </td>
-                <td className="py-3 pr-6 text-right text-sm text-neutral-900">
+                <td className="py-3 pr-6 text-right text-sm text-foreground">
                   {withCurrency(category.totals.totalCollected)}
                 </td>
               </tr>,
@@ -322,57 +322,57 @@ export const ProductMixSummaryReport = () => {
                 const isExpanded = expandedDishes.has(dishKey);
 
                 const rows = [
-                  <tr key={`item-${dishKey}`} className="bg-white hover:bg-neutral-50 border-b border-neutral-100">
+                  <tr key={`item-${dishKey}`} className="bg-surface-elevated hover:bg-surface border-b border-border">
                     <td className="py-2 pl-6 pr-3 text-center">
                       {item.hasModifiers && (
                         <button
                           onClick={() => toggleExpand(dishKey)}
-                          className="text-neutral-600 hover:text-neutral-900"
+                          className="text-muted hover:text-foreground"
                         >
                           <FontAwesomeIcon icon={isExpanded ? faMinus : faPlus} />
                         </button>
                       )}
                     </td>
-                    <td className="py-2 px-3 text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-sm text-muted">
                       {index + 1}
                     </td>
-                    <td className="py-2 px-3 text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-sm text-muted">
                       {item.itemNumber}
                     </td>
-                    <td className="py-2 px-3 text-sm text-neutral-700 pl-8">
+                    <td className="py-2 px-3 text-sm text-foreground pl-8">
                       {item.name}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {formatNumber(item.numSold)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {withCurrency(item.priceSold)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-700">
+                    <td className="py-2 px-3 text-right text-sm text-foreground">
                       {withCurrency(item.amount)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {withCurrency(item.cost)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-700">
+                    <td className="py-2 px-3 text-right text-sm text-foreground">
                       {withCurrency(item.profit)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {formatNumber(item.foodCostPercent)}%
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {formatNumber(item.salePercent)}%
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {withCurrency(item.discount)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {withCurrency(item.tax)}
                     </td>
-                    <td className="py-2 px-3 text-right text-sm text-neutral-600">
+                    <td className="py-2 px-3 text-right text-sm text-muted">
                       {withCurrency(item.serviceCharges)}
                     </td>
-                    <td className="py-2 pr-6 text-right text-sm font-semibold text-neutral-900">
+                    <td className="py-2 pr-6 text-right text-sm font-semibold text-foreground">
                       {withCurrency(item.totalCollected)}
                     </td>
                   </tr>,
@@ -383,38 +383,38 @@ export const ProductMixSummaryReport = () => {
                     <tr key={`item-${dishKey}-modifiers`}>
                       <td></td>
                       <td colSpan={COLUMN_COUNT - 1} className="py-0 px-0">
-                        <div className="px-6 py-3 bg-neutral-50">
-                          <div className="text-xs font-semibold text-neutral-700 mb-2">Modifiers:</div>
-                          <table className="w-full border border-neutral-200 rounded">
-                            <thead className="bg-neutral-100">
+                        <div className="px-6 py-3 bg-surface">
+                          <div className="text-xs font-semibold text-foreground mb-2">Modifiers:</div>
+                          <table className="w-full border border-border rounded">
+                            <thead className="bg-surface">
                               <tr>
-                                <th className="py-2 px-3 text-left text-xs font-semibold text-neutral-700">Modifier</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.quantity')}</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Unit Price</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.discount')}</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('reports.tax')}</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Service Charges</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.total')}</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Ratio</th>
-                                <th className="py-2 px-3 text-right text-xs font-semibold text-neutral-700">Meal Price</th>
+                                <th className="py-2 px-3 text-left text-xs font-semibold text-foreground">Modifier</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">{t('columns.quantity')}</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">Unit Price</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">{t('reports.discount')}</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">{t('reports.tax')}</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">Service Charges</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">{t('columns.total')}</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">Ratio</th>
+                                <th className="py-2 px-3 text-right text-xs font-semibold text-foreground">Meal Price</th>
                               </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-neutral-200">
+                            <tbody className="bg-surface-elevated divide-y divide-neutral-200">
                               {item.modifiers.map((modifier) => (
-                                <tr key={`${dishKey}-${modifier.modifierKey}`} className="hover:bg-neutral-50">
-                                  <td className="py-2 px-3 text-sm text-neutral-600">
+                                <tr key={`${dishKey}-${modifier.modifierKey}`} className="hover:bg-surface">
+                                  <td className="py-2 px-3 text-sm text-muted">
                                     <span style={{paddingLeft: `${(modifier.depth - 1) * 1}rem`}}>
                                       {modifier.modifierName}
                                     </span>
                                   </td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(modifier.quantity)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.unitPrice)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.discount)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.tax)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.serviceCharges)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.total)}</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{formatNumber(modifier.ratio * 100)}%</td>
-                                  <td className="py-2 px-3 text-sm text-right text-neutral-600">{withCurrency(modifier.mealPrice)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{formatNumber(modifier.quantity)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.unitPrice)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.discount)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.tax)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.serviceCharges)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.total)}</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{formatNumber(modifier.ratio * 100)}%</td>
+                                  <td className="py-2 px-3 text-sm text-right text-muted">{withCurrency(modifier.mealPrice)}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -430,52 +430,52 @@ export const ProductMixSummaryReport = () => {
             ])}
             {categoryGroups.length === 0 && (
               <tr>
-                <td colSpan={COLUMN_COUNT} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={COLUMN_COUNT} className="py-6 text-center text-sm text-muted">
                   No data available for the selected filters
                 </td>
               </tr>
             )}
           </tbody>
           {categoryGroups.length > 0 && (
-            <tfoot className="bg-neutral-100 border-t-2 border-neutral-300">
+            <tfoot className="bg-surface border-t-2 border-border">
               <tr className="font-semibold">
-                <td className="py-3 pl-6 pr-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900"></td>
-                <td className="py-3 px-3 text-sm text-neutral-900 uppercase">
+                <td className="py-3 pl-6 pr-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground"></td>
+                <td className="py-3 px-3 text-sm text-foreground uppercase">
                   TOTAL
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(grandTotals.numSold)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.priceSold)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.amount)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.cost)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.profit)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(grandTotals.foodCostPercent)}%
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {formatNumber(grandTotals.salePercent)}%
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.discount)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.tax)}
                 </td>
-                <td className="py-3 px-3 text-right text-sm text-neutral-900">
+                <td className="py-3 px-3 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.serviceCharges)}
                 </td>
-                <td className="py-3 pr-6 text-right text-sm text-neutral-900">
+                <td className="py-3 pr-6 text-right text-sm text-foreground">
                   {withCurrency(grandTotals.totalCollected)}
                 </td>
               </tr>

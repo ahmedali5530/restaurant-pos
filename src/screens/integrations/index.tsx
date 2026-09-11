@@ -166,7 +166,7 @@ export const IntegrationsScreen = () => {
             ))}
           </TabList>
 
-          <TabPanel id="providers" className="bg-white shadow flex-grow flex-shrink-0">
+          <TabPanel id="providers" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-providers">
               <ProvidersPanel
                 providers={providerEntries}
@@ -176,7 +176,7 @@ export const IntegrationsScreen = () => {
             </div>
           </TabPanel>
 
-          <TabPanel id="configuration" className="bg-white shadow flex-grow flex-shrink-0">
+          <TabPanel id="configuration" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-configuration">
               <ConfigurationPanel
                 providers={providers}
@@ -189,13 +189,13 @@ export const IntegrationsScreen = () => {
             </div>
           </TabPanel>
 
-          <TabPanel id="health" className="bg-white shadow flex-grow flex-shrink-0">
+          <TabPanel id="health" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-health">
               <HealthPanel rows={healthRows} />
             </div>
           </TabPanel>
 
-          <TabPanel id="queue" className="bg-white shadow flex-grow flex-shrink-0">
+          <TabPanel id="queue" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-queue">
               <QueuePanel rows={queueRows} />
             </div>

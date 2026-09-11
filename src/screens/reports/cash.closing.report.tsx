@@ -75,7 +75,7 @@ export const CashClosingReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.cashClosing')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.cashClosing')}</div>
       </ReportsLayout>
     );
   }
@@ -91,7 +91,7 @@ export const CashClosingReport = () => {
   if (!closing) {
     return (
       <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">No cash closing found for selected date.</div>
+        <div className="py-12 text-center text-muted">No cash closing found for selected date.</div>
       </ReportsLayout>
     );
   }
@@ -100,84 +100,84 @@ export const CashClosingReport = () => {
     <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
       <div className="space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Opening balance</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">Opening balance</div>
             <div className="text-xl font-semibold">{withCurrency(openingBalance)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Total cash</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">Total cash</div>
             <div className="text-xl font-semibold">{withCurrency(totalCash)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">Other payments</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">Other payments</div>
             <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.cashAdded')}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t('labels.cashAdded')}</div>
             <div className="text-xl font-semibold">{withCurrency(Number(closing.cash_added || 0))}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('columns.expenses')}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t('columns.expenses')}</div>
             <div className="text-xl font-semibold">{withCurrency(totalExpenses)}</div>
           </div>
-          <div className="border rounded-lg p-4 bg-neutral-50">
-            <div className="text-sm text-neutral-500">{t('labels.closingBalance')}</div>
+          <div className="border rounded-lg p-4 bg-surface">
+            <div className="text-sm text-muted">{t('labels.closingBalance')}</div>
             <div className="text-xl font-semibold">{withCurrency(closingBalance)}</div>
           </div>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">{t('filters.status')}</td>
-                <td className="py-3 pr-6 text-sm text-neutral-900 capitalize">{closing.status || "-"}</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('filters.status')}</td>
+                <td className="py-3 pr-6 text-sm text-foreground capitalize">{closing.status || "-"}</td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Window</td>
-                <td className="py-3 pr-6 text-sm text-neutral-900">
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">Window</td>
+                <td className="py-3 pr-6 text-sm text-foreground">
                   {toLuxonDateTime(closing.date_from).toFormat("yyyy-LL-dd HH:mm")} - {toLuxonDateTime(closing.date_to).toFormat("yyyy-LL-dd HH:mm")}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Created at</td>
-                <td className="py-3 pr-6 text-sm text-neutral-900">
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">Created at</td>
+                <td className="py-3 pr-6 text-sm text-foreground">
                   {toLuxonDateTime(closing.created_at).toFormat("yyyy-LL-dd HH:mm")}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Closed at</td>
-                <td className="py-3 pr-6 text-sm text-neutral-900">
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">Closed at</td>
+                <td className="py-3 pr-6 text-sm text-foreground">
                   {closing.closed_at ? toLuxonDateTime(closing.closed_at).toFormat("yyyy-LL-dd HH:mm") : "-"}
                 </td>
               </tr>
               <tr>
-                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-700">Notes</td>
-                <td className="py-3 pr-6 text-sm text-neutral-900">{closing.notes || "-"}</td>
+                <td className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">Notes</td>
+                <td className="py-3 pr-6 text-sm text-foreground">{closing.notes || "-"}</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Terminal cash</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Terminal cash</h3>
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Terminal</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Terminal</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {(closing.terminal_cash || []).length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">No terminal cash data</td>
+                  <td colSpan={2} className="py-6 text-center text-sm text-muted">No terminal cash data</td>
                 </tr>
               ) : (
                 (closing.terminal_cash || []).map((terminal: any, index) => (
                   <tr key={toRecordString(terminal?.terminal_id) || String(index)}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{terminal?.terminal_name || "Terminal"}</td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(terminal?.cash_amount || 0))}</td>
+                    <td className="py-3 pl-6 pr-3 text-sm text-foreground">{terminal?.terminal_name || "Terminal"}</td>
+                    <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(Number(terminal?.cash_amount || 0))}</td>
                   </tr>
                 ))
               )}
@@ -185,27 +185,27 @@ export const CashClosingReport = () => {
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">Payment summary</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">Payment summary</h3>
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">Payment type</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">Payment type</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {(closing.payments_data || []).length === 0 ? (
                 <tr>
-                  <td colSpan={2} className="py-6 text-center text-sm text-neutral-500">No payment summary data</td>
+                  <td colSpan={2} className="py-6 text-center text-sm text-muted">No payment summary data</td>
                 </tr>
               ) : (
                 (closing.payments_data || []).map((payment: any, index) => (
                   <tr key={`${toRecordString(payment?.payment_type?.id || payment?.payment_type)}_${index}`}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">
+                    <td className="py-3 pl-6 pr-3 text-sm text-foreground">
                       {payment?.payment_type?.name || toRecordString(payment?.payment_type) || "Unknown"}
                     </td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(payment?.amount || 0))}</td>
+                    <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(Number(payment?.amount || 0))}</td>
                   </tr>
                 ))
               )}
@@ -213,36 +213,36 @@ export const CashClosingReport = () => {
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
-          <h3 className="bg-neutral-100 px-6 py-3 text-sm font-semibold text-neutral-700">{t('columns.expenses')}</h3>
+        <div className="overflow-hidden rounded-lg border border-border">
+          <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('columns.expenses')}</h3>
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
               <tr>
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-neutral-700">{t('columns.description')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-neutral-700">{t('columns.category')}</th>
-                <th className="py-3 px-3 text-right text-xs font-semibold text-neutral-700">{t('columns.amount')}</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.description')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.category')}</th>
+                <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {(closing.expenses_data || []).length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="py-6 text-center text-sm text-neutral-500">No expense records</td>
+                  <td colSpan={3} className="py-6 text-center text-sm text-muted">No expense records</td>
                 </tr>
               ) : (
                 (closing.expenses_data || []).map((expense: any, index) => (
                   <tr key={toRecordString(expense?.id) || String(index)}>
-                    <td className="py-3 pl-6 pr-3 text-sm text-neutral-900">{expense?.description || "-"}</td>
-                    <td className="py-3 px-3 text-sm text-neutral-700">{expense?.category || "-"}</td>
-                    <td className="py-3 px-3 text-right text-sm text-neutral-900">{withCurrency(Number(expense?.amount || 0))}</td>
+                    <td className="py-3 pl-6 pr-3 text-sm text-foreground">{expense?.description || "-"}</td>
+                    <td className="py-3 px-3 text-sm text-foreground">{expense?.category || "-"}</td>
+                    <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(Number(expense?.amount || 0))}</td>
                   </tr>
                 ))
               )}
             </tbody>
             {(closing.expenses_data || []).length > 0 && (
-              <tfoot className="bg-neutral-50">
+              <tfoot className="bg-surface">
                 <tr>
-                  <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-neutral-900">Total expenses</td>
-                  <td className="py-3 px-3 text-right text-sm font-bold text-neutral-900">{withCurrency(totalExpenses)}</td>
+                  <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">Total expenses</td>
+                  <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(totalExpenses)}</td>
                 </tr>
               </tfoot>
             )}

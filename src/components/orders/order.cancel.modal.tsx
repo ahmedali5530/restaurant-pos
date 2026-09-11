@@ -252,7 +252,7 @@ export const OrderCancelModal = ({
                 className={`rounded-xl border-2 px-3 py-4 text-base font-semibold transition text-center ${
                   selectedReason === option.value
                     ? 'border-danger-500 bg-danger-100/30 text-danger-600'
-                    : 'border-neutral-200 bg-white hover:border-neutral-400'
+                    : 'border-border bg-surface-elevated hover:border-border'
                 }`}
                 onClick={() => setSelectedReason(option.value)}
               >
@@ -273,7 +273,7 @@ export const OrderCancelModal = ({
               {allSelected ? t('common:actions.deselectAll') : t('common:actions.selectAll')}
             </button>
           </div>
-          <ScrollContainer className="border border-neutral-200 rounded-xl divide-y divide-neutral-100 max-h-[400px] overflow-y-auto">
+          <ScrollContainer className="border border-border rounded-xl divide-y divide-neutral-100 max-h-[400px] overflow-y-auto">
             <>
               {filteredItems.map((item) => {
                 const key = item.id.toString();
@@ -285,11 +285,11 @@ export const OrderCancelModal = ({
                     role="button"
                     onClick={() => toggleItem(key, item.quantity)}
                     className={`flex items-center gap-3 px-3 py-2.5 transition cursor-pointer select-none ${
-                      isSelected ? 'bg-danger-200' : 'bg-white hover:bg-neutral-50'
+                      isSelected ? 'bg-danger-200' : 'bg-surface-elevated hover:bg-surface'
                     }`}
                   >
                     <div className={`h-4 w-4 rounded border-2 flex items-center justify-center shrink-0 transition ${
-                      isSelected ? 'border-danger-500 bg-danger-500' : 'border-neutral-300'
+                      isSelected ? 'border-danger-500 bg-danger-500' : 'border-border'
                     }`}>
                       {isSelected && (
                         <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
@@ -321,7 +321,7 @@ export const OrderCancelModal = ({
                       >
                         +
                       </button>
-                      <span className="text-neutral-400 w-8 text-right">
+                      <span className="text-muted w-8 text-right">
                       / {item.quantity}
                     </span>
                     </div>

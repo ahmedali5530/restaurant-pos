@@ -478,13 +478,13 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   type="file"
                   multiple
                   {...register("documents")}
-                  className="w-full px-3 py-2 border border-neutral-400 rounded-lg"
+                  className="w-full px-3 py-2 border border-border rounded-lg"
                 />
                 <InputError error={get(errors, ["documents", "message"])}/>
               </div>
             </div>
 
-            <fieldset className="border-2 border-neutral-900 rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3">
               <legend>{t('tabs.items')}</legend>
               <div className="mb-3 flex gap-2">
                 <Button
@@ -560,7 +560,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                       </div>
                       <div className="flex-1 self-end">
                         <div>
-                          <label className="block text-sm text-neutral-600 mb-1">
+                          <label className="block text-sm text-muted mb-1">
                             {t('forms.previousPrice')}
                           </label>
                           <div className="input">

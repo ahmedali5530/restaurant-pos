@@ -10,7 +10,7 @@ export const OrderTimes = ({
   order
 }: Props) => {
   return (
-    <div className="flex justify-between text-neutral-600">
+    <div className="flex justify-between text-muted">
       <span>{toLuxonDateTime(order.created_at).toFormat('DDDD')}</span>
       <span>{toLuxonDateTime(order.created_at).toFormat('hh:mm a')}</span>
     </div>

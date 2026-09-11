@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Apparence",
+    "description": "Choisissez clair, sombre ou suivre le réglage système de cet appareil. S’applique uniquement à cet appareil.",
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système",
+    "brandTitle": "Couleurs de marque",
+    "brandDescription": "Choisissez une palette pour cet appareil. L’interface, les boutons, les listes et les graphiques se mettent à jour immédiatement.",
+    "brand": {
+      "classic": "Classique",
+      "ocean": "Océan",
+      "forest": "Forêt",
+      "cream": "Crème",
+      "ruby": "Rubis",
+      "sapphire": "Saphir"
+    }
+  },
   "touch": {
     "title": "Clavier à l'écran",
     "description": "Activer ou désactiver le clavier à l'écran. S'applique uniquement à cet appareil."

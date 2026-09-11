@@ -83,7 +83,7 @@ export const ServiceChargesSettings = () => {
   }, [reset, settings]);
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-service-charges">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-service-charges">
       <h2 className="text-xl font-semibold mb-1">{t('settings:serviceCharges.title')}</h2>
       <form onSubmit={protectFormSubmit((handleSubmit(saveSettings)), {
         module: 'settings.service_charges',
@@ -93,7 +93,7 @@ export const ServiceChargesSettings = () => {
           <Controller
             render={({field}) => (
               <div>
-                <label htmlFor="type">{t('common:actions.type')}</label>
+                <label htmlFor="type" className="form-label">{t('common:actions.type')}</label>
                 <ReactSelect
                   options={[DiscountType.Fixed, DiscountType.Percent].map(a => {
                     return {

@@ -200,7 +200,7 @@ export const KitchenReconciliationScreen = () => {
     draft: "bg-info-100 text-info-800",
     verified: "bg-success-100 text-success-800",
     missed: "bg-warning-100 text-warning-800",
-  }[status ?? "draft"] ?? "bg-neutral-100";
+  }[status ?? "draft"] ?? "bg-surface";
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -227,7 +227,7 @@ export const KitchenReconciliationScreen = () => {
         </div>
 
         {windowLabel && (
-          <div className="text-sm text-neutral-600 pb-2">
+          <div className="text-sm text-muted pb-2">
             {t("kitchenReconciliation.window")}: {windowLabel}
           </div>
         )}
@@ -280,7 +280,7 @@ export const KitchenReconciliationScreen = () => {
         </div>
       </div>
 
-      <p className="text-sm text-neutral-500 -mt-2">
+      <p className="text-sm text-muted -mt-2">
         {t("kitchenReconciliation.transfersHint")}
       </p>
 
@@ -289,20 +289,20 @@ export const KitchenReconciliationScreen = () => {
           <span className={`rounded px-2 py-1 text-xs font-medium uppercase ${statusBadgeClass}`}>
             {t(`kitchenReconciliation.status.${status}`)}
           </span>
-          <span className="text-sm text-neutral-500">
+          <span className="text-sm text-muted">
             {t("kitchenReconciliation.revision")} {reconciliation.revision}
           </span>
         </div>
       )}
 
       {error && (
-        <div className="rounded border border-danger-300 bg-danger-50 px-4 py-2 text-danger-800 text-sm">
+        <div className="rounded border border-danger-300 bg-danger/10 px-4 py-2 text-danger-800 text-sm">
           {error}
         </div>
       )}
 
       {loading && statusMessage && (
-        <div className="text-sm text-neutral-500">
+        <div className="text-sm text-muted">
           {t(`kitchenReconciliation.progress.${statusMessage}`, {
             defaultValue: t("kitchenReconciliation.generating"),
           })}
@@ -330,7 +330,7 @@ export const KitchenReconciliationScreen = () => {
       )}
 
       {reconciliation && !hasItems && !loading && (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center text-neutral-600">
+        <div className="rounded-lg border border-border bg-surface p-8 text-center text-muted">
           <p>{t("kitchenReconciliation.noItems")}</p>
           {isDraft && (
             <p className="mt-2 text-sm">{t("kitchenReconciliation.noItemsDiscardHint")}</p>
@@ -339,7 +339,7 @@ export const KitchenReconciliationScreen = () => {
       )}
 
       {!reconciliation && locationId && businessDateStr && !loading && (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-8 text-center text-neutral-600">
+        <div className="rounded-lg border border-border bg-surface p-8 text-center text-muted">
           {t("kitchenReconciliation.noReconciliation")}
         </div>
       )}

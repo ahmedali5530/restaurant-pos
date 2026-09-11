@@ -348,7 +348,7 @@ export function AiAssistantWidget() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border-2 border-warning-500 bg-neutral-900 text-warning-500 shadow-lg transition-colors hover:bg-neutral-800"
+        className="fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border-2 border-warning bg-neutral-900 text-warning shadow-lg transition-colors hover:bg-neutral-800"
         aria-label={t("common:aiAssistant.open", {name: assistantName})}
       >
         <FontAwesomeIcon icon={faComments} />
@@ -359,13 +359,13 @@ export function AiAssistantWidget() {
   return (
     <div
       className={cn(
-        "fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex flex-col rounded-lg border border-neutral-200 bg-white shadow-2xl transition-all duration-200",
+        "fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex flex-col rounded-lg border border-border bg-surface-elevated shadow-2xl transition-all duration-200",
         expanded
           ? "h-[min(42rem,85vh)] w-[min(56rem,92vw)]"
           : "h-[32rem] w-96",
       )}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-neutral-200 px-3 py-2">
+      <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <span className="min-w-0 truncate text-sm font-semibold">
           {t("common:aiAssistant.title", {name: assistantName})}
         </span>
@@ -376,7 +376,7 @@ export function AiAssistantWidget() {
             aria-label={t("common:aiAssistant.examplesTitle")}
             title={t("common:aiAssistant.examplesTitle")}
             className={cn(
-              "text-neutral-600 hover:text-neutral-900",
+              "text-muted hover:text-foreground",
               showExamples && "text-warning-600",
             )}
           >
@@ -436,10 +436,10 @@ export function AiAssistantWidget() {
               className={cn(
                 "rounded-md px-2 py-1 transition-shadow duration-700",
                 entry.role === "user"
-                  ? "inline-block bg-neutral-900 text-warning-500 rounded-br-none"
+                  ? "inline-block bg-neutral-900 text-warning rounded-br-none"
                   : entry.role === "system"
-                    ? "inline-block border border-warning-200 bg-warning-50 text-neutral-700 italic"
-                    : "block w-full max-w-full border border-neutral-200 bg-neutral-50 text-neutral-900",
+                    ? "inline-block border border-warning/40 bg-warning/10 text-foreground italic"
+                    : "block w-full max-w-full border border-border bg-surface text-foreground",
                 isLatestCompletion && "ring-2 ring-warning-400/70 shadow-md",
               )}
             >
@@ -457,18 +457,18 @@ export function AiAssistantWidget() {
 
         {loading && (
           <div
-            className="flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-2 py-2 text-xs text-neutral-600"
+            className="flex items-center gap-2 rounded-md border border-border bg-surface px-2 py-2 text-xs text-muted"
             aria-live="polite"
             aria-busy="true"
           >
-            <FontAwesomeIcon icon={faSpinner} spin className="text-warning-500" />
+            <FontAwesomeIcon icon={faSpinner} spin className="text-warning" />
             <span>{t("common:aiAssistant.working", {name: assistantName})}</span>
           </div>
         )}
 
         {pending && (
-          <div className="space-y-2 rounded-md border border-warning-500/40 bg-warning-50 p-2">
-            <div className="text-xs font-semibold text-neutral-900">
+          <div className="space-y-2 rounded-md border border-warning/40 bg-warning/10 p-2">
+            <div className="text-xs font-semibold text-foreground">
               {t("common:aiAssistant.reviewTitle")}
             </div>
             <WriteProposalPreview proposal={pending.proposal} />
@@ -493,7 +493,7 @@ export function AiAssistantWidget() {
         <div ref={messagesEndRef} className="h-1 shrink-0" aria-hidden="true" />
       </div>
 
-      <div className="flex items-end gap-2 border-t border-neutral-200 p-2">
+      <div className="flex items-end gap-2 border-t border-border p-2">
         <Textarea
           value={prompt}
           onChange={(e: any) => setPrompt(e.target.value)}

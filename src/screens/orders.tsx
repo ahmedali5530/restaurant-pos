@@ -383,7 +383,7 @@ export const Orders = () => {
     <Layout containerClassName="overflow-hidden">
       <DocumentTitle parts={[tNav('sidebar.orders')]} />
       <div className="flex h-full min-h-0 gap-5 p-3 flex-col" data-testid="orders-page">
-        <div className="h-[60px] shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-filters">
+        <div className="h-[60px] shrink-0 rounded-xl bg-surface-elevated flex items-center px-3 gap-3" data-testid="orders-filters">
           <div className="min-w-[200px]">
             <ReactSelect
               options={[OrderStatus["In Progress"], OrderStatus.Paid, OrderStatus.Cancelled, OrderStatus.Spilt, OrderStatus.Merged].map(item => ({
@@ -516,7 +516,7 @@ export const Orders = () => {
           </div>
         )}
 
-        <div className="h-[60px] shrink-0 rounded-xl bg-white flex items-center px-3 gap-3" data-testid="orders-merge-bar">
+        <div className="h-[60px] shrink-0 rounded-xl bg-surface-elevated flex items-center px-3 gap-3" data-testid="orders-merge-bar">
           {merging && (
             <div className="flex gap-5">
               <Dropdown

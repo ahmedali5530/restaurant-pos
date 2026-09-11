@@ -101,7 +101,7 @@ export const DeliveryDensityFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-coupons">{t('metrics.coupons')}</label>
+          <label htmlFor="delivery-density-coupons" className="form-label">{t('metrics.coupons')}</label>
           <ReactSelect
             id="delivery-density-coupons"
             name="coupons[]"
@@ -115,7 +115,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-payment-types">Payment Types</label>
+          <label htmlFor="delivery-density-payment-types" className="form-label">Payment Types</label>
           <ReactSelect
             id="delivery-density-payment-types"
             name="payment_types[]"
@@ -129,7 +129,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-menu-items">{t('filters.menuItems')}</label>
+          <label htmlFor="delivery-density-menu-items" className="form-label">{t('filters.menuItems')}</label>
           <ReactSelect
             id="delivery-density-menu-items"
             name="menu_items[]"
@@ -143,7 +143,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>Status Filters</label>
+          <label className="form-label">Status Filters</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="refund" value="1" label="Refund" />
             <Checkbox name="merged" value="1" label="Merged" />
@@ -156,7 +156,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label>{t('labels.displayOptions')}</label>
+          <label className="form-label">{t('labels.displayOptions')}</label>
           <div className="flex flex-col gap-3">
             <Checkbox name="show_menu_items" value="1" label="Show Menu Items" />
             <Checkbox name="show_details" value="1" label="Show Details" />
@@ -164,7 +164,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-sort-by">Sort result by</label>
+          <label htmlFor="delivery-density-sort-by" className="form-label">Sort result by</label>
           <select
             id="delivery-density-sort-by"
             name="sortBy"
@@ -179,7 +179,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-sort-direction">Sort direction</label>
+          <label htmlFor="delivery-density-sort-direction" className="form-label">Sort direction</label>
           <select
             id="delivery-density-sort-direction"
             name="sortDirection"
@@ -193,7 +193,7 @@ export const DeliveryDensityFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="delivery-density-areas">Areas</label>
+          <label htmlFor="delivery-density-areas" className="form-label">Areas</label>
           <ReactSelect
             id="delivery-density-areas"
             name="areas[]"

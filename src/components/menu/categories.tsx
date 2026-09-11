@@ -54,7 +54,7 @@ export const MenuCategories = () => {
             data-testid={`menu-category-${index}`}
             className={cn(
               categoryClasses,
-              state?.category?.id?.toString() === item?.id?.toString() ? 'bg-gradient' : 'bg-white border-3 border-transparent select-none'
+              state?.category?.id?.toString() === item?.id?.toString() ? 'bg-gradient' : 'bg-surface-elevated border-3 border-transparent select-none'
             )}
             onClick={() => setState(prev => ({
               ...prev,

@@ -247,29 +247,29 @@ export const SplitItems = ({
         size="full"
         onClose={onClose}
       >
-         <div className="flex h-full gap-6 p-6 bg-gradient-to-br from-gray-50 to-white select-none">
+         <div className="flex h-full gap-6 p-6 bg-gradient-to-br from-surface to-white select-none">
            {/* Left Side - First Split (Fixed) */}
            <div className="flex-shrink-0 w-[400px]">
              <div className="mb-4">
-               <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+               <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
                  {t('split.byItems.splitOneFixed')}
                </h3>
-               <p className="text-xs text-gray-400 mt-1">
+               <p className="text-xs text-muted mt-1">
                  {t('split.byItems.mainSplitHint')}
                </p>
              </div>
              {actualSplits.length > 0 && (
                <div
-                 className={`bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 ${
+                 className={`bg-surface-elevated rounded-xl shadow-lg border border-border hover:shadow-xl transition-all duration-300 ${
                    dragOverSplit === actualSplits[0].id ? 'border-green-400 bg-green-50 scale-105' : ''
                  }`}
                  onDragOver={(e) => handleDragOver(e, actualSplits[0].id)}
                  onDragLeave={handleDragLeave}
                  onDrop={(e) => handleDrop(e, actualSplits[0].id)}
                >
-                 <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-green-50 to-transparent">
-                   <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                 <div className="p-4 border-b border-border flex justify-between items-center bg-gradient-to-r from-green-50 to-transparent">
+                   <h4 className="font-semibold text-foreground flex items-center gap-2">
                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                      {actualSplits[0].name}
                    </h4>
@@ -281,7 +281,7 @@ export const SplitItems = ({
                  </div>
                  <div className="p-4 min-h-[120px] max-h-[calc(100vh-380px-var(--app-toolbar-h))] overflow-y-auto">
                    {actualSplits[0].items.length === 0 ? (
-                     <div className="text-center py-6 text-gray-400">
+                     <div className="text-center py-6 text-muted">
                        <p>{t('split.byItems.noItems')}</p>
                        <p className="text-xs mt-1">{t('split.byItems.itemsReturnHere')}</p>
                      </div>
@@ -290,7 +290,7 @@ export const SplitItems = ({
                        {actualSplits[0].items.map(item => (
                          <div
                            key={item.id}
-                           className="p-2 border border-gray-100 rounded-lg bg-gradient-to-r from-gray-50 to-transparent flex justify-between items-center hover:from-green-50 transition-all duration-200"
+                           className="p-2 border border-border rounded-lg bg-gradient-to-r from-surface to-transparent flex justify-between items-center hover:from-success/10 transition-all duration-200"
                            draggable
                            onDragStart={(e) => handleDragStart(e, item)}
                            onDragEnd={handleDragEnd}
@@ -315,11 +315,11 @@ export const SplitItems = ({
            <div className="flex-1 flex flex-col min-w-0">
              <div className="flex items-center justify-between mb-4 flex-shrink-0">
                <div>
-                 <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                 <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
                    {t('split.byItems.additionalSplits')}
                  </h3>
-                 <p className="text-xs text-gray-400 mt-1">
+                 <p className="text-xs text-muted mt-1">
                    {t('split.byItems.scrollHint')}
                  </p>
                </div>
@@ -342,15 +342,15 @@ export const SplitItems = ({
                      {actualSplits.slice(1).map((split, index) => (
                        <div
                          key={split.id}
-                         className={`bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 flex-shrink-0 w-[400px] h-full flex flex-col ${
+                         className={`bg-surface-elevated rounded-xl shadow-lg border border-border hover:shadow-xl transition-all duration-300 flex-shrink-0 w-[400px] h-full flex flex-col ${
                            dragOverSplit === split.id ? 'border-green-400 bg-green-50 scale-105' : ''
                          }`}
                          onDragOver={(e) => handleDragOver(e, split.id)}
                          onDragLeave={handleDragLeave}
                          onDrop={(e) => handleDrop(e, split.id)}
                        >
-                         <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-transparent flex-shrink-0">
-                           <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                         <div className="p-4 border-b border-border flex justify-between items-center bg-gradient-to-r from-blue-50 to-transparent flex-shrink-0">
+                           <h4 className="font-semibold text-foreground flex items-center gap-2">
                              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                              {split.name}
                            </h4>
@@ -370,7 +370,7 @@ export const SplitItems = ({
 
                          <div className="p-4 flex-1 overflow-y-auto">
                            {split.items.length === 0 ? (
-                             <div className="text-center py-6 text-gray-400">
+                             <div className="text-center py-6 text-muted">
                                <p>{t('split.byItems.noItems')}</p>
                                <p className="text-xs mt-1">{t('split.byItems.dragFromSplitOne')}</p>
                              </div>
@@ -379,7 +379,7 @@ export const SplitItems = ({
                                {split.items.map(item => (
                                  <div
                                    key={item.id}
-                                   className="p-2 border border-gray-100 rounded-lg bg-gradient-to-r from-gray-50 to-transparent flex justify-between items-center hover:from-green-50 transition-all duration-200"
+                                   className="p-2 border border-border rounded-lg bg-gradient-to-r from-surface to-transparent flex justify-between items-center hover:from-success/10 transition-all duration-200"
                                    draggable
                                    onDragStart={(e) => handleDragStart(e, item)}
                                    onDragEnd={handleDragEnd}
@@ -411,7 +411,7 @@ export const SplitItems = ({
                    </div>
                  </ScrollContainer>
                ) : (
-                 <div className="flex items-center justify-center h-full text-gray-500">
+                 <div className="flex items-center justify-center h-full text-muted">
                    <div className="text-center">
                      <p className="text-lg">{t('split.byItems.noAdditionalSplits')}</p>
                      <p className="text-sm">{t('split.byItems.addSplitHint')}</p>
@@ -421,7 +421,7 @@ export const SplitItems = ({
              </div>
 
              {/* Save Button - Fixed at bottom */}
-             <div className="pt-4 border-t border-gray-200 mt-4 flex-shrink-0">
+             <div className="pt-4 border-t border-border mt-4 flex-shrink-0">
                <Button
                  variant="success"
                  icon={faCheck}
@@ -435,7 +435,7 @@ export const SplitItems = ({
                  {isSaving ? t('split.byItems.creating') : t('split.byItems.save', {count: actualSplits.length})}
               </Button>
               {!canSave && (
-                <p className="text-sm text-gray-500 mt-2 text-center">
+                <p className="text-sm text-muted mt-2 text-center">
                   {actualSplits.length <= 1
                     ? t('split.byItems.addMoreSplits')
                     : t('split.byItems.allSplitsNeedItems')

@@ -263,7 +263,7 @@ export const GeneralLedger = () => {
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-center text-gray-500">{t('reports.noLedgerData')}</td>
+                <td colSpan={6} className="text-center text-muted">{t('reports.noLedgerData')}</td>
               </tr>
             )}
             </tbody>

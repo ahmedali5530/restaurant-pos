@@ -33,7 +33,7 @@ export function DateRangePicker<T extends DateValue>({
   return (
     <BaseDateRangePicker className="group flex flex-col gap-1 flex-0" {...props}>
       <Label>{label}</Label>
-      <Group className="flex rounded-lg text-neutral-500 border-2 border-neutral-900 h-[40px] gap-3 px-3 items-center">
+      <Group className="flex rounded-lg text-muted border-2 border-border h-[40px] gap-3 px-3 items-center">
         <DateInput slot="start" className="flex flex-1 py-2">
           {(segment) => (
             <DateSegment segment={segment} className="px-0.5 tabular-nums outline-none rounded-sm focus:bg-violet-700 focus:bg-neutral-900 focus:text-white caret-transparent placeholder-shown:italic" />
@@ -51,7 +51,7 @@ export function DateRangePicker<T extends DateValue>({
       </Group>
       <Popover>
         <Dialog>
-          <RangeCalendar className="bg-white">
+          <RangeCalendar className="bg-surface-elevated">
             <header className="flex items-center gap-1 pb-4 px-1 font-serif w-full">
               <Heading className="flex-1 font-semibold text-2xl ml-2"/>
               <RoundButton slot="previous">
@@ -64,7 +64,7 @@ export function DateRangePicker<T extends DateValue>({
             <CalendarGrid className="border-spacing-1 border-separate">
               <CalendarGridHeader>
                 {(day) => (
-                  <CalendarHeaderCell className="text-xs text-gray-500 font-semibold">
+                  <CalendarHeaderCell className="text-xs text-muted font-semibold">
                     {day}
                   </CalendarHeaderCell>
                 )}
@@ -73,7 +73,7 @@ export function DateRangePicker<T extends DateValue>({
                 {(date) => (
                   <CalendarCell
                     date={date}
-                    className="react-aria-CalendarCell w-12 h-12 outline-none cursor-default rounded-full flex items-center justify-center outside-month:text-gray-300 hover:bg-gray-100 pressed:bg-gray-200 selected:bg-neutral-700 selected:text-white focus-visible:ring ring-violet-600/70 ring-offset-2"
+                    className="react-aria-CalendarCell w-12 h-12 outline-none cursor-default rounded-full flex items-center justify-center outside-month:text-muted hover:bg-surface dark:hover:bg-neutral-700 pressed:bg-surface dark:bg-neutral-700 dark:pressed:bg-neutral-600 selected:bg-neutral-700 selected:text-white focus-visible:ring ring-neutral-600/70 ring-offset-2"
                   />
                 )}
               </CalendarGridBody>

@@ -82,7 +82,7 @@ export const Customers = ({
         </div>
         <Button type="button" variant="primary" filled onClick={onAttach}>{t("customer.attach")}</Button>
       </div>
-      <div className="h-[2px] bg-gray-300 my-5"/>
+      <div className="h-[2px] bg-border my-5"/>
       <div className="mb-3">
         <Input placeholder={t("customer.search")} className="search-field" onChange={(event) => setSearch(event.target.value)} enableKeyboard />
       </div>

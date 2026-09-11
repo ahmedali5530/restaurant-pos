@@ -51,7 +51,7 @@ export const PurchaseOrderFilter = () => {
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-order-statuses">{t('columns.status')}</label>
+          <label htmlFor="purchase-order-statuses" className="form-label">{t('columns.status')}</label>
           <ReactSelect
             id="purchase-order-statuses"
             name="statuses[]"
@@ -62,7 +62,7 @@ export const PurchaseOrderFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-order-suppliers">{t('filters.supplier')}</label>
+          <label htmlFor="purchase-order-suppliers" className="form-label">{t('filters.supplier')}</label>
           <ReactSelect
             id="purchase-order-suppliers"
             name="suppliers[]"
@@ -76,7 +76,7 @@ export const PurchaseOrderFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-order-items">{t('columns.items')}</label>
+          <label htmlFor="purchase-order-items" className="form-label">{t('columns.items')}</label>
           <ReactSelect
             id="purchase-order-items"
             name="items[]"
@@ -90,7 +90,7 @@ export const PurchaseOrderFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="purchase-order-users">{t('columns.createdBy')}</label>
+          <label htmlFor="purchase-order-users" className="form-label">{t('columns.createdBy')}</label>
           <ReactSelect
             id="purchase-order-users"
             name="users[]"

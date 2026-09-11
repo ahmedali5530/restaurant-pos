@@ -352,7 +352,7 @@ export const UserForm = ({
             </div>
 
             {isCreateMode && (
-              <div className="flex flex-col gap-3 pt-2 border-t border-neutral-200">
+              <div className="flex flex-col gap-3 pt-2 border-t border-border">
                 <Controller
                   name="create_employee"
                   control={control}
@@ -366,7 +366,7 @@ export const UserForm = ({
                 />
                 {createEmployee && (
                   <>
-                    <p className="text-sm text-neutral-500">{t('forms.createEmployeeHint')}</p>
+                    <p className="text-sm text-muted">{t('forms.createEmployeeHint')}</p>
                     <InputField
                       name="employee_number"
                       control={control}

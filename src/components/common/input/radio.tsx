@@ -26,7 +26,7 @@ export const Radio = (props: InputProps) => {
           )
         }
       />
-      {props.label && <label htmlFor={id} className="font-bold cursor-pointer">{props.label}</label>}
+      {props.label && <label htmlFor={id} className="text-sm font-medium text-foreground cursor-pointer">{props.label}</label>}
     </div>
   );
 };

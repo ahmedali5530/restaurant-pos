@@ -138,10 +138,10 @@ export const QrCodeAuth: React.FC<QrCodeAuthProps> = ({
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-foreground mb-2">
           {t('security.qrcodeTitle')}
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-muted mb-4">
           {t('security.qrcodeHint')}
         </p>
 

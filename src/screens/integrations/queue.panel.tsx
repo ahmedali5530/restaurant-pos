@@ -7,13 +7,13 @@ interface QueuePanelProps {
 }
 
 const STATUS_STYLES: Record<IntegrationQueueStatus, string> = {
-  Pending: 'bg-warning-50 text-warning-700 border-warning-200',
-  Running: 'bg-info-50 text-info-700 border-info-200',
-  Waiting: 'bg-neutral-100 text-neutral-700 border-neutral-200',
-  Completed: 'bg-success-50 text-success-700 border-success-200',
-  Failed: 'bg-danger-50 text-danger-700 border-danger-200',
-  Cancelled: 'bg-neutral-100 text-neutral-500 border-neutral-200',
-  DeadLetter: 'bg-danger-50 text-danger-700 border-danger-200',
+  Pending: 'bg-warning/10 text-warning-700 border-warning/40',
+  Running: 'bg-info/10 text-info-700 border-info-200',
+  Waiting: 'bg-surface text-foreground border-border',
+  Completed: 'bg-success/10 text-success-700 border-success-200',
+  Failed: 'bg-danger/10 text-danger-700 border-danger-200',
+  Cancelled: 'bg-surface text-muted border-border',
+  DeadLetter: 'bg-danger/10 text-danger-700 border-danger-200',
 };
 
 const formatQueueDate = (value?: string) => {
@@ -60,8 +60,8 @@ export const QueuePanel = ({ rows }: QueuePanelProps) => {
   return (
     <div className="p-5 space-y-3">
       {rows.length === 0 && (
-        <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 px-4 py-8 text-center">
-          <p className="text-sm text-neutral-500">{t('noPendingJobs')}</p>
+        <div className="rounded-lg border border-dashed border-border bg-surface px-4 py-8 text-center">
+          <p className="text-sm text-muted">{t('noPendingJobs')}</p>
         </div>
       )}
 
@@ -73,21 +73,21 @@ export const QueuePanel = ({ rows }: QueuePanelProps) => {
         return (
           <div
             key={row.id}
-            className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm"
+            className="rounded-lg border border-border bg-surface-elevated p-4 shadow-sm"
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-base font-semibold text-neutral-900">
+                  <p className="text-base font-semibold text-foreground">
                     {humanizeProvider(row.providerId)}
                   </p>
                   {orderLabel ? (
-                    <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-700">
+                    <span className="rounded bg-surface px-2 py-0.5 text-xs font-medium text-foreground">
                       {t('fields.order')} {orderLabel}
                     </span>
                   ) : null}
                 </div>
-                <p className="text-sm text-neutral-600">{humanizeAction(row.action)}</p>
+                <p className="text-sm text-muted">{humanizeAction(row.action)}</p>
               </div>
 
               <span
@@ -97,31 +97,31 @@ export const QueuePanel = ({ rows }: QueuePanelProps) => {
               </span>
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-500">
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
               <span>
                 {t('fields.created')}:{' '}
-                <span className="font-medium text-neutral-700">{formatQueueDate(row.createdAt)}</span>
+                <span className="font-medium text-foreground">{formatQueueDate(row.createdAt)}</span>
               </span>
               <span>
                 {t('fields.updated')}:{' '}
-                <span className="font-medium text-neutral-700">{formatQueueDate(row.updatedAt)}</span>
+                <span className="font-medium text-foreground">{formatQueueDate(row.updatedAt)}</span>
               </span>
               <span>
                 {t('fields.attempts')}:{' '}
-                <span className="font-medium text-neutral-700">
+                <span className="font-medium text-foreground">
                   {row.attempts}/{row.maxRetries}
                 </span>
               </span>
               {row.nextRunAt ? (
                 <span>
                   {t('fields.nextRun')}:{' '}
-                  <span className="font-medium text-neutral-700">{formatQueueDate(row.nextRunAt)}</span>
+                  <span className="font-medium text-foreground">{formatQueueDate(row.nextRunAt)}</span>
                 </span>
               ) : null}
             </div>
 
             {row.lastError ? (
-              <div className="mt-3 rounded-md border border-danger-200 bg-danger-50 px-3 py-2">
+              <div className="mt-3 rounded-md border border-danger-200 bg-danger/10 px-3 py-2">
                 <p className="text-xs font-medium text-danger-700">{t('fields.error')}</p>
                 <p className="mt-0.5 break-words text-sm text-danger-700">{row.lastError}</p>
               </div>

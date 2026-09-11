@@ -190,7 +190,7 @@ export const MenuDishes = () => {
               className={cn(
                 "rounded-full transition-all",
                 activeSlide === index
-                  ? "h-2.5 w-2.5 bg-warning-500"
+                  ? "h-2.5 w-2.5 bg-warning"
                   : "h-1.5 w-1.5 bg-neutral-400 hover:bg-neutral-500"
               )}
             />

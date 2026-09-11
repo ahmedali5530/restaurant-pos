@@ -307,7 +307,7 @@ export const Summary = () => {
     <Layout overflowHidden>
       <DocumentTitle parts={[tNav('sidebar.summary')]} />
       <div className="flex gap-5 p-3 flex-col" data-testid="summary-page">
-        <div className="bg-white rounded-xl flex gap-10 justify-center px-5">
+        <div className="bg-surface-elevated rounded-xl flex gap-10 justify-center px-5">
           <div className="flex justify-center items-center flex-col flex-1">
             <div className="w-[450px]" data-testid="summary-calendar">
               <Calendar

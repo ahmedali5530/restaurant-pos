@@ -48,7 +48,7 @@ export function RASelectItem(props: ListBoxItemProps) {
   return (
     <ListBoxItem
       {...props}
-      className="group flex items-center gap-2 cursor-default select-none py-2 px-4 outline-none rounded text-gray-900 focus:bg-rose-600 focus:text-white"
+      className="group flex items-center gap-2 cursor-default select-none py-2 px-4 outline-none rounded text-foreground focus:bg-rose-600 focus:text-white"
     />
   );
 }

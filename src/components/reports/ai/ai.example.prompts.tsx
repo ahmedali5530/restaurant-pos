@@ -7,7 +7,7 @@ import {
 } from "@/lib/ai/example.prompts.ts";
 
 const PROMPT_CHIP_CLASS =
-  "rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-left text-sm text-neutral-700 transition hover:border-warning-300 hover:bg-warning-50 disabled:cursor-not-allowed disabled:opacity-50";
+  "rounded-full border border-border bg-surface-elevated px-3 py-1.5 text-left text-sm text-foreground transition hover:border-warning-300 hover:bg-warning/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 const FILTER_PILL_CLASS =
   "rounded-full border px-3 py-1 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50";
@@ -51,8 +51,8 @@ export const AiExamplePrompts = ({onSelect, disabled}: AiExamplePromptsProps) =>
         onClick={() => setActiveFilter(filter)}
         className={`${FILTER_PILL_CLASS} ${
           isActive
-            ? "border-warning-500 bg-warning-50 text-warning-700"
-            : "border-neutral-200 bg-white text-neutral-600 hover:border-warning-300 hover:bg-warning-50"
+            ? "border-warning bg-warning/10 text-warning-700"
+            : "border-border bg-surface-elevated text-muted hover:border-warning-300 hover:bg-warning/10"
         }`}
       >
         {label}
@@ -70,17 +70,17 @@ export const AiExamplePrompts = ({onSelect, disabled}: AiExamplePromptsProps) =>
   };
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 w-full">
+    <div className="rounded-lg border border-border bg-surface w-full">
       <button
         type="button"
         onClick={handleToggle}
-        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-neutral-700"
+        className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-foreground"
       >
         <span>{t("filters.aiExamples")}</span>
-        <span className="text-neutral-400">{open ? "−" : "+"}</span>
+        <span className="text-muted">{open ? "−" : "+"}</span>
       </button>
       {open && (
-        <div className="flex flex-col gap-3 border-t border-neutral-200 px-4 py-3 overflow-y-auto max-h-[350px]">
+        <div className="flex flex-col gap-3 border-t border-border px-4 py-3 overflow-y-auto max-h-[350px]">
           <div className="flex flex-wrap gap-2">
             {filterPills.map(renderFilterPill)}
           </div>
@@ -94,7 +94,7 @@ export const AiExamplePrompts = ({onSelect, disabled}: AiExamplePromptsProps) =>
 
               return (
                 <div key={category}>
-                  {/* <span className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+                  {/* <span className="text-xs font-medium uppercase tracking-wide text-muted">
                     {t(`filters.aiCategory.${category}`)}
                   </span> */}
                   <div className="mt-1.5 flex flex-wrap gap-2">

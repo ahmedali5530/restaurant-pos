@@ -129,7 +129,7 @@ export const BalanceSheet = () => {
             {key: "liability", title: t('reports.liabilities'), rows: summary.sections.liability, total: summary.totalLiabilities},
             {key: "equity", title: t('reports.equity'), rows: summary.sections.equity, total: summary.totalEquity},
           ].map((section) => (
-            <div key={section.key} className="border rounded-lg bg-white">
+            <div key={section.key} className="border rounded-lg bg-surface-elevated">
               <div className="border-b p-3 font-semibold">{section.title}</div>
               <div className="p-3 space-y-2">
                 {section.rows.map((row, index) => (
@@ -138,7 +138,7 @@ export const BalanceSheet = () => {
                     <span>{formatMoney(row.balance)}</span>
                   </div>
                 ))}
-                {section.rows.length === 0 && <div className="text-gray-500">{t('reports.noData')}</div>}
+                {section.rows.length === 0 && <div className="text-muted">{t('reports.noData')}</div>}
               </div>
               <div className="border-t p-3 font-semibold flex justify-between">
                 <span>{t('reports.total')} {section.title}</span>
@@ -147,7 +147,7 @@ export const BalanceSheet = () => {
             </div>
           ))}
 
-          <div className="col-span-3 border rounded-lg bg-primary-50 border-primary-200 p-4 font-semibold">
+          <div className="col-span-3 border rounded-lg bg-primary/10 border-primary/40 p-4 font-semibold">
             <div className="flex justify-between">
               <span>{t('reports.equationCheck')}</span>
               <span>{formatMoney(summary.totalAssets)} vs {formatMoney(summary.rhs)}</span>

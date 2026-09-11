@@ -15,14 +15,14 @@ export const ProvidersPanel = ({ providers, onConfigure, onToggleProvider }: Pro
   return (
     <div className="p-5 space-y-3">
       {providers.map((provider) => (
-        <div key={provider.manifest.id} className="border border-neutral-200 rounded-lg p-4">
+        <div key={provider.manifest.id} className="border border-border rounded-lg p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="font-medium">{provider.manifest.displayName}</p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted">
                 {provider.manifest.category} - v{provider.manifest.providerVersion}
               </p>
-              <p className="text-xs mt-1 text-neutral-600">
+              <p className="text-xs mt-1 text-muted">
                 {provider.enabled ? t('enabled') : t('disabled')}
               </p>
             </div>

@@ -2,7 +2,7 @@ import './assets/css/app.scss';
 import 'react-indiana-drag-scroll/dist/style.css'
 import ConfigProvider from "antd/es/config-provider";
 import {QueryClient, QueryClientProvider,} from '@tanstack/react-query'
-import {appAntdTheme} from "@/lib/antd-theme.ts";
+import {getAppAntdTheme} from "@/lib/antd-theme.ts";
 import {Toaster} from "sonner";
 import {Alert} from "./components/common/alert/dialog.tsx";
 import React, {useEffect} from "react";
@@ -20,6 +20,7 @@ import {ClosingCycleEnforcementProvider} from "@/providers/closing-cycle-enforce
 import {SessionIdleProvider} from "@/providers/session-idle.provider.tsx";
 import {AutoClockOutProvider} from "@/providers/auto-clock-out.provider.tsx";
 import {I18nProvider} from "@/providers/i18n.provider.tsx";
+import {ThemeProvider, useTheme} from "@/providers/theme.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
@@ -47,6 +48,32 @@ function GlobalDeliveryOrderPopup() {
   );
 }
 
+function AntdThemeBridge({ children }: { children: React.ReactNode }) {
+  const { isDark, palette } = useTheme();
+  const theme = React.useMemo(
+    () => getAppAntdTheme(isDark, palette),
+    [isDark, palette],
+  );
+  return (
+    <ConfigProvider theme={theme}>
+      {children}
+    </ConfigProvider>
+  );
+}
+
+function ThemedToaster() {
+  const { resolvedTheme } = useTheme();
+  return (
+    <Toaster
+      theme={resolvedTheme}
+      richColors
+      position="top-right"
+      closeButton={true}
+      duration={2000}
+    />
+  );
+}
+
 function App() {
   useEffect(() => {
     // initializePrintTemplates();
@@ -54,44 +81,46 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider theme={appAntdTheme}>
-        <DatabaseProvider>
-          <PosStoreProvider>
-            <TerminalSyncProvider>
-              <IntegrationProvider>
-                <AutoCheckCloseProvider>
-                  <ClosingCycleEnforcementProvider>
-                    <DeliveryOrdersProvider>
-                      <PrintProvider>
-                        <TableLockProvider>
-                          <SecurityProvider>
-                            <BrowserRouter>
-                              <AppToolbar />
-                              <I18nProvider>
-                                <SessionIdleProvider>
-                                  <AutoClockOutProvider>
-                                    <GlobalDeliveryOrderPopup/>
-                                    <AiAssistantWidget/>
-                                    <AppRoutes/>
-                                  </AutoClockOutProvider>
-                                </SessionIdleProvider>
-                              </I18nProvider>
-                            </BrowserRouter>
-                            <SecurityModal/>
-                          </SecurityProvider>
-                        </TableLockProvider>
-                      </PrintProvider>
-                    </DeliveryOrdersProvider>
-                  </ClosingCycleEnforcementProvider>
-                </AutoCheckCloseProvider>
-              </IntegrationProvider>
-            </TerminalSyncProvider>
-          </PosStoreProvider>
+      <ThemeProvider>
+        <AntdThemeBridge>
+          <DatabaseProvider>
+            <PosStoreProvider>
+              <TerminalSyncProvider>
+                <IntegrationProvider>
+                  <AutoCheckCloseProvider>
+                    <ClosingCycleEnforcementProvider>
+                      <DeliveryOrdersProvider>
+                        <PrintProvider>
+                          <TableLockProvider>
+                            <SecurityProvider>
+                              <BrowserRouter>
+                                <AppToolbar />
+                                <I18nProvider>
+                                  <SessionIdleProvider>
+                                    <AutoClockOutProvider>
+                                      <GlobalDeliveryOrderPopup/>
+                                      <AiAssistantWidget/>
+                                      <AppRoutes/>
+                                    </AutoClockOutProvider>
+                                  </SessionIdleProvider>
+                                </I18nProvider>
+                              </BrowserRouter>
+                              <SecurityModal/>
+                            </SecurityProvider>
+                          </TableLockProvider>
+                        </PrintProvider>
+                      </DeliveryOrdersProvider>
+                    </ClosingCycleEnforcementProvider>
+                  </AutoCheckCloseProvider>
+                </IntegrationProvider>
+              </TerminalSyncProvider>
+            </PosStoreProvider>
 
-          <Alert/>
-          <Toaster richColors position="top-right" closeButton={true} duration={2000}/>
-        </DatabaseProvider>
-      </ConfigProvider>
+            <Alert/>
+            <ThemedToaster/>
+          </DatabaseProvider>
+        </AntdThemeBridge>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

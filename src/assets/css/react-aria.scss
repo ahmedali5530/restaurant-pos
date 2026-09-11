@@ -90,7 +90,7 @@
   .static-content {
     position: sticky;
     top: 0;
-    background: white;
+    background: rgb(var(--surface-elevated));
   }
 
   &.modal-full {
@@ -123,7 +123,7 @@
     @apply rounded-none border-none;
     bottom: 0;
     position: fixed;
-    background-color: white;
+    background-color: rgb(var(--surface-elevated));
   }
 
   &.modal-sm {
@@ -169,7 +169,7 @@
 
 .react-aria-CalendarCell {
   &[data-disabled="true"] {
-    @apply text-neutral-500;
+    @apply text-muted;
   }
 }
 

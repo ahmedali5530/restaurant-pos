@@ -390,18 +390,18 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
             /><FontAwesomeIcon icon={faUpload}/> Upload CSV file
           </label>
           {fileName && (
-            <div className="text-xs text-gray-900 bg-gray-300 p-3">
+            <div className="text-xs text-foreground bg-surface p-3">
               Current file: <span className="font-medium">{fileName}</span>
             </div>
           )}
         </div>
-        <div className="text-primary-500">Use pipe operator "|" for multiple values. For example "store 1|store 2"
+        <div className="text-primary">Use pipe operator "|" for multiple values. For example "store 1|store 2"
           etc...
         </div>
 
         {enableImportModes && (
-          <div className="rounded border bg-gray-50 p-4 space-y-3">
-            <h3 className="text-sm font-semibold text-gray-800">
+          <div className="rounded border bg-surface p-4 space-y-3">
+            <h3 className="text-sm font-semibold text-foreground">
               {t('csvImport.importMode')}
             </h3>
             <div className="flex flex-wrap gap-4">
@@ -435,7 +435,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
             </div>
             {needsMatchFields && (
               <div>
-                <label className="block mb-1 text-xs font-medium text-gray-700">
+                <label className="block mb-1 text-xs font-medium text-foreground">
                   {t('csvImport.matchColumns')}
                 </label>
                 <div>
@@ -463,15 +463,15 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
         {/* Mapping */}
         {hasFile && (
-          <div className="rounded border bg-gray-50 p-4">
-            <h3 className="mb-2 text-sm font-semibold text-gray-800">
+          <div className="rounded border bg-surface p-4">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">
               Column Mapping
             </h3>
 
             <div className="grid gap-3 md:grid-cols-5">
               {fields.map((field) => (
                 <div key={field.name} className="flex flex-col">
-                  <span className="text-xs font-medium text-gray-700">
+                  <span className="text-xs font-medium text-foreground">
                     {field.label}
                   </span>
                   <select
@@ -505,7 +505,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
         {hasFile && (
           <div className="max-h-80 overflow-auto rounded border max-w-[calc(100vw_-_200px)]">
             <table className="table table-hover table-sm">
-              <thead className="bg-gray-100">
+              <thead className="bg-surface">
               <tr>
                 {Object.keys(errors).length > 0 && (
                   <td style={{width: '20px'}}></td>
@@ -524,7 +524,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
                   <tr
                     key={rowIndex}
                     className={cn(
-                      rowIndex % 2 === 0 ? "bg-white" : "bg-gray-50",
+                      rowIndex % 2 === 0 ? "bg-surface-elevated" : "bg-surface",
                       errors[rowIndex] && 'bg-danger-200'
                     )}
                     title={errors[rowIndex] && errors[rowIndex]}
@@ -572,7 +572,7 @@ export const CsvUploadModal: React.FC<CsvUploadModalProps> = ({
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t px-6 py-3">
-          <span className="text-gray-500">
+          <span className="text-muted">
             Rows: {rows.length}
           </span>
         <div className="flex items-center gap-2">

@@ -44,7 +44,7 @@ export const DataImportMappingStep = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm text-neutral-600">{t("dataImport.mappingHelp")}</p>
+      <p className="text-sm text-muted">{t("dataImport.mappingHelp")}</p>
 
       {structured.sheets.length > 1 && (
         <div>
@@ -65,7 +65,7 @@ export const DataImportMappingStep = ({
         </div>
       )}
 
-      <div className="overflow-auto max-h-[50vh] rounded-lg border border-neutral-200">
+      <div className="overflow-auto max-h-[50vh] rounded-lg border border-border">
         <table className="table w-full text-sm">
           <thead>
             <tr>

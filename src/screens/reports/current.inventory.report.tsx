@@ -187,7 +187,7 @@ export const CurrentInventoryReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('reports.currentInventory')}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.inventory')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.inventory')}</div>
       </ReportsLayout>
     );
   }
@@ -210,57 +210,57 @@ export const CurrentInventoryReport = () => {
   return (
     <ReportsLayout title={t('reports.currentInventory')}>
       <div className="space-y-8">
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
             <tr>
-              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">
                 Item
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 Category
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 {t('inventory:columns.location')}
               </th>
-              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-foreground">
                 Current Balance
               </th>
-              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-foreground">
                 {t('inventory:columns.reorderLevel')}
               </th>
-              <th scope="col" className="py-3.5 px-3 text-center text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-center text-sm font-semibold text-foreground">
                 {t('inventory:status.belowReorder')}
               </th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {sortedBalances.length > 0 ? (
               sortedBalances.map((balance, index) => (
                 <tr key={`${balance.itemId}-${balance.locationId}-${index}`}>
-                  <td className="py-4 pl-6 pr-3 text-sm font-medium text-neutral-800">
+                  <td className="py-4 pl-6 pr-3 text-sm font-medium text-foreground">
                     {balance.itemName}{balance.itemCode ? ` (${balance.itemCode})` : ""}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {balance.category}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {balance.locationName}
                   </td>
-                  <td className={`py-4 px-3 text-sm text-right ${balance.belowReorder ? 'text-danger-600 font-medium' : 'text-neutral-700'}`}>
+                  <td className={`py-4 px-3 text-sm text-right ${balance.belowReorder ? 'text-danger-600 font-medium' : 'text-foreground'}`}>
                     {formatNumber(balance.quantity)} {balance.unit}
                   </td>
-                  <td className="py-4 px-3 text-sm text-right text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-right text-foreground">
                     {balance.reorderLevel > 0 ? formatNumber(balance.reorderLevel) : '-'}
                   </td>
-                  <td className="py-4 px-3 text-sm text-center text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-center text-foreground">
                     {balance.reorderLevel > 0 ? (balance.belowReorder ? t('common:actions.yes') : t('common:actions.no')) : '-'}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={6} className="py-6 text-center text-sm text-muted">
                   No inventory items found.
                 </td>
               </tr>

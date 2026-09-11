@@ -7,6 +7,25 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-11',
+    title: 'Theme hardening and brand color packs',
+    items: [
+      'Dark mode and brand tokens now cover shell, settings, reports, delivery, inventory, accounts, data-import, and AI assistant chrome.',
+      'Settings → Appearance includes brand color packs (Classic, Ocean, Forest, Cream, Ruby, Sapphire) for this device.',
+      'Shell, buttons, inputs, Ant Design, React Select, and charts follow the selected brand without a reload.',
+    ],
+  },
+  {
+    date: '2026-09-10',
+    title: 'Appearance: light, dark, and system theme',
+    items: [
+      'Settings → Appearance lets you choose Light, Dark, or System for this device.',
+      'System follows your OS color scheme and updates when the OS theme changes.',
+      'Preference is stored on this browser only (same as language and touch keyboard).',
+      'Dark mode now covers app shell, settings, modals, menus, reports chrome, and React Select — fewer leftover white panels.',
+    ],
+  },
+  {
     date: '2026-09-09',
     title: 'Accounts P&L and Cash Flow fixes',
     items: [

@@ -136,9 +136,9 @@ export const PrintOptionsSettingsCard = () => {
   ];
 
   return (
-    <div className="shadow p-5 rounded-xl bg-white" data-testid="settings-card-print-options">
+    <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-print-options">
       <h2 className="text-xl font-semibold mb-1">{t("settings:printOptions.title")}</h2>
-      <p className="text-sm text-neutral-500 mb-5">
+      <p className="settings-card-desc mb-5">
         {t("settings:printOptions.description")}
       </p>
       <form
@@ -169,7 +169,7 @@ export const PrintOptionsSettingsCard = () => {
         </div>
 
         <h3 className="font-semibold mb-1">{t("settings:printOptions.maxAttemptsTitle")}</h3>
-        <p className="text-sm text-neutral-500 mb-3">
+        <p className="settings-card-desc mb-3">
           {t("settings:printOptions.unlimitedHint")}
         </p>
         <div className="grid grid-cols-2 gap-3 mb-5">

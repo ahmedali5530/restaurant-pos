@@ -216,7 +216,7 @@ export const DetailedInventoryReport = () => {
   if (loading) {
     return (
       <ReportsLayout title={t('reports.detailedInventory')} subtitle={subtitle}>
-        <div className="py-12 text-center text-neutral-500">{t('loading.inventory')}</div>
+        <div className="py-12 text-center text-muted">{t('loading.inventory')}</div>
       </ReportsLayout>
     );
   }
@@ -232,69 +232,69 @@ export const DetailedInventoryReport = () => {
   return (
     <ReportsLayout title={t('reports.detailedInventory')} subtitle={subtitle}>
       <div className="space-y-8">
-        <div className="overflow-hidden rounded-lg border border-neutral-200">
+        <div className="overflow-hidden rounded-lg border border-border">
           <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-neutral-50">
+            <thead className="bg-surface">
             <tr>
-              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">
                 Date
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 Item
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 Category
               </th>
-              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-foreground">
                 Quantity
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 {t('inventory:columns.location')}
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 Type
               </th>
-              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                 User
               </th>
-              <th scope="col" className="py-3.5 pl-3 pr-6 text-left text-sm font-semibold text-neutral-700">
+              <th scope="col" className="py-3.5 pl-3 pr-6 text-left text-sm font-semibold text-foreground">
                 Comments
               </th>
             </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 bg-white">
+            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
             {transactions.length > 0 ? (
               transactions.map((transaction, index) => (
                 <tr key={`${transaction.date}-${transaction.item}-${transaction.type}-${index}`}>
-                  <td className="py-4 pl-6 pr-3 text-sm text-neutral-700">
+                  <td className="py-4 pl-6 pr-3 text-sm text-foreground">
                     {transaction.date ? toLuxonDateTime(transaction.date).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}
                   </td>
-                  <td className="py-4 px-3 text-sm font-medium text-neutral-800">
+                  <td className="py-4 px-3 text-sm font-medium text-foreground">
                     {transaction.item}{transaction.itemCode ? ` (${transaction.itemCode})` : ""}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.category}
                   </td>
-                  <td className="py-4 px-3 text-sm text-right text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-right text-foreground">
                     {formatNumber(transaction.quantity)} {transaction.unit}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.locationName || "—"}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.type}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.user}
                   </td>
-                  <td className="py-4 pl-3 pr-6 text-sm text-neutral-700">
+                  <td className="py-4 pl-3 pr-6 text-sm text-foreground">
                     {transaction.comments || "-"}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="py-6 text-center text-sm text-neutral-500">
+                <td colSpan={8} className="py-6 text-center text-sm text-muted">
                   No inventory transactions found for the selected period.
                 </td>
               </tr>
@@ -304,31 +304,31 @@ export const DetailedInventoryReport = () => {
         </div>
 
         {itemBalances.length > 0 && (
-          <div className="overflow-hidden rounded-lg border border-neutral-200">
+          <div className="overflow-hidden rounded-lg border border-border">
             <table className="min-w-full divide-y divide-neutral-200">
-              <thead className="bg-neutral-50">
+              <thead className="bg-surface">
               <tr>
-                <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-neutral-700">
+                <th scope="col" className="py-3.5 pl-6 pr-3 text-left text-sm font-semibold text-foreground">
                   Item
                 </th>
-                <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-neutral-700">
+                <th scope="col" className="py-3.5 px-3 text-left text-sm font-semibold text-foreground">
                   Category
                 </th>
-                <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-neutral-700">
+                <th scope="col" className="py-3.5 px-3 text-right text-sm font-semibold text-foreground">
                   Balance
                 </th>
               </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 bg-white">
+              <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
               {itemBalances.map((itemBalance) => (
                 <tr key={itemBalance.itemId}>
-                  <td className="py-4 pl-6 pr-3 text-sm font-medium text-neutral-800">
+                  <td className="py-4 pl-6 pr-3 text-sm font-medium text-foreground">
                     {itemBalance.itemName}{itemBalance.itemCode ? ` (${itemBalance.itemCode})` : ""}
                   </td>
-                  <td className="py-4 px-3 text-sm text-neutral-700">
+                  <td className="py-4 px-3 text-sm text-foreground">
                     {itemBalance.category}
                   </td>
-                  <td className="py-4 px-3 text-sm text-right text-neutral-700 font-medium">
+                  <td className="py-4 px-3 text-sm text-right text-foreground font-medium">
                     {formatNumber(itemBalance.balance)} {itemBalance.unit}
                   </td>
                 </tr>

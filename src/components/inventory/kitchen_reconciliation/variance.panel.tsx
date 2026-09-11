@@ -44,46 +44,46 @@ export const VariancePanel = ({items, status}: Props) => {
   const topVariance = useMemo(() => getTopVarianceLines(computedLines, 10), [computedLines]);
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 sticky top-4">
+    <div className="rounded-xl border border-border bg-surface-elevated p-4 sticky top-4">
       <h3 className="text-lg font-semibold mb-3">{t("kitchenReconciliation.variancePanel")}</h3>
 
       {status === "missed" && (
-        <div className="mb-3 rounded border border-warning-300 bg-warning-50 px-3 py-2 text-sm text-warning-900">
+        <div className="mb-3 rounded border border-warning-300 bg-warning/10 px-3 py-2 text-sm text-warning-900">
           {t("kitchenReconciliation.missedStatusWarning")}
         </div>
       )}
 
       <dl className="grid grid-cols-2 gap-3 text-sm mb-4">
         <div>
-          <dt className="text-neutral-500">{t("kitchenReconciliation.totalVariance")}</dt>
+          <dt className="text-muted">{t("kitchenReconciliation.totalVariance")}</dt>
           <dd className={`font-semibold ${totals.totalVariance !== 0 ? "text-danger-600" : "text-success-600"}`}>
             {formatNumber(totals.totalVariance, 4)}
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500">{t("kitchenReconciliation.totalActualConsumption")}</dt>
+          <dt className="text-muted">{t("kitchenReconciliation.totalActualConsumption")}</dt>
           <dd className="font-semibold">{formatNumber(totals.totalActualConsumption, 4)}</dd>
         </div>
         <div>
-          <dt className="text-neutral-500">{t("kitchenReconciliation.totalTheoretical")}</dt>
+          <dt className="text-muted">{t("kitchenReconciliation.totalTheoretical")}</dt>
           <dd className="font-semibold">{formatNumber(totals.totalTheoreticalConsumption, 4)}</dd>
         </div>
         <div>
-          <dt className="text-neutral-500">{t("kitchenReconciliation.linesWithVariance")}</dt>
+          <dt className="text-muted">{t("kitchenReconciliation.linesWithVariance")}</dt>
           <dd className="font-semibold">{totals.linesWithVariance}</dd>
         </div>
       </dl>
 
       {topVariance.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-neutral-700 mb-2">
+          <h4 className="text-sm font-medium text-foreground mb-2">
             {t("kitchenReconciliation.topVariance")}
           </h4>
           <ul className="space-y-2 max-h-64 overflow-y-auto">
             {topVariance.map((line) => (
               <li
                 key={line.itemId}
-                className="flex justify-between text-sm border-b border-neutral-100 pb-1"
+                className="flex justify-between text-sm border-b border-border pb-1"
               >
                 <span className="truncate pr-2">{line.itemName}</span>
                 <span className={line.variance !== 0 ? "text-danger-600 font-medium" : ""}>

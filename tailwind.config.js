@@ -1,6 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require("tailwindcss/colors");
 
+const withAlpha = (cssVar) => `rgb(var(${cssVar}) / <alpha-value>)`;
+
 module.exports = {
   content: [
     // ...
@@ -14,7 +16,15 @@ module.exports = {
       white: "#fdfdfd",
       gray: colors.gray,
       neutral: colors.neutral,
+      // Semantic theme surfaces (see :root / .dark in app.scss)
+      canvas: withAlpha("--canvas"),
+      surface: withAlpha("--surface"),
+      "surface-elevated": withAlpha("--surface-elevated"),
+      foreground: withAlpha("--foreground"),
+      muted: withAlpha("--muted"),
+      border: withAlpha("--border"),
       success: {
+        DEFAULT: withAlpha("--success"),
         100: "#DDFDD8",
         200: "#B5FCB2",
         300: "#8AF790",
@@ -26,6 +36,8 @@ module.exports = {
         900: "#0B6D4A",
       },
       primary: {
+        DEFAULT: withAlpha("--primary"),
+        fg: withAlpha("--primary-fg"),
         100: "#CBDFFE",
         200: "#98BDFE",
         300: "#6598FE",
@@ -37,6 +49,7 @@ module.exports = {
         900: "#001379",
       },
       warning: {
+        DEFAULT: withAlpha("--warning"),
         100: "#FFF4D0",
         200: "#FFE6A1",
         300: "#FFD472",
@@ -48,6 +61,7 @@ module.exports = {
         900: "#7A3A03",
       },
       danger: {
+        DEFAULT: withAlpha("--danger"),
         100: "#FEE5D5",
         200: "#FDC4AC",
         300: "#FB9C82",
@@ -59,6 +73,7 @@ module.exports = {
         900: "#750927",
       },
       info: {
+        DEFAULT: withAlpha("--info"),
         100: "#D5FDF9",
         200: "#ACFCF9",
         300: "#82F4F8",

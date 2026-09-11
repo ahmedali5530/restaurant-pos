@@ -118,7 +118,7 @@ export const Sidebar = () => {
   });
 
   return (
-    <div className="flex flex-col justify-between h-[calc(100vh_-_var(--app-toolbar-h))] items-center sidebar border border-y-0 border-white bg-white/50 backdrop-blur">
+    <div className="flex flex-col justify-between h-[calc(100vh_-_var(--app-toolbar-h))] items-center sidebar border border-y-0 border-border bg-surface-elevated/50 backdrop-blur text-foreground">
       <div className="w-full">
         <ScrollContainer className="h-[calc(100vh_-_150px_-_var(--app-toolbar-h))]" hideScrollbars={false}>
           <div className="p-2 flex flex-col">
@@ -130,16 +130,16 @@ export const Sidebar = () => {
                   protectedNavigate(item.link, item.role);
                 }}
                 className={cn(
-                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full',
-                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'text-neutral-900 border-[3px] border-transparent'
+                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full text-foreground',
+                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'border-[3px] border-transparent'
                 )}
                 key={item.title}
                 style={{
                   '--padding': '0.4rem'
                 } as CSSProperties}
               >
-                <span className="icon">{item.icon}</span>
-                <span className="label text-[12px]">{item.title}</span>
+                <span className="icon text-current">{item.icon}</span>
+                <span className="label text-[12px] text-current">{item.title}</span>
                 {item.link === ADMIN && <SecurityAlertsBadge />}
               </button>
             ))}

@@ -10,6 +10,23 @@
     "ltr": "LTR",
     "rtl": "RTL"
   },
+  "theme": {
+    "title": "Görünüm",
+    "description": "Açık, koyu veya bu cihazın sistem ayarını seçin. Yalnızca bu cihaza uygulanır.",
+    "light": "Açık",
+    "dark": "Koyu",
+    "system": "Sistem",
+    "brandTitle": "Marka renkleri",
+    "brandDescription": "Bu cihaz için bir renk paketi seçin. Arayüz, düğmeler, seçiciler ve grafikler hemen güncellenir.",
+    "brand": {
+      "classic": "Klasik",
+      "ocean": "Okyanus",
+      "forest": "Orman",
+      "cream": "Krem",
+      "ruby": "Yakut",
+      "sapphire": "Safir"
+    }
+  },
   "touch": {
     "title": "Ekran klavyesi",
     "description": "Ekran klavyesini etkinleştirin veya devre dışı bırakın. Yalnızca bu cihaza uygulanır."

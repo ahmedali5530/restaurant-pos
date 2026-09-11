@@ -167,7 +167,7 @@ export const CustomerStatement = () => {
       {isLoading && <Loader lines={8} lineItems={4}/>}
 
       {!isLoading && selectedAccount?.value && (
-        <div className="border rounded-lg bg-white">
+        <div className="border rounded-lg bg-surface-elevated">
           <div className="p-3 border-b grid grid-cols-3 gap-3 text-sm">
             <div>{t('reports.openingBalance')}: <strong>{formatMoney(openingBalance)}</strong></div>
             <div>{t('reports.totalDebits')}: <strong>{formatMoney(rows.reduce((sum, row) => sum + Number(row.debit || 0), 0))}</strong></div>
@@ -198,7 +198,7 @@ export const CustomerStatement = () => {
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center text-gray-500">{t('reports.noStatementEntries')}</td>
+                  <td colSpan={6} className="text-center text-muted">{t('reports.noStatementEntries')}</td>
                 </tr>
               )}
               </tbody>

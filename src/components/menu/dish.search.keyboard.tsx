@@ -98,16 +98,16 @@ export const DishSearchKeyboard = ({
     : t('search.placeholderBoth');
 
   return (
-    <div className="dishes-search-keyboard flex w-full flex-col gap-2 rounded-xl bg-white p-3">
+    <div className="dishes-search-keyboard flex w-full flex-col gap-2 rounded-xl bg-surface-elevated p-3">
       <div
         className={cn(
-          "flex min-h-[48px] items-center justify-center rounded-xl border-2 border-primary-200 bg-neutral-50 px-4 font-bold text-neutral-800",
+          "flex min-h-[48px] items-center justify-center rounded-xl border-2 border-primary/40 bg-surface px-4 font-bold text-foreground",
           isNumberOnly ? "text-3xl tracking-widest" : "text-2xl tracking-wide"
         )}
         aria-live="polite"
       >
         {value || (
-          <span className="text-base font-medium tracking-normal text-neutral-400">
+          <span className="text-base font-medium tracking-normal text-muted">
             {placeholder}
           </span>
         )}

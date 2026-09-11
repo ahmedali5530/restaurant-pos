@@ -379,11 +379,11 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   if (!hasConnectedOnce.current && isError && !isConnected) {
     return (
       <DatabaseContext.Provider value={value}>
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
-          <div className="text-center max-w-md p-6 bg-danger-50 border border-danger-200 rounded-lg">
+        <div className="flex items-center justify-center min-h-screen bg-surface">
+          <div className="text-center max-w-md p-6 bg-danger/10 border border-danger-200 rounded-lg">
             <h2 className="text-xl font-semibold text-danger-800 mb-2">{t("database.connectionError")}</h2>
             <p className="text-danger-600 mb-2">{String(error) || t("database.connectionFailed")}</p>
-            <p className="text-xs text-neutral-600 mb-4 break-all font-mono">{dbEndpointLabel()}</p>
+            <p className="text-xs text-muted mb-4 break-all font-mono">{dbEndpointLabel()}</p>
             <button
               onClick={() => {
                 void connect();

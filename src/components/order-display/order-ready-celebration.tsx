@@ -8,9 +8,9 @@ interface Props {
 }
 
 const CONFETTI_COLORS = [
-  'bg-primary-500',
+  'bg-primary',
   'bg-success-500',
-  'bg-warning-500',
+  'bg-warning',
   'bg-danger-500',
   'bg-info-500',
   'bg-purple-500',
@@ -61,7 +61,7 @@ export const OrderReadyCelebration = ({ orderNumber, onComplete }: Props) => {
         />
       ))}
 
-      <div className="relative z-10 flex flex-col items-center gap-4 rounded-3xl border-4 border-success-400 bg-white px-10 py-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
+      <div className="relative z-10 flex flex-col items-center gap-4 rounded-3xl border-4 border-success-400 bg-surface-elevated px-10 py-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
         <span className="text-6xl animate-bounce" aria-hidden>
           🎉
         </span>
@@ -71,7 +71,7 @@ export const OrderReadyCelebration = ({ orderNumber, onComplete }: Props) => {
         <p className="text-7xl font-black text-success-900 tabular-nums">
           {orderNumber}
         </p>
-        <p className="text-xl font-semibold text-neutral-600">
+        <p className="text-xl font-semibold text-muted">
           {t('orderReadyAnnouncement', { number: orderNumber })}
         </p>
       </div>
