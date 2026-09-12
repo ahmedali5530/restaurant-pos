@@ -55,8 +55,9 @@ function resolveOne(value: unknown, map: Map<string, any>): any {
   return map.get(key) ?? { id: key };
 }
 
-function resolveMany(values: unknown, map: Map<string, any>): any[] | unknown {
-  if (!Array.isArray(values)) return values;
+function resolveMany(values: unknown, map: Map<string, any>): any[] {
+  // Missing/null relation fields must become [] — callers filter/map categories etc.
+  if (!Array.isArray(values)) return [];
   return values.map((value) => resolveOne(value, map));
 }
 

@@ -131,7 +131,7 @@ const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category
     });
   });
 
-  return categories.filter((category) => categoryIds.has(category.id.toString()));
+  return (categories ?? []).filter((category) => categoryIds.has(category.id.toString()));
 };
 
 export const resolveMenuAwareData = ({
@@ -145,19 +145,21 @@ export const resolveMenuAwareData = ({
   menus: MenuCollection
   now?: DateInput
 }): ResolvedMenuData => {
+  const safeCategories = categories ?? [];
+  const safeDishes = dishes ?? [];
   const normalizedMenus = normalizeMenus(menus);
   const activeMenus = normalizedMenus.filter((menu) => isMenuActiveNow(menu, now));
   if (activeMenus.length === 0) {
     return {
       hasActiveMenus: false,
       activeMenus: [],
-      dishes,
-      categories
+      dishes: safeDishes,
+      categories: safeCategories
     };
   }
 
   const baseDishMap = new Map<string, Dish>();
-  dishes.forEach((dish) => {
+  safeDishes.forEach((dish) => {
     baseDishMap.set(dish.id.toString(), dish);
   });
 
@@ -176,6 +178,6 @@ export const resolveMenuAwareData = ({
     hasActiveMenus: true,
     activeMenus,
     dishes: resolvedDishes,
-    categories: resolveMenuCategories(categories, resolvedDishes)
+    categories: resolveMenuCategories(safeCategories, resolvedDishes)
   };
 };

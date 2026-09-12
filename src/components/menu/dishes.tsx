@@ -56,7 +56,7 @@ export const MenuDishes = () => {
   const categoryDishes = useMemo(() => {
     if (state.category) {
       return allDishes?.filter(item =>
-        item.categories.filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
+        (item.categories ?? []).filter(cat => cat.id.toString() === state?.category?.id.toString()).length > 0
       ) || [];
     }
 

@@ -77,7 +77,7 @@ export const Menu = () => {
 
     setSettings(prev => ({
       ...prev,
-      categories: prev.categories.filter(item => item.show_in_menu !== false),
+      categories: (prev.categories ?? []).filter(item => item.show_in_menu !== false),
     }));
   }, [
     enforcement.orderTakingBlocked,

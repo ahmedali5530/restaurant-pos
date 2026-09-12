@@ -96,7 +96,7 @@ export const FloorLayout = () => {
     && floors.length === 0;
 
   const categories = useMemo(() => {
-    return settings.categories.filter(item => item.show_in_menu !== false);
+    return (settings.categories ?? []).filter(item => item.show_in_menu !== false);
   }, [settings.categories]);
 
   const orderTypes = useMemo(() => {
