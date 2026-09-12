@@ -22,6 +22,7 @@ import { useTranslation } from "react-i18next";
 import { setPosStoreEffectivelyConnected } from "@/infrastructure/pos-store/connectivity.ts";
 
 const SESSION_EVENT = "posr-session";
+/** Durable across tabs/sessions — allows offline cold boot after a prior connect. */
 const CONNECTED_ONCE_KEY = "posr-db-connected-once";
 
 function readBrowserOnline(): boolean {
@@ -30,7 +31,15 @@ function readBrowserOnline(): boolean {
 
 function readConnectedOnceFlag(): boolean {
   try {
-    return sessionStorage.getItem(CONNECTED_ONCE_KEY) === "1";
+    if (localStorage.getItem(CONNECTED_ONCE_KEY) === "1") {
+      return true;
+    }
+    // Migrate legacy sessionStorage flag from earlier builds.
+    if (sessionStorage.getItem(CONNECTED_ONCE_KEY) === "1") {
+      localStorage.setItem(CONNECTED_ONCE_KEY, "1");
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }
@@ -39,13 +48,23 @@ function readConnectedOnceFlag(): boolean {
 function persistConnectedOnce(value: boolean) {
   try {
     if (value) {
+      localStorage.setItem(CONNECTED_ONCE_KEY, "1");
       sessionStorage.setItem(CONNECTED_ONCE_KEY, "1");
     } else {
+      localStorage.removeItem(CONNECTED_ONCE_KEY);
       sessionStorage.removeItem(CONNECTED_ONCE_KEY);
     }
   } catch {
     // ignore private browsing / disabled storage
   }
+}
+
+/** Offline FOH may mount without Surreal when a prior session exists. */
+function canBootWithoutSurreal(): boolean {
+  if (typeof navigator !== "undefined" && navigator.onLine === false && Boolean(getSessionToken())) {
+    return true;
+  }
+  return readConnectedOnceFlag();
 }
 
 const dbEndpointLabel = () => {
@@ -177,8 +196,16 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
         if (gatewayMode && isJwtExpiredOrNearExpiry(getSurrealToken())) {
           const refreshed = await refreshSurrealToken();
           if (!refreshed) {
-            invalidateGatewaySession();
-            throw new Error("Database session expired — please log in again");
+            // Offline / network failure: keep POS session and continue best-effort.
+            // Definitive 401 while online is handled by sync/gateway clients.
+            if (readBrowserOnline() && getSurrealToken()) {
+              // Token present but refresh returned null with network up — may be revoked.
+              // Still avoid wipe when Surreal token exists so FOH can use Dexie.
+              console.warn("Database token refresh failed; continuing with existing session");
+            } else if (readBrowserOnline() && !getSurrealToken()) {
+              invalidateGatewaySession();
+              throw new Error("Database session expired — please log in again");
+            }
           }
         }
 
@@ -192,6 +219,11 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
           console.warn("Surreal auth failed; refreshing database token...", err);
           const refreshed = await refreshSurrealToken();
           if (!refreshed) {
+            if (!readBrowserOnline()) {
+              console.warn("Offline: cannot refresh Surreal token; mounting without socket");
+              throw err;
+            }
+            // Online but refresh failed after auth error — session likely dead.
             invalidateGatewaySession();
             throw new Error("Database session expired — please log in again");
           }
@@ -377,6 +409,13 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   }
 
   if (!hasConnectedOnce.current && isError && !isConnected) {
+    if (canBootWithoutSurreal()) {
+      return (
+        <DatabaseContext.Provider value={value}>
+          {children}
+        </DatabaseContext.Provider>
+      );
+    }
     return (
       <DatabaseContext.Provider value={value}>
         <div className="flex items-center justify-center min-h-screen bg-surface">
@@ -399,6 +438,14 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
   }
 
   if (!hasConnectedOnce.current && (isConnecting || !isConnected)) {
+    // Offline cold start / prior successful connect: mount PosStore without waiting on Surreal.
+    if (canBootWithoutSurreal()) {
+      return (
+        <DatabaseContext.Provider value={value}>
+          {children}
+        </DatabaseContext.Provider>
+      );
+    }
     console.log(`connecting to ${dbEndpointLabel()}...`);
     return (
       <DatabaseContext.Provider value={value}>

@@ -1,4 +1,7 @@
 import { i18nReady } from '@/lib/i18n.ts'
+import { registerSW } from 'virtual:pwa-register'
+
+registerSW({ immediate: true })
 
 await i18nReady
 

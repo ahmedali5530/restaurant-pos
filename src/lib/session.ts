@@ -133,22 +133,34 @@ export async function gatewayLogout(): Promise<void> {
 }
 
 export async function refreshSurrealToken(): Promise<string | null> {
-  const res = await fetch(`${getGatewayBaseUrl()}/auth/db-token`, {
-    method: 'POST',
-    headers: authHeaders(),
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (data?.surrealToken) {
-    localStorage.setItem(SURREAL_TOKEN_KEY, data.surrealToken);
-    try {
-      sessionStorage.removeItem(SURREAL_TOKEN_KEY);
-    } catch {
-      // ignore
-    }
-    return data.surrealToken as string;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return null;
   }
-  return null;
+  try {
+    const res = await fetch(`${getGatewayBaseUrl()}/auth/db-token`, {
+      method: 'POST',
+      headers: authHeaders(),
+    });
+    if (!res.ok) {
+      // 401 while online is a real session death; callers may invalidate.
+      // Network-ish failures still return null without throwing.
+      return null;
+    }
+    const data = await res.json();
+    if (data?.surrealToken) {
+      localStorage.setItem(SURREAL_TOKEN_KEY, data.surrealToken);
+      try {
+        sessionStorage.removeItem(SURREAL_TOKEN_KEY);
+      } catch {
+        // ignore
+      }
+      return data.surrealToken as string;
+    }
+    return null;
+  } catch {
+    // Offline / DNS / CORS — do not treat as session revoke.
+    return null;
+  }
 }
 
 /** Decode JWT `exp` without verifying — used only for proactive refresh. */

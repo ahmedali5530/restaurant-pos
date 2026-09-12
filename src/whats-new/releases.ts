@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-12',
+    title: 'Installable offline app shell (PWA)',
+    items: [
+      'The POS can be installed as a Progressive Web App and caches its UI shell so a hard refresh still loads after the network drops.',
+      'After a prior successful login and catalog hydrate, cold start offline mounts from the local PosStore instead of waiting on Surreal.',
+      'Offline database-token refresh no longer signs you out — FOH keeps working locally until sync comes back.',
+    ],
+  },
+  {
     date: '2026-09-11',
     title: 'Theme hardening and brand color packs',
     items: [
