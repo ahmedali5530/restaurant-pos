@@ -27,6 +27,7 @@ import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx"
 import {AppToolbar} from "./components/common/app-toolbar.tsx";
 import {PosStoreProvider} from "@/providers/pos-store.provider.tsx";
 import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
+import {SessionExpiryBridge} from "@/providers/session-expiry.bridge.tsx";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ function App() {
                           <TableLockProvider>
                             <SecurityProvider>
                               <BrowserRouter>
+                                <SessionExpiryBridge />
                                 <AppToolbar />
                                 <I18nProvider>
                                   <SessionIdleProvider>

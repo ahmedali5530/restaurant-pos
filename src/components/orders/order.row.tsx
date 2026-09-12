@@ -23,7 +23,6 @@ export const OrderRow = ({
   const {rootRef, displayOrder: order, cardReady, isHydrating, retryHydrate} = useOrderCardHydrate(snapshot);
   const itemsTotal = cardReady ? calculateOrderTotal(order) : 0;
   const [paymentOrder, setPaymentOrder] = useState<OrderModel | null>(null);
-  const [isLoadingFull, setIsLoadingFull] = useState(false);
 
   const colors = {
     [OrderStatus["In Progress"]]: 'bg-warning-100 text-warning-700',
@@ -42,24 +41,27 @@ export const OrderRow = ({
     return itemsTotal + extrasTotal + Number(order?.tax_amount || 0) - Number(order?.discount_amount || 0) + Number(order.service_charge_amount ?? 0);
   }, [cardReady, itemsTotal, order]);
 
-  const openPayment = async () => {
-    if (order.status !== OrderStatus["In Progress"] || isLoadingFull) {
+  const openPayment = () => {
+    if (order.status !== OrderStatus["In Progress"]) {
       return;
     }
-    setIsLoadingFull(true);
-    try {
-      const full = await fetchOrderFull(db, snapshot.id);
-      if (!full) {
+    const initial = (cardReady ? order : snapshot) as OrderModel;
+    setPaymentOrder(initial);
+    const openId = String(snapshot.id);
+    void fetchOrderFull(db, snapshot.id)
+      .then((full) => {
+        if (!full) {
+          toast.error(t('loadFailed'));
+          return;
+        }
+        setPaymentOrder((current) =>
+          current && String(current.id) === openId ? full : current,
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to load full order', error);
         toast.error(t('loadFailed'));
-        return;
-      }
-      setPaymentOrder(full);
-    } catch (error) {
-      console.error('Failed to load full order', error);
-      toast.error(t('loadFailed'));
-    } finally {
-      setIsLoadingFull(false);
-    }
+      });
   };
 
   return (
@@ -67,7 +69,7 @@ export const OrderRow = ({
       <div
         ref={rootRef}
         onClick={() => {
-          void openPayment();
+          openPayment();
         }}
         className="flex flex-1 odd:bg-surface-elevated even:bg-neutral-300 dark:even:bg-neutral-700 gap-1 select-none">
         <div className="basis-[140px] flex-shrink flex-grow-0 p-4">{getInvoiceNumber(order)} - {order?.order_type?.name}</div>

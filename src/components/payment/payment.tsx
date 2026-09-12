@@ -463,12 +463,31 @@ export const Payment = () => {
         }
       }
 
-      const freshOrder = await fetchOrderForPayment(orderId);
-      if (!freshOrder?.items?.length) {
-        throw new Error(t("payment:errors.openPayment"));
+      // Open immediately with whatever we already have; refresh from Dexie in background.
+      const snapshot =
+        (order && String(order.id) === String(orderId) ? order : undefined) ??
+        (state?.order?.id !== 'new' && String(state.order.id) === String(orderId)
+          ? (state.order as Order)
+          : undefined);
+
+      if (snapshot?.items?.length) {
+        setPaymentOrder(snapshot);
+        setOrder(snapshot);
+        setPaymentOpen(true);
       }
 
-      setPaymentOrder(freshOrder);
+      const openId = String(orderId);
+      const freshOrder = await fetchOrderForPayment(orderId);
+      if (!freshOrder?.items?.length) {
+        if (!snapshot?.items?.length) {
+          throw new Error(t("payment:errors.openPayment"));
+        }
+        return;
+      }
+
+      setPaymentOrder((current) =>
+        !current || String(current.id) === openId ? freshOrder : current,
+      );
       setOrder(freshOrder);
       setPaymentOpen(true);
     } catch (error) {

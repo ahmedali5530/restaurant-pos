@@ -123,6 +123,23 @@ export const OrderBox = ({
     }
   };
 
+  /** Open pay modal on the card snapshot; refresh from Dexie/Surreal in the background. */
+  const openPayment = () => {
+    const initial = (cardReady ? order : snapshot) as OrderModel;
+    setPaymentOrder(initial);
+    const openId = String(snapshot.id);
+    void fetchOrderFull(db, snapshot.id)
+      .then((full) => {
+        if (!full) return;
+        setPaymentOrder((current) =>
+          current && String(current.id) === openId ? full : current,
+        );
+      })
+      .catch((error) => {
+        console.error('Failed to refresh order for payment', error);
+      });
+  };
+
   const printTempBill = () => {
     void withFullOrder((full) => requestBillPrint({
       db,
@@ -416,9 +433,7 @@ export const OrderBox = ({
                     size="lg"
                     className="flex-1"
                     disabled={isLoadingFull}
-                    onClick={() => {
-                      void withFullOrder((full) => setPaymentOrder(full));
-                    }}
+                    onClick={openPayment}
                     icon={faCreditCard}
                     data-testid="order-card-pay"
                   >

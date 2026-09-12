@@ -2,9 +2,8 @@ import { useAtom } from "jotai";
 import { appAlert, appState, closingEnforcementAtom } from "@/store/jotai.ts";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils.ts";
-import { useDB } from "@/api/db/db.ts";
 import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
-import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
+import {getClosingEnforcementStateLocal} from "@/lib/closing.guard.ts";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
 
@@ -15,7 +14,6 @@ export const MenuPersons = () => {
   const [, setAlert] = useAtom(appAlert);
   const [error, setError] = useState(false);
   const [first, setFirst] = useState(true);
-  const db = useDB();
 
   useEffect(() => {
     if (!enforcement.orderTakingBlocked || state.showFloor) {
@@ -57,46 +55,28 @@ export const MenuPersons = () => {
       return;
     }
 
-    try {
-      const enforcementState = await getClosingEnforcementState(db);
-      if (enforcementState.orderTakingBlocked) {
-        setAlert(prev => ({
-          ...prev,
-          message: enforcementState.message ?? i18n.t('closing:orderTakingDisabled'),
-          type: "warning",
-          opened: true,
-        }));
-        setState(prev => ({
-          ...prev,
-          showFloor: true,
-          showPersons: false,
-          table: undefined,
-          order: undefined,
-          orders: [],
-          cart: [],
-        }));
-        return;
-      }
-    } catch (error) {
-      console.warn("Closing enforcement live check failed; using cached state", error);
-      if (enforcement.orderTakingBlocked) {
-        setAlert(prev => ({
-          ...prev,
-          message: enforcement.message ?? i18n.t('closing:orderTakingDisabled'),
-          type: "warning",
-          opened: true,
-        }));
-        setState(prev => ({
-          ...prev,
-          showFloor: true,
-          showPersons: false,
-          table: undefined,
-          order: undefined,
-          orders: [],
-          cart: [],
-        }));
-        return;
-      }
+    // PosStore settings only — do not hit Surreal on covers confirm.
+    const enforcementState = await getClosingEnforcementStateLocal(
+      new Date(),
+      enforcement.dayClosingCompleted,
+    );
+    if (enforcementState.orderTakingBlocked) {
+      setAlert(prev => ({
+        ...prev,
+        message: enforcementState.message ?? i18n.t('closing:orderTakingDisabled'),
+        type: "warning",
+        opened: true,
+      }));
+      setState(prev => ({
+        ...prev,
+        showFloor: true,
+        showPersons: false,
+        table: undefined,
+        order: undefined,
+        orders: [],
+        cart: [],
+      }));
+      return;
     }
 
     setState(prev => ({

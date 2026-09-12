@@ -4,6 +4,7 @@ import { LOGIN } from '@/routes/posr.ts';
 import {
   clearSessionTokens,
   gatewayLogout,
+  invalidateGatewaySession,
   isGatewayAuthEnabled,
 } from '@/lib/session.ts';
 
@@ -22,12 +23,7 @@ async function clearGatewaySession(): Promise<void> {
   window.dispatchEvent(new Event(SESSION_EVENT));
 }
 
-export const logoutSession = async (
-  setPage: SetAppPage,
-  navigate: NavigateFunction
-): Promise<void> => {
-  await clearGatewaySession();
-
+const clearLocalAuthState = (setPage: SetAppPage) => {
   setPage((prev) => ({
     ...prev,
     page: 'Login',
@@ -35,6 +31,28 @@ export const logoutSession = async (
     locked: false,
     lockedBy: undefined,
   }));
+};
+
+/**
+ * Hard session kill when the gateway rejects the POS JWT (e.g. sync 401).
+ * Clears tokens + jotai user and navigates to login. Does not call gateway
+ * logout (the session is already invalid).
+ */
+export const forceSessionExpiredLogout = (
+  setPage: SetAppPage,
+  navigate: NavigateFunction
+): void => {
+  invalidateGatewaySession();
+  clearLocalAuthState(setPage);
+  navigate(LOGIN, { replace: true });
+};
+
+export const logoutSession = async (
+  setPage: SetAppPage,
+  navigate: NavigateFunction
+): Promise<void> => {
+  await clearGatewaySession();
+  clearLocalAuthState(setPage);
   navigate(LOGIN);
 };
 

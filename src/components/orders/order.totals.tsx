@@ -1,7 +1,7 @@
 import {Order as OrderModel} from "@/api/model/order.ts";
 import {MenuItem} from "@/api/model/cart_item.ts";
 import React, {CSSProperties, useMemo} from "react";
-import {calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
+import {calculateChangeDue, calculateOrderExtrasTotal, calculateOrderTotal, calculateOrderTotalsPreview} from "@/lib/cart.ts";
 import {
   calculateCartItemsBaseTotal,
   calculateCartTotalsWithTaxes,
@@ -95,11 +95,17 @@ export const OrderTotals = ({order, cart, className}: Props) => {
     return getOrderTaxBreakdown(order);
   }, [order, cart]);
 
+  // Same as payment receiving: tendered − order total.
+  // Do NOT sum (payable − amount) per line — each line stores the full check
+  // payable, so multi-tender double-counts and inflates change.
   const changeDue = useMemo(() => {
-    return order?.payments
-      ?.filter(item => item !== null)
-      ?.reduce((prev, item) => Number(prev) + Number(item.payable ?? 0) - Number(item.amount ?? 0), 0)
-  }, [order?.payments]);
+    const payments = order?.payments?.filter((item) => item != null) ?? [];
+    if (payments.length === 0) {
+      return 0;
+    }
+    const tendered = payments.reduce((sum, item) => sum + Number(item.amount ?? 0), 0);
+    return calculateChangeDue(tendered, preview.total);
+  }, [order?.payments, preview.total]);
 
   /** Detail label for a discount line: "10% Summer Sale" or "50 Summer Sale" */
   const formatDiscountDetail = (name: string | undefined | null, valueType?: string | null, rate?: number | null) => {
@@ -230,7 +236,7 @@ export const OrderTotals = ({order, cart, className}: Props) => {
         <div className="flex-1">{t('totals.total')}</div>
         <div className="text-right">{withCurrency(preview.total)}</div>
       </div>
-      {order?.payments?.length > 0 && changeDue !== 0 && (
+      {order?.payments?.length > 0 && changeDue > 0 && (
         <>
           <div className="separator h-[2px]" style={separatorStyle}></div>
           <div className="flex">

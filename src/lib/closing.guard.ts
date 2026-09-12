@@ -90,12 +90,33 @@ async function loadClosingCycleConfigLocal(): Promise<{
   };
 }
 
+/**
+ * FOH-safe closing gate: PosStore `setting` only — no Surreal round-trips.
+ * Pass `dayClosingCompleted` from the cached enforcement atom when available.
+ */
+export async function getClosingEnforcementStateLocal(
+  now: Date = new Date(),
+  dayClosingCompleted = false,
+): Promise<ClosingEnforcementState> {
+  const {config} = await loadClosingCycleConfigLocal();
+  return enforcementFromConfig(config, dayClosingCompleted, now);
+}
+
 async function resolveClosingCycleConfig(db: DBLike): Promise<ClosingCycleConfig> {
+  // Prefer PosStore so FOH / background ticks do not depend on Surreal for config.
+  try {
+    const local = await loadClosingCycleConfigLocal();
+    if (local.setting) {
+      return local.config;
+    }
+  } catch {
+    // Dexie not ready yet — fall through to Surreal.
+  }
   try {
     const {config} = await loadClosingCycleConfig(db);
     return config;
   } catch (error) {
-    console.warn("Closing cycle: Surreal unavailable, using PosStore settings", error);
+    console.warn("Closing cycle: Surreal unavailable, using PosStore defaults", error);
     const {config} = await loadClosingCycleConfigLocal();
     return config;
   }

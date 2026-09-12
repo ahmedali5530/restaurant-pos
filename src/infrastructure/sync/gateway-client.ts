@@ -1,4 +1,4 @@
-import { getSessionToken } from '@/lib/session.ts';
+import { getSessionToken, invalidateGatewaySession } from '@/lib/session.ts';
 import {
   POS_SCHEMA_VERSION,
   POS_SYNC_PROTOCOL_VERSION,
@@ -29,6 +29,10 @@ async function syncFetch<T>(
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok || body?.ok === false) {
+    if (response.status === 401) {
+      // Sync always uses the POS session JWT — treat 401 as hard session death.
+      invalidateGatewaySession();
+    }
     const error = new Error(body?.error || `Sync request failed (${response.status})`);
     (error as any).status = response.status;
     (error as any).code = body?.code;

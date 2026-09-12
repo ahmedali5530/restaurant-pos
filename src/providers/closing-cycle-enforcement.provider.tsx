@@ -3,7 +3,10 @@ import { useAtom, useSetAtom } from "jotai";
 import { toast } from "sonner";
 import { useDB } from "@/api/db/db.ts";
 import { appPage, closingEnforcementAtom, defaultClosingEnforcementState } from "@/store/jotai.ts";
-import { getClosingEnforcementState } from "@/lib/closing.guard.ts";
+import {
+  getClosingEnforcementState,
+  getClosingEnforcementStateLocal,
+} from "@/lib/closing.guard.ts";
 import { CLOSING } from "@/routes/posr.ts";
 import {useTranslation} from "react-i18next";
 
@@ -49,7 +52,13 @@ export const ClosingCycleEnforcementProvider: React.FC<ClosingCycleEnforcementPr
       }
 
       try {
-        const state = await getClosingEnforcementState(dbRef.current);
+        // Prefer PosStore for cycle windows; only hit Surreal when online so
+        // day-closing completion can be verified.
+        const online =
+          typeof navigator === "undefined" ? true : navigator.onLine;
+        const state = online
+          ? await getClosingEnforcementState(dbRef.current)
+          : await getClosingEnforcementStateLocal();
         if (!isActive) {
           return;
         }

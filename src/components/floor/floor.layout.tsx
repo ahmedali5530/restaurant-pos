@@ -14,7 +14,7 @@ import {faChair} from "@fortawesome/free-solid-svg-icons";
 import {LiveSubscription} from "surrealdb";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
-import {getClosingEnforcementState} from "@/lib/closing.guard.ts";
+import {getClosingEnforcementStateLocal} from "@/lib/closing.guard.ts";
 import {Link} from "react-router";
 import {useTranslation} from "react-i18next";
 import i18n from "@/lib/i18n.ts";
@@ -30,8 +30,6 @@ export const FloorLayout = () => {
   const [, setSettings] = useAtom(appSettings);
   const db = useDB();
   const { isEffectivelyConnected } = useDatabase();
-  const [liveQuery, setLiveQuery] = useState<LiveSubscription | null>(null);
-  const [tablesLiveQuery, setTablesLiveQuery] = useState<LiveSubscription | null>(null);
   const [page] = useAtom(appPage);
   const [, setAlert] = useAtom(appAlert);
   const [settings] = useAtom(appSettings);
@@ -148,37 +146,61 @@ export const FloorLayout = () => {
 
   const runLiveQuery = async () => {
     const result = await db.live(Tables.orders, function () {
-      void terminalSyncService.synchronize().catch(() => undefined).then(refreshOrders);
+      // Dexie first — do not wait on sync before refreshing the floor grid.
+      void refreshOrders();
+      void terminalSyncService.synchronize().catch(() => undefined);
     });
-
-    setLiveQuery(result);
+    return result;
   }
 
   // Surreal live on floor_table is only a wake-up: another terminal's lock lands
   // in Dexie through sync pull, then the local read above refreshes the floor.
   const runTablesLiveQuery = async () => {
     const result = await db.live(Tables.tables, function () {
-      void terminalSyncService.synchronize().catch(() => undefined).then(fetchTables);
+      void fetchTables();
+      void terminalSyncService.synchronize().catch(() => undefined);
     });
-
-    setTablesLiveQuery(result);
+    return result;
   }
 
   useEffect(() => {
+    let cancelled = false;
+    const lives: LiveSubscription[] = [];
+
     void fetchTables();
-    runLiveQuery().then();
-    runTablesLiveQuery().then();
+    void refreshOrders();
+
+    void (async () => {
+      try {
+        const ordersLive = await runLiveQuery();
+        lives.push(ordersLive);
+        if (cancelled) {
+          await ordersLive.kill().catch(() => undefined);
+          return;
+        }
+        const tablesLive = await runTablesLiveQuery();
+        lives.push(tablesLive);
+        if (cancelled) {
+          await tablesLive.kill().catch(() => undefined);
+        }
+      } catch (error) {
+        console.warn('Floor live subscriptions unavailable', error);
+      }
+    })();
 
     return () => {
-      liveQuery?.kill().catch(() => undefined);
-      tablesLiveQuery?.kill().catch(() => undefined);
-    }
-  }, []);
+      cancelled = true;
+      for (const live of lives) {
+        void live.kill().catch(() => undefined);
+      }
+    };
+  }, [refreshOrders]);
 
   // Lock state changes (own writes + pulled rows) refresh the table chrome.
   useEffect(() => {
     const onLocalWrite = () => {
       void fetchTables();
+      void refreshOrders();
     };
     window.addEventListener('posr-posstore-write', onLocalWrite);
     window.addEventListener('posr-operational-orders-updated', onLocalWrite);
@@ -186,7 +208,7 @@ export const FloorLayout = () => {
       window.removeEventListener('posr-posstore-write', onLocalWrite);
       window.removeEventListener('posr-operational-orders-updated', onLocalWrite);
     };
-  }, []);
+  }, [refreshOrders]);
 
   useEffect(() => {
     if (isClosingLocked && closingLockMessage) {
@@ -231,14 +253,11 @@ export const FloorLayout = () => {
   }
 
   const onClick = async (item: Table) => {
-    // Local-first: use cached closing enforcement (provider refreshes when online;
-    // offline falls back to PosStore settings inside getClosingEnforcementState).
-    let enforcementState = enforcement;
-    try {
-      enforcementState = await getClosingEnforcementState(db);
-    } catch (error) {
-      console.warn("Closing enforcement live check failed; using cached state", error);
-    }
+    // PosStore settings only — do not hit Surreal on table select.
+    const enforcementState = await getClosingEnforcementStateLocal(
+      new Date(),
+      enforcement.dayClosingCompleted,
+    );
     if (enforcementState.orderTakingBlocked) {
       setAlert(prev => ({
         ...prev,
