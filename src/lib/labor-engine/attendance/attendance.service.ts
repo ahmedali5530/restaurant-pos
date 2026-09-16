@@ -21,6 +21,7 @@ export interface ClockInParams {
   shiftTemplateId?: string
   clockInAt?: DateInput
   notes?: string
+  source?: TimeEntrySource
 }
 
 export interface ClockOutParams {
@@ -80,7 +81,7 @@ export const clockIn = async (
     platform: params.platform ?? null,
     scheduled_shift: toEntityRecordId(params.scheduledShiftId) ?? null,
     shift_template: toEntityRecordId(params.shiftTemplateId) ?? null,
-    source: 'clock',
+    source: params.source ?? 'clock',
     approval_status: 'pending',
     attendance_status: 'present',
     notes: params.notes ?? null,

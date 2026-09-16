@@ -120,6 +120,8 @@ export enum Tables {
   integration_oauth_states = 'integration_oauth_state',
   integration_sync_runs = 'integration_sync_run',
   integration_sync_failures = 'integration_sync_failure',
+  integration_hikvision_events = 'integration_hikvision_event',
+  integration_hikvision_device_states = 'integration_hikvision_device_state',
 
   auth_permission = 'auth_permission',
   tracking = 'tracking',

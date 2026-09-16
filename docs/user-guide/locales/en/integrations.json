@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Integration queue panel."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Access {{module}}",
+    "saveConfiguration": "Save integration configuration",
+    "openConfiguration": "Open integration configuration",
+    "toggleProvider": "Enable or disable integration provider",
+    "connect": "Connect integration provider",
+    "disconnect": "Disconnect integration provider",
+    "initialSync": "Run integration initial sync",
+    "hikvisionTest": "Test Hikvision device connection",
+    "hikvisionSync": "Sync Hikvision attendance events",
+    "hikvisionPush": "Push employees to Hikvision devices"
+  },
+  "hikvision": {
+    "actionsTitle": "Device actions",
+    "actionsHelp": "Save configuration first. The API server must reach each device host (LAN or port-forwarded public IP).",
+    "testConnection": "Test connection",
+    "syncEvents": "Sync events now",
+    "pushEmployees": "Push all employees",
+    "testing": "Testing...",
+    "pushing": "Pushing...",
+    "testSuccess": "Device connection successful",
+    "syncSuccess": "Attendance events synced",
+    "pushSuccess": "Employees pushed to devices",
+    "actionFailed": "Hikvision action failed"
+  },
+  "listField": {
+    "item": "Device",
+    "add": "Add {{item}}",
+    "remove": "Remove",
+    "empty": "No {{item}}s yet. Click Add to configure one."
+  }
 }

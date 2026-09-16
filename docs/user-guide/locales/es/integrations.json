@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Panel de cola de integración."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Acceder a {{module}}",
+    "saveConfiguration": "Guardar configuración de integración",
+    "openConfiguration": "Abrir configuración de integración",
+    "toggleProvider": "Activar o desactivar proveedor de integración",
+    "connect": "Conectar proveedor de integración",
+    "disconnect": "Desconectar proveedor de integración",
+    "initialSync": "Ejecutar sincronización inicial de integración",
+    "hikvisionTest": "Probar conexión del dispositivo Hikvision",
+    "hikvisionSync": "Sincronizar eventos de asistencia Hikvision",
+    "hikvisionPush": "Enviar empleados a dispositivos Hikvision"
+  },
+  "hikvision": {
+    "actionsTitle": "Acciones del dispositivo",
+    "actionsHelp": "Guarde la configuración primero. El servidor API debe alcanzar el host de cada dispositivo (LAN o IP pública con reenvío de puertos).",
+    "testConnection": "Probar conexión",
+    "syncEvents": "Sincronizar eventos ahora",
+    "pushEmployees": "Enviar todos los empleados",
+    "testing": "Probando...",
+    "pushing": "Enviando...",
+    "testSuccess": "Conexión del dispositivo correcta",
+    "syncSuccess": "Eventos de asistencia sincronizados",
+    "pushSuccess": "Empleados enviados a los dispositivos",
+    "actionFailed": "La acción de Hikvision falló"
+  },
+  "listField": {
+    "item": "Dispositivo",
+    "add": "Agregar {{item}}",
+    "remove": "Eliminar",
+    "empty": "Aún no hay {{item}}s. Haga clic en Agregar."
+  }
 }

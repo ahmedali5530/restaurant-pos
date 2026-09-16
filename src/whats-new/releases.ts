@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-14',
+    title: 'Hikvision attendance integration',
+    items: [
+      'Integrations → Hikvision Attendance connects access terminals over ISAPI (Digest) through the API proxy — LAN IP or port-forwarded public host.',
+      'When enabled, the plugin polls device events into time entries (source: device), preferring attendanceStatus and falling back to odd/even punch pairing.',
+      'HR employee create/update/terminate pushes or deletes persons on the device (employee_number ↔ employeeNo); Configuration includes Test, Sync events, and Push all employees.',
+    ],
+  },
+  {
+    date: '2026-09-14',
     title: 'Orders card hydrate and ghost checks',
     items: [
       'Opening Orders no longer shows a Surreal “subtraction” error when hydrating order cards — order ids are bound as query parameters instead of pasted into SurrealQL.',

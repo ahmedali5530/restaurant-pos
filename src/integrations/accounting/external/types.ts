@@ -49,7 +49,8 @@ export type ExternalEntityType =
   | 'payment'
   | 'refund_receipt'
   | 'journal_entry'
-  | 'credit_memo';
+  | 'credit_memo'
+  | 'employee';
 
 export type SyncMode = 'full' | 'incremental' | 'manual';
 

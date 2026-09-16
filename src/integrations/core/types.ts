@@ -96,6 +96,7 @@ export type ProviderManifestFieldType =
   | 'dropdown'
   | 'certificate'
   | 'json'
+  | 'list'
   | 'dynamic'
   | 'account'
   | 'externalEntity'
@@ -111,6 +112,10 @@ export interface ProviderManifestField {
   placeholder?: string;
   helpText?: string;
   entityType?: string;
+  /** Nested fields when type is `list` (repeatable object rows). */
+  itemFields?: ProviderManifestField[];
+  /** Singular label for list items, e.g. "Device". */
+  itemLabel?: string;
   options?: ProviderManifestFieldOption[];
   validation?: {
     pattern?: string;

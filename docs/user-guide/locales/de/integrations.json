@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Warteschlangenpanel."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Zugriff auf {{module}}",
+    "saveConfiguration": "Integrationskonfiguration speichern",
+    "openConfiguration": "Integrationskonfiguration öffnen",
+    "toggleProvider": "Integrationsanbieter aktivieren oder deaktivieren",
+    "connect": "Integrationsanbieter verbinden",
+    "disconnect": "Integrationsanbieter trennen",
+    "initialSync": "Initiale Integration-Synchronisation ausführen",
+    "hikvisionTest": "Hikvision-Geräteverbindung testen",
+    "hikvisionSync": "Hikvision-Anwesenheitsereignisse synchronisieren",
+    "hikvisionPush": "Mitarbeiter an Hikvision-Geräte senden"
+  },
+  "hikvision": {
+    "actionsTitle": "Geräteaktionen",
+    "actionsHelp": "Konfiguration zuerst speichern. Der API-Server muss jeden Geräte-Host erreichen (LAN oder öffentlich mit Portweiterleitung).",
+    "testConnection": "Verbindung testen",
+    "syncEvents": "Ereignisse jetzt synchronisieren",
+    "pushEmployees": "Alle Mitarbeiter senden",
+    "testing": "Teste...",
+    "pushing": "Sende...",
+    "testSuccess": "Geräteverbindung erfolgreich",
+    "syncSuccess": "Anwesenheitsereignisse synchronisiert",
+    "pushSuccess": "Mitarbeiter an Geräte gesendet",
+    "actionFailed": "Hikvision-Aktion fehlgeschlagen"
+  },
+  "listField": {
+    "item": "Gerät",
+    "add": "{{item}} hinzufügen",
+    "remove": "Entfernen",
+    "empty": "Noch keine {{item}}e. Klicken Sie auf Hinzufügen."
+  }
 }

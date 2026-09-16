@@ -15,6 +15,7 @@ import {
   MAX_UPLOAD_BYTES,
 } from '@/utils/files.ts';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 type SelectOption = { label: string; value: string | number | boolean };
 
@@ -208,94 +209,239 @@ const ImageField = ({ value, onChange, field }: DynamicFieldProps) => {
   );
 };
 
+const createListItemDefaults = (itemFields: ProviderManifestField[] = []): Record<string, unknown> => {
+  const item: Record<string, unknown> = {
+    id: `device-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`}`,
+  };
+  for (const nested of itemFields) {
+    if (nested.key === 'id') continue;
+    if (nested.defaultValue !== undefined) {
+      item[nested.key] = nested.defaultValue;
+    } else if (nested.type === 'switch' || nested.type === 'checkbox') {
+      item[nested.key] = false;
+    } else if (nested.type === 'number') {
+      item[nested.key] = nested.validation?.min ?? 0;
+    } else {
+      item[nested.key] = '';
+    }
+  }
+  return item;
+};
+
+const normalizeListValue = (value: unknown): Record<string, unknown>[] => {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object');
+  }
+  if (typeof value === 'string' && value.trim()) {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === 'object');
+      }
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
+
+const ListField = ({ field, value, onChange, providerId }: DynamicFieldProps) => {
+  const { t } = useTranslation('integrations');
+  const items = useMemo(() => normalizeListValue(value), [value]);
+  const itemFields = field.itemFields ?? [];
+  const itemLabel = field.itemLabel || t('listField.item', { defaultValue: 'Item' });
+
+  const updateItem = (index: number, key: string, next: unknown) => {
+    const copy = items.map((item, i) => (i === index ? { ...item, [key]: next } : item));
+    onChange(copy);
+  };
+
+  const addItem = () => {
+    onChange([...items, createListItemDefaults(itemFields)]);
+  };
+
+  const removeItem = (index: number) => {
+    onChange(items.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-4">
+      {items.length === 0 && (
+        <p className="text-sm text-muted">
+          {t('listField.empty', { item: itemLabel.toLowerCase(), defaultValue: `No ${itemLabel.toLowerCase()}s yet.` })}
+        </p>
+      )}
+
+      {items.map((item, index) => {
+        const title =
+          (typeof item.name === 'string' && item.name.trim()) ||
+          (typeof item.host === 'string' && item.host.trim()) ||
+          `${itemLabel} ${index + 1}`;
+
+        return (
+          <div
+            key={String(item.id ?? index)}
+            className="rounded-lg border border-border bg-surface p-4 space-y-4"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-medium text-sm truncate">{title}</p>
+              <Button type="button" variant="secondary" onClick={() => removeItem(index)}>
+                {t('listField.remove', { defaultValue: 'Remove' })}
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {itemFields
+                .filter((nested) => nested.key !== 'id')
+                .filter((nested) => {
+                  if (!nested.dependsOn) return true;
+                  return item[nested.dependsOn.field] === nested.dependsOn.equals;
+                })
+                .map((nested) => (
+                  <div
+                    key={nested.key}
+                    className={nested.type === 'switch' || nested.type === 'checkbox' ? 'md:col-span-2' : ''}
+                  >
+                    {nested.type !== 'switch' && nested.type !== 'checkbox' && (
+                      <label className="block text-sm font-medium mb-1">{nested.label}</label>
+                    )}
+                    <div>
+                      <DynamicField
+                        field={nested}
+                        value={item[nested.key]}
+                        providerId={providerId}
+                        onChange={(next) => updateItem(index, nested.key, next)}
+                      />
+                    </div>
+                    {nested.helpText && <p className="text-xs text-muted mt-1">{nested.helpText}</p>}
+                  </div>
+                ))}
+            </div>
+          </div>
+        );
+      })}
+
+      <Button type="button" variant="primary" onClick={addItem}>
+        {t('listField.add', { item: itemLabel, defaultValue: `Add ${itemLabel}` })}
+      </Button>
+    </div>
+  );
+};
+
 export const DynamicField = ({ field, value, onChange, providerId }: DynamicFieldProps) => {
   switch (field.type) {
     case 'image':
       return <ImageField field={field} value={value} onChange={onChange} providerId={providerId} />;
+    case 'list':
+      return <ListField field={field} value={value} onChange={onChange} providerId={providerId} />;
     case 'number':
       return (
-        <Input
-          type="number"
-          value={value === undefined || value === null ? '' : String(value)}
-          onChange={(event) => onChange(Number(event.target.value))}
-          placeholder={field.placeholder}
-        />
+        <div>
+          <Input
+            type="number"
+            value={value === undefined || value === null ? '' : String(value)}
+            onChange={(event) => onChange(Number(event.target.value))}
+            placeholder={field.placeholder}
+          />
+        </div>
       );
     case 'password':
       return (
-        <Input
-          type="password"
-          value={(value as string | undefined) ?? ''}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={field.placeholder}
-        />
+        <div>
+          <Input
+            type="password"
+            value={(value as string | undefined) ?? ''}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={field.placeholder}
+          />
+        </div>
       );
     case 'checkbox':
       return (
-        <Checkbox
-          checked={Boolean(value)}
-          onChange={(event) => onChange((event.target as HTMLInputElement).checked)}
-          label={field.label}
-        />
+        <div>
+          <Checkbox
+            checked={Boolean(value)}
+            onChange={(event) => onChange((event.target as HTMLInputElement).checked)}
+            label={field.label}
+          />
+        </div>
       );
     case 'switch':
       return (
-        <Switch
-          checked={Boolean(value)}
-          onChange={(event) => onChange((event.target as HTMLInputElement).checked)}
-        >
-          {field.label}
-        </Switch>
+        <div>
+          <Switch
+            checked={Boolean(value)}
+            onChange={(event) => onChange((event.target as HTMLInputElement).checked)}
+          >
+            {field.label}
+          </Switch>
+        </div>
       );
     case 'dropdown':
       return (
-        <ReactSelect<SelectOption, false>
-          options={(field.options ?? []).map((option) => ({
-            label: option.label,
-            value: option.value,
-          }))}
-          value={
-            (field.options ?? [])
-              .map((option) => ({ label: option.label, value: option.value }))
-              .find((option) => String(option.value) === String(value)) ?? null
-          }
-          onChange={(option) => onChange(option?.value ?? '')}
-          placeholder={field.placeholder ?? 'Select'}
-        />
+        <div>
+          <ReactSelect<SelectOption, false>
+            options={(field.options ?? []).map((option) => ({
+              label: option.label,
+              value: option.value,
+            }))}
+            value={
+              (field.options ?? [])
+                .map((option) => ({ label: option.label, value: option.value }))
+                .find((option) => String(option.value) === String(value)) ?? null
+            }
+            onChange={(option) => onChange(option?.value ?? '')}
+            placeholder={field.placeholder ?? 'Select'}
+          />
+        </div>
       );
     case 'account':
-      return <AccountField field={field} value={value} onChange={onChange} />;
+      return (
+        <div>
+          <AccountField field={field} value={value} onChange={onChange} />
+        </div>
+      );
     case 'externalEntity':
-      return <ExternalEntityField field={field} value={value} onChange={onChange} providerId={providerId} />;
+      return (
+        <div>
+          <ExternalEntityField field={field} value={value} onChange={onChange} providerId={providerId} />
+        </div>
+      );
     case 'json':
       return (
-        <Textarea
-          rows={4}
-          enableKeyboard={false}
-          value={typeof value === 'string' ? value : JSON.stringify(value ?? {}, null, 2)}
-          onChange={(event) => onChange((event.target as HTMLTextAreaElement).value)}
-          placeholder={field.placeholder}
-        />
+        <div>
+          <Textarea
+            rows={4}
+            enableKeyboard={false}
+            value={typeof value === 'string' ? value : JSON.stringify(value ?? {}, null, 2)}
+            onChange={(event) => onChange((event.target as HTMLTextAreaElement).value)}
+            placeholder={field.placeholder}
+          />
+        </div>
       );
     case 'certificate':
       return (
-        <Input
-          type="text"
-          value={(value as string | undefined) ?? ''}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={field.placeholder ?? 'Paste certificate content or reference'}
-        />
+        <div>
+          <Input
+            type="text"
+            value={(value as string | undefined) ?? ''}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={field.placeholder ?? 'Paste certificate content or reference'}
+          />
+        </div>
       );
     case 'dynamic':
     case 'text':
     default:
       return (
-        <Input
-          type="text"
-          value={(value as string | undefined) ?? ''}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder={field.placeholder}
-        />
+        <div>
+          <Input
+            type="text"
+            value={(value as string | undefined) ?? ''}
+            onChange={(event) => onChange(event.target.value)}
+            placeholder={field.placeholder}
+          />
+        </div>
       );
   }
 };

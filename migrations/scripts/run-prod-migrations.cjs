@@ -90,6 +90,7 @@ const MIGRATION_PLAN = [
   { id: '2026_09_06_sync_schemaless_reset', file: '2026_09_06_sync_schemaless_reset.surql' },
   { id: '2026_09_06_order_sync_ownership_fields', file: '2026_09_06_order_sync_ownership_fields.surql' },
   { id: '2026_09_12_refund_print_settings', file: '2026_09_12_refund_print_settings.surql' },
+  { id: '2026_09_14_hikvision_attendance_integration', file: '2026_09_14_hikvision_attendance_integration.surql' },
 ];
 
 const rows = (result) => {

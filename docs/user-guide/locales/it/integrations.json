@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Pannello coda."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Accedi a {{module}}",
+    "saveConfiguration": "Salva configurazione integrazione",
+    "openConfiguration": "Apri configurazione integrazione",
+    "toggleProvider": "Abilita o disabilita il fornitore di integrazione",
+    "connect": "Collega il fornitore di integrazione",
+    "disconnect": "Disconnetti il fornitore di integrazione",
+    "initialSync": "Esegui sincronizzazione iniziale integrazione",
+    "hikvisionTest": "Testa connessione dispositivo Hikvision",
+    "hikvisionSync": "Sincronizza eventi presenza Hikvision",
+    "hikvisionPush": "Invia dipendenti ai dispositivi Hikvision"
+  },
+  "hikvision": {
+    "actionsTitle": "Azioni dispositivo",
+    "actionsHelp": "Salva prima la configurazione. Il server API deve raggiungere ogni host (LAN o IP pubblico con port forwarding).",
+    "testConnection": "Testa connessione",
+    "syncEvents": "Sincronizza eventi ora",
+    "pushEmployees": "Invia tutti i dipendenti",
+    "testing": "Test in corso...",
+    "pushing": "Invio in corso...",
+    "testSuccess": "Connessione dispositivo riuscita",
+    "syncSuccess": "Eventi di presenza sincronizzati",
+    "pushSuccess": "Dipendenti inviati ai dispositivi",
+    "actionFailed": "Azione Hikvision non riuscita"
+  },
+  "listField": {
+    "item": "Dispositivo",
+    "add": "Aggiungi {{item}}",
+    "remove": "Rimuovi",
+    "empty": "Nessun {{item}} ancora. Fai clic su Aggiungi."
+  }
 }

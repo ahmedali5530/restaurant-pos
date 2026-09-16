@@ -29,6 +29,10 @@ type ConfigurableProvider = IntegrationProvider & {
   setDbLoader?: (loader: () => any) => void;
   setJobEnqueuer?: (enqueuer: (request: IntegrationExecutionRequest) => Promise<unknown>) => void;
   setConfigSaver?: (saver: (values: Record<string, unknown>) => Promise<void>) => void;
+  setSchedulerRegisterer?: (
+    register: (definition: import('@/integrations/scheduler/scheduler-engine.ts').ScheduledJobDefinition) => void,
+    unregister?: (jobId: string) => void
+  ) => void;
 };
 
 export class IntegrationManager {
@@ -70,9 +74,13 @@ export class IntegrationManager {
       configurable.setDbLoader(this.dbLoader);
     }
     if (typeof configurable.setJobEnqueuer === 'function') {
-      // External accounting providers (QBO, Xero) always go through the queue
-      // so the sale settlement thread is never blocked by external API calls.
-      if (provider.getManifest().category === 'accounting' && provider.getManifest().id !== 'provider:internal-accounting') {
+      // External accounting + hardware device writes always go through the queue
+      // so the UI thread is never blocked by remote API calls.
+      const shouldQueue =
+        (provider.getManifest().category === 'accounting' &&
+          provider.getManifest().id !== 'provider:internal-accounting') ||
+        provider.getManifest().category === 'hardware';
+      if (shouldQueue) {
         configurable.setJobEnqueuer((request) =>
           this.queue.enqueue({
             providerId,
@@ -89,6 +97,12 @@ export class IntegrationManager {
     }
     if (typeof configurable.setConfigSaver === 'function') {
       configurable.setConfigSaver((values) => this.configSaver(providerId, values));
+    }
+    if (typeof configurable.setSchedulerRegisterer === 'function') {
+      configurable.setSchedulerRegisterer(
+        (definition) => this.scheduler.register(definition),
+        (jobId) => this.scheduler.unregister(jobId)
+      );
     }
   }
 

@@ -168,6 +168,25 @@ Publish with `entityAfterWrite` / `emitEntityCrudSave` / `publishEntityChanged`.
 - Implement `handleEvent(event)` — payload is self-describing; no domain coupling.
 - Do not block the POS thread with slow I/O; prefer queue actions if needed.
 
+### Built-in Hikvision Attendance (`provider:hikvision-attendance`)
+
+Bundled hardware provider under `src/integrations/providers/hardware/hikvision/`.
+
+| Setting | Purpose |
+|---------|---------|
+| Devices | Terminals with name, host, port, HTTPS, username, password, enabled (add/remove cards) |
+| Poll interval | AcsEvent polling while the provider is enabled (min 30s) |
+| Event lookback | Overlap window when fetching events |
+| Auto-import punches | Write `time_entry` rows with `source: device` |
+| Auto-sync employees | Push/update/delete UserInfo on `EntityChanged` for HR employees |
+
+- Browser never talks to the device: ISAPI Digest calls go through `api` `/integrations/hikvision/*` (same pattern as QBO proxy).
+- Host may be a LAN IP or a port-forwarded public IP/domain; the API server must reach it.
+- Employee identity maps `employee.employee_number` ↔ Hikvision `employeeNoString`.
+- Punch direction prefers device `attendanceStatus`; falls back to odd/even pairing per calendar day.
+- Configuration actions: Test connection, Sync events now, Push all employees.
+- Schema: `integration_hikvision_event`, `integration_hikvision_device_state` (migration `2026_09_14_hikvision_attendance_integration`).
+
 ### Built-in Event Logger (`provider:event-logger`)
 
 Bundled provider under `src/integrations/providers/logging/`.

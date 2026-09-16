@@ -120,6 +120,32 @@ export const IntegrationsScreen = () => {
     toast.success(t('syncComplete', { count: 0 }));
   };
 
+  const runProviderExecute = async (providerId: string, action: string, payload: Record<string, unknown> = {}) => {
+    if (!manager.isProviderEnabled(providerId)) {
+      await manager.prepareAndEnableForSync(providerId);
+    }
+    const response = await manager.executeImmediate(providerId, {
+      action,
+      payload,
+    });
+    if (!response.success) {
+      throw new Error(response.error || t('hikvision.actionFailed'));
+    }
+    return response;
+  };
+
+  const handleHikvisionTestConnection = async (providerId: string) => {
+    await runProviderExecute(providerId, 'testConnection');
+  };
+
+  const handleHikvisionSyncEvents = async (providerId: string) => {
+    await runProviderExecute(providerId, 'importEvents');
+  };
+
+  const handleHikvisionPushEmployees = async (providerId: string) => {
+    await runProviderExecute(providerId, 'pushEmployees');
+  };
+
   const handleToggleProvider = (providerId: string, enabled: boolean) => {
     void protectAction(async () => {
       try {
@@ -185,6 +211,9 @@ export const IntegrationsScreen = () => {
                 onConnect={handleConnect}
                 onDisconnect={handleDisconnect}
                 onInitialSync={handleInitialSync}
+                onHikvisionTestConnection={handleHikvisionTestConnection}
+                onHikvisionSyncEvents={handleHikvisionSyncEvents}
+                onHikvisionPushEmployees={handleHikvisionPushEmployees}
               />
             </div>
           </TabPanel>

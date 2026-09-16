@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Wachtrijpaneel."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Toegang tot {{module}}",
+    "saveConfiguration": "Integratieconfiguratie opslaan",
+    "openConfiguration": "Integratieconfiguratie openen",
+    "toggleProvider": "Integratieprovider in- of uitschakelen",
+    "connect": "Integratieprovider verbinden",
+    "disconnect": "Integratieprovider verbreken",
+    "initialSync": "Initiële integratiesynchronisatie uitvoeren",
+    "hikvisionTest": "Hikvision-apparaatverbinding testen",
+    "hikvisionSync": "Hikvision-aanwezigheidsgebeurtenissen synchroniseren",
+    "hikvisionPush": "Medewerkers naar Hikvision-apparaten pushen"
+  },
+  "hikvision": {
+    "actionsTitle": "Apparaatacties",
+    "actionsHelp": "Sla eerst de configuratie op. De API-server moet elk apparaat kunnen bereiken (LAN of openbaar IP met poortforwarding).",
+    "testConnection": "Verbinding testen",
+    "syncEvents": "Gebeurtenissen nu synchroniseren",
+    "pushEmployees": "Alle medewerkers pushen",
+    "testing": "Testen...",
+    "pushing": "Pushen...",
+    "testSuccess": "Apparaatverbinding geslaagd",
+    "syncSuccess": "Aanwezigheidsgebeurtenissen gesynchroniseerd",
+    "pushSuccess": "Medewerkers naar apparaten gepusht",
+    "actionFailed": "Hikvision-actie mislukt"
+  },
+  "listField": {
+    "item": "Apparaat",
+    "add": "{{item}} toevoegen",
+    "remove": "Verwijderen",
+    "empty": "Nog geen {{item}}en. Klik op Toevoegen."
+  }
 }

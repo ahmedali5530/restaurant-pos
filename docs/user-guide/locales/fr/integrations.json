@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "Panneau file."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "Accéder à {{module}}",
+    "saveConfiguration": "Enregistrer la configuration d'intégration",
+    "openConfiguration": "Ouvrir la configuration d'intégration",
+    "toggleProvider": "Activer ou désactiver le fournisseur d'intégration",
+    "connect": "Connecter le fournisseur d'intégration",
+    "disconnect": "Déconnecter le fournisseur d'intégration",
+    "initialSync": "Lancer la synchronisation initiale d'intégration",
+    "hikvisionTest": "Tester la connexion appareil Hikvision",
+    "hikvisionSync": "Synchroniser les événements de présence Hikvision",
+    "hikvisionPush": "Pousser les employés vers les appareils Hikvision"
+  },
+  "hikvision": {
+    "actionsTitle": "Actions appareil",
+    "actionsHelp": "Enregistrez d'abord la configuration. Le serveur API doit atteindre chaque hôte (LAN ou IP publique avec redirection de port).",
+    "testConnection": "Tester la connexion",
+    "syncEvents": "Synchroniser les événements",
+    "pushEmployees": "Pousser tous les employés",
+    "testing": "Test...",
+    "pushing": "Envoi...",
+    "testSuccess": "Connexion appareil réussie",
+    "syncSuccess": "Événements de présence synchronisés",
+    "pushSuccess": "Employés poussés vers les appareils",
+    "actionFailed": "Échec de l'action Hikvision"
+  },
+  "listField": {
+    "item": "Appareil",
+    "add": "Ajouter {{item}}",
+    "remove": "Supprimer",
+    "empty": "Aucun {{item}} pour le moment. Cliquez sur Ajouter."
+  }
 }

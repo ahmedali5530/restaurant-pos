@@ -17,6 +17,9 @@ interface ConfigurationPanelProps {
   onConnect?: (providerId: string) => Promise<void>;
   onDisconnect?: (providerId: string) => Promise<void>;
   onInitialSync?: (providerId: string) => Promise<void>;
+  onHikvisionTestConnection?: (providerId: string) => Promise<void>;
+  onHikvisionSyncEvents?: (providerId: string) => Promise<void>;
+  onHikvisionPushEmployees?: (providerId: string) => Promise<void>;
 }
 
 export const ConfigurationPanel = ({
@@ -26,6 +29,9 @@ export const ConfigurationPanel = ({
   onConnect,
   onDisconnect,
   onInitialSync,
+  onHikvisionTestConnection,
+  onHikvisionSyncEvents,
+  onHikvisionPushEmployees,
 }: ConfigurationPanelProps) => {
   const { t } = useTranslation('integrations');
   const { getConfiguration, saveConfiguration } = useIntegrationConfigurationManager();
@@ -34,6 +40,7 @@ export const ConfigurationPanel = ({
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [hikvisionBusy, setHikvisionBusy] = useState<string | null>(null);
   const oauthAppliedRef = useRef(false);
 
   const selectedProvider = useMemo(
@@ -52,6 +59,7 @@ export const ConfigurationPanel = ({
 
   const isOAuth = selectedProvider?.authenticationType === 'oauth';
   const isConnected = Boolean(formValues.tenantId || formValues.realmId);
+  const isHikvision = selectedProviderId === 'provider:hikvision-attendance';
 
   useEffect(() => {
     if (!selectedProviderId) return;
@@ -153,6 +161,34 @@ export const ConfigurationPanel = ({
     });
   };
 
+  const runHikvisionAction = (
+    action: 'test' | 'sync' | 'push',
+    runner?: (providerId: string) => Promise<void>
+  ) => {
+    if (!runner || !selectedProviderId) return;
+    void protectAction(async () => {
+      setHikvisionBusy(action);
+      try {
+        await runner(selectedProviderId);
+        if (action === 'test') toast.success(t('hikvision.testSuccess'));
+        if (action === 'sync') toast.success(t('hikvision.syncSuccess'));
+        if (action === 'push') toast.success(t('hikvision.pushSuccess'));
+      } catch (err: any) {
+        toast.error(err?.message || t('hikvision.actionFailed'));
+      } finally {
+        setHikvisionBusy(null);
+      }
+    }, {
+      module: 'integrations.save_configuration',
+      description:
+        action === 'test'
+          ? t('security.hikvisionTest')
+          : action === 'sync'
+            ? t('security.hikvisionSync')
+            : t('security.hikvisionPush'),
+    });
+  };
+
   if (!selectedProvider) {
     return <div className="p-5 text-sm text-muted">{t('description')}</div>;
   }
@@ -188,6 +224,36 @@ export const ConfigurationPanel = ({
         </div>
       )}
 
+      {isHikvision && (
+        <div className="mb-6 p-4 border border-border rounded-lg bg-surface">
+          <p className="font-medium text-sm mb-3">{t('hikvision.actionsTitle')}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="primary"
+              onClick={() => runHikvisionAction('test', onHikvisionTestConnection)}
+              disabled={Boolean(hikvisionBusy)}
+            >
+              {hikvisionBusy === 'test' ? t('hikvision.testing') : t('hikvision.testConnection')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => runHikvisionAction('sync', onHikvisionSyncEvents)}
+              disabled={Boolean(hikvisionBusy)}
+            >
+              {hikvisionBusy === 'sync' ? t('syncing') : t('hikvision.syncEvents')}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => runHikvisionAction('push', onHikvisionPushEmployees)}
+              disabled={Boolean(hikvisionBusy)}
+            >
+              {hikvisionBusy === 'push' ? t('hikvision.pushing') : t('hikvision.pushEmployees')}
+            </Button>
+          </div>
+          <p className="text-xs text-muted mt-2">{t('hikvision.actionsHelp')}</p>
+        </div>
+      )}
+
       <form
         onSubmit={protectFormSubmit(() => {
           void save();
@@ -213,7 +279,10 @@ export const ConfigurationPanel = ({
               return current === field.dependsOn.equals;
             })
             .map((field) => (
-            <div key={field.key}>
+            <div
+              key={field.key}
+              className={field.type === 'list' || field.type === 'json' ? 'md:col-span-2' : undefined}
+            >
               {field.type !== 'switch' && field.type !== 'checkbox' && (
                 <label className="block text-sm font-medium mb-1">{field.label}</label>
               )}

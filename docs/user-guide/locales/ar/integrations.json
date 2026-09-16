@@ -71,5 +71,36 @@
       "image": "integrations-queue.png",
       "caption": "لوحة الطابور."
     }
-  ]
+  ],
+  "security": {
+    "accessTab": "الوصول إلى {{module}}",
+    "saveConfiguration": "حفظ إعداد التكامل",
+    "openConfiguration": "فتح إعداد التكامل",
+    "toggleProvider": "تفعيل أو تعطيل مزود التكامل",
+    "connect": "ربط مزود التكامل",
+    "disconnect": "قطع اتصال مزود التكامل",
+    "initialSync": "تشغيل المزامنة الأولية للتكامل",
+    "hikvisionTest": "اختبار اتصال جهاز Hikvision",
+    "hikvisionSync": "مزامنة أحداث حضور Hikvision",
+    "hikvisionPush": "دفع الموظفين إلى أجهزة Hikvision"
+  },
+  "hikvision": {
+    "actionsTitle": "إجراءات الجهاز",
+    "actionsHelp": "احفظ الإعدادات أولاً. يجب أن يصل خادم API إلى مضيف كل جهاز (شبكة محلية أو IP عام مع إعادة توجيه المنافذ).",
+    "testConnection": "اختبار الاتصال",
+    "syncEvents": "مزامنة الأحداث الآن",
+    "pushEmployees": "دفع جميع الموظفين",
+    "testing": "جارٍ الاختبار...",
+    "pushing": "جارٍ الدفع...",
+    "testSuccess": "نجح اتصال الجهاز",
+    "syncSuccess": "تمت مزامنة أحداث الحضور",
+    "pushSuccess": "تم دفع الموظفين إلى الأجهزة",
+    "actionFailed": "فشل إجراء Hikvision"
+  },
+  "listField": {
+    "item": "جهاز",
+    "add": "إضافة {{item}}",
+    "remove": "إزالة",
+    "empty": "لا يوجد {{item}} بعد. انقر إضافة لإعداد واحد."
+  }
 }

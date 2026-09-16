@@ -19,7 +19,10 @@
     "toggleProvider": "Activer ou désactiver le fournisseur d'intégration",
     "connect": "Connecter le fournisseur d'intégration",
     "disconnect": "Déconnecter le fournisseur d'intégration",
-    "initialSync": "Lancer la synchronisation initiale d'intégration"
+    "initialSync": "Lancer la synchronisation initiale d'intégration",
+    "hikvisionTest": "Tester la connexion appareil Hikvision",
+    "hikvisionSync": "Synchroniser les événements de présence Hikvision",
+    "hikvisionPush": "Pousser les employés vers les appareils Hikvision"
   },
   "fields": {
     "status": "État",
@@ -72,5 +75,24 @@
     "disconnected": "Déconnecté de QuickBooks"
   },
   "connectNotSupported": "La connexion n'est pas prise en charge par ce fournisseur",
-  "disconnectNotSupported": "La déconnexion n'est pas prise en charge par ce fournisseur"
+  "disconnectNotSupported": "La déconnexion n'est pas prise en charge par ce fournisseur",
+  "hikvision": {
+    "actionsTitle": "Actions appareil",
+    "actionsHelp": "Enregistrez d'abord la configuration. Le serveur API doit atteindre chaque hôte (LAN ou IP publique avec redirection de port).",
+    "testConnection": "Tester la connexion",
+    "syncEvents": "Synchroniser les événements",
+    "pushEmployees": "Pousser tous les employés",
+    "testing": "Test...",
+    "pushing": "Envoi...",
+    "testSuccess": "Connexion appareil réussie",
+    "syncSuccess": "Événements de présence synchronisés",
+    "pushSuccess": "Employés poussés vers les appareils",
+    "actionFailed": "Échec de l'action Hikvision"
+  },
+  "listField": {
+    "item": "Appareil",
+    "add": "Ajouter {{item}}",
+    "remove": "Supprimer",
+    "empty": "Aucun {{item}} pour le moment. Cliquez sur Ajouter."
+  }
 }

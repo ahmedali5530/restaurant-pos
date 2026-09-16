@@ -19,7 +19,10 @@
     "toggleProvider": "Ativar ou desativar provedor de integração",
     "connect": "Conectar provedor de integração",
     "disconnect": "Desconectar provedor de integração",
-    "initialSync": "Executar sincronização inicial de integração"
+    "initialSync": "Executar sincronização inicial de integração",
+    "hikvisionTest": "Testar conexão do dispositivo Hikvision",
+    "hikvisionSync": "Sincronizar eventos de presença Hikvision",
+    "hikvisionPush": "Enviar funcionários para dispositivos Hikvision"
   },
   "fields": {
     "status": "Status",
@@ -69,5 +72,24 @@
     "start": "Autorizar com QuickBooks",
     "callbackError": "Falha no callback OAuth. Tente novamente.",
     "disconnected": "Desconectado do QuickBooks"
+  },
+  "hikvision": {
+    "actionsTitle": "Ações do dispositivo",
+    "actionsHelp": "Salve a configuração primeiro. O servidor API deve alcançar cada host (LAN ou IP público com redirecionamento de porta).",
+    "testConnection": "Testar conexão",
+    "syncEvents": "Sincronizar eventos agora",
+    "pushEmployees": "Enviar todos os funcionários",
+    "testing": "Testando...",
+    "pushing": "Enviando...",
+    "testSuccess": "Conexão do dispositivo bem-sucedida",
+    "syncSuccess": "Eventos de presença sincronizados",
+    "pushSuccess": "Funcionários enviados aos dispositivos",
+    "actionFailed": "Ação Hikvision falhou"
+  },
+  "listField": {
+    "item": "Dispositivo",
+    "add": "Adicionar {{item}}",
+    "remove": "Remover",
+    "empty": "Nenhum {{item}} ainda. Clique em Adicionar."
   }
 }
