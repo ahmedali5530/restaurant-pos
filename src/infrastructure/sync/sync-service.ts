@@ -70,13 +70,13 @@ const OPERATIONAL_TABLES = new Set<string>([
 ]);
 
 /**
- * Reserved int ranges per series. Surreal `invoice_number` / `auto_id` are ints,
- * so the terminal must never fall back to provisional strings — reserve big
- * blocks and top up as soon as half is consumed.
+ * Reserved int ranges per series. Invoice numbers are minted on the gateway at
+ * CREATE; only `auto_id` still uses a local reserved block. There is no string
+ * fallback — when the auto_id pool is exhausted offline, split/merge must wait.
  */
 const NUMBER_BLOCK_SIZE = 200;
 const NUMBER_REFILL_THRESHOLD = NUMBER_BLOCK_SIZE / 2;
-const NUMBER_SERIES: NumberSeries[] = ['invoice', 'auto_id'];
+const NUMBER_SERIES: NumberSeries[] = ['auto_id'];
 
 let syncInFlight: Promise<void> | null = null;
 /** Set when synchronize() is requested while a run is already in flight. */
@@ -311,6 +311,9 @@ export class TerminalSyncService {
             );
             throw error;
           }
+          if (result.assignments?.length) {
+            await posStore.applyInvoiceAssignments(result.assignments);
+          }
           if (result.accepted?.length) {
             for (const operationId of result.accepted) clearConflictAutoRetry(operationId);
             await posStore.markOutboxAccepted(result.accepted);
@@ -482,11 +485,11 @@ export class TerminalSyncService {
     }
 
     if (options?.required) {
-      const invoiceLeft = await posStore.countReservedNumbers('invoice', day);
-      if (invoiceLeft === 0) {
+      const autoIdLeft = await posStore.countReservedNumbers('auto_id');
+      if (autoIdLeft === 0) {
         throw lastError instanceof Error
           ? lastError
-          : new Error('No reserved invoice numbers after refill — check the gateway');
+          : new Error('No reserved receipt numbers after refill — check the gateway');
       }
     }
   }

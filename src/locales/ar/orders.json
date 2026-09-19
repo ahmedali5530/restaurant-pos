@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "يُرجى اختيار طاولة جديدة",
     "success": "تم الدمج بنجاح في {{invoiceNumber}}",
+    "successPending": "تم دمج الطلبات. سيظهر رقم الفاتورة بعد المزامنة.",
     "failed": "فشل دمج الطلبات",
     "chooseTable": "اختر طاولة",
     "selectTwoOrMore": "اختر طلبين أو أكثر",

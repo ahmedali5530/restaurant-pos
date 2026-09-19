@@ -9,6 +9,7 @@ import { hydrateOrderForTaxRecompute } from './catalog.ts';
 import {
   buildOrderItemRows,
   enqueue,
+  invoiceAllocateScope,
   notifyWrite,
   nowIso,
   orderKey,
@@ -900,7 +901,7 @@ export interface SplitGroup {
   seat?: string | null;
   /** Fresh lines to create on the child (amount mode clones). */
   newItems?: CreateOrderItemInput[];
-  invoiceNumber: number;
+  invoiceNumber?: number;
   autoId?: number;
   /** Extra order fields for the child (e.g. tags). */
   order?: Record<string, any>;
@@ -1015,6 +1016,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
             data: { ...child, items: childItemIds },
             items: clonedItems,
             kitchens: clonedKitchens,
+            ...invoiceAllocateScope(),
           },
           createdAt,
         });
@@ -1076,7 +1078,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
 
 export interface MergeOrdersInput {
   sourceIds: string[];
-  invoiceNumber: number;
+  invoiceNumber?: number;
   autoId?: number;
   userId: string;
   /** Meta for the merged order (table, floor, order_type, covers, customer). */
@@ -1167,7 +1169,14 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
         aggregateId: mergedId,
         operationType: 'CREATE_RECORD',
         expectedVersion: 0,
-        payload: { table: 'order', recordId: mergedId, data: merged, items: [], kitchens: [] },
+        payload: {
+          table: 'order',
+          recordId: mergedId,
+          data: merged,
+          items: [],
+          kitchens: [],
+          ...invoiceAllocateScope(),
+        },
         createdAt,
       });
 

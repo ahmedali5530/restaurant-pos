@@ -2,7 +2,8 @@
 
 ## Status
 
-Accepted — 2026-09-04
+Accepted — 2026-09-04  
+Amended **v1.1** — 2026-09-19 (gateway-assigned invoice numbers)
 
 ## Context
 
@@ -26,6 +27,29 @@ Product requirements: FOH must work when the network or Surreal is down; sync to
 ### 2026-09-08 — offline-only ownership
 
 Hard cross-terminal locks were incorrectly applied online. Ownership is now an offline isolation mechanism; online multi-terminal edits are allowed and transfer `owner_terminal_id` to the pushing terminal.
+
+### v1.1 — Gateway-assigned invoice numbers (2026-09-19)
+
+Pre-reserved invoice blocks cannot be fiscal-safe across tills: each terminal’s
+pool is a disjoint range, so the next sale on till B jumps (1, then 201).
+Fiscal authorities reject those holes. Dual “working vs fiscal” sequences were
+rejected as an evasion foot-gun.
+
+**Invoice numbers are minted only on the gateway**, on a shared day-scoped
+counter, at `CREATE_RECORD` for `order`. Every till shares one restaurant-wide
+sequence that restarts at 1 each business day.
+
+- The terminal creates (and splits/merges) checks **without** `invoice_number`.
+  Floor, kitchen, and cart keep working. The number is written when push
+  returns `assignments` and is applied **before** the outbox row is marked
+  accepted. A retried CREATE returns the already-assigned number.
+- Local `auto_id` (and receipt) still use reserved pools. Invoice refill no
+  longer runs. `NUMBERS_EXHAUSTED` applies to those leftover pools, not to
+  creating a check.
+- Fiscal submit **waits** until the gateway number exists and uses that same
+  integer. Auto-close skips checks still waiting for a number.
+- Open Dexie shells with no invoice, owner, or items are still pruned; owned
+  local creates waiting for a number are not ghosts.
 
 ## Consequences
 
@@ -56,9 +80,11 @@ mirror" helpers. All of them now go through `PosStore` commands:
   `order_item` / `order_item_kitchen` / `floor_table`, `CREATE_RECORD` with
   parent linking, `expectedVersion` → `VERSION_CONFLICT`, server-side steal
   staleness check. See `gateway/src/sync-protocol.md`.
-- **Numbers**: invoice / auto ids are only ever ints from reserved ranges
+- **Numbers (v1.0)**: invoice / auto ids were ints from reserved ranges
   (blocks of 200, refilled at 50 %). Creating a check with an exhausted pool
-  fails with `NUMBERS_EXHAUSTED` instead of emitting provisional strings.
+  failed with `NUMBERS_EXHAUSTED` instead of emitting provisional strings.
+  **Superseded by v1.1** — invoice numbers are gateway-assigned at CREATE;
+  only `auto_id` / receipt still use local reserved pools.
 - **Side effects** (fiscal, accounting publish, tracking, print recording) run
   after the local commit and never block or roll back the mutation.
 - **Robustness**: outbox transport failures back off exponentially and are

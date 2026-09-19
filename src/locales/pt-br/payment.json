@@ -12,7 +12,9 @@
     "createOrder": "Não foi possível criar o pedido.",
     "openPayment": "Não foi possível abrir o pagamento.",
     "notOwner": "Este pedido está aberto em outro terminal",
-    "numbersExhausted": "Sem números de fatura disponíveis offline — reconecte-se para continuar criando pedidos",
+    "numbersExhausted": "Sem IDs de pedido reservados offline — reconecte-se para continuar",
+    "invoicePendingSync": "O número da fatura está pendente de sincronização — aguarde o pedido ficar online antes do envio fiscal",
+    "fiscalFailed": "Falha no envio fiscal",
     "fireFailed": "Não foi possível enviar os itens em espera"
   },
   "tracking": {

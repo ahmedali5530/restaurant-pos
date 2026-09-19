@@ -456,6 +456,28 @@ export class PosStore {
     });
   }
 
+  async applyInvoiceAssignments(
+    assignments: Array<{ aggregateId?: string; invoiceNumber: number }>,
+  ): Promise<void> {
+    if (!assignments.length) return;
+    const db = getPosStoreDatabase();
+    await db.transaction('rw', db.orders, async () => {
+      for (const assignment of assignments) {
+        const raw = String(assignment.aggregateId || '');
+        if (!raw || !Number.isFinite(Number(assignment.invoiceNumber))) continue;
+        const key = raw.includes(':') ? raw : `order:${raw}`;
+        const existing = await db.orders.get(key);
+        if (!existing) continue;
+        await db.orders.put({
+          ...existing,
+          invoice_number: Number(assignment.invoiceNumber),
+          updated_at: new Date().toISOString(),
+        });
+      }
+    });
+    notifyWrite();
+  }
+
   /**
    * Earliest time the outbox may be pushed again, or `null` when nothing is in
    * backoff. Backoff is evaluated over the whole outbox (not per row) so ops for

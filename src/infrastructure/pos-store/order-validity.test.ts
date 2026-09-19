@@ -7,16 +7,25 @@ import {
 import type { OrderRecord } from './types.ts';
 
 describe('order-validity', () => {
-  it('treats In Progress without invoice as ghost', () => {
+  it('treats empty In Progress shells as ghosts, not pending local creates', () => {
     expect(isGhostOperationalOrder({ status: 'In Progress', invoice_number: undefined })).toBe(true);
+    expect(isGhostOperationalOrder({
+      status: 'In Progress',
+      invoice_number: undefined,
+      owner_terminal_id: 'terminal-1',
+    })).toBe(false);
     expect(isGhostOperationalOrder({ status: 'In Progress', invoice_number: 65003 })).toBe(false);
     expect(isGhostOperationalOrder({ status: 'Paid', invoice_number: undefined })).toBe(false);
   });
 
-  it('allows materializing closed rows and open rows with invoice', () => {
+  it('allows materializing closed rows, invoiced opens, and owned pending opens', () => {
     expect(shouldMaterializeNewOrder({ status: 'Paid' })).toBe(true);
     expect(shouldMaterializeNewOrder({ status: 'In Progress', invoice_number: 1 })).toBe(true);
     expect(shouldMaterializeNewOrder({ status: 'In Progress', order_type: 'order_type:x' })).toBe(false);
+    expect(shouldMaterializeNewOrder({
+      status: 'In Progress',
+      owner_terminal_id: 'terminal-1',
+    })).toBe(true);
   });
 
   it('preserves invoice and closed status on sparse merge', () => {

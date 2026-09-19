@@ -3,19 +3,29 @@ import type { OrderRecord } from './types.ts';
 /** Statuses shown on floor / orders as live operational checks. */
 export const OPEN_OPERATIONAL_STATUSES = new Set(['In Progress', 'Pending']);
 
+function hasFiniteInvoice(value: unknown): boolean {
+  return value != null && Number.isFinite(Number(value));
+}
+
+function looksLikeRealCheck(order: Partial<OrderRecord>): boolean {
+  if (hasFiniteInvoice(order.invoice_number)) return true;
+  if (order.owner_terminal_id) return true;
+  if (Array.isArray(order.items) && order.items.length > 0) return true;
+  return false;
+}
+
 /**
- * Open checks must carry an invoice number — every real CREATE allocates one.
- * Rows without it are sync/import shells (sparse MERGE replay, id-only seeds).
+ * Open checks without any header (invoice, type, owner, items) are sync/import
+ * shells. Local creates may wait for a gateway-assigned invoice and are not ghosts.
  */
 export function isGhostOperationalOrder(
-  order: Pick<OrderRecord, 'status' | 'invoice_number'>,
+  order: Pick<OrderRecord, 'status' | 'invoice_number'> & Partial<OrderRecord>,
 ): boolean {
   const status = String(order.status ?? '');
   if (!OPEN_OPERATIONAL_STATUSES.has(status)) {
     return false;
   }
-  const inv = order.invoice_number;
-  return inv == null || !Number.isFinite(Number(inv));
+  return !looksLikeRealCheck(order);
 }
 
 /** Whether a brand-new Dexie row may be created from this patch (no existing row). */
@@ -26,8 +36,7 @@ export function shouldMaterializeNewOrder(
   if (!OPEN_OPERATIONAL_STATUSES.has(status)) {
     return true;
   }
-  const inv = patch.invoice_number;
-  return inv != null && Number.isFinite(Number(inv));
+  return looksLikeRealCheck(patch);
 }
 
 const CLOSED_STATUSES = new Set([

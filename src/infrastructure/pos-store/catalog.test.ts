@@ -327,7 +327,7 @@ describe('order item link reconcile', () => {
     expect(await db.orders.get('order:ghost-shell')).toBeUndefined();
   });
 
-  it('prunes open orders that never received an invoice number', async () => {
+  it('prunes empty open shells without invoice, owner, or items', async () => {
     resetPosStoreDatabaseForTests();
     await posStore.initialize();
     const db = (await import('@/infrastructure/pos-store/db.ts')).getPosStoreDatabase();
@@ -338,14 +338,32 @@ describe('order item link reconcile', () => {
       order_type: 'order_type:o1',
       items: [],
       created_at: new Date().toISOString(),
-      owner_terminal_id: 'terminal-x',
-      owner_heartbeat_at: new Date().toISOString(),
       server_version: 1,
     } as any);
 
     const removed = await posStore.pruneGhostOperationalOrders();
     expect(removed).toBe(1);
     expect(await db.orders.get('order:rb5e1f77333ac439196dc0c25dc155763')).toBeUndefined();
+  });
+
+  it('keeps pending local creates waiting for a gateway invoice', async () => {
+    resetPosStoreDatabaseForTests();
+    await posStore.initialize();
+    const db = (await import('@/infrastructure/pos-store/db.ts')).getPosStoreDatabase();
+
+    await db.orders.put({
+      id: 'order:pending-invoice',
+      status: 'In Progress',
+      order_type: 'order_type:o1',
+      items: [],
+      created_at: new Date().toISOString(),
+      owner_terminal_id: 'terminal-x',
+      owner_heartbeat_at: new Date().toISOString(),
+    } as any);
+
+    const removed = await posStore.pruneGhostOperationalOrders();
+    expect(removed).toBe(0);
+    expect(await db.orders.get('order:pending-invoice')).toBeDefined();
   });
 
   it('does not wipe items when applying a sparse MERGE projection', async () => {

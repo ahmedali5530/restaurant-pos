@@ -412,6 +412,71 @@ async function appendEvent(db, input) {
   return eventId;
 }
 
+function calendarDayUtc(value) {
+  const date = value ? new Date(value) : new Date();
+  if (Number.isNaN(date.getTime())) return new Date().toISOString().slice(0, 10);
+  return date.toISOString().slice(0, 10);
+}
+
+function resolveInvoiceBusinessDay(payload, data) {
+  const explicit = String(payload?.businessDay || payload?.scopeId || '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(explicit)) return explicit;
+  return calendarDayUtc(data?.created_at);
+}
+
+function businessDayUnixRange(day, payload) {
+  const start = Number(payload?.dayStartUnix);
+  const end = Number(payload?.dayEndUnix);
+  if (Number.isFinite(start) && Number.isFinite(end) && end > start) {
+    return { startUnix: start, endUnix: end };
+  }
+  const from = Date.parse(`${day}T00:00:00.000Z`);
+  return {
+    startUnix: Math.floor(from / 1000),
+    endUnix: Math.floor(from / 1000) + 86400,
+  };
+}
+
+async function seedDayInvoiceMax(db, startUnix, endUnix) {
+  try {
+    const row = first(
+      await db.query(
+        `SELECT math::max(invoice_number) AS max FROM order
+         WHERE time::unix(created_at) >= $startUnix
+           AND time::unix(created_at) < $endUnix
+         GROUP ALL`,
+        { startUnix, endUnix },
+      ),
+    );
+    const max = Number(row?.max);
+    return Number.isFinite(max) && max > 0 ? Math.floor(max) : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/** Shared day counter — the only minter of fiscal invoice numbers. */
+async function allocateInvoiceNumber(db, payload, data) {
+  const scopeId = resolveInvoiceBusinessDay(payload, data);
+  const { startUnix, endUnix } = businessDayUnixRange(scopeId, payload);
+  const counterId = toRecord('sync_number_counter', `invoice_${scopeId.replace(/-/g, '')}`);
+  let counter = first(await db.query(`SELECT * FROM $id`, { id: counterId }));
+  if (!counter) {
+    const seed = await seedDayInvoiceMax(db, startUnix, endUnix);
+    await db.query(
+      `CREATE $id SET series = $series, scope_id = $scopeId, value = $seed, updated_at = time::now()`,
+      { id: counterId, series: 'invoice', scopeId, seed },
+    );
+    counter = { value: seed };
+  }
+  const next = Number(counter.value || 0) + 1;
+  await db.query(`UPDATE $id SET value = $next, updated_at = time::now()`, {
+    id: counterId,
+    next,
+  });
+  return next;
+}
+
 async function findAcceptedOperation(db, operationId) {
   return first(
     await db.query(
@@ -491,7 +556,19 @@ async function replaceOrderRelation(db, orderId, payload) {
 async function applyOperation(db, op, terminalId, scopeId) {
   const accepted = await findAcceptedOperation(db, op.operationId);
   if (accepted) {
-    return { status: 'accepted', eventId: accepted.event_id };
+    const acceptedType = op.operationType || op.type;
+    const acceptedTable = (op.payload || {}).table || op.aggregateType;
+    let invoiceNumber = null;
+    if (acceptedType === 'CREATE_RECORD' && acceptedTable === 'order') {
+      const existing = await loadOrder(db, String(op.payload?.recordId || op.aggregateId || ''));
+      const n = Number(existing?.invoice_number);
+      if (Number.isFinite(n) && n > 0) invoiceNumber = n;
+    }
+    return {
+      status: 'accepted',
+      eventId: accepted.event_id,
+      ...(invoiceNumber != null ? { invoiceNumber } : {}),
+    };
   }
 
   const type = op.operationType || op.type;
@@ -506,6 +583,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
   );
   const expectedVersion = Number(op.expectedVersion ?? 0);
   let orderVersionPatch = null;
+  let assignedInvoiceNumber = null;
 
   // Ownership is enforced only while offline. Online, any terminal may open/mutate.
   if (!isKitchenOp(type) && ownerOrderId && OWNER_GATED_OPS.includes(type)) {
@@ -554,10 +632,16 @@ async function applyOperation(db, op, terminalId, scopeId) {
     if (type === 'CREATE_RECORD' && table === 'order') {
       // Children first so order.items never references missing order_item rows.
       const writtenItemIds = await upsertOrderChildren(db, payload);
+      const invoiceNumber = await allocateInvoiceNumber(db, payload, payload.data);
+      assignedInvoiceNumber = invoiceNumber;
+      if (payload.data && typeof payload.data === 'object') {
+        payload.data.invoice_number = invoiceNumber;
+      }
       const data = toSurrealRecord(
         'order',
         normalizeSurrealContent({
           ...withoutRecordId(payload.data),
+          invoice_number: invoiceNumber,
           items: writtenItemIds.length
             ? writtenItemIds.map((id) => String(id))
             : (payload.data?.items ?? []),
@@ -722,7 +806,11 @@ async function applyOperation(db, op, terminalId, scopeId) {
     { terminalId, sequence: Number(op.sequence ?? 0) },
   );
 
-  return { status: 'accepted', eventId };
+  return {
+    status: 'accepted',
+    eventId,
+    ...(assignedInvoiceNumber != null ? { invoiceNumber: assignedInvoiceNumber } : {}),
+  };
 }
 
 module.exports = {

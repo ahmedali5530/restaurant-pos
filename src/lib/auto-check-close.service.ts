@@ -300,6 +300,10 @@ export async function closeOpenChecks(options: {
             fullOrder
           );
           if (fiscalResult.blocked) {
+            if (fiscalResult.blockedCode === 'INVOICE_PENDING') {
+              skipped += 1;
+              continue;
+            }
             throw new Error(fiscalResult.blockedError ?? 'Fiscal submission failed');
           }
         }

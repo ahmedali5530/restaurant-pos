@@ -32,6 +32,15 @@ export function notifyWrite(): void {
   }
 }
 
+export function invoiceAllocateScope(): {
+  businessDay: string;
+  dayStartUnix: number;
+  dayEndUnix: number;
+} {
+  const { day, startUnix, endUnix } = getBusinessDayUnixRange();
+  return { businessDay: day, dayStartUnix: startUnix, dayEndUnix: endUnix };
+}
+
 export function nowIso(value?: string | Date): string {
   if (!value) return new Date().toISOString();
   if (value instanceof Date) return value.toISOString();
@@ -110,11 +119,18 @@ export async function ensureLocalOrder(source: {
     !shouldMaterializeNewOrder({
       status: draftStatus,
       invoice_number: source.order?.invoice_number,
+      order_type: source.order?.order_type,
+      owner_terminal_id: source.order?.owner_terminal_id,
+      items: Array.isArray(source.items)
+        ? source.items
+        : Array.isArray(source.order?.items)
+          ? source.order.items
+          : [],
     })
   ) {
     throw new PosStoreError(
       'INVALID_ORDER',
-      'Cannot import order without an invoice number',
+      'Cannot import an empty order shell',
     );
   }
 
@@ -535,11 +551,6 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
     async () => {
       let invoiceNumber = input.invoiceNumber;
       let autoId = input.autoId;
-      const invoiceDay = getBusinessDayUnixRange().day;
-      if (invoiceNumber == null) {
-        await adoptOrDiscardInTx(db, 'invoice', invoiceDay);
-        invoiceNumber = await consumeNumberInTx(db, 'invoice', invoiceDay);
-      }
       if (autoId == null) {
         try {
           autoId = await consumeNumberInTx(db, 'auto_id');
@@ -588,6 +599,7 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
           data: order,
           items,
           kitchens,
+          ...invoiceAllocateScope(),
         },
         createdAt,
         protocolVersion: POS_SYNC_PROTOCOL_VERSION,
@@ -935,9 +947,10 @@ export async function addItemsToOrder(
 }
 
 /**
- * Take the next reserved integer for `series`. Surreal `invoice_number` and
- * `auto_id` are ints, so there is deliberately no string fallback: when the
- * local pool is exhausted offline the caller must block the create with a toast.
+ * Take the next reserved integer for `series`. Invoice numbers are assigned by
+ * the gateway; this is still used for `auto_id` (and leftover invoice pools).
+ * There is no string fallback: when the local pool is exhausted offline the
+ * caller must block with a toast.
  */
 function isCurrentNumberScope(
   row: { scope_id?: string },

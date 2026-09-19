@@ -381,7 +381,7 @@ export const Payment = () => {
       }
       if (e instanceof PosStoreError && e.code === 'NUMBERS_EXHAUSTED') {
         toast.error(t('payment:errors.numbersExhausted', {
-          defaultValue: 'No invoice numbers left offline — reconnect to continue creating orders',
+          defaultValue: 'No reserved order IDs left offline — reconnect to continue',
         }));
       }
       throw e;

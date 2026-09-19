@@ -30,7 +30,7 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {useAtom} from "jotai";
 import {appPage, appSettings} from "@/store/jotai.ts";
 import {Extra} from "@/api/model/extra.ts";
@@ -655,7 +655,7 @@ export const OrderPayment = ({
 
   return (
     <Modal
-      title={t('title', {invoice: order.invoice_number})}
+      title={t('title', {invoice: getInvoiceNumber(order)})}
       open={true}
       onClose={closeModal}
       size="full"
