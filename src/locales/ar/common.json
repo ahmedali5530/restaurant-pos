@@ -258,5 +258,33 @@
     },
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"
+  },
+  "desktopSetup": {
+    "title": "إعداد قاعدة بيانات سطح المكتب",
+    "subtitle": "استورد ملف SurrealQL (.surql) — المخطط الكامل أو بيانات تجريبية أو تحديث. يمكنك استيراد عدة ملفات بالترتيب.",
+    "surreal": "SurrealDB",
+    "gateway": "البوابة",
+    "ready": "جاهز",
+    "waiting": "جارٍ الانتظار…",
+    "selected": "الملفات المحددة",
+    "noneSelected": "لم يتم اختيار ملفات بعد.",
+    "pickFiles": "اختر ملفات .surql",
+    "clear": "مسح القائمة",
+    "import": "استيراد إلى قاعدة البيانات",
+    "showSamples": "إظهار مجلد نماذج الترحيل",
+    "continue": "إنهاء الإعداد والانتقال لتسجيل الدخول",
+    "skipToLogin": "الانتقال لتسجيل الدخول",
+    "importOk": "تم استيراد {{count}} ملف/ملفات",
+    "importedOne": "تم: {{file}}",
+    "importFailed": "فشل الاستيراد",
+    "noFiles": "اختر ملف .surql واحدًا على الأقل",
+    "pickFailed": "تعذر فتح منتقي الملفات",
+    "statusFailed": "تعذر قراءة حالة سطح المكتب",
+    "setupDone": "اكتمل الإعداد",
+    "setupFailed": "تعذر تأكيد اكتمال الإعداد",
+    "samplesPath": "مجلد نماذج الترحيل",
+    "samplesFailed": "تعذر العثور على مجلد الترحيلات",
+    "settingsTitle": "استيراد SurrealQL",
+    "settingsHelp": "طبّق تحديثات المخطط أو البيانات التجريبية باستيراد ملفات .surql إلى SurrealDB المحلي."
   }
 }

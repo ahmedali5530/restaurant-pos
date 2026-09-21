@@ -1,5 +1,6 @@
 import {Route, Routes} from "react-router";
 import {Login} from "@/screens/login.tsx";
+import {DesktopSetup} from "@/screens/desktop-setup.tsx";
 import {NotFound} from "@/screens/not-found.tsx";
 import {Menu} from "@/screens/menu";
 import {Orders} from "@/screens/orders.tsx";
@@ -18,6 +19,7 @@ import {
   HR,
   KITCHEN,
   ORDER_DISPLAY,
+  DESKTOP_SETUP,
   LOGIN,
   MENU,
   ORDERS,
@@ -145,6 +147,7 @@ import {
 export const AppRoutes = () => (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
+    <Route path={DESKTOP_SETUP} element={<DesktopSetup/>}/>
     <Route element={<ProtectedRoute/>}>
       <Route path={MENU} element={<Menu/>}/>
       <Route path={ORDERS} element={<Orders/>}/>

@@ -1,0 +1,20 @@
+{
+  "name": "posr-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./run-tauri.mjs dev",
+    "build": "node ./run-tauri.mjs build",
+    "build:windows": "node ./run-tauri.mjs build --bundles nsis",
+    "prepare:sidecars": "bash ./scripts/prepare-sidecars.sh",
+    "tauri": "node ./run-tauri.mjs"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-dialog": "^2"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

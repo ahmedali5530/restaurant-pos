@@ -18,6 +18,7 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
+import {DesktopSurqlImportCard} from "@/components/user_settings/desktop_surql_import.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -35,6 +36,7 @@ export const Settings = () => {
       {/* Columns must not sit on the max-height Layout pane or content is clipped to the viewport. */}
       <div className="columns-1 md:columns-2 lg:columns-3 gap-5" data-testid="settings-page">
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
+        <MasonryItem><DesktopSurqlImportCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>

@@ -258,5 +258,33 @@
     },
     "unknownConfig": "Configuração de importação desconhecida para visualização.",
     "passwordWillBeSet": "A senha será definida ao confirmar"
+  },
+  "desktopSetup": {
+    "title": "Configuração do banco desktop",
+    "subtitle": "Importe um arquivo SurrealQL (.surql) — esquema completo, dados de demonstração ou atualização. Você pode importar vários arquivos em ordem.",
+    "surreal": "SurrealDB",
+    "gateway": "Gateway",
+    "ready": "Pronto",
+    "waiting": "Aguardando…",
+    "selected": "Arquivos selecionados",
+    "noneSelected": "Nenhum arquivo selecionado ainda.",
+    "pickFiles": "Escolher arquivos .surql",
+    "clear": "Limpar lista",
+    "import": "Importar para o banco",
+    "showSamples": "Mostrar pasta de migrações de exemplo",
+    "continue": "Concluir e ir para o login",
+    "skipToLogin": "Ir para o login",
+    "importOk": "{{count}} arquivo(s) importado(s)",
+    "importedOne": "OK: {{file}}",
+    "importFailed": "Falha na importação",
+    "noFiles": "Selecione pelo menos um arquivo .surql",
+    "pickFailed": "Não foi possível abrir o seletor de arquivos",
+    "statusFailed": "Não foi possível ler o status do desktop",
+    "setupDone": "Configuração concluída",
+    "setupFailed": "Não foi possível concluir a configuração",
+    "samplesPath": "Pasta de migrações de exemplo",
+    "samplesFailed": "Pasta de migrações não encontrada",
+    "settingsTitle": "Importar SurrealQL",
+    "settingsHelp": "Aplique atualizações de esquema ou dados de demonstração importando arquivos .surql no SurrealDB local."
   }
 }

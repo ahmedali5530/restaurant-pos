@@ -258,5 +258,33 @@
     },
     "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
     "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"
+  },
+  "desktopSetup": {
+    "title": "Configuration de la base desktop",
+    "subtitle": "Importez un fichier SurrealQL (.surql) — schéma complet, données de démo ou correctif. Vous pouvez importer plusieurs fichiers dans l’ordre.",
+    "surreal": "SurrealDB",
+    "gateway": "Passerelle",
+    "ready": "Prêt",
+    "waiting": "En attente…",
+    "selected": "Fichiers sélectionnés",
+    "noneSelected": "Aucun fichier sélectionné.",
+    "pickFiles": "Choisir des fichiers .surql",
+    "clear": "Vider la liste",
+    "import": "Importer dans la base",
+    "showSamples": "Afficher le dossier des migrations d’exemple",
+    "continue": "Terminer et aller à la connexion",
+    "skipToLogin": "Aller à la connexion",
+    "importOk": "{{count}} fichier(s) importé(s)",
+    "importedOne": "OK : {{file}}",
+    "importFailed": "Échec de l’import",
+    "noFiles": "Sélectionnez au moins un fichier .surql",
+    "pickFailed": "Impossible d’ouvrir le sélecteur de fichiers",
+    "statusFailed": "Impossible de lire l’état desktop",
+    "setupDone": "Configuration terminée",
+    "setupFailed": "Impossible de terminer la configuration",
+    "samplesPath": "Dossier des migrations d’exemple",
+    "samplesFailed": "Dossier des migrations introuvable",
+    "settingsTitle": "Importer SurrealQL",
+    "settingsHelp": "Appliquez des mises à jour de schéma ou des données de démo en important des fichiers .surql dans SurrealDB local."
   }
 }

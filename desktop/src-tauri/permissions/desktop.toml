@@ -1,0 +1,10 @@
+[[permission]]
+identifier = "desktop-commands"
+description = "Allow desktop setup / SurrealQL import commands"
+commands.allow = [
+  "desktop_status",
+  "mark_setup_complete",
+  "import_surql",
+  "pick_surql_files",
+  "open_migrations_folder"
+]

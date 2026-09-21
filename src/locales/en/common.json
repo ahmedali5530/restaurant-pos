@@ -258,5 +258,33 @@
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm"
   },
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "desktopSetup": {
+    "title": "Desktop database setup",
+    "subtitle": "Import a SurrealQL (.surql) file — full schema, demo data, or an update patch. You can import multiple files in order.",
+    "surreal": "SurrealDB",
+    "gateway": "Gateway",
+    "ready": "Ready",
+    "waiting": "Waiting…",
+    "selected": "Selected files",
+    "noneSelected": "No files selected yet.",
+    "pickFiles": "Choose .surql files",
+    "clear": "Clear list",
+    "import": "Import into database",
+    "showSamples": "Show sample migrations folder",
+    "continue": "Finish setup & go to login",
+    "skipToLogin": "Go to login",
+    "importOk": "Imported {{count}} file(s)",
+    "importedOne": "OK: {{file}}",
+    "importFailed": "Import failed",
+    "noFiles": "Select at least one .surql file",
+    "pickFailed": "Could not open file picker",
+    "statusFailed": "Could not read desktop status",
+    "setupDone": "Setup marked complete",
+    "setupFailed": "Could not mark setup complete",
+    "samplesPath": "Sample migrations folder",
+    "samplesFailed": "Could not locate migrations folder",
+    "settingsTitle": "Import SurrealQL",
+    "settingsHelp": "Apply schema updates or demo data by importing .surql files into the local SurrealDB."
+  }
 }

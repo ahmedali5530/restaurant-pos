@@ -258,5 +258,33 @@
     },
     "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
     "passwordWillBeSet": "La password verrà impostata alla conferma"
+  },
+  "desktopSetup": {
+    "title": "Configurazione database desktop",
+    "subtitle": "Importa un file SurrealQL (.surql) — schema completo, dati demo o aggiornamento. Puoi importare più file in sequenza.",
+    "surreal": "SurrealDB",
+    "gateway": "Gateway",
+    "ready": "Pronto",
+    "waiting": "In attesa…",
+    "selected": "File selezionati",
+    "noneSelected": "Nessun file selezionato.",
+    "pickFiles": "Scegli file .surql",
+    "clear": "Svuota elenco",
+    "import": "Importa nel database",
+    "showSamples": "Mostra cartella migrazioni di esempio",
+    "continue": "Completa e vai al login",
+    "skipToLogin": "Vai al login",
+    "importOk": "Importati {{count}} file",
+    "importedOne": "OK: {{file}}",
+    "importFailed": "Importazione non riuscita",
+    "noFiles": "Seleziona almeno un file .surql",
+    "pickFailed": "Impossibile aprire il selettore file",
+    "statusFailed": "Impossibile leggere lo stato desktop",
+    "setupDone": "Configurazione completata",
+    "setupFailed": "Impossibile completare la configurazione",
+    "samplesPath": "Cartella migrazioni di esempio",
+    "samplesFailed": "Cartella migrazioni non trovata",
+    "settingsTitle": "Importa SurrealQL",
+    "settingsHelp": "Applica aggiornamenti di schema o dati demo importando file .surql in SurrealDB locale."
   }
 }

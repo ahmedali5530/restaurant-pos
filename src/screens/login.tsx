@@ -9,7 +9,8 @@ import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {MENU} from "@/routes/posr.ts";
+import {DESKTOP_SETUP, MENU} from "@/routes/posr.ts";
+import {getDesktopStatus, isTauriDesktop} from "@/lib/desktop.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -65,6 +66,24 @@ export const Login = () => {
 
   const navigation = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!isTauriDesktop()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const status = await getDesktopStatus();
+        if (!cancelled && status?.needsSetup) {
+          navigation(DESKTOP_SETUP, { replace: true });
+        }
+      } catch {
+        // Gateway may still be starting; stay on login.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation]);
 
   const onClear = () => {
     setCode('');

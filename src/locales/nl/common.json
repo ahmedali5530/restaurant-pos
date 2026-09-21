@@ -258,5 +258,33 @@
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"
+  },
+  "desktopSetup": {
+    "title": "Desktop-database instellen",
+    "subtitle": "Importeer een SurrealQL-bestand (.surql) — volledig schema, demogegevens of een update. Meerdere bestanden na elkaar mogelijk.",
+    "surreal": "SurrealDB",
+    "gateway": "Gateway",
+    "ready": "Gereed",
+    "waiting": "Wachten…",
+    "selected": "Geselecteerde bestanden",
+    "noneSelected": "Nog geen bestanden geselecteerd.",
+    "pickFiles": "Kies .surql-bestanden",
+    "clear": "Lijst wissen",
+    "import": "Importeren in database",
+    "showSamples": "Voorbeeldmigratiemap tonen",
+    "continue": "Afronden en naar login",
+    "skipToLogin": "Naar login",
+    "importOk": "{{count}} bestand(en) geïmporteerd",
+    "importedOne": "OK: {{file}}",
+    "importFailed": "Import mislukt",
+    "noFiles": "Selecteer minstens één .surql-bestand",
+    "pickFailed": "Kon bestandskeuze niet openen",
+    "statusFailed": "Kon desktopstatus niet lezen",
+    "setupDone": "Installatie voltooid",
+    "setupFailed": "Kon installatie niet afronden",
+    "samplesPath": "Voorbeeldmigratiemap",
+    "samplesFailed": "Migratiemap niet gevonden",
+    "settingsTitle": "SurrealQL importeren",
+    "settingsHelp": "Pas schema-updates of demogegevens toe door .surql-bestanden te importeren in lokale SurrealDB."
   }
 }

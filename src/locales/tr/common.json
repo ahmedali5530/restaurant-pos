@@ -258,5 +258,33 @@
     },
     "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
     "passwordWillBeSet": "Onaylandığında şifre ayarlanacak"
+  },
+  "desktopSetup": {
+    "title": "Masaüstü veritabanı kurulumu",
+    "subtitle": "Bir SurrealQL (.surql) dosyası içe aktarın — tam şema, demo veri veya güncelleme. Sırayla birden fazla dosya aktarabilirsiniz.",
+    "surreal": "SurrealDB",
+    "gateway": "Ağ geçidi",
+    "ready": "Hazır",
+    "waiting": "Bekleniyor…",
+    "selected": "Seçilen dosyalar",
+    "noneSelected": "Henüz dosya seçilmedi.",
+    "pickFiles": ".surql dosyalarını seç",
+    "clear": "Listeyi temizle",
+    "import": "Veritabanına aktar",
+    "showSamples": "Örnek migrasyon klasörünü göster",
+    "continue": "Kurulumu bitir ve girişe git",
+    "skipToLogin": "Girişe git",
+    "importOk": "{{count}} dosya içe aktarıldı",
+    "importedOne": "Tamam: {{file}}",
+    "importFailed": "İçe aktarma başarısız",
+    "noFiles": "En az bir .surql dosyası seçin",
+    "pickFailed": "Dosya seçici açılamadı",
+    "statusFailed": "Masaüstü durumu okunamadı",
+    "setupDone": "Kurulum tamamlandı",
+    "setupFailed": "Kurulum tamamlanamadı",
+    "samplesPath": "Örnek migrasyon klasörü",
+    "samplesFailed": "Migrasyon klasörü bulunamadı",
+    "settingsTitle": "SurrealQL içe aktar",
+    "settingsHelp": ".surql dosyalarını yerel SurrealDB’ye aktararak şema güncellemeleri veya demo veri uygulayın."
   }
 }

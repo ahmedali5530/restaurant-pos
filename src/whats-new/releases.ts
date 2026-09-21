@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-20',
+    title: 'Desktop offline shell (Tauri)',
+    items: [
+      'POSR Desktop can run without Docker: SurrealDB, gateway, print, payment, tracking, API, and sync start as local sidecars inside the Tauri app.',
+      'First-run setup lets you import any .surql file (full schema, demo data, or patches). Settings → Import SurrealQL can apply updates later.',
+      'Linux and Windows installers can package Node + Surreal binaries and service trees (see desktop/README.md).',
+    ],
+  },
+  {
+    date: '2026-09-20',
     title: 'Closing payment totals',
     items: [
       'Day closing payment type totals now use the same applied amounts as Summary (tendered cash minus change), instead of raw tendered amounts.',

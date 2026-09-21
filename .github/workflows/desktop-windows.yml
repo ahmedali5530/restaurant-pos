@@ -1,0 +1,119 @@
+# Manual Windows desktop build for QA (NSIS installer).
+# Actions → Desktop Windows build → Run workflow
+name: Desktop Windows build
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_draft_release:
+        description: Upload installer to a GitHub draft release
+        type: boolean
+        default: false
+      release_tag:
+        description: Draft release tag (required if create_draft_release)
+        type: string
+        default: desktop-windows-test
+
+concurrency:
+  group: desktop-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build NSIS installer
+    runs-on: windows-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+          shared-key: posr-desktop-windows
+
+      - name: Install JS dependencies (app)
+        run: bun install --frozen-lockfile
+
+      - name: Install JS dependencies (desktop)
+        working-directory: desktop
+        run: bun install --frozen-lockfile
+
+      - name: Prepare sidecars (Node + Surreal + services)
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass -File desktop/scripts/prepare-sidecars.ps1
+
+      - name: Build Windows NSIS installer
+        shell: pwsh
+        env:
+          POSR_REPO_ROOT: ${{ github.workspace }}
+        run: |
+          bun run desktop:build:windows
+
+      - name: Locate installer
+        id: artifact
+        shell: pwsh
+        run: |
+          $dir = "desktop/src-tauri/target/release/bundle/nsis"
+          if (-not (Test-Path $dir)) {
+            Write-Error "NSIS output missing: $dir"
+          }
+          Get-ChildItem -Path $dir -Recurse | ForEach-Object { Write-Host $_.FullName }
+          $setup = Get-ChildItem -Path $dir -Filter "*-setup.exe" -Recurse | Select-Object -First 1
+          if (-not $setup) {
+            $setup = Get-ChildItem -Path $dir -Filter "*.exe" -Recurse | Select-Object -First 1
+          }
+          if (-not $setup) {
+            Write-Error "No installer exe found under $dir"
+          }
+          "path=$($setup.FullName)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "name=$($setup.Name)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Installer: $($setup.FullName)"
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: posr-desktop-windows-nsis
+          path: desktop/src-tauri/target/release/bundle/nsis/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create draft GitHub release
+        if: ${{ inputs.create_draft_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          name: POSR Desktop Windows (${{ inputs.release_tag }})
+          draft: true
+          prerelease: true
+          body: |
+            Manual Windows desktop build from `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            Install the `*-setup.exe` asset on a Windows 10/11 machine (WebView2 usually already present).
+            First launch: import a `.surql` via Desktop database setup.
+          files: desktop/src-tauri/target/release/bundle/nsis/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
