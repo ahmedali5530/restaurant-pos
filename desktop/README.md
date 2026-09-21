@@ -83,6 +83,14 @@ App data (DB + `desktop-config.json`): platform app-data dir for `com.posr.deskt
 
 Build NSIS **on Windows** (MSVC + WebView2). See `tauri.ps1` / `tauri.windows.conf.json`. Run `desktop/scripts/prepare-sidecars.ps1` before `bun run desktop:build:windows`.
 
+### GitHub Actions (manual)
+
+On branch `feature/tauri-mvp` (or any branch with this workflow):
+
+1. GitHub → **Actions** → **Desktop Windows build** → **Run workflow**
+2. Pick the branch; optionally enable **Upload installer to a GitHub draft release** and set a tag
+3. When finished, download **`posr-desktop-windows-nsis`** from the run’s Artifacts (share the `*-setup.exe` with QA)
+
 ## Out of scope (later)
 
 - Code signing / notarization  

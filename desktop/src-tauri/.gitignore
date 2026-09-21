@@ -3,6 +3,9 @@
 /target/
 /gen/schemas
 
+# Local cross-compile linker overrides (e.g. mingw on Linux)
+/.cargo/
+
 # Large prepared artifacts (downloaded / npm-installed by prepare-sidecars)
 /binaries/
 /resources/sidecars/
