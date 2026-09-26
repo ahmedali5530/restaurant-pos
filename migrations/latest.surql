@@ -1848,6 +1848,7 @@ DEFINE FIELD extras ON order TYPE none | array<record<order_extras>> | null PERM
 DEFINE FIELD floor ON order TYPE none | record<floor> | null PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON order TYPE int PERMISSIONS FULL;
 DEFINE FIELD invoice_prefix ON order TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD invoice_display ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD items ON order TYPE array<record<order_item>> PERMISSIONS FULL;
 DEFINE FIELD notes ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD order_taxes ON order TYPE none | array<record<order_tax>> | null PERMISSIONS FULL;

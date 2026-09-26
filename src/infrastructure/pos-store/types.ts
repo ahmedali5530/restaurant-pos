@@ -70,6 +70,8 @@ export interface TerminalIdentity {
   nextSequence: number;
   schemaVersion: number;
   protocolVersion: number;
+  /** Human till code for invoice templates / terminal-scoped counters (e.g. T1). */
+  terminalCode?: string;
 }
 
 export interface DomainOperation {
@@ -149,6 +151,11 @@ export interface OrderRecord {
   id: string;
   status: string;
   invoice_number?: number;
+  /** Snapshot of the formatted invoice label at mint (policy template). */
+  invoice_display?: string | null;
+  invoice_prefix?: string | null;
+  /** Dexie-only FOH label (e.g. ABC123) until the gateway assigns `invoice_number`. */
+  local_invoice_code?: string;
   auto_id?: number;
   covers?: number;
   floor?: string | null;

@@ -759,6 +759,7 @@
       "settings.session_security": "Sitzungssicherheit",
       "settings.auto_clock_out": "Automatisches Ausstempeln",
       "settings.translate_receipts": "Belege übersetzen",
+      "settings.number_policy": "Rechnungsnummern",
       "settings.inventory": "Inventar",
       "settings.menus": "Speisekarteneinstellungen",
       "settings.access_control": "Zugriffskontrolle",

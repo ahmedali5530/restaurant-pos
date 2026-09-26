@@ -4,18 +4,25 @@
  * domain operations that the gateway replays into SurrealDB (ADR 0001).
  */
 import { getPosStoreDatabase } from './db.ts';
-import { ensureTerminalIdentity, recordId } from './identity.ts';
+import { ensureTerminalIdentity, pendingCodeFromPolicy, recordId } from './identity.ts';
 import { hydrateOrderForTaxRecompute } from './catalog.ts';
 import {
   buildOrderItemRows,
   enqueue,
+  invoiceAllocateScope,
+  loadNumberPolicy,
   notifyWrite,
   nowIso,
   orderKey,
   ownerPatchFor,
   refId,
   requireLocalOrder,
+  consumeNumber,
 } from './commands.ts';
+import {
+  formatInvoiceDisplay,
+  policyUsesLocalInvoicePool,
+} from '@/lib/number-policy.ts';
 import { collectOrderTaxRows } from '@/lib/tax-calculator.ts';
 import {
   PosStoreError,
@@ -900,7 +907,7 @@ export interface SplitGroup {
   seat?: string | null;
   /** Fresh lines to create on the child (amount mode clones). */
   newItems?: CreateOrderItemInput[];
-  invoiceNumber: number;
+  invoiceNumber?: number;
   autoId?: number;
   /** Extra order fields for the child (e.g. tags). */
   order?: Record<string, any>;
@@ -927,6 +934,32 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
   const createdAt = nowIso();
   const userId = refId(input.userId);
   if (!userId) throw new PosStoreError('INVALID', 'A user is required to split');
+  const policy = await loadNumberPolicy();
+  const allocateScope = await invoiceAllocateScope();
+  const useLocalPool = policyUsesLocalInvoicePool(policy);
+
+  // Pre-mint local pool ints outside the big write txn (Dexie nested rw can stall).
+  const groupInvoices: Array<{ invoiceNumber?: number; invoiceDisplay?: string; invoicePrefix?: string }> = [];
+  for (const group of input.groups) {
+    let invoiceNumber = group.invoiceNumber;
+    let invoiceDisplay: string | undefined;
+    let invoicePrefix: string | undefined;
+    if (invoiceNumber == null && useLocalPool) {
+      try {
+        invoiceNumber = await consumeNumber('invoice');
+        invoiceDisplay = formatInvoiceDisplay(policy, {
+          seq: invoiceNumber,
+          day: allocateScope.businessDay,
+          terminal: allocateScope.terminalCode,
+          branch: allocateScope.branchCode || policy.branchCode,
+        });
+        invoicePrefix = policy.prefix || undefined;
+      } catch {
+        invoiceNumber = undefined;
+      }
+    }
+    groupInvoices.push({ invoiceNumber, invoiceDisplay, invoicePrefix });
+  }
 
   const result = await db.transaction(
     'rw',
@@ -973,12 +1006,18 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
           childItemIds.push(built.item.id);
         });
 
+        const minted = groupInvoices[index] ?? {};
+        const invoiceNumber = minted.invoiceNumber;
+
         const child: OrderRecord = {
           ...parent,
           ...(group.order ?? {}),
           id: childId,
           status: 'In Progress',
-          invoice_number: group.invoiceNumber,
+          invoice_number: invoiceNumber,
+          invoice_display: minted.invoiceDisplay,
+          invoice_prefix: minted.invoicePrefix,
+          local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
           auto_id: group.autoId,
           items: childItemIds,
           split: index + 1,
@@ -1015,6 +1054,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
             data: { ...child, items: childItemIds },
             items: clonedItems,
             kitchens: clonedKitchens,
+            ...allocateScope,
           },
           createdAt,
         });
@@ -1076,7 +1116,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
 
 export interface MergeOrdersInput {
   sourceIds: string[];
-  invoiceNumber: number;
+  invoiceNumber?: number;
   autoId?: number;
   userId: string;
   /** Meta for the merged order (table, floor, order_type, covers, customer). */
@@ -1096,6 +1136,27 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
   const keys = input.sourceIds.map(orderKey);
   for (const [index, key] of keys.entries()) {
     await requireLocalOrder(key, input.seeds?.[index]);
+  }
+
+  const policy = await loadNumberPolicy();
+  const allocateScope = await invoiceAllocateScope();
+  const useLocalPool = policyUsesLocalInvoicePool(policy);
+  let invoiceNumber = input.invoiceNumber;
+  let invoiceDisplay: string | undefined;
+  let invoicePrefix: string | undefined;
+  if (invoiceNumber == null && useLocalPool) {
+    try {
+      invoiceNumber = await consumeNumber('invoice');
+      invoiceDisplay = formatInvoiceDisplay(policy, {
+        seq: invoiceNumber,
+        day: allocateScope.businessDay,
+        terminal: allocateScope.terminalCode,
+        branch: allocateScope.branchCode || policy.branchCode,
+      });
+      invoicePrefix = policy.prefix || undefined;
+    } catch {
+      invoiceNumber = undefined;
+    }
   }
 
   const result = await db.transaction(
@@ -1140,7 +1201,10 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
         ...input.target,
         id: mergedId,
         status: 'In Progress',
-        invoice_number: input.invoiceNumber,
+        invoice_number: invoiceNumber,
+        invoice_display: invoiceDisplay,
+        invoice_prefix: invoicePrefix,
+        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
         auto_id: input.autoId,
         items: movedIds,
         tags: withTag(first.tags, 'Merged'),
@@ -1167,7 +1231,14 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
         aggregateId: mergedId,
         operationType: 'CREATE_RECORD',
         expectedVersion: 0,
-        payload: { table: 'order', recordId: mergedId, data: merged, items: [], kitchens: [] },
+        payload: {
+          table: 'order',
+          recordId: mergedId,
+          data: merged,
+          items: [],
+          kitchens: [],
+          ...allocateScope,
+        },
         createdAt,
       });
 

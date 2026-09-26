@@ -332,17 +332,14 @@ export const Orders = () => {
       });
       setIsSaving(true);
 
-      let invoiceNumber: number | undefined;
       let autoId: number | undefined;
       let committed = false;
       try {
-        invoiceNumber = await posStore.consumeInvoiceNumber();
         autoId = await posStore.consumeAutoId();
         // Local-first: merged order + item moves + source close + audit commit to
         // Dexie, then drain via outbox.
         const { merged } = await posStore.mergeOrders({
           sourceIds: mergingOrders.map((order) => String(order.id)),
-          invoiceNumber,
           autoId,
           userId: String(app.user.id),
           target: {
@@ -367,20 +364,19 @@ export const Orders = () => {
           user: app?.user,
         });
 
-        toast.success(t('merge.success', {invoiceNumber: merged.invoice_number}));
+        toast.success(
+          merged.invoice_number != null
+            ? t('merge.success', {invoiceNumber: merged.invoice_number})
+            : t('merge.successPending'),
+        );
 
         // reset to default
         setMerging(false);
         setMergingTable(undefined);
         setMergingOrders([]);
       } catch (innerError) {
-        if (!committed) {
-          await Promise.all([
-            invoiceNumber != null
-              ? posStore.releaseNumber('invoice', invoiceNumber)
-              : Promise.resolve(),
-            autoId != null ? posStore.releaseNumber('auto_id', autoId) : Promise.resolve(),
-          ]);
+        if (!committed && autoId != null) {
+          await posStore.releaseNumber('auto_id', autoId);
         }
         throw innerError;
       }

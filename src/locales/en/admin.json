@@ -927,6 +927,7 @@
       "settings.access_control": "Access control",
       "settings.inventory": "Inventory Settings",
       "settings.translate_receipts": "Translate receipts",
+      "settings.number_policy": "Invoice numbers",
       "accounts": "Accounts",
       "accounts.chart_of_accounts": "Chart of Accounts",
       "accounts.account_groups": "Account Groups",

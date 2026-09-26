@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Lütfen yeni bir masa seçin",
     "success": "{{invoiceNumber}} numaralı siparişe başarıyla birleştirildi",
+    "successPending": "Siparişler birleştirildi. Fatura numarası senkronizasyondan sonra görünecek.",
     "failed": "Siparişler birleştirilemedi",
     "chooseTable": "Masa seçin",
     "selectTwoOrMore": "2 veya daha fazla sipariş seçin",

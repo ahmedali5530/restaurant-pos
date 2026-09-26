@@ -382,6 +382,7 @@ async function push(db, body) {
   );
 
   const accepted = [];
+  const assignments = [];
   const conflicts = [];
   let lastSeq = 0;
   // One shared Surreal WS client: never overlap pushes or aborted retries pile
@@ -408,6 +409,15 @@ async function push(db, body) {
       }
       if (result.status === 'accepted') {
         accepted.push(op.operationId);
+        if (result.invoiceNumber != null) {
+          assignments.push({
+            operationId: op.operationId,
+            aggregateId: String(op.aggregateId || op.payload?.recordId || ''),
+            invoiceNumber: result.invoiceNumber,
+            ...(result.invoiceDisplay ? { invoiceDisplay: result.invoiceDisplay } : {}),
+            ...(result.invoicePrefix ? { invoicePrefix: result.invoicePrefix } : {}),
+          });
+        }
       } else {
         conflicts.push({
           operationId: op.operationId,
@@ -431,7 +441,7 @@ async function push(db, body) {
       }
     }
 
-    return { ok: true, protocolVersion: PROTOCOL_VERSION, accepted, conflicts };
+    return { ok: true, protocolVersion: PROTOCOL_VERSION, accepted, assignments, conflicts };
   });
 }
 

@@ -247,5 +247,75 @@
     "triggerRequired": "Activez la fin de poste et/ou une heure définie lorsque la sortie automatique est activée",
     "updated": "Paramètres de sortie automatique mis à jour",
     "saveDescription": "Enregistrer les paramètres de sortie automatique"
+  },
+  "numberPolicy": {
+    "title": "Numéros de facture",
+    "description": "Choisissez comment les numéros de facture POS sont générés, réinitialisés et formatés. L’entier reste sûr pour le fiscal ; l’affichage est figé à l’attribution. Synchronisez tous les caisses après enregistrement.",
+    "preset": "Préréglage",
+    "mintLabel": "Émission",
+    "resetLabel": "Réinitialisation",
+    "scopeLabel": "Portée",
+    "pendingModeLabel": "Libellé en attente",
+    "template": "Modèle",
+    "prefix": "Préfixe",
+    "suffix": "Suffixe",
+    "branchCode": "Code agence",
+    "terminalCode": "Code de ce terminal",
+    "startAt": "Commencer à",
+    "pad": "Zéros",
+    "pendingMin": "Min. caractères en attente",
+    "pendingMax": "Max. caractères en attente",
+    "preview": "Aperçu",
+    "gapWarning": "Ce préréglage peut créer des trous dans la séquence du restaurant et n’est pas sûr pour les autorités fiscales exigeant une suite continue.",
+    "acknowledgeGaps": "Je comprends que cela peut créer des trous de numéros",
+    "ackRequired": "Confirmez l’avertissement avant d’enregistrer",
+    "updated": "Politique de numéros de facture mise à jour",
+    "saveDescription": "Enregistrer la politique de numéros de facture",
+    "presets": {
+      "date_reset": "Date reset (recommended)",
+      "global": "Global sequential",
+      "period": "Period reset (year/month)",
+      "branch": "Branch sequential",
+      "terminal": "Terminal sequential",
+      "prefix": "Prefix / suffix",
+      "composite": "Composite",
+      "pool": "Range / pool",
+      "hybrid": "Hybrid online + offline pool",
+      "fiscal_plus_posr": "Fiscal + POSR display",
+      "provider_defined": "Provider-defined (store only)"
+    },
+    "mint": {
+      "gateway": "Gateway (shared)",
+      "terminal": "Terminal pool",
+      "hybrid": "Hybrid"
+    },
+    "reset": {
+      "never": "Never",
+      "day": "Each day",
+      "month": "Each month",
+      "year": "Each year"
+    },
+    "scope": {
+      "restaurant": "Restaurant",
+      "branch": "Branch",
+      "terminal": "Terminal"
+    },
+    "pendingMode": {
+      "random": "Random code",
+      "blank": "Blank until sync"
+    },
+    "help": {
+      "date_reset": "Pros: restaurant-wide 1,2,3… each day; fiscal-safe. Cons: offline checks show a temporary code until sync.",
+      "global": "Pros: simple forever sequence (1001, 1002…). Cons: never resets; numbers grow forever.",
+      "period": "Pros: yearly/monthly documents look tidy. Cons: pick month vs year carefully.",
+      "branch": "Pros: LHR-001 style labels. Cons: no multi-branch org yet — one configured branch code per restaurant.",
+      "terminal": "Pros: each till has its own sequence. Cons: gaps across the restaurant; fiscal-unsafe.",
+      "prefix": "Pros: INV-001 style formatting on any mint/reset. Cons: cosmetic only; fiscal still uses the integer.",
+      "composite": "Pros: LHR-T02-2026-00125 from tokens. Cons: longer labels; fiscal still uses the integer.",
+      "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
+      "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
+      "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
+      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+    }
   }
 }

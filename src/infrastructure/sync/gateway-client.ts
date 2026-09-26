@@ -164,6 +164,13 @@ export async function pushOperations(input: {
   return syncFetch<{
     ok: boolean;
     accepted: string[];
+    assignments?: Array<{
+      operationId: string;
+      aggregateId: string;
+      invoiceNumber: number;
+      invoiceDisplay?: string;
+      invoicePrefix?: string;
+    }>;
     conflicts: Array<{ operationId: string; code: string; message: string }>;
   }>('/sync/push', {
     method: 'POST',

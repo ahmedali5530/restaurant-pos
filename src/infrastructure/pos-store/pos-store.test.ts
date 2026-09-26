@@ -8,12 +8,13 @@ import {
 import { recordId } from '@/infrastructure/pos-store/identity.ts';
 import { canStealOrder, isOwnerHeartbeatStale } from '@/infrastructure/pos-store/ownership.ts';
 import { getBusinessDayUnixRange } from '@/lib/datetime.ts';
+import { getInvoiceNumber } from '@/lib/order.ts';
 
 describe('SurrealDB record IDs', () => {
   it('generates unquoted-safe record IDs', () => {
-    expect(recordId('order')).toMatch(/^order:r[0-9a-f]{32}$/);
-    expect(recordId('order_item')).toMatch(/^order_item:r[0-9a-f]{32}$/);
-    expect(recordId('order_item_kitchen')).toMatch(/^order_item_kitchen:r[0-9a-f]{32}$/);
+    expect(recordId('order')).toMatch(/^order:r[A-Za-z0-9_-]+$/);
+    expect(recordId('order_item')).toMatch(/^order_item:r[A-Za-z0-9_-]+$/);
+    expect(recordId('order_item_kitchen')).toMatch(/^order_item_kitchen:r[A-Za-z0-9_-]+$/);
   });
 
   it('preserves explicit record IDs', () => {
@@ -819,16 +820,35 @@ describe('PosStore number reservation allocate + release', () => {
     await posStore.storeNumberReservations('auto_id', 800, 805);
   });
 
-  it('allocates invoice and auto_id inside createOrderWithItems when omitted', async () => {
+  it('creates orders without a local invoice number and still allocates auto_id', async () => {
     const beforeInvoice = await posStore.countReservedNumbers('invoice');
     const beforeAuto = await posStore.countReservedNumbers('auto_id');
     const { order } = await posStore.createOrderWithItems({
       items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
     });
-    expect(order.invoice_number).toBe(500);
+    expect(order.invoice_number).toBeUndefined();
+    expect(order.local_invoice_code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
+    expect(getInvoiceNumber(order as any)).toBe(order.local_invoice_code);
+    const pending = await posStore.getPendingOutbox();
+    expect(pending[0].operation?.operationType).toBe('CREATE_RECORD');
+    expect(pending[0].operation?.payload?.data?.local_invoice_code).toBeUndefined();
     expect(order.auto_id).toBe(800);
-    expect(await posStore.countReservedNumbers('invoice')).toBe(beforeInvoice - 1);
+    expect(await posStore.countReservedNumbers('invoice')).toBe(beforeInvoice);
     expect(await posStore.countReservedNumbers('auto_id')).toBe(beforeAuto - 1);
+  });
+
+  it('applies gateway invoice assignments onto the local order', async () => {
+    const { order } = await posStore.createOrderWithItems({
+      items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
+    });
+    await posStore.applyInvoiceAssignments([
+      { aggregateId: order.id, invoiceNumber: 7, invoiceDisplay: 'INV-007', invoicePrefix: 'INV-' },
+    ]);
+    const next = await posStore.getOrder(order.id);
+    expect(next?.invoice_number).toBe(7);
+    expect(next?.invoice_display).toBe('INV-007');
+    expect(next?.local_invoice_code).toBe(order.local_invoice_code);
+    expect(getInvoiceNumber(next as any)).toBe('INV-007');
   });
 
   it('releaseNumber returns a consumed value to the reserved pool', async () => {
@@ -843,15 +863,11 @@ describe('PosStore number reservation allocate + release', () => {
   it('uses an unscoped same-day invoice pool instead of wiping it', async () => {
     await posStore.discardStaleNumberReservations('invoice', '1999-01-01');
     await posStore.storeNumberReservations('invoice', 40, 42);
-    const { order } = await posStore.createOrderWithItems({
-      items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
-    });
-    expect(order.invoice_number).toBe(40);
+    expect(await posStore.consumeInvoiceNumber()).toBe(40);
     expect(await posStore.countReservedNumbers('invoice', today())).toBe(2);
   });
 
   it('discards yesterday invoice pool so a new day can restart at 1', async () => {
-    // Wipe today's beforeEach pool, leave only a yesterday block.
     await posStore.discardStaleNumberReservations('invoice', '1999-01-01');
     await posStore.storeNumberReservations('invoice', 90, 95, '1999-01-01');
     expect(await posStore.countReservedNumbers('invoice')).toBe(6);
@@ -861,10 +877,7 @@ describe('PosStore number reservation allocate + release', () => {
     expect(await posStore.countReservedNumbers('invoice')).toBe(0);
 
     await posStore.storeNumberReservations('invoice', 1, 5, today());
-    const { order } = await posStore.createOrderWithItems({
-      items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
-    });
-    expect(order.invoice_number).toBe(1);
+    expect(await posStore.consumeInvoiceNumber()).toBe(1);
   });
 
   it('keeps pending reservation ids across set/get for idempotent refill', async () => {

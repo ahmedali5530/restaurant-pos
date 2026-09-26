@@ -1,5 +1,5 @@
 import { getPosStoreDatabase } from './db.ts';
-import { ensureTerminalIdentity } from './identity.ts';
+import { ensureTerminalIdentity, setTerminalCode } from './identity.ts';
 import * as commands from './commands.ts';
 import { notifyWrite } from './commands.ts';
 import * as orderCommands from './order-commands.ts';
@@ -39,6 +39,14 @@ export class PosStore {
 
   getTerminalIdentity(): Promise<TerminalIdentity> {
     return ensureTerminalIdentity();
+  }
+
+  setTerminalCode(code: string) {
+    return setTerminalCode(code);
+  }
+
+  loadNumberPolicy() {
+    return commands.loadNumberPolicy();
   }
 
   /**
@@ -454,6 +462,39 @@ export class PosStore {
         }
       }
     });
+  }
+
+  async applyInvoiceAssignments(
+    assignments: Array<{
+      aggregateId?: string;
+      invoiceNumber: number;
+      invoiceDisplay?: string;
+      invoicePrefix?: string;
+    }>,
+  ): Promise<void> {
+    if (!assignments.length) return;
+    const db = getPosStoreDatabase();
+    await db.transaction('rw', db.orders, async () => {
+      for (const assignment of assignments) {
+        const raw = String(assignment.aggregateId || '');
+        if (!raw || !Number.isFinite(Number(assignment.invoiceNumber))) continue;
+        const key = raw.includes(':') ? raw : `order:${raw}`;
+        const existing = await db.orders.get(key);
+        if (!existing) continue;
+        await db.orders.put({
+          ...existing,
+          invoice_number: Number(assignment.invoiceNumber),
+          ...(assignment.invoiceDisplay
+            ? { invoice_display: String(assignment.invoiceDisplay) }
+            : {}),
+          ...(assignment.invoicePrefix
+            ? { invoice_prefix: String(assignment.invoicePrefix) }
+            : {}),
+          updated_at: new Date().toISOString(),
+        });
+      }
+    });
+    notifyWrite();
   }
 
   /**

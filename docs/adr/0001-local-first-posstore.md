@@ -2,7 +2,9 @@
 
 ## Status
 
-Accepted — 2026-09-04
+Accepted — 2026-09-04  
+Amended **v1.1** — 2026-09-19 (gateway-assigned invoice numbers)  
+Amended **v1.2** — 2026-09-19 (configurable number policies)
 
 ## Context
 
@@ -26,6 +28,53 @@ Product requirements: FOH must work when the network or Surreal is down; sync to
 ### 2026-09-08 — offline-only ownership
 
 Hard cross-terminal locks were incorrectly applied online. Ownership is now an offline isolation mechanism; online multi-terminal edits are allowed and transfer `owner_terminal_id` to the pushing terminal.
+
+### v1.1 — Gateway-assigned invoice numbers (2026-09-19)
+
+Pre-reserved invoice blocks cannot be fiscal-safe across tills: each terminal’s
+pool is a disjoint range, so the next sale on till B jumps (1, then 201).
+Fiscal authorities reject those holes. Dual “working vs fiscal” sequences were
+rejected as an evasion foot-gun.
+
+**Invoice numbers are minted only on the gateway**, on a shared day-scoped
+counter, at `CREATE_RECORD` for `order`. Every till shares one restaurant-wide
+sequence that restarts at 1 each business day.
+
+- The terminal creates (and splits/merges) checks **without** `invoice_number`.
+  Floor, kitchen, and cart show a Dexie-only 6-character code (e.g. `ABC123`)
+  until push returns `assignments`. The code is stripped before Surreal and is
+  never sent to fiscal. Assignments are applied **before** the outbox row is
+  marked accepted. A retried CREATE returns the already-assigned number.
+- Local `auto_id` (and receipt) still use reserved pools. Invoice refill no
+  longer runs. `NUMBERS_EXHAUSTED` applies to those leftover pools, not to
+  creating a check.
+- Fiscal submit **waits** until the gateway number exists and uses that same
+  integer. Auto-close skips checks still waiting for a number.
+- Open Dexie shells with no invoice, owner, or items are still pruned; owned
+  local creates waiting for a number are not ghosts.
+
+### v1.2 — Configurable number policies (2026-09-19)
+
+Restaurants configure invoice minting via a global `setting` key
+`number_policy` (Settings → Invoice numbers). One engine covers scope, reset,
+format, mint, and pending labels — presets are saved combinations, not separate
+allocators.
+
+- **Default** remains Date Reset: `mint: gateway`, `reset: day`,
+  `scope: restaurant`, `template: "{seq}"`, pending random 6-char code,
+  `fiscal: same_int`.
+- Gateway loads the policy from Surreal (not client-spoofable ints), keys
+  `sync_number_counter` by scope + reset window, and snapshots
+  `invoice_display` (+ optional `invoice_prefix`) at mint so later policy edits
+  do not rewrite old checks. `invoice_number` stays `int` for fiscal / sort.
+- Tokens: `{seq}`, `{prefix}`, `{suffix}`, `{yyyy}`, `{mm}`, `{dd}`,
+  `{branch}`, `{terminal}`. Branch code is a policy string until a real org
+  model exists; each till has an editable `terminalCode` on Dexie identity.
+- **Unsafe presets** (terminal sequential, pool, hybrid) require
+  `acknowledgeGaps` and are documented as fiscal-gap risks. Pool/hybrid re-enable
+  local invoice refill; hybrid online still gateway-overwrites to reduce holes.
+- Fiscal provider numbers stay on `integration_order_fiscal` — POSR does not
+  mint `FBR-…` strings. Provider-defined is documented storage, not a minter.
 
 ## Consequences
 
@@ -56,9 +105,13 @@ mirror" helpers. All of them now go through `PosStore` commands:
   `order_item` / `order_item_kitchen` / `floor_table`, `CREATE_RECORD` with
   parent linking, `expectedVersion` → `VERSION_CONFLICT`, server-side steal
   staleness check. See `gateway/src/sync-protocol.md`.
-- **Numbers**: invoice / auto ids are only ever ints from reserved ranges
+- **Numbers (v1.0)**: invoice / auto ids were ints from reserved ranges
   (blocks of 200, refilled at 50 %). Creating a check with an exhausted pool
-  fails with `NUMBERS_EXHAUSTED` instead of emitting provisional strings.
+  failed with `NUMBERS_EXHAUSTED` instead of emitting provisional strings.
+  **Superseded by v1.1 / v1.2** — default invoices are gateway-assigned at CREATE
+  with a snapshotted `invoice_display`; restaurant policies can re-enable local
+  invoice pools (terminal/hybrid) with explicit gap acknowledgement. `auto_id`
+  still uses local reserved pools.
 - **Side effects** (fiscal, accounting publish, tracking, print recording) run
   after the local commit and never block or roll back the mutation.
 - **Robustness**: outbox transport failures back off exponentially and are

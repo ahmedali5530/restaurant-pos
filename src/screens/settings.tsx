@@ -8,6 +8,7 @@ import {TableSelectionSettings} from "@/components/user_settings/table_selection
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
+import {NumberPolicySettingsCard} from "@/components/user_settings/number_policy.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ThemeSettings} from "@/components/user_settings/theme.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
@@ -23,17 +24,23 @@ import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
 
 function MasonryItem({ children }: PropsWithChildren) {
-  return <div className="break-inside-avoid mb-5">{children}</div>;
+  return <div className="break-inside-avoid mb-5 [overflow-anchor:none]">{children}</div>;
 }
 
 export const Settings = () => {
   const {t: tNav} = useTranslation('navigation');
 
   return (
-    <Layout containerClassName="p-5">
+    <Layout containerClassName="p-5 [overflow-anchor:none]">
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
-      {/* Columns must not sit on the max-height Layout pane or content is clipped to the viewport. */}
-      <div className="columns-1 md:columns-2 lg:columns-3 gap-5" data-testid="settings-page">
+      {/*
+        CSS columns packs uneven card heights (masonry). Grid left large gaps in each row.
+        overflow-anchor + break-inside-avoid keep focus/clicks from reshuffling scroll.
+      */}
+      <div
+        className="columns-1 md:columns-2 lg:columns-3 gap-5"
+        data-testid="settings-page"
+      >
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
@@ -44,6 +51,7 @@ export const Settings = () => {
         <MasonryItem><MenusSettings /></MasonryItem>
         <MasonryItem><ServiceChargesSettings /></MasonryItem>
         <MasonryItem><ClosingCycleSettingsCard /></MasonryItem>
+        <MasonryItem><NumberPolicySettingsCard /></MasonryItem>
         <MasonryItem><AutoCheckCloseSettingsCard /></MasonryItem>
         <MasonryItem><SessionSecuritySettingsCard /></MasonryItem>
         <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>

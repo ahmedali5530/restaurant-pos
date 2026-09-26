@@ -1,8 +1,13 @@
 import { getPosStoreDatabase } from './db.ts';
-import { ensureTerminalIdentity, nextOperationIdentity, recordId } from './identity.ts';
+import {
+  ensureTerminalIdentity,
+  nextOperationIdentity,
+  pendingCodeFromPolicy,
+  recordId,
+} from './identity.ts';
 import { assertCashierOwner, canStealOrder } from './ownership.ts';
 import { isPosStoreEffectivelyConnected } from './connectivity.ts';
-import { reconcileOrderItemLinks } from './catalog.ts';
+import { getGlobalSetting, reconcileOrderItemLinks } from './catalog.ts';
 import { shouldMaterializeNewOrder } from './order-validity.ts';
 import {
   POS_SCHEMA_VERSION,
@@ -22,6 +27,14 @@ import {
   type SyncOutboxRow,
 } from './types.ts';
 import { getBusinessDayUnixRange } from '@/lib/datetime.ts';
+import {
+  DEFAULT_NUMBER_POLICY,
+  NUMBER_POLICY_KEY,
+  formatInvoiceDisplay,
+  normalizeNumberPolicy,
+  policyUsesLocalInvoicePool,
+  type NumberPolicy,
+} from '@/lib/number-policy.ts';
 
 const DAY_SCOPED_NUMBER_SERIES = new Set<NumberSeries>(['invoice', 'receipt']);
 
@@ -30,6 +43,38 @@ export function notifyWrite(): void {
     window.dispatchEvent(new CustomEvent('posr-posstore-write'));
     window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
   }
+}
+
+export async function loadNumberPolicy(): Promise<NumberPolicy> {
+  try {
+    const row = await getGlobalSetting(NUMBER_POLICY_KEY);
+    return normalizeNumberPolicy(row?.values ?? row?.payload?.values);
+  } catch {
+    return { ...DEFAULT_NUMBER_POLICY };
+  }
+}
+
+export async function invoiceAllocateScope(): Promise<{
+  businessDay: string;
+  dayStartUnix: number;
+  dayEndUnix: number;
+  terminalCode?: string;
+  branchCode?: string;
+  policyReset?: string;
+}> {
+  const { day, startUnix, endUnix } = getBusinessDayUnixRange();
+  const [policy, identity] = await Promise.all([
+    loadNumberPolicy(),
+    ensureTerminalIdentity(),
+  ]);
+  return {
+    businessDay: day,
+    dayStartUnix: startUnix,
+    dayEndUnix: endUnix,
+    terminalCode: identity.terminalCode,
+    branchCode: policy.branchCode || undefined,
+    policyReset: policy.reset,
+  };
 }
 
 export function nowIso(value?: string | Date): string {
@@ -110,11 +155,18 @@ export async function ensureLocalOrder(source: {
     !shouldMaterializeNewOrder({
       status: draftStatus,
       invoice_number: source.order?.invoice_number,
+      order_type: source.order?.order_type,
+      owner_terminal_id: source.order?.owner_terminal_id,
+      items: Array.isArray(source.items)
+        ? source.items
+        : Array.isArray(source.order?.items)
+          ? source.order.items
+          : [],
     })
   ) {
     throw new PosStoreError(
       'INVALID_ORDER',
-      'Cannot import order without an invoice number',
+      'Cannot import an empty order shell',
     );
   }
 
@@ -143,6 +195,10 @@ export async function ensureLocalOrder(source: {
     id: key,
     status: String(source.order?.status ?? 'In Progress'),
     invoice_number: source.order?.invoice_number,
+    local_invoice_code: source.order?.local_invoice_code
+      ?? (source.order?.invoice_number == null ? pendingCodeFromPolicy() : undefined),
+    invoice_display: source.order?.invoice_display,
+    invoice_prefix: source.order?.invoice_prefix,
     auto_id: source.order?.auto_id,
     covers: source.order?.covers ?? 1,
     floor: refId(source.order?.floor),
@@ -241,15 +297,41 @@ async function appendOperation(
   operation: DomainOperation,
 ): Promise<void> {
   const db = getPosStoreDatabase();
+  // SCHEMAFULL Surreal `order` has no Dexie-only fields — strip before outbox.
+  const payload = scrubOrderOutboxPayload(operation.payload);
+  const scrubbed: DomainOperation = payload === operation.payload
+    ? operation
+    : { ...operation, payload };
   const outbox: SyncOutboxRow = {
-    operationId: operation.operationId,
+    operationId: scrubbed.operationId,
     status: 'pending',
     attempts: 0,
-    createdAt: operation.createdAt,
-    updatedAt: operation.createdAt,
+    createdAt: scrubbed.createdAt,
+    updatedAt: scrubbed.createdAt,
   };
-  await db.domainOperations.put(operation);
+  await db.domainOperations.put(scrubbed);
   await db.syncOutbox.put(outbox);
+}
+
+/** Fields kept only in Dexie; never sent to the gateway / Surreal. */
+const ORDER_LOCAL_ONLY_FIELDS = ['draft_payments', 'local_invoice_code'] as const;
+
+export function scrubOrderOutboxPayload(
+  payload: Record<string, any> | undefined | null,
+): Record<string, any> {
+  if (!payload || typeof payload !== 'object') return payload ?? {};
+  if (payload.table !== 'order' || !payload.data || typeof payload.data !== 'object') {
+    return payload;
+  }
+  let changed = false;
+  const data = { ...payload.data };
+  for (const field of ORDER_LOCAL_ONLY_FIELDS) {
+    if (field in data) {
+      delete data[field];
+      changed = true;
+    }
+  }
+  return changed ? { ...payload, data } : payload;
 }
 
 /**
@@ -273,7 +355,7 @@ export async function enqueue(input: {
     aggregateId: input.aggregateId,
     operationType: input.operationType,
     expectedVersion: input.expectedVersion ?? 0,
-    payload: input.payload,
+    payload: scrubOrderOutboxPayload(input.payload),
     createdAt: input.createdAt,
     protocolVersion: POS_SYNC_PROTOCOL_VERSION,
     schemaVersion: POS_SCHEMA_VERSION,
@@ -520,6 +602,9 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
   });
 
   const opIdentity = await nextOperationIdentity();
+  const policy = await loadNumberPolicy();
+  const allocateScope = await invoiceAllocateScope();
+  const useLocalPool = policyUsesLocalInvoicePool(policy);
 
   const result = await db.transaction(
     'rw',
@@ -534,12 +619,9 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
     ],
     async () => {
       let invoiceNumber = input.invoiceNumber;
+      let invoiceDisplay: string | undefined;
+      let invoicePrefix: string | undefined;
       let autoId = input.autoId;
-      const invoiceDay = getBusinessDayUnixRange().day;
-      if (invoiceNumber == null) {
-        await adoptOrDiscardInTx(db, 'invoice', invoiceDay);
-        invoiceNumber = await consumeNumberInTx(db, 'invoice', invoiceDay);
-      }
       if (autoId == null) {
         try {
           autoId = await consumeNumberInTx(db, 'auto_id');
@@ -547,11 +629,33 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
           autoId = undefined;
         }
       }
+      if (invoiceNumber == null && useLocalPool) {
+        try {
+          await adoptOrDiscardInTx(db, 'invoice', allocateScope.businessDay);
+          invoiceNumber = await consumeNumberInTx(
+            db,
+            'invoice',
+            allocateScope.businessDay,
+          );
+          invoiceDisplay = formatInvoiceDisplay(policy, {
+            seq: invoiceNumber,
+            day: allocateScope.businessDay,
+            terminal: allocateScope.terminalCode,
+            branch: allocateScope.branchCode || policy.branchCode,
+          });
+          invoicePrefix = policy.prefix || undefined;
+        } catch {
+          invoiceNumber = undefined;
+        }
+      }
 
       const order: OrderRecord = {
         id: orderId,
         status: 'In Progress',
         invoice_number: invoiceNumber,
+        invoice_display: invoiceDisplay,
+        invoice_prefix: invoicePrefix,
+        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
         auto_id: autoId,
         covers: input.covers ?? 1,
         floor: input.floorId ?? null,
@@ -582,13 +686,14 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
         aggregateId: orderId,
         operationType: 'CREATE_RECORD',
         expectedVersion: 0,
-        payload: {
+        payload: scrubOrderOutboxPayload({
           table: 'order',
           recordId: orderId,
           data: order,
           items,
           kitchens,
-        },
+          ...allocateScope,
+        }),
         createdAt,
         protocolVersion: POS_SYNC_PROTOCOL_VERSION,
         schemaVersion: POS_SCHEMA_VERSION,
@@ -935,9 +1040,10 @@ export async function addItemsToOrder(
 }
 
 /**
- * Take the next reserved integer for `series`. Surreal `invoice_number` and
- * `auto_id` are ints, so there is deliberately no string fallback: when the
- * local pool is exhausted offline the caller must block the create with a toast.
+ * Take the next reserved integer for `series`. Invoice numbers are assigned by
+ * the gateway; this is still used for `auto_id` (and leftover invoice pools).
+ * There is no string fallback: when the local pool is exhausted offline the
+ * caller must block with a toast.
  */
 function isCurrentNumberScope(
   row: { scope_id?: string },

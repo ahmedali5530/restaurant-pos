@@ -759,6 +759,7 @@
       "settings.session_security": "Sessiebeveiliging",
       "settings.auto_clock_out": "Automatisch uitklokken",
       "settings.translate_receipts": "Bonnen vertalen",
+      "settings.number_policy": "Factuurnummers",
       "settings.inventory": "Inventory",
       "settings.menus": "Menu-instellingen",
       "settings.access_control": "Toegangscontrole",

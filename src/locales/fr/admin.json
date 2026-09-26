@@ -759,6 +759,7 @@
       "settings.session_security": "Sécurité de session",
       "settings.auto_clock_out": "Pointage de sortie automatique",
       "settings.translate_receipts": "Traduire les reçus",
+      "settings.number_policy": "Numéros de facture",
       "settings.inventory": "Inventaire",
       "settings.menus": "Paramètres du menu",
       "settings.access_control": "Contrôle d'accès",

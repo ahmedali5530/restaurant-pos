@@ -759,6 +759,7 @@
       "settings.session_security": "Oturum güvenliği",
       "settings.auto_clock_out": "Otomatik mesai çıkışı",
       "settings.translate_receipts": "Fişleri çevir",
+      "settings.number_policy": "Fatura numaraları",
       "settings.inventory": "Inventory",
       "settings.menus": "Menü ayarları",
       "settings.access_control": "Erişim kontrolü",

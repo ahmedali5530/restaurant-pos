@@ -759,6 +759,7 @@
       "settings.session_security": "Безопасность сеанса",
       "settings.auto_clock_out": "Автоматический уход",
       "settings.translate_receipts": "Переводить чеки",
+      "settings.number_policy": "Номера счетов",
       "settings.inventory": "Inventory",
       "settings.menus": "Настройки меню",
       "settings.access_control": "Контроль доступа",

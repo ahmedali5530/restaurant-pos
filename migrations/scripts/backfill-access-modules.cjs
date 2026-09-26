@@ -246,6 +246,7 @@ const LEGACY_MODULE_MAP = {
   'Access control': 'settings.access_control',
   'Inventory Settings': 'settings.inventory',
   'Translate receipts': 'settings.translate_receipts',
+  'Invoice numbers': 'settings.number_policy',
   'Chart of Accounts': 'accounts.chart_of_accounts',
   'Account Groups': 'accounts.account_groups',
   'Journal Entries': 'accounts.journal_entries',
