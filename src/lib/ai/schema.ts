@@ -229,6 +229,20 @@ export const AI_ASSISTANT_WRITE_RULES = [
   "Users may ask to create or update data in any language (e.g. Turkish, German); use propose_* tools when the intent is clear even if they do not use English words.",
 ].join(" ");
 
+/** How-to / UI help rules when lookup_user_guide is available. */
+export const AI_ASSISTANT_GUIDE_RULES = [
+  "For how-to, where-is, or UI help questions, call lookup_user_guide with the matching chapter key and follow the returned steps.",
+  "Do not invent buttons, menus, or screens — only describe what the guide text says.",
+  "Answer how-to questions in the same language the user used.",
+  "Live sales/inventory numbers still require data tools; guide text is for product UI steps only.",
+].join(" ");
+
+export type AiAssistantGuideContext = {
+  language?: string;
+  pathname?: string;
+  suggestedChapter?: string | null;
+};
+
 /**
  * System prompt for the floating assistant: reuses AI Report prompt building
  * (compact + domain hints when enabled, full workflow otherwise) plus write rules.
@@ -238,6 +252,7 @@ export const getAiAssistantSystemPrompt = (
   domains: AiReportToolDomain[] = [],
   compact = false,
   writeToolNames: string[] = [],
+  guideContext: AiAssistantGuideContext = {},
 ): string => {
   const reportPrompt = getAiReportSystemPrompt("table", domains, compact);
   const writeToolsBlock = writeToolNames.length
@@ -249,13 +264,28 @@ export const getAiAssistantSystemPrompt = (
     : null;
   const writeSection = [AI_ASSISTANT_WRITE_RULES, writeToolsBlock].filter(Boolean).join("\n");
 
+  const guideHints: string[] = [AI_ASSISTANT_GUIDE_RULES];
+  if (guideContext.suggestedChapter) {
+    guideHints.push(
+      `The user is currently on path "${guideContext.pathname ?? ""}". `
+      + `Prefer lookup_user_guide chapter "${guideContext.suggestedChapter}" when they ask how this page works.`,
+    );
+  } else if (guideContext.pathname) {
+    guideHints.push(`The user is currently on path "${guideContext.pathname}".`);
+  }
+  if (guideContext.language) {
+    guideHints.push(`Load guide text for language code "${guideContext.language}" when calling lookup_user_guide (the runtime maps it to the locale folder).`);
+  }
+  const guideSection = guideHints.join(" ");
+
   if (compact) {
     return [
       `${AI_ASSISTANT_PERSONA} You help managers using real data from their point-of-sale system.`,
       reportPrompt,
       writeSection,
+      guideSection,
     ].join("\n\n");
   }
 
-  return `${reportPrompt}\n\n${writeSection}`;
+  return `${reportPrompt}\n\n${writeSection}\n\n${guideSection}`;
 };

@@ -236,7 +236,10 @@
       "charts": "Gráficos y pronósticos",
       "analysis": "Análisis"
     },
-    "location": "Ubicación"
+    "location": "Ubicación",
+    "selectDate": "Seleccionar fecha",
+    "allShifts": "Todos los turnos del día",
+    "cashClosingShiftHint": "Elija un turno para abrir solo ese cierre, o déjelo vacío para ver todos los cierres del día y cambiar entre ellos en el informe."
   },
   "datePresets": {
     "today": "Hoy",
@@ -292,7 +295,9 @@
     "failedToLoad": "Error al cargar el informe: {{error}}",
     "noOrderFound": "No se encontró pedido para el ID proporcionado.",
     "orderIdRequired": "El ID del pedido es obligatorio.",
-    "failedToLoadDashboard": "No se pudo cargar el panel"
+    "failedToLoadDashboard": "No se pudo cargar el panel",
+    "noCashClosingForShift": "No se encontró cierre de caja para la fecha y el turno seleccionados.",
+    "noCashClosing": "No se encontró cierre de caja para la fecha seleccionada."
   },
   "receipt": {
     "noItems": "No hay artículos en este pedido."
@@ -328,6 +333,8 @@
     "covers": "Cubiertos",
     "tax": "Impuesto",
     "extras": "Extras",
+    "paymentMethod": "Método de pago",
+    "time": "Hora",
     "serviceCharges": "Cargos por servicio",
     "subtotal": "Subtotal",
     "grandTotal": "Total general",
@@ -412,6 +419,9 @@
     "cashAdded": "Efectivo agregado",
     "cashPaymentsNet": "Pagos en efectivo (neto)",
     "closingBalance": "Saldo de cierre",
+    "shift": "Turno",
+    "noShift": "Sin turno",
+    "transactions": "Transacciones",
     "grossSale": "Venta bruta",
     "guestAvg": "Comensal prom.",
     "estimatedProfit": "Ganancia estimada",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Ventas por franja horaria",
     "saleByEmployees": "Ventas por empleados",
     "expandAll": "Expandir todo",
-    "collapseAll": "Contraer todo"
+    "collapseAll": "Contraer todo",
+    "previousFloat": "Float anterior",
+    "countedCash": "Efectivo contado",
+    "cashDrop": "Depósito",
+    "drawerFloat": "Efectivo para siguiente turno",
+    "closedBy": "Cerrado por",
+    "varianceReason": "Motivo sobrante/faltante",
+    "batchTotals": "Totales de lote",
+    "systemAmount": "Sistema",
+    "batchAmount": "Lote",
+    "shiftRecap": "Resumen del turno",
+    "paidOrders": "Pedidos pagados",
+    "discounts": "Descuentos",
+    "serviceCharge": "Cargo por servicio",
+    "tips": "Propinas",
+    "voids": "Anulaciones",
+    "refunds": "Reembolsos",
+    "closingsForDay": "Cierres de este día",
+    "closingsCount": "{{count}} cierres"
   },
   "metrics": {
     "gross": "Bruto",

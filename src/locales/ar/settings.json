@@ -24,8 +24,14 @@
       "forest": "غابة",
       "cream": "كريمي",
       "ruby": "ياقوت",
-      "sapphire": "ياقوت أزرق"
-    }
+      "sapphire": "ياقوت أزرق",
+      "custom": "مخصص"
+    },
+    "customDescription": "اختر لونًا أساسيًا. تُبنى الأسطح والحدود واللمسات منه لوضعي الفاتح والداكن.",
+    "customPrimary": "اللون الأساسي",
+    "customHex": "Hex",
+    "customApply": "تطبيق",
+    "customPreview": "معاينة"
   },
   "touch": {
     "title": "لوحة المفاتيح على الشاشة",

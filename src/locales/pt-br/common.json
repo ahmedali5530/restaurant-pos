@@ -254,7 +254,8 @@
       "bogoDiscount": "Criar desconto BOGO automático para entradas",
       "addDish": "Adicionar um novo prato Margherita por R$x",
       "listUsers": "Listar todos os usuários do POS",
-      "inventoryStock": "Mostrar itens de estoque abaixo do nível de reposição"
+      "inventoryStock": "Mostrar itens de estoque abaixo do nível de reposição",
+      "howToPurchase": "Como faço para lançar uma compra de estoque?"
     },
     "unknownConfig": "Configuração de importação desconhecida para visualização.",
     "passwordWillBeSet": "A senha será definida ao confirmar"

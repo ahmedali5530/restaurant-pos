@@ -80,7 +80,7 @@ export const ClosingCycleSettingsCard = () => {
   return (
     <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-closing-cycle">
       <h2 className="text-xl font-semibold mb-1">{t('settings:closingCycle.title')}</h2>
-      <p className="settings-card-desc mb-5">
+      <p className="text-sm text-muted mb-5">
         {t('settings:closingCycle.description')}
       </p>
       <form onSubmit={protectFormSubmit(handleSubmit(saveSettings), {

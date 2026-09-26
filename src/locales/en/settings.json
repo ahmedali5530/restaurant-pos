@@ -24,8 +24,14 @@
       "forest": "Forest",
       "cream": "Cream",
       "ruby": "Ruby",
-      "sapphire": "Sapphire"
-    }
+      "sapphire": "Sapphire",
+      "custom": "Custom"
+    },
+    "customDescription": "Pick a primary color. Surfaces, borders, and accents are built from it for light and dark mode.",
+    "customPrimary": "Primary color",
+    "customHex": "Hex",
+    "customApply": "Apply",
+    "customPreview": "Preview"
   },
   "touch": {
     "title": "On screen keyboard",

@@ -18,6 +18,8 @@ const {
   formatCenteredHardwareLine,
   buildItemRowString,
   buildItemHeaderString,
+  wrapReceiptText,
+  STORE_LOGO_BOX_PX,
 } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
@@ -121,11 +123,14 @@ class ReceiptCanvas {
 
   /**
    * @param {string|Buffer} input
-   * @param {{ maxSide?: number }} [opts]
+   * @param {{ maxSide?: number, width?: number, height?: number }} [opts]
    */
   image(input, opts) {
-    this.ops.push({ type: 'image', input, maxSide: (opts && opts.maxSide) || 150 });
-    this._grow(((opts && opts.maxSide) || 150) + 8);
+    const o = opts || {};
+    const width = o.width != null ? Math.max(8, Number(o.width) || STORE_LOGO_BOX_PX) : (o.maxSide || STORE_LOGO_BOX_PX);
+    const height = o.height != null ? Math.max(8, Number(o.height) || STORE_LOGO_BOX_PX) : (o.maxSide || width);
+    this.ops.push({ type: 'image', input, width, height, maxSide: o.maxSide });
+    this._grow(height + 8);
   }
 
   /**
@@ -257,10 +262,10 @@ class ReceiptCanvas {
           const decoded = decodeImageInput(op.input);
           if (!decoded) continue;
           const img = await loadImage(decoded.buf);
-          const maxSide = op.maxSide || 150;
-          const scale = Math.min(1, maxSide / Math.max(img.width, img.height), this.width / img.width);
-          const w = Math.max(1, Math.floor(img.width * scale));
-          const h = Math.max(1, Math.floor(img.height * scale));
+          const targetW = Math.max(8, Math.min(this.width, op.width || op.maxSide || STORE_LOGO_BOX_PX));
+          const targetH = Math.max(8, op.height || op.maxSide || targetW);
+          const w = Math.max(1, Math.floor(targetW));
+          const h = Math.max(1, Math.floor(targetH));
           const x = Math.floor((this.width - w) / 2);
           ctx.drawImage(img, x, y, w, h);
           y += h + Math.round(metrics.lineHeightNormal * 0.35);
@@ -315,10 +320,15 @@ function paintSections(rc, sections) {
     .filter((s) => s.enabled)
     .forEach((section) => {
       if (section.type === 'image' && section.content) {
-        rc.image(section.content, { maxSide: 150 });
+        rc.image(section.content, {
+          width: section.width || STORE_LOGO_BOX_PX,
+          height: section.height || STORE_LOGO_BOX_PX,
+        });
       } else if (section.type === 'text' && section.content) {
-        rc.aligned(section.content, section.align || 'center', {
-          size: section.size || 'normal',
+        wrapReceiptText(section.content, section.size || 'normal').forEach((line) => {
+          rc.aligned(line, section.align || 'center', {
+            size: section.size || 'normal',
+          });
         });
       }
     });
@@ -326,7 +336,10 @@ function paintSections(rc, sections) {
 
 function paintBranding(rc, cfg) {
   if (cfg.showLogo && cfg.logo) {
-    rc.image(cfg.logo, { maxSide: 150 });
+    rc.image(cfg.logo, {
+      width: cfg.logoWidth || STORE_LOGO_BOX_PX,
+      height: cfg.logoHeight || STORE_LOGO_BOX_PX,
+    });
   }
   paintSections(rc, cfg.headerSections);
 }

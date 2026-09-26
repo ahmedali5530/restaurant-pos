@@ -1,6 +1,7 @@
 export type AppThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedAppTheme = 'light' | 'dark';
-export type AppBrandId = 'classic' | 'ocean' | 'forest' | 'cream' | 'ruby' | 'sapphire';
+export type AppBrandPresetId = 'classic' | 'ocean' | 'forest' | 'cream' | 'ruby' | 'sapphire';
+export type AppBrandId = AppBrandPresetId | 'custom';
 
 /** RGB channel triples without `rgb()` — e.g. "0 70 254" */
 export type BrandPalette = {
@@ -22,7 +23,15 @@ export const DEFAULT_THEME: AppThemePreference = 'system';
 export const DEFAULT_BRAND: AppBrandId = 'classic';
 
 export const THEME_PREFERENCES: AppThemePreference[] = ['light', 'dark', 'system'];
-export const BRAND_IDS: AppBrandId[] = ['classic', 'ocean', 'forest', 'cream', 'ruby', 'sapphire'];
+export const BRAND_PRESET_IDS: AppBrandPresetId[] = [
+  'classic',
+  'ocean',
+  'forest',
+  'cream',
+  'ruby',
+  'sapphire',
+];
+export const BRAND_IDS: AppBrandId[] = [...BRAND_PRESET_IDS, 'custom'];
 
 export const BRAND_PALETTE_KEYS: (keyof BrandPalette)[] = [
   'canvas',
@@ -60,6 +69,10 @@ export function isAppThemePreference(value: unknown): value is AppThemePreferenc
 
 export function isAppBrandId(value: unknown): value is AppBrandId {
   return typeof value === 'string' && (BRAND_IDS as string[]).includes(value);
+}
+
+export function isAppBrandPresetId(value: unknown): value is AppBrandPresetId {
+  return typeof value === 'string' && (BRAND_PRESET_IDS as string[]).includes(value);
 }
 
 export function getSystemPrefersDark(): boolean {

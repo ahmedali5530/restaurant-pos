@@ -74,8 +74,12 @@
           "effect": "Logo sur ticket."
         },
         {
+          "name": "Largeur / hauteur / préréglage du logo",
+          "effect": "Taille d'impression en points (défaut 150×150). Les préréglages remplissent largeur et hauteur ; l'image est étirée à la zone."
+        },
+        {
           "name": "Sections en-tête/pied",
-          "effect": "Blocs texte/image."
+          "effect": "Texte (retour à la ligne) ou blocs image avec largeur/hauteur optionnelles au-dessus et en dessous du corps."
         },
         {
           "name": "Nom/n° TVA",

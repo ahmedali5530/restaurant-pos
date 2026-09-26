@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "Il ciclo di chiusura è disabilitato. L'ora dell'ultima chiusura completata viene usata come inizio di questo periodo e l'ora corrente come fine.",
     "cycleCompleted": "Chiusura completata per questo ciclo. La presa ordini è bloccata fino al prossimo ciclo.",
-    "periodCompleted": "Chiusura completata per questo periodo."
+    "periodCompleted": "Chiusura completata per questo periodo.",
+    "varianceReasonRequired": "Inserisci il motivo della differenza di cassa prima di completare la chiusura."
   },
   "sections": {
-    "previousDayBalance": "Saldo giorno precedente",
-    "pettyCash": "Cassa piccola",
+    "previousDayBalance": "Contanti dalla chiusura precedente",
+    "pettyCash": "Piccola cassa in entrata",
+    "cashDrop": "Versamento / cassaforte",
     "terminalCash": "Contanti terminale",
     "paymentTypesSummary": "Riepilogo tipi di pagamento dal sistema",
+    "nonCashBatch": "Controllo batch non cash",
     "expenses": "Spese",
+    "openChecks": "Conti aperti",
+    "shiftRecap": "Riepilogo turno",
     "notes": "Note",
-    "summary": "Riepilogo"
+    "summary": "Riepilogo cassetto"
   },
   "fields": {
     "previousDayBalance": "Saldo giorno precedente",
     "pettyCash": "Cassa piccola",
+    "cashDrop": "Contanti in cassaforte",
     "description": "Descrizione",
     "category": "Categoria",
     "amount": "Importo",
+    "batchAmount": "Importo batch / terminale",
+    "varianceReason": "Motivo eccedenza / short",
+    "varianceReasonPlaceholder": "Spiega la differenza di cassa...",
     "notesPlaceholder": "Aggiungi eventuali note..."
+  },
+  "labels": {
+    "cashSystemTotal": "Contanti dal sistema",
+    "systemAmount": "Sistema",
+    "noNonCash": "Nessun metodo non cash in questo periodo.",
+    "noOpenChecks": "Nessun conto aperto in questa finestra.",
+    "closedBy": "Chiuso da {{name}}"
+  },
+  "columns": {
+    "invoice": "Fattura",
+    "table": "Tavolo",
+    "status": "Stato",
+    "amount": "Importo"
+  },
+  "recap": {
+    "paidOrders": "Ordini pagati",
+    "discounts": "Sconti",
+    "tax": "Tasse",
+    "serviceCharge": "Servizio",
+    "tips": "Mance",
+    "voids": "Annullamenti",
+    "refunds": "Rimborsi"
   },
   "totals": {
     "totalCash": "Totale contanti: {{amount}}",
+    "cashSales": "Vendite cash (sistema)",
     "cashFromPayments": "Contanti dal riepilogo pagamenti",
+    "expectedInDrawer": "Atteso nel cassetto",
+    "overShort": "Eccedenza / short",
+    "cashLeftNextShift": "Contanti per il turno successivo",
+    "countedCash": "Contanti contati",
     "difference": "Differenza: {{amount}}",
+    "batchDifference": "Differenza batch: {{amount}}",
     "totalOtherPayments": "Totale altri pagamenti: {{amount}}",
     "totalExpenses": "Totale spese: {{amount}}",
     "previousBalance": "Saldo precedente",

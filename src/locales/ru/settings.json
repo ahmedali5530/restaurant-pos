@@ -24,8 +24,14 @@
       "forest": "Лес",
       "cream": "Крем",
       "ruby": "Рубин",
-      "sapphire": "Сапфир"
-    }
+      "sapphire": "Сапфир",
+      "custom": "Свой"
+    },
+    "customDescription": "Выберите основной цвет. Поверхности, границы и акценты строятся для светлой и тёмной темы.",
+    "customPrimary": "Основной цвет",
+    "customHex": "Hex",
+    "customApply": "Применить",
+    "customPreview": "Просмотр"
   },
   "touch": {
     "title": "Экранная клавиатура",

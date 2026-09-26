@@ -24,8 +24,14 @@
       "forest": "Bosque",
       "cream": "Crema",
       "ruby": "Rubí",
-      "sapphire": "Zafiro"
-    }
+      "sapphire": "Zafiro",
+      "custom": "Personalizado"
+    },
+    "customDescription": "Elija un color primario. Superficies, bordes y acentos se generan para modo claro y oscuro.",
+    "customPrimary": "Color primario",
+    "customHex": "Hex",
+    "customApply": "Aplicar",
+    "customPreview": "Vista previa"
   },
   "touch": {
     "title": "Teclado en pantalla",

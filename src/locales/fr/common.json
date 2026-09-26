@@ -254,7 +254,8 @@
       "bogoDiscount": "Créer une remise BOGO automatique pour les entrées",
       "addDish": "Ajouter un nouveau plat Margherita à x €",
       "listUsers": "Lister tous les utilisateurs POS",
-      "inventoryStock": "Afficher les articles en stock sous le seuil de réapprovisionnement"
+      "inventoryStock": "Afficher les articles en stock sous le seuil de réapprovisionnement",
+      "howToPurchase": "Comment enregistrer un achat d'inventaire ?"
     },
     "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
     "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"

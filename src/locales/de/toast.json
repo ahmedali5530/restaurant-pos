@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} Artikel aktualisiert",
     "invalidCategories": "Kategorien sind ungültig",
     "passwordRequired": "Passwort ist für neuen Benutzer erforderlich",
+    "lastMasterRole": "Sie sind der einzige Benutzer mit der Rolle {{role}} — weisen Sie zuerst einem anderen Benutzer diese Rolle zu, sonst bleibt niemand übrig, der das System verwalten kann.",
+    "lastFullAccessRole": "Dies ist die einzige Rolle mit vollem Zugriff — geben Sie zuerst einer anderen Rolle vollen Zugriff, sonst bleibt niemand übrig, der das System verwalten kann.",
     "invalidDishNumber": "Gerichtennummer ist ungültig",
     "invalidDishNameOrNumber": "Gerichtenname oder -nummer ist ungültig",
     "ambiguousDishName": "Mehrere Gerichte passen zu diesem Namen; verwenden Sie die Gerichtennummer",

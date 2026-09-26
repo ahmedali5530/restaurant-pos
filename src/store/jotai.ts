@@ -110,9 +110,11 @@ export interface AppPageInterface {
   direction?: AppTextDirection
   /** Appearance preference for this device (light / dark / follow OS). */
   theme?: AppThemePreference
-  /** Brand color pack for this device (default / ocean / forest). */
+  /** Brand color pack for this device (classic / ocean / … / custom). */
   brand?: AppBrandId
-  /** Reserved for Phase 3 custom color picker; applied via applyBrandPalette. */
+  /** Primary hex for brand === 'custom' (e.g. #0046FE). Palette is derived on the fly. */
+  customPrimary?: string
+  /** @deprecated Prefer customPrimary; kept for older device storage. */
   customPalette?: BrandPalette
   /** Last What's New release date dismissed on this device (YYYY-MM-DD). */
   whatsNewDismissedDate?: string

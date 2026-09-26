@@ -11,7 +11,7 @@ export const TouchSettings = () => {
       <div className="flex items-start mb-5">
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('settings:touch.title')}</h2>
-          <p className="settings-card-desc">{t('settings:touch.description')}</p>
+          <p className="text-sm text-muted">{t('settings:touch.description')}</p>
         </div>
       </div>
       <Button variant={page.touch ? 'success' : 'danger'} size="lg" onClick={() => {

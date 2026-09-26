@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "El ciclo de cierre está deshabilitado. Se usa la hora del último cierre completado como inicio de este período, y la hora actual como fin.",
     "cycleCompleted": "El cierre está completado para este ciclo. La toma de pedidos está bloqueada hasta el próximo ciclo.",
-    "periodCompleted": "El cierre está completado para este período."
+    "periodCompleted": "El cierre está completado para este período.",
+    "varianceReasonRequired": "Indique el motivo del sobrante o faltante de efectivo antes de completar el cierre."
   },
   "sections": {
-    "previousDayBalance": "Saldo del día anterior",
-    "pettyCash": "Caja chica",
+    "previousDayBalance": "Efectivo del cierre anterior",
+    "pettyCash": "Caja chica entrada",
+    "cashDrop": "Depósito / caja fuerte",
     "terminalCash": "Efectivo de terminal",
     "paymentTypesSummary": "Resumen de tipos de pago del sistema",
+    "nonCashBatch": "Conciliación no efectivo",
     "expenses": "Gastos",
+    "openChecks": "Cuentas abiertas",
+    "shiftRecap": "Resumen del turno",
     "notes": "Notas",
-    "summary": "Resumen"
+    "summary": "Resumen del cajón"
   },
   "fields": {
     "previousDayBalance": "Saldo del día anterior",
     "pettyCash": "Caja chica",
+    "cashDrop": "Efectivo a caja fuerte",
     "description": "Descripción",
     "category": "Categoría",
     "amount": "Importe",
+    "batchAmount": "Monto de lote / terminal",
+    "varianceReason": "Motivo sobrante / faltante",
+    "varianceReasonPlaceholder": "Explique la diferencia de efectivo...",
     "notesPlaceholder": "Agregue notas adicionales..."
+  },
+  "labels": {
+    "cashSystemTotal": "Efectivo del sistema",
+    "systemAmount": "Sistema",
+    "noNonCash": "No hay métodos no efectivo en este período.",
+    "noOpenChecks": "No hay cuentas abiertas en esta ventana.",
+    "closedBy": "Cerrado por {{name}}"
+  },
+  "columns": {
+    "invoice": "Factura",
+    "table": "Mesa",
+    "status": "Estado",
+    "amount": "Importe"
+  },
+  "recap": {
+    "paidOrders": "Pedidos pagados",
+    "discounts": "Descuentos",
+    "tax": "Impuesto",
+    "serviceCharge": "Cargo por servicio",
+    "tips": "Propinas",
+    "voids": "Anulaciones",
+    "refunds": "Reembolsos"
   },
   "totals": {
     "totalCash": "Total en efectivo: {{amount}}",
+    "cashSales": "Ventas en efectivo (sistema)",
     "cashFromPayments": "Efectivo del resumen de pagos",
+    "expectedInDrawer": "Esperado en cajón",
+    "overShort": "Sobrante / faltante",
+    "cashLeftNextShift": "Efectivo para el siguiente turno",
+    "countedCash": "Efectivo contado",
     "difference": "Diferencia: {{amount}}",
+    "batchDifference": "Diferencia de lote: {{amount}}",
     "totalOtherPayments": "Total de otros pagos: {{amount}}",
     "totalExpenses": "Total de gastos: {{amount}}",
     "previousBalance": "Saldo anterior",

@@ -6,7 +6,8 @@
   "description": "Live sync from local SurrealDB to master reporting SurrealDB",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test src/*.test.js"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

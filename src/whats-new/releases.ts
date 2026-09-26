@@ -7,6 +7,67 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-26',
+    title: 'Restaurant drawer close',
+    items: [
+      'Day closing is a cash-only drawer: expected cash, drop to the safe, over/short with a required reason, and cash left for the next shift.',
+      'Card and other tenders stay out of the float and get a batch check against the system total.',
+      'Open checks are listed before Complete, and a shift recap shows discounts, tax, service charge, tips, voids, and refunds.',
+      'The drawer summary is visible while counting, and Complete records who closed.',
+    ],
+  },
+  {
+    date: '2026-09-24',
+    title: 'Durable local-to-cloud sync',
+    items: [
+      'Branch sales data (including fiscal submission rows) uploads to the cloud master via SurrealDB changefeeds with a first-run backfill, so failed or offline uploads retry instead of being dropped.',
+      'Each uploaded row is stamped with the branch id so multiple stores can share one reporting database.',
+    ],
+  },
+  {
+    date: '2026-09-23',
+    title: 'AI Assistant user guides',
+    items: [
+      'The floating AI assistant can look up end-user guide chapters (how-to steps) in your language when you ask how to use a screen or feature.',
+      'Guide answers follow the documented UI steps instead of inventing menus; live sales and inventory numbers still use data tools.',
+    ],
+  },
+  {
+    date: '2026-09-22',
+    title: 'Last admin guard and per-shift closings',
+    items: [
+      'You cannot demote or delete the last Master-role user, or delete the only full-access role, so admin/settings cannot be locked out.',
+      'Cash closings are saved per shift for the same business day, so a second shift no longer overwrites the first.',
+      'Cash Closing report lists every closing for the day with a shift selector and itemized paid transactions (filtered by shift when set).',
+      'Completing any closing still ends order-taking for the whole day — use Save draft for mid-day shift handoffs.',
+      'Previous closing balance is read-only and comes from the last completed closing’s outstanding balance.',
+      'Cash Closing report filter can pick an optional shift to open only that closing, or leave empty to switch between all closings for the day.',
+    ],
+  },
+  {
+    date: '2026-09-21',
+    title: 'Print logo size and header wrap',
+    items: [
+      'Print settings let you set store logo width, height, and common size presets; header/footer images have their own width and height.',
+      'Logos and section images stretch to the configured size (default still 150×150 when unset).',
+      'Header and footer text sections wrap long paragraphs across multiple receipt lines instead of cutting after one row.',
+    ],
+  },
+  {
+    date: '2026-09-21',
+    title: 'Schema catch-up for terminal sync',
+    items: [
+      'Fresh installs and production migrations now include PosStore sync tables, order ownership/version fields, the delivery menu function, and related security/accounting schema that was missing from the latest dump.',
+    ],
+  },
+  {
+    date: '2026-09-20',
+    title: 'Closing payment totals',
+    items: [
+      'Day closing payment type totals now use the same applied amounts as Summary (tendered cash minus change), instead of raw tendered amounts.',
+    ],
+  },
+  {
     date: '2026-09-19',
     title: 'Configurable invoice number policies',
     items: [
@@ -22,6 +83,14 @@ export const RELEASES: ReleaseNotes[] = [
       'POS invoice numbers are assigned by the gateway when the order is created on the server, so every till shares one daily sequence (1, 2, 3…) with no reserved-block jumps.',
       'New checks can be taken offline without an invoice number; kitchen and floor keep working. Until sync, the check shows a 6-character local code (e.g. ABC123). The real number replaces it after the gateway assigns it.',
       'Fiscal submit waits until that number exists and uses the same invoice number. Split and merge children also get numbers from the gateway, not from a local 200-block. Auto / receipt ids still use reserved pools.',
+    ],
+  },
+  {
+    date: '2026-09-19',
+    title: 'Custom brand color',
+    items: [
+      'Settings → Appearance → Custom lets you pick a primary color; the app builds light and dark surfaces, borders, and accents from it on this device.',
+      'Preset packs (Classic, Ocean, Forest, Cream, Ruby, Sapphire) remain available alongside Custom.',
     ],
   },
   {

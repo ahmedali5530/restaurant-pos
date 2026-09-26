@@ -24,8 +24,14 @@
       "forest": "Wald",
       "cream": "Creme",
       "ruby": "Rubin",
-      "sapphire": "Saphir"
-    }
+      "sapphire": "Saphir",
+      "custom": "Benutzerdefiniert"
+    },
+    "customDescription": "Wählen Sie eine Primärfarbe. Flächen, Ränder und Akzente werden daraus für Hell- und Dunkelmodus erzeugt.",
+    "customPrimary": "Primärfarbe",
+    "customHex": "Hex",
+    "customApply": "Anwenden",
+    "customPreview": "Vorschau"
   },
   "touch": {
     "title": "Bildschirmtastatur",

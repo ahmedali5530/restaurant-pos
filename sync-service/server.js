@@ -72,26 +72,39 @@ async function main() {
   });
 
   if (manager) {
-    await manager.start();
+    // Bind HTTP first so /health and /stats stay reachable while master is down.
+    const server = app.listen(config.servicePort, config.serviceHost, () => {
+      logger.info(`Sync service listening on http://${config.serviceHost}:${config.servicePort}`);
+    });
+
+    manager.start().catch((error) => {
+      logger.error('Sync manager failed to start', { error: error.message || String(error) });
+    });
+
+    const shutdown = async (signal) => {
+      logger.info(`Received ${signal}, shutting down sync service`);
+      await manager.stop();
+      await new Promise((resolve) => server.close(resolve));
+      process.exit(0);
+    };
+
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
   } else {
     logger.warn('SYNC_MASTER_URL is missing; sync manager startup skipped and service is disabled.');
+    const server = app.listen(config.servicePort, config.serviceHost, () => {
+      logger.info(`Sync service listening on http://${config.serviceHost}:${config.servicePort}`);
+    });
+
+    const shutdown = async (signal) => {
+      logger.info(`Received ${signal}, shutting down sync service`);
+      await new Promise((resolve) => server.close(resolve));
+      process.exit(0);
+    };
+
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
   }
-
-  const server = app.listen(config.servicePort, config.serviceHost, () => {
-    logger.info(`Sync service listening on http://${config.serviceHost}:${config.servicePort}`);
-  });
-
-  const shutdown = async (signal) => {
-    logger.info(`Received ${signal}, shutting down sync service`);
-    if (manager) {
-      await manager.stop();
-    }
-    await new Promise((resolve) => server.close(resolve));
-    process.exit(0);
-  };
-
-  process.on('SIGINT', () => shutdown('SIGINT'));
-  process.on('SIGTERM', () => shutdown('SIGTERM'));
 }
 
 main().catch((error) => {

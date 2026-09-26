@@ -24,8 +24,14 @@
       "forest": "Orman",
       "cream": "Krem",
       "ruby": "Yakut",
-      "sapphire": "Safir"
-    }
+      "sapphire": "Safir",
+      "custom": "Özel"
+    },
+    "customDescription": "Bir ana renk seçin. Yüzeyler, kenarlıklar ve vurgular açık/koyu için türetilir.",
+    "customPrimary": "Ana renk",
+    "customHex": "Hex",
+    "customApply": "Uygula",
+    "customPreview": "Önizleme"
   },
   "touch": {
     "title": "Ekran klavyesi",

@@ -8,6 +8,8 @@ import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
 import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 import {isHrOperationPrompt} from "@/lib/ai/employee-query.ts";
 import {detectWriteToolsForPrompt, listPermittedWriteTools, WRITE_INTENT_PATTERN} from "@/lib/ai/tools/write-tool-registry.ts";
+import {LOOKUP_USER_GUIDE_TOOL, LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
+import {isUserGuideHowToPrompt} from "@/lib/ai/user-guide.ts";
 
 const ASSISTANT_CORE_READ_TOOLS = ["resolve_date_range", "get_sales_summary", "get_orders"];
 
@@ -113,9 +115,16 @@ export const selectAssistantToolsForPrompt = (
   const readNames = new Set(readTools.map(t => t.function.name));
   const writeFiltered = writeTools.filter(t => !readNames.has(t.function.name));
 
+  // Always offer guide lookup on the floating assistant; prefer it for how-to prompts.
+  const withGuide = readNames.has(LOOKUP_USER_GUIDE_TOOL_NAME)
+    ? readTools
+    : isUserGuideHowToPrompt(prompt)
+      ? [LOOKUP_USER_GUIDE_TOOL, ...readTools]
+      : [...readTools, LOOKUP_USER_GUIDE_TOOL];
+
   return {
-    tools: [...readTools, ...writeFiltered],
-    readTools,
+    tools: [...withGuide, ...writeFiltered],
+    readTools: withGuide,
     writeTools: writeFiltered,
     domains,
   };

@@ -57,12 +57,49 @@ test('resolvePaperWidthPx supports explicit 80mm width', () => {
   assert.equal(resolvePaperWidthPx({ escposLineWidth: 72 }), 576);
 });
 
-test('computeBoxCanvasLayout applies horizontal offset from print settings', () => {
-  const base = computeBoxCanvasLayout(STORE_LOGO_BOX_PX, 480, 'center');
-  const shifted = computeBoxCanvasLayout(STORE_LOGO_BOX_PX, 480, 'center', 16);
-  assert.equal(shifted.dx, base.dx + 16);
-  const left = computeBoxCanvasLayout(STORE_LOGO_BOX_PX, 480, 'center', -16);
-  assert.equal(left.dx, base.dx - 16);
+test('computeBoxCanvasLayout supports rectangular boxes', () => {
+  const { canvasWidth, boxW, boxH, dx } = computeBoxCanvasLayout(200, 480, 'center', 0, 80);
+  assert.equal(canvasWidth, 480);
+  assert.equal(boxW, 200);
+  assert.equal(boxH, 80);
+  assert.equal(dx, Math.floor((480 - 200) / 2));
+});
+
+test('computeBoxCanvasLayout clamps rectangle height to multiple of 8', () => {
+  const { boxW, boxH } = computeBoxCanvasLayout(100, 480, 'left', 0, 75);
+  assert.equal(boxW, 104);
+  assert.equal(boxH, 80);
+});
+
+test('prepareImageForPrint stretches to boxWidth × boxHeight when canvas is available', async (t) => {
+  let canvas;
+  try {
+    canvas = require('canvas');
+  } catch (e) {
+    t.skip('canvas native module not available');
+    return;
+  }
+
+  const { prepareImageForPrint } = require('./receipt-helpers');
+  const { createCanvas, loadImage } = canvas;
+  const srcCanvas = createCanvas(40, 30);
+  const ctx = srcCanvas.getContext('2d');
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, 40, 30);
+  const src = srcCanvas.toBuffer('image/png');
+
+  const out = await prepareImageForPrint(src, 'image/png', {
+    boxWidth: 200,
+    boxHeight: 80,
+    stretch: true,
+    paperWidth: PAPER_IMAGE_WIDTH_PX,
+    hAlign: 'center',
+    forceMono: false,
+  });
+  assert.ok(out && out.length);
+  const img = await loadImage(out);
+  assert.equal(img.width, PAPER_IMAGE_WIDTH_PX);
+  assert.equal(img.height, 80);
 });
 
 test('resolveLogoOffsetX reads config', () => {

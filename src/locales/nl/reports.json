@@ -236,7 +236,10 @@
       "charts": "Grafieken en prognose",
       "analysis": "Analyse"
     },
-    "location": "Locatie"
+    "location": "Locatie",
+    "selectDate": "Selecteer datum",
+    "allShifts": "Alle diensten van de dag",
+    "cashClosingShiftHint": "Kies een dienst om alleen die afsluiting te openen, of laat leeg om alle afsluitingen van de dag te zien en ertussen te wisselen in het rapport."
   },
   "datePresets": {
     "today": "Vandaag",
@@ -292,7 +295,9 @@
     "failedToLoad": "Rapport laden mislukt: {{error}}",
     "noOrderFound": "Geen bestelling gevonden voor opgegeven ID.",
     "orderIdRequired": "Bestel-ID is verplicht.",
-    "failedToLoadDashboard": "Dashboard kon niet worden geladen"
+    "failedToLoadDashboard": "Dashboard kon niet worden geladen",
+    "noCashClosingForShift": "Geen kassa-afsluiting gevonden voor de geselecteerde datum en dienst.",
+    "noCashClosing": "Geen kassa-afsluiting gevonden voor de geselecteerde datum."
   },
   "receipt": {
     "noItems": "Geen artikelen op deze bestelling."
@@ -328,6 +333,8 @@
     "covers": "Couverts",
     "tax": "Belasting",
     "extras": "Extra's",
+    "paymentMethod": "Betaalmethode",
+    "time": "Tijd",
     "serviceCharges": "Servicekosten",
     "subtotal": "Subtotaal",
     "grandTotal": "Totaalbedrag",
@@ -412,6 +419,9 @@
     "cashAdded": "Contant toegevoegd",
     "cashPaymentsNet": "Contante betalingen (netto)",
     "closingBalance": "Eindsaldo",
+    "shift": "Dienst",
+    "noShift": "Geen dienst",
+    "transactions": "Transacties",
     "grossSale": "Brutoverkoop",
     "guestAvg": "Gem. gast",
     "estimatedProfit": "Geschatte winst",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Verkoop per dagdeel",
     "saleByEmployees": "Verkoop per medewerker",
     "expandAll": "Alles uitvouwen",
-    "collapseAll": "Alles invouwen"
+    "collapseAll": "Alles invouwen",
+    "previousFloat": "Vorige float",
+    "countedCash": "Getelde kas",
+    "cashDrop": "Kasdrop",
+    "drawerFloat": "Kas voor volgende dienst",
+    "closedBy": "Afgesloten door",
+    "varianceReason": "Reden meer/tekort",
+    "batchTotals": "Batchtotalen",
+    "systemAmount": "Systeem",
+    "batchAmount": "Batch",
+    "shiftRecap": "Dienstoverzicht",
+    "paidOrders": "Betaalde orders",
+    "discounts": "Kortingen",
+    "serviceCharge": "Servicekosten",
+    "tips": "Fooien",
+    "voids": "Voids",
+    "refunds": "Terugbetalingen",
+    "closingsForDay": "Afsluitingen voor deze dag",
+    "closingsCount": "{{count}} afsluitingen"
   },
   "metrics": {
     "gross": "Bruto",

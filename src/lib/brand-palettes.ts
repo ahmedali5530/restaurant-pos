@@ -1,4 +1,9 @@
-import type { AppBrandId, BrandPalette, ResolvedAppTheme } from '@/lib/theme.ts';
+import type { AppBrandId, AppBrandPresetId, BrandPalette, ResolvedAppTheme } from '@/lib/theme.ts';
+import {
+  DEFAULT_CUSTOM_PRIMARY,
+  deriveBrandPalette,
+  normalizeHex,
+} from '@/lib/derive-brand-palette.ts';
 
 /** Default app palette — matches historical primary/warning/success scales. */
 const classicLight: BrandPalette = {
@@ -181,7 +186,7 @@ const sapphireDark: BrandPalette = {
   info: '56 189 248',
 };
 
-export const BRAND_PALETTES: Record<AppBrandId, Record<ResolvedAppTheme, BrandPalette>> = {
+export const BRAND_PALETTES: Record<AppBrandPresetId, Record<ResolvedAppTheme, BrandPalette>> = {
   classic: { light: classicLight, dark: classicDark },
   ocean: { light: oceanLight, dark: oceanDark },
   forest: { light: forestLight, dark: forestDark },
@@ -191,5 +196,18 @@ export const BRAND_PALETTES: Record<AppBrandId, Record<ResolvedAppTheme, BrandPa
 };
 
 export function getBrandPalette(brand: AppBrandId, mode: ResolvedAppTheme): BrandPalette {
+  if (brand === 'custom') return BRAND_PALETTES.classic[mode];
   return BRAND_PALETTES[brand]?.[mode] ?? BRAND_PALETTES.classic[mode];
+}
+
+/** Resolve preset or on-the-fly custom palette from a primary hex. */
+export function resolveBrandPalette(
+  brand: AppBrandId,
+  mode: ResolvedAppTheme,
+  customPrimary?: string | null,
+): BrandPalette {
+  if (brand === 'custom') {
+    return deriveBrandPalette(normalizeHex(customPrimary) ?? DEFAULT_CUSTOM_PRIMARY, mode);
+  }
+  return getBrandPalette(brand, mode);
 }

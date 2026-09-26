@@ -254,7 +254,8 @@
       "bogoDiscount": "Crear descuento BOGO automático para entrantes",
       "addDish": "Agregar un plato nuevo Margherita a $x",
       "listUsers": "Listar todos los usuarios del POS",
-      "inventoryStock": "Mostrar artículos de inventario bajo el nivel de reorden"
+      "inventoryStock": "Mostrar artículos de inventario bajo el nivel de reorden",
+      "howToPurchase": "¿Cómo publico una compra de inventario?"
     },
     "unknownConfig": "Configuración de importación desconocida para la vista previa.",
     "passwordWillBeSet": "La contraseña se establecerá al confirmar"

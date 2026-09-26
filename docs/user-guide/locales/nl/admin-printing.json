@@ -74,6 +74,10 @@
           "effect": "Logo op ticket."
         },
         {
+          "name": "Logobreedte / -hoogte / voorinstelling",
+          "effect": "Afdrukformaat in dots (standaard 150×150). Voorinstellingen vullen breedte en hoogte; afbeeldingen worden uitgerekt naar het vak."
+        },
+        {
           "name": "Kop/voet secties",
           "effect": "Tekst/afbeelding blokken."
         },

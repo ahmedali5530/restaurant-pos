@@ -24,8 +24,14 @@
       "forest": "Bos",
       "cream": "Crème",
       "ruby": "Robijn",
-      "sapphire": "Saffier"
-    }
+      "sapphire": "Saffier",
+      "custom": "Aangepast"
+    },
+    "customDescription": "Kies een primaire kleur. Oppervlakken, randen en accenten worden afgeleid voor licht en donker.",
+    "customPrimary": "Primaire kleur",
+    "customHex": "Hex",
+    "customApply": "Toepassen",
+    "customPreview": "Voorbeeld"
   },
   "touch": {
     "title": "Schermtoetsenbord",

@@ -24,8 +24,14 @@
       "forest": "Forêt",
       "cream": "Crème",
       "ruby": "Rubis",
-      "sapphire": "Saphir"
-    }
+      "sapphire": "Saphir",
+      "custom": "Personnalisé"
+    },
+    "customDescription": "Choisissez une couleur primaire. Surfaces, bordures et accents sont dérivés pour les modes clair et sombre.",
+    "customPrimary": "Couleur primaire",
+    "customHex": "Hex",
+    "customApply": "Appliquer",
+    "customPreview": "Aperçu"
   },
   "touch": {
     "title": "Clavier à l'écran",

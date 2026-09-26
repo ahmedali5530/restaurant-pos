@@ -248,7 +248,7 @@ export const calculateOrderNetSales = (order: OrderModel): number => {
 const getTenderedAmount = (payment?: OrderPayment) => safeNumber(payment?.amount);
 
 /** Amount applied to the check (handles over-tender via payable). */
-const getAppliedAmount = (payment?: OrderPayment) => {
+export const getAppliedPaymentAmount = (payment?: OrderPayment) => {
   const amount = safeNumber(payment?.amount);
   const payable = safeNumber(payment?.payable);
   if (payable > 0 && amount > payable) {
@@ -257,10 +257,32 @@ const getAppliedAmount = (payment?: OrderPayment) => {
   return amount;
 };
 
-const isCashPayment = (payment?: OrderPayment) => {
-  const normalizedType = payment?.payment_type?.type?.toLowerCase()?.trim() ?? '';
-  const normalizedName = payment?.payment_type?.name?.toLowerCase()?.trim() ?? '';
+export const isCashPaymentType = (paymentType?: {type?: string; name?: string} | null) => {
+  const normalizedType = paymentType?.type?.toLowerCase()?.trim() ?? '';
+  const normalizedName = paymentType?.name?.toLowerCase()?.trim() ?? '';
   return normalizedType === 'cash' || normalizedName === 'cash';
+};
+
+const isCashPayment = (payment?: OrderPayment) => isCashPaymentType(payment?.payment_type);
+
+const getOrderPayments = (order?: Pick<OrderModel, 'payments'> | null): OrderPayment[] =>
+  asRecordArray<OrderPayment>(order?.payments).filter((payment): payment is OrderPayment => payment != null);
+
+/** Applied (not tendered) totals keyed by payment type record id. */
+export const aggregateAppliedPaymentsByTypeId = (
+  orders: Array<Pick<OrderModel, 'payments'>>,
+): Map<string, number> => {
+  const totals = new Map<string, number>();
+  for (const order of orders) {
+    for (const payment of getOrderPayments(order)) {
+      const paymentTypeId = payment.payment_type?.id != null
+        ? String(payment.payment_type.id)
+        : '';
+      if (!paymentTypeId) continue;
+      totals.set(paymentTypeId, (totals.get(paymentTypeId) ?? 0) + getAppliedPaymentAmount(payment));
+    }
+  }
+  return totals;
 };
 
 export interface OrderPaymentTotals {
@@ -273,14 +295,14 @@ export interface OrderPaymentTotals {
 }
 
 export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
-  const payments = (order.payments ?? []).filter((payment) => payment != null);
+  const payments = getOrderPayments(order);
 
   const nonCashBreakdown = payments.reduce((acc, payment) => {
     if (isCashPayment(payment)) {
       return acc;
     }
     const label = payment?.payment_type?.name || 'Other';
-    const applied = getAppliedAmount(payment);
+    const applied = getAppliedPaymentAmount(payment);
     acc[label] = (acc[label] ?? 0) + applied;
     return acc;
   }, {} as Record<string, number>);
@@ -289,7 +311,7 @@ export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): Orde
     if (!isCashPayment(payment)) {
       return sum;
     }
-    return sum + getAppliedAmount(payment);
+    return sum + getAppliedPaymentAmount(payment);
   }, 0);
 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);

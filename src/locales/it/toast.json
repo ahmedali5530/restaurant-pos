@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} articolo/i aggiornato/i",
     "invalidCategories": "Le categorie non sono valide",
     "passwordRequired": "La password è obbligatoria per il nuovo utente",
+    "lastMasterRole": "Sei l’unico utente con il ruolo {{role}} — assegna prima quel ruolo a un altro utente, altrimenti non resterà nessuno che possa gestire il sistema.",
+    "lastFullAccessRole": "Questo è l’unico ruolo con accesso completo — dai prima l’accesso completo a un altro ruolo, altrimenti non resterà nessuno che possa gestire il sistema.",
     "invalidDishNumber": "Il numero del piatto non è valido",
     "invalidDishNameOrNumber": "Il nome o il numero del piatto non è valido",
     "ambiguousDishName": "Più piatti corrispondono a questo nome; usare il numero del piatto",

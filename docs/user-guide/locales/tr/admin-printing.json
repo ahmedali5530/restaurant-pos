@@ -74,8 +74,12 @@
           "effect": "Yüklenen logo ticket'ta."
         },
         {
+          "name": "Logo genişliği / yüksekliği / hazır ayar",
+          "effect": "Yazıcı noktalarında baskı boyutu (varsayılan 150×150). Hazır ayarlar genişlik ve yüksekliği doldurur; görüntüler kutuya gerilir."
+        },
+        {
           "name": "Üst / alt bölümler",
-          "effect": "Metin veya görsel bloklar."
+          "effect": "Metin (birden fazla satıra kayar) veya gövdenin üstünde/altında isteğe bağlı genişlik/yükseklik içeren görüntü blokları."
         },
         {
           "name": "KDV ad/no",

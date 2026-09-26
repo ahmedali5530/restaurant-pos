@@ -236,7 +236,10 @@
       "charts": "Gráficos e Previsão",
       "analysis": "Análise"
     },
-    "location": "Localização"
+    "location": "Localização",
+    "selectDate": "Selecionar data",
+    "allShifts": "Todos os turnos do dia",
+    "cashClosingShiftHint": "Escolha um turno para abrir só esse fechamento, ou deixe vazio para ver todos os fechamentos do dia e alternar entre eles no relatório."
   },
   "datePresets": {
     "today": "Hoje",
@@ -292,7 +295,9 @@
     "failedToLoad": "Falha ao carregar relatório: {{error}}",
     "noOrderFound": "Nenhum pedido encontrado para o ID informado.",
     "orderIdRequired": "O ID do pedido é obrigatório.",
-    "failedToLoadDashboard": "Falha ao carregar o painel"
+    "failedToLoadDashboard": "Falha ao carregar o painel",
+    "noCashClosingForShift": "Nenhum fechamento de caixa encontrado para a data e o turno selecionados.",
+    "noCashClosing": "Nenhum fechamento de caixa encontrado para a data selecionada."
   },
   "receipt": {
     "noItems": "Nenhum item neste pedido."
@@ -328,6 +333,8 @@
     "covers": "Coberturas",
     "tax": "Imposto",
     "extras": "Extras",
+    "paymentMethod": "Método de pagamento",
+    "time": "Hora",
     "serviceCharges": "Taxa de serviço",
     "subtotal": "Subtotal",
     "grandTotal": "Total geral",
@@ -412,6 +419,9 @@
     "cashAdded": "Dinheiro adicionado",
     "cashPaymentsNet": "Pagamentos em dinheiro (líquido)",
     "closingBalance": "Saldo de fechamento",
+    "shift": "Turno",
+    "noShift": "Sem turno",
+    "transactions": "Transações",
     "grossSale": "Venda Bruta",
     "guestAvg": "Média por Cliente",
     "estimatedProfit": "Lucro Estimado",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Vendas por período do dia",
     "saleByEmployees": "Vendas por funcionários",
     "expandAll": "Expandir tudo",
-    "collapseAll": "Recolher tudo"
+    "collapseAll": "Recolher tudo",
+    "previousFloat": "Float anterior",
+    "countedCash": "Dinheiro contado",
+    "cashDrop": "Depósito",
+    "drawerFloat": "Dinheiro para próximo turno",
+    "closedBy": "Fechado por",
+    "varianceReason": "Motivo sobra/falta",
+    "batchTotals": "Totais de lote",
+    "systemAmount": "Sistema",
+    "batchAmount": "Lote",
+    "shiftRecap": "Resumo do turno",
+    "paidOrders": "Pedidos pagos",
+    "discounts": "Descontos",
+    "serviceCharge": "Taxa de serviço",
+    "tips": "Gorjetas",
+    "voids": "Cancelamentos",
+    "refunds": "Reembolsos",
+    "closingsForDay": "Fechamentos deste dia",
+    "closingsCount": "{{count}} fechamentos"
   },
   "metrics": {
     "gross": "Bruto",

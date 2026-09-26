@@ -236,7 +236,10 @@
       "charts": "Графики и прогноз",
       "analysis": "Анализ"
     },
-    "location": "Локация"
+    "location": "Локация",
+    "selectDate": "Выберите дату",
+    "allShifts": "Все смены дня",
+    "cashClosingShiftHint": "Выберите смену, чтобы открыть только её закрытие, или оставьте пустым, чтобы видеть все закрытия дня и переключаться между ними в отчёте."
   },
   "datePresets": {
     "today": "Сегодня",
@@ -292,7 +295,9 @@
     "failedToLoad": "Не удалось загрузить отчёт: {{error}}",
     "noOrderFound": "Заказ с указанным ID не найден.",
     "orderIdRequired": "Требуется ID заказа.",
-    "failedToLoadDashboard": "Не удалось загрузить панель"
+    "failedToLoadDashboard": "Не удалось загрузить панель",
+    "noCashClosingForShift": "Закрытие кассы для выбранных даты и смены не найдено.",
+    "noCashClosing": "Закрытие кассы для выбранной даты не найдено."
   },
   "receipt": {
     "noItems": "В этом заказе нет позиций."
@@ -328,6 +333,8 @@
     "covers": "Гости",
     "tax": "Налог",
     "extras": "Дополнительно",
+    "paymentMethod": "Способ оплаты",
+    "time": "Время",
     "serviceCharges": "Сервисный сбор",
     "subtotal": "Промежуточный итог",
     "grandTotal": "Общий итог",
@@ -412,6 +419,9 @@
     "cashAdded": "Добавлено наличных",
     "cashPaymentsNet": "Наличные платежи (нетто)",
     "closingBalance": "Закрывающий остаток",
+    "shift": "Смена",
+    "noShift": "Без смены",
+    "transactions": "Транзакции",
     "grossSale": "Валовая продажа",
     "guestAvg": "Ср. на гостя",
     "estimatedProfit": "Расчётная прибыль",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Продажи по периоду дня",
     "saleByEmployees": "Продажи по сотрудникам",
     "expandAll": "Развернуть все",
-    "collapseAll": "Свернуть все"
+    "collapseAll": "Свернуть все",
+    "previousFloat": "Предыдущий float",
+    "countedCash": "Пересчитанные наличные",
+    "cashDrop": "Инкассация",
+    "drawerFloat": "Наличные на следующую смену",
+    "closedBy": "Закрыл",
+    "varianceReason": "Причина излишка/недостачи",
+    "batchTotals": "Итоги партий",
+    "systemAmount": "Система",
+    "batchAmount": "Партия",
+    "shiftRecap": "Итоги смены",
+    "paidOrders": "Оплаченные заказы",
+    "discounts": "Скидки",
+    "serviceCharge": "Сервисный сбор",
+    "tips": "Чаевые",
+    "voids": "Отмены",
+    "refunds": "Возвраты",
+    "closingsForDay": "Закрытия за этот день",
+    "closingsCount": "{{count}} закрытий"
   },
   "metrics": {
     "gross": "Валовый",

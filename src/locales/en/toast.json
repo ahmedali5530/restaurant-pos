@@ -130,6 +130,8 @@
     "menuItemsUpdated": "Updated {{count}} item(s)",
     "invalidCategories": "Categories are invalid",
     "passwordRequired": "Password is required for new user",
+    "lastMasterRole": "This is the only {{role}} user — assign another user that role first, or the system will have no one left who can manage it.",
+    "lastFullAccessRole": "This is the only role with full access — give another role full access first, or the system will have no one left who can manage it.",
     "invalidDishNumber": "Dish number is invalid",
     "invalidDishNameOrNumber": "Dish name or number is invalid",
     "ambiguousDishName": "Multiple dishes match this name; use the dish number instead",

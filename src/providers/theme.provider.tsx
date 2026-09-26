@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import { useAtomValue } from 'jotai';
 import { appPage } from '@/store/jotai.ts';
-import { getBrandPalette } from '@/lib/brand-palettes.ts';
+import { resolveBrandPalette } from '@/lib/brand-palettes.ts';
 import {
   applyBrandId,
   applyBrandPalette,
@@ -22,20 +22,23 @@ import {
   type BrandPalette,
   type ResolvedAppTheme,
 } from '@/lib/theme.ts';
+import { DEFAULT_CUSTOM_PRIMARY, normalizeHex } from '@/lib/derive-brand-palette.ts';
 
 interface ThemeContextValue {
   preference: AppThemePreference;
   brand: AppBrandId;
+  customPrimary: string;
   resolvedTheme: ResolvedAppTheme;
   isDark: boolean;
   palette: BrandPalette;
 }
 
-const defaultPalette = getBrandPalette(DEFAULT_BRAND, 'light');
+const defaultPalette = resolveBrandPalette(DEFAULT_BRAND, 'light');
 
 const ThemeContext = createContext<ThemeContextValue>({
   preference: DEFAULT_THEME,
   brand: DEFAULT_BRAND,
+  customPrimary: DEFAULT_CUSTOM_PRIMARY,
   resolvedTheme: 'light',
   isDark: false,
   palette: defaultPalette,
@@ -60,9 +63,14 @@ function getSystemThemeSnapshot(): boolean {
 /** Last applied signature — skip redundant DOM writes across Strict Mode double-renders. */
 let lastAppliedKey = '';
 
-function syncDocumentTheme(resolved: ResolvedAppTheme, brand: AppBrandId, palette: BrandPalette): void {
+function syncDocumentTheme(
+  resolved: ResolvedAppTheme,
+  brand: AppBrandId,
+  palette: BrandPalette,
+  customPrimary: string,
+): void {
   if (typeof document === 'undefined') return;
-  const key = `${resolved}|${brand}|${palette.primary}|${palette.canvas}`;
+  const key = `${resolved}|${brand}|${customPrimary}|${palette.primary}|${palette.canvas}`;
   if (key === lastAppliedKey) return;
   lastAppliedKey = key;
   applyDocumentTheme(resolved);
@@ -78,6 +86,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const page = useAtomValue(appPage);
   const preference = isAppThemePreference(page.theme) ? page.theme : DEFAULT_THEME;
   const brand = isAppBrandId(page.brand) ? page.brand : DEFAULT_BRAND;
+  const customPrimary = normalizeHex(page.customPrimary) ?? DEFAULT_CUSTOM_PRIMARY;
   const systemPrefersDark = useSyncExternalStore(
     subscribeSystemTheme,
     getSystemThemeSnapshot,
@@ -89,20 +98,21 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       ? (systemPrefersDark ? 'dark' : 'light')
       : resolveAppTheme(preference);
 
-  const palette = getBrandPalette(brand, resolvedTheme);
+  const palette = resolveBrandPalette(brand, resolvedTheme, customPrimary);
 
   // Apply before children render so CSS vars / consumers see the current brand immediately.
-  syncDocumentTheme(resolvedTheme, brand, palette);
+  syncDocumentTheme(resolvedTheme, brand, palette, customPrimary);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
       preference,
       brand,
+      customPrimary,
       resolvedTheme,
       isDark: resolvedTheme === 'dark',
       palette,
     }),
-    [preference, brand, resolvedTheme, palette],
+    [preference, brand, customPrimary, resolvedTheme, palette],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

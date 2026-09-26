@@ -240,7 +240,10 @@
       "analysis": "Analysis"
     },
     "unnamedUser": "Unnamed user",
-    "location": "Location"
+    "location": "Location",
+    "selectDate": "Select date",
+    "allShifts": "All shifts for the day",
+    "cashClosingShiftHint": "Pick a shift to open only that closing, or leave empty to see every closing for the day and switch between them in the report."
   },
   "datePresets": {
     "today": "Today",
@@ -296,7 +299,9 @@
     "failedToLoad": "Failed to load report: {{error}}",
     "failedToLoadDashboard": "Failed to load dashboard",
     "noOrderFound": "No order found for provided ID.",
-    "orderIdRequired": "Order ID is required."
+    "orderIdRequired": "Order ID is required.",
+    "noCashClosingForShift": "No cash closing found for the selected date and shift.",
+    "noCashClosing": "No cash closing found for selected date."
   },
   "receipt": {
     "noItems": "No items on this order."
@@ -332,6 +337,8 @@
     "covers": "Covers",
     "tax": "Tax",
     "extras": "Extras",
+    "paymentMethod": "Payment method",
+    "time": "Time",
     "serviceCharges": "Service charges",
     "subtotal": "Subtotal",
     "grandTotal": "Grand total",
@@ -416,6 +423,9 @@
     "cashAdded": "Cash added",
     "cashPaymentsNet": "Cash payments (net)",
     "closingBalance": "Closing balance",
+    "shift": "Shift",
+    "noShift": "No shift",
+    "transactions": "Transactions",
     "grossSale": "Gross Sale",
     "guestAvg": "Guest Avg",
     "estimatedProfit": "Estimated Profit",
@@ -562,7 +572,25 @@
     "saleByDayPart": "Sale by Day Part",
     "saleByEmployees": "Sale by Employees",
     "expandAll": "Expand all",
-    "collapseAll": "Collapse all"
+    "collapseAll": "Collapse all",
+    "previousFloat": "Previous float",
+    "countedCash": "Counted cash",
+    "cashDrop": "Cash drop",
+    "drawerFloat": "Cash left for next shift",
+    "closedBy": "Closed by",
+    "varianceReason": "Over / short reason",
+    "batchTotals": "Batch totals",
+    "systemAmount": "System",
+    "batchAmount": "Batch",
+    "shiftRecap": "Shift recap",
+    "paidOrders": "Paid orders",
+    "discounts": "Discounts",
+    "serviceCharge": "Service charge",
+    "tips": "Tips",
+    "voids": "Voids",
+    "refunds": "Refunds",
+    "closingsForDay": "Closings for this day",
+    "closingsCount": "{{count}} closings"
   },
   "metrics": {
     "gross": "Gross",

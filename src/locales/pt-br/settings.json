@@ -24,8 +24,14 @@
       "forest": "Floresta",
       "cream": "Creme",
       "ruby": "Rubi",
-      "sapphire": "Safira"
-    }
+      "sapphire": "Safira",
+      "custom": "Personalizado"
+    },
+    "customDescription": "Escolha uma cor primária. Superfícies, bordas e destaques são gerados para claro e escuro.",
+    "customPrimary": "Cor primária",
+    "customHex": "Hex",
+    "customApply": "Aplicar",
+    "customPreview": "Prévia"
   },
   "touch": {
     "title": "Teclado na tela",

@@ -236,7 +236,10 @@
       "charts": "Diagramme & Prognose",
       "analysis": "Analyse"
     },
-    "location": "Standort"
+    "location": "Standort",
+    "selectDate": "Datum wählen",
+    "allShifts": "Alle Schichten des Tages",
+    "cashClosingShiftHint": "Wählen Sie eine Schicht, um nur deren Abschluss zu öffnen, oder lassen Sie das Feld leer, um alle Abschlüsse des Tages anzuzeigen und im Bericht umzuschalten."
   },
   "datePresets": {
     "today": "Heute",
@@ -292,7 +295,9 @@
     "failedToLoad": "Bericht konnte nicht geladen werden: {{error}}",
     "noOrderFound": "Keine Bestellung für die angegebene ID gefunden.",
     "orderIdRequired": "Bestell-ID ist erforderlich.",
-    "failedToLoadDashboard": "Dashboard konnte nicht geladen werden"
+    "failedToLoadDashboard": "Dashboard konnte nicht geladen werden",
+    "noCashClosingForShift": "Kein Kassenabschluss für das ausgewählte Datum und die Schicht gefunden.",
+    "noCashClosing": "Kein Kassenabschluss für das ausgewählte Datum gefunden."
   },
   "receipt": {
     "noItems": "Keine Artikel in dieser Bestellung."
@@ -328,6 +333,8 @@
     "covers": "Gäste",
     "tax": "Steuer",
     "extras": "Zuschläge",
+    "paymentMethod": "Zahlungsart",
+    "time": "Zeit",
     "serviceCharges": "Servicegebühren",
     "subtotal": "Zwischensumme",
     "grandTotal": "Gesamtsumme",
@@ -412,6 +419,9 @@
     "cashAdded": "Bargeld hinzugefügt",
     "cashPaymentsNet": "Barzahlungen (netto)",
     "closingBalance": "Abschlusssaldo",
+    "shift": "Schicht",
+    "noShift": "Keine Schicht",
+    "transactions": "Transaktionen",
     "grossSale": "Bruttoumsatz",
     "guestAvg": "Ø Gast",
     "estimatedProfit": "Geschätzter Gewinn",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Verkauf nach Tageszeit",
     "saleByEmployees": "Verkauf nach Mitarbeitern",
     "expandAll": "Alle erweitern",
-    "collapseAll": "Alle einklappen"
+    "collapseAll": "Alle einklappen",
+    "previousFloat": "Vorheriger Float",
+    "countedCash": "Gezähltes Bargeld",
+    "cashDrop": "Kasseneinlage",
+    "drawerFloat": "Bargeld für nächste Schicht",
+    "closedBy": "Abgeschlossen von",
+    "varianceReason": "Über/Unter-Grund",
+    "batchTotals": "Batch-Summen",
+    "systemAmount": "System",
+    "batchAmount": "Batch",
+    "shiftRecap": "Schichtüberblick",
+    "paidOrders": "Bezahlte Bestellungen",
+    "discounts": "Rabatte",
+    "serviceCharge": "Servicegebühr",
+    "tips": "Trinkgeld",
+    "voids": "Stornos",
+    "refunds": "Rückerstattungen",
+    "closingsForDay": "Abschlüsse für diesen Tag",
+    "closingsCount": "{{count}} Abschlüsse"
   },
   "metrics": {
     "gross": "Brutto",

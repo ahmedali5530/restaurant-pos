@@ -87,11 +87,16 @@ const MIGRATION_PLAN = [
     backfill: 'backfill-security-alerts-access.cjs',
   },
   { id: '2026_09_04_terminal_sync', file: '2026_09_04_terminal_sync.surql' },
+  { id: '2026_09_05_delivery_menu_function', file: '2026_09_05_delivery_menu_function.surql' },
   { id: '2026_09_06_sync_schemaless_reset', file: '2026_09_06_sync_schemaless_reset.surql' },
   { id: '2026_09_06_order_sync_ownership_fields', file: '2026_09_06_order_sync_ownership_fields.surql' },
   { id: '2026_09_12_refund_print_settings', file: '2026_09_12_refund_print_settings.surql' },
   { id: '2026_09_18_printer_print_mode_paper_width', file: '2026_09_18_printer_print_mode_paper_width.surql' },
   { id: '2026_09_19_order_invoice_display', file: '2026_09_19_order_invoice_display.surql' },
+  { id: '2026_09_20_day_closing_shift', file: '2026_09_20_day_closing_shift.surql' },
+  { id: '2026_09_24_foh_changefeed', file: '2026_09_24_foh_changefeed.surql' },
+  { id: '2026_09_24_foh_changefeed_fiscal', file: '2026_09_24_foh_changefeed_fiscal.surql' },
+  { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
 ];
 
 const rows = (result) => {

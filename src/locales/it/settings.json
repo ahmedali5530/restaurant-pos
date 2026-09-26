@@ -24,8 +24,14 @@
       "forest": "Foresta",
       "cream": "Crema",
       "ruby": "Rubino",
-      "sapphire": "Zaffiro"
-    }
+      "sapphire": "Zaffiro",
+      "custom": "Personalizzato"
+    },
+    "customDescription": "Scegli un colore primario. Superfici, bordi e accenti vengono derivati per chiaro e scuro.",
+    "customPrimary": "Colore primario",
+    "customHex": "Hex",
+    "customApply": "Applica",
+    "customPreview": "Anteprima"
   },
   "touch": {
     "title": "Tastiera su schermo",
