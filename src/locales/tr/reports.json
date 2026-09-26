@@ -236,7 +236,10 @@
       "charts": "Grafikler ve Tahmin",
       "analysis": "Analiz"
     },
-    "location": "Konum"
+    "location": "Konum",
+    "selectDate": "Tarih seç",
+    "allShifts": "Günün tüm vardiyaları",
+    "cashClosingShiftHint": "Yalnızca o kapanışı açmak için bir vardiya seçin; günün tüm kapanışlarını görüp raporda aralarında geçiş yapmak için boş bırakın."
   },
   "datePresets": {
     "today": "Bugün",
@@ -292,7 +295,9 @@
     "failedToLoad": "Rapor yüklenemedi: {{error}}",
     "noOrderFound": "Verilen ID için sipariş bulunamadı.",
     "orderIdRequired": "Sipariş kimliği gerekli.",
-    "failedToLoadDashboard": "Gösterge paneli yüklenemedi"
+    "failedToLoadDashboard": "Gösterge paneli yüklenemedi",
+    "noCashClosingForShift": "Seçilen tarih ve vardiya için kasa kapanışı bulunamadı.",
+    "noCashClosing": "Seçilen tarih için kasa kapanışı bulunamadı."
   },
   "receipt": {
     "noItems": "Bu siparişte ürün yok."
@@ -328,6 +333,8 @@
     "covers": "Kişi sayısı",
     "tax": "Vergi",
     "extras": "Ekstralar",
+    "paymentMethod": "Ödeme yöntemi",
+    "time": "Saat",
     "serviceCharges": "Servis ücretleri",
     "subtotal": "Ara toplam",
     "grandTotal": "Genel toplam",
@@ -412,6 +419,9 @@
     "cashAdded": "Eklenen nakit",
     "cashPaymentsNet": "Nakit ödemeler (net)",
     "closingBalance": "Kapanış bakiyesi",
+    "shift": "Vardiya",
+    "noShift": "Vardiya yok",
+    "transactions": "İşlemler",
     "grossSale": "Brüt Satış",
     "guestAvg": "Misafir Ort.",
     "estimatedProfit": "Tahmini Kâr",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Günün dilimine göre satış",
     "saleByEmployees": "Çalışanlara göre satış",
     "expandAll": "Tümünü genişlet",
-    "collapseAll": "Tümünü daralt"
+    "collapseAll": "Tümünü daralt",
+    "previousFloat": "Önceki float",
+    "countedCash": "Sayılan nakit",
+    "cashDrop": "Kasa aktarımı",
+    "drawerFloat": "Sonraki vardiya için nakit",
+    "closedBy": "Kapatan",
+    "varianceReason": "Fazla/eksik nedeni",
+    "batchTotals": "Parti toplamları",
+    "systemAmount": "Sistem",
+    "batchAmount": "Parti",
+    "shiftRecap": "Vardiya özeti",
+    "paidOrders": "Ödenen siparişler",
+    "discounts": "İndirimler",
+    "serviceCharge": "Servis ücreti",
+    "tips": "Bahşişler",
+    "voids": "İptaller",
+    "refunds": "İadeler",
+    "closingsForDay": "Bu günün kapanışları",
+    "closingsCount": "{{count}} kapanış"
   },
   "metrics": {
     "gross": "Brüt",

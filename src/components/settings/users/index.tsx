@@ -21,6 +21,9 @@ import {useDB} from "@/api/db/db.ts";
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useTranslation} from 'react-i18next';
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {PROTECTED_LAST_ADMIN_ROLE_NAME} from "@/lib/access.rules.ts";
+import {toRecordId} from "@/lib/utils.ts";
+import {toast} from "sonner";
 
 const AdminUsersList = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -82,7 +85,7 @@ const AdminUsersList = () => {
             <div className="separator"></div>
             <DeleteConfirm
               message={t('delete.user', { name: `${info.row.original.first_name} ${info.row.original.last_name}` })}
-              onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+              onConfirm={() => protectAction(() => deleteItem(info.row.original), {
                 module: 'admin.users.delete',
                 description: getAccessRuleChildLabel('admin.users.delete'),
               })}
@@ -93,7 +96,24 @@ const AdminUsersList = () => {
     }),
   ];
 
-  const deleteItem = async (id: string) => {
+  const deleteItem = async (user: User) => {
+    const id = user.id;
+
+    if (user.user_role?.name === PROTECTED_LAST_ADMIN_ROLE_NAME) {
+      const [otherHolders] = await db.query(
+        `SELECT count() FROM ${Tables.users} WHERE user_role = $roleId AND deleted_at = none AND id != $selfId GROUP ALL`,
+        { roleId: toRecordId(user.user_role.id), selfId: toRecordId(id) },
+      ) as [{ count: number }[]];
+
+      if (!otherHolders?.[0]?.count) {
+        toast.error(t('toast:admin.lastMasterRole', {
+          role: PROTECTED_LAST_ADMIN_ROLE_NAME,
+          defaultValue: `This is the only ${PROTECTED_LAST_ADMIN_ROLE_NAME} user — assign another user that role first, or the system will have no one left who can manage it.`,
+        }));
+        return;
+      }
+    }
+
     await executeSettingsDelete({
       db,
       id,

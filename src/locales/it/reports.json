@@ -236,7 +236,10 @@
       "charts": "Grafici e previsioni",
       "analysis": "Analisi"
     },
-    "location": "Posizione"
+    "location": "Posizione",
+    "selectDate": "Seleziona data",
+    "allShifts": "Tutti i turni del giorno",
+    "cashClosingShiftHint": "Scegli un turno per aprire solo quella chiusura, oppure lascia vuoto per vedere tutte le chiusure del giorno e passare da una all’altra nel report."
   },
   "datePresets": {
     "today": "Oggi",
@@ -292,7 +295,9 @@
     "failedToLoad": "Caricamento report non riuscito: {{error}}",
     "noOrderFound": "Nessun ordine trovato per l'ID fornito.",
     "orderIdRequired": "L'ID ordine è obbligatorio.",
-    "failedToLoadDashboard": "Impossibile caricare la dashboard"
+    "failedToLoadDashboard": "Impossibile caricare la dashboard",
+    "noCashClosingForShift": "Nessuna chiusura di cassa trovata per la data e il turno selezionati.",
+    "noCashClosing": "Nessuna chiusura di cassa trovata per la data selezionata."
   },
   "receipt": {
     "noItems": "Nessun articolo in questo ordine."
@@ -328,6 +333,8 @@
     "covers": "Coperti",
     "tax": "IVA",
     "extras": "Extra",
+    "paymentMethod": "Metodo di pagamento",
+    "time": "Ora",
     "serviceCharges": "Costo servizio",
     "subtotal": "Subtotale",
     "grandTotal": "Totale generale",
@@ -412,6 +419,9 @@
     "cashAdded": "Contanti aggiunti",
     "cashPaymentsNet": "Pagamenti contanti (netto)",
     "closingBalance": "Saldo chiusura",
+    "shift": "Turno",
+    "noShift": "Nessun turno",
+    "transactions": "Transazioni",
     "grossSale": "Vendita lorda",
     "guestAvg": "Media ospite",
     "estimatedProfit": "Profitto stimato",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Vendite per fascia oraria",
     "saleByEmployees": "Vendite per dipendenti",
     "expandAll": "Espandi tutto",
-    "collapseAll": "Comprimi tutto"
+    "collapseAll": "Comprimi tutto",
+    "previousFloat": "Float precedente",
+    "countedCash": "Contanti contati",
+    "cashDrop": "Versamento",
+    "drawerFloat": "Contanti per turno successivo",
+    "closedBy": "Chiuso da",
+    "varianceReason": "Motivo eccedenza/short",
+    "batchTotals": "Totali batch",
+    "systemAmount": "Sistema",
+    "batchAmount": "Batch",
+    "shiftRecap": "Riepilogo turno",
+    "paidOrders": "Ordini pagati",
+    "discounts": "Sconti",
+    "serviceCharge": "Servizio",
+    "tips": "Mance",
+    "voids": "Annullamenti",
+    "refunds": "Rimborsi",
+    "closingsForDay": "Chiusure di questo giorno",
+    "closingsCount": "{{count}} chiusure"
   },
   "metrics": {
     "gross": "Lordo",

@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "Afsluitingscyclus is uitgeschakeld. De laatst voltooide afsluitingstijd wordt gebruikt als start van deze periode, en de huidige tijd als einde.",
     "cycleCompleted": "Afsluiting is voltooid voor deze cyclus. Bestellingen opnemen is geblokkeerd tot de volgende cyclus.",
-    "periodCompleted": "Afsluiting is voltooid voor deze periode."
+    "periodCompleted": "Afsluiting is voltooid voor deze periode.",
+    "varianceReasonRequired": "Geef een reden voor de kasverschil op voordat u de afsluiting afrondt."
   },
   "sections": {
-    "previousDayBalance": "Saldo vorige dag",
-    "pettyCash": "Kleingeld",
+    "previousDayBalance": "Kas uit vorige afsluiting",
+    "pettyCash": "Kleine kas in",
+    "cashDrop": "Kasdrop / kluis",
     "terminalCash": "Terminalcontant",
     "paymentTypesSummary": "Betaaltypenoverzicht uit systeem",
+    "nonCashBatch": "Niet-contante batchcontrole",
     "expenses": "Uitgaven",
+    "openChecks": "Open rekeningen",
+    "shiftRecap": "Dienstoverzicht",
     "notes": "Opmerkingen",
-    "summary": "Overzicht"
+    "summary": "Lade-overzicht"
   },
   "fields": {
     "previousDayBalance": "Saldo vorige dag",
     "pettyCash": "Kleingeld",
+    "cashDrop": "Kas naar kluis",
     "description": "Beschrijving",
     "category": "Categorie",
     "amount": "Bedrag",
+    "batchAmount": "Batch- / terminalbedrag",
+    "varianceReason": "Reden meer / tekort",
+    "varianceReasonPlaceholder": "Leg het kasverschil uit...",
     "notesPlaceholder": "Voeg eventuele aanvullende opmerkingen toe..."
+  },
+  "labels": {
+    "cashSystemTotal": "Kas uit systeem",
+    "systemAmount": "Systeem",
+    "noNonCash": "Geen niet-contante betaalwijzen in deze periode.",
+    "noOpenChecks": "Geen open rekeningen in dit venster.",
+    "closedBy": "Afgesloten door {{name}}"
+  },
+  "columns": {
+    "invoice": "Factuur",
+    "table": "Tafel",
+    "status": "Status",
+    "amount": "Bedrag"
+  },
+  "recap": {
+    "paidOrders": "Betaalde orders",
+    "discounts": "Kortingen",
+    "tax": "Belasting",
+    "serviceCharge": "Servicekosten",
+    "tips": "Fooien",
+    "voids": "Voids",
+    "refunds": "Terugbetalingen"
   },
   "totals": {
     "totalCash": "Totaal contant: {{amount}}",
+    "cashSales": "Contante verkopen (systeem)",
     "cashFromPayments": "Contant uit betalingsoverzicht",
+    "expectedInDrawer": "Verwacht in lade",
+    "overShort": "Meer / tekort",
+    "cashLeftNextShift": "Kas voor volgende dienst",
+    "countedCash": "Getelde kas",
     "difference": "Verschil: {{amount}}",
+    "batchDifference": "Batchverschil: {{amount}}",
     "totalOtherPayments": "Totaal overige betalingen: {{amount}}",
     "totalExpenses": "Totaal uitgaven: {{amount}}",
     "previousBalance": "Vorig saldo",

@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} item(s) bijgewerkt",
     "invalidCategories": "Categorieën zijn ongeldig",
     "passwordRequired": "Wachtwoord is verplicht voor nieuwe gebruiker",
+    "lastMasterRole": "Je bent de enige gebruiker met de rol {{role}} — wijs die rol eerst toe aan een andere gebruiker, anders blijft er niemand over die het systeem kan beheren.",
+    "lastFullAccessRole": "Dit is de enige rol met volledige toegang — geef eerst een andere rol volledige toegang, anders blijft er niemand over die het systeem kan beheren.",
     "invalidDishNumber": "Gerechtnummer is ongeldig",
     "invalidDishNameOrNumber": "Gerechtnaam of -nummer is ongeldig",
     "ambiguousDishName": "Meerdere gerechten komen overeen met deze naam; gebruik het gerechtnummer",

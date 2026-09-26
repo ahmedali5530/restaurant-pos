@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "O ciclo de fechamento está desativado. O horário do último fechamento concluído é usado como início deste período, e o horário atual é usado como término.",
     "cycleCompleted": "O fechamento deste ciclo foi concluído. O lançamento de pedidos está bloqueado até o próximo ciclo.",
-    "periodCompleted": "O fechamento deste período foi concluído."
+    "periodCompleted": "O fechamento deste período foi concluído.",
+    "varianceReasonRequired": "Informe o motivo da sobra ou falta de dinheiro antes de concluir o fechamento."
   },
   "sections": {
-    "previousDayBalance": "Saldo do Dia Anterior",
-    "pettyCash": "Caixa Pequeno",
+    "previousDayBalance": "Dinheiro do fechamento anterior",
+    "pettyCash": "Caixa pequeno entrada",
+    "cashDrop": "Depósito / cofre",
     "terminalCash": "Dinheiro do Terminal",
     "paymentTypesSummary": "Resumo de Tipos de Pagamento do sistema",
+    "nonCashBatch": "Conferência de lote não dinheiro",
     "expenses": "Despesas",
+    "openChecks": "Contas abertas",
+    "shiftRecap": "Resumo do turno",
     "notes": "Observações",
-    "summary": "Resumo"
+    "summary": "Resumo da gaveta"
   },
   "fields": {
     "previousDayBalance": "Saldo do Dia Anterior",
     "pettyCash": "Caixa Pequeno",
+    "cashDrop": "Dinheiro para o cofre",
     "description": "Descrição",
     "category": "Categoria",
     "amount": "Valor",
+    "batchAmount": "Valor do lote / terminal",
+    "varianceReason": "Motivo sobra / falta",
+    "varianceReasonPlaceholder": "Explique a diferença de caixa...",
     "notesPlaceholder": "Adicione observações adicionais..."
+  },
+  "labels": {
+    "cashSystemTotal": "Dinheiro do sistema",
+    "systemAmount": "Sistema",
+    "noNonCash": "Nenhum método não dinheiro neste período.",
+    "noOpenChecks": "Nenhuma conta aberta nesta janela.",
+    "closedBy": "Fechado por {{name}}"
+  },
+  "columns": {
+    "invoice": "Fatura",
+    "table": "Mesa",
+    "status": "Status",
+    "amount": "Valor"
+  },
+  "recap": {
+    "paidOrders": "Pedidos pagos",
+    "discounts": "Descontos",
+    "tax": "Imposto",
+    "serviceCharge": "Taxa de serviço",
+    "tips": "Gorjetas",
+    "voids": "Cancelamentos",
+    "refunds": "Reembolsos"
   },
   "totals": {
     "totalCash": "Total em Dinheiro: {{amount}}",
+    "cashSales": "Vendas em dinheiro (sistema)",
     "cashFromPayments": "Dinheiro do resumo de pagamentos",
+    "expectedInDrawer": "Esperado na gaveta",
+    "overShort": "Sobra / falta",
+    "cashLeftNextShift": "Dinheiro para o próximo turno",
+    "countedCash": "Dinheiro contado",
     "difference": "Diferença: {{amount}}",
+    "batchDifference": "Diferença do lote: {{amount}}",
     "totalOtherPayments": "Total de Outros Pagamentos: {{amount}}",
     "totalExpenses": "Total de Despesas: {{amount}}",
     "previousBalance": "Saldo Anterior",

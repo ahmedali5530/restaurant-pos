@@ -7,6 +7,16 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-26',
+    title: 'Restaurant drawer close',
+    items: [
+      'Day closing is a cash-only drawer: expected cash, drop to the safe, over/short with a required reason, and cash left for the next shift.',
+      'Card and other tenders stay out of the float and get a batch check against the system total.',
+      'Open checks are listed before Complete, and a shift recap shows discounts, tax, service charge, tips, voids, and refunds.',
+      'The drawer summary is visible while counting, and Complete records who closed.',
+    ],
+  },
+  {
     date: '2026-09-24',
     title: 'Durable local-to-cloud sync',
     items: [
@@ -20,6 +30,18 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'The floating AI assistant can look up end-user guide chapters (how-to steps) in your language when you ask how to use a screen or feature.',
       'Guide answers follow the documented UI steps instead of inventing menus; live sales and inventory numbers still use data tools.',
+    ],
+  },
+  {
+    date: '2026-09-22',
+    title: 'Last admin guard and per-shift closings',
+    items: [
+      'You cannot demote or delete the last Master-role user, or delete the only full-access role, so admin/settings cannot be locked out.',
+      'Cash closings are saved per shift for the same business day, so a second shift no longer overwrites the first.',
+      'Cash Closing report lists every closing for the day with a shift selector and itemized paid transactions (filtered by shift when set).',
+      'Completing any closing still ends order-taking for the whole day — use Save draft for mid-day shift handoffs.',
+      'Previous closing balance is read-only and comes from the last completed closing’s outstanding balance.',
+      'Cash Closing report filter can pick an optional shift to open only that closing, or leave empty to switch between all closings for the day.',
     ],
   },
   {

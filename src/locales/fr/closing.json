@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "Le cycle de clôture est désactivé. L'heure de la dernière clôture terminée est utilisée comme début de cette période, et l'heure actuelle comme fin.",
     "cycleCompleted": "La clôture est terminée pour ce cycle. La prise de commande est bloquée jusqu'au prochain cycle.",
-    "periodCompleted": "La clôture est terminée pour cette période."
+    "periodCompleted": "La clôture est terminée pour cette période.",
+    "varianceReasonRequired": "Indiquez la raison de l’écart de caisse avant de terminer la clôture."
   },
   "sections": {
-    "previousDayBalance": "Solde du jour précédent",
-    "pettyCash": "Caisse petite monnaie",
+    "previousDayBalance": "Espèces de la clôture précédente",
+    "pettyCash": "Petite caisse entrée",
+    "cashDrop": "Dépôt / coffre",
     "terminalCash": "Espèces du terminal",
     "paymentTypesSummary": "Résumé des types de paiement du système",
+    "nonCashBatch": "Contrôle des lots non cash",
     "expenses": "Dépenses",
+    "openChecks": "Additions ouvertes",
+    "shiftRecap": "Récapitulatif du service",
     "notes": "Notes",
-    "summary": "Résumé"
+    "summary": "Résumé du tiroir"
   },
   "fields": {
     "previousDayBalance": "Solde du jour précédent",
     "pettyCash": "Caisse petite monnaie",
+    "cashDrop": "Espèces vers le coffre",
     "description": "Description",
     "category": "Catégorie",
     "amount": "Montant",
+    "batchAmount": "Montant lot / terminal",
+    "varianceReason": "Raison surplus / manque",
+    "varianceReasonPlaceholder": "Expliquez l’écart de caisse...",
     "notesPlaceholder": "Ajouter des notes supplémentaires..."
+  },
+  "labels": {
+    "cashSystemTotal": "Espèces système",
+    "systemAmount": "Système",
+    "noNonCash": "Aucun moyen non cash pour cette période.",
+    "noOpenChecks": "Aucune addition ouverte dans cette fenêtre.",
+    "closedBy": "Clôturé par {{name}}"
+  },
+  "columns": {
+    "invoice": "Facture",
+    "table": "Table",
+    "status": "Statut",
+    "amount": "Montant"
+  },
+  "recap": {
+    "paidOrders": "Commandes payées",
+    "discounts": "Remises",
+    "tax": "Taxe",
+    "serviceCharge": "Service",
+    "tips": "Pourboires",
+    "voids": "Annulations",
+    "refunds": "Remboursements"
   },
   "totals": {
     "totalCash": "Total espèces : {{amount}}",
+    "cashSales": "Ventes cash (système)",
     "cashFromPayments": "Espèces du résumé des paiements",
+    "expectedInDrawer": "Attendu dans le tiroir",
+    "overShort": "Surplus / manque",
+    "cashLeftNextShift": "Espèces pour le prochain service",
+    "countedCash": "Espèces comptées",
     "difference": "Écart : {{amount}}",
+    "batchDifference": "Écart de lot : {{amount}}",
     "totalOtherPayments": "Total autres paiements : {{amount}}",
     "totalExpenses": "Total des dépenses : {{amount}}",
     "previousBalance": "Solde précédent",

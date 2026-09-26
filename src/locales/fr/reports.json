@@ -236,7 +236,10 @@
       "charts": "Graphiques et prévisions",
       "analysis": "Analyse"
     },
-    "location": "Emplacement"
+    "location": "Emplacement",
+    "selectDate": "Sélectionner la date",
+    "allShifts": "Toutes les vacations du jour",
+    "cashClosingShiftHint": "Choisissez une vacation pour n’ouvrir que sa clôture, ou laissez vide pour voir toutes les clôtures du jour et basculer entre elles dans le rapport."
   },
   "datePresets": {
     "today": "Aujourd'hui",
@@ -292,7 +295,9 @@
     "failedToLoad": "Échec du chargement du rapport : {{error}}",
     "noOrderFound": "Aucune commande trouvée pour l'ID fourni.",
     "orderIdRequired": "L'identifiant de commande est obligatoire.",
-    "failedToLoadDashboard": "Échec du chargement du tableau de bord"
+    "failedToLoadDashboard": "Échec du chargement du tableau de bord",
+    "noCashClosingForShift": "Aucune clôture de caisse trouvée pour la date et la vacation sélectionnées.",
+    "noCashClosing": "Aucune clôture de caisse trouvée pour la date sélectionnée."
   },
   "receipt": {
     "noItems": "Aucun article sur cette commande."
@@ -328,6 +333,8 @@
     "covers": "Couverts",
     "tax": "Taxe",
     "extras": "Extras",
+    "paymentMethod": "Mode de paiement",
+    "time": "Heure",
     "serviceCharges": "Frais de service",
     "subtotal": "Sous-total",
     "grandTotal": "Total général",
@@ -412,6 +419,9 @@
     "cashAdded": "Espèces ajoutées",
     "cashPaymentsNet": "Paiements espèces (net)",
     "closingBalance": "Solde de clôture",
+    "shift": "Vacation",
+    "noShift": "Sans vacation",
+    "transactions": "Transactions",
     "grossSale": "Vente brute",
     "guestAvg": "Moy. convive",
     "estimatedProfit": "Profit estimé",
@@ -558,7 +568,25 @@
     "saleByDayPart": "Ventes par période de la journée",
     "saleByEmployees": "Ventes par employés",
     "expandAll": "Tout développer",
-    "collapseAll": "Tout réduire"
+    "collapseAll": "Tout réduire",
+    "previousFloat": "Float précédent",
+    "countedCash": "Espèces comptées",
+    "cashDrop": "Dépôt",
+    "drawerFloat": "Espèces pour le prochain service",
+    "closedBy": "Clôturé par",
+    "varianceReason": "Raison surplus/manque",
+    "batchTotals": "Totaux des lots",
+    "systemAmount": "Système",
+    "batchAmount": "Lot",
+    "shiftRecap": "Récapitulatif service",
+    "paidOrders": "Commandes payées",
+    "discounts": "Remises",
+    "serviceCharge": "Service",
+    "tips": "Pourboires",
+    "voids": "Annulations",
+    "refunds": "Remboursements",
+    "closingsForDay": "Clôtures de ce jour",
+    "closingsCount": "{{count}} clôtures"
   },
   "metrics": {
     "gross": "Brut",

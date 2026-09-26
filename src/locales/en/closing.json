@@ -29,41 +29,78 @@
   "alerts": {
     "cycleDisabled": "Closing cycle is disabled. The last completed closing time is used as the start of this period, and the current time is used as the end.",
     "cycleCompleted": "Closing is completed for this cycle. Order taking is now blocked until the next cycle.",
-    "periodCompleted": "Closing is completed for this period."
+    "periodCompleted": "Closing is completed for this period.",
+    "varianceReasonRequired": "Enter a reason for the cash over or short before completing the closing."
   },
   "sections": {
-    "previousDayBalance": "Previous Day Balance",
-    "pettyCash": "Petty Cash",
+    "previousDayBalance": "Cash left from previous closing",
+    "pettyCash": "Petty cash in",
+    "cashDrop": "Cash drop / safe drop",
     "terminalCash": "Terminal Cash",
-    "paymentTypesSummary": "Payment Types Summary from system",
-    "expenses": "Expenses",
+    "paymentTypesSummary": "Payment totals from system",
+    "nonCashBatch": "Non-cash batch check",
+    "expenses": "Expenses / paid outs",
+    "openChecks": "Open checks",
+    "shiftRecap": "Shift recap",
     "notes": "Notes",
-    "summary": "Summary"
+    "summary": "Drawer summary"
   },
   "fields": {
-    "previousDayBalance": "Previous Day Balance",
-    "pettyCash": "Petty Cash",
+    "previousDayBalance": "Previous float",
+    "pettyCash": "Petty cash added",
+    "cashDrop": "Cash removed to safe",
     "description": "Description",
     "category": "Category",
     "amount": "Amount",
+    "batchAmount": "Batch / terminal amount",
+    "varianceReason": "Over / short reason",
+    "varianceReasonPlaceholder": "Explain the cash difference...",
     "notesPlaceholder": "Add any additional notes..."
   },
+  "labels": {
+    "cashSystemTotal": "Cash from system",
+    "systemAmount": "System",
+    "noNonCash": "No non-cash payment types for this period.",
+    "noOpenChecks": "No open checks in this closing window.",
+    "closedBy": "Closed by {{name}}"
+  },
+  "columns": {
+    "invoice": "Invoice",
+    "table": "Table",
+    "status": "Status",
+    "amount": "Amount"
+  },
+  "recap": {
+    "paidOrders": "Paid orders",
+    "discounts": "Discounts",
+    "tax": "Tax",
+    "serviceCharge": "Service charge",
+    "tips": "Tips",
+    "voids": "Voids",
+    "refunds": "Refunds"
+  },
   "totals": {
-    "totalCash": "Total Cash: {{amount}}",
+    "totalCash": "Counted cash: {{amount}}",
+    "cashSales": "Cash sales (system)",
     "cashFromPayments": "Cash from payment summary",
+    "expectedInDrawer": "Expected in drawer",
+    "overShort": "Over / short",
+    "cashLeftNextShift": "Cash left for next shift",
+    "countedCash": "Counted cash",
     "difference": "Difference: {{amount}}",
-    "totalOtherPayments": "Total Other Payments: {{amount}}",
-    "totalExpenses": "Total Expenses: {{amount}}",
-    "previousBalance": "Previous Balance",
-    "totalCashShort": "Total Cash",
-    "otherPayments": "Other Payments",
-    "totalExpensesShort": "Total Expenses",
-    "netAmount": "Net Amount"
+    "batchDifference": "Batch difference: {{amount}}",
+    "totalOtherPayments": "Total other payments: {{amount}}",
+    "totalExpenses": "Total expenses: {{amount}}",
+    "previousBalance": "Previous float",
+    "totalCashShort": "Total cash",
+    "otherPayments": "Other payments",
+    "totalExpensesShort": "Expenses",
+    "netAmount": "Cash left for next shift"
   },
   "actions": {
     "addExpense": "Add Expense",
-    "saveClosing": "Save Closing",
-    "closeClosing": "Close Closing",
+    "saveClosing": "Save draft",
+    "closeClosing": "Complete closing",
     "saving": "Saving...",
     "reopen": "Edit (Manager Approval)",
     "reopening": "Re-opening...",

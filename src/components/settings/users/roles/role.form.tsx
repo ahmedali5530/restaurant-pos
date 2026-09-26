@@ -12,10 +12,11 @@ import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
-import { ACCESS_RULE_MODULES, normalizeModules } from "@/lib/access.rules.ts";
+import { ACCESS_RULE_MODULES, isFullAccessRoleModules, normalizeModules } from "@/lib/access.rules.ts";
 import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { useTranslation } from "react-i18next";
+import { toRecordId } from "@/lib/utils.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -311,6 +312,24 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
   }, [moduleCatalog, debouncedSearch]);
 
   const onSubmit = async (values: RoleFormValues) => {
+    if (data?.id != null && isFullAccessRoleModules(data.roles) && !isFullAccessRoleModules(values.roles)) {
+      const [otherFullAccessRoles] = await db.query(
+        `SELECT roles FROM ${Tables.user_roles} WHERE deleted_at = none AND id != $selfId`,
+        { selfId: toRecordId(data.id) },
+      ) as [UserRole[]];
+
+      const hasAnotherFullAccessRole = (otherFullAccessRoles || []).some(
+        (other) => isFullAccessRoleModules(other.roles),
+      );
+
+      if (!hasAnotherFullAccessRole) {
+        toast.error(t("toast:admin.lastFullAccessRole", {
+          defaultValue: "This is the only role with full access — give another role full access first, or the system will have no one left who can manage it.",
+        }));
+        return;
+      }
+    }
+
     const payload = {
       name: values.name,
       roles: values.roles,

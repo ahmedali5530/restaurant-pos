@@ -1,7 +1,7 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
-import {DENOMINATION_COINS, DENOMINATION_NOTES, formatNumber, withCurrency} from "@/lib/utils.ts";
+import {DENOMINATION_COINS, DENOMINATION_NOTES, formatNumber, toRecordId, withCurrency, safeNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faPrint, faSave, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
@@ -10,6 +10,9 @@ import {
   Closing as ClosingModel,
   Expense,
   PaymentSummary,
+  BatchTotal,
+  ShiftRecap,
+  OpenCheckRow,
   TerminalCash,
   TerminalDenomination
 } from "@/api/model/closing.ts";
@@ -27,7 +30,12 @@ import {useAtom} from "jotai";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {ClosingCycleWindow, resolveClosingWindow} from "@/lib/closing-cycle.ts";
-import {getCurrentCycleClosing, hasOpenOrdersInCurrentCycle} from "@/lib/closing.guard.ts";
+import {
+  getCurrentCycleClosing,
+  getPreviousClosingBalance,
+  hasOpenOrdersInCurrentCycle,
+  listOpenOrdersInCurrentCycle,
+} from "@/lib/closing.guard.ts";
 import {aggregateAppliedPaymentsByTypeId, isCashPaymentType} from "@/lib/order.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from "react-i18next";
@@ -35,6 +43,8 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import { DocumentTitle } from "@/components/common/document-title.tsx";
 import { publishDayClosed } from "@/integrations/events/publish/ops.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
+import { recordIdToString } from "@/api/reports/shared/records.ts";
+import {OrderStatus} from "@/api/model/order.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -86,6 +96,13 @@ export const Closing = () => {
   const [existingClosing, setExistingClosing] = useState<ClosingModel | null>(null);
   const [isClosingCompleted, setIsClosingCompleted] = useState(false);
 
+  // Scopes the closing record to the logged-in user's shift so a second
+  // shift starting a closing the same day gets its own record instead of
+  // continuing (and overwriting) the first shift's.
+  const currentShiftId = page.user?.user_shift?.id
+    ? recordIdToString(page.user.user_shift.id)
+    : null;
+
   const {data: paymentTypesData} = useApi<SettingsData<PaymentType>>(
     Tables.payment_types,
     ['deleted_at = none'],
@@ -97,6 +114,12 @@ export const Closing = () => {
 
   const [previousDayBalance, setPreviousDayBalance] = useState<number>(0);
   const [pettyCash, setPettyCash] = useState<number>(0);
+  const [cashDrop, setCashDrop] = useState<number>(0);
+  const [varianceReason, setVarianceReason] = useState<string>("");
+  const [batchAmounts, setBatchAmounts] = useState<Record<string, number>>({});
+  const [openChecks, setOpenChecks] = useState<OpenCheckRow[]>([]);
+  const [shiftRecap, setShiftRecap] = useState<ShiftRecap | null>(null);
+  const [closedByLabel, setClosedByLabel] = useState<string>("");
   const [terminalCash, setTerminalCash] = useState<TerminalCash[]>(DEFAULT_TERMINALS);
   const [terminalDenominations, setTerminalDenominations] = useState<Record<string, TerminalDenomination>>({});
   const [paymentSummaries, setPaymentSummaries] = useState<PaymentSummary[]>([]);
@@ -131,6 +154,10 @@ export const Closing = () => {
     }));
   }, [getTerminalAmount, terminalCash]);
 
+  const shiftFilterSql = currentShiftId
+    ? `AND (cashier.user_shift = $shiftId OR user.user_shift = $shiftId)`
+    : "";
+
   const fetchCyclePayments = useCallback(async () => {
     try {
       const [result] = await db.query(`
@@ -139,11 +166,13 @@ export const Closing = () => {
           WHERE created_at >= $start
             AND created_at <= $end
             AND status = 'Paid'
+            ${shiftFilterSql}
               FETCH payments
               , payments.payment_type
       `, {
         start: toSurrealDateTime(closingWindow.date_from),
         end: toSurrealDateTime(closingWindow.date_to),
+        ...(currentShiftId ? {shiftId: toRecordId(currentShiftId)} : {}),
       });
 
       return aggregateAppliedPaymentsByTypeId((result as any[]) ?? []);
@@ -151,7 +180,76 @@ export const Closing = () => {
       console.error("Error fetching closing-window payments:", error);
       return new Map<string, number>();
     }
-  }, [closingWindow.date_from, closingWindow.date_to]);
+  }, [closingWindow.date_from, closingWindow.date_to, currentShiftId, shiftFilterSql]);
+
+  const fetchShiftRecap = useCallback(async (): Promise<ShiftRecap> => {
+    const empty: ShiftRecap = {
+      discounts: 0,
+      tax: 0,
+      service_charge: 0,
+      tips: 0,
+      voids: 0,
+      refunds: 0,
+      paid_orders: 0,
+    };
+    try {
+      const params = {
+        start: toSurrealDateTime(closingWindow.date_from),
+        end: toSurrealDateTime(closingWindow.date_to),
+        ...(currentShiftId ? {shiftId: toRecordId(currentShiftId)} : {}),
+      };
+
+      const [paidAgg] = await db.query(`
+        SELECT
+          math::sum(discount_amount ?? 0) AS discounts,
+          math::sum(tax_amount ?? 0) AS tax,
+          math::sum(service_charge_amount ?? 0) AS service_charge,
+          math::sum(tip_amount ?? 0) AS tips,
+          count() AS paid_orders
+        FROM ${Tables.orders}
+        WHERE created_at >= $start
+          AND created_at <= $end
+          AND status = $paid
+          ${shiftFilterSql}
+        GROUP ALL
+      `, {...params, paid: OrderStatus.Paid});
+
+      const paidRow = Array.isArray(paidAgg) ? paidAgg[0] as any : null;
+
+      const [voidRows] = await db.query(`
+        SELECT quantity, order_item.price AS item_price, order_item.quantity AS item_qty
+        FROM ${Tables.order_voids}
+        WHERE created_at >= $start AND created_at <= $end
+      `, params);
+
+      const voidsTotal = (Array.isArray(voidRows) ? voidRows : []).reduce((sum: number, row: any) => {
+        const qty = safeNumber(row.quantity ?? 1);
+        const price = safeNumber(row.item_price ?? 0);
+        return sum + qty * price;
+      }, 0);
+
+      const [refundAgg] = await db.query(`
+        SELECT count() AS refunds
+        FROM ${Tables.order_refunds}
+        WHERE created_at >= $start AND created_at <= $end
+        GROUP ALL
+      `, params);
+      const refundRow = Array.isArray(refundAgg) ? refundAgg[0] as any : null;
+
+      return {
+        discounts: safeNumber(paidRow?.discounts),
+        tax: safeNumber(paidRow?.tax),
+        service_charge: safeNumber(paidRow?.service_charge),
+        tips: safeNumber(paidRow?.tips),
+        voids: voidsTotal,
+        refunds: safeNumber(refundRow?.refunds),
+        paid_orders: safeNumber(paidRow?.paid_orders),
+      };
+    } catch (error) {
+      console.error("Error fetching shift recap:", error);
+      return empty;
+    }
+  }, [closingWindow.date_from, closingWindow.date_to, currentShiftId, shiftFilterSql]);
 
   const hydrateTerminals = useCallback((source: ClosingModel | null) => {
     const sourceTerminals = source?.terminal_cash && source.terminal_cash.length > 0
@@ -187,23 +285,54 @@ export const Closing = () => {
 
     setLoading(true);
     try {
-      const cycleClosing = await getCurrentCycleClosing(db);
+      const resolvedWindow = await resolveClosingWindow(db, new Date());
+      const cycleClosing = await getCurrentCycleClosing(db, new Date(), currentShiftId);
       setExistingClosing(cycleClosing);
       setIsClosingCompleted(cycleClosing?.status === "completed");
 
-      setPreviousDayBalance(Number((cycleClosing as any)?.previous_day_balance ?? 0));
+      const carriedBalance = cycleClosing?.status === "completed"
+        ? Number(cycleClosing.previous_day_balance ?? 0)
+        : await getPreviousClosingBalance(db, resolvedWindow.window, cycleClosing?.id);
+      setPreviousDayBalance(carriedBalance);
       setPettyCash(Number(cycleClosing?.cash_added ?? 0));
+      setCashDrop(Number(cycleClosing?.cash_withdrawn ?? 0));
+      setVarianceReason(cycleClosing?.variance_reason || "");
       setExpenses(cycleClosing?.expenses_data || []);
       setNotes(cycleClosing?.notes || "");
+
+      const storedBatches = cycleClosing?.batch_totals || [];
+      const batchMap: Record<string, number> = {};
+      for (const row of storedBatches) {
+        batchMap[String(row.payment_type_id)] = Number(row.batch_amount || 0);
+      }
+      setBatchAmounts(batchMap);
+
+      const closedBy = cycleClosing?.closed_by as { first_name?: string; last_name?: string; login?: string } | undefined;
+      if (closedBy && typeof closedBy === "object") {
+        const name = [closedBy.first_name, closedBy.last_name].filter(Boolean).join(" ").trim();
+        setClosedByLabel(name || closedBy.login || "");
+      } else {
+        setClosedByLabel("");
+      }
+
       hydrateTerminals(cycleClosing);
       await hydratePayments();
+
+      if (cycleClosing?.status === "completed" && cycleClosing.shift_recap) {
+        setShiftRecap(cycleClosing.shift_recap);
+      } else {
+        setShiftRecap(await fetchShiftRecap());
+      }
+
+      const open = await listOpenOrdersInCurrentCycle(db);
+      setOpenChecks(open);
     } catch (error) {
       console.error("Error loading closing data:", error);
       toast.error(t("toast:closing.loadFailed"));
     } finally {
       setLoading(false);
     }
-  }, [hydratePayments, hydrateTerminals, paymentTypes.length]);
+  }, [hydratePayments, hydrateTerminals, paymentTypes.length, currentShiftId, fetchShiftRecap, t]);
 
   const refreshClosingWindow = useCallback(async () => {
     const resolved = await resolveClosingWindow(db, new Date());
@@ -230,23 +359,45 @@ export const Closing = () => {
       .reduce((sum, ps) => sum + ps.amount, 0);
   }, [paymentSummaries]);
 
-  const cashDifference = useMemo(() => {
-    return totalCash - totalSystemCash;
-  }, [totalCash, totalSystemCash]);
+  const nonCashSummaries = useMemo(() => {
+    return paymentSummaries.filter(ps => !isCashPaymentType(ps.payment_type));
+  }, [paymentSummaries]);
 
   const totalOtherPayments = useMemo(() => {
-    return paymentSummaries
-      .filter(ps => !isCashPaymentType(ps.payment_type))
-      .reduce((sum, ps) => sum + ps.amount, 0);
-  }, [paymentSummaries]);
+    return nonCashSummaries.reduce((sum, ps) => sum + ps.amount, 0);
+  }, [nonCashSummaries]);
 
   const totalExpenses = useMemo(() => {
     return expenses.reduce((sum, expense) => sum + expense.amount, 0);
   }, [expenses]);
 
-  const netAmount = useMemo(() => {
-    return previousDayBalance + totalCash + pettyCash + totalOtherPayments - totalExpenses;
-  }, [previousDayBalance, totalCash, pettyCash, totalOtherPayments, totalExpenses]);
+  /** Expected cash in the drawer (cash only — cards stay out). */
+  const expectedInDrawer = useMemo(() => {
+    return previousDayBalance + totalSystemCash + pettyCash - totalExpenses - cashDrop;
+  }, [previousDayBalance, totalSystemCash, pettyCash, totalExpenses, cashDrop]);
+
+  /** Counted cash vs expected. */
+  const overShort = useMemo(() => {
+    return totalCash - expectedInDrawer;
+  }, [totalCash, expectedInDrawer]);
+
+  /** Cash left for the next shift after the drop. */
+  const drawerFloat = useMemo(() => {
+    return totalCash - cashDrop;
+  }, [totalCash, cashDrop]);
+
+  const batchTotals = useMemo((): BatchTotal[] => {
+    return nonCashSummaries.map(ps => {
+      const id = String(ps.payment_type.id);
+      return {
+        payment_type_id: id,
+        payment_type_name: ps.payment_type.name,
+        system_amount: ps.amount,
+        batch_amount: Number(batchAmounts[id] ?? 0),
+      };
+    });
+  }, [nonCashSummaries, batchAmounts]);
+
   const isReadOnly = isClosingCompleted;
 
   const updateTerminalDenomination = (
@@ -337,6 +488,56 @@ export const Closing = () => {
       [{text: `CLOSING SUMMARY (${today})`, align: "CENTER", width: 1, style: "B"}],
       [{text: closingWindowLabel, align: "LEFT", width: 1}],
       [{text: " ", align: "LEFT", width: 1}],
+      [{text: "Previous float", align: "LEFT", width: 0.6}, {
+        text: formatNumber(previousDayBalance),
+        align: "RIGHT",
+        width: 0.4
+      }],
+      [{text: "Cash sales", align: "LEFT", width: 0.6}, {
+        text: formatNumber(totalSystemCash),
+        align: "RIGHT",
+        width: 0.4
+      }],
+      [{text: "Petty cash in", align: "LEFT", width: 0.6}, {
+        text: formatNumber(pettyCash),
+        align: "RIGHT",
+        width: 0.4
+      }],
+      [{text: "Expenses", align: "LEFT", width: 0.6}, {
+        text: formatNumber(totalExpenses),
+        align: "RIGHT",
+        width: 0.4
+      }],
+      [{text: "Cash drop", align: "LEFT", width: 0.6}, {
+        text: formatNumber(cashDrop),
+        align: "RIGHT",
+        width: 0.4
+      }],
+      [{text: "Expected in drawer", align: "LEFT", width: 0.6, style: "B"}, {
+        text: formatNumber(expectedInDrawer),
+        align: "RIGHT",
+        width: 0.4,
+        style: "B"
+      }],
+      [{text: "Counted cash", align: "LEFT", width: 0.6, style: "B"}, {
+        text: formatNumber(totalCash),
+        align: "RIGHT",
+        width: 0.4,
+        style: "B"
+      }],
+      [{text: "Over / short", align: "LEFT", width: 0.6, style: "B"}, {
+        text: formatNumber(overShort),
+        align: "RIGHT",
+        width: 0.4,
+        style: "B"
+      }],
+      [{text: "Cash left for next shift", align: "LEFT", width: 0.6, style: "B"}, {
+        text: formatNumber(drawerFloat),
+        align: "RIGHT",
+        width: 0.4,
+        style: "B"
+      }],
+      [{text: " ", align: "LEFT", width: 1}],
       [{text: "Terminal Cash", align: "LEFT", width: 0.6, style: "B"}, {
         text: "Amount",
         align: "RIGHT",
@@ -347,37 +548,19 @@ export const Closing = () => {
         {text: terminal.terminal_name, align: "LEFT", width: 0.6},
         {text: formatNumber(terminal.cash_amount), align: "RIGHT", width: 0.4}
       ])),
-      [{text: "Total Cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalCash),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
       [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Payment Summary", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Amount",
+      [{text: "Non-cash (system)", align: "LEFT", width: 0.6, style: "B"}, {
+        text: "Batch",
         align: "RIGHT",
         width: 0.4,
         style: "B"
       }],
-      ...paymentSummaries.map(ps => ([
-        {text: ps.payment_type.name, align: "LEFT", width: 0.6},
-        {text: formatNumber(ps.amount), align: "RIGHT", width: 0.4}
+      ...batchTotals.map(row => ([
+        {text: `${row.payment_type_name} (${formatNumber(row.system_amount)})`, align: "LEFT", width: 0.6},
+        {text: formatNumber(row.batch_amount), align: "RIGHT", width: 0.4}
       ])),
       [{text: "Other Payments", align: "LEFT", width: 0.6, style: "B"}, {
         text: formatNumber(totalOtherPayments),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Expenses", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalExpenses),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Net Amount", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(netAmount),
         align: "RIGHT",
         width: 0.4,
         style: "B"
@@ -394,25 +577,38 @@ export const Closing = () => {
     setSaving(true);
     try {
       if (complete) {
-        const hasOpenOrders = await hasOpenOrdersInCurrentCycle(db);
-        if (hasOpenOrders) {
+        if (openChecks.length > 0 || await hasOpenOrdersInCurrentCycle(db)) {
+          const open = await listOpenOrdersInCurrentCycle(db);
+          setOpenChecks(open);
           toast.error(t("toast:closing.openOrders"));
+          return;
+        }
+        if (Math.abs(overShort) > 0.009 && !varianceReason.trim()) {
+          toast.error(t("closing:alerts.varianceReasonRequired"));
           return;
         }
       }
 
       const resolved = await resolveClosingWindow(db, new Date());
       const windowForSave = resolved.window;
+      const recap = shiftRecap || await fetchShiftRecap();
 
-      const closingData: Omit<ClosingModel, "id"> = {
+      const closingData: Omit<ClosingModel, "id" | "shift" | "closed_by"> & {
+        shift?: unknown;
+        closed_by?: unknown;
+      } = {
         date_from: windowForSave.date_from,
         date_to: windowForSave.date_to,
         cash_added: pettyCash,
-        cash_withdrawn: 0,
-        closing_balance: netAmount,
+        cash_withdrawn: cashDrop,
+        drawer_float: drawerFloat,
+        closing_balance: drawerFloat,
         denominations: terminalDenominations,
         terminal_cash: computedTerminalCash,
         payments_data: paymentSummaries,
+        batch_totals: batchTotals,
+        shift_recap: recap,
+        variance_reason: varianceReason.trim() || null,
         expenses_data: expenses,
         expenses: totalExpenses,
         notes,
@@ -421,8 +617,12 @@ export const Closing = () => {
         previous_day_balance: previousDayBalance,
         total_cash: totalCash,
         total_other_payments: totalOtherPayments,
-        net_amount: netAmount,
-        ...(complete ? {closed_at: nowSurrealDateTime()} : {}),
+        net_amount: drawerFloat,
+        ...(currentShiftId ? {shift: toRecordId(currentShiftId)} : {}),
+        ...(complete ? {
+          closed_at: nowSurrealDateTime(),
+          closed_by: page.user?.id ? toRecordId(page.user.id) : undefined,
+        } : {}),
       };
 
       if (existingClosing?.id) {
@@ -454,7 +654,7 @@ export const Closing = () => {
             ? new Date(windowForSave.date_to).toISOString()
             : undefined,
           totals: {
-            net_amount: Number(netAmount) || 0,
+            net_amount: Number(drawerFloat) || 0,
             total_cash: Number(totalCash) || 0,
             total_other_payments: Number(totalOtherPayments) || 0,
             expenses: Number(totalExpenses) || 0,
@@ -540,33 +740,52 @@ export const Closing = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-surface-elevated rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.previousDayBalance")}</h2>
-              <Input
-                type="number"
-                value={previousDayBalance}
-                onChange={(e) => setPreviousDayBalance(Number(e.target.value))}
-                placeholder={t("closing:fields.previousDayBalance")}
-                step="0.01"
-                enableKeyboard
-                inputSize="lg"
-                disabled={isReadOnly}
-              />
+              <div>
+                <Input
+                  type="number"
+                  value={previousDayBalance}
+                  readOnly
+                  disabled
+                  placeholder={t("closing:fields.previousDayBalance")}
+                  step="0.01"
+                  inputSize="lg"
+                />
+              </div>
             </div>
 
             <div className="bg-surface-elevated rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4">{t("closing:sections.pettyCash")}</h2>
-              <Input
-                type="number"
-                value={pettyCash}
-                onChange={(e) => setPettyCash(Number(e.target.value))}
-                placeholder={t("closing:fields.pettyCash")}
-                step="0.01"
-                enableKeyboard
-                inputSize="lg"
-                disabled={isReadOnly}
-              />
+              <div>
+                <Input
+                  type="number"
+                  value={pettyCash}
+                  onChange={(e) => setPettyCash(Number(e.target.value))}
+                  placeholder={t("closing:fields.pettyCash")}
+                  step="0.01"
+                  enableKeyboard
+                  inputSize="lg"
+                  disabled={isReadOnly}
+                />
+              </div>
+            </div>
+
+            <div className="bg-surface-elevated rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4">{t("closing:sections.cashDrop")}</h2>
+              <div>
+                <Input
+                  type="number"
+                  value={cashDrop}
+                  onChange={(e) => setCashDrop(Number(e.target.value))}
+                  placeholder={t("closing:fields.cashDrop")}
+                  step="0.01"
+                  enableKeyboard
+                  inputSize="lg"
+                  disabled={isReadOnly}
+                />
+              </div>
             </div>
           </div>
 
@@ -657,26 +876,88 @@ export const Closing = () => {
             <div className="mt-4 p-4 bg-surface rounded-lg text-foreground">
               <span className="text-lg font-semibold">{t("closing:totals.totalCash", {amount: withCurrency(totalCash)})}</span>
             </div>
-            <div className="mt-4 p-4 bg-surface rounded-lg text-foreground">
-              <div className="text-sm text-muted">{t("closing:totals.cashFromPayments")}</div>
-              <div className="text-lg font-semibold">{withCurrency(totalSystemCash)}</div>
+            <div className="mt-4 p-4 bg-surface rounded-lg text-foreground space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">{t("closing:totals.cashSales")}</span>
+                <span className="font-semibold">{withCurrency(totalSystemCash)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">{t("closing:totals.expectedInDrawer")}</span>
+                <span className="font-semibold">{withCurrency(expectedInDrawer)}</span>
+              </div>
               <div
-                className={`mt-2 text-lg font-semibold ${cashDifference === 0 ? "text-foreground" : cashDifference > 0 ? "text-success-600" : "text-danger-600"}`}
+                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}
               >
-                {t("closing:totals.difference", {amount: withCurrency(cashDifference)})}
+                <span>{t("closing:totals.overShort")}</span>
+                <span>{withCurrency(overShort)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted">{t("closing:totals.cashLeftNextShift")}</span>
+                <span className="font-semibold">{withCurrency(drawerFloat)}</span>
               </div>
             </div>
+            {Math.abs(overShort) > 0.009 && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-2">{t("closing:fields.varianceReason")}</label>
+                <div>
+                  <Textarea
+                    value={varianceReason}
+                    onChange={(e) => setVarianceReason(e.currentTarget.value)}
+                    placeholder={t("closing:fields.varianceReasonPlaceholder")}
+                    enableKeyboard
+                    disabled={isReadOnly}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-payment-types-section">
             <h2 className="text-xl font-semibold mb-4">{t("closing:sections.paymentTypesSummary")}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paymentSummaries.map((ps) => (
+              {paymentSummaries.filter(ps => isCashPaymentType(ps.payment_type)).map((ps) => (
                 <div key={String(ps.payment_type.id)} className="border rounded-lg p-4">
                   <div className="text-sm font-medium mb-1">{ps.payment_type.name}</div>
                   <div className="text-lg font-semibold tabular-nums">{withCurrency(ps.amount)}</div>
+                  <div className="text-xs text-muted mt-1">{t("closing:labels.cashSystemTotal")}</div>
                 </div>
               ))}
+            </div>
+            <h3 className="text-lg font-semibold mt-6 mb-3">{t("closing:sections.nonCashBatch")}</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {batchTotals.map((row) => {
+                const diff = row.batch_amount - row.system_amount;
+                return (
+                  <div key={row.payment_type_id} className="border rounded-lg p-4 space-y-2">
+                    <div className="text-sm font-medium">{row.payment_type_name}</div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted">{t("closing:labels.systemAmount")}</span>
+                      <span className="font-semibold tabular-nums">{withCurrency(row.system_amount)}</span>
+                    </div>
+                    <div>
+                      <Input
+                        type="number"
+                        value={batchAmounts[row.payment_type_id] ?? 0}
+                        onChange={(e) => setBatchAmounts(prev => ({
+                          ...prev,
+                          [row.payment_type_id]: Number(e.target.value),
+                        }))}
+                        label={t("closing:fields.batchAmount")}
+                        step="0.01"
+                        enableKeyboard
+                        inputSize="lg"
+                        disabled={isReadOnly}
+                      />
+                    </div>
+                    <div className={`text-sm font-semibold ${diff === 0 ? "text-foreground" : "text-warning-600"}`}>
+                      {t("closing:totals.batchDifference", {amount: withCurrency(diff)})}
+                    </div>
+                  </div>
+                );
+              })}
+              {batchTotals.length === 0 && (
+                <div className="text-sm text-muted col-span-full">{t("closing:labels.noNonCash")}</div>
+              )}
             </div>
             <div className="mt-4 p-4 bg-surface rounded-lg text-foreground">
               <span className="text-lg font-semibold">{t("closing:totals.totalOtherPayments", {amount: withCurrency(totalOtherPayments)})}</span>
@@ -741,46 +1022,125 @@ export const Closing = () => {
             )}
           </div>
 
-          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.notes")}</h2>
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.currentTarget.value)}
-              placeholder={t("closing:fields.notesPlaceholder")}
-              enableKeyboard
-              disabled={isReadOnly}
-            />
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-open-checks-section">
+            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.openChecks")}</h2>
+            {openChecks.length === 0 ? (
+              <div className="text-sm text-muted">{t("closing:labels.noOpenChecks")}</div>
+            ) : (
+              <div className="overflow-hidden rounded-lg border border-border">
+                <table className="min-w-full divide-y divide-neutral-200">
+                  <thead className="bg-surface">
+                    <tr>
+                      <th className="py-2 pl-4 pr-2 text-left text-xs font-semibold">{t("closing:columns.invoice")}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold">{t("closing:columns.table")}</th>
+                      <th className="py-2 px-2 text-left text-xs font-semibold">{t("closing:columns.status")}</th>
+                      <th className="py-2 px-2 text-right text-xs font-semibold">{t("closing:columns.amount")}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+                    {openChecks.map((row) => (
+                      <tr key={row.id}>
+                        <td className="py-2 pl-4 pr-2 text-sm">#{row.invoice_number ?? "—"}</td>
+                        <td className="py-2 px-2 text-sm">{row.table_name || "—"}</td>
+                        <td className="py-2 px-2 text-sm capitalize">{row.status}</td>
+                        <td className="py-2 px-2 text-sm text-right tabular-nums">{withCurrency(row.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
 
-          {isClosingCompleted && (
-            <div className="bg-primary-100 rounded-lg shadow-md p-6 mb-8">
-              <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-sm text-muted">{t("closing:totals.previousBalance")}</div>
-                  <div className="text-xl font-semibold">{withCurrency(previousDayBalance)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted">{t("closing:totals.totalCashShort")}</div>
-                  <div className="text-xl font-semibold">{withCurrency(totalCash + pettyCash)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted">{t("closing:totals.otherPayments")}</div>
-                  <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted">{t("closing:totals.totalExpensesShort")}</div>
-                  <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
-                </div>
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-shift-recap-section">
+            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.shiftRecap")}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.paidOrders")}</div>
+                <div className="text-lg font-semibold">{shiftRecap?.paid_orders ?? 0}</div>
               </div>
-              <div className="mt-6 p-4 bg-surface-elevated rounded-lg border-2 border-blue-200">
-                <div className="text-center">
-                  <div className="text-lg text-muted">{t("closing:totals.netAmount")}</div>
-                  <div className="text-3xl font-bold text-green-600 dark:text-success-400">{withCurrency(netAmount)}</div>
-                </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.discounts")}</div>
+                <div className="text-lg font-semibold">{withCurrency(shiftRecap?.discounts ?? 0)}</div>
+              </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.tax")}</div>
+                <div className="text-lg font-semibold">{withCurrency(shiftRecap?.tax ?? 0)}</div>
+              </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.serviceCharge")}</div>
+                <div className="text-lg font-semibold">{withCurrency(shiftRecap?.service_charge ?? 0)}</div>
+              </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.tips")}</div>
+                <div className="text-lg font-semibold">{withCurrency(shiftRecap?.tips ?? 0)}</div>
+              </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.voids")}</div>
+                <div className="text-lg font-semibold">{withCurrency(shiftRecap?.voids ?? 0)}</div>
+              </div>
+              <div className="border rounded-lg p-3">
+                <div className="text-xs text-muted">{t("closing:recap.refunds")}</div>
+                <div className="text-lg font-semibold">{shiftRecap?.refunds ?? 0}</div>
               </div>
             </div>
-          )}
+          </div>
+
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">{t("closing:sections.notes")}</h2>
+            <div>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.currentTarget.value)}
+                placeholder={t("closing:fields.notesPlaceholder")}
+                enableKeyboard
+                disabled={isReadOnly}
+              />
+            </div>
+          </div>
+
+          <div className="bg-primary-100 rounded-lg shadow-md p-6 mb-8" data-testid="closing-summary-section">
+            <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.previousBalance")}</div>
+                <div className="text-xl font-semibold">{withCurrency(previousDayBalance)}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.expectedInDrawer")}</div>
+                <div className="text-xl font-semibold">{withCurrency(expectedInDrawer)}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.countedCash")}</div>
+                <div className="text-xl font-semibold">{withCurrency(totalCash)}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.overShort")}</div>
+                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}>
+                  {withCurrency(overShort)}
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.otherPayments")}</div>
+                <div className="text-xl font-semibold">{withCurrency(totalOtherPayments)}</div>
+              </div>
+              <div>
+                <div className="text-sm text-muted">{t("closing:totals.totalExpensesShort")}</div>
+                <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
+              </div>
+            </div>
+            <div className="mt-6 p-4 bg-surface-elevated rounded-lg border-2 border-blue-200">
+              <div className="text-center">
+                <div className="text-lg text-muted">{t("closing:totals.cashLeftNextShift")}</div>
+                <div className="text-3xl font-bold text-green-600 dark:text-success-400">{withCurrency(drawerFloat)}</div>
+              </div>
+              {isClosingCompleted && closedByLabel && (
+                <div className="text-center mt-3 text-sm text-muted">
+                  {t("closing:labels.closedBy", {name: closedByLabel})}
+                </div>
+              )}
+            </div>
+          </div>
 
           <div className="text-center flex justify-center items-center gap-4" data-testid="closing-actions">
             {!isClosingCompleted && (

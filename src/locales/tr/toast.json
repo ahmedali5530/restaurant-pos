@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} öğe güncellendi",
     "invalidCategories": "Kategoriler geçersiz",
     "passwordRequired": "Yeni kullanıcı için şifre gerekli",
+    "lastMasterRole": "{{role}} rolüne sahip tek kullanıcı sizsiniz — önce bu rolü başka bir kullanıcıya atayın, yoksa sistemi yönetecek kimse kalmaz.",
+    "lastFullAccessRole": "Bu, tam erişime sahip tek roldür — önce başka bir role tam erişim verin, yoksa sistemi yönetecek kimse kalmaz.",
     "invalidDishNumber": "Yemek numarası geçersiz",
     "invalidDishNameOrNumber": "Yemek adı veya numarası geçersiz",
     "ambiguousDishName": "Bu ada birden fazla yemek uyuyor; yemek numarasını kullanın",

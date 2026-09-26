@@ -29,29 +29,66 @@
   "alerts": {
     "cycleDisabled": "Kapanış döngüsü devre dışı. Son tamamlanan kapanış saati bu dönemin başlangıcı olarak kullanılır ve mevcut saat bitiş olarak kullanılır.",
     "cycleCompleted": "Bu döngü için kapanış tamamlandı. Bir sonraki döngüye kadar sipariş alma engellendi.",
-    "periodCompleted": "Bu dönem için kapanış tamamlandı."
+    "periodCompleted": "Bu dönem için kapanış tamamlandı.",
+    "varianceReasonRequired": "Kapanışı tamamlamadan önce fazla/eksik nakit nedenini girin."
   },
   "sections": {
-    "previousDayBalance": "Önceki Gün Bakiyesi",
-    "pettyCash": "Küçük Kasa",
+    "previousDayBalance": "Önceki kapanıştan kalan nakit",
+    "pettyCash": "Ufak kasa girişi",
+    "cashDrop": "Kasa / kasa kasası aktarımı",
     "terminalCash": "Terminal Nakit",
     "paymentTypesSummary": "Sistemden ödeme türleri özeti",
+    "nonCashBatch": "Nakit dışı parti kontrolü",
     "expenses": "Giderler",
+    "openChecks": "Açık adisyonlar",
+    "shiftRecap": "Vardiya özeti",
     "notes": "Notlar",
-    "summary": "Özet"
+    "summary": "Çekmece özeti"
   },
   "fields": {
     "previousDayBalance": "Önceki Gün Bakiyesi",
     "pettyCash": "Küçük Kasa",
+    "cashDrop": "Kasaya alınan nakit",
     "description": "Açıklama",
     "category": "Kategori",
     "amount": "Tutar",
+    "batchAmount": "Parti / terminal tutarı",
+    "varianceReason": "Fazla / eksik nedeni",
+    "varianceReasonPlaceholder": "Nakit farkını açıklayın...",
     "notesPlaceholder": "Ek notlar ekleyin..."
+  },
+  "labels": {
+    "cashSystemTotal": "Sistemden nakit",
+    "systemAmount": "Sistem",
+    "noNonCash": "Bu dönem için nakit dışı ödeme yok.",
+    "noOpenChecks": "Bu pencerede açık adisyon yok.",
+    "closedBy": "{{name}} tarafından kapatıldı"
+  },
+  "columns": {
+    "invoice": "Fatura",
+    "table": "Masa",
+    "status": "Durum",
+    "amount": "Tutar"
+  },
+  "recap": {
+    "paidOrders": "Ödenen siparişler",
+    "discounts": "İndirimler",
+    "tax": "Vergi",
+    "serviceCharge": "Servis ücreti",
+    "tips": "Bahşişler",
+    "voids": "İptaller",
+    "refunds": "İadeler"
   },
   "totals": {
     "totalCash": "Toplam Nakit: {{amount}}",
+    "cashSales": "Nakit satışlar (sistem)",
     "cashFromPayments": "Ödeme özetinden nakit",
+    "expectedInDrawer": "Çekmecede beklenen",
+    "overShort": "Fazla / eksik",
+    "cashLeftNextShift": "Sonraki vardiya için nakit",
+    "countedCash": "Sayılan nakit",
     "difference": "Fark: {{amount}}",
+    "batchDifference": "Parti farkı: {{amount}}",
     "totalOtherPayments": "Toplam Diğer Ödemeler: {{amount}}",
     "totalExpenses": "Toplam Giderler: {{amount}}",
     "previousBalance": "Önceki Bakiye",
