@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-27',
+    title: 'Faster Reload cache for busy floors',
+    items: [
+      'Reload cache now hydrates open checks plus the last 1 day of orders (was 3 days), so busy restaurants with hundreds of checks per day rebuild the terminal cache much faster. Older history still lives in reports.',
+    ],
+  },
+  {
     date: '2026-09-26',
     title: 'Cloud catalog download for linked branches',
     items: [
