@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-26',
+    title: 'Cloud catalog download for linked branches',
+    items: [
+      'Stores in full distribution mode can download menu and other front-of-house catalog data from the cloud without uploading it back (sales upload stays separate).',
+      'Settings shows Catalog sync with published vs applied version and a Sync now action when the sync service URL is configured — catalog download runs only when you trigger Sync now, not continuously.',
+    ],
+  },
+  {
+    date: '2026-09-26',
     title: 'Restaurant drawer close',
     items: [
       'Day closing is a cash-only drawer: expected cash, drop to the safe, over/short with a required reason, and cash left for the next shift.',

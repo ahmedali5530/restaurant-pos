@@ -5,6 +5,8 @@ const { RecordId, StringRecordId } = require('surrealdb');
 const {
   isRetryableError,
   isChangefeedRetentionError,
+  withTimeout,
+  withRetry,
   compactChangeBatch,
   nextCursorVersionstamp,
   entriesAfterCursor,
@@ -63,41 +65,6 @@ function isRecordLink(value) {
   return Boolean(toAnyRecordId(value));
 }
 
-function withTimeout(promise, ms, label) {
-  let timer;
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => {
-      reject(new Error(`${label} timed out after ${ms}ms`));
-    }, ms);
-  });
-
-  return Promise.race([promise, timeout]).finally(() => {
-    clearTimeout(timer);
-  });
-}
-
-async function withRetry(task, options = {}) {
-  const retries = Number.isFinite(options.retries) ? options.retries : 5;
-  const delayMs = Number.isFinite(options.delayMs) ? options.delayMs : 75;
-  const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : 20000;
-  const label = options.label || 'operation';
-  let lastError;
-
-  for (let attempt = 0; attempt < retries; attempt += 1) {
-    try {
-      return await withTimeout(Promise.resolve().then(task), timeoutMs, label);
-    } catch (error) {
-      lastError = error;
-      if (!isRetryableError(error) || attempt === retries - 1) {
-        throw error;
-      }
-      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
-    }
-  }
-
-  throw lastError;
-}
-
 function collectArrayLinkedRecordIds(record) {
   const links = [];
   if (!record || typeof record !== 'object') return links;
@@ -145,6 +112,8 @@ function cursorRecordId(tableName) {
   return new RecordId('sync_cloud_cursor', tableName);
 }
 
+const { CatalogDownloadManager } = require('./catalog-download');
+
 class SyncManager {
   constructor(config, logger) {
     this.config = config;
@@ -159,11 +128,21 @@ class SyncManager {
     this.pollStartedAt = null;
     this.tableState = new Map();
     this.writeChain = Promise.resolve();
+    this.catalogSyncPromise = null;
+    this.catalogDownload = config.downloadEnabled
+      ? new CatalogDownloadManager(config, logger, () => ({
+          source: this.source,
+          master: this.master,
+        }))
+      : null;
     this.stats = {
       startedAt: null,
       healthy: false,
       connectedSource: false,
       connectedMaster: false,
+      distributionMode: config.distributionMode,
+      uploadEnabled: config.uploadEnabled,
+      downloadEnabled: config.downloadEnabled,
       subscribedTables: [],
       eventsProcessed: 0,
       eventsFailed: 0,
@@ -177,6 +156,7 @@ class SyncManager {
       pollInFlight: false,
       pollStartedAt: null,
       tables: {},
+      catalog: null,
     };
   }
 
@@ -226,7 +206,42 @@ class SyncManager {
       pollStartedAt: this.pollStartedAt,
       subscribedTables: [...this.stats.subscribedTables],
       tables: { ...this.stats.tables, ...tables },
+      catalog: this.catalogDownload ? this.catalogDownload.getStats() : null,
     });
+  }
+
+  requestCatalogSync() {
+    if (!this.catalogDownload) {
+      throw new Error('Catalog download is disabled (SYNC_DISTRIBUTION_MODE must be full)');
+    }
+    if (this.catalogSyncPromise) {
+      return {
+        ok: true,
+        queued: true,
+        running: true,
+        localVersion: this.catalogDownload.stats.localVersion,
+        remoteVersion: this.catalogDownload.stats.remoteVersion,
+      };
+    }
+    this.catalogDownload.requestForceSync();
+    this.catalogSyncPromise = this.catalogDownload.pollAll()
+      .catch((error) => {
+        this.stats.lastError = error.message || String(error);
+        this.logger.warn('On-demand catalog sync failed', { error: this.stats.lastError });
+        throw error;
+      })
+      .finally(() => {
+        this.catalogSyncPromise = null;
+      });
+    return {
+      ok: true,
+      queued: true,
+      running: false,
+      localVersion: this.catalogDownload.stats.localVersion,
+      remoteVersion: this.catalogDownload.stats.remoteVersion,
+      /** @type {Promise<void>} */
+      done: this.catalogSyncPromise,
+    };
   }
 
   enqueueWrite(task) {
@@ -264,14 +279,27 @@ class SyncManager {
   async connectAndStart() {
     try {
       await this.connectClients();
-      await this.ensureMasterBranchFields();
+      if (this.config.uploadEnabled) {
+        await this.ensureMasterBranchFields();
+      }
       await this.ensureSourceCursorTable();
-      await this.loadTableStates();
+      if (this.config.uploadEnabled) {
+        await this.loadTableStates();
+      }
+      if (this.catalogDownload) {
+        await this.catalogDownload.initialize();
+      }
       this.stats.healthy = true;
       this.stats.lastError = null;
-      this.stats.subscribedTables = [...this.config.includeTables];
-      this.logger.info('Sync manager ready (changefeed)', {
-        tables: this.config.includeTables.length,
+      this.stats.subscribedTables = this.config.uploadEnabled
+        ? [...this.config.includeTables]
+        : [];
+      this.logger.info('Sync manager ready', {
+        mode: this.config.distributionMode,
+        upload: this.config.uploadEnabled,
+        download: this.config.downloadEnabled,
+        uploadTables: this.config.uploadEnabled ? this.config.includeTables.length : 0,
+        downloadTables: this.config.downloadEnabled ? this.config.downloadTables.length : 0,
       });
       this.schedulePoll(0);
     } catch (error) {
@@ -418,10 +446,14 @@ class SyncManager {
 
       this.stats.healthy = true;
 
-      for (const tableName of this.config.includeTables) {
-        if (this.isStopping || this.isReconnecting) break;
-        await this.pollTable(tableName);
+      if (this.config.uploadEnabled) {
+        for (const tableName of this.config.includeTables) {
+          if (this.isStopping || this.isReconnecting) break;
+          await this.pollTable(tableName);
+        }
       }
+
+      // Catalog download is on-demand only — see requestCatalogSync() / POST /catalog/sync-now.
     } catch (error) {
       this.stats.healthy = false;
       this.stats.lastError = error.message || String(error);

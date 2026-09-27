@@ -1,54 +1,56 @@
-# POSR Local-to-Cloud Sync Service
+# POSR Branch Sync Service (local ↔ cloud)
 
-Uploads front-of-house / sales data from a branch SurrealDB to a shared cloud master for reporting and multi-branch distribution.
+Two directions, controlled by `SYNC_DISTRIBUTION_MODE`:
 
-## How it works
+| Mode | Upload sales (local → cloud) | Download catalog (cloud → local) |
+| --- | --- | --- |
+| `off` | no | no |
+| `report_only` | yes | no |
+| `full` | yes | yes |
 
-1. **Allowlist** — only FOH tables (orders, payments, fiscal submissions, closings, shifts, customers, …). Menu, inventory, accounts, and settings stay local.
-2. **Backfill** — on first run (or when the changefeed cursor falls outside the 14-day retention window), pages `SELECT *` and upserts every row to master.
-3. **Changefeed tail** — polls `SHOW CHANGES FOR TABLE … SINCE cursor`. Advances the cursor in `sync_cloud_cursor` only after the master acknowledges each record.
-4. **Retries** — transport failures and timeouts keep the cursor in place and back off per table. Other tables keep moving.
-5. **branch_id** — every master row is stamped with `SYNC_CLIENT_ID` so multiple branches can share one cloud database.
+Standalone stores leave `SYNC_MASTER_URL` empty or set mode `off`. Existing phase-1 deployments with a master URL and no mode set default to **`report_only`**.
 
-LIVE SELECT is **not** used. It cannot replay missed events after downtime.
+## Upload (phase 1)
+
+1. **Allowlist** — FOH sales only (orders, payments, fiscal, closings, shifts, customers, …).
+2. **Backfill** then **changefeed tail** on the branch DB; cursor in `sync_cloud_cursor`.
+3. **`branch_id`** stamped from `SYNC_CLIENT_ID` on master rows.
+
+## Download (phase 2, `full` only)
+
+1. **Allowlist** — FOH catalog only (`menu_item`, `category`, floors, taxes, `user`, …). **Never** overlaps the upload list (startup asserts disjoint sets).
+2. Scope: rows with no `branch_id` (shared) or `branch_id = SYNC_CLIENT_ID`.
+3. User secrets (`password`, `pin`, …) are stripped before writing locally; existing local credentials are preserved.
+4. Cursor in `sync_catalog_down_cursor`; master catalog tables get `CHANGEFEED 14d` via auto-ALTER when download starts.
+5. **`catalog_release:current`** (and optional `catalog_release:<branch>`) versions appear in `/stats` as `catalog.remoteVersion` / `catalog.localVersion`.
+6. **On-demand only** — catalog is **not** polled continuously. `POST /catalog/sync-now` (Settings → Sync now) runs one backfill/catch-up pass. Sales upload still polls as usual.
+
+LIVE SELECT is **not** used.
 
 ## Environment variables
 
-Copy `.env.example` to `.env` (or `.env.local`) and update values.
+See `.env.example`. Important:
 
-`server.js` loads `.env` first, then `.env.local` with override (same pattern as `api/`).
-Prefer `.env.local` for real master credentials — it is gitignored via `*.local`.
+- `SYNC_DISTRIBUTION_MODE` — `off` | `report_only` | `full`
+- `SYNC_CLIENT_ID` — branch id
+- `SYNC_DOWNLOAD_TABLES` / `SYNC_DOWNLOAD_EXCLUDE_TABLES` — optional catalog overrides
+- `SYNC_STATS_SECRET` — protects `/stats` and `/catalog/sync-now`
 
-- `SYNC_CLIENT_ID` (required): branch identifier written into master records as `branch_id`.
-- Source DB:
-  - `SYNC_SOURCE_URL`
-  - `SYNC_SOURCE_NS`
-  - `SYNC_SOURCE_DB`
-  - `SYNC_SOURCE_USER`
-  - `SYNC_SOURCE_PASS`
-- Master DB:
-  - `SYNC_MASTER_URL`
-  - `SYNC_MASTER_NS`
-  - `SYNC_MASTER_DB`
-  - `SYNC_MASTER_USER`
-  - `SYNC_MASTER_PASS`
-- Runtime:
-  - `SYNC_SERVICE_HOST` (default `0.0.0.0`)
-  - `SYNC_SERVICE_PORT` (default `3136`)
-  - `SYNC_RECONNECT_MS` (default `5000`)
-  - `SYNC_POLL_MS` (default `1000`)
-  - `SYNC_BACKFILL_PAGE_SIZE` (default `200`)
-  - `SYNC_CHANGE_LIMIT` (default `100`)
-  - `SYNC_LOG_LEVEL` (default `info`)
-  - `SYNC_INCLUDE_TABLES` (optional, comma-separated override of the FOH allowlist)
-  - `SYNC_EXCLUDE_TABLES` (optional, comma-separated names to drop from the include list)
-  - `SYNC_STATS_SECRET` (optional; when set, `/stats` requires `X-Sync-Stats-Secret`)
+Frontend Settings card (Catalog sync) needs:
 
-## Schema prerequisite
+- `VITE_SYNC_SERVICE_URL=http://127.0.0.1:3136` (or your sync host)
+- Optional `VITE_SYNC_STATS_SECRET` matching the service secret
 
-Apply `migrations/2026_09_24_foh_changefeed.surql` (registered in `run-prod-migrations.cjs`). It creates `sync_cloud_cursor` and runs `ALTER TABLE … CHANGEFEED 14d` on each FOH table so existing schemas stay intact.
+## Schema
 
-## Run locally
+Branch migrations:
+
+- `2026_09_24_foh_changefeed.surql` (+ fiscal) — upload feeds + `sync_cloud_cursor`
+- `2026_09_26_catalog_down_cursor.surql` — `sync_catalog_down_cursor`
+
+Cloud: service enables catalog changefeeds and `catalog_release` when download is on. HQ publishes by upserting `catalog_release:current` with `{ version: N, published_at: time::now() }`.
+
+## Run
 
 ```bash
 npm install
@@ -56,15 +58,19 @@ npm start
 npm test
 ```
 
+Smoke (throwaway master NS on local Surreal):
+
+```bash
+SYNC_FORCE_HOST_URL=1 node scripts/smoke-changefeed.cjs
+SYNC_FORCE_HOST_URL=1 node scripts/smoke-catalog-download.cjs
+```
+
 ## Health
 
-- `GET /health` — boolean readiness (for Docker / load balancers)
-- `GET /stats` — per-table cursor, backfill flag, last error, `lastSynced` / `syncing` record info (protect with `SYNC_STATS_SECRET` in production)
+- `GET /health`
+- `GET /stats` — upload tables + `catalog` download block
+- `POST /catalog/sync-now` — queue catalog catch-up (`full` mode)
 
-## Docker Compose
+## No infinite loops
 
-The root `docker-compose.yml` already includes a `sync` service that runs this service and wires source credentials from the compose Surreal instance. Put `SYNC_MASTER_*` in `sync-service/.env.local`.
-
-## Out of scope (phase 2)
-
-Cloud-to-local download of back-of-house data (menu, inventory, …) is a separate direction and allowlist. Do not add those tables to `SYNC_INCLUDE_TABLES` in this phase.
+Upload and download allowlists are disjoint. Order tables are never written by download; catalog tables are never uploaded by phase 1.

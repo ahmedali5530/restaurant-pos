@@ -18,6 +18,41 @@ function isRetryableError(error) {
   return /transaction|conflict|retry|temporar|network|websocket|503|502|504/i.test(message);
 }
 
+function withTimeout(promise, ms, label) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`${label} timed out after ${ms}ms`));
+    }, ms);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => {
+    clearTimeout(timer);
+  });
+}
+
+async function withRetry(task, options = {}) {
+  const retries = Number.isFinite(options.retries) ? options.retries : 5;
+  const delayMs = Number.isFinite(options.delayMs) ? options.delayMs : 75;
+  const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : 20000;
+  const label = options.label || 'operation';
+  let lastError;
+
+  for (let attempt = 0; attempt < retries; attempt += 1) {
+    try {
+      return await withTimeout(Promise.resolve().then(task), timeoutMs, label);
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableError(error) || attempt === retries - 1) {
+        throw error;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (attempt + 1)));
+    }
+  }
+
+  throw lastError;
+}
+
 function isChangefeedRetentionError(error) {
   const message = error && error.message ? String(error.message) : String(error || '');
   if (/Parse error/i.test(message)) return false;
@@ -179,6 +214,99 @@ function versionstampForStorage(value) {
   return value;
 }
 
+const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_code'];
+
+/**
+ * Shared catalog rows (no branch_id) or rows for this branch apply.
+ * Rows stamped for another branch are skipped.
+ */
+function shouldApplyCatalogRow(row, branchId) {
+  if (!row || typeof row !== 'object') return false;
+  const scoped = row.branch_id;
+  if (scoped == null || scoped === '') return true;
+  return String(scoped) === String(branchId);
+}
+
+/** Strip credential fields before writing cloud user rows onto the branch. */
+function stripUserSecrets(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  const out = { ...payload };
+  for (const key of USER_SECRET_FIELDS) {
+    delete out[key];
+  }
+  return out;
+}
+
+/**
+ * Branch schema requires these as arrays (no null/none). Cloud rows that omit
+ * them would upsert as NONE and fail — default to [].
+ */
+const REQUIRED_ARRAY_FIELDS = {
+  kitchen: ['items'],
+  menu: ['items'],
+  menu_item: ['categories'],
+  modifier_group: ['modifiers'],
+  user: ['roles'],
+};
+
+/**
+ * SCHEMAFULL fields with DEFAULTs. Cloud often omits them; a prior CONTENT
+ * write may also have left NONE on the branch. Re-apply defaults on download.
+ */
+const CATALOG_FIELD_DEFAULTS = {
+  discount: {
+    application_mode: 'manual',
+    category: 'manual',
+    exclusive: false,
+    is_active: true,
+    requires_approval: false,
+    requires_reason: false,
+    schedules: [],
+    scope: 'cart',
+    stackable: true,
+    stackable_with_coupon: true,
+    stacking_mode: 'allow',
+    targets: {},
+    tax_treatment: 'tax_before_discount',
+  },
+};
+
+/** Catalog tables that are Surreal RELATION edges (need INSERT RELATION, not UPSERT CONTENT). */
+const RELATION_CATALOG_TABLES = Object.freeze([
+  'menu_item_modifier_group',
+]);
+
+function prepareCatalogPayload(tableName, value) {
+  const raw = { ...(value || {}) };
+  delete raw.id;
+
+  let payload = {};
+  for (const [key, fieldValue] of Object.entries(raw)) {
+    // Explicit null/undefined become NONE under CONTENT and defeat schema DEFAULTs.
+    if (fieldValue === null || fieldValue === undefined) continue;
+    payload[key] = fieldValue;
+  }
+
+  if (tableName === 'user') {
+    payload = stripUserSecrets(payload);
+  }
+  const requiredArrays = REQUIRED_ARRAY_FIELDS[tableName] || [];
+  for (const field of requiredArrays) {
+    if (payload[field] == null) {
+      payload[field] = [];
+    }
+  }
+  const defaults = CATALOG_FIELD_DEFAULTS[tableName];
+  if (defaults) {
+    for (const [field, defaultValue] of Object.entries(defaults)) {
+      if (payload[field] == null) {
+        payload[field] = defaultValue;
+      }
+    }
+  }
+  return payload;
+}
+
 /**
  * Normalize SHOW CHANGES query result into an array of { changes, versionstamp }.
  */
@@ -202,6 +330,8 @@ function normalizeSelectPage(result) {
 module.exports = {
   isRetryableError,
   isChangefeedRetentionError,
+  withTimeout,
+  withRetry,
   parseChangeMutation,
   compactChangeBatch,
   nextCursorVersionstamp,
@@ -214,4 +344,9 @@ module.exports = {
   tableNameFromRecordId,
   jsonSafe,
   sinceLiteral,
+  shouldApplyCatalogRow,
+  stripUserSecrets,
+  prepareCatalogPayload,
+  USER_SECRET_FIELDS,
+  RELATION_CATALOG_TABLES,
 };

@@ -3,6 +3,7 @@ import {Printersettings} from "@/components/user_settings/printers.tsx";
 import {PrintOptionsSettingsCard} from "@/components/user_settings/print_options.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
+import {CatalogSyncSettingsCard} from "@/components/user_settings/catalog_sync.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
 import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
@@ -43,6 +44,7 @@ export const Settings = () => {
       >
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
+        <MasonryItem><CatalogSyncSettingsCard /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>

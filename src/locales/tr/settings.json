@@ -317,5 +317,22 @@
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
       "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
+  },
+  "catalogSync": {
+    "title": "Katalog senkronizasyonu",
+    "description": "Buluttan yayınlanan menü ve diğer FOH katalog verilerini indirin. Güncellemeleri isteğe bağlı çekmek için Şimdi senkronize et kullanın.",
+    "mode": "Dağıtım modu",
+    "localVersion": "Uygulanan katalog sürümü",
+    "remoteVersion": "Yayınlanan katalog sürümü",
+    "updateAvailable": "Daha yeni bir katalog var. Uygulamak için senkronize edin.",
+    "upToDate": "Katalog güncel.",
+    "lastSynced": "Son indirme: {{table}} {{record}}",
+    "syncNow": "Katalogu şimdi senkronize et",
+    "syncing": "Senkronize ediliyor…",
+    "refresh": "Durumu yenile",
+    "queued": "Katalog senkronu kuyruğa alındı",
+    "failed": "Katalog senkronu başarısız",
+    "unreachable": "Senkron hizmetine ulaşılamıyor. VITE_SYNC_SERVICE_URL değerini ve hizmetin çalıştığını kontrol edin.",
+    "modeRequired": "Katalog indirmeyi açmak için sync hizmetinde SYNC_DISTRIBUTION_MODE=full ayarlayın."
   }
 }
