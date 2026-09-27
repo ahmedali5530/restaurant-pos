@@ -333,6 +333,9 @@
     "queued": "Синхронизация каталога поставлена в очередь",
     "failed": "Ошибка синхронизации каталога",
     "unreachable": "Сервис sync недоступен. Проверьте VITE_SYNC_SERVICE_URL и что sync запущен.",
-    "modeRequired": "Установите SYNC_DISTRIBUTION_MODE=full на sync-сервисе, чтобы включить загрузку каталога."
+    "modeRequired": "Установите SYNC_DISTRIBUTION_MODE=full на sync-сервисе, чтобы включить загрузку каталога.",
+    "complete": "Синхронизация каталога завершена",
+    "progressTable": "Загрузка {{table}}…",
+    "progressCount": "{{completed}} / {{total}} таблиц ({{percent}}%)"
   }
 }

@@ -333,6 +333,9 @@
     "queued": "Catalogussync in wachtrij",
     "failed": "Catalogussync mislukt",
     "unreachable": "Sync-service niet bereikbaar. Controleer VITE_SYNC_SERVICE_URL en of sync draait.",
-    "modeRequired": "Stel SYNC_DISTRIBUTION_MODE=full in op de sync-service om catalogusdownload in te schakelen."
+    "modeRequired": "Stel SYNC_DISTRIBUTION_MODE=full in op de sync-service om catalogusdownload in te schakelen.",
+    "complete": "Catalogussync voltooid",
+    "progressTable": "{{table}} downloaden…",
+    "progressCount": "{{completed}} / {{total}} tabellen ({{percent}}%)"
   }
 }

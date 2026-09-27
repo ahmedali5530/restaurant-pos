@@ -333,6 +333,9 @@
     "queued": "Catalog sync queued",
     "failed": "Catalog sync failed",
     "unreachable": "Cannot reach the sync service. Check VITE_SYNC_SERVICE_URL and that sync is running.",
-    "modeRequired": "Set SYNC_DISTRIBUTION_MODE=full on the sync service to enable catalog download."
+    "modeRequired": "Set SYNC_DISTRIBUTION_MODE=full on the sync service to enable catalog download.",
+    "complete": "Catalog sync finished",
+    "progressTable": "Downloading {{table}}…",
+    "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)"
   }
 }

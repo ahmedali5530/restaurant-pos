@@ -333,6 +333,9 @@
     "queued": "Katalog senkronu kuyruğa alındı",
     "failed": "Katalog senkronu başarısız",
     "unreachable": "Senkron hizmetine ulaşılamıyor. VITE_SYNC_SERVICE_URL değerini ve hizmetin çalıştığını kontrol edin.",
-    "modeRequired": "Katalog indirmeyi açmak için sync hizmetinde SYNC_DISTRIBUTION_MODE=full ayarlayın."
+    "modeRequired": "Katalog indirmeyi açmak için sync hizmetinde SYNC_DISTRIBUTION_MODE=full ayarlayın.",
+    "complete": "Katalog senkronu tamamlandı",
+    "progressTable": "{{table}} indiriliyor…",
+    "progressCount": "{{completed}} / {{total}} tablo (%{{percent}})"
   }
 }

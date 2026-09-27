@@ -333,6 +333,9 @@
     "queued": "Synchronisation catalogue planifiée",
     "failed": "Échec de la synchronisation catalogue",
     "unreachable": "Service de sync inaccessible. Vérifiez VITE_SYNC_SERVICE_URL et que le sync tourne.",
-    "modeRequired": "Définissez SYNC_DISTRIBUTION_MODE=full sur le service de sync pour activer le téléchargement du catalogue."
+    "modeRequired": "Définissez SYNC_DISTRIBUTION_MODE=full sur le service de sync pour activer le téléchargement du catalogue.",
+    "complete": "Synchronisation catalogue terminée",
+    "progressTable": "Téléchargement de {{table}}…",
+    "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)"
   }
 }

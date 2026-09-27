@@ -1,7 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/input/button.tsx';
+
+type CatalogProgress = {
+  running?: boolean;
+  totalTables?: number;
+  completedTables?: number;
+  currentTable?: string | null;
+  percent?: number;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+};
 
 type CatalogStats = {
   localVersion?: number;
@@ -12,6 +22,12 @@ type CatalogStats = {
     at?: string;
   } | null;
   lastError?: string | null;
+  progress?: CatalogProgress | null;
+  syncing?: {
+    table?: string;
+    recordId?: string;
+    phase?: string;
+  } | null;
 };
 
 type SyncStatsResponse = {
@@ -45,15 +61,19 @@ export const CatalogSyncSettingsCard = () => {
   const [statusError, setStatusError] = useState<string | null>(null);
   const [catalog, setCatalog] = useState<CatalogStats | null>(null);
   const [mode, setMode] = useState<string>('');
+  /** Only true after /stats has reported progress.running === true for this run. */
+  const seenRunningRef = useRef(false);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (opts?: { quiet?: boolean }) => {
     if (!baseUrl) return;
-    setLoading(true);
+    if (!opts?.quiet) setLoading(true);
     try {
       const res = await fetch(`${baseUrl}/stats`, { headers: syncSecretHeaders() });
       if (!res.ok) {
         setDownloadEnabled(false);
         setStatusError(t('catalogSync.unreachable'));
+        setSyncing(false);
+        seenRunningRef.current = false;
         return;
       }
       const data = (await res.json()) as SyncStatsResponse;
@@ -62,6 +82,22 @@ export const CatalogSyncSettingsCard = () => {
       setDownloadEnabled(downloadOn);
       setMode(data.distributionMode || '');
       setCatalog(data.catalog || null);
+
+      const running = Boolean(data.catalog?.progress?.running);
+      if (running) {
+        seenRunningRef.current = true;
+        setSyncing(true);
+      } else if (seenRunningRef.current) {
+        // Real transition: was running on server, now finished.
+        seenRunningRef.current = false;
+        setSyncing(false);
+        if (data.catalog?.lastError) {
+          toast.error(t('catalogSync.failed'));
+        } else {
+          toast.success(t('catalogSync.complete'));
+        }
+      }
+
       if (!downloadOn) {
         setStatusError(t('catalogSync.modeRequired'));
       } else if (data.catalog?.lastError || data.lastError) {
@@ -72,19 +108,28 @@ export const CatalogSyncSettingsCard = () => {
     } catch {
       setDownloadEnabled(false);
       setStatusError(t('catalogSync.unreachable'));
+      setSyncing(false);
+      seenRunningRef.current = false;
     } finally {
-      setLoading(false);
+      if (!opts?.quiet) setLoading(false);
     }
   }, [baseUrl, t]);
 
   useEffect(() => {
     void refresh();
-    const id = window.setInterval(() => { void refresh(); }, 15_000);
-    return () => window.clearInterval(id);
   }, [refresh]);
 
+  // Idle: every 15s. While down-sync runs (or waiting to observe it): every 800ms.
+  useEffect(() => {
+    if (!baseUrl) return;
+    const ms = syncing ? 800 : 15_000;
+    const id = window.setInterval(() => { void refresh({ quiet: true }); }, ms);
+    return () => window.clearInterval(id);
+  }, [baseUrl, refresh, syncing]);
+
   const syncNow = async () => {
-    if (!baseUrl || !downloadEnabled) return;
+    if (!baseUrl || !downloadEnabled || syncing) return;
+    // Optimistic UI only — do NOT mark seenRunning until /stats reports running.
     setSyncing(true);
     try {
       const res = await fetch(`${baseUrl}/catalog/sync-now`, {
@@ -98,14 +143,16 @@ export const CatalogSyncSettingsCard = () => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         toast.error(data.error || t('catalogSync.failed'));
+        setSyncing(false);
+        seenRunningRef.current = false;
         return;
       }
-      toast.success(t('catalogSync.queued'));
-      await refresh();
+      // Progress bar + final toast come from /stats polling; no queued toast.
+      await refresh({ quiet: true });
     } catch {
       toast.error(t('catalogSync.failed'));
-    } finally {
       setSyncing(false);
+      seenRunningRef.current = false;
     }
   };
 
@@ -114,6 +161,12 @@ export const CatalogSyncSettingsCard = () => {
   const localVersion = catalog?.localVersion ?? 0;
   const remoteVersion = catalog?.remoteVersion ?? 0;
   const updateAvailable = downloadEnabled && remoteVersion > localVersion;
+  const progress = catalog?.progress;
+  const percent = showProgressPercent(progress, syncing);
+  const showProgress = syncing || Boolean(progress?.running);
+  const currentTable = progress?.currentTable || catalog?.syncing?.table || '';
+  const completed = progress?.completedTables ?? 0;
+  const total = progress?.totalTables ?? 0;
 
   return (
     <div className="shadow p-5 rounded-xl bg-surface-elevated" data-testid="settings-card-catalog-sync">
@@ -139,12 +192,12 @@ export const CatalogSyncSettingsCard = () => {
         </div>
         {statusError ? (
           <p className="text-danger text-xs">{statusError}</p>
-        ) : updateAvailable ? (
+        ) : updateAvailable && !showProgress ? (
           <p className="text-warning font-medium">{t('catalogSync.updateAvailable')}</p>
-        ) : downloadEnabled ? (
+        ) : downloadEnabled && !showProgress ? (
           <p className="text-muted">{t('catalogSync.upToDate')}</p>
         ) : null}
-        {catalog?.lastSynced?.recordId ? (
+        {catalog?.lastSynced?.recordId && !showProgress ? (
           <p className="text-muted text-xs">
             {t('catalogSync.lastSynced', {
               record: catalog.lastSynced.recordId,
@@ -153,6 +206,34 @@ export const CatalogSyncSettingsCard = () => {
           </p>
         ) : null}
       </div>
+
+      {showProgress ? (
+        <div className="mb-5 space-y-2" data-testid="catalog-sync-progress">
+          <div className="flex justify-between gap-3 text-sm">
+            <span className="text-muted">
+              {currentTable
+                ? t('catalogSync.progressTable', { table: currentTable })
+                : t('catalogSync.syncing')}
+            </span>
+            <span className="font-medium tabular-nums">
+              {t('catalogSync.progressCount', { completed, total, percent })}
+            </span>
+          </div>
+          <div
+            className="h-2 w-full overflow-hidden rounded bg-neutral-200"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+            aria-label={t('catalogSync.syncing')}
+          >
+            <div
+              className="h-full rounded bg-primary transition-[width] duration-300 ease-out"
+              style={{ width: `${percent}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap gap-2">
         <div>
@@ -171,7 +252,7 @@ export const CatalogSyncSettingsCard = () => {
             type="button"
             variant="primary"
             size="lg"
-            disabled={loading}
+            disabled={loading || syncing}
             onClick={() => { void refresh(); }}
           >
             {t('catalogSync.refresh')}
@@ -181,3 +262,12 @@ export const CatalogSyncSettingsCard = () => {
     </div>
   );
 };
+
+function showProgressPercent(progress: CatalogProgress | null | undefined, syncing: boolean): number {
+  if (progress?.running) {
+    return Math.max(0, Math.min(100, Number(progress.percent) || 0));
+  }
+  // Waiting for first /stats after Sync now — show indeterminate-looking 0%.
+  if (syncing) return 0;
+  return Math.max(0, Math.min(100, Number(progress?.percent) || 0));
+}

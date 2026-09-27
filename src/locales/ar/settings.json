@@ -333,6 +333,9 @@
     "queued": "تمت جدولة مزامنة الكتالوج",
     "failed": "فشلت مزامنة الكتالوج",
     "unreachable": "تعذر الوصول إلى خدمة المزامنة. تحقق من VITE_SYNC_SERVICE_URL وأن الخدمة تعمل.",
-    "modeRequired": "عيّن SYNC_DISTRIBUTION_MODE=full على خدمة المزامنة لتفعيل تنزيل الكتالوج."
+    "modeRequired": "عيّن SYNC_DISTRIBUTION_MODE=full على خدمة المزامنة لتفعيل تنزيل الكتالوج.",
+    "complete": "اكتملت مزامنة الكتالوج",
+    "progressTable": "جاري تنزيل {{table}}…",
+    "progressCount": "{{completed}} / {{total}} جداول ({{percent}}٪)"
   }
 }

@@ -82,6 +82,15 @@ class CatalogDownloadManager {
       localVersion: 0,
       remoteVersion: 0,
       tables: {},
+      progress: {
+        running: false,
+        totalTables: 0,
+        completedTables: 0,
+        currentTable: null,
+        percent: 0,
+        startedAt: null,
+        finishedAt: null,
+      },
     };
   }
 
@@ -91,6 +100,15 @@ class CatalogDownloadManager {
 
   get master() {
     return this.getClients().master;
+  }
+
+  assertClients() {
+    if (!this.source) {
+      throw new Error('Local SurrealDB is not connected');
+    }
+    if (!this.master) {
+      throw new Error('Cloud SurrealDB is not connected');
+    }
   }
 
   getStats() {
@@ -284,6 +302,17 @@ class CatalogDownloadManager {
       state.blockedUntil = 0;
       state.backoffMs = 1000;
     }
+    // Mark running immediately so Settings progress UI does not race the first /stats poll.
+    const total = this.config.downloadTables.length;
+    this.stats.progress = {
+      running: true,
+      totalTables: total,
+      completedTables: 0,
+      currentTable: null,
+      percent: 0,
+      startedAt: new Date().toISOString(),
+      finishedAt: null,
+    };
   }
 
   async initialize() {
@@ -301,6 +330,7 @@ class CatalogDownloadManager {
   async pollAll() {
     if (!this.config.downloadEnabled) return;
 
+    this.assertClients();
     await this.refreshRemoteVersion();
 
     const force = this.forceNextPoll;
@@ -309,18 +339,53 @@ class CatalogDownloadManager {
     // Catalog download is on-demand only (POST /catalog/sync-now / Settings Sync now).
     if (!force) return;
 
+    this.assertClients();
+
+    const tables = [...this.config.downloadTables];
+    const total = tables.length;
+    // Keep/refresh progress (requestForceSync already set running=true).
+    this.stats.progress = {
+      ...(this.stats.progress || {}),
+      running: true,
+      totalTables: total,
+      completedTables: 0,
+      currentTable: null,
+      percent: 0,
+      startedAt: this.stats.progress?.startedAt || new Date().toISOString(),
+      finishedAt: null,
+    };
+
     this.logger.info('Catalog download started (on-demand)', {
-      tables: this.config.downloadTables.length,
+      tables: total,
       localVersion: this.stats.localVersion,
       remoteVersion: this.stats.remoteVersion,
     });
 
-    for (const tableName of this.config.downloadTables) {
-      await this.pollTable(tableName);
-    }
+    try {
+      for (let i = 0; i < tables.length; i += 1) {
+        const tableName = tables[i];
+        this.stats.progress.currentTable = tableName;
+        this.stats.progress.completedTables = i;
+        this.stats.progress.percent = total > 0
+          ? Math.min(99, Math.round((i / total) * 100))
+          : 0;
+        await this.pollTable(tableName);
+        this.stats.progress.completedTables = i + 1;
+        this.stats.progress.percent = total > 0
+          ? Math.round(((i + 1) / total) * 100)
+          : 100;
+      }
 
-    if (this.stats.remoteVersion > this.stats.localVersion) {
-      await this.saveLocalVersion(this.stats.remoteVersion);
+      if (this.stats.remoteVersion > this.stats.localVersion) {
+        await this.saveLocalVersion(this.stats.remoteVersion);
+      }
+    } finally {
+      this.stats.progress.running = false;
+      this.stats.progress.currentTable = null;
+      this.stats.progress.completedTables = total;
+      this.stats.progress.percent = 100;
+      this.stats.progress.finishedAt = new Date().toISOString();
+      this.noteSyncing(null);
     }
 
     this.logger.info('Catalog download finished', {
@@ -332,6 +397,7 @@ class CatalogDownloadManager {
   }
 
   async pollTable(tableName) {
+    this.assertClients();
     const state = this.ensureTableState(tableName);
     if (state.blockedUntil && Date.now() < state.blockedUntil) return;
 

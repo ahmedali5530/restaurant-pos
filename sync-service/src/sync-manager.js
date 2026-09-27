@@ -223,6 +223,13 @@ class SyncManager {
         remoteVersion: this.catalogDownload.stats.remoteVersion,
       };
     }
+    if (this.isReconnecting) {
+      throw new Error('Sync service is reconnecting to the cloud; try Sync now again in a moment');
+    }
+    if (!this.source || !this.master) {
+      throw new Error('Not connected to local or cloud database; try Sync now again shortly');
+    }
+
     this.catalogDownload.requestForceSync();
     this.catalogSyncPromise = this.catalogDownload.pollAll()
       .catch((error) => {
@@ -232,6 +239,10 @@ class SyncManager {
       })
       .finally(() => {
         this.catalogSyncPromise = null;
+        // Reconnect may have been deferred while download ran.
+        if (!this.isStopping && !this.stats.healthy) {
+          this.scheduleReconnect();
+        }
       });
     return {
       ok: true,
@@ -439,6 +450,11 @@ class SyncManager {
         this.logger.warn('Master unreachable; will reconnect and retry pending changes', {
           error: this.stats.lastError,
         });
+        // Never tear down sockets while an on-demand catalog download is mid-flight.
+        if (this.catalogSyncPromise) {
+          this.logger.warn('Deferring reconnect: catalog download still running');
+          return;
+        }
         this.scheduleReconnect();
         reconnectScheduled = true;
         return;
@@ -800,11 +816,24 @@ class SyncManager {
 
   scheduleReconnect() {
     if (this.isStopping) return;
+    if (this.catalogSyncPromise) {
+      this.logger.warn('Deferring reconnect until catalog download finishes');
+      this.catalogSyncPromise.finally(() => {
+        if (!this.isStopping && !this.stats.healthy) {
+          this.scheduleReconnect();
+        }
+      }).catch(() => {});
+      return;
+    }
     clearTimeout(this.reconnectTimer);
     clearTimeout(this.pollTimer);
     this.reconnectTimer = setTimeout(() => {
       if (this.isReconnecting) {
         // Still in a previous attempt — try again after another delay.
+        this.scheduleReconnect();
+        return;
+      }
+      if (this.catalogSyncPromise) {
         this.scheduleReconnect();
         return;
       }
@@ -818,6 +847,10 @@ class SyncManager {
 
   async reconnect() {
     if (this.isStopping || this.isReconnecting) return;
+    if (this.catalogSyncPromise) {
+      this.logger.warn('Skipping reconnect while catalog download is running');
+      return;
+    }
     this.isReconnecting = true;
     try {
       clearTimeout(this.pollTimer);

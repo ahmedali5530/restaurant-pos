@@ -333,6 +333,9 @@
     "queued": "Katalog-Sync geplant",
     "failed": "Katalog-Sync fehlgeschlagen",
     "unreachable": "Sync-Dienst nicht erreichbar. VITE_SYNC_SERVICE_URL und laufenden Sync prüfen.",
-    "modeRequired": "SYNC_DISTRIBUTION_MODE=full am Sync-Dienst setzen, um Katalog-Download zu aktivieren."
+    "modeRequired": "SYNC_DISTRIBUTION_MODE=full am Sync-Dienst setzen, um Katalog-Download zu aktivieren.",
+    "complete": "Katalog-Sync abgeschlossen",
+    "progressTable": "Lade {{table}} herunter…",
+    "progressCount": "{{completed}} / {{total}} Tabellen ({{percent}}%)"
   }
 }
