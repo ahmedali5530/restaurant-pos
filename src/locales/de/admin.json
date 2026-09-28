@@ -22,7 +22,8 @@
     "tipsDefinition": "Trinkgeld-Definition",
     "accessTab": "Zugriff auf {{title}}",
     "ariaLabel": "Verwaltungsregisterkarten",
-    "securityAlerts": "Sicherheitswarnungen"
+    "securityAlerts": "Sicherheitswarnungen",
+    "catalogPublish": "Katalog veröffentlichen"
   },
   "columns": {
     "photo": "Foto",
@@ -792,7 +793,8 @@
       "orders": "Bestellungen",
       "reports": "Berichte",
       "inventory": "Inventar",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "admin.catalog_publish": "Katalog veröffentlichen"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Details anzeigen",
     "badgeTooltip": "{{count}} offene kritische Warnung(en)",
     "badgeTooltipPlural": "{{count}} offene kritische Warnungen"
+  },
+  "catalogPublish": {
+    "noAccess": "Sie benötigen die Berechtigung „Katalog veröffentlichen“ für diesen Bildschirm.",
+    "loading": "Katalogveröffentlichung wird geladen…",
+    "loadError": "Katalogveröffentlichungsdaten konnten nicht geladen werden",
+    "branchesTitle": "Filialen",
+    "branchesHelp": "Registrieren Sie die SYNC_CLIENT_ID jedes Stores, um Nudges an bestimmte Filialen zu senden.",
+    "clientId": "Client-ID",
+    "branchName": "Filialname",
+    "active": "Aktiv",
+    "addBranch": "Filiale hinzufügen",
+    "updateBranch": "Filiale aktualisieren",
+    "branchSaved": "Filiale gespeichert",
+    "branchSaveError": "Filiale konnte nicht gespeichert werden",
+    "accessSaveBranch": "Sync-Filiale speichern",
+    "noBranches": "Noch keine Filialen registriert.",
+    "yes": "Ja",
+    "no": "Nein",
+    "publishTitle": "Katalog-Release veröffentlichen",
+    "publishHelp": "Erhöhen Sie die Katalog-Release-Version, damit Filialen bei „Jetzt synchronisieren“ ein Update sehen. Menüzeilen werden nicht gepusht; Stores ziehen weiterhin über den Changefeed.",
+    "audience": "Zielgruppe",
+    "audienceAll": "Alle Filialen (global)",
+    "audienceSelected": "Ausgewählte Filialen",
+    "noActiveBranches": "Fügen Sie zuerst eine aktive Filiale hinzu.",
+    "tables": "Tabellen (Audit / Notiz)",
+    "selectAll": "Alle auswählen",
+    "clearAll": "Leeren",
+    "note": "Notiz",
+    "notePlaceholder": "z. B. Frühlingsmenü-Preise",
+    "publish": "Veröffentlichen",
+    "accessPublish": "Katalog-Release veröffentlichen",
+    "confirmTitle": "Katalog-Release veröffentlichen?",
+    "confirmMessage": "Veröffentlichen an {{audience}} mit {{tables}} Tabelle(n). Filialen sehen einen Sync-now-Hinweis.",
+    "publishSuccess": "Version {{version}} veröffentlicht → {{targets}}",
+    "publishError": "Veröffentlichung fehlgeschlagen",
+    "tablesRequired": "Mindestens eine Tabelle auswählen",
+    "branchesRequired": "Mindestens eine Filiale auswählen",
+    "historyTitle": "Aktuelle Releases",
+    "version": "Version",
+    "releaseId": "Release-ID",
+    "publishedAt": "Veröffentlicht am",
+    "noReleases": "Noch keine Releases."
   }
 }

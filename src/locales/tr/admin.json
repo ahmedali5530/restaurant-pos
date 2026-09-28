@@ -22,7 +22,8 @@
     "tipsDefinition": "Bahşiş tanımı",
     "accessTab": "{{title}} modülüne eriş",
     "ariaLabel": "Yönetim sekmeleri",
-    "securityAlerts": "Güvenlik Uyarıları"
+    "securityAlerts": "Güvenlik Uyarıları",
+    "catalogPublish": "Katalog yayınla"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -792,7 +793,8 @@
       "orders": "Siparişler",
       "reports": "Raporlar",
       "inventory": "Envanter",
-      "settings": "Ayarlar"
+      "settings": "Ayarlar",
+      "admin.catalog_publish": "Katalog yayınla"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Detayları göster",
     "badgeTooltip": "{{count}} açık kritik uyarı",
     "badgeTooltipPlural": "{{count}} açık kritik uyarı"
+  },
+  "catalogPublish": {
+    "noAccess": "Bu ekranı kullanmak için Katalog yayınla izni gerekir.",
+    "loading": "Katalog yayını yükleniyor…",
+    "loadError": "Katalog yayın verileri yüklenemedi",
+    "branchesTitle": "Şubeler",
+    "branchesHelp": "Belirli şubelere bildirim yayınlamak için her mağazanın SYNC_CLIENT_ID değerini kaydedin.",
+    "clientId": "İstemci kimliği",
+    "branchName": "Şube adı",
+    "active": "Aktif",
+    "addBranch": "Şube ekle",
+    "updateBranch": "Şubeyi güncelle",
+    "branchSaved": "Şube kaydedildi",
+    "branchSaveError": "Şube kaydedilemedi",
+    "accessSaveBranch": "Sync şubesini kaydet",
+    "noBranches": "Henüz kayıtlı şube yok.",
+    "yes": "Evet",
+    "no": "Hayır",
+    "publishTitle": "Katalog sürümü yayınla",
+    "publishHelp": "Şubelerin Şimdi senkronize et’te güncelleme görmesi için katalog sürümünü artırın. Menü satırları gönderilmez; mağazalar changefeed ile çeker.",
+    "audience": "Hedef kitle",
+    "audienceAll": "Tüm şubeler (genel)",
+    "audienceSelected": "Seçili şubeler",
+    "noActiveBranches": "Önce aktif bir şube ekleyin.",
+    "tables": "Tablolar (denetim / not)",
+    "selectAll": "Tümünü seç",
+    "clearAll": "Temizle",
+    "note": "Not",
+    "notePlaceholder": "örn. bahar menü fiyatları",
+    "publish": "Yayınla",
+    "accessPublish": "Katalog sürümü yayınla",
+    "confirmTitle": "Katalog sürümü yayınlansın mı?",
+    "confirmMessage": "{{audience}} için {{tables}} tablo yayınlanacak. Şubeler Şimdi senkronize et uyarısı görür.",
+    "publishSuccess": "Sürüm {{version}} yayınlandı → {{targets}}",
+    "publishError": "Yayın başarısız",
+    "tablesRequired": "En az bir tablo seçin",
+    "branchesRequired": "En az bir şube seçin",
+    "historyTitle": "Son sürümler",
+    "version": "Sürüm",
+    "releaseId": "Sürüm kimliği",
+    "publishedAt": "Yayın tarihi",
+    "noReleases": "Henüz sürüm yok."
   }
 }

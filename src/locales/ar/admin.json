@@ -22,7 +22,8 @@
     "tipsDefinition": "تعريف الإكراميات",
     "accessTab": "الوصول إلى {{title}}",
     "ariaLabel": "علامات تبويب الإدارة",
-    "securityAlerts": "تنبيهات الأمان"
+    "securityAlerts": "تنبيهات الأمان",
+    "catalogPublish": "نشر الكتالوج"
   },
   "columns": {
     "photo": "صورة",
@@ -792,7 +793,8 @@
       "orders": "الطلبات",
       "reports": "التقارير",
       "inventory": "المخزون",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "admin.catalog_publish": "نشر الكتالوج"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ إظهار التفاصيل",
     "badgeTooltip": "{{count}} تنبيه حرج مفتوح",
     "badgeTooltipPlural": "{{count}} تنبيهات حرجة مفتوحة"
+  },
+  "catalogPublish": {
+    "noAccess": "تحتاج صلاحية نشر الكتالوج لاستخدام هذه الشاشة.",
+    "loading": "جارٍ تحميل نشر الكتالوج…",
+    "loadError": "فشل تحميل بيانات نشر الكتالوج",
+    "branchesTitle": "الفروع",
+    "branchesHelp": "سجّل SYNC_CLIENT_ID لكل متجر لنشر التنبيهات لفروع محددة.",
+    "clientId": "معرّف العميل",
+    "branchName": "اسم الفرع",
+    "active": "نشط",
+    "addBranch": "إضافة فرع",
+    "updateBranch": "تحديث الفرع",
+    "branchSaved": "تم حفظ الفرع",
+    "branchSaveError": "فشل حفظ الفرع",
+    "accessSaveBranch": "حفظ فرع المزامنة",
+    "noBranches": "لا توجد فروع مسجّلة بعد.",
+    "yes": "نعم",
+    "no": "لا",
+    "publishTitle": "نشر إصدار الكتالوج",
+    "publishHelp": "ارفع إصدار الكتالوج حتى ترى الفروع تحديثاً عند المزامنة الآن. هذا لا يدفع صفوف القائمة؛ المتاجر تسحب عبر changefeed.",
+    "audience": "الجمهور",
+    "audienceAll": "كل الفروع (عام)",
+    "audienceSelected": "فروع محددة",
+    "noActiveBranches": "أضف فرعاً وفعّله أولاً.",
+    "tables": "الجداول (تدقيق / ملاحظة)",
+    "selectAll": "تحديد الكل",
+    "clearAll": "مسح",
+    "note": "ملاحظة",
+    "notePlaceholder": "مثال: أسعار قائمة الربيع",
+    "publish": "نشر",
+    "accessPublish": "نشر إصدار الكتالوج",
+    "confirmTitle": "نشر إصدار الكتالوج؟",
+    "confirmMessage": "النشر إلى {{audience}} يشمل {{tables}} جدولاً. سترى الفروع تنبيه المزامنة الآن.",
+    "publishSuccess": "تم نشر الإصدار {{version}} ← {{targets}}",
+    "publishError": "فشل النشر",
+    "tablesRequired": "حدّد جدولاً واحداً على الأقل",
+    "branchesRequired": "حدّد فرعاً واحداً على الأقل",
+    "historyTitle": "الإصدارات الأخيرة",
+    "version": "الإصدار",
+    "releaseId": "معرّف الإصدار",
+    "publishedAt": "تاريخ النشر",
+    "noReleases": "لا توجد إصدارات بعد."
   }
 }

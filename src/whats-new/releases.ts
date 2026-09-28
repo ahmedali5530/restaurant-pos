@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-27',
+    title: 'HQ catalog publish',
+    items: [
+      'Headquarters can open Admin → Catalog publish (when enabled) to register branches and bump catalog release versions globally or per store.',
+      'Stores then see an update available on Sync now; publishing does not push menu rows by itself.',
+    ],
+  },
+  {
     date: '2026-09-26',
     title: 'Restaurant drawer close',
     items: [

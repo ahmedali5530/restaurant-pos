@@ -22,7 +22,8 @@
     "tipsDefinition": "Definizione mance",
     "accessTab": "Accedi a {{title}}",
     "ariaLabel": "Schede amministrazione",
-    "securityAlerts": "Avvisi di Sicurezza"
+    "securityAlerts": "Avvisi di Sicurezza",
+    "catalogPublish": "Pubblica catalogo"
   },
   "columns": {
     "photo": "Foto",
@@ -792,7 +793,8 @@
       "orders": "Ordini",
       "reports": "Report",
       "inventory": "Inventario",
-      "settings": "Impostazioni"
+      "settings": "Impostazioni",
+      "admin.catalog_publish": "Pubblica catalogo"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Mostra dettagli",
     "badgeTooltip": "{{count}} avviso/i critico/i aperto/i",
     "badgeTooltipPlural": "{{count}} avvisi critici aperti"
+  },
+  "catalogPublish": {
+    "noAccess": "Serve l’autorizzazione Pubblica catalogo per usare questa schermata.",
+    "loading": "Caricamento pubblicazione catalogo…",
+    "loadError": "Impossibile caricare i dati di pubblicazione",
+    "branchesTitle": "Filiali",
+    "branchesHelp": "Registra il SYNC_CLIENT_ID di ogni negozio per pubblicare avvisi a filiali specifiche.",
+    "clientId": "ID client",
+    "branchName": "Nome filiale",
+    "active": "Attiva",
+    "addBranch": "Aggiungi filiale",
+    "updateBranch": "Aggiorna filiale",
+    "branchSaved": "Filiale salvata",
+    "branchSaveError": "Salvataggio filiale non riuscito",
+    "accessSaveBranch": "Salva filiale sync",
+    "noBranches": "Nessuna filiale registrata.",
+    "yes": "Sì",
+    "no": "No",
+    "publishTitle": "Pubblica release catalogo",
+    "publishHelp": "Aumenta la versione del catalogo così le filiali vedono un aggiornamento in Sincronizza ora. Non invia le righe del menu; i negozi le scaricano via changefeed.",
+    "audience": "Destinatari",
+    "audienceAll": "Tutte le filiali (globale)",
+    "audienceSelected": "Filiali selezionate",
+    "noActiveBranches": "Aggiungi e attiva prima una filiale.",
+    "tables": "Tabelle (audit / nota)",
+    "selectAll": "Seleziona tutto",
+    "clearAll": "Cancella",
+    "note": "Nota",
+    "notePlaceholder": "es. prezzi menu primavera",
+    "publish": "Pubblica",
+    "accessPublish": "Pubblica release catalogo",
+    "confirmTitle": "Pubblicare la release catalogo?",
+    "confirmMessage": "Pubblica a {{audience}} con {{tables}} tabella/e. Le filiali vedranno un avviso Sincronizza ora.",
+    "publishSuccess": "Versione {{version}} pubblicata → {{targets}}",
+    "publishError": "Pubblicazione non riuscita",
+    "tablesRequired": "Seleziona almeno una tabella",
+    "branchesRequired": "Seleziona almeno una filiale",
+    "historyTitle": "Release recenti",
+    "version": "Versione",
+    "releaseId": "Id release",
+    "publishedAt": "Pubblicato il",
+    "noReleases": "Nessuna release ancora."
   }
 }

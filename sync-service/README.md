@@ -65,6 +65,24 @@ npm test
 
 The root `docker-compose.yml` already includes a `sync` service that runs this service and wires source credentials from the compose Surreal instance. Put `SYNC_MASTER_*` in `sync-service/.env.local`.
 
-## Out of scope (phase 2)
+## Out of scope (later phases)
 
-Cloud-to-local download of back-of-house data (menu, inventory, …) is a separate direction and allowlist. Do not add those tables to `SYNC_INCLUDE_TABLES` in this phase.
+Cloud-to-local catalog download (Phase 2) and HQ Admin **Catalog publish**
+(Phase 3) live in follow-on work. Phase 3 writes `catalog_release` nudges from
+the HQ POS (`VITE_CATALOG_PUBLISH_ENABLED=true`); Sync now on branches still
+pulls the download allowlist via changefeed. You can also bump releases
+manually in Surreal:
+
+```surql
+UPSERT catalog_release:current MERGE {
+  version: time::unix(),
+  note: "manual bump",
+  published_at: time::now(),
+  tables: ["menu_item", "category"],
+  audience: "all"
+};
+```
+
+Per-branch: `catalog_release:<sanitized_SYNC_CLIENT_ID>` (non-alphanumeric
+chars become `_`). Apply `migrations/2026_09_27_hq_catalog_publish.surql` on
+the **cloud master** before using the Publish UI.

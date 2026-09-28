@@ -16,6 +16,7 @@ import { AdminPaymentTypes } from "@/components/settings/payment_types";
 import { AdminTaxes } from "@/components/settings/taxes";
 import { AdminUsers } from "@/components/settings/users";
 import { SecurityAlertsPanel } from "@/components/admin/security-alerts";
+import { CatalogPublishPanel } from "@/components/settings/catalog_publish";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {AdminMenus} from "@/components/settings/menu";
 import {AdminPrints} from "@/components/settings/prints";
@@ -25,7 +26,10 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {useTranslation} from 'react-i18next';
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
-const ADMIN_TAB_KEYS = [
+const CATALOG_PUBLISH_ENABLED =
+  String(import.meta.env.VITE_CATALOG_PUBLISH_ENABLED || '').toLowerCase() === 'true';
+
+const BASE_ADMIN_TAB_KEYS = [
   'dishes',
   'menus',
   'categories',
@@ -46,7 +50,12 @@ const ADMIN_TAB_KEYS = [
   'security_alerts',
 ] as const;
 
-type AdminTabKey = (typeof ADMIN_TAB_KEYS)[number];
+type BaseAdminTabKey = (typeof BASE_ADMIN_TAB_KEYS)[number];
+type AdminTabKey = BaseAdminTabKey | 'catalog_publish';
+
+const ADMIN_TAB_KEYS: AdminTabKey[] = CATALOG_PUBLISH_ENABLED
+  ? [...BASE_ADMIN_TAB_KEYS, 'catalog_publish']
+  : [...BASE_ADMIN_TAB_KEYS];
 
 const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   dishes: 'tabs.dishes',
@@ -67,6 +76,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   taxes: 'tabs.taxes',
   users: 'tabs.users',
   security_alerts: 'tabs.securityAlerts',
+  catalog_publish: 'tabs.catalogPublish',
 };
 
 /** Stable permission codes stored in user roles — not translated labels. */
@@ -89,6 +99,7 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   taxes: 'admin.taxes',
   users: 'admin.users',
   security_alerts: 'admin.security_alerts',
+  catalog_publish: 'admin.catalog_publish',
 };
 
 export const Admin = () => {
@@ -116,6 +127,7 @@ export const Admin = () => {
     taxes: { component: <AdminTaxes/>, title: t('tabs.taxes') },
     users: { component: <AdminUsers/>, title: t('tabs.users') },
     security_alerts: { component: <SecurityAlertsPanel/>, title: t('tabs.securityAlerts') },
+    catalog_publish: { component: <CatalogPublishPanel/>, title: t('tabs.catalogPublish') },
   }), [t]);
 
   return (

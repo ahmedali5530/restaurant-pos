@@ -22,7 +22,8 @@
     "tipsDefinition": "Fooidefinitie",
     "accessTab": "Toegang tot {{title}}",
     "ariaLabel": "Beheertabs",
-    "securityAlerts": "Beveiligingsmeldingen"
+    "securityAlerts": "Beveiligingsmeldingen",
+    "catalogPublish": "Catalogus publiceren"
   },
   "columns": {
     "photo": "Foto",
@@ -792,7 +793,8 @@
       "orders": "Bestellingen",
       "reports": "Rapporten",
       "inventory": "Voorraad",
-      "settings": "Instellingen"
+      "settings": "Instellingen",
+      "admin.catalog_publish": "Catalogus publiceren"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Details tonen",
     "badgeTooltip": "{{count}} open kritieke melding(en)",
     "badgeTooltipPlural": "{{count}} open kritieke waarschuwingen"
+  },
+  "catalogPublish": {
+    "noAccess": "U heeft de rechten Catalogus publiceren nodig voor dit scherm.",
+    "loading": "Cataloguspublicatie laden…",
+    "loadError": "Cataloguspublicatiegegevens laden mislukt",
+    "branchesTitle": "Vestigingen",
+    "branchesHelp": "Registreer de SYNC_CLIENT_ID van elke winkel om nudges naar specifieke vestigingen te sturen.",
+    "clientId": "Client-ID",
+    "branchName": "Vestigingsnaam",
+    "active": "Actief",
+    "addBranch": "Vestiging toevoegen",
+    "updateBranch": "Vestiging bijwerken",
+    "branchSaved": "Vestiging opgeslagen",
+    "branchSaveError": "Vestiging opslaan mislukt",
+    "accessSaveBranch": "Sync-vestiging opslaan",
+    "noBranches": "Nog geen vestigingen geregistreerd.",
+    "yes": "Ja",
+    "no": "Nee",
+    "publishTitle": "Catalogusrelease publiceren",
+    "publishHelp": "Verhoog de catalogusreleaseversie zodat vestigingen een update zien bij Nu synchroniseren. Dit pusht geen menuregels; winkels trekken via changefeed.",
+    "audience": "Doelgroep",
+    "audienceAll": "Alle vestigingen (globaal)",
+    "audienceSelected": "Geselecteerde vestigingen",
+    "noActiveBranches": "Voeg eerst een actieve vestiging toe.",
+    "tables": "Tabellen (audit / notitie)",
+    "selectAll": "Alles selecteren",
+    "clearAll": "Wissen",
+    "note": "Notitie",
+    "notePlaceholder": "bijv. lentemenu-prijzen",
+    "publish": "Publiceren",
+    "accessPublish": "Catalogusrelease publiceren",
+    "confirmTitle": "Catalogusrelease publiceren?",
+    "confirmMessage": "Publiceren naar {{audience}} met {{tables}} tabel(len). Vestigingen zien een Sync-nu-melding.",
+    "publishSuccess": "Versie {{version}} gepubliceerd → {{targets}}",
+    "publishError": "Publiceren mislukt",
+    "tablesRequired": "Selecteer minstens één tabel",
+    "branchesRequired": "Selecteer minstens één vestiging",
+    "historyTitle": "Recente releases",
+    "version": "Versie",
+    "releaseId": "Release-id",
+    "publishedAt": "Gepubliceerd op",
+    "noReleases": "Nog geen releases."
   }
 }
