@@ -74,3 +74,25 @@ SYNC_FORCE_HOST_URL=1 node scripts/smoke-catalog-download.cjs
 ## No infinite loops
 
 Upload and download allowlists are disjoint. Order tables are never written by download; catalog tables are never uploaded by phase 1.
+
+## Docker Compose
+
+The root `docker-compose.yml` already includes a `sync` service that runs this service and wires source credentials from the compose Surreal instance. Put `SYNC_MASTER_*` in `sync-service/.env.local`.
+
+## HQ Catalog publish
+
+HQ Admin **Catalog publish** (`VITE_CATALOG_PUBLISH_ENABLED=true`) writes `catalog_release` nudges. Sync now on branches still pulls the download allowlist via changefeed. You can also bump releases manually in Surreal:
+
+```surql
+UPSERT catalog_release:current MERGE {
+  version: time::unix(),
+  note: "manual bump",
+  published_at: time::now(),
+  tables: ["menu_item", "category"],
+  audience: "all"
+};
+```
+
+Per-branch: `catalog_release:<sanitized_SYNC_CLIENT_ID>` (non-alphanumeric
+chars become `_`). Apply `migrations/2026_09_27_hq_catalog_publish.surql` on
+the **cloud master** before using the Publish UI.

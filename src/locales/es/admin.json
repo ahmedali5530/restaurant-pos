@@ -22,7 +22,8 @@
     "tipsDefinition": "Definición de propinas",
     "accessTab": "Acceder a {{title}}",
     "ariaLabel": "Pestañas de administración",
-    "securityAlerts": "Alertas de Seguridad"
+    "securityAlerts": "Alertas de Seguridad",
+    "catalogPublish": "Publicar catálogo"
   },
   "columns": {
     "photo": "Foto",
@@ -792,7 +793,8 @@
       "orders": "Pedidos",
       "reports": "Informes",
       "inventory": "Inventario",
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "admin.catalog_publish": "Publicar catálogo"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Mostrar detalles",
     "badgeTooltip": "{{count}} alerta(s) crítica(s) abierta(s)",
     "badgeTooltipPlural": "{{count}} alertas críticas abiertas"
+  },
+  "catalogPublish": {
+    "noAccess": "Necesita el permiso Publicar catálogo para usar esta pantalla.",
+    "loading": "Cargando publicación de catálogo…",
+    "loadError": "No se pudieron cargar los datos de publicación",
+    "branchesTitle": "Sucursales",
+    "branchesHelp": "Registre el SYNC_CLIENT_ID de cada tienda para publicar avisos a sucursales concretas.",
+    "clientId": "ID de cliente",
+    "branchName": "Nombre de sucursal",
+    "active": "Activa",
+    "addBranch": "Añadir sucursal",
+    "updateBranch": "Actualizar sucursal",
+    "branchSaved": "Sucursal guardada",
+    "branchSaveError": "Error al guardar la sucursal",
+    "accessSaveBranch": "Guardar sucursal de sync",
+    "noBranches": "Aún no hay sucursales registradas.",
+    "yes": "Sí",
+    "no": "No",
+    "publishTitle": "Publicar versión de catálogo",
+    "publishHelp": "Incremente la versión del catálogo para que las sucursales vean una actualización en Sincronizar ahora. No envía filas del menú; las tiendas las descargan por changefeed.",
+    "audience": "Audiencia",
+    "audienceAll": "Todas las sucursales (global)",
+    "audienceSelected": "Sucursales seleccionadas",
+    "noActiveBranches": "Añada y active una sucursal primero.",
+    "tables": "Tablas (auditoría / nota)",
+    "selectAll": "Seleccionar todo",
+    "clearAll": "Limpiar",
+    "note": "Nota",
+    "notePlaceholder": "p. ej. precios del menú de primavera",
+    "publish": "Publicar",
+    "accessPublish": "Publicar versión de catálogo",
+    "confirmTitle": "¿Publicar versión de catálogo?",
+    "confirmMessage": "Publicar a {{audience}} con {{tables}} tabla(s). Las sucursales verán un aviso de sincronización.",
+    "publishSuccess": "Versión {{version}} publicada → {{targets}}",
+    "publishError": "Error al publicar",
+    "tablesRequired": "Seleccione al menos una tabla",
+    "branchesRequired": "Seleccione al menos una sucursal",
+    "historyTitle": "Versiones recientes",
+    "version": "Versión",
+    "releaseId": "Id de versión",
+    "publishedAt": "Publicado el",
+    "noReleases": "Aún no hay versiones."
   }
 }

@@ -22,7 +22,8 @@
     "tipsDefinition": "Definição de gorjetas",
     "accessTab": "Acessar {{title}}",
     "ariaLabel": "Abas de administração",
-    "securityAlerts": "Alertas de Segurança"
+    "securityAlerts": "Alertas de Segurança",
+    "catalogPublish": "Publicar catálogo"
   },
   "columns": {
     "photo": "Foto",
@@ -792,7 +793,8 @@
       "orders": "Pedidos",
       "reports": "Relatórios",
       "inventory": "Estoque",
-      "settings": "Configurações"
+      "settings": "Configurações",
+      "admin.catalog_publish": "Publicar catálogo"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Mostrar detalhes",
     "badgeTooltip": "{{count}} alerta(s) crítico(s) aberto(s)",
     "badgeTooltipPlural": "{{count}} alertas críticos abertos"
+  },
+  "catalogPublish": {
+    "noAccess": "Você precisa da permissão Publicar catálogo para usar esta tela.",
+    "loading": "Carregando publicação do catálogo…",
+    "loadError": "Falha ao carregar dados de publicação",
+    "branchesTitle": "Filiais",
+    "branchesHelp": "Registre o SYNC_CLIENT_ID de cada loja para publicar avisos a filiais específicas.",
+    "clientId": "ID do cliente",
+    "branchName": "Nome da filial",
+    "active": "Ativa",
+    "addBranch": "Adicionar filial",
+    "updateBranch": "Atualizar filial",
+    "branchSaved": "Filial salva",
+    "branchSaveError": "Falha ao salvar a filial",
+    "accessSaveBranch": "Salvar filial de sync",
+    "noBranches": "Nenhuma filial registrada ainda.",
+    "yes": "Sim",
+    "no": "Não",
+    "publishTitle": "Publicar versão do catálogo",
+    "publishHelp": "Incremente a versão do catálogo para que as filiais vejam uma atualização em Sincronizar agora. Isso não envia linhas do cardápio; as lojas baixam via changefeed.",
+    "audience": "Público",
+    "audienceAll": "Todas as filiais (global)",
+    "audienceSelected": "Filiais selecionadas",
+    "noActiveBranches": "Adicione e ative uma filial primeiro.",
+    "tables": "Tabelas (auditoria / nota)",
+    "selectAll": "Selecionar tudo",
+    "clearAll": "Limpar",
+    "note": "Nota",
+    "notePlaceholder": "ex.: preços do cardápio de primavera",
+    "publish": "Publicar",
+    "accessPublish": "Publicar versão do catálogo",
+    "confirmTitle": "Publicar versão do catálogo?",
+    "confirmMessage": "Publicar para {{audience}} cobrindo {{tables}} tabela(s). As filiais verão um aviso de sincronização.",
+    "publishSuccess": "Versão {{version}} publicada → {{targets}}",
+    "publishError": "Falha na publicação",
+    "tablesRequired": "Selecione pelo menos uma tabela",
+    "branchesRequired": "Selecione pelo menos uma filial",
+    "historyTitle": "Versões recentes",
+    "version": "Versão",
+    "releaseId": "Id da versão",
+    "publishedAt": "Publicado em",
+    "noReleases": "Nenhuma versão ainda."
   }
 }

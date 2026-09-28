@@ -98,6 +98,7 @@ const MIGRATION_PLAN = [
   { id: '2026_09_24_foh_changefeed_fiscal', file: '2026_09_24_foh_changefeed_fiscal.surql' },
   { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
   { id: '2026_09_26_catalog_down_cursor', file: '2026_09_26_catalog_down_cursor.surql' },
+  { id: '2026_09_27_hq_catalog_publish', file: '2026_09_27_hq_catalog_publish.surql' },
 ];
 
 const rows = (result) => {

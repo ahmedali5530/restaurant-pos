@@ -22,7 +22,8 @@
     "tipsDefinition": "Définition des pourboires",
     "accessTab": "Accéder à {{title}}",
     "ariaLabel": "Onglets d'administration",
-    "securityAlerts": "Alertes de Sécurité"
+    "securityAlerts": "Alertes de Sécurité",
+    "catalogPublish": "Publication catalogue"
   },
   "columns": {
     "photo": "Photo",
@@ -792,7 +793,8 @@
       "orders": "Commandes",
       "reports": "Rapports",
       "inventory": "Inventaire",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "admin.catalog_publish": "Publication catalogue"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Afficher détails",
     "badgeTooltip": "{{count}} alerte(s) critique(s) ouverte(s)",
     "badgeTooltipPlural": "{{count}} alertes critiques ouvertes"
+  },
+  "catalogPublish": {
+    "noAccess": "Vous avez besoin de l’autorisation Publication catalogue pour cet écran.",
+    "loading": "Chargement de la publication catalogue…",
+    "loadError": "Échec du chargement des données de publication",
+    "branchesTitle": "Succursales",
+    "branchesHelp": "Enregistrez le SYNC_CLIENT_ID de chaque magasin pour publier des notifications vers des succursales précises.",
+    "clientId": "ID client",
+    "branchName": "Nom de la succursale",
+    "active": "Active",
+    "addBranch": "Ajouter une succursale",
+    "updateBranch": "Mettre à jour la succursale",
+    "branchSaved": "Succursale enregistrée",
+    "branchSaveError": "Échec de l’enregistrement de la succursale",
+    "accessSaveBranch": "Enregistrer la succursale sync",
+    "noBranches": "Aucune succursale enregistrée.",
+    "yes": "Oui",
+    "no": "Non",
+    "publishTitle": "Publier une version catalogue",
+    "publishHelp": "Incrémentez la version catalogue pour que les succursales voient une mise à jour via Synchroniser maintenant. Cela n’envoie pas les lignes de menu ; les magasins les tirent via changefeed.",
+    "audience": "Audience",
+    "audienceAll": "Toutes les succursales (global)",
+    "audienceSelected": "Succursales sélectionnées",
+    "noActiveBranches": "Ajoutez et activez d’abord une succursale.",
+    "tables": "Tables (audit / note)",
+    "selectAll": "Tout sélectionner",
+    "clearAll": "Effacer",
+    "note": "Note",
+    "notePlaceholder": "ex. prix menu printemps",
+    "publish": "Publier",
+    "accessPublish": "Publier une version catalogue",
+    "confirmTitle": "Publier la version catalogue ?",
+    "confirmMessage": "Publier vers {{audience}} couvrant {{tables}} table(s). Les succursales verront un rappel Synchroniser maintenant.",
+    "publishSuccess": "Version {{version}} publiée → {{targets}}",
+    "publishError": "Échec de la publication",
+    "tablesRequired": "Sélectionnez au moins une table",
+    "branchesRequired": "Sélectionnez au moins une succursale",
+    "historyTitle": "Versions récentes",
+    "version": "Version",
+    "releaseId": "Id de version",
+    "publishedAt": "Publié le",
+    "noReleases": "Aucune version pour l’instant."
   }
 }

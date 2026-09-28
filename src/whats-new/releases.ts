@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-27',
+    title: 'HQ catalog publish',
+    items: [
+      'Headquarters can open Admin → Catalog publish (when enabled) to register branches and bump catalog release versions globally or per store.',
+      'Stores then see an update available on Sync now; publishing does not push menu rows by itself.',
+    ],
+  },
+  {
+    date: '2026-09-27',
     title: 'Faster Reload cache for busy floors',
     items: [
       'Reload cache now hydrates open checks plus the last 1 day of orders (was 3 days), so busy restaurants with hundreds of checks per day rebuild the terminal cache much faster. Older history still lives in reports.',

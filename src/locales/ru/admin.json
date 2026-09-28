@@ -22,7 +22,8 @@
     "tipsDefinition": "Определение чаевых",
     "accessTab": "Доступ к {{title}}",
     "ariaLabel": "Вкладки администрирования",
-    "securityAlerts": "Оповещения безопасности"
+    "securityAlerts": "Оповещения безопасности",
+    "catalogPublish": "Публикация каталога"
   },
   "columns": {
     "photo": "Фото",
@@ -792,7 +793,8 @@
       "orders": "Заказы",
       "reports": "Отчёты",
       "inventory": "Склад",
-      "settings": "Настройки"
+      "settings": "Настройки",
+      "admin.catalog_publish": "Публикация каталога"
     }
   },
   "discountEngine": {
@@ -974,5 +976,47 @@
     "showDetails": "▶ Показать детали",
     "badgeTooltip": "{{count}} открытых критических оповещений",
     "badgeTooltipPlural": "{{count}} открытых критических оповещений"
+  },
+  "catalogPublish": {
+    "noAccess": "Для этого экрана нужно право «Публикация каталога».",
+    "loading": "Загрузка публикации каталога…",
+    "loadError": "Не удалось загрузить данные публикации",
+    "branchesTitle": "Филиалы",
+    "branchesHelp": "Зарегистрируйте SYNC_CLIENT_ID каждого магазина, чтобы публиковать уведомления для выбран филиалов.",
+    "clientId": "ID клиента",
+    "branchName": "Название филиала",
+    "active": "Активен",
+    "addBranch": "Добавить филиал",
+    "updateBranch": "Обновить филиал",
+    "branchSaved": "Филиал сохранён",
+    "branchSaveError": "Не удалось сохранить филиал",
+    "accessSaveBranch": "Сохранить филиал sync",
+    "noBranches": "Филиалы ещё не зарегистрированы.",
+    "yes": "Да",
+    "no": "Нет",
+    "publishTitle": "Опубликовать релиз каталога",
+    "publishHelp": "Увеличьте версию каталога, чтобы филиалы увидели обновление в «Синхронизировать сейчас». Строки меню не отправляются; магазины забирают их через changefeed.",
+    "audience": "Аудитория",
+    "audienceAll": "Все филиалы (глобально)",
+    "audienceSelected": "Выбранные филиалы",
+    "noActiveBranches": "Сначала добавьте и активируйте филиал.",
+    "tables": "Таблицы (аудит / заметка)",
+    "selectAll": "Выбрать все",
+    "clearAll": "Очистить",
+    "note": "Заметка",
+    "notePlaceholder": "напр. цены весеннего меню",
+    "publish": "Опубликовать",
+    "accessPublish": "Опубликовать релиз каталога",
+    "confirmTitle": "Опубликовать релиз каталога?",
+    "confirmMessage": "Публикация для {{audience}}, таблиц: {{tables}}. Филиалы увидят напоминание о синхронизации.",
+    "publishSuccess": "Опубликована версия {{version}} → {{targets}}",
+    "publishError": "Публикация не удалась",
+    "tablesRequired": "Выберите хотя бы одну таблицу",
+    "branchesRequired": "Выберите хотя бы один филиал",
+    "historyTitle": "Недавние релизы",
+    "version": "Версия",
+    "releaseId": "ID релиза",
+    "publishedAt": "Опубликовано",
+    "noReleases": "Релизов пока нет."
   }
 }
