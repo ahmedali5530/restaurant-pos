@@ -99,6 +99,7 @@ const MIGRATION_PLAN = [
   { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
   { id: '2026_09_26_catalog_down_cursor', file: '2026_09_26_catalog_down_cursor.surql' },
   { id: '2026_09_27_hq_catalog_publish', file: '2026_09_27_hq_catalog_publish.surql' },
+  { id: '2026_09_28_catalog_branch_override', file: '2026_09_28_catalog_branch_override.surql' },
 ];
 
 const rows = (result) => {

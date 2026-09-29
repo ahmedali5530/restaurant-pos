@@ -7,6 +7,22 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-28',
+    title: 'HQ branch edit context',
+    items: [
+      'When Catalog publish is enabled, Manage shows Editing for in the bottom toolbar (Base catalog or one/many branches). Branch mode saves price and other allowlisted fields as the same sparse override for every selected store; names and relations stay on the shared base.',
+      'Add new is locked while branches are selected — clear the toolbar selector to create shared items. Bulk edit stays on the base catalog; use Sync now on each store to merge branch patches.',
+    ],
+  },
+  {
+    date: '2026-09-28',
+    title: 'Branch catalog overrides',
+    items: [
+      'Headquarters can set per-branch dish fields (price, cost, number, …) without cloning modifiers or recipes; Sync now merges those patches onto the shared base catalog.',
+      'Empty override fields inherit the base; clearing all fields removes the branch patch.',
+    ],
+  },
+  {
     date: '2026-09-27',
     title: 'HQ catalog publish',
     items: [

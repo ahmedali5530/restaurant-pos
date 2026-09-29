@@ -41,8 +41,8 @@ cloud master. Multi-branch / franchise stores also need **catalog** data
   bumps `catalog_release`, branches pull.
 - Terminal Dexie still refreshes via existing PosStore snapshot/sync after
   local Surreal catalog changes (operators may use Cache reload).
-- Later: targeted publish UI, base+override prices, cross-branch employees
-  (not this ADR).
+- Base+override prices: [ADR 0004](0004-base-branch-overrides.md).
+- Later: cross-branch employees (not this ADR).
 
 ## References
 

@@ -19,6 +19,7 @@ import {DiscountPermissionMatrix} from "@/components/settings/discounts/permissi
 import {DiscountReasonsAdmin} from "@/components/settings/discounts/reasons/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
 
 export const AdminDiscounts = () => {
   const {t} = useTranslation(['admin', 'common', 'toast', 'payment']);
@@ -135,7 +136,7 @@ export const AdminDiscounts = () => {
             loaderHook={loadHook}
             loaderLineItems={columns.length}
             buttons={[
-              <Button key="add" variant="primary" data-testid="admin-add-discounts" onClick={() => protectAction(() => {
+              <HqCatalogBaseOnlyAction><Button key="add" variant="primary" data-testid="admin-add-discounts" onClick={() => protectAction(() => {
                 setData(undefined);
                 setFormModal(true);
               }, {
@@ -143,7 +144,7 @@ export const AdminDiscounts = () => {
                 description: getAccessRuleChildLabel('admin.discounts.create'),
               })} icon={faPlus}>
                 {t('buttons.discount')}
-              </Button>
+              </Button></HqCatalogBaseOnlyAction>
             ]}
           />
 

@@ -24,6 +24,8 @@ import { TaxForm } from "@/components/settings/taxes/tax.form.tsx";
 import { saveGatewayCredentials } from "@/lib/payment.service.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -134,6 +136,7 @@ export const PaymentTypeForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.payment_types);
 
   const closeModal = () => {
     onClose();
@@ -149,10 +152,15 @@ export const PaymentTypeForm = ({
   }
 
   useEffect(() => {
-    if(data){
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        name: data.name,
-        priority: String(data.priority),
+        name: src.name ?? data.name,
+        priority: String(src.priority ?? data.priority),
         type: {
           label: data.type,
           value: data.type
@@ -171,8 +179,10 @@ export const PaymentTypeForm = ({
           value: data?.tax?.id != null ? String(data.tax.id) : undefined
         } : null),
       });
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const db = useDB();
 
@@ -233,47 +243,68 @@ export const PaymentTypeForm = ({
       : null;
 
     try {
-      let savedPaymentTypeId: string | null = null;
-      if(data?.id){
-        await db.update(toRecordId(data.id), payload);
-        savedPaymentTypeId = paymentTypeIdToString(data.id);
-      }else{
-        const [created] = await db.create(Tables.payment_types, payload);
-        savedPaymentTypeId = paymentTypeIdToString(created?.id);
+      if (isBranchEditMode && !data?.id) {
+        toast.error(t('admin:hqBranchEdit.createBlocked'));
+        return;
       }
 
-      // Now save the gateway credentials via the encrypted endpoint (if any).
-      // This happens AFTER the payment_type record exists — the server needs
-      // the id to know which record to update.
-      if (credentialsToSave && savedPaymentTypeId) {
-        try {
-          await saveGatewayCredentials(savedPaymentTypeId, credentialsToSave);
-        } catch (err: any) {
-          // The payment_type was saved, but the credentials failed to encrypt.
-          // Surface the error — the operator should retry. The payment_type
-          // itself is functional (e.g. for Cash/Card) but the remote gateway
-          // won't work until credentials are saved.
-          toast.error(t('toast:admin.gatewayCredentialsSaveFailed', {
-            error: err?.message || String(err),
-          }));
-          // Don't close the modal — let the operator retry.
-          return;
-        }
-      }
+      await save({
+        id: data?.id,
+        nextValues: {
+          priority: Number(values.priority),
+          has_discount: false,
+        },
+        structuralWrite: async () => {
+          let savedPaymentTypeId: string | null = null;
+          if(data?.id){
+            await db.update(toRecordId(data.id), payload);
+            savedPaymentTypeId = paymentTypeIdToString(data.id);
+          }else{
+            const [created] = await db.create(Tables.payment_types, payload);
+            savedPaymentTypeId = paymentTypeIdToString(created?.id);
+          }
 
+          // Now save the gateway credentials via the encrypted endpoint (if any).
+          // This happens AFTER the payment_type record exists — the server needs
+          // the id to know which record to update.
+          if (credentialsToSave && savedPaymentTypeId) {
+            try {
+              await saveGatewayCredentials(savedPaymentTypeId, credentialsToSave);
+            } catch (err: any) {
+              // The payment_type was saved, but the credentials failed to encrypt.
+              // Surface the error — the operator should retry. The payment_type
+              // itself is functional (e.g. for Cash/Card) but the remote gateway
+              // won't work until credentials are saved.
+              toast.error(t('toast:admin.gatewayCredentialsSaveFailed', {
+                error: err?.message || String(err),
+              }));
+              // Don't close the modal — let the operator retry.
+              throw err;
+            }
+          }
 
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.payment_types,
-        entityId: data?.id ? String(data.id) : Tables.payment_types,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.payment_types,
+            entityId: data?.id ? String(data.id) : Tables.payment_types,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.paymentTypeSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.paymentTypeSaved', { name: values.name })
+      );
     }catch(e){
-      toast.error(e);
+      if (e && typeof e === 'object' && 'message' in e) {
+        // credential save already toasted
+      } else {
+        toast.error(e);
+      }
       console.log(e)
     }
   }
@@ -295,9 +326,12 @@ export const PaymentTypeForm = ({
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -328,6 +362,7 @@ export const PaymentTypeForm = ({
                       label: item,
                       value: item
                     }))}
+                    isDisabled={isBranchEditMode}
                   />
                 )}
                 name="type"

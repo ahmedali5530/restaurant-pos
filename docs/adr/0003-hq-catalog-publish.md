@@ -32,3 +32,5 @@ branches** (`catalog_release:<sanitized_client_id>`).
 - Branches keep using Settings → Sync now; they take `max(global, mine)`.
 - Filtering download by selected tables is out of scope (later optimization).
 - Manual Surreal upsert of `catalog_release` remains valid for ops without UI.
+- Per-branch field overrides (base + sparse patch, merge on download) are
+  described in [ADR 0004](0004-base-branch-overrides.md).

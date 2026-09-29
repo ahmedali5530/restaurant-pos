@@ -27,6 +27,8 @@ import { OrderTypeForm } from "@/components/settings/order_types/order_type.form
 import { TableForm } from "@/components/settings/tables/table.form.tsx";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void
@@ -55,6 +57,7 @@ const validationSchema = yup.object({
 export const ExtraForm = ({ open, onClose, data }: Props) => {
   const db = useDB();
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.extras);
 
   const {
     data: paymentTypes,
@@ -95,11 +98,16 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
   };
 
   useEffect(() => {
-    if (data) {
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        name: data.name,
-        value: data.value,
+        ...src,
+        name: src.name ?? data.name,
+        value: src.value ?? data.value,
         payment_types: data.payment_types?.map(item => ({
           label: item.name,
           value: item.id.toString(),
@@ -113,10 +121,12 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
           value: item.id.toString(),
         })) || [],
         delivery: !!data.delivery,
-        apply_to_all: !!data.apply_to_all,
+        apply_to_all: !!(src.apply_to_all ?? data.apply_to_all),
       });
-    }
-  }, [data, reset]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   useEffect(() => {
     if (open) {
@@ -145,23 +155,40 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
     }
 
     try {
-      if (data?.id) {
-        await db.update(data.id, val);
-      } else {
-        await db.create(Tables.extras, val);
+      if (isBranchEditMode && !data?.id) {
+        toast.error(t('admin:hqBranchEdit.createBlocked'));
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.extras,
-        entityId: data?.id ? String(data.id) : Tables.extras,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        nextValues: {
+          value: val.value,
+          apply_to_all: !!val.apply_to_all,
+        },
+        structuralWrite: async () => {
+          if (data?.id) {
+            await db.update(data.id, val);
+          } else {
+            await db.create(Tables.extras, val);
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.extras,
+            entityId: data?.id ? String(data.id) : Tables.extras,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.extraSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.extraSaved', { name: values.name })
+      );
     } catch (e) {
       toast.error(e);
       console.log(e);
@@ -177,9 +204,12 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} />
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode} />
             </div>
             <div className="flex-1">
               <Controller
@@ -212,6 +242,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                         value: item.id.toString(),
                       }))}
                       isMulti
+                      isDisabled={isBranchEditMode}
                     />
                   )}
                   name="payment_types"
@@ -233,6 +264,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                         value: item.id.toString(),
                       }))}
                       isMulti
+                      isDisabled={isBranchEditMode}
                     />
                   )}
                   name="order_types"
@@ -254,6 +286,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
                         value: item.id.toString(),
                       }))}
                       isMulti
+                      isDisabled={isBranchEditMode}
                     />
                   )}
                   name="tables"
@@ -269,7 +302,7 @@ export const ExtraForm = ({ open, onClose, data }: Props) => {
               name="delivery"
               control={control}
               render={({ field }) => (
-                <Switch checked={field.value} onChange={field.onChange}>
+                <Switch checked={field.value} onChange={field.onChange} disabled={isBranchEditMode}>
                   {t('forms.deliveryOnly')}
                 </Switch>
               )}

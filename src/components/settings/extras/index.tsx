@@ -18,6 +18,7 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createExtraImportConfig} from "@/components/settings/extras/extra.import.config.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
 
 export const AdminExtras = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -123,7 +124,7 @@ export const AdminExtras = () => {
           >
             <span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}
           </Button>,
-          <Button
+          <HqCatalogBaseOnlyAction><Button
             variant="primary"
             data-testid="admin-add-extras"
             onClick={() => {
@@ -139,7 +140,7 @@ export const AdminExtras = () => {
           >
             {" "}
             Extra
-          </Button>,
+          </Button></HqCatalogBaseOnlyAction>,
         ]}
       />
 

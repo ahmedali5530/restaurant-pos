@@ -96,3 +96,25 @@ UPSERT catalog_release:current MERGE {
 Per-branch: `catalog_release:<sanitized_SYNC_CLIENT_ID>` (non-alphanumeric
 chars become `_`). Apply `migrations/2026_09_27_hq_catalog_publish.surql` on
 the **cloud master** before using the Publish UI.
+
+## Branch overrides (Phase 4)
+
+Shared base catalog rows stay unmodified for relations (modifiers, recipes).
+Per-store field differences live in `catalog_branch_override`:
+
+```surql
+UPSERT catalog_branch_override:menu_item_wings_store_a CONTENT {
+  table: "menu_item",
+  base_id: "menu_item:wings",
+  branch_id: "store-a",
+  patch: { price: 12.5, cost: 4, number: "101" },
+  updated_at: time::now()
+};
+```
+
+On Sync now, the download manager loads patches for `SYNC_CLIENT_ID`, merges
+them onto each base row, then upserts the **flat** local `menu_item` (and
+re-applies overridden bases after the catalog pass). Apply
+`migrations/2026_09_28_catalog_branch_override.surql` on the **cloud master**.
+HQ Admin → Catalog publish → Branch overrides can edit dish patches and
+optionally bump the branch release.

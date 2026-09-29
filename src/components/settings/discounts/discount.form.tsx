@@ -34,6 +34,8 @@ import {
 import { translatedSelectOptions } from "@/lib/discount-engine/i18n-options.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -59,6 +61,7 @@ export const DiscountForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast', 'payment']);
+  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.discounts);
   const [schedules, setSchedules] = useState(data?.schedules || []);
   const [conditions, setConditions] = useState(data?.conditions);
   const [targets, setTargets] = useState<DiscountTargets>({});
@@ -85,15 +88,20 @@ export const DiscountForm = ({
   }
 
   useEffect(() => {
-    if( data ) {
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        name: data.name,
-        min_rate: data.min_rate ?? data.min_value,
-        max_rate: data.max_rate ?? data.max_value,
-        max_cap: data.max_cap,
+        ...src,
+        name: src.name ?? data.name,
+        min_rate: src.min_rate ?? src.min_value ?? data.min_rate ?? data.min_value,
+        max_rate: src.max_rate ?? src.max_value ?? data.max_rate ?? data.max_value,
+        max_cap: src.max_cap ?? data.max_cap,
         type: { label: data?.type, value: data?.type },
-        priority: data.priority.toString(),
+        priority: String(src.priority ?? data.priority ?? ''),
         category: data.category
           ? categoryOptions.find(o => o.value === data.category) ?? { label: data.category, value: data.category }
           : null,
@@ -113,14 +121,16 @@ export const DiscountForm = ({
         exclusive: data.exclusive ?? false,
         requires_reason: data.requires_reason ?? false,
         requires_approval: data.requires_approval ?? false,
-        is_active: data.is_active ?? true,
-        min_order_amount: data.min_order_amount ?? '',
+        is_active: src.is_active ?? data.is_active ?? true,
+        min_order_amount: src.min_order_amount ?? data.min_order_amount ?? '',
       });
       setSchedules(data.schedules || []);
       setConditions(data.conditions ? normalizeBxgyConditions(data.conditions) : undefined);
       setTargets(mergeTargetsFromRecord(data));
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const db = useDB();
 
@@ -132,7 +142,7 @@ export const DiscountForm = ({
 
   const onSubmit = async (values: any) => {
     const scopeValue = typeof values.scope === 'object' ? values.scope?.value : values.scope;
-    if (!validateTargetsForScope(scopeValue, targets)) {
+    if (!isBranchEditMode && !validateTargetsForScope(scopeValue, targets)) {
       toast.error(t('discountEngine.validation.targetRequired'));
       return;
     }
@@ -171,24 +181,49 @@ export const DiscountForm = ({
     vals.stackable_with_coupon = vals.stackable_with_coupon ?? true;
 
     try {
-      if( data?.id ) {
-        await db.update(data.id, vals);
-      } else {
-        await db.create(Tables.discounts, vals);
+      if (isBranchEditMode && !data?.id) {
+        toast.error(t('admin:hqBranchEdit.createBlocked'));
+        return;
       }
 
-      await refreshDiscountCache();
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.discounts,
-        entityId: data?.id ? String(data.id) : Tables.discounts,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        nextValues: {
+          value: vals.value,
+          max_value: vals.max_value,
+          min_value: vals.min_value,
+          min_order_amount: vals.min_order_amount,
+          max_cap: vals.max_cap,
+          max_rate: vals.max_rate,
+          min_rate: vals.min_rate,
+          priority: vals.priority,
+          is_active: vals.is_active,
+        },
+        structuralWrite: async () => {
+          if (data?.id) {
+            await db.update(data.id, vals);
+          } else {
+            await db.create(Tables.discounts, vals);
+          }
+
+          await refreshDiscountCache();
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.discounts,
+            entityId: data?.id ? String(data.id) : Tables.discounts,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.discountSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.discountSaved', { name: values.name })
+      );
     } catch ( e ) {
       toast.error(t('discountEngine.errors.saveFailed'));
       console.log(e)
@@ -204,11 +239,14 @@ export const DiscountForm = ({
       size="lg"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col max-h-[80vh]">
+        {isBranchEditMode && (
+          <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+        )}
         <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4">
-          <fieldset className="border-2 border-border rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.basic')}</legend>
             <div className="flex flex-col gap-3 mt-2">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string} disabled={isBranchEditMode}/>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -247,7 +285,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('scope')?.value && (
-            <fieldset className="border-2 border-border rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
               <legend className="px-2 font-semibold">{t('discountEngine.sections.targets')}</legend>
               <div className="mt-2">
                 <DiscountTargetsEditor
@@ -272,6 +310,7 @@ export const DiscountForm = ({
                     variant="primary"
                     active={watch('type')?.value === DiscountType.Percent}
                     className="flex-1"
+                    disabled={isBranchEditMode}
                     onClick={() => setValue('type', { label: t('payment:discountType.percent'), value: DiscountType.Percent })}
                   >
                     {t('payment:discountType.percent')}
@@ -282,6 +321,7 @@ export const DiscountForm = ({
                     variant="primary"
                     active={watch('type')?.value === DiscountType.Fixed}
                     className="flex-1"
+                    disabled={isBranchEditMode}
                     onClick={() => setValue('type', { label: t('payment:discountType.fixed'), value: DiscountType.Fixed })}
                   >
                     {t('payment:discountType.fixed')}
@@ -352,7 +392,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-border rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.stacking')}</legend>
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div>
@@ -386,11 +426,14 @@ export const DiscountForm = ({
                 control={control}
                 defaultValue={true}
                 render={({ field }) => (
-                  <Checkbox
-                    label={t('discountEngine.fields.stackable')}
-                    checked={field.value ?? true}
-                    onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
-                  />
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.stackable')}
+                      checked={field.value ?? true}
+                      disabled={isBranchEditMode}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
                 )}
               />
               <Controller
@@ -398,11 +441,14 @@ export const DiscountForm = ({
                 control={control}
                 defaultValue={false}
                 render={({ field }) => (
-                  <Checkbox
-                    label={t('discountEngine.fields.exclusive')}
-                    checked={!!field.value}
-                    onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
-                  />
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.exclusive')}
+                      checked={!!field.value}
+                      disabled={isBranchEditMode}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
                 )}
               />
               <Controller
@@ -410,11 +456,14 @@ export const DiscountForm = ({
                 control={control}
                 defaultValue={false}
                 render={({ field }) => (
-                  <Checkbox
-                    label={t('discountEngine.fields.requiresReason')}
-                    checked={!!field.value}
-                    onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
-                  />
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.requiresReason')}
+                      checked={!!field.value}
+                      disabled={isBranchEditMode}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
                 )}
               />
               <Controller
@@ -422,11 +471,14 @@ export const DiscountForm = ({
                 control={control}
                 defaultValue={false}
                 render={({ field }) => (
-                  <Checkbox
-                    label={t('discountEngine.fields.requiresApproval')}
-                    checked={!!field.value}
-                    onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
-                  />
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.requiresApproval')}
+                      checked={!!field.value}
+                      disabled={isBranchEditMode}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
                 )}
               />
               <Controller
@@ -434,17 +486,19 @@ export const DiscountForm = ({
                 control={control}
                 defaultValue={true}
                 render={({ field }) => (
-                  <Checkbox
-                    label={t('discountEngine.fields.isActive')}
-                    checked={field.value ?? true}
-                    onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
-                  />
+                  <div>
+                    <Checkbox
+                      label={t('discountEngine.fields.isActive')}
+                      checked={field.value ?? true}
+                      onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
+                    />
+                  </div>
                 )}
               />
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-border rounded-lg p-3">
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.schedule')}</legend>
             <div className="mt-2">
               <DiscountScheduleEditor value={schedules} onChange={setSchedules} />
@@ -452,7 +506,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('category')?.value === 'buy_x_get_y' && (
-            <fieldset className="border-2 border-border rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
               <legend className="px-2 font-semibold">{t('discountEngine.sections.bxgy')}</legend>
               <div className="mt-2">
                 <DiscountConditionsEditor open={open} value={conditions} onChange={setConditions} />

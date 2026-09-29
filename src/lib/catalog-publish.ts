@@ -155,15 +155,19 @@ export async function publishCatalogRelease(
   }
 
   const version = Math.max(maxVersion + 1, Math.floor(Date.now() / 1000));
-  const payload = {
+  // Surreal option<T> accepts NONE, not JS null (NULL). Omit optional empties.
+  const payload: Record<string, unknown> = {
     version,
-    note: input.note?.trim() || null,
     published_at: nowSurrealDateTime(),
-    published_by: input.publishedBy || null,
     tables: [...input.tables],
     audience: input.audience,
-    branch_ids: input.audience === 'branches' ? [...input.branchIds] : null,
   };
+  const note = input.note?.trim();
+  if (note) payload.note = note;
+  if (input.publishedBy) payload.published_by = input.publishedBy;
+  if (input.audience === 'branches') {
+    payload.branch_ids = [...input.branchIds];
+  }
 
   for (const key of targetKeys) {
     await db.upsert(catalogReleaseThing(key), payload);

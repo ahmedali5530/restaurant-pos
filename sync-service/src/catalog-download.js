@@ -20,6 +20,11 @@ const {
   RELATION_CATALOG_TABLES,
   USER_SECRET_FIELDS,
 } = require('./sync-helpers');
+const {
+  OVERRIDE_CONTROL_TABLE,
+  mergeCatalogBaseWithPatch,
+  overrideCacheKey,
+} = require('./catalog-override-fields');
 
 function isRecordIdString(value) {
   return typeof value === 'string' && /^[A-Za-z_][A-Za-z0-9_]*:[^\s]+$/.test(value.trim());
@@ -72,6 +77,8 @@ class CatalogDownloadManager {
     this.tableState = new Map();
     this.writeChain = Promise.resolve();
     this.forceNextPoll = false;
+    /** @type {Map<string, Record<string, unknown>>} */
+    this.overrideCache = new Map();
     this.stats = {
       eventsProcessed: 0,
       eventsFailed: 0,
@@ -216,6 +223,59 @@ class CatalogDownloadManager {
         error: error.message || String(error),
       });
     }
+
+    try {
+      await this.master.query(`
+        DEFINE TABLE IF NOT EXISTS catalog_branch_override SCHEMALESS PERMISSIONS NONE;
+        ALTER TABLE IF EXISTS catalog_branch_override CHANGEFEED 14d;
+      `);
+    } catch (error) {
+      this.logger.warn('Could not define catalog_branch_override on master', {
+        error: error.message || String(error),
+      });
+    }
+  }
+
+  /**
+   * Load sparse branch patches for this SYNC_CLIENT_ID into memory for the sync pass.
+   */
+  async loadOverrideCache() {
+    this.overrideCache = new Map();
+    const branchId = String(this.config.clientId || '');
+    if (!branchId) return;
+
+    try {
+      const result = await withTimeout(
+        this.master.query(
+          'SELECT * FROM catalog_branch_override WHERE branch_id = $branchId',
+          { branchId }
+        ),
+        30000,
+        'master.catalog_branch_override'
+      );
+      const rows = normalizeSelectPage(result);
+      for (const row of rows) {
+        if (!row || typeof row !== 'object') continue;
+        const table = String(row.table || '');
+        const baseId = String(row.base_id || '');
+        if (!table || !baseId) continue;
+        const patch = row.patch && typeof row.patch === 'object' ? row.patch : {};
+        this.overrideCache.set(overrideCacheKey(table, baseId), patch);
+      }
+      this.logger.info('Loaded catalog branch overrides', {
+        branchId,
+        count: this.overrideCache.size,
+      });
+    } catch (error) {
+      this.logger.warn('Failed to load catalog_branch_override cache', {
+        error: error.message || String(error),
+      });
+    }
+  }
+
+  patchForBase(tableName, targetId) {
+    const key = overrideCacheKey(tableName, recordIdToString(targetId));
+    return this.overrideCache.get(key) || null;
   }
 
   async loadTableStates() {
@@ -362,6 +422,8 @@ class CatalogDownloadManager {
     });
 
     try {
+      await this.loadOverrideCache();
+
       for (let i = 0; i < tables.length; i += 1) {
         const tableName = tables[i];
         this.stats.progress.currentTable = tableName;
@@ -375,6 +437,10 @@ class CatalogDownloadManager {
           ? Math.round(((i + 1) / total) * 100)
           : 100;
       }
+
+      this.stats.progress.currentTable = OVERRIDE_CONTROL_TABLE;
+      await this.pollOverrideControlTable();
+      await this.reapplyOverriddenBases();
 
       if (this.stats.remoteVersion > this.stats.localVersion) {
         await this.saveLocalVersion(this.stats.remoteVersion);
@@ -587,6 +653,114 @@ class CatalogDownloadManager {
   }
 
   /**
+   * Tail catalog_branch_override on master; refresh cache for this branch.
+   * Does not write override rows to local Surreal.
+   */
+  async pollOverrideControlTable() {
+    const tableName = OVERRIDE_CONTROL_TABLE;
+    const state = this.ensureTableState(tableName);
+    if (state.blockedUntil && Date.now() < state.blockedUntil) return;
+
+    try {
+      if (!state.backfillDone) {
+        const watermark = await this.readFeedWatermark(tableName);
+        await this.saveCursor(tableName, {
+          backfillDone: true,
+          versionstamp: watermark,
+        });
+      }
+
+      const since = sinceLiteral(state.versionstamp);
+      const result = await withTimeout(
+        this.master.query(
+          `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${this.config.changeLimit};`
+        ),
+        30000,
+        `master.showChanges(${tableName})`
+      );
+      const entries = entriesAfterCursor(
+        normalizeShowChangesResult(result),
+        state.versionstamp
+      );
+      if (!entries.length) return;
+
+      const { operations, lastVersionstamp } = compactChangeBatch(entries);
+      const branchId = String(this.config.clientId || '');
+      let sawDelete = false;
+
+      for (const op of operations) {
+        if (op.action === 'DELETE') {
+          sawDelete = true;
+          continue;
+        }
+        const value = op.value || {};
+        const rowBranch = value.branch_id != null ? String(value.branch_id) : null;
+        if (rowBranch && rowBranch !== branchId) continue;
+        const table = String(value.table || '');
+        const baseId = String(value.base_id || '');
+        if (!table || !baseId) continue;
+        if (value.patch == null) {
+          this.overrideCache.delete(overrideCacheKey(table, baseId));
+        } else {
+          const patch = value.patch && typeof value.patch === 'object' ? value.patch : {};
+          this.overrideCache.set(overrideCacheKey(table, baseId), patch);
+        }
+      }
+
+      if (sawDelete) {
+        await this.loadOverrideCache();
+      }
+
+      if (lastVersionstamp != null) {
+        await this.saveCursor(tableName, { versionstamp: lastVersionstamp });
+      }
+      state.lastError = null;
+      state.backoffMs = 1000;
+      state.blockedUntil = 0;
+    } catch (error) {
+      state.lastError = error.message || String(error);
+      this.logger.warn('Override control poll failed', {
+        error: state.lastError,
+      });
+      if (isChangefeedRetentionError(error)) {
+        state.backfillDone = false;
+        state.versionstamp = null;
+        await this.saveCursor(tableName, { backfillDone: false, versionstamp: null }).catch(() => {});
+        await this.loadOverrideCache();
+      }
+    }
+  }
+
+  /**
+   * Re-upsert every base that has a patch for this branch (override-only publishes).
+   */
+  async reapplyOverriddenBases() {
+    for (const key of this.overrideCache.keys()) {
+      const sep = key.indexOf(':');
+      if (sep <= 0) continue;
+      const tableName = key.slice(0, sep);
+      const baseIdStr = key.slice(sep + 1);
+      const targetId = toAnyRecordId(baseIdStr);
+      if (!targetId) continue;
+      try {
+        const row = await withTimeout(
+          this.master.select(targetId),
+          15000,
+          `master.select(${baseIdStr})`
+        );
+        if (!row || !shouldApplyCatalogRow(row, this.config.clientId)) continue;
+        await this.enqueueWrite(() => this.upsertLocal(tableName, targetId, row));
+        this.stats.eventsProcessed += 1;
+      } catch (error) {
+        this.logger.warn('Failed to re-apply overridden base', {
+          key,
+          error: error.message || String(error),
+        });
+      }
+    }
+  }
+
+  /**
    * @returns {Promise<boolean>} true if a local write happened
    */
   async applyOperation(tableName, op) {
@@ -634,7 +808,11 @@ class CatalogDownloadManager {
   }
 
   async upsertLocal(tableName, targetId, value) {
-    const payload = prepareCatalogPayload(tableName, value);
+    const patch = this.patchForBase(tableName, targetId);
+    const merged = mergeCatalogBaseWithPatch(tableName, value, patch);
+    // Never materialize cloud branch_id onto local schemafull catalog tables.
+    delete merged.branch_id;
+    const payload = prepareCatalogPayload(tableName, merged);
     const expectedId = recordIdToString(targetId);
 
     if (RELATION_CATALOG_TABLES.includes(tableName)) {

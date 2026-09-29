@@ -15,6 +15,8 @@ import i18n from '@/lib/i18n.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -31,6 +33,7 @@ export const OrderTypeForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.order_types);
 
   const closeModal = () => {
     onClose();
@@ -42,13 +45,21 @@ export const OrderTypeForm = ({
   }
 
   useEffect(() => {
-    if( data ) {
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        priority: data.priority.toString(),
+        ...src,
+        priority: String(src.priority ?? ''),
+        allow_service_charges: !!src.allow_service_charges,
       });
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const db = useDB();
 
@@ -62,27 +73,44 @@ export const OrderTypeForm = ({
     vals.priority = parseInt(vals.priority);
 
     try {
-      if( data?.id ) {
-        await db.update(data.id, {
-          ...vals
-        })
-      } else {
-        await db.create(Tables.order_types, {
-          ...vals
-        });
+      if (isBranchEditMode && !data?.id) {
+        toast.error(t('admin:hqBranchEdit.createBlocked'));
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.order_types,
-        entityId: data?.id ? String(data.id) : Tables.order_types,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        nextValues: {
+          priority: vals.priority,
+          allow_service_charges: vals.allow_service_charges,
+        },
+        structuralWrite: async () => {
+          if( data?.id ) {
+            await db.update(data.id, {
+              ...vals
+            })
+          } else {
+            await db.create(Tables.order_types, {
+              ...vals
+            });
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.order_types,
+            entityId: data?.id ? String(data.id) : Tables.order_types,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.orderTypeSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.orderTypeSaved', { name: values.name })
+      );
     } catch ( e ) {
       toast.error(e);
       console.log(e)
@@ -98,9 +126,12 @@ export const OrderTypeForm = ({
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
             </div>
             <div className="flex-1">
               <Controller

@@ -228,7 +228,7 @@ export function CatalogPublishPanel() {
             <div>
               <Switch
                 checked={branchActive}
-                onChange={(e) => setBranchActive(e.target.checked)}
+                onChange={(e) => setBranchActive((e.target as HTMLInputElement).checked)}
                 disabled={savingBranch}
               >
                 {t('admin:catalogPublish.active')}
@@ -331,7 +331,7 @@ export function CatalogPublishPanel() {
               <div key={branch.client_id}>
                 <Checkbox
                   checked={selectedBranchIds.includes(branch.client_id)}
-                  onChange={(e) => toggleBranchId(branch.client_id, e.target.checked)}
+                  onChange={(e) => toggleBranchId(branch.client_id, (e.target as HTMLInputElement).checked)}
                   label={`${branch.name} (${branch.client_id})`}
                 />
               </div>
@@ -354,7 +354,7 @@ export function CatalogPublishPanel() {
               <div key={table}>
                 <Checkbox
                   checked={selectedTables.includes(table)}
-                  onChange={(e) => toggleTable(table, e.target.checked)}
+                  onChange={(e) => toggleTable(table, (e.target as HTMLInputElement).checked)}
                   label={table}
                 />
               </div>

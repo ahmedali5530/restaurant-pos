@@ -65,7 +65,28 @@
     "version": "Version",
     "releaseId": "Release id",
     "publishedAt": "Published at",
-    "noReleases": "No releases yet."
+    "noReleases": "No releases yet.",
+    "overridesTitle": "Branch overrides",
+    "overridesHelp": "Keep one shared base dish (modifiers and recipes stay on the base). Set only branch-specific fields here; empty fields inherit the base.",
+    "overrideBranch": "Branch",
+    "overrideBranchPlaceholder": "Select branch…",
+    "overrideDish": "Base dish",
+    "overrideDishPlaceholder": "Search dishes…",
+    "overrideInheritHint": "Leave a field blank to inherit the base value. Saving with all blanks clears the override.",
+    "fieldPrice": "Price",
+    "fieldCost": "Cost",
+    "fieldNumber": "Number",
+    "fieldPriority": "Priority",
+    "fieldPosition": "Position",
+    "bumpReleaseOnSave": "Bump catalog release for this branch on save",
+    "saveOverride": "Save override",
+    "overrideSaved": "Branch override saved",
+    "overrideSaveError": "Failed to save override",
+    "overrideLoadError": "Failed to load overrides",
+    "overrideRequired": "Select a branch and a base dish",
+    "accessSaveOverride": "Save catalog branch override",
+    "patch": "Patch",
+    "noOverrides": "No branch overrides yet."
   },
   "columns": {
     "photo": "Photo",
@@ -1018,5 +1039,19 @@
     "showDetails": "▶ Show details",
     "badgeTooltip": "{{count}} open critical alert(s)",
     "badgeTooltipPlural": "{{count}} open critical alerts"
+  },
+  "hqBranchEdit": {
+    "bannerTitle": "Editing for",
+    "baseCatalog": "Base catalog",
+    "baseHint": "Changes update the shared catalog for all branches.",
+    "branchHint": "Saving overridable fields (price, priority, …) writes the same patch for {{branch}}. Name and relations stay on the base.",
+    "structuralLocked": "Structural fields are locked while editing for a branch. Overridable values save as a branch override.",
+    "createBlocked": "Create the item on the base catalog first, then set branch overrides.",
+    "bulkBlocked": "Bulk edit is not available while Editing for a branch. Switch to Base catalog, or edit items one by one.",
+    "overrideSaved": "Branch override saved",
+    "branchesCount": "{{count}} branches",
+    "createLockedHint": "Add new is available only in Base catalog mode. Switch the selector to Base (clear branches) to create shared items.",
+    "helpAria": "Catalog edit mode help",
+    "dismissHint": "Got it"
   }
 }

@@ -25,6 +25,7 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
 
 export const AdminDishes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -264,7 +265,7 @@ export const AdminDishes = () => {
               {t('buttons.smartImportMenuStructure')}
             </DropdownItem>
           </Dropdown>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -272,7 +273,7 @@ export const AdminDishes = () => {
               module: 'admin.dishes.create',
               description: getAccessRuleChildLabel('admin.dishes.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-dishes">{t('buttons.dish')}</Button>
+          }} icon={faPlus} data-testid="admin-add-dishes">{t('buttons.dish')}</Button></HqCatalogBaseOnlyAction>
         ]}
         customSearch
         customSearchHandler={(value) => {

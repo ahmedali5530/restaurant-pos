@@ -18,6 +18,7 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createModifierGroupImportConfig} from "@/components/settings/modifier_groups/modifier-group.import.config.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
 
 export const AdminModifierGroups = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -128,7 +129,7 @@ export const AdminModifierGroups = () => {
               description: getAccessRuleChildLabel('admin.modifier_groups.import'),
             });
           }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -136,7 +137,7 @@ export const AdminModifierGroups = () => {
               module: 'admin.modifier_groups.create',
               description: getAccessRuleChildLabel('admin.modifier_groups.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-modifier_groups">{t('buttons.modifierGroup')}</Button>
+          }} icon={faPlus} data-testid="admin-add-modifier_groups">{t('buttons.modifierGroup')}</Button></HqCatalogBaseOnlyAction>
         ]}
       />
 

@@ -113,7 +113,9 @@
       min-height: 0;
       height: auto;
       max-height: none;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
   }
 
