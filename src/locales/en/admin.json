@@ -492,7 +492,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Paper width override",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Use print settings"
+    "usePrintSettings": "Use print settings",
+    "userBranches": "Branches",
+    "userBranchesShared": "All branches (shared)",
+    "userBranchesHint": "Leave empty for a shared employee on every store. Select branches to limit Sync now download to those stores."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Bulk edit is not available while Editing for a branch. Switch to Base catalog, or edit items one by one.",
     "overrideSaved": "Branch override saved",
     "branchesCount": "{{count}} branches",
-    "createLockedHint": "Add new is available only in Base catalog mode. Switch the selector to Base (clear branches) to create shared items.",
+    "createLockedHint": "Create is available on Base catalog or when exactly one branch is selected. Multi-branch selection is override-only.",
     "helpAria": "Catalog edit mode help",
-    "dismissHint": "Got it"
+    "dismissHint": "Got it",
+    "createMultiBlocked": "Pick Base catalog or exactly one branch to create. Multi-branch mode is for overrides only.",
+    "branchOwnedSaved": "Branch-owned item saved"
   }
 }

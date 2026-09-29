@@ -265,6 +265,9 @@ describe('catalog row filter and secrets', () => {
     assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: null }, 'b1'), true);
     assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: 'b1' }, 'b1'), true);
     assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: 'b2' }, 'b1'), false);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b2'), false);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: [] }, 'b1'), true);
   });
 
   it('strips user secrets', () => {

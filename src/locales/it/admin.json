@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Override larghezza carta",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Usa impostazioni di stampa"
+    "usePrintSettings": "Usa impostazioni di stampa",
+    "userBranches": "Filiali",
+    "userBranchesShared": "Tutte le filiali (condiviso)",
+    "userBranchesHint": "Vuoto = dipendente condiviso in tutti i negozi. Seleziona filiali per limitare il download."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "La modifica in blocco non è disponibile durante la modifica per una filiale. Passa al catalogo base o modifica uno alla volta.",
     "overrideSaved": "Override di filiale salvato",
     "branchesCount": "{{count}} filiali",
-    "createLockedHint": "Aggiungi nuovo è disponibile solo in modalità catalogo base. Deseleziona le filiali per creare elementi condivisi.",
+    "createLockedHint": "Creazione disponibile in catalogo base o con una sola filiale. Multi = solo override.",
     "helpAria": "Guida alla modalità di modifica catalogo",
-    "dismissHint": "Ok"
+    "dismissHint": "Ok",
+    "createMultiBlocked": "Scegli catalogo base o esattamente una filiale per creare. Multi-filiale solo per override.",
+    "branchOwnedSaved": "Elemento di filiale salvato"
   }
 }

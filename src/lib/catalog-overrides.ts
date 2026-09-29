@@ -6,6 +6,7 @@ import {
   sanitizeCatalogPatch,
   tableSupportsBranchOverrides,
 } from '@/lib/catalog-override-fields.ts';
+import { isBranchOwnedBy } from '@/lib/catalog-row-scope.ts';
 import { nowSurrealDateTime } from '@/lib/datetime.ts';
 import { publishCatalogRelease } from '@/lib/catalog-publish.ts';
 
@@ -186,9 +187,10 @@ export async function upsertCatalogOverride(
 }
 
 /**
- * Branch mode: write sparse override(s) and skip structuralWrite.
- * Base mode: run structuralWrite (normal create/merge).
- * Supports one or many branchIds so HQ can apply the same patch to several stores.
+ * Branch mode:
+ * - shared rows → sparse override(s)
+ * - single-branch create / branch-owned row → structuralWrite (caller stamps branch_id)
+ * Base mode → structuralWrite (normal create/merge).
  */
 export async function saveWithBranchContext(
   db: DbLike,
@@ -203,8 +205,14 @@ export async function saveWithBranchContext(
     updatedBy?: string | null;
     bumpRelease?: boolean;
     structuralWrite: () => Promise<void>;
+    /** Existing cloud row when editing (detect branch-owned). */
+    existing?: Record<string, unknown> | null;
   },
-): Promise<{ mode: 'base' | 'branch'; patch?: Record<string, unknown>; branchIds?: string[] }> {
+): Promise<{
+  mode: 'base' | 'branch' | 'branch-owned';
+  patch?: Record<string, unknown>;
+  branchIds?: string[];
+}> {
   const branchIds = Array.from(
     new Set(
       (input.branchIds?.length
@@ -222,9 +230,56 @@ export async function saveWithBranchContext(
     await input.structuralWrite();
     return { mode: 'base' };
   }
+
+  const soleBranchId = branchIds.length === 1 ? branchIds[0] : null;
+  const bumpRelease = input.bumpRelease !== false;
+
+  // Phase 6: create branch-owned row when exactly one branch is selected.
   if (!input.id) {
-    throw new Error('Create is not supported in branch edit mode — switch to Base catalog');
+    if (!soleBranchId) {
+      throw new Error(
+        'Create for multiple branches is not supported — pick one branch or Base catalog'
+      );
+    }
+    await input.structuralWrite();
+    if (bumpRelease) {
+      await publishCatalogRelease(db, {
+        audience: 'branches',
+        branchIds: [soleBranchId],
+        tables: [input.table],
+        note: `Branch-owned ${input.table}`,
+        publishedBy: input.updatedBy,
+      });
+    }
+    return { mode: 'branch-owned', branchIds: [soleBranchId] };
   }
+
+  // Phase 6: edit branch-owned row with full structural write.
+  let existing = input.existing ?? null;
+  if (!existing) {
+    try {
+      const thing =
+        typeof input.id === 'string' ? toRecordId(input.id) : input.id;
+      existing = await db.select(thing);
+    } catch {
+      existing = null;
+    }
+  }
+  if (soleBranchId && isBranchOwnedBy(existing, soleBranchId)) {
+    await input.structuralWrite();
+    if (bumpRelease) {
+      await publishCatalogRelease(db, {
+        audience: 'branches',
+        branchIds: [soleBranchId],
+        tables: [input.table],
+        note: `Updated branch-owned ${input.table}`,
+        publishedBy: input.updatedBy,
+      });
+    }
+    return { mode: 'branch-owned', branchIds: [soleBranchId] };
+  }
+
+  // Shared row → sparse overrides for each selected branch.
   const baseId = recordKey(input.id);
   const patch = buildOverridePatchFromValues(
     input.table,
@@ -232,7 +287,6 @@ export async function saveWithBranchContext(
     input.previousMerged
   );
 
-  const bumpRelease = input.bumpRelease !== false;
   let lastPatch: Record<string, unknown> = patch;
 
   for (const branchId of branchIds) {
@@ -242,7 +296,6 @@ export async function saveWithBranchContext(
       branchId,
       patch,
       updatedBy: input.updatedBy,
-      // One release bump for all branches below
       bumpRelease: false,
     });
     lastPatch = result.patch;

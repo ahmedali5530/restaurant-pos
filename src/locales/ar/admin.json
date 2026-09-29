@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "تجاوز عرض الورق",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "استخدم إعدادات الطباعة"
+    "usePrintSettings": "استخدم إعدادات الطباعة",
+    "userBranches": "الفروع",
+    "userBranchesShared": "كل الفروع (مشترك)",
+    "userBranchesHint": "اتركه فارغاً لموظف مشترك في كل المتاجر. حدد الفروع لتقييد التنزيل بتلك المتاجر."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "التعديل الجماعي غير متاح أثناء التحرير لفرع. انتقل إلى الكتالوج الأساسي، أو عدّل العناصر واحدًا تلو الآخر.",
     "overrideSaved": "تم حفظ تجاوز الفرع",
     "branchesCount": "{{count}} فروع",
-    "createLockedHint": "إضافة عنصر جديد متاحة فقط في وضع الكتالوج الأساسي. امسح الفروع المحددة للإنشاء.",
+    "createLockedHint": "الإنشاء متاح في الكتالوج الأساسي أو عند اختيار فرع واحد. الاختيار المتعدد للتجاوزات فقط.",
     "helpAria": "تعليمات وضع تحرير الكتالوج",
-    "dismissHint": "حسناً"
+    "dismissHint": "حسناً",
+    "createMultiBlocked": "اختر الكتالوج الأساسي أو فرعاً واحداً للإنشاء. الوضع متعدد الفروع للتجاوزات فقط.",
+    "branchOwnedSaved": "تم حفظ عنصر خاص بالفرع"
   }
 }

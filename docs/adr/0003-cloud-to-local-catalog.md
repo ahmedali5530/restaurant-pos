@@ -44,7 +44,8 @@ cloud master. Multi-branch / franchise stores also need **catalog** data
 - Base+override prices: [ADR 0004](0004-base-branch-overrides.md).
 - Sync now may limit tables to `catalog_release.tables[]` ∩ download allowlist
   ([ADR 0003 publish](0003-hq-catalog-publish.md) Phase 5).
-- Later: cross-branch employees; branch-owned catalog create/edit (Phase 6+).
+- Branch-owned catalog create/edit and cross-branch employees:
+  [ADR 0005](0005-branch-owned-and-cross-branch-users.md).
 
 ## References
 

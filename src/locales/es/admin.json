@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Anulación de ancho de papel",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Usar ajustes de impresión"
+    "usePrintSettings": "Usar ajustes de impresión",
+    "userBranches": "Sucursales",
+    "userBranchesShared": "Todas las sucursales (compartido)",
+    "userBranchesHint": "Vacío = empleado compartido en todas las tiendas. Seleccione sucursales para limitar la descarga."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "La edición masiva no está disponible al editar para una sucursal. Cambie a Catálogo base o edite uno por uno.",
     "overrideSaved": "Anulación de sucursal guardada",
     "branchesCount": "{{count}} sucursales",
-    "createLockedHint": "Agregar nuevo solo está disponible en el catálogo base. Quite las sucursales seleccionadas para crear elementos compartidos.",
+    "createLockedHint": "Crear está disponible en catálogo base o con exactamente una sucursal. Varias = solo anulaciones.",
     "helpAria": "Ayuda del modo de edición del catálogo",
-    "dismissHint": "Entendido"
+    "dismissHint": "Entendido",
+    "createMultiBlocked": "Elija catálogo base o exactamente una sucursal para crear. Varias sucursales solo permiten anulaciones.",
+    "branchOwnedSaved": "Elemento de sucursal guardado"
   }
 }

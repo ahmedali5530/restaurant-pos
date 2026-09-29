@@ -20,10 +20,13 @@ import {DiscountReasonsAdmin} from "@/components/settings/discounts/reasons/inde
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminDiscounts = () => {
   const {t} = useTranslation(['admin', 'common', 'toast', 'payment']);
   const loadHook = useApi<SettingsData<Discount>>(Tables.discounts, ['deleted_at = none']);
+  useHqCatalogListScope(loadHook);
+
   const db = useDB();
   const {protectAction} = useSecurity();
 

@@ -91,7 +91,8 @@ const validationSchema = yup.object({
 
 export const CouponForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.coupons);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.coupons);
+  const structuralLocked = lockStructuralFields(data);
   const db = useDB();
 
   const {
@@ -180,13 +181,18 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
     vals.priority = Number(vals.priority);
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           discount_value: vals.discount_value,
           max_discount_amount: vals.max_discount_amount,
@@ -201,6 +207,9 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
             await db.update(data.id, {
               ...vals,
               updated_at: nowSurrealDateTime(),
+              ...(soleBranchId && isBranchOwnedBy(data)
+                ? { branch_id: soleBranchId }
+                : {}),
             });
           } else {
             const now = nowSurrealDateTime();
@@ -209,6 +218,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
               used_count: 0,
               created_at: now,
               updated_at: now,
+              ...(soleBranchId ? { branch_id: soleBranchId } : {}),
             });
           }
 
@@ -259,7 +269,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.code?.message as string}
-                    disabled={isBranchEditMode}
+                    disabled={structuralLocked}
                   />
                 </div>
               )}
@@ -274,7 +284,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.description?.message as string}
-                    disabled={isBranchEditMode}
+                    disabled={structuralLocked}
                   />
                 </div>
               )}
@@ -288,7 +298,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
-                    isDisabled={isBranchEditMode}
+                    isDisabled={structuralLocked}
                     options={(["order", "product", "shipping"] as CouponType[]).map(
                       (item) => ({
                         label: item,
@@ -309,7 +319,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
-                    isDisabled={isBranchEditMode}
+                    isDisabled={structuralLocked}
                     options={["fixed", "percent"].map((item) => ({
                       label: item,
                       value: item,
@@ -421,7 +431,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     isMulti
                     value={field.value}
                     onChange={field.onChange}
-                    isDisabled={isBranchEditMode}
+                    isDisabled={structuralLocked}
                     options={weekDayOptions}
                   />
                 )}
@@ -444,7 +454,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                         label={t('columns.startTime')}
                         value={value}
                         onChange={field.onChange}
-                        disabled={isBranchEditMode}
+                        disabled={structuralLocked}
                       />
                       <InputError error={errors?.start_time?.message as string}/>
                     </div>
@@ -466,7 +476,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                         label={t('columns.endTime')}
                         value={value}
                         onChange={field.onChange}
-                        disabled={isBranchEditMode}
+                        disabled={structuralLocked}
                       />
                       <InputError error={errors?.end_time?.message as string}/>
                     </div>
@@ -485,7 +495,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                       value={field.value as Dayjs | null}
                       onChange={field.onChange}
                       isClearable
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                     />
                     {errors?.start_date?.message && (
                       <InputError error={errors.start_date.message as string} />
@@ -503,7 +513,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                       value={field.value as Dayjs | null}
                       onChange={field.onChange}
                       isClearable
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                     />
                     {errors?.end_date?.message && (
                       <InputError error={errors.end_date.message as string} />
@@ -522,7 +532,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     <Checkbox
                       label={t('columns.stackable')}
                       checked={!!field.value}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -537,7 +547,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     <Checkbox
                       label={t('columns.firstOrderOnly')}
                       checked={!!field.value}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>

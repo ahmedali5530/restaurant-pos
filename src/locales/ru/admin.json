@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Переопределение ширины бумаги",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Использовать настройки печати"
+    "usePrintSettings": "Использовать настройки печати",
+    "userBranches": "Филиалы",
+    "userBranchesShared": "Все филиалы (общий)",
+    "userBranchesHint": "Пусто = общий сотрудник во всех магазинах. Выберите филиалы, чтобы ограничить загрузку Sync now."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Массовое редактирование недоступно при редактировании для филиала. Переключитесь на базовый каталог или редактируйте по одному.",
     "overrideSaved": "Переопределение филиала сохранено",
     "branchesCount": "{{count}} филиалов",
-    "createLockedHint": "Создание доступно только в режиме базового каталога. Очистите выбранные филиалы, чтобы создавать общие элементы.",
+    "createLockedHint": "Создание доступно в базовом каталоге или при выборе одного филиала. Несколько = только переопределения.",
     "helpAria": "Справка по режиму редактирования каталога",
-    "dismissHint": "Понятно"
+    "dismissHint": "Понятно",
+    "createMultiBlocked": "Выберите базовый каталог или ровно один филиал для создания. Несколько филиалов — только переопределения.",
+    "branchOwnedSaved": "Элемент филиала сохранён"
   }
 }

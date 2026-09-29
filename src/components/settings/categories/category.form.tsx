@@ -32,7 +32,8 @@ export const CategoryForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.categories);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.categories);
+  const structuralLocked = lockStructuralFields(data);
 
   const closeModal = () => {
     onClose();
@@ -72,22 +73,33 @@ export const CategoryForm = ({
     vals.priority = parseInt(vals.priority);
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           priority: vals.priority,
           show_in_menu: vals.show_in_menu,
         },
         structuralWrite: async () => {
+          const row = {
+            ...vals,
+            ...(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {}),
+          };
           if (data?.id) {
-            await db.update(data.id, { ...vals });
+            await db.update(data.id, row);
           } else {
-            await db.create(Tables.categories, { ...vals });
+            await db.create(Tables.categories, row);
           }
           await emitEntityCrudSave({
             domain: 'manage',
@@ -102,7 +114,9 @@ export const CategoryForm = ({
       closeModal();
       toast.success(
         isBranchEditMode
-          ? t('admin:hqBranchEdit.overrideSaved')
+          ? t(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? 'admin:hqBranchEdit.branchOwnedSaved'
+              : 'admin:hqBranchEdit.overrideSaved')
           : t('toast:admin.categorySaved', { name: values.name })
       );
     }catch(e: any){
@@ -131,7 +145,7 @@ export const CategoryForm = ({
                 label={t('forms.nameOfCategory')}
                 autoFocus
                 error={errors?.name?.message}
-                disabled={isBranchEditMode}
+                disabled={structuralLocked}
               />
             </div>
             <div className="flex-1">

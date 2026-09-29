@@ -33,7 +33,8 @@ export const OrderTypeForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.order_types);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.order_types);
+  const structuralLocked = lockStructuralFields(data);
 
   const closeModal = () => {
     onClose();
@@ -73,26 +74,33 @@ export const OrderTypeForm = ({
     vals.priority = parseInt(vals.priority);
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           priority: vals.priority,
           allow_service_charges: vals.allow_service_charges,
         },
         structuralWrite: async () => {
+          const row = {
+            ...vals,
+            ...(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {}),
+          };
           if( data?.id ) {
-            await db.update(data.id, {
-              ...vals
-            })
+            await db.update(data.id, row)
           } else {
-            await db.create(Tables.order_types, {
-              ...vals
-            });
+            await db.create(Tables.order_types, row);
           }
 
           await emitEntityCrudSave({
@@ -131,7 +139,7 @@ export const OrderTypeForm = ({
           )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div className="flex-1">
               <Controller

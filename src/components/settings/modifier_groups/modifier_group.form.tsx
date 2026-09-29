@@ -239,7 +239,8 @@ const ModifierNextGroups = ({
 
 export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.modifier_groups);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.modifier_groups);
+  const structuralLocked = lockStructuralFields(data);
   const closeModal = () => {
     onClose();
   }
@@ -336,13 +337,18 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     vals.priority = Number(vals.priority);
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           priority: vals.priority,
           color: vals.color,
@@ -380,11 +386,15 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
 
           if (data?.id) {
             await db.merge(toRecordId(data.id), {
-              ...vals
+              ...vals,
+              ...(soleBranchId && isBranchOwnedBy(data)
+                ? { branch_id: soleBranchId }
+                : {}),
             });
           } else {
             await db.create(Tables.modifier_groups, {
-              ...vals
+              ...vals,
+              ...(soleBranchId ? { branch_id: soleBranchId } : {}),
             });
           }
 
@@ -427,7 +437,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
           )}
           <div className="mb-3 flex gap-3">
             <div>
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div>
               <Controller
@@ -447,7 +457,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
           </div>
 
           <div className="mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
               <legend>{t('columns.modifiers')}</legend>
 
               <div className="flex gap-3 mb-3">
@@ -458,11 +468,11 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                     allowed_next_groups: [],
                     next_group_overrides: [],
                   })
-                }} variant="primary" type="button" icon={faPlus} disabled={isBranchEditMode}>{t('entities.modifier')}</Button>
+                }} variant="primary" type="button" icon={faPlus} disabled={structuralLocked}>{t('entities.modifier')}</Button>
 
                 <Button onClick={() => {
                   setDishModal(true)
-                }} variant="primary" type="button" icon={faPlus} flat disabled={isBranchEditMode}>{t('forms.newModifier')}</Button>
+                }} variant="primary" type="button" icon={faPlus} flat disabled={structuralLocked}>{t('forms.newModifier')}</Button>
               </div>
 
               {fields.map((item, index) => (
@@ -497,7 +507,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                             value: dish.id.toString()
                           }))}
                           isLoading={loadingDishes}
-                          isDisabled={isBranchEditMode}
+                          isDisabled={structuralLocked}
                         />
                       )}
                     />
@@ -512,14 +522,14 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                           label={t('common:actions.price')}
                           value={field.value}
                           onChange={field.onChange}
-                          disabled={isBranchEditMode}
+                          disabled={structuralLocked}
                         />
                       )}
                     />
                   </div>
                   <div className="self-start flex flex-col">
                     <label htmlFor="">&nbsp;</label>
-                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)} disabled={isBranchEditMode}><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
                   </div>
                   <ModifierNextGroups
                     index={index}

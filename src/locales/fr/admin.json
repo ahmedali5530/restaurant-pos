@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Remplacement de la largeur du papier",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Utiliser les paramètres d'impression"
+    "usePrintSettings": "Utiliser les paramètres d'impression",
+    "userBranches": "Succursales",
+    "userBranchesShared": "Toutes les succursales (partagé)",
+    "userBranchesHint": "Vide = employé partagé partout. Sélectionnez des succursales pour limiter le téléchargement Sync now."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "La modification en masse n'est pas disponible en mode succursale. Passez au catalogue de base ou modifiez un par un.",
     "overrideSaved": "Surcharge de succursale enregistrée",
     "branchesCount": "{{count}} succursales",
-    "createLockedHint": "Ajouter un élément n’est possible qu’en mode catalogue de base. Videz la sélection de succursales pour créer des éléments partagés.",
+    "createLockedHint": "Création possible en catalogue de base ou avec une seule succursale. Multi = surcharges seulement.",
     "helpAria": "Aide du mode d’édition du catalogue",
-    "dismissHint": "Compris"
+    "dismissHint": "Compris",
+    "createMultiBlocked": "Choisissez le catalogue de base ou exactement une succursale pour créer. Multi-succursales = surcharges uniquement.",
+    "branchOwnedSaved": "Élément propre à la succursale enregistré"
   }
 }

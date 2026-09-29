@@ -97,7 +97,8 @@ export const DishForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.dishes);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.dishes);
+  const structuralLocked = lockStructuralFields(data);
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -328,8 +329,12 @@ export const DishForm = ({
 
   const onSubmit = async (values: any) => {
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
@@ -353,6 +358,10 @@ export const DishForm = ({
         }
       }
 
+      const stampBranch =
+        soleBranchId && (!data?.id || isBranchOwnedBy(data))
+          ? { branch_id: soleBranchId }
+          : {};
       const dishData: any = {
         name: formData.name,
         number: formData.number,
@@ -363,10 +372,12 @@ export const DishForm = ({
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
+        ...stampBranch,
       };
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           price: formData.price,
           cost: formData.cost,
@@ -550,7 +561,7 @@ export const DishForm = ({
           )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
+              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div className="flex-1">
               <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
@@ -637,7 +648,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     isLoading={loadingCategories}
-                    isDisabled={isBranchEditMode}
+                    isDisabled={structuralLocked}
                   />
                 )}
                 control={control}
@@ -645,7 +656,7 @@ export const DishForm = ({
               {errors?.categories?.message && <InputError error={errors?.categories?.message}/>}
             </div>
             <div className="flex-0">
-              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={isBranchEditMode}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={structuralLocked}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 
@@ -720,7 +731,7 @@ export const DishForm = ({
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
-                disabled={isBranchEditMode}
+                disabled={structuralLocked}
                 className="block w-full text-sm text-foreground
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
@@ -742,10 +753,10 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={isBranchEditMode}>
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('columns.modifierGroups')}</legend>
               <div className="mb-3 flex gap-3">
-                <Button type="button" icon={faPlus} variant="primary" disabled={isBranchEditMode} onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   append({
                     modifier_group: null,
                     has_required_modifiers: false,
@@ -755,7 +766,7 @@ export const DishForm = ({
                   {t('entities.modifierGroup')}
                 </Button>
 
-                <Button type="button" icon={faPlus} variant="primary" flat disabled={isBranchEditMode} onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" flat disabled={structuralLocked} onClick={() => {
                   setModifierGroupsModal(true)
                 }}>
                   {t('forms.createModifierGroup')}
@@ -774,7 +785,7 @@ export const DishForm = ({
                           value={field.value}
                           onChange={field.onChange}
                           isLoading={loadingModifierGroups}
-                          isDisabled={isBranchEditMode}
+                          isDisabled={structuralLocked}
                           options={modifierGroups?.data?.map(item => ({
                             label: item.name,
                             value: item.id,
@@ -846,7 +857,7 @@ export const DishForm = ({
                     />
                   </div>
                   <div className="flex-0 self-end">
-                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)} disabled={isBranchEditMode}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                   </div>
                 </div>
               ))}
@@ -854,10 +865,10 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={isBranchEditMode}>
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('forms.recipe')}</legend>
               <div className="mb-3">
-                <Button type="button" icon={faPlus} variant="primary" disabled={isBranchEditMode} onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   appendRecipe({
                     item: null,
                     quantity: 1,
@@ -911,7 +922,7 @@ export const DishForm = ({
                               }
                             }}
                             isLoading={loadingInventoryItems}
-                            isDisabled={isBranchEditMode}
+                            isDisabled={structuralLocked}
                             options={availableOptions}
                           />
                         )}
@@ -978,7 +989,7 @@ export const DishForm = ({
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={isBranchEditMode}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                     </div>
                   </div>
                 );

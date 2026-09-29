@@ -158,4 +158,44 @@ describe('saveWithBranchContext (HQ Admin forms)', () => {
     expect(db.store.get(keyB).patch).toEqual({ price: 15 });
     expect(db.store.get('menu_item:wings').price).toBe(10);
   });
+
+  it('single-branch create runs structuralWrite as branch-owned', async () => {
+    const db = memoryDb();
+    let wrote = false;
+    const result = await saveWithBranchContext(db, {
+      table: 'menu_item',
+      id: null,
+      branchIds: ['store-a'],
+      nextValues: { price: 8 },
+      structuralWrite: async () => {
+        wrote = true;
+        db.store.set('menu_item:local', { price: 8, branch_id: 'store-a' });
+      },
+      bumpRelease: false,
+    });
+    expect(result.mode).toBe('branch-owned');
+    expect(wrote).toBe(true);
+    expect(db.store.get('menu_item:local').branch_id).toBe('store-a');
+  });
+
+  it('edits branch-owned rows structurally instead of override', async () => {
+    const db = memoryDb();
+    db.store.set('menu_item:local', { price: 8, name: 'Local', branch_id: 'store-a' });
+    let structural = 0;
+    const result = await saveWithBranchContext(db, {
+      table: 'menu_item',
+      id: 'menu_item:local',
+      branchIds: ['store-a'],
+      nextValues: { price: 9 },
+      existing: db.store.get('menu_item:local'),
+      structuralWrite: async () => {
+        structural += 1;
+        db.store.set('menu_item:local', { price: 9, name: 'Local', branch_id: 'store-a' });
+      },
+      bumpRelease: false,
+    });
+    expect(result.mode).toBe('branch-owned');
+    expect(structural).toBe(1);
+    expect([...db.store.keys()].some((k) => k.includes('catalog_branch_override'))).toBe(false);
+  });
 });

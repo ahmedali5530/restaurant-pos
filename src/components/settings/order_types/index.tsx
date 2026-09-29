@@ -19,6 +19,7 @@ import {DataImportModal} from "@/components/common/data-import/data-import-modal
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createOrderTypeImportConfig} from "@/components/settings/order_types/order-type.import.config.ts";
 import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminOrderTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -34,6 +35,8 @@ export const AdminOrderTypes = () => {
     () => createOrderTypeImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<OrderType>();
 

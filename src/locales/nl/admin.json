@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Papierbreedte-override",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Printinstellingen gebruiken"
+    "usePrintSettings": "Printinstellingen gebruiken",
+    "userBranches": "Vestigingen",
+    "userBranchesShared": "Alle vestigingen (gedeeld)",
+    "userBranchesHint": "Leeg = gedeelde medewerker in alle winkels. Selecteer vestigingen om Sync now te beperken."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Bulkbewerking is niet beschikbaar tijdens bewerken voor een vestiging. Schakel naar Basiscatalogus of bewerk items één voor één.",
     "overrideSaved": "Vestigingsoverschrijving opgeslagen",
     "branchesCount": "{{count}} vestigingen",
-    "createLockedHint": "Nieuw toevoegen is alleen beschikbaar in de basiscatalogus. Wis de vestigingsselectie om gedeelde items te maken.",
+    "createLockedHint": "Aanmaken kan in basiscatalogus of met precies één vestiging. Meerdere = alleen overrides.",
     "helpAria": "Hulp bij catalogusbewerkingsmodus",
-    "dismissHint": "Begrepen"
+    "dismissHint": "Begrepen",
+    "createMultiBlocked": "Kies basiscatalogus of precies één vestiging om aan te maken. Meerdere vestigingen = alleen overrides.",
+    "branchOwnedSaved": "Vestigingseigen item opgeslagen"
   }
 }

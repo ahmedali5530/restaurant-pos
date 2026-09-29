@@ -19,6 +19,7 @@ import {DataImportModal} from "@/components/common/data-import/data-import-modal
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createExtraImportConfig} from "@/components/settings/extras/extra.import.config.ts";
 import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminExtras = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -38,6 +39,8 @@ export const AdminExtras = () => {
     () => createExtraImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<Extra>();
 

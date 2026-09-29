@@ -222,6 +222,11 @@ const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_cod
  */
 function shouldApplyCatalogRow(row, branchId) {
   if (!row || typeof row !== 'object') return false;
+  // Phase 7: users (and similar) may list multiple store client ids.
+  if (Array.isArray(row.branch_ids) && row.branch_ids.length > 0) {
+    const want = String(branchId);
+    return row.branch_ids.some((id) => String(id) === want);
+  }
   const scoped = row.branch_id;
   if (scoped == null || scoped === '') return true;
   return String(scoped) === String(branchId);

@@ -13,6 +13,8 @@ export interface User extends ID {
   user_shift?: UserShift
   roles?: string[]
   role?: UserRole
+  /** Cloud HQ: empty = shared all branches; otherwise SYNC_CLIENT_IDs (Phase 7). */
+  branch_ids?: string[] | null
 
   deleted_at?: DateTime
 }

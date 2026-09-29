@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-09-29',
+    title: 'Branch-owned catalog and multi-store employees',
+    items: [
+      'With exactly one branch selected in the Manage toolbar, Add creates items owned by that store (branch_id). Shared items still use sparse overrides; multi-branch selection stays override-only.',
+      'HQ users can be limited to one or more registered branches via branch_ids; Sync now only downloads those employees to matching stores (empty = shared everywhere).',
+    ],
+  },
+  {
+    date: '2026-09-29',
     title: 'Filtered catalog Sync now',
     items: [
       'When HQ publishes a catalog release with selected tables, Sync now on each store downloads only those tables (intersected with the catalog allowlist). Empty selection still means full catalog.',

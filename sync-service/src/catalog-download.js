@@ -222,6 +222,16 @@ class CatalogDownloadManager {
     }
 
     try {
+      await this.master.query(
+        `DEFINE FIELD IF NOT EXISTS branch_ids ON user TYPE option<array<string>> PERMISSIONS FULL;`
+      );
+    } catch (error) {
+      this.logger.warn('Could not define branch_ids on master user', {
+        error: error.message || String(error),
+      });
+    }
+
+    try {
       await this.master.query(`
         DEFINE TABLE IF NOT EXISTS catalog_release SCHEMALESS PERMISSIONS NONE;
       `);
@@ -555,11 +565,12 @@ class CatalogDownloadManager {
 
   async selectMasterPage(tableName, limit, start) {
     const branchId = this.config.clientId;
-    // Shared (no branch_id) or this branch. Surreal: none | null treated as shared.
+    // Shared (no branch_id) or this branch. Users may also list branch_ids[].
     const result = await withRetry(
       () => this.master.query(
         `SELECT * FROM ${tableName}
           WHERE branch_id = NONE OR branch_id = NULL OR branch_id = $branchId
+            OR (type::is::array(branch_ids) AND $branchId IN branch_ids)
           LIMIT $limit START $start;`,
         { branchId, limit, start }
       ),
@@ -840,8 +851,9 @@ class CatalogDownloadManager {
   async upsertLocal(tableName, targetId, value) {
     const patch = this.patchForBase(tableName, targetId);
     const merged = mergeCatalogBaseWithPatch(tableName, value, patch);
-    // Never materialize cloud branch_id onto local schemafull catalog tables.
+    // Never materialize cloud branch scoping onto local schemafull catalog tables.
     delete merged.branch_id;
+    delete merged.branch_ids;
     const payload = prepareCatalogPayload(tableName, merged);
     const expectedId = recordIdToString(targetId);
 

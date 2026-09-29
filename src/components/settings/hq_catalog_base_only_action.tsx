@@ -9,24 +9,31 @@ type Props = {
 };
 
 /**
- * Disables create/import actions while HQ is Editing for one or more branches.
- * Base catalog mode leaves the child button unchanged.
+ * Gates create/import while HQ Editing for branches.
+ * Allowed on Base catalog or exactly one branch (Phase 6 branch-owned create).
+ * Locked when two or more branches are selected (override-only).
  */
 export function HqCatalogBaseOnlyAction({ children }: Props) {
   const { t } = useTranslation(['admin']);
-  const { canCreateBaseEntities } = useHqCatalogBranchContext();
+  const { canCreateEntities, isBranchEditMode, soleBranchId } =
+    useHqCatalogBranchContext();
 
   if (!isValidElement(children)) return children;
-  if (canCreateBaseEntities) return children;
+  if (canCreateEntities) return children;
 
   const child = children as ReactElement<any>;
+  const message =
+    isBranchEditMode && !soleBranchId
+      ? t('admin:hqBranchEdit.createMultiBlocked')
+      : t('admin:hqBranchEdit.createBlocked');
+
   return cloneElement(child, {
     disabled: true,
-    title: t('admin:hqBranchEdit.createBlocked'),
+    title: message,
     onClick: (e: any) => {
       e?.preventDefault?.();
       e?.stopPropagation?.();
-      toast.error(t('admin:hqBranchEdit.createBlocked'));
+      toast.error(message);
     },
   });
 }

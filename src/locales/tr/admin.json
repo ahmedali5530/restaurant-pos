@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Kağıt genişliği geçersiz kılma",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Yazdırma ayarlarını kullan"
+    "usePrintSettings": "Yazdırma ayarlarını kullan",
+    "userBranches": "Şubeler",
+    "userBranchesShared": "Tüm şubeler (paylaşılan)",
+    "userBranchesHint": "Boş = her mağazada paylaşılan çalışan. Sync now indirmesini sınırlamak için şube seçin."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Bir şube için düzenlerken toplu düzenleme kullanılamaz. Temel kataloga geçin veya tek tek düzenleyin.",
     "overrideSaved": "Şube geçersiz kılması kaydedildi",
     "branchesCount": "{{count}} şube",
-    "createLockedHint": "Yeni ekleme yalnızca Temel katalog modunda kullanılabilir. Paylaşılan öğeler oluşturmak için şube seçimini temizleyin.",
+    "createLockedHint": "Oluşturma Temel katalogda veya tek şube seçiliyken yapılabilir. Çoklu seçim yalnızca geçersiz kılma.",
     "helpAria": "Katalog düzenleme modu yardımı",
-    "dismissHint": "Tamam"
+    "dismissHint": "Tamam",
+    "createMultiBlocked": "Oluşturmak için Temel katalog veya tam olarak bir şube seçin. Çoklu şube yalnızca geçersiz kılmalar içindir.",
+    "branchOwnedSaved": "Şubeye özel öğe kaydedildi"
   }
 }

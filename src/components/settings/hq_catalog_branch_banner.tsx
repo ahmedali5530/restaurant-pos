@@ -107,8 +107,13 @@ export function HqCatalogBranchToolbarSlot() {
               ? t('hqBranchEdit.branchHint', { branch: branchLabel })
               : t('hqBranchEdit.baseHint')}
           </p>
-          {branchIds.length > 0 && (
+          {branchIds.length > 1 && (
             <p className="text-warning mt-2">{t('hqBranchEdit.createLockedHint')}</p>
+          )}
+          {branchIds.length === 1 && (
+            <p className="text-muted mt-2">{t('hqBranchEdit.branchOwnedHint', {
+              defaultValue: 'One branch selected: new items are owned by this branch. Shared items still save as overrides.',
+            })}</p>
           )}
           <button
             type="button"

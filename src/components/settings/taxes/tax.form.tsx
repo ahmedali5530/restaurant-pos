@@ -31,7 +31,8 @@ export const TaxForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.taxes);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.taxes);
+  const structuralLocked = lockStructuralFields(data);
 
   const closeModal = () => {
     onClose();
@@ -73,22 +74,33 @@ export const TaxForm = ({
     vals.priority = parseInt(vals.priority);
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           rate: vals.rate,
           priority: vals.priority,
         },
         structuralWrite: async () => {
           if (data?.id) {
-            await db.update(data.id, { ...vals });
+            await db.update(data.id, {
+            ...vals,
+            ...(soleBranchId && isBranchOwnedBy(data) ? { branch_id: soleBranchId } : {}),
+          });
           } else {
-            await db.create(Tables.taxes, { ...vals });
+            await db.create(Tables.taxes, {
+            ...vals,
+            ...(soleBranchId ? { branch_id: soleBranchId } : {}),
+          });
           }
           await emitEntityCrudSave({
             domain: 'manage',
@@ -132,7 +144,7 @@ export const TaxForm = ({
                 label={t('columns.name')}
                 autoFocus
                 error={errors?.name?.message}
-                disabled={isBranchEditMode}
+                disabled={structuralLocked}
               />
             </div>
             <div className="flex-1">

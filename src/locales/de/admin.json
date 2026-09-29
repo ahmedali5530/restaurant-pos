@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Papierbreiten-Override",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Druckeinstellungen verwenden"
+    "usePrintSettings": "Druckeinstellungen verwenden",
+    "userBranches": "Filialen",
+    "userBranchesShared": "Alle Filialen (geteilt)",
+    "userBranchesHint": "Leer = gemeinsamer Mitarbeiter in allen Stores. Filialen wählen, um den Sync-Download einzuschränken."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Massenbearbeitung ist nicht verfügbar, während für eine Filiale bearbeitet wird. Wechseln Sie zum Basiskatalog oder bearbeiten Sie einzeln.",
     "overrideSaved": "Filial-Override gespeichert",
     "branchesCount": "{{count}} Filialen",
-    "createLockedHint": "Neu anlegen ist nur im Basiskatalog möglich. Leeren Sie die Filialauswahl, um gemeinsame Einträge zu erstellen.",
+    "createLockedHint": "Anlegen ist im Basiskatalog oder bei genau einer Filiale möglich. Mehrfachauswahl nur für Overrides.",
     "helpAria": "Hilfe zum Katalog-Bearbeitungsmodus",
-    "dismissHint": "Verstanden"
+    "dismissHint": "Verstanden",
+    "createMultiBlocked": "Wählen Sie Basiskatalog oder genau eine Filiale zum Anlegen. Mehrfachauswahl ist nur für Overrides.",
+    "branchOwnedSaved": "Filialeigener Eintrag gespeichert"
   }
 }

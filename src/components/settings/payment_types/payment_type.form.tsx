@@ -136,7 +136,8 @@ export const PaymentTypeForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.payment_types);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.payment_types);
+  const structuralLocked = lockStructuralFields(data);
 
   const closeModal = () => {
     onClose();
@@ -243,24 +244,35 @@ export const PaymentTypeForm = ({
       : null;
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           priority: Number(values.priority),
           has_discount: false,
         },
         structuralWrite: async () => {
+          const stamped = {
+            ...payload,
+            ...(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {}),
+          };
           let savedPaymentTypeId: string | null = null;
           if(data?.id){
-            await db.update(toRecordId(data.id), payload);
+            await db.update(toRecordId(data.id), stamped);
             savedPaymentTypeId = paymentTypeIdToString(data.id);
           }else{
-            const [created] = await db.create(Tables.payment_types, payload);
+            const [created] = await db.create(Tables.payment_types, stamped);
             savedPaymentTypeId = paymentTypeIdToString(created?.id);
           }
 
@@ -331,7 +343,7 @@ export const PaymentTypeForm = ({
           )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div className="flex-1">
               <Controller
@@ -362,7 +374,7 @@ export const PaymentTypeForm = ({
                       label: item,
                       value: item
                     }))}
-                    isDisabled={isBranchEditMode}
+                    isDisabled={structuralLocked}
                   />
                 )}
                 name="type"

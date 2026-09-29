@@ -429,7 +429,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Substituição da largura do papel",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
-    "usePrintSettings": "Usar configurações de impressão"
+    "usePrintSettings": "Usar configurações de impressão",
+    "userBranches": "Filiais",
+    "userBranchesShared": "Todas as filiais (compartilhado)",
+    "userBranchesHint": "Vazio = funcionário compartilhado em todas as lojas. Selecione filiais para limitar o download."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -1050,8 +1053,10 @@
     "bulkBlocked": "Edição em massa não está disponível ao editar para uma filial. Mude para Catálogo base ou edite um por um.",
     "overrideSaved": "Substituição da filial salva",
     "branchesCount": "{{count}} filiais",
-    "createLockedHint": "Adicionar novo só está disponível no catálogo base. Limpe as filiais selecionadas para criar itens compartilhados.",
+    "createLockedHint": "Criar está disponível no catálogo base ou com exatamente uma filial. Várias = só substituições.",
     "helpAria": "Ajuda do modo de edição do catálogo",
-    "dismissHint": "Entendi"
+    "dismissHint": "Entendi",
+    "createMultiBlocked": "Escolha catálogo base ou exatamente uma filial para criar. Várias filiais = só substituições.",
+    "branchOwnedSaved": "Item da filial salvo"
   }
 }

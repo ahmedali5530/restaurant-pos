@@ -35,7 +35,8 @@ export const MenuForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.menus);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.menus);
+  const structuralLocked = lockStructuralFields(data);
 
   // Helper function to convert Date to time string (HH:mm)
   const dateToTimeString = (date: unknown): string | null => {
@@ -108,8 +109,12 @@ export const MenuForm = ({
     }
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
@@ -117,10 +122,15 @@ export const MenuForm = ({
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           active,
         },
         structuralWrite: async () => {
+          const stamp =
+            soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {};
           if (data?.id) {
             await db.merge(data.id, {
               name: vals.name,
@@ -128,6 +138,7 @@ export const MenuForm = ({
               end_time: vals.end_time,
               ends_on_next_day: vals.ends_on_next_day,
               active,
+              ...stamp,
             });
           } else {
             await db.create(Tables.menus, {
@@ -137,6 +148,7 @@ export const MenuForm = ({
               ends_on_next_day: vals.ends_on_next_day,
               active,
               items: [],
+              ...stamp,
             });
           }
 
@@ -176,10 +188,10 @@ export const MenuForm = ({
           )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={isBranchEditMode} />
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked} />
             </div>
           </div>
-          <fieldset className="border-0 p-0 m-0 min-w-0" disabled={isBranchEditMode}>
+          <fieldset className="border-0 p-0 m-0 min-w-0" disabled={structuralLocked}>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
                 <TimeField

@@ -128,3 +128,11 @@ fields via Admin forms (not a separate Catalog publish panel).
 - Empty / missing `tables` → full allowlist (legacy behaviour).
 - Catch-up unions tip releases (global + branch) with `version > local`.
 - Unknown table names are ignored; if nothing remains, falls back to full.
+
+## Branch-owned catalog + employees (Phases 6–7)
+
+- Exactly one toolbar branch selected → Admin **Add** creates rows with
+  `branch_id` (full structural edit). Shared rows still use sparse overrides.
+- Multi-branch toolbar selection → override-only (create locked).
+- `user.branch_ids[]` on cloud: empty = shared; otherwise Sync now only applies
+  the user when `SYNC_CLIENT_ID` is listed. See ADR 0005.

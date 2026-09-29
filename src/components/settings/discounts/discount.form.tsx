@@ -61,7 +61,8 @@ export const DiscountForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast', 'payment']);
-  const { isBranchEditMode, loadMerged, save } = useHqCatalogBranchEdit(Tables.discounts);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.discounts);
+  const structuralLocked = lockStructuralFields(data);
   const [schedules, setSchedules] = useState(data?.schedules || []);
   const [conditions, setConditions] = useState(data?.conditions);
   const [targets, setTargets] = useState<DiscountTargets>({});
@@ -181,13 +182,18 @@ export const DiscountForm = ({
     vals.stackable_with_coupon = vals.stackable_with_coupon ?? true;
 
     try {
-      if (isBranchEditMode && !data?.id) {
-        toast.error(t('admin:hqBranchEdit.createBlocked'));
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
         return;
       }
 
       await save({
         id: data?.id,
+        existing: data,
         nextValues: {
           value: vals.value,
           max_value: vals.max_value,
@@ -200,10 +206,16 @@ export const DiscountForm = ({
           is_active: vals.is_active,
         },
         structuralWrite: async () => {
+          const row = {
+            ...vals,
+            ...(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {}),
+          };
           if (data?.id) {
-            await db.update(data.id, vals);
+            await db.update(data.id, row);
           } else {
-            await db.create(Tables.discounts, vals);
+            await db.create(Tables.discounts, row);
           }
 
           await refreshDiscountCache();
@@ -243,10 +255,10 @@ export const DiscountForm = ({
           <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
         )}
         <div className="flex-1 overflow-y-auto flex flex-col gap-4 mb-4">
-          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.basic')}</legend>
             <div className="flex flex-col gap-3 mt-2">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string} disabled={isBranchEditMode}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message as string} disabled={structuralLocked}/>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -285,7 +297,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('scope')?.value && (
-            <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
               <legend className="px-2 font-semibold">{t('discountEngine.sections.targets')}</legend>
               <div className="mt-2">
                 <DiscountTargetsEditor
@@ -310,7 +322,7 @@ export const DiscountForm = ({
                     variant="primary"
                     active={watch('type')?.value === DiscountType.Percent}
                     className="flex-1"
-                    disabled={isBranchEditMode}
+                    disabled={structuralLocked}
                     onClick={() => setValue('type', { label: t('payment:discountType.percent'), value: DiscountType.Percent })}
                   >
                     {t('payment:discountType.percent')}
@@ -321,7 +333,7 @@ export const DiscountForm = ({
                     variant="primary"
                     active={watch('type')?.value === DiscountType.Fixed}
                     className="flex-1"
-                    disabled={isBranchEditMode}
+                    disabled={structuralLocked}
                     onClick={() => setValue('type', { label: t('payment:discountType.fixed'), value: DiscountType.Fixed })}
                   >
                     {t('payment:discountType.fixed')}
@@ -392,7 +404,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.stacking')}</legend>
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div>
@@ -430,7 +442,7 @@ export const DiscountForm = ({
                     <Checkbox
                       label={t('discountEngine.fields.stackable')}
                       checked={field.value ?? true}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -445,7 +457,7 @@ export const DiscountForm = ({
                     <Checkbox
                       label={t('discountEngine.fields.exclusive')}
                       checked={!!field.value}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -460,7 +472,7 @@ export const DiscountForm = ({
                     <Checkbox
                       label={t('discountEngine.fields.requiresReason')}
                       checked={!!field.value}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -475,7 +487,7 @@ export const DiscountForm = ({
                     <Checkbox
                       label={t('discountEngine.fields.requiresApproval')}
                       checked={!!field.value}
-                      disabled={isBranchEditMode}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -498,7 +510,7 @@ export const DiscountForm = ({
             </div>
           </fieldset>
 
-          <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+          <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
             <legend className="px-2 font-semibold">{t('discountEngine.sections.schedule')}</legend>
             <div className="mt-2">
               <DiscountScheduleEditor value={schedules} onChange={setSchedules} />
@@ -506,7 +518,7 @@ export const DiscountForm = ({
           </fieldset>
 
           {watch('category')?.value === 'buy_x_get_y' && (
-            <fieldset className="border-2 border-border rounded-lg p-3" disabled={isBranchEditMode}>
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
               <legend className="px-2 font-semibold">{t('discountEngine.sections.bxgy')}</legend>
               <div className="mt-2">
                 <DiscountConditionsEditor open={open} value={conditions} onChange={setConditions} />

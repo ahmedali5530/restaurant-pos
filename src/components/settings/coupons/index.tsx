@@ -16,6 +16,7 @@ import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminCoupons = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -168,5 +169,7 @@ export const AdminCoupons = () => {
 
     </>
   );
+
+  useHqCatalogListScope(loadHook);
 };
 
