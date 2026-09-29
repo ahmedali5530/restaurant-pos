@@ -15,6 +15,8 @@ const {
   shouldApplyCatalogRow,
   stripUserSecrets,
   prepareCatalogPayload,
+  resolveCatalogSyncTables,
+  pickWinningCatalogRelease,
 } = require('./sync-helpers');
 const {
   resolveIncludeTables,
@@ -295,5 +297,79 @@ describe('catalog row filter and secrets', () => {
     assert.equal('category' in sparse, true);
     assert.equal(sparse.application_mode, 'manual');
     assert.equal(sparse.scope, 'cart');
+  });
+});
+
+describe('resolveCatalogSyncTables (Phase 5)', () => {
+  const allowlist = ['menu_item', 'category', 'tax', 'floor'];
+
+  it('returns full allowlist when releases omit tables', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 1,
+        globalRelease: { version: 2 },
+        branchRelease: null,
+      }),
+      allowlist
+    );
+  });
+
+  it('intersects declared tables with allowlist', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 1,
+        globalRelease: { version: 3, tables: ['menu_item', 'tax', 'order'] },
+      }),
+      ['menu_item', 'tax']
+    );
+  });
+
+  it('unions tables from tip releases newer than local', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 2,
+        globalRelease: { version: 3, tables: ['menu_item'] },
+        branchRelease: { version: 4, tables: ['tax', 'floor'] },
+      }),
+      ['menu_item', 'tax', 'floor']
+    );
+  });
+
+  it('ignores tip releases already applied locally', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 5,
+        globalRelease: { version: 3, tables: ['menu_item'] },
+        branchRelease: { version: 4, tables: ['tax'] },
+      }),
+      // force / already current → use winning tip (branch 4)
+      ['tax']
+    );
+  });
+
+  it('falls back to full allowlist when intersection empty', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 0,
+        globalRelease: { version: 1, tables: ['not_a_catalog_table'] },
+      }),
+      allowlist
+    );
+  });
+
+  it('pickWinningCatalogRelease prefers higher version then branch on tie', () => {
+    assert.equal(
+      pickWinningCatalogRelease({ version: 2 }, { version: 5 }).version,
+      5
+    );
+    const branch = { version: 3, id: 'b' };
+    const global = { version: 3, id: 'g' };
+    assert.equal(pickWinningCatalogRelease(global, branch), branch);
+    assert.equal(pickWinningCatalogRelease(global, null), global);
   });
 });

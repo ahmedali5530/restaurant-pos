@@ -995,7 +995,7 @@
     "yes": "Sí",
     "no": "No",
     "publishTitle": "Publicar versión de catálogo",
-    "publishHelp": "Incremente la versión del catálogo para que las sucursales vean una actualización en Sincronizar ahora. No envía filas del menú; las tiendas las descargan por changefeed.",
+    "publishHelp": "Incremente la versión del catálogo para que las sucursales vean una actualización en Sincronizar ahora. Las tablas seleccionadas limitan la descarga; déjelas todas para un catálogo completo. No envía filas del menú por sí solo.",
     "audience": "Audiencia",
     "audienceAll": "Todas las sucursales (global)",
     "audienceSelected": "Sucursales seleccionadas",

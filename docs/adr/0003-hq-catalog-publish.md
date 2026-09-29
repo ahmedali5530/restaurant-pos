@@ -22,15 +22,17 @@ branches** (`catalog_release:<sanitized_client_id>`).
 2. **`sync_branch`** cloud table: `client_id`, `name`, `active` — maintained on
    the Publish screen (no auto-discovery).
 3. **Publish** upserts `catalog_release` with monotonic `version`, optional
-   `note`, `tables[]` (audit of intent; Sync now still downloads the full
-   allowlist), `audience`, `branch_ids`, `published_at`, `published_by`.
+   `note`, `tables[]` (tables Sync now will pull when non-empty; empty/omitted
+   → full download allowlist), `audience`, `branch_ids`, `published_at`,
+   `published_by`.
 4. Migration `2026_09_27_hq_catalog_publish.surql` runs on the **cloud / HQ**
    Surreal master (not required on every branch terminal for Sync now).
 
 ## Consequences
 
 - Branches keep using Settings → Sync now; they take `max(global, mine)`.
-- Filtering download by selected tables is out of scope (later optimization).
+- Sync now intersects `tables[]` from tip releases newer than the branch’s
+  applied version with the Phase 2 download allowlist (Phase 5).
 - Manual Surreal upsert of `catalog_release` remains valid for ops without UI.
 - Per-branch field overrides (base + sparse patch, merge on download) are
   described in [ADR 0004](0004-base-branch-overrides.md).

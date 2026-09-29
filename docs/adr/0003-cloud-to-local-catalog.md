@@ -42,7 +42,9 @@ cloud master. Multi-branch / franchise stores also need **catalog** data
 - Terminal Dexie still refreshes via existing PosStore snapshot/sync after
   local Surreal catalog changes (operators may use Cache reload).
 - Base+override prices: [ADR 0004](0004-base-branch-overrides.md).
-- Later: cross-branch employees (not this ADR).
+- Sync now may limit tables to `catalog_release.tables[]` ∩ download allowlist
+  ([ADR 0003 publish](0003-hq-catalog-publish.md) Phase 5).
+- Later: cross-branch employees; branch-owned catalog create/edit (Phase 6+).
 
 ## References
 

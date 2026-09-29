@@ -17,6 +17,7 @@ const {
   sinceLiteral,
   shouldApplyCatalogRow,
   prepareCatalogPayload,
+  resolveCatalogSyncTables,
   RELATION_CATALOG_TABLES,
   USER_SECRET_FIELDS,
 } = require('./sync-helpers');
@@ -88,6 +89,10 @@ class CatalogDownloadManager {
       syncing: null,
       localVersion: 0,
       remoteVersion: 0,
+      /** Tables used on the last Sync now (allowlist ∩ release.tables). */
+      lastSyncTables: null,
+      /** Tip release tables from master (may be null when legacy / full). */
+      releaseTables: null,
       tables: {},
       progress: {
         running: false,
@@ -99,6 +104,8 @@ class CatalogDownloadManager {
         finishedAt: null,
       },
     };
+    /** @type {{ global: any, branch: any }} */
+    this.releaseTips = { global: null, branch: null };
   }
 
   get source() {
@@ -338,21 +345,40 @@ class CatalogDownloadManager {
   async refreshRemoteVersion() {
     let globalVersion = 0;
     let branchVersion = 0;
+    let globalRow = null;
+    let branchRow = null;
     try {
-      const globalRow = await this.master.select(new RecordId('catalog_release', 'current'));
+      globalRow = await this.master.select(new RecordId('catalog_release', 'current'));
       if (globalRow && globalRow.version != null) globalVersion = Number(globalRow.version) || 0;
     } catch {
       // missing is fine
     }
     try {
       const branchKey = String(this.config.clientId).replace(/[^A-Za-z0-9_-]/g, '_');
-      const branchRow = await this.master.select(new RecordId('catalog_release', branchKey));
+      branchRow = await this.master.select(new RecordId('catalog_release', branchKey));
       if (branchRow && branchRow.version != null) branchVersion = Number(branchRow.version) || 0;
     } catch {
       // missing is fine
     }
+    this.releaseTips = { global: globalRow, branch: branchRow };
     this.stats.remoteVersion = Math.max(globalVersion, branchVersion);
+    this.stats.releaseTables = resolveCatalogSyncTables({
+      allowlist: this.config.downloadTables,
+      localVersion: this.stats.localVersion,
+      globalRelease: globalRow,
+      branchRelease: branchRow,
+    });
     return this.stats.remoteVersion;
+  }
+
+  /** Tables to download for the next Sync now pass (Phase 5 filter). */
+  resolveSyncTables() {
+    return resolveCatalogSyncTables({
+      allowlist: this.config.downloadTables,
+      localVersion: this.stats.localVersion,
+      globalRelease: this.releaseTips.global,
+      branchRelease: this.releaseTips.branch,
+    });
   }
 
   requestForceSync() {
@@ -362,11 +388,10 @@ class CatalogDownloadManager {
       state.blockedUntil = 0;
       state.backoffMs = 1000;
     }
-    // Mark running immediately so Settings progress UI does not race the first /stats poll.
-    const total = this.config.downloadTables.length;
+    // Placeholder until pollAll resolves release.tables ∩ allowlist.
     this.stats.progress = {
       running: true,
-      totalTables: total,
+      totalTables: 0,
       completedTables: 0,
       currentTable: null,
       percent: 0,
@@ -384,6 +409,7 @@ class CatalogDownloadManager {
       tables: this.config.downloadTables.length,
       localVersion: this.stats.localVersion,
       remoteVersion: this.stats.remoteVersion,
+      releaseTables: this.stats.releaseTables?.length ?? null,
     });
   }
 
@@ -401,8 +427,9 @@ class CatalogDownloadManager {
 
     this.assertClients();
 
-    const tables = [...this.config.downloadTables];
+    const tables = this.resolveSyncTables();
     const total = tables.length;
+    this.stats.lastSyncTables = [...tables];
     // Keep/refresh progress (requestForceSync already set running=true).
     this.stats.progress = {
       ...(this.stats.progress || {}),
@@ -417,6 +444,8 @@ class CatalogDownloadManager {
 
     this.logger.info('Catalog download started (on-demand)', {
       tables: total,
+      tableNames: tables,
+      filtered: tables.length < this.config.downloadTables.length,
       localVersion: this.stats.localVersion,
       remoteVersion: this.stats.remoteVersion,
     });
@@ -457,6 +486,7 @@ class CatalogDownloadManager {
     this.logger.info('Catalog download finished', {
       localVersion: this.stats.localVersion,
       remoteVersion: this.stats.remoteVersion,
+      tablesSynced: total,
       eventsProcessed: this.stats.eventsProcessed,
       eventsFailed: this.stats.eventsFailed,
     });

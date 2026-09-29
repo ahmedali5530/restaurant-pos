@@ -995,7 +995,7 @@
     "yes": "Sim",
     "no": "Não",
     "publishTitle": "Publicar versão do catálogo",
-    "publishHelp": "Incremente a versão do catálogo para que as filiais vejam uma atualização em Sincronizar agora. Isso não envia linhas do cardápio; as lojas baixam via changefeed.",
+    "publishHelp": "Incremente a versão do catálogo para que as filiais vejam uma atualização em Sincronizar agora. As tabelas selecionadas limitam o download; todas selecionadas = catálogo completo. Isso não envia linhas do cardápio.",
     "audience": "Público",
     "audienceAll": "Todas as filiais (global)",
     "audienceSelected": "Filiais selecionadas",

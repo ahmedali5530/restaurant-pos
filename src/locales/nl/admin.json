@@ -995,7 +995,7 @@
     "yes": "Ja",
     "no": "Nee",
     "publishTitle": "Catalogusrelease publiceren",
-    "publishHelp": "Verhoog de catalogusreleaseversie zodat vestigingen een update zien bij Nu synchroniseren. Dit pusht geen menuregels; winkels trekken via changefeed.",
+    "publishHelp": "Verhoog de catalogusreleaseversie zodat vestigingen een update zien bij Nu synchroniseren. Geselecteerde tabellen beperken de download; alles geselecteerd = volledige catalogus. Dit pusht geen menuregels.",
     "audience": "Doelgroep",
     "audienceAll": "Alle vestigingen (globaal)",
     "audienceSelected": "Geselecteerde vestigingen",

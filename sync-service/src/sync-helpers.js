@@ -327,6 +327,60 @@ function normalizeSelectPage(result) {
   return rows;
 }
 
+/**
+ * Phase 5: intersect catalog_release.tables with the download allowlist.
+ * Empty / missing / unknown tables → full allowlist (backward compatible).
+ * When catching up, union tables from every tip release newer than localVersion.
+ */
+function resolveCatalogSyncTables({
+  allowlist,
+  localVersion = 0,
+  globalRelease = null,
+  branchRelease = null,
+} = {}) {
+  const allowed = Array.isArray(allowlist) ? allowlist.filter(Boolean) : [];
+  if (!allowed.length) return [];
+
+  const local = Number(localVersion) || 0;
+  const tips = [];
+  if (globalRelease && typeof globalRelease === 'object') tips.push(globalRelease);
+  if (branchRelease && typeof branchRelease === 'object') tips.push(branchRelease);
+
+  const newer = tips.filter((row) => Number(row.version) > local);
+  const consider = newer.length
+    ? newer
+    : tips.length
+      ? [pickWinningCatalogRelease(globalRelease, branchRelease)].filter(Boolean)
+      : [];
+
+  if (!consider.length) return [...allowed];
+
+  const declared = [];
+  let anyDeclared = false;
+  for (const row of consider) {
+    if (!Array.isArray(row.tables) || row.tables.length === 0) continue;
+    anyDeclared = true;
+    for (const name of row.tables) {
+      const table = String(name || '').trim();
+      if (table) declared.push(table);
+    }
+  }
+
+  if (!anyDeclared) return [...allowed];
+
+  const wanted = new Set(declared);
+  const filtered = allowed.filter((name) => wanted.has(name));
+  return filtered.length ? filtered : [...allowed];
+}
+
+function pickWinningCatalogRelease(globalRelease, branchRelease) {
+  const g = globalRelease && typeof globalRelease === 'object' ? Number(globalRelease.version) || 0 : -1;
+  const b = branchRelease && typeof branchRelease === 'object' ? Number(branchRelease.version) || 0 : -1;
+  if (b < 0 && g < 0) return null;
+  if (b >= g) return branchRelease;
+  return globalRelease;
+}
+
 module.exports = {
   isRetryableError,
   isChangefeedRetentionError,
@@ -347,6 +401,8 @@ module.exports = {
   shouldApplyCatalogRow,
   stripUserSecrets,
   prepareCatalogPayload,
+  resolveCatalogSyncTables,
+  pickWinningCatalogRelease,
   USER_SECRET_FIELDS,
   RELATION_CATALOG_TABLES,
 };

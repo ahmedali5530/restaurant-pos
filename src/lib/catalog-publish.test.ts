@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'bun:test';
-import { sanitizeBranchReleaseKey } from './catalog-sync-tables.ts';
+import {
+  sanitizeBranchReleaseKey,
+  resolveCatalogSyncTables,
+} from './catalog-sync-tables.ts';
 import { publishCatalogRelease } from './catalog-publish.ts';
 
 function createMemoryDb(seed: Record<string, any> = {}) {
@@ -78,5 +81,29 @@ describe('sanitizeBranchReleaseKey', () => {
   it('matches sync-service style sanitization', () => {
     expect(sanitizeBranchReleaseKey('store-north')).toBe('store-north');
     expect(sanitizeBranchReleaseKey('store north!')).toBe('store_north_');
+  });
+});
+
+describe('resolveCatalogSyncTables', () => {
+  const allowlist = ['menu_item', 'category', 'tax'];
+
+  it('filters Sync now to release tables', () => {
+    expect(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 1,
+        globalRelease: { version: 2, tables: ['menu_item', 'bogus'] },
+      })
+    ).toEqual(['menu_item']);
+  });
+
+  it('falls back to full allowlist when tables omitted', () => {
+    expect(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 0,
+        globalRelease: { version: 1 },
+      })
+    ).toEqual(allowlist);
   });
 });

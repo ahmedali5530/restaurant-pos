@@ -116,5 +116,15 @@ On Sync now, the download manager loads patches for `SYNC_CLIENT_ID`, merges
 them onto each base row, then upserts the **flat** local `menu_item` (and
 re-applies overridden bases after the catalog pass). Apply
 `migrations/2026_09_28_catalog_branch_override.surql` on the **cloud master**.
-HQ Admin → Catalog publish → Branch overrides can edit dish patches and
-optionally bump the branch release.
+HQ Manage toolbar **Editing for** multi-selects branches and saves allowlisted
+fields via Admin forms (not a separate Catalog publish panel).
+
+## Filtered Sync now (Phase 5)
+
+`catalog_release.tables[]` is no longer audit-only. Sync now downloads:
+
+`release.tables ∩ SYNC download allowlist`
+
+- Empty / missing `tables` → full allowlist (legacy behaviour).
+- Catch-up unions tip releases (global + branch) with `version > local`.
+- Unknown table names are ignored; if nothing remains, falls back to full.

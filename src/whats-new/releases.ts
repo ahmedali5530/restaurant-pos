@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-29',
+    title: 'Filtered catalog Sync now',
+    items: [
+      'When HQ publishes a catalog release with selected tables, Sync now on each store downloads only those tables (intersected with the catalog allowlist). Empty selection still means full catalog.',
+      'Catch-up unions tables from newer global and branch tip releases so a store behind multiple publishes still pulls what it needs.',
+    ],
+  },
+  {
     date: '2026-09-28',
     title: 'HQ branch edit context',
     items: [

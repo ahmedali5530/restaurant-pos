@@ -995,7 +995,7 @@
     "yes": "Sì",
     "no": "No",
     "publishTitle": "Pubblica release catalogo",
-    "publishHelp": "Aumenta la versione del catalogo così le filiali vedono un aggiornamento in Sincronizza ora. Non invia le righe del menu; i negozi le scaricano via changefeed.",
+    "publishHelp": "Aumenta la versione del catalogo così le filiali vedono un aggiornamento in Sincronizza ora. Le tabelle selezionate limitano il download; tutte selezionate = catalogo completo. Non invia le righe del menu.",
     "audience": "Destinatari",
     "audienceAll": "Tutte le filiali (globale)",
     "audienceSelected": "Filiali selezionate",

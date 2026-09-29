@@ -995,7 +995,7 @@
     "yes": "Evet",
     "no": "Hayır",
     "publishTitle": "Katalog sürümü yayınla",
-    "publishHelp": "Şubelerin Şimdi senkronize et’te güncelleme görmesi için katalog sürümünü artırın. Menü satırları gönderilmez; mağazalar changefeed ile çeker.",
+    "publishHelp": "Şubelerin Şimdi senkronize et’te güncelleme görmesi için katalog sürümünü artırın. Seçili tablolar indirmeyi sınırlar; hepsi seçili = tam katalog. Menü satırlarını tek başına göndermez.",
     "audience": "Hedef kitle",
     "audienceAll": "Tüm şubeler (genel)",
     "audienceSelected": "Seçili şubeler",

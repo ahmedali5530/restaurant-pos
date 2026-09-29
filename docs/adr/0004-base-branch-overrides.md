@@ -37,5 +37,6 @@ recipes.
 
 - Modifiers / recipes / categories are not duplicated per branch.
 - Branch-owned layouts (floors, printers) continue to use full `branch_id` rows.
-- Cross-branch employees and filtered Sync-by-`tables[]` remain later work.
+- Cross-branch employees and branch-owned catalog create/edit remain later work.
+- Filtered Sync-by-`tables[]` is Phase 5 (see publish ADR).
 - Cloud must apply `migrations/2026_09_28_catalog_branch_override.surql`.

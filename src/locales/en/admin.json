@@ -43,7 +43,7 @@
     "yes": "Yes",
     "no": "No",
     "publishTitle": "Publish catalog release",
-    "publishHelp": "Bump the catalog release version so branches see an update on Sync now. This does not push menu rows; stores still pull via changefeed.",
+    "publishHelp": "Bump the catalog release version so branches see an update on Sync now. Selected tables limit what stores download; leave all selected for a full catalog pull. This does not push menu rows by itself.",
     "audience": "Audience",
     "audienceAll": "All branches (global)",
     "audienceSelected": "Selected branches",

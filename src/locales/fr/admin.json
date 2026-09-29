@@ -995,7 +995,7 @@
     "yes": "Oui",
     "no": "Non",
     "publishTitle": "Publier une version catalogue",
-    "publishHelp": "Incrémentez la version catalogue pour que les succursales voient une mise à jour via Synchroniser maintenant. Cela n’envoie pas les lignes de menu ; les magasins les tirent via changefeed.",
+    "publishHelp": "Incrémentez la version catalogue pour que les succursales voient une mise à jour via Synchroniser maintenant. Les tables sélectionnées limitent le téléchargement ; tout sélectionné = catalogue complet. Cela n’envoie pas les lignes de menu.",
     "audience": "Audience",
     "audienceAll": "Toutes les succursales (global)",
     "audienceSelected": "Succursales sélectionnées",

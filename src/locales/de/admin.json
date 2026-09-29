@@ -995,7 +995,7 @@
     "yes": "Ja",
     "no": "Nein",
     "publishTitle": "Katalog-Release veröffentlichen",
-    "publishHelp": "Erhöhen Sie die Katalog-Release-Version, damit Filialen bei „Jetzt synchronisieren“ ein Update sehen. Menüzeilen werden nicht gepusht; Stores ziehen weiterhin über den Changefeed.",
+    "publishHelp": "Erhöhen Sie die Katalog-Release-Version, damit Filialen bei „Jetzt synchronisieren“ ein Update sehen. Ausgewählte Tabellen begrenzen den Download; alle ausgewählt = voller Katalog. Menüzeilen werden nicht gepusht.",
     "audience": "Zielgruppe",
     "audienceAll": "Alle Filialen (global)",
     "audienceSelected": "Ausgewählte Filialen",
