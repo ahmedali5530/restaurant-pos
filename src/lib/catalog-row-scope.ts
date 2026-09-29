@@ -36,14 +36,14 @@ export function hqCatalogVisibilityClause(branchIds: string[]): {
   );
   if (!ids.length) {
     return {
-      filter:
-        '(branch_id = NONE OR branch_id = NULL OR branch_id = "" OR type::is::none(branch_id))',
+      // Match sync-service shared-row semantics (no branch_id).
+      filter: '(branch_id = NONE OR branch_id = NULL OR branch_id = "")',
       params: {},
     };
   }
   return {
     filter:
-      '(branch_id = NONE OR branch_id = NULL OR branch_id = "" OR type::is::none(branch_id) OR branch_id IN $hqBranchIds)',
+      '(branch_id = NONE OR branch_id = NULL OR branch_id = "" OR branch_id IN $hqBranchIds)',
     params: { hqBranchIds: ids },
   };
 }
