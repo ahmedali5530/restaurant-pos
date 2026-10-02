@@ -327,9 +327,9 @@ export const DishView = ({
                         <tr key={recipe.id} className="border-b border-border">
                           <td className="py-2">{recipe.item?.name ?? '-'}</td>
                           <td className="py-2">{quantity}</td>
-                          <td className="py-2">{withCurrency(cost)}</td>
+                          <td className="py-2">{withCurrency(cost, 4)}</td>
                           <td className="py-2">{yesNo(recipe.is_price_locked)}</td>
-                          <td className="py-2">{withCurrency(lineTotal)}</td>
+                          <td className="py-2">{withCurrency(lineTotal, 4)}</td>
                         </tr>
                       );
                     })}
