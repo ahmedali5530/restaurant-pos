@@ -294,6 +294,16 @@ export const appAlert = atom<AppAlertInterface>({
   type: 'info'
 })
 
+/** HQ Admin: empty = edit shared base catalog; otherwise SYNC_CLIENT_IDs for branch overrides. */
+export const hqCatalogEditBranchIdsAtom = atom<string[]>([])
+
+/** @deprecated use hqCatalogEditBranchIdsAtom */
+export const hqCatalogEditBranchIdAtom = atom(
+  (get) => get(hqCatalogEditBranchIdsAtom)[0] ?? null,
+  (_get, set, next: string | null) => {
+    set(hqCatalogEditBranchIdsAtom, next ? [next] : []);
+  }
+)
 export const defaultClosingEnforcementState = {
   orderTakingBlocked: false,
   orderMutationsBlocked: false,

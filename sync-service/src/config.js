@@ -1,7 +1,7 @@
 'use strict';
 
-/** Default FOH / sales tables for local-to-cloud upload. */
-const DEFAULT_INCLUDE_TABLES = [
+/** Default FOH / sales tables for local-to-cloud upload (phase 1). */
+const DEFAULT_UPLOAD_TABLES = [
   'order',
   'order_item',
   'order_item_kitchen',
@@ -26,6 +26,37 @@ const DEFAULT_INCLUDE_TABLES = [
   'integration_order_fiscal',
 ];
 
+/** FOH catalog tables for cloud-to-local download (phase 2). Must not overlap upload. */
+const DEFAULT_DOWNLOAD_TABLES = [
+  'order_type',
+  'category',
+  'menu_item',
+  'modifier_group',
+  'modifier',
+  'menu_item_modifier_group',
+  'floor',
+  'floor_table',
+  'kitchen',
+  'workflow',
+  'workflow_stage',
+  'payment_type',
+  'tax',
+  'menu',
+  'menu_menu_item',
+  'setting',
+  'user',
+  'extra',
+  'discount',
+  'discount_reason',
+  'coupon',
+  'printer',
+];
+
+/** @deprecated use DEFAULT_UPLOAD_TABLES */
+const DEFAULT_INCLUDE_TABLES = DEFAULT_UPLOAD_TABLES;
+
+const DISTRIBUTION_MODES = ['off', 'report_only', 'full'];
+
 function parseList(value) {
   if (!value) return [];
   return String(value)
@@ -47,11 +78,55 @@ function getOptional(env, key) {
   return value ? String(value).trim() : '';
 }
 
-function resolveIncludeTables(env) {
-  const includeOverride = parseList(env.SYNC_INCLUDE_TABLES);
-  const excludeTables = parseList(env.SYNC_EXCLUDE_TABLES);
-  const base = includeOverride.length ? includeOverride : DEFAULT_INCLUDE_TABLES;
+function resolveTableList(overrideEnvKey, defaults, excludeTables, env) {
+  const includeOverride = parseList(env[overrideEnvKey]);
+  const base = includeOverride.length ? includeOverride : defaults;
   return base.filter((name) => !excludeTables.includes(name));
+}
+
+/** @deprecated use resolveUploadTables */
+function resolveIncludeTables(env) {
+  return resolveUploadTables(env);
+}
+
+function resolveUploadTables(env) {
+  const excludeTables = parseList(env.SYNC_EXCLUDE_TABLES);
+  return resolveTableList('SYNC_INCLUDE_TABLES', DEFAULT_UPLOAD_TABLES, excludeTables, env);
+}
+
+function resolveDownloadTables(env) {
+  const excludeTables = parseList(env.SYNC_EXCLUDE_TABLES);
+  const downloadExclude = parseList(env.SYNC_DOWNLOAD_EXCLUDE_TABLES);
+  const excluded = [...new Set([...excludeTables, ...downloadExclude])];
+  return resolveTableList('SYNC_DOWNLOAD_TABLES', DEFAULT_DOWNLOAD_TABLES, excluded, env);
+}
+
+function assertDisjointAllowlists(uploadTables, downloadTables) {
+  const upload = new Set(uploadTables);
+  const overlap = downloadTables.filter((name) => upload.has(name));
+  if (overlap.length) {
+    throw new Error(
+      `Upload and download allowlists overlap (infinite-loop risk): ${overlap.join(', ')}`
+    );
+  }
+}
+
+/**
+ * Resolve distribution mode.
+ * - No master URL → off
+ * - Unset mode + master → report_only (keeps phase-1 uploads working)
+ * - Explicit off|report_only|full otherwise
+ */
+function resolveDistributionMode(env, masterUrl) {
+  if (!masterUrl) return 'off';
+  const raw = (env.SYNC_DISTRIBUTION_MODE || '').trim().toLowerCase();
+  if (!raw) return 'report_only';
+  if (!DISTRIBUTION_MODES.includes(raw)) {
+    throw new Error(
+      `Invalid SYNC_DISTRIBUTION_MODE="${raw}"; expected one of ${DISTRIBUTION_MODES.join(', ')}`
+    );
+  }
+  return raw;
 }
 
 function loadConfig(env) {
@@ -66,9 +141,17 @@ function loadConfig(env) {
   const changeLimitRaw = Number(env.SYNC_CHANGE_LIMIT || 100);
   const changeLimit = Number.isFinite(changeLimitRaw) && changeLimitRaw > 0 ? changeLimitRaw : 100;
   const masterUrl = getOptional(env, 'SYNC_MASTER_URL');
-  const syncEnabled = Boolean(masterUrl);
+  const distributionMode = resolveDistributionMode(env, masterUrl);
   const excludeTables = parseList(env.SYNC_EXCLUDE_TABLES);
-  const includeTables = resolveIncludeTables(env);
+  const includeTables = resolveUploadTables(env);
+  const downloadTables = resolveDownloadTables(env);
+
+  assertDisjointAllowlists(includeTables, downloadTables);
+
+  const uploadEnabled = Boolean(masterUrl)
+    && (distributionMode === 'report_only' || distributionMode === 'full');
+  const downloadEnabled = Boolean(masterUrl) && distributionMode === 'full';
+  const syncEnabled = uploadEnabled || downloadEnabled;
 
   return {
     serviceHost: env.SYNC_SERVICE_HOST || '0.0.0.0',
@@ -78,6 +161,9 @@ function loadConfig(env) {
     backfillPageSize,
     changeLimit,
     logLevel: (env.SYNC_LOG_LEVEL || 'info').toLowerCase(),
+    distributionMode,
+    uploadEnabled,
+    downloadEnabled,
     syncEnabled,
     clientId: getRequired(env, 'SYNC_CLIENT_ID'),
     source: {
@@ -95,13 +181,21 @@ function loadConfig(env) {
       pass: syncEnabled ? getRequired(env, 'SYNC_MASTER_PASS') : '',
     },
     includeTables,
+    downloadTables,
     excludeTables,
   };
 }
 
 module.exports = {
   DEFAULT_INCLUDE_TABLES,
+  DEFAULT_UPLOAD_TABLES,
+  DEFAULT_DOWNLOAD_TABLES,
+  DISTRIBUTION_MODES,
   loadConfig,
   parseList,
   resolveIncludeTables,
+  resolveUploadTables,
+  resolveDownloadTables,
+  assertDisjointAllowlists,
+  resolveDistributionMode,
 };

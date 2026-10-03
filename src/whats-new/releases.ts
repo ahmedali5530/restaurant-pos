@@ -7,6 +7,61 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-09-29',
+    title: 'Branch-owned catalog and multi-store employees',
+    items: [
+      'With exactly one branch selected in the Manage toolbar, Add creates items owned by that store (branch_id). Shared items still use sparse overrides; multi-branch selection stays override-only.',
+      'HQ users can be limited to one or more registered branches via branch_ids; Sync now only downloads those employees to matching stores (empty = shared everywhere).',
+    ],
+  },
+  {
+    date: '2026-09-29',
+    title: 'Filtered catalog Sync now',
+    items: [
+      'When HQ publishes a catalog release with selected tables, Sync now on each store downloads only those tables (intersected with the catalog allowlist). Empty selection still means full catalog.',
+      'Catch-up unions tables from newer global and branch tip releases so a store behind multiple publishes still pulls what it needs.',
+    ],
+  },
+  {
+    date: '2026-09-28',
+    title: 'HQ branch edit context',
+    items: [
+      'When Catalog publish is enabled, Manage shows Editing for in the bottom toolbar (Base catalog or one/many branches). Branch mode saves price and other allowlisted fields as the same sparse override for every selected store; names and relations stay on the shared base.',
+      'Add new is locked while branches are selected — clear the toolbar selector to create shared items. Bulk edit stays on the base catalog; use Sync now on each store to merge branch patches.',
+    ],
+  },
+  {
+    date: '2026-09-28',
+    title: 'Branch catalog overrides',
+    items: [
+      'Headquarters can set per-branch dish fields (price, cost, number, …) without cloning modifiers or recipes; Sync now merges those patches onto the shared base catalog.',
+      'Empty override fields inherit the base; clearing all fields removes the branch patch.',
+    ],
+  },
+  {
+    date: '2026-09-27',
+    title: 'HQ catalog publish',
+    items: [
+      'Headquarters can open Admin → Catalog publish (when enabled) to register branches and bump catalog release versions globally or per store.',
+      'Stores then see an update available on Sync now; publishing does not push menu rows by itself.',
+    ],
+  },
+  {
+    date: '2026-09-27',
+    title: 'Faster Reload cache for busy floors',
+    items: [
+      'Reload cache now hydrates open checks plus the last 1 day of orders (was 3 days), so busy restaurants with hundreds of checks per day rebuild the terminal cache much faster. Older history still lives in reports.',
+    ],
+  },
+  {
+    date: '2026-09-26',
+    title: 'Cloud catalog download for linked branches',
+    items: [
+      'Stores in full distribution mode can download menu and other front-of-house catalog data from the cloud without uploading it back (sales upload stays separate).',
+      'Settings shows Catalog sync with published vs applied version and a Sync now action when the sync service URL is configured — catalog download runs only when you trigger Sync now, not continuously.',
+    ],
+  },
+  {
     date: '2026-09-26',
     title: 'Restaurant drawer close',
     items: [

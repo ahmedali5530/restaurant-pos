@@ -18,6 +18,8 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createTaxImportConfig} from "@/components/settings/taxes/tax.import.config.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminTaxes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -33,6 +35,8 @@ export const AdminTaxes = () => {
     () => createTaxImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<Tax>();
 
@@ -115,7 +119,7 @@ export const AdminTaxes = () => {
               description: getAccessRuleChildLabel('admin.taxes.import'),
             });
           }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -123,7 +127,7 @@ export const AdminTaxes = () => {
               module: 'admin.taxes.create',
               description: getAccessRuleChildLabel('admin.taxes.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-taxes">{t('buttons.tax')}</Button>
+          }} icon={faPlus} data-testid="admin-add-taxes">{t('buttons.tax')}</Button></HqCatalogBaseOnlyAction>
         ]}
       />
 

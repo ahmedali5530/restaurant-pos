@@ -17,10 +17,14 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminMenus = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
   const loadHook = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], [], 0, 10, ['items', 'items.menu_item', 'items.taxes']);
+  useHqCatalogListScope(loadHook);
+
   const db = useDB();
   const { protectAction } = useSecurity();
 
@@ -149,7 +153,7 @@ export const AdminMenus = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -157,7 +161,7 @@ export const AdminMenus = () => {
               module: 'admin.menus.create',
               description: getAccessRuleChildLabel('admin.menus.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-menus">{t('buttons.menu')}</Button>
+          }} icon={faPlus} data-testid="admin-add-menus">{t('buttons.menu')}</Button></HqCatalogBaseOnlyAction>
         ]}
       />
 
