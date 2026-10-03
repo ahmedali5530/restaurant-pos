@@ -973,7 +973,7 @@ export const Closing = () => {
                 <span className="font-semibold">{withCurrency(expectedInDrawer)}</span>
               </div>
               <div
-                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}
+                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}
               >
                 <span>{t("closing:totals.overShort")}</span>
                 <span>{withCurrency(overShort)}</span>
@@ -1036,7 +1036,7 @@ export const Closing = () => {
                         disabled={isReadOnly}
                       />
                     </div>
-                    <div className={`text-sm font-semibold ${diff === 0 ? "text-foreground" : "text-warning-600"}`}>
+                    <div className={`text-sm font-semibold ${diff === 0 ? "text-foreground" : "text-warning-800"}`}>
                       {t("closing:totals.batchDifference", {amount: withCurrency(diff)})}
                     </div>
                   </div>
@@ -1221,7 +1221,7 @@ export const Closing = () => {
             </div>
           </div>
 
-          <div className="bg-primary-100 rounded-lg shadow-md p-6 mb-8" data-testid="closing-summary-section">
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-summary-section">
             <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
               <div>
@@ -1238,7 +1238,7 @@ export const Closing = () => {
               </div>
               <div>
                 <div className="text-sm text-muted">{t("closing:totals.overShort")}</div>
-                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}>
+                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}>
                   {withCurrency(overShort)}
                 </div>
               </div>
@@ -1248,13 +1248,13 @@ export const Closing = () => {
               </div>
               <div>
                 <div className="text-sm text-muted">{t("closing:totals.totalExpensesShort")}</div>
-                <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
+                <div className="text-xl font-semibold text-danger-800">-{withCurrency(totalExpenses)}</div>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-surface-elevated rounded-lg border-2 border-blue-200">
+            <div className="mt-6 p-4 rounded-lg border-2 border-success-800">
               <div className="text-center">
-                <div className="text-lg text-muted">{t("closing:totals.cashLeftNextShift")}</div>
-                <div className="text-3xl font-bold text-green-600 dark:text-success-400">{withCurrency(drawerFloat)}</div>
+                <div className="text-lg text-success-800">{t("closing:totals.cashLeftNextShift")}</div>
+                <div className="text-3xl font-bold text-success-800 dark:text-success-800">{withCurrency(drawerFloat)}</div>
               </div>
               {isClosingCompleted && closedByLabel && (
                 <div className="text-center mt-3 text-sm text-muted">

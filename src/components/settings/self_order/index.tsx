@@ -376,7 +376,7 @@ export const AdminSelfOrder = () => {
                       }}
                     />
                   </div>
-                  <Button type="button" variant="primary" filled size="lg" onClick={() => applyCustomPrimary(customHexDraft)}>
+                  <Button type="button" variant="primary" filled onClick={() => applyCustomPrimary(customHexDraft)}>
                     {t("settings:theme.customApply")}
                   </Button>
                 </div>
