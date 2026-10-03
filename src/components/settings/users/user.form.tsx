@@ -186,6 +186,51 @@ export const UserForm = ({
       return;
     }
 
+    try {
+      // Prevent duplicate logins (PIN or username) — the auth endpoint just
+      // returns the first matching row, so two active users sharing a login
+      // means the wrong one could end up authenticated. Compared across all
+      // login methods: a PIN and a form username share the same lookup.
+      const loginConflictFilter = data?.id
+        ? `login = $login AND deleted_at = none AND id != $selfId`
+        : `login = $login AND deleted_at = none`;
+      const [loginConflict] = await db.query(
+        `SELECT count() FROM ${Tables.users} WHERE ${loginConflictFilter} GROUP ALL`,
+        data?.id
+          ? { login: vals.login, selfId: new StringRecordId(data.id) }
+          : { login: vals.login },
+      ) as [{ count: number }[]];
+
+      if (loginConflict?.[0]?.count) {
+        toast.error(t('toast:admin.loginTaken'));
+        return;
+      }
+
+      // Prevent reusing another user's password (form-login only — PIN's
+      // "password" is just the login itself, already covered above). Hashes
+      // are bcrypt, so we compare plaintext against each other active
+      // form-login user's stored hash server-side rather than comparing hashes.
+      if (vals.login_method === "form" && vals.password) {
+        const passwordConflictFilter = data?.id
+          ? `login_method = 'form' AND deleted_at = none AND password IS NOT NONE AND password IS NOT NULL AND id != $selfId`
+          : `login_method = 'form' AND deleted_at = none AND password IS NOT NONE AND password IS NOT NULL`;
+        const [passwordConflict] = await db.query(
+          `SELECT count() FROM ${Tables.users} WHERE ${passwordConflictFilter} AND crypto::bcrypt::compare(password, $password) = true GROUP ALL`,
+          data?.id
+            ? { password: vals.password, selfId: new StringRecordId(data.id) }
+            : { password: vals.password },
+        ) as [{ count: number }[]];
+
+        if (passwordConflict?.[0]?.count) {
+          toast.error(t('toast:admin.passwordTaken'));
+          return;
+        }
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+      return;
+    }
+
     if (data?.id) {
       const wasProtectedRole = data.user_role?.name === PROTECTED_LAST_ADMIN_ROLE_NAME;
       // Compare role IDs directly rather than trusting `selectedRole` (a

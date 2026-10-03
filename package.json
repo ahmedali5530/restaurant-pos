@@ -13,7 +13,7 @@
     "i18n:verify-keys": "node scripts/i18n-verify-keys.mjs",
     "i18n:backfill-discount": "node scripts/generate-discount-patches.mjs && node scripts/i18n-backfill-discount.mjs",
     "test": "vitest run",
-    "test:sync": "node --test src/infrastructure/sync/conflict-auto-retry.test.cjs gateway/src/sync-store.test.cjs",
+    "test:sync": "node --test src/infrastructure/sync/conflict-auto-retry.test.cjs gateway/src/sync-store.test.cjs gateway/src/self-order/pricing.test.cjs",
     "test:watch": "vitest",
     "migrate:discounts": "node scripts/migrate-discounts.mjs",
     "seed:discounts": "node scripts/seed-discounts.mjs",

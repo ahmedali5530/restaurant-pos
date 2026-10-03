@@ -586,7 +586,12 @@
     "voids": "Annullamenti",
     "refunds": "Rimborsi",
     "closingsForDay": "Chiusure di questo giorno",
-    "closingsCount": "{{count}} chiusure"
+    "closingsCount": "{{count}} chiusure",
+    "selfOrders": "Ordini QR self-service",
+    "selfOrdersHint": "Pagati online dagli ospiti al tavolo — non inclusi nel cassetto contanti né nel batch carte sopra.",
+    "selfOrdersTotal": "Pagato online",
+    "selfOrdersTestWarning": "{{count}} ordine/i di prova ({{amount}}) — nessun denaro incassato.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Lordo",

@@ -134,7 +134,9 @@
     "invalidModifierGroup": "Modifikatör grubu geçersiz",
     "duplicateDishModifierGroup": "Modifikatör grubu bu yemeğe zaten eklenmiş",
     "invalidPriority": "Öncelik geçersiz",
-    "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz"
+    "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz",
+    "loginTaken": "Başka bir kullanıcı bu girişi/PIN'i zaten kullanıyor — başka bir tane seçin.",
+    "passwordTaken": "Başka bir kullanıcı bu parolayı zaten kullanıyor — başka bir tane seçin."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} kullanımda olduğu için devre dışı bırakıldı.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Nihai fatura yazdırma limiti aşıldı ({{count}}/{{limit}}). Yönetici onayı gerekli.",
     "overrideRequired": "Yazdırma limitini geçersiz kıl",
     "recordFailed": "Fatura yazdırması kaydedilemedi"
+  },
+  "documentDeleted": "Belge silindi",
+  "notifications": {
+    "someone": "Birisi",
+    "clockInTitle": "Giriş",
+    "clockInWithTime": "{{name}} saat {{time}}'de giriş yaptı",
+    "clockIn": "{{name}} giriş yaptı",
+    "clockOutTitle": "Çıkış",
+    "clockOutWithTime": "{{name}} saat {{time}}'de çıkış yaptı",
+    "voidTitle": "Ürün iptal edildi",
+    "voidWithReason": "{{name}} bir ürünü iptal etti — {{reason}}",
+    "void": "{{name}} bir ürünü iptal etti",
+    "refundTitle": "Sipariş iade edildi",
+    "refundWithReason": "{{name}} bir iade işledi — {{reason}}",
+    "refund": "{{name}} bir iade işledi",
+    "discountTitle": "Büyük indirim uygulandı",
+    "discountApplied": "{{name}} {{detail}} uyguladı",
+    "newEmployeeTitle": "Yeni çalışan eklendi",
+    "newEmployeeFallback": "Yeni çalışan",
+    "securityAlertTitle": "Güvenlik uyarısı",
+    "dismiss": "Kapat"
   }
 }

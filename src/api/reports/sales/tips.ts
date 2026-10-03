@@ -66,18 +66,8 @@ const fetchSavedDistributions = async (
   db: DbClient,
   options: DateRangeFilter & {shiftId?: string},
 ) => {
-  const conditions: string[] = [];
-  const params: Record<string, string> = {};
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
+  const {conditions, params} = buildCreatedAtDateConditions(options, "from_at");
 
-  if (options.startDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") >= $startDate`);
-    params.startDate = options.startDate;
-  }
-  if (options.endDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") <= $endDate`);
-    params.endDate = options.endDate;
-  }
   if (options.shiftId) {
     conditions.push("shift = $shiftId");
     params.shiftId = options.shiftId;

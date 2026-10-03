@@ -92,6 +92,8 @@ export interface LaborCalculationResult {
   hours: HoursBreakdown
   cost: LaborCostBreakdown
   payType?: string
+  /** Pay-profile currency at calculation time, frozen onto the snapshot. */
+  currency?: string
   paidDays: number
   unpaidLeaveDays: number
   expectedWorkDays?: number

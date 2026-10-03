@@ -586,7 +586,12 @@
     "voids": "İptaller",
     "refunds": "İadeler",
     "closingsForDay": "Bu günün kapanışları",
-    "closingsCount": "{{count}} kapanış"
+    "closingsCount": "{{count}} kapanış",
+    "selfOrders": "QR self-siparişler",
+    "selfOrdersHint": "Misafirler tarafından masada çevrimiçi ödendi — yukarıdaki kasa çekmecesine veya kart grubuna dahil değil.",
+    "selfOrdersTotal": "Çevrimiçi ödenen",
+    "selfOrdersTestWarning": "{{count}} test siparişi ({{amount}}) — bunlar için para tahsil edilmedi.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Brüt",

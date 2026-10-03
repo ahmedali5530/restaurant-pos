@@ -4,6 +4,7 @@ import { ReportsLayout } from "@/screens/partials/reports.layout.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { withCurrency, toRecordId } from "@/lib/utils.ts";
+import { buildCreatedAtDateConditions } from "@/api/reports/shared/query.ts";
 
 const normalizeId = (value: any): string => {
   if (!value) return "";
@@ -59,17 +60,12 @@ export const TipsReport = () => {
           setShiftName("All shifts");
         }
 
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(from_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(from_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "from_at",
+        );
+        const conditions: string[] = [...dateConditions];
+        const params: Record<string, any> = {...dateParams};
         if (filters.shiftId) {
           conditions.push(`shift = $shiftId`);
           params.shiftId = toRecordId(filters.shiftId);

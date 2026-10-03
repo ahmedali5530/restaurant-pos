@@ -134,7 +134,9 @@
     "invalidModifierGroup": "Группа модификаторов недействительна",
     "duplicateDishModifierGroup": "Группа модификаторов уже привязана к этому блюду",
     "invalidPriority": "Приоритет недействителен",
-    "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно"
+    "invalidRequiredModifiers": "Значение обязательных модификаторов недействительно",
+    "loginTaken": "У другого пользователя уже есть этот логин/PIN — выберите другой.",
+    "passwordTaken": "У другого пользователя уже есть этот пароль — выберите другой."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} используется и был деактивирован.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Достигнут лимит печати итогового счёта ({{count}}/{{limit}}). Требуется утверждение менеджера.",
     "overrideRequired": "Превысить лимит печати",
     "recordFailed": "Не удалось записать печать счёта"
+  },
+  "documentDeleted": "Документ удалён",
+  "notifications": {
+    "someone": "Кто-то",
+    "clockInTitle": "Приход",
+    "clockInWithTime": "{{name}} отметил приход в {{time}}",
+    "clockIn": "{{name}} отметил приход",
+    "clockOutTitle": "Уход",
+    "clockOutWithTime": "{{name}} отметил уход в {{time}}",
+    "voidTitle": "Позиция отменена",
+    "voidWithReason": "{{name}} отменил позицию — {{reason}}",
+    "void": "{{name}} отменил позицию",
+    "refundTitle": "Заказ возвращён",
+    "refundWithReason": "{{name}} оформил возврат — {{reason}}",
+    "refund": "{{name}} оформил возврат",
+    "discountTitle": "Применена большая скидка",
+    "discountApplied": "{{name}} применил {{detail}}",
+    "newEmployeeTitle": "Добавлен новый сотрудник",
+    "newEmployeeFallback": "Новый сотрудник",
+    "securityAlertTitle": "Оповещение безопасности",
+    "dismiss": "Закрыть"
   }
 }

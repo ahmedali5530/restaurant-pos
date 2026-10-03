@@ -586,7 +586,12 @@
     "voids": "Annulations",
     "refunds": "Remboursements",
     "closingsForDay": "Clôtures de ce jour",
-    "closingsCount": "{{count}} clôtures"
+    "closingsCount": "{{count}} clôtures",
+    "selfOrders": "Commandes QR en libre-service",
+    "selfOrdersHint": "Payées en ligne par les clients à table — hors caisse et hors lot carte ci-dessus.",
+    "selfOrdersTotal": "Payé en ligne",
+    "selfOrdersTestWarning": "{{count}} commande(s) de test ({{amount}}) — aucun argent encaissé.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Brut",

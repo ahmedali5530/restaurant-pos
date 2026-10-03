@@ -14,6 +14,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   PKR: "Rs",
   EUR: "€",
   GBP: "£",
+  IDR: "Rp",
 };
 const CURRENCY_SYMBOL = CURRENCY_SYMBOLS[APP_CURRENCY] ?? APP_CURRENCY;
 

@@ -15,7 +15,8 @@
     "settings": "Ajustes",
     "clock": "Reloj",
     "hr": "RR. HH.",
-    "integrations": "Integraciones"
+    "integrations": "Integraciones",
+    "requiresApproval": "Requiere aprobación del gerente"
   },
   "modules": {
     "Menu": "Menú",

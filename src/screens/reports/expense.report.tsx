@@ -5,6 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 type ExpenseItem = {
   id?: string;
@@ -56,17 +57,10 @@ export const ExpenseReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, string> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(date_from, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(date_from, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "date_from",
+        );
 
         const query = `
           SELECT * FROM ${Tables.closings}

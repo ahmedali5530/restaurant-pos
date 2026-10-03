@@ -84,7 +84,8 @@ function useApi<T>(
     
     try {
       const [totalQuery] = await db.query<[{ count?: number }[]]>(
-        `Select count() from ${table}${filters.length > 0 ? ` WHERE ${filters.join(' and ')}` : ''} group all`
+        `Select count() from ${table}${filters.length > 0 ? ` WHERE ${filters.join(' and ')}` : ''} group all`,
+        queryBuilder.parameters
       );
       const [listQuery] = await db.query<[T[]]>(mainQuery, queryBuilder.parameters);
 
@@ -132,9 +133,12 @@ function useApi<T>(
   const handleFilterChange = (newFilters: string[], condition = 'and'): void => {
     setFilters(newFilters);
 
-    newFilters.forEach(c => {
-      queryBuilder.setWhere(c, condition, parameters);
-    });
+    // Each entry must join the rest with a boolean operator — queryBuilder's
+    // queryString only strips the leading and/or off the first one. A per-item
+    // setWhere() loop would instead replace the wheres array on every
+    // iteration, silently dropping all but the last filter.
+    queryBuilder.setWheres(newFilters.map(c => `${condition} ${c}`));
+    queryBuilder.setParameters(parameters);
 
     setPage(0);
     queryBuilder.setOffset(0);

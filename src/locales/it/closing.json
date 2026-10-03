@@ -22,7 +22,12 @@
     "coins": "Monete",
     "denomination": "x {{value}}",
     "total": "Totale terminale: {{amount}}",
-    "add": "Aggiungi terminale"
+    "add": "Aggiungi terminale",
+    "mode": {
+      "breakdown": "Conta banconote",
+      "total": "Inserisci totale",
+      "totalLabel": "Totale contanti contati"
+    }
   },
   "title": "Chiusura giornaliera al {{date}}",
   "loading": "Caricamento chiusura...",
@@ -43,7 +48,8 @@
     "openChecks": "Conti aperti",
     "shiftRecap": "Riepilogo turno",
     "notes": "Note",
-    "summary": "Riepilogo cassetto"
+    "summary": "Riepilogo cassetto",
+    "selfOrders": "Ordini QR self-service"
   },
   "fields": {
     "previousDayBalance": "Saldo giorno precedente",
@@ -122,5 +128,11 @@
     "skippedSuffix": " ({{count}} saltati)",
     "executionFailed": "Chiusura automatica conti non riuscita",
     "warning": "I conti verranno chiusi automaticamente tra {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "Pagati online dagli ospiti al tavolo — non inclusi nel cassetto contanti né nel batch carte sopra.",
+    "orders": "Ordini QR",
+    "total": "Pagato online",
+    "testWarning": "{{count}} ordine/i di prova ({{amount}}) — nessun denaro incassato."
   }
 }

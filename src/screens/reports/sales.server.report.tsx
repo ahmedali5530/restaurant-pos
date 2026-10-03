@@ -12,6 +12,7 @@ import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {
+  buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -268,15 +269,12 @@ export const SalesServerReport = () => {
         const conditions = [`status = 'Paid'`];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
 
         const userFilter = buildRecordInsideCondition('user', filters.userIds, 'userIds');
         if (userFilter.condition) {

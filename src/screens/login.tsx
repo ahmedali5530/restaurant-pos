@@ -75,10 +75,34 @@ export const Login = () => {
   }
 
   const onKey = (key: string) => {
-    if(code.trim().length <= 3){
-      setCode(code + key);
-    }
+    // Functional update so two keystrokes in the same tick can't both read a
+    // stale `code` and drop one of the digits.
+    setCode(prev => (prev.trim().length <= 3 ? prev + key : prev));
   }
+
+  // The PIN pad only ever had onClick handlers on its visible buttons — a
+  // physical keyboard's digit keys did nothing. Mirror the same digits,
+  // Backspace, and Escape/Delete (clear) while the PIN method is active.
+  useEffect(() => {
+    if (loginMethod !== 'pin') return;
+
+    const onPhysicalKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat) return;
+      if (event.key >= '0' && event.key <= '9') {
+        event.preventDefault();
+        onKey(event.key);
+      } else if (event.key === 'Backspace') {
+        event.preventDefault();
+        onBack();
+      } else if (event.key === 'Escape' || event.key === 'Delete') {
+        event.preventDefault();
+        onClear();
+      }
+    };
+
+    window.addEventListener('keydown', onPhysicalKeyDown);
+    return () => window.removeEventListener('keydown', onPhysicalKeyDown);
+  }, [loginMethod, code]);
 
   const failConnection = () => {
     clearSessionTokens();

@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Max uren per dag",
       "maxHoursPerWeek": "Max uren per week",
       "breakRules": "Pauzeregels",
-      "notes": "Notities"
+      "notes": "Notities",
+      "overtimeSection": "Overuren",
+      "overtimeSectionHelp": "Standaard worden uren boven 8/dag uitbetaald tegen 1,5x. Overschrijf of schakel dit alleen voor deze medewerker uit.",
+      "overtimeThreshold": "Dagelijkse drempel (uren)",
+      "overtimeMultiplier": "Vermenigvuldiger",
+      "nightPremiumSection": "Nachttoeslag",
+      "nightPremiumSectionHelp": "Standaard krijgen uren tussen 22:00 en 06:00 25% extra. Overschrijf of schakel dit alleen voor deze medewerker uit.",
+      "nightStart": "Starttijd",
+      "nightEnd": "Eindtijd",
+      "nightMultiplier": "Vermenigvuldiger",
+      "policyMode": {
+        "default": "Standaard gebruiken",
+        "custom": "Aangepast",
+        "disabled": "Uitgeschakeld"
+      }
     },
     "payRule": {
       "create": "Salarisregel aanmaken",
@@ -352,7 +366,10 @@
       "category": "Categorie",
       "title": "Titel",
       "expiresAt": "Vervaldatum",
-      "attachFile": "Bestand bijvoegen"
+      "attachFile": "Bestand bijvoegen",
+      "currentFile": "Huidig bestand",
+      "replaceFile": "Bestand vervangen (optioneel)",
+      "deleteConfirm": "Dit document verwijderen? Dit kan niet ongedaan worden gemaakt."
     },
     "performance": {
       "create": "Prestatienotitie toevoegen",
@@ -557,7 +574,10 @@
     "saveOverride": "Overschrijving opslaan",
     "resetOverrides": "Overschrijvingen resetten",
     "confirmResetOverrides": "Alle regels herberekenen en handmatige overschrijvingen verwerpen?",
-    "overrideHelp": "Bewerk bedragen op een voorbeeldrun. Herberekenen behoudt overschreven regels tenzij u ze reset."
+    "overrideHelp": "Bewerk bedragen op een voorbeeldrun. Herberekenen behoudt overschreven regels tenzij u ze reset.",
+    "deleted": "Loonrun verwijderd",
+    "deleteConfirm": "Dit concept-loonrun verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "premiumPay": "Toeslagen"
   },
   "dashboard": {
     "title": "Arbeidsdashboard",

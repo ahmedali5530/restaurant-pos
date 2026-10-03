@@ -7,6 +7,7 @@ import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildCreatedAtDateConditions,
   buildLocationInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
@@ -66,18 +67,10 @@ export const IssueReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
 
         const locationFilter = buildLocationInsideCondition(filters.locationIds, 'locationIds');
         if (locationFilter.condition) {

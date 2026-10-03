@@ -13,6 +13,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
 const syncRoutes = require('./src/sync.routes');
+const selfOrderRoutes = require('./src/self-order/routes');
 const { getUserRoleModules, hasSecurityAlertsAccess } = require('./src/auth.service');
 const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
@@ -22,6 +23,13 @@ const auditLog = require('./src/audit-log');
 const app = express();
 const PORT = Number(process.env.GATEWAY_PORT || 3142);
 const HOST = process.env.GATEWAY_HOST || '0.0.0.0';
+
+// The gateway runs behind nginx (see nginx.conf), which overwrites
+// X-Forwarded-For with the real client address. Trust exactly one proxy hop so
+// req.ip reflects that value rather than a client-supplied header. Without
+// this, the public self-order rate limiter can be bypassed by rotating a fake
+// X-Forwarded-For per request.
+app.set('trust proxy', 1);
 
 function parseOrigins(raw) {
   return String(raw || '')
@@ -79,6 +87,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/auth', authRoutes);
 app.use('/sync', syncRoutes);
+app.use('/self-order', selfOrderRoutes);
 
 /** Shared verify endpoint for other services (optional). */
 app.post('/auth/verify', async (req, res) => {

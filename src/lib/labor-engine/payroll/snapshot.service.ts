@@ -30,6 +30,7 @@ const snapshotPayloadFromResult = (
   employee: toEntityRecordId(result.employeeId),
   pay_profile_id: toEntityRecordId(result.payProfileId) ?? null,
   pay_type: result.payType ?? null,
+  currency: result.currency ?? null,
   paid_days: result.paidDays,
   unpaid_leave_days: result.unpaidLeaveDays,
   expected_work_days: result.expectedWorkDays ?? null,
@@ -81,6 +82,7 @@ const snapshotPayloadFromOverride = (
       )
     : null,
   pay_type: snapshot.pay_type ?? null,
+  currency: snapshot.currency ?? null,
   paid_days: snapshot.paid_days ?? 0,
   unpaid_leave_days: snapshot.unpaid_leave_days ?? 0,
   expected_work_days: snapshot.expected_work_days ?? null,

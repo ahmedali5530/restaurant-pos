@@ -21,7 +21,7 @@ body {
   --surface: 250 250 250; /* neutral-50 */
   --surface-elevated: 255 255 255;
   --foreground: 64 64 64; /* neutral-700 */
-  --muted: 115 115 115; /* neutral-500 */
+  --muted: 82 82 82; /* neutral-600 — was neutral-500 (115,115,115), 4.54:1 on --surface with almost no safety margin above the 4.5:1 minimum; this gives 7.49:1 */
   --border: 229 229 229; /* neutral-200 */
   --primary: 0 70 254;
   --primary-fg: 255 255 255;
@@ -50,11 +50,8 @@ html[data-app-toolbar='1'] {
   --app-toolbar-h: 2.75rem;
 }
 ::selection {
-  @apply bg-neutral-500 text-white;
-}
-
-.dark ::selection {
-  @apply bg-neutral-600 text-white;
+  background-color: rgb(var(--primary));
+  color: rgb(var(--primary-fg));
 }
 
 ::-webkit-scrollbar {
@@ -1185,4 +1182,17 @@ table th {
 
 .order-ready-tile-celebrate {
   animation: order-ready-tile-celebrate 0.8s ease-in-out infinite;
+}
+
+/* Reduce Motion: collapse animations/transitions to effectively instant
+ * rather than removing them, so looping/decorative motion (login blobs,
+ * gradient spins, confetti, the infinite order-ready celebration) stops
+ * without deleting the underlying state change it signals. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

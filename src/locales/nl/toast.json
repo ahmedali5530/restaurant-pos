@@ -134,7 +134,9 @@
     "invalidModifierGroup": "Modifiergroep is ongeldig",
     "duplicateDishModifierGroup": "Modifiergroep is al gekoppeld aan dit gerecht",
     "invalidPriority": "Prioriteit is ongeldig",
-    "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig"
+    "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
+    "loginTaken": "Een andere gebruiker heeft al deze login/PIN — kies een andere.",
+    "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Limiet eindrekening bereikt ({{count}}/{{limit}}). Managergoedkeuring vereist.",
     "overrideRequired": "Afdruklimiet overschrijven",
     "recordFailed": "Afdrukregistratie mislukt"
+  },
+  "documentDeleted": "Document verwijderd",
+  "notifications": {
+    "someone": "Iemand",
+    "clockInTitle": "Inklokken",
+    "clockInWithTime": "{{name}} is om {{time}} ingeklokt",
+    "clockIn": "{{name}} is ingeklokt",
+    "clockOutTitle": "Uitklokken",
+    "clockOutWithTime": "{{name}} is om {{time}} uitgeklokt",
+    "voidTitle": "Artikel geannuleerd",
+    "voidWithReason": "{{name}} heeft een artikel geannuleerd — {{reason}}",
+    "void": "{{name}} heeft een artikel geannuleerd",
+    "refundTitle": "Bestelling terugbetaald",
+    "refundWithReason": "{{name}} heeft een terugbetaling verwerkt — {{reason}}",
+    "refund": "{{name}} heeft een terugbetaling verwerkt",
+    "discountTitle": "Grote korting toegepast",
+    "discountApplied": "{{name}} heeft {{detail}} toegepast",
+    "newEmployeeTitle": "Nieuwe medewerker toegevoegd",
+    "newEmployeeFallback": "Nieuwe medewerker",
+    "securityAlertTitle": "Beveiligingsmelding",
+    "dismiss": "Sluiten"
   }
 }

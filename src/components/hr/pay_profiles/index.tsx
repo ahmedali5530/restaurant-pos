@@ -20,7 +20,7 @@ export const HrPayProfiles = () => {
     [],
     0,
     10,
-    ["employee"],
+    ["employee", "overtime_policy", "night_policy"],
   );
 
   const [data, setData] = useState<EmployeePayProfile>();
@@ -29,11 +29,15 @@ export const HrPayProfiles = () => {
   const columnHelper = createColumnHelper<EmployeePayProfile>();
 
   const columns: any = [
-    columnHelper.accessor((row) => entityLabel(row.employee), {id: "employee", header: t("columns.employee")}),
+    columnHelper.accessor((row) => entityLabel(row.employee), {
+      id: "employee",
+      header: t("columns.employee"),
+      meta: {filterField: "string::concat(employee.first_name, ' ', employee.last_name ?? '')"},
+    }),
     columnHelper.accessor("pay_type", {header: t("columns.payType")}),
     columnHelper.accessor("base_rate", {
       header: t("columns.baseRate"),
-      cell: (info) => withCurrency(info.getValue()),
+      cell: (info) => withCurrency(info.getValue(), undefined, info.row.original.currency),
     }),
     columnHelper.accessor("effective_from", {
       header: t("columns.effectiveFrom"),

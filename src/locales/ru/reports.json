@@ -586,7 +586,12 @@
     "voids": "Отмены",
     "refunds": "Возвраты",
     "closingsForDay": "Закрытия за этот день",
-    "closingsCount": "{{count}} закрытий"
+    "closingsCount": "{{count}} закрытий",
+    "selfOrders": "Заказы по QR",
+    "selfOrdersHint": "Оплачены гостями онлайн за столом — не входят в кассу и пакет карт выше.",
+    "selfOrdersTotal": "Оплачено онлайн",
+    "selfOrdersTestWarning": "Тестовых заказов: {{count}} ({{amount}}) — деньги за них не получены.",
+    "testPayment": "Тест"
   },
   "metrics": {
     "gross": "Валовый",

@@ -27,11 +27,16 @@
       "sapphire": "Safir",
       "custom": "Özel"
     },
-    "customDescription": "Bir ana renk seçin. Yüzeyler, kenarlıklar ve vurgular açık/koyu için türetilir.",
+    "customDescription": "Bir ana renk seçin. Yüzeyler, kenarlıklar ve vurgular açık ve koyu mod için ondan türetilir.",
     "customPrimary": "Ana renk",
     "customHex": "Hex",
     "customApply": "Uygula",
-    "customPreview": "Önizleme"
+    "customPreview": "Önizleme",
+    "colorCanvas": "Arka plan",
+    "colorSurface": "Yüzey",
+    "colorForeground": "Metin",
+    "colorPrimary": "Ana renk",
+    "colorBorder": "Kenarlık"
   },
   "touch": {
     "title": "Ekran klavyesi",

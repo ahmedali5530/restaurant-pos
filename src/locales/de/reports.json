@@ -586,7 +586,12 @@
     "voids": "Stornos",
     "refunds": "Rückerstattungen",
     "closingsForDay": "Abschlüsse für diesen Tag",
-    "closingsCount": "{{count}} Abschlüsse"
+    "closingsCount": "{{count}} Abschlüsse",
+    "selfOrders": "QR-Selbstbestellungen",
+    "selfOrdersHint": "Von Gästen am Tisch online bezahlt — nicht in der Kasse oder im Kartenabschluss oben enthalten.",
+    "selfOrdersTotal": "Online bezahlt",
+    "selfOrdersTestWarning": "{{count}} Testbestellung(en) ({{amount}}) — dafür wurde kein Geld eingezogen.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Brutto",

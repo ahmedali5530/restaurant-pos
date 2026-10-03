@@ -134,7 +134,9 @@
     "invalidModifierGroup": "El grupo de modificadores no es válido",
     "duplicateDishModifierGroup": "El grupo de modificadores ya está vinculado a este plato",
     "invalidPriority": "La prioridad no es válida",
-    "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido"
+    "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido",
+    "loginTaken": "Otro usuario ya tiene este inicio de sesión/PIN; elige otro.",
+    "passwordTaken": "Otro usuario ya tiene esta contraseña; elige otra."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está en uso y fue desactivado.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Límite de impresión de factura final alcanzado ({{count}}/{{limit}}). Se requiere aprobación del gerente.",
     "overrideRequired": "Anular límite de impresión",
     "recordFailed": "No se pudo registrar la impresión de la factura"
+  },
+  "documentDeleted": "Documento eliminado",
+  "notifications": {
+    "someone": "Alguien",
+    "clockInTitle": "Entrada",
+    "clockInWithTime": "{{name}} fichó de entrada a las {{time}}",
+    "clockIn": "{{name}} fichó de entrada",
+    "clockOutTitle": "Salida",
+    "clockOutWithTime": "{{name}} fichó de salida a las {{time}}",
+    "voidTitle": "Artículo anulado",
+    "voidWithReason": "{{name}} anuló un artículo — {{reason}}",
+    "void": "{{name}} anuló un artículo",
+    "refundTitle": "Pedido reembolsado",
+    "refundWithReason": "{{name}} procesó un reembolso — {{reason}}",
+    "refund": "{{name}} procesó un reembolso",
+    "discountTitle": "Descuento grande aplicado",
+    "discountApplied": "{{name}} aplicó {{detail}}",
+    "newEmployeeTitle": "Nuevo empleado añadido",
+    "newEmployeeFallback": "Nuevo empleado",
+    "securityAlertTitle": "Alerta de seguridad",
+    "dismiss": "Descartar"
   }
 }

@@ -27,11 +27,16 @@
       "sapphire": "Saphir",
       "custom": "Personnalisé"
     },
-    "customDescription": "Choisissez une couleur primaire. Surfaces, bordures et accents sont dérivés pour les modes clair et sombre.",
+    "customDescription": "Choisissez une couleur principale. Les surfaces, bordures et accents en sont dérivés pour les modes clair et sombre.",
     "customPrimary": "Couleur primaire",
     "customHex": "Hex",
     "customApply": "Appliquer",
-    "customPreview": "Aperçu"
+    "customPreview": "Aperçu",
+    "colorCanvas": "Arrière-plan",
+    "colorSurface": "Surface",
+    "colorForeground": "Texte",
+    "colorPrimary": "Primaire",
+    "colorBorder": "Bordure"
   },
   "touch": {
     "title": "Clavier à l'écran",

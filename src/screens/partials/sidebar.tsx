@@ -39,7 +39,8 @@ import {
   SUMMARY,
   TIP_DISTRIBUTION, ACCOUNTS
 } from "@/routes/posr.ts";
-import { getUserModules } from "@/lib/access.rules.ts";
+import { getAccessRuleChildLabel } from "@/lib/access.rules.i18n.ts";
+import { getUserModules, moduleMatchCandidates } from "@/lib/access.rules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
@@ -84,7 +85,10 @@ export const Sidebar = () => {
   }
 
   const lock = () => {
-    lockSession(setPage, navigation);
+    void protectAction(() => lockSession(setPage, navigation), {
+      description: getAccessRuleChildLabel('settings.access_control'),
+      module: 'settings.access_control',
+    });
   }
 
   const allSidebarItems = useMemo(() => [
@@ -104,45 +108,59 @@ export const Sidebar = () => {
     { title: t('sidebar.integrations'), icon: <FontAwesomeIcon icon={faPlug} size="lg"/>, link: INTEGRATIONS, role: 'integrations' },
   ], [t]);
 
-  // Filter sidebar items based on user roles
+  // Every section stays visible and tappable to everyone — the actual gate
+  // is protectedNavigate's PIN prompt on click. hasModuleAccess is display
+  // only: it dims/blurs sections the current user can't open directly, so
+  // people aren't surprised by a PIN prompt on something that looked just
+  // as available as everything else.
   const userRoles = getUserModules(page.user);
-  const sidebarItems = allSidebarItems.filter(item => {
-    return true; // show all pages and handle the auth to manage pages permissions
-
-    // If user has no roles, show nothing (or you could show all if that's the desired behavior)
-    if (userRoles.length === 0) {
-      // return false;
-    }
-    // Check if user has the required role for this item
-    return userRoles.includes(item.role);
-  });
+  const hasModuleAccess = (moduleId?: string) => {
+    if (!moduleId) return true;
+    return moduleMatchCandidates(moduleId).some((candidate) => userRoles.includes(candidate));
+  };
+  const sidebarItems = allSidebarItems;
 
   return (
     <div className="flex flex-col justify-between h-[calc(100vh_-_var(--app-toolbar-h))] items-center sidebar border border-y-0 border-border bg-surface-elevated/50 backdrop-blur text-foreground">
       <div className="w-full">
         <ScrollContainer className="h-[calc(100vh_-_150px_-_var(--app-toolbar-h))]" hideScrollbars={false}>
           <div className="p-2 flex flex-col">
-            {sidebarItems.map(item => (
-              <button
-                type="button"
-                data-testid={SIDEBAR_NAV_TEST_IDS[item.link] ?? undefined}
-                onClick={() => {
-                  protectedNavigate(item.link, item.role);
-                }}
-                className={cn(
-                  'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full text-foreground',
-                  pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'border-[3px] border-transparent'
-                )}
-                key={item.title}
-                style={{
-                  '--padding': '0.4rem'
-                } as CSSProperties}
-              >
-                <span className="icon text-current">{item.icon}</span>
-                <span className="label text-[12px] text-current">{item.title}</span>
-                {item.link === ADMIN && <SecurityAlertsBadge />}
-              </button>
-            ))}
+            {sidebarItems.map(item => {
+              const accessible = hasModuleAccess(item.role);
+              return (
+                <button
+                  type="button"
+                  data-testid={SIDEBAR_NAV_TEST_IDS[item.link] ?? undefined}
+                  title={accessible ? undefined : t('sidebar.requiresApproval', {
+                    defaultValue: 'Requires manager approval',
+                  })}
+                  onClick={() => {
+                    protectedNavigate(item.link, item.role);
+                  }}
+                  className={cn(
+                    'relative flex flex-col text-center cursor-pointer p-[0.4rem] gap-1 rounded-xl pressable no-underline w-full text-foreground',
+                    pathInfo === item.link ? 'shadow-xl bg-gradient active:shadow-none' : 'border-[3px] border-transparent'
+                  )}
+                  key={item.title}
+                  style={{
+                    '--padding': '0.4rem'
+                  } as CSSProperties}
+                >
+                  <span className={cn('flex flex-col gap-1', !accessible && 'opacity-50 grayscale blur-[1.5px]')}>
+                    <span className="icon text-current">{item.icon}</span>
+                    <span className="label text-[12px] text-current">{item.title}</span>
+                  </span>
+                  {!accessible && (
+                    <FontAwesomeIcon
+                      icon={faLock}
+                      aria-hidden="true"
+                      className="absolute top-0.5 right-0.5 text-[9px] text-muted"
+                    />
+                  )}
+                  {item.link === ADMIN && <SecurityAlertsBadge />}
+                </button>
+              );
+            })}
           </div>
         </ScrollContainer>
       </div>

@@ -22,7 +22,12 @@
     "coins": "Münzen",
     "denomination": "x {{value}}",
     "total": "Terminal-Gesamt: {{amount}}",
-    "add": "Terminal hinzufügen"
+    "add": "Terminal hinzufügen",
+    "mode": {
+      "breakdown": "Scheine zählen",
+      "total": "Summe eingeben",
+      "totalLabel": "Gezählter Bargeldbetrag"
+    }
   },
   "title": "Tagesabschluss per {{date}}",
   "loading": "Tagesabschluss wird geladen...",
@@ -43,7 +48,8 @@
     "openChecks": "Offene Checks",
     "shiftRecap": "Schichtüberblick",
     "notes": "Notizen",
-    "summary": "Kassenzusammenfassung"
+    "summary": "Kassenzusammenfassung",
+    "selfOrders": "QR-Selbstbestellungen"
   },
   "fields": {
     "previousDayBalance": "Vortagssaldo",
@@ -122,5 +128,11 @@
     "skippedSuffix": " ({{count}} übersprungen)",
     "executionFailed": "Rechnungen konnten nicht automatisch geschlossen werden",
     "warning": "Rechnungen werden in {{countdown}} automatisch geschlossen"
+  },
+  "selfOrders": {
+    "hint": "Von Gästen am Tisch online bezahlt — nicht in der Kasse oder im Kartenabschluss oben enthalten.",
+    "orders": "QR-Bestellungen",
+    "total": "Online bezahlt",
+    "testWarning": "{{count}} Testbestellung(en) ({{amount}}) — dafür wurde kein Geld eingezogen."
   }
 }

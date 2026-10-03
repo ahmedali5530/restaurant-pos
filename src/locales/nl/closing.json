@@ -22,7 +22,12 @@
     "coins": "Munten",
     "denomination": "x {{value}}",
     "total": "Terminaltotaal: {{amount}}",
-    "add": "Terminal toevoegen"
+    "add": "Terminal toevoegen",
+    "mode": {
+      "breakdown": "Biljetten tellen",
+      "total": "Totaal invoeren",
+      "totalLabel": "Geteld contant totaal"
+    }
   },
   "title": "Dagafsluiting per {{date}}",
   "loading": "Afsluiting laden...",
@@ -43,7 +48,8 @@
     "openChecks": "Open rekeningen",
     "shiftRecap": "Dienstoverzicht",
     "notes": "Opmerkingen",
-    "summary": "Lade-overzicht"
+    "summary": "Lade-overzicht",
+    "selfOrders": "QR-zelfbestellingen"
   },
   "fields": {
     "previousDayBalance": "Saldo vorige dag",
@@ -122,5 +128,11 @@
     "skippedSuffix": " ({{count}} overgeslagen)",
     "executionFailed": "Bonnen automatisch sluiten mislukt",
     "warning": "Bonnen worden automatisch gesloten over {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "Online betaald door gasten aan tafel — niet in de kassalade of kaartbatch hierboven.",
+    "orders": "QR-bestellingen",
+    "total": "Online betaald",
+    "testWarning": "{{count}} testbestelling(en) ({{amount}}) — hiervoor is geen geld ontvangen."
   }
 }

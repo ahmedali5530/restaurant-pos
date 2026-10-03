@@ -2240,6 +2240,7 @@ DEFINE FIELD adjustments ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FU
 DEFINE FIELD bonuses ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD calculated_at ON payroll_snapshot TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD calculation_version ON payroll_snapshot TYPE string DEFAULT '1.0.0' PERMISSIONS FULL;
+DEFINE FIELD currency ON payroll_snapshot TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deductions ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD double_time_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD employee ON payroll_snapshot TYPE record<employee> PERMISSIONS FULL;

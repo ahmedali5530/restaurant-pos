@@ -18,6 +18,8 @@ export interface PayrollSnapshot {
   employee: Employee;
   pay_profile_id?: EmployeePayProfile;
   pay_type?: PayType;
+  /** Currency the amounts were calculated in, frozen at calc time. */
+  currency?: string;
   paid_days?: number;
   unpaid_leave_days?: number;
   expected_work_days?: number;

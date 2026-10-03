@@ -27,11 +27,16 @@
       "sapphire": "Saphir",
       "custom": "Benutzerdefiniert"
     },
-    "customDescription": "Wählen Sie eine Primärfarbe. Flächen, Ränder und Akzente werden daraus für Hell- und Dunkelmodus erzeugt.",
+    "customDescription": "Wählen Sie eine Primärfarbe. Flächen, Rahmen und Akzente werden daraus für Hell- und Dunkelmodus abgeleitet.",
     "customPrimary": "Primärfarbe",
     "customHex": "Hex",
     "customApply": "Anwenden",
-    "customPreview": "Vorschau"
+    "customPreview": "Vorschau",
+    "colorCanvas": "Hintergrund",
+    "colorSurface": "Fläche",
+    "colorForeground": "Text",
+    "colorPrimary": "Primär",
+    "colorBorder": "Rahmen"
   },
   "touch": {
     "title": "Bildschirmtastatur",

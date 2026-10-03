@@ -15,7 +15,8 @@
     "settings": "Paramètres",
     "clock": "Pointage",
     "hr": "RH",
-    "integrations": "Intégrations"
+    "integrations": "Intégrations",
+    "requiresApproval": "Nécessite l'approbation du responsable"
   },
   "modules": {
     "Menu": "Menu",

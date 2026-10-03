@@ -316,15 +316,17 @@ export function formatInvoiceDisplay(
   const seq = padSeq(ctx.seq, pad);
   const template = ctx.template || policy.template || '{seq}';
 
+  // split/join instead of replaceAll — tsconfig targets ES2020, which
+  // predates String.prototype.replaceAll (ES2021).
   return template
-    .replaceAll('{prefix}', prefix)
-    .replaceAll('{suffix}', suffix)
-    .replaceAll('{yyyy}', yyyy)
-    .replaceAll('{mm}', mm)
-    .replaceAll('{dd}', dd)
-    .replaceAll('{branch}', branch)
-    .replaceAll('{terminal}', terminal)
-    .replaceAll('{seq}', seq);
+    .split('{prefix}').join(prefix)
+    .split('{suffix}').join(suffix)
+    .split('{yyyy}').join(yyyy)
+    .split('{mm}').join(mm)
+    .split('{dd}').join(dd)
+    .split('{branch}').join(branch)
+    .split('{terminal}').join(terminal)
+    .split('{seq}').join(seq);
 }
 
 export function resolvePendingLength(policy: NumberPolicy): number {

@@ -30,10 +30,15 @@ export const HrPositions = () => {
   const columns: any = [
     columnHelper.accessor("code", {header: t("columns.code")}),
     columnHelper.accessor("name", {header: t("columns.name")}),
-    columnHelper.accessor((row) => entityLabel(row.department), {id: "department", header: t("columns.department")}),
+    columnHelper.accessor((row) => entityLabel(row.department), {
+      id: "department",
+      header: t("columns.department"),
+      meta: {filterField: "department.name"},
+    }),
     columnHelper.accessor((row) => entityLabel(row.default_cost_center), {
       id: "cost_center",
       header: t("columns.costCenter"),
+      meta: {filterField: "default_cost_center.name"},
     }),
     columnHelper.accessor("is_active", {
       header: t("columns.isActive"),
