@@ -5,6 +5,19 @@
 OPTION IMPORT;
 
 -- ------------------------------
+-- TABLE: _schema_migration
+-- ------------------------------
+
+DEFINE TABLE _schema_migration TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD applied_at ON _schema_migration TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD name ON _schema_migration TYPE string PERMISSIONS FULL;
+DEFINE FIELD note ON _schema_migration TYPE none | string PERMISSIONS FULL;
+
+DEFINE INDEX _schema_migration_name ON _schema_migration FIELDS name UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: account
 -- ------------------------------
 
@@ -21,6 +34,7 @@ DEFINE FIELD notes ON account TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD parent ON account TYPE none | record<account> | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account TYPE none | datetime | null PERMISSIONS FULL;
 
+DEFINE INDEX account_code_store_unique ON account FIELDS code UNIQUE;
 
 
 -- ------------------------------
@@ -38,7 +52,7 @@ DEFINE FIELD normal_balance ON account_group TYPE string PERMISSIONS FULL;
 DEFINE FIELD notes ON account_group TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON account_group TYPE none | datetime | null PERMISSIONS FULL;
 
-DEFINE INDEX account_group_code_store_unique ON account_group FIELDS code, store UNIQUE;
+DEFINE INDEX account_group_code_store_unique ON account_group FIELDS code UNIQUE;
 
 
 -- ------------------------------
@@ -51,6 +65,7 @@ DEFINE FIELD created_at ON account_journal_entry TYPE none | datetime | null VAL
 DEFINE FIELD created_by ON account_journal_entry TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD date ON account_journal_entry TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD documents ON account_journal_entry TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON account_journal_entry TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD entry_number ON account_journal_entry TYPE int PERMISSIONS FULL;
 DEFINE FIELD generated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD generated_by ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
@@ -58,6 +73,7 @@ DEFINE FIELD idempotency_key ON account_journal_entry TYPE none | string | null 
 DEFINE FIELD integration_provider_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD journal_template_id ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD lines ON account_journal_entry TYPE none | array<record<account_journal_line>> | null PERMISSIONS FULL;
+DEFINE FIELD lines.* ON account_journal_entry TYPE record<account_journal_line> PERMISSIONS FULL;
 DEFINE FIELD memo ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD origin_event ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD origin_module ON account_journal_entry TYPE none | string | null PERMISSIONS FULL;
@@ -69,9 +85,11 @@ DEFINE FIELD status ON account_journal_entry TYPE string DEFAULT 'draft' ASSERT 
 DEFINE FIELD updated_at ON account_journal_entry TYPE none | datetime | null PERMISSIONS FULL;
 
 DEFINE INDEX account_journal_entry_idempotency_key ON account_journal_entry FIELDS idempotency_key;
+DEFINE INDEX account_journal_entry_number_store_unique ON account_journal_entry FIELDS entry_number UNIQUE;
 DEFINE INDEX aje_date ON account_journal_entry FIELDS date;
 DEFINE INDEX aje_status_date ON account_journal_entry FIELDS status, date;
 
+DEFINE EVENT audit_journal_entry_update ON account_journal_entry WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'account_journal_entry', record_id: <string> (IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { <array<string>> object::keys($after) }), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: account_journal_line
@@ -90,6 +108,29 @@ DEFINE INDEX ajl_account ON account_journal_line FIELDS account;
 DEFINE INDEX ajl_entry ON account_journal_line FIELDS entry;
 
 
+-- ------------------------------
+-- TABLE: audit_log
+-- ------------------------------
+
+DEFINE TABLE audit_log TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD action ON audit_log TYPE string PERMISSIONS FULL;
+DEFINE FIELD actor_id ON audit_log TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD actor_login ON audit_log TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD actor_roles ON audit_log TYPE array<string> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD actor_roles.* ON audit_log TYPE string PERMISSIONS FULL;
+DEFINE FIELD changed_fields ON audit_log TYPE array<string> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD changed_fields.* ON audit_log TYPE string PERMISSIONS FULL;
+DEFINE FIELD occurred_at ON audit_log TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD record_id ON audit_log TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD source ON audit_log TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD table_name ON audit_log TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX audit_log_actor_id ON audit_log FIELDS actor_id;
+DEFINE INDEX audit_log_occurred_at ON audit_log FIELDS occurred_at;
+DEFINE INDEX audit_log_record_id ON audit_log FIELDS record_id;
+DEFINE INDEX audit_log_table_action ON audit_log FIELDS table_name, action;
+
 
 -- ------------------------------
 -- TABLE: auth_permission
@@ -97,29 +138,6 @@ DEFINE INDEX ajl_entry ON account_journal_line FIELDS entry;
 
 DEFINE TABLE auth_permission TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
-
-
-
--- ------------------------------
--- TABLE: audit_log
--- ------------------------------
-
-DEFINE TABLE audit_log TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-
-DEFINE FIELD occurred_at ON audit_log TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD actor_id ON audit_log TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD actor_login ON audit_log TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD actor_roles ON audit_log TYPE array<string> DEFAULT [] PERMISSIONS FULL;
-DEFINE FIELD action ON audit_log TYPE string PERMISSIONS FULL;
-DEFINE FIELD table_name ON audit_log TYPE string PERMISSIONS FULL;
-DEFINE FIELD record_id ON audit_log TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD changed_fields ON audit_log TYPE array<string> DEFAULT [] PERMISSIONS FULL;
-DEFINE FIELD source ON audit_log TYPE none | string | null PERMISSIONS FULL;
-
-DEFINE INDEX audit_log_occurred_at ON audit_log FIELDS occurred_at;
-DEFINE INDEX audit_log_actor_id ON audit_log FIELDS actor_id;
-DEFINE INDEX audit_log_table_action ON audit_log FIELDS table_name, action;
-DEFINE INDEX audit_log_record_id ON audit_log FIELDS record_id;
 
 
 
@@ -221,6 +239,7 @@ DEFINE FIELD closed_by ON buffet_session TYPE none | record<user> | null PERMISS
 DEFINE FIELD created_at ON buffet_session TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD created_by ON buffet_session TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD expected_guests ON buffet_session TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD location ON buffet_session TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD menu ON buffet_session TYPE record<buffet_menu> PERMISSIONS FULL;
 DEFINE FIELD notes ON buffet_session TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD posted_to_ledger ON buffet_session TYPE bool DEFAULT false PERMISSIONS FULL;
@@ -230,8 +249,7 @@ DEFINE FIELD session_number ON buffet_session TYPE string PERMISSIONS FULL;
 DEFINE FIELD session_type ON buffet_session TYPE string DEFAULT 'lunch' ASSERT $value INSIDE ['breakfast', 'lunch', 'dinner'] PERMISSIONS FULL;
 DEFINE FIELD started_at ON buffet_session TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD status ON buffet_session TYPE string DEFAULT 'draft' ASSERT $value INSIDE ['draft', 'planned', 'in_progress', 'closing', 'closed', 'voided'] PERMISSIONS FULL;
-DEFINE FIELD store ON buffet_session TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON buffet_session TYPE none | record<inventory_location> | null PERMISSIONS FULL;
+DEFINE FIELD store ON buffet_session TYPE record<inventory_store> PERMISSIONS FULL;
 
 DEFINE INDEX bs_store_date_type ON buffet_session FIELDS store, business_date, session_type;
 
@@ -272,12 +290,48 @@ DEFINE INDEX bwl_session_item ON buffet_waste_log FIELDS session, item;
 
 
 -- ------------------------------
+-- TABLE: catalog_branch_override
+-- ------------------------------
+
+DEFINE TABLE catalog_branch_override TYPE ANY SCHEMALESS CHANGEFEED 2w PERMISSIONS NONE;
+
+DEFINE FIELD base_id ON catalog_branch_override TYPE string PERMISSIONS FULL;
+DEFINE FIELD branch_id ON catalog_branch_override TYPE string PERMISSIONS FULL;
+DEFINE FIELD patch ON catalog_branch_override TYPE any PERMISSIONS FULL;
+DEFINE FIELD `table` ON catalog_branch_override TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON catalog_branch_override TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD updated_by ON catalog_branch_override TYPE none | string PERMISSIONS FULL;
+
+DEFINE INDEX catalog_branch_override_branch ON catalog_branch_override FIELDS branch_id;
+DEFINE INDEX catalog_branch_override_lookup ON catalog_branch_override FIELDS `table`, base_id, branch_id UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: catalog_release
+-- ------------------------------
+
+DEFINE TABLE catalog_release TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD audience ON catalog_release TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD branch_ids ON catalog_release TYPE none | array<string> PERMISSIONS FULL;
+DEFINE FIELD branch_ids.* ON catalog_release TYPE string PERMISSIONS FULL;
+DEFINE FIELD note ON catalog_release TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD published_at ON catalog_release TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD published_by ON catalog_release TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD tables ON catalog_release TYPE none | array<string> PERMISSIONS FULL;
+DEFINE FIELD tables.* ON catalog_release TYPE string PERMISSIONS FULL;
+DEFINE FIELD version ON catalog_release TYPE int PERMISSIONS FULL;
+
+
+
+-- ------------------------------
 -- TABLE: category
 -- ------------------------------
 
 DEFINE TABLE category TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD background ON category TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON category TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD color ON category TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON category TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD name ON category TYPE string PERMISSIONS FULL;
@@ -308,6 +362,7 @@ DEFINE INDEX cc_code ON cost_center FIELDS code UNIQUE;
 
 DEFINE TABLE coupon TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD branch_id ON coupon TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD code ON coupon TYPE string ASSERT $value != NONE PERMISSIONS FULL;
 DEFINE FIELD coupon_type ON coupon TYPE string DEFAULT order ASSERT $value INSIDE ['order', 'product', 'shipping'] PERMISSIONS FULL;
 DEFINE FIELD created_at ON coupon TYPE datetime VALUE time::now() PERMISSIONS FULL;
@@ -330,6 +385,7 @@ DEFINE FIELD usage_limit ON coupon TYPE int PERMISSIONS FULL;
 DEFINE FIELD usage_limit_per_user ON coupon TYPE int PERMISSIONS FULL;
 DEFINE FIELD used_count ON coupon TYPE int DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD valid_days ON coupon TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD valid_days.* ON coupon TYPE string PERMISSIONS FULL;
 
 
 
@@ -337,7 +393,7 @@ DEFINE FIELD valid_days ON coupon TYPE none | array<string> | null PERMISSIONS F
 -- TABLE: coupon_redemption
 -- ------------------------------
 
-DEFINE TABLE coupon_redemption TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE coupon_redemption TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD coupon ON coupon_redemption TYPE record<coupon> PERMISSIONS FULL;
 DEFINE FIELD customer ON coupon_redemption TYPE none | record<customer> | null PERMISSIONS FULL;
@@ -352,20 +408,22 @@ DEFINE FIELD user ON coupon_redemption TYPE none | record<user> | null PERMISSIO
 -- TABLE: customer
 -- ------------------------------
 
-DEFINE TABLE customer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE customer TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD address ON customer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD addresses ON customer TYPE none | array<record<customer_address>> | null PERMISSIONS FULL;
+DEFINE FIELD addresses.* ON customer TYPE record<customer_address> PERMISSIONS FULL;
 DEFINE FIELD email ON customer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD lat ON customer TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD lng ON customer TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD name ON customer TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON customer TYPE none | int PERMISSIONS FULL;
-DEFINE FIELD phone ON customer TYPE none | string | null | int PERMISSIONS FULL;
+DEFINE FIELD phone ON customer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD points ON customer TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD postal_code ON customer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD secondary_address ON customer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD tags ON customer TYPE array<string> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD tags.* ON customer TYPE string PERMISSIONS FULL;
 
 
 
@@ -390,8 +448,9 @@ DEFINE FIELD secondary_address ON customer_address TYPE none | string | null PER
 -- TABLE: day_closing
 -- ------------------------------
 
-DEFINE TABLE day_closing TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE day_closing TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
+DEFINE FIELD batch_totals ON day_closing TYPE any PERMISSIONS FULL;
 DEFINE FIELD cash_added ON day_closing TYPE float PERMISSIONS FULL;
 DEFINE FIELD cash_withdrawn ON day_closing TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD closed_at ON day_closing TYPE none | datetime | null PERMISSIONS FULL;
@@ -401,17 +460,15 @@ DEFINE FIELD created_at ON day_closing TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD date_from ON day_closing TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD date_to ON day_closing TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD denominations ON day_closing TYPE any PERMISSIONS FULL;
-DEFINE FIELD drawer_float ON day_closing TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD drawer_float ON day_closing TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD expenses ON day_closing TYPE float PERMISSIONS FULL;
 DEFINE FIELD expenses_data ON day_closing TYPE any PERMISSIONS FULL;
-DEFINE FIELD batch_totals ON day_closing TYPE any PERMISSIONS FULL;
 DEFINE FIELD net_amount ON day_closing TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD notes ON day_closing TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD opened_by ON day_closing TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD opening_balance ON day_closing TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD payments_data ON day_closing TYPE any PERMISSIONS FULL;
 DEFINE FIELD previous_day_balance ON day_closing TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD shift ON day_closing TYPE none | record<shift> | null PERMISSIONS FULL;
 DEFINE FIELD shift_recap ON day_closing TYPE any PERMISSIONS FULL;
 DEFINE FIELD status ON day_closing TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD terminal_cash ON day_closing TYPE any PERMISSIONS FULL;
@@ -419,10 +476,8 @@ DEFINE FIELD total_cash ON day_closing TYPE none | float | null PERMISSIONS FULL
 DEFINE FIELD total_other_payments ON day_closing TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD variance_reason ON day_closing TYPE none | string | null PERMISSIONS FULL;
 
-DEFINE INDEX dc_date_from ON day_closing FIELDS date_from;
 DEFINE INDEX dc_created_at ON day_closing FIELDS created_at;
-DEFINE INDEX dc_date_from_shift ON day_closing FIELDS date_from, shift;
-
+DEFINE INDEX dc_date_from ON day_closing FIELDS date_from;
 
 
 -- ------------------------------
@@ -447,6 +502,7 @@ DEFINE INDEX dept_code ON department FIELDS code UNIQUE;
 DEFINE TABLE discount TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD applicable_floors ON discount TYPE none | array<record<floor>> | null DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD applicable_floors.* ON discount TYPE record<floor> PERMISSIONS FULL;
 DEFINE FIELD application_mode ON discount TYPE string DEFAULT 'manual' PERMISSIONS FULL;
 DEFINE FIELD branch_id ON discount TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD category ON discount TYPE none | string | null DEFAULT 'manual' PERMISSIONS FULL;
@@ -627,6 +683,7 @@ DEFINE INDEX epn_employee ON employee_performance_note FIELDS employee;
 
 DEFINE TABLE extra TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
+DEFINE FIELD branch_id ON extra TYPE none | string | null PERMISSIONS FULL;
 
 
 
@@ -639,8 +696,11 @@ DEFINE TABLE extras TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 DEFINE FIELD apply_to_all ON extras TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD name ON extras TYPE string PERMISSIONS FULL;
 DEFINE FIELD order_types ON extras TYPE none | array<record<order_type>> | null PERMISSIONS FULL;
+DEFINE FIELD order_types.* ON extras TYPE record<order_type> PERMISSIONS FULL;
 DEFINE FIELD payment_types ON extras TYPE none | array<record<payment_type>> | null PERMISSIONS FULL;
+DEFINE FIELD payment_types.* ON extras TYPE record<payment_type> PERMISSIONS FULL;
 DEFINE FIELD tables ON extras TYPE none | array<record<floor_table>> | null PERMISSIONS FULL;
+DEFINE FIELD tables.* ON extras TYPE record<floor_table> PERMISSIONS FULL;
 DEFINE FIELD `value` ON extras TYPE any PERMISSIONS FULL;
 
 
@@ -671,6 +731,7 @@ DEFINE FIELD background ON floor_table TYPE none | string | null PERMISSIONS FUL
 DEFINE FIELD block_source ON floor_table TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD capacity ON floor_table TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD categories ON floor_table TYPE none | array<record<category>> | null PERMISSIONS FULL;
+DEFINE FIELD categories.* ON floor_table TYPE record<category> PERMISSIONS FULL;
 DEFINE FIELD color ON floor_table TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON floor_table TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD floor ON floor_table TYPE none | record<floor> | null PERMISSIONS FULL;
@@ -682,13 +743,33 @@ DEFINE FIELD locked_by ON floor_table TYPE none | string | null PERMISSIONS FULL
 DEFINE FIELD name ON floor_table TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON floor_table TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD order_types ON floor_table TYPE none | array<record<order_type>> | null PERMISSIONS FULL;
+DEFINE FIELD order_types.* ON floor_table TYPE record<order_type> PERMISSIONS FULL;
 DEFINE FIELD payment_types ON floor_table TYPE none | array<record<payment_type>> | null PERMISSIONS FULL;
+DEFINE FIELD payment_types.* ON floor_table TYPE record<payment_type> PERMISSIONS FULL;
 DEFINE FIELD priority ON floor_table TYPE int PERMISSIONS FULL;
 DEFINE FIELD rounded ON floor_table TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD width ON floor_table TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD x ON floor_table TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD y ON floor_table TYPE none | float | null PERMISSIONS FULL;
 
+
+
+-- ------------------------------
+-- TABLE: integration_entity_mapping
+-- ------------------------------
+
+DEFINE TABLE integration_entity_mapping TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD entity_type ON integration_entity_mapping TYPE string PERMISSIONS FULL;
+DEFINE FIELD external_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
+DEFINE FIELD external_payload ON integration_entity_mapping TYPE any DEFAULT {  } PERMISSIONS FULL;
+DEFINE FIELD posr_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
+DEFINE FIELD tenant_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_entity_mapping TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+DEFINE INDEX idx_entity_mapping_external ON integration_entity_mapping FIELDS provider_id, tenant_id, entity_type, external_id UNIQUE;
+DEFINE INDEX idx_entity_mapping_posr ON integration_entity_mapping FIELDS provider_id, tenant_id, entity_type, posr_id UNIQUE;
 
 
 -- ------------------------------
@@ -720,10 +801,47 @@ DEFINE FIELD updated_at ON integration_installed_provider TYPE datetime DEFAULT 
 
 
 -- ------------------------------
+-- TABLE: integration_oauth_credential
+-- ------------------------------
+
+DEFINE TABLE integration_oauth_credential TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD access_token_enc ON integration_oauth_credential TYPE string PERMISSIONS FULL;
+DEFINE FIELD company_name ON integration_oauth_credential TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD expires_at ON integration_oauth_credential TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_oauth_credential TYPE string PERMISSIONS FULL;
+DEFINE FIELD refresh_token_enc ON integration_oauth_credential TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD scopes ON integration_oauth_credential TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD status ON integration_oauth_credential TYPE string DEFAULT 'connected' PERMISSIONS FULL;
+DEFINE FIELD tenant_id ON integration_oauth_credential TYPE string PERMISSIONS FULL;
+DEFINE FIELD token_type ON integration_oauth_credential TYPE string DEFAULT 'bearer' PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_oauth_credential TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+
+DEFINE INDEX idx_oauth_credential ON integration_oauth_credential FIELDS provider_id, tenant_id UNIQUE;
+
+DEFINE EVENT audit_oauth_credential_update ON integration_oauth_credential WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'integration_oauth_credential', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+
+-- ------------------------------
+-- TABLE: integration_oauth_state
+-- ------------------------------
+
+DEFINE TABLE integration_oauth_state TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD expires_at ON integration_oauth_state TYPE datetime PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_oauth_state TYPE string PERMISSIONS FULL;
+DEFINE FIELD redirect_path ON integration_oauth_state TYPE string DEFAULT '/' PERMISSIONS FULL;
+DEFINE FIELD state ON integration_oauth_state TYPE string PERMISSIONS FULL;
+DEFINE FIELD used_at ON integration_oauth_state TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD user_id ON integration_oauth_state TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX idx_oauth_state ON integration_oauth_state FIELDS state UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: integration_order_fiscal
 -- ------------------------------
 
-DEFINE TABLE integration_order_fiscal TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE integration_order_fiscal TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD code ON integration_order_fiscal TYPE any PERMISSIONS FULL;
 DEFINE FIELD created_at ON integration_order_fiscal TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
@@ -875,59 +993,21 @@ DEFINE FIELD updated_at ON integration_schedule TYPE datetime DEFAULT time::now(
 
 
 -- ------------------------------
--- TABLE: integration_entity_mapping
+-- TABLE: integration_sync_failure
 -- ------------------------------
 
-DEFINE TABLE integration_entity_mapping TYPE ANY SCHEMALESS PERMISSIONS NONE;
+DEFINE TABLE integration_sync_failure TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD provider_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
-DEFINE FIELD tenant_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
-DEFINE FIELD entity_type ON integration_entity_mapping TYPE string PERMISSIONS FULL;
-DEFINE FIELD posr_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
-DEFINE FIELD external_id ON integration_entity_mapping TYPE string PERMISSIONS FULL;
-DEFINE FIELD external_payload ON integration_entity_mapping TYPE any DEFAULT {} PERMISSIONS FULL;
-DEFINE FIELD updated_at ON integration_entity_mapping TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-
-DEFINE INDEX idx_entity_mapping_posr ON integration_entity_mapping FIELDS provider_id, tenant_id, entity_type, posr_id UNIQUE;
-DEFINE INDEX idx_entity_mapping_external ON integration_entity_mapping FIELDS provider_id, tenant_id, entity_type, external_id UNIQUE;
-
-
-
--- ------------------------------
--- TABLE: integration_oauth_credential
--- ------------------------------
-
-DEFINE TABLE integration_oauth_credential TYPE ANY SCHEMALESS PERMISSIONS NONE;
-
-DEFINE FIELD provider_id ON integration_oauth_credential TYPE string PERMISSIONS FULL;
-DEFINE FIELD tenant_id ON integration_oauth_credential TYPE string PERMISSIONS FULL;
-DEFINE FIELD company_name ON integration_oauth_credential TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD access_token_enc ON integration_oauth_credential TYPE string PERMISSIONS FULL;
-DEFINE FIELD refresh_token_enc ON integration_oauth_credential TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD token_type ON integration_oauth_credential TYPE string DEFAULT 'bearer' PERMISSIONS FULL;
-DEFINE FIELD expires_at ON integration_oauth_credential TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD scopes ON integration_oauth_credential TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD status ON integration_oauth_credential TYPE string DEFAULT 'connected' PERMISSIONS FULL;
-DEFINE FIELD updated_at ON integration_oauth_credential TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-
-DEFINE INDEX idx_oauth_credential ON integration_oauth_credential FIELDS provider_id, tenant_id UNIQUE;
-
-
-
--- ------------------------------
--- TABLE: integration_oauth_state
--- ------------------------------
-
-DEFINE TABLE integration_oauth_state TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-
-DEFINE FIELD state ON integration_oauth_state TYPE string PERMISSIONS FULL;
-DEFINE FIELD provider_id ON integration_oauth_state TYPE string PERMISSIONS FULL;
-DEFINE FIELD user_id ON integration_oauth_state TYPE string PERMISSIONS FULL;
-DEFINE FIELD redirect_path ON integration_oauth_state TYPE string DEFAULT '/' PERMISSIONS FULL;
-DEFINE FIELD expires_at ON integration_oauth_state TYPE datetime PERMISSIONS FULL;
-DEFINE FIELD used_at ON integration_oauth_state TYPE none | datetime | null PERMISSIONS FULL;
-
-DEFINE INDEX idx_oauth_state ON integration_oauth_state FIELDS state UNIQUE;
+DEFINE FIELD action ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_sync_failure TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD entity_type ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD error ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD error_category ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD posr_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
+DEFINE FIELD retriable ON integration_sync_failure TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD retry_count ON integration_sync_failure TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD tenant_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
 
 
 
@@ -937,35 +1017,66 @@ DEFINE INDEX idx_oauth_state ON integration_oauth_state FIELDS state UNIQUE;
 
 DEFINE TABLE integration_sync_run TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD provider_id ON integration_sync_run TYPE string PERMISSIONS FULL;
-DEFINE FIELD tenant_id ON integration_sync_run TYPE string PERMISSIONS FULL;
+DEFINE FIELD cursor ON integration_sync_run TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD error ON integration_sync_run TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD finished_at ON integration_sync_run TYPE none | datetime PERMISSIONS FULL;
 DEFINE FIELD mode ON integration_sync_run TYPE string PERMISSIONS FULL;
-DEFINE FIELD status ON integration_sync_run TYPE string PERMISSIONS FULL;
-DEFINE FIELD progress ON integration_sync_run TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD cursor ON integration_sync_run TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD error ON integration_sync_run TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD progress ON integration_sync_run TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD provider_id ON integration_sync_run TYPE string PERMISSIONS FULL;
 DEFINE FIELD started_at ON integration_sync_run TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD finished_at ON integration_sync_run TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD status ON integration_sync_run TYPE string PERMISSIONS FULL;
+DEFINE FIELD tenant_id ON integration_sync_run TYPE string PERMISSIONS FULL;
 
 
 
 -- ------------------------------
--- TABLE: integration_sync_failure
+-- TABLE: inventory_adjustment
 -- ------------------------------
 
-DEFINE TABLE integration_sync_failure TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE inventory_adjustment TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD provider_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD tenant_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD entity_type ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD posr_id ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD action ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD error ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD error_category ON integration_sync_failure TYPE string PERMISSIONS FULL;
-DEFINE FIELD retriable ON integration_sync_failure TYPE bool DEFAULT true PERMISSIONS FULL;
-DEFINE FIELD retry_count ON integration_sync_failure TYPE int DEFAULT 0 PERMISSIONS FULL;
-DEFINE FIELD created_at ON integration_sync_failure TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_adjustment TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_adjustment TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_adjustment TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_adjustment TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD created_at ON inventory_adjustment TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD created_by ON inventory_adjustment TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD invoice_number ON inventory_adjustment TYPE int PERMISSIONS FULL;
+DEFINE FIELD items ON inventory_adjustment TYPE none | array<record<inventory_adjustment_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_adjustment TYPE record<inventory_adjustment_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_adjustment TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD notes ON inventory_adjustment TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_adjustment TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_adjustment TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD reason ON inventory_adjustment TYPE string PERMISSIONS FULL;
+DEFINE FIELD status ON inventory_adjustment TYPE string DEFAULT 'draft' PERMISSIONS FULL;
+DEFINE FIELD store ON inventory_adjustment TYPE none | record<inventory_store> PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_adjustment TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_adjustment TYPE none | record<user> PERMISSIONS FULL;
 
+DEFINE INDEX ia_created_at ON inventory_adjustment FIELDS created_at;
+DEFINE INDEX ia_location_created_at ON inventory_adjustment FIELDS location, created_at;
+DEFINE INDEX ia_status_created_at ON inventory_adjustment FIELDS status, created_at;
+DEFINE INDEX inventory_adjustment_invoice ON inventory_adjustment FIELDS invoice_number UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: inventory_adjustment_item
+-- ------------------------------
+
+DEFINE TABLE inventory_adjustment_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD adjustment ON inventory_adjustment_item TYPE none | record<inventory_adjustment> PERMISSIONS FULL;
+DEFINE FIELD comments ON inventory_adjustment_item TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD item ON inventory_adjustment_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_adjustment_item TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD quantity_change ON inventory_adjustment_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD store ON inventory_adjustment_item TYPE none | record<inventory_store> PERMISSIONS FULL;
+DEFINE FIELD unit_cost ON inventory_adjustment_item TYPE none | float PERMISSIONS FULL;
+
+DEFINE INDEX iai_adjustment ON inventory_adjustment_item FIELDS adjustment;
+DEFINE INDEX iai_item ON inventory_adjustment_item FIELDS item;
+DEFINE INDEX iai_item_location ON inventory_adjustment_item FIELDS item, location;
 
 
 -- ------------------------------
@@ -985,25 +1096,34 @@ DEFINE FIELD priority ON inventory_category TYPE none | int | null PERMISSIONS F
 
 DEFINE TABLE inventory_issue TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON inventory_issue TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_issue TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_issue TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_issue TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_issue TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_issue TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_issue TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_issue TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_issue TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_issue TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_issue TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_issue TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON inventory_issue TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD issued_to ON inventory_issue TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_issue TYPE array<record<inventory_issue_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_issue TYPE record<inventory_issue_item> PERMISSIONS FULL;
 DEFINE FIELD kitchen ON inventory_issue TYPE none | record<kitchen> | null PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_issue TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_issue TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_issue TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD parent ON inventory_issue TYPE none | record<inventory_issue> PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_issue TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_issue TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD revision ON inventory_issue TYPE int DEFAULT 1 PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_issue TYPE string DEFAULT 'posted' PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_issue TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_issue TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_issue TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD superseded_by ON inventory_issue TYPE none | record<inventory_issue> PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_issue TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_issue TYPE none | record<user> PERMISSIONS FULL;
 
+DEFINE INDEX ii_created_at ON inventory_issue FIELDS created_at;
+DEFINE INDEX ii_invoice_number ON inventory_issue FIELDS invoice_number UNIQUE;
+DEFINE INDEX ii_location_created_at ON inventory_issue FIELDS location, created_at;
+DEFINE INDEX ii_status_created_at ON inventory_issue FIELDS status, created_at;
 DEFINE INDEX invoice_number ON inventory_issue FIELDS invoice_number UNIQUE;
 
 
@@ -1017,12 +1137,14 @@ DEFINE FIELD code ON inventory_issue_item TYPE none | string | null PERMISSIONS 
 DEFINE FIELD comments ON inventory_issue_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD issue ON inventory_issue_item TYPE none | record<inventory_issue> | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_issue_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_issue_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD requested ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_issue_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 
+DEFINE INDEX iii_issue ON inventory_issue_item FIELDS issue;
+DEFINE INDEX iii_item_location ON inventory_issue_item FIELDS item, location;
 
 
 -- ------------------------------
@@ -1031,26 +1153,32 @@ DEFINE FIELD location ON inventory_issue_item TYPE none | record<inventory_locat
 
 DEFINE TABLE inventory_issue_return TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON inventory_issue_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_issue_return TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_issue_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_issue_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_issue_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_issue_return TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_issue_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_issue_return TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_issue_return TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_issue_return TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_issue_return TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_issue_return TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON inventory_issue_return TYPE int PERMISSIONS FULL;
 DEFINE FIELD issuance ON inventory_issue_return TYPE none | record<inventory_issue> | null PERMISSIONS FULL;
 DEFINE FIELD issued_to ON inventory_issue_return TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_issue_return TYPE array<record<inventory_issue_return_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_issue_return TYPE record<inventory_issue_return_item> PERMISSIONS FULL;
 DEFINE FIELD kitchen ON inventory_issue_return TYPE none | record<kitchen> | null PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_issue_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_issue_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_issue_return TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_issue_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_issue_return TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_issue_return TYPE string DEFAULT 'posted' PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue_return TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_issue_return TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_issue_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_issue_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_issue_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_issue_return TYPE none | record<user> PERMISSIONS FULL;
 
+DEFINE INDEX iir_created_at ON inventory_issue_return FIELDS created_at;
+DEFINE INDEX iir_invoice_number ON inventory_issue_return FIELDS invoice_number UNIQUE;
+DEFINE INDEX iir_location_created_at ON inventory_issue_return FIELDS location, created_at;
+DEFINE INDEX iir_status_created_at ON inventory_issue_return FIELDS status, created_at;
 DEFINE INDEX invoice_number ON inventory_issue_return FIELDS invoice_number UNIQUE;
 
 
@@ -1066,11 +1194,13 @@ DEFINE FIELD issue_return ON inventory_issue_return_item TYPE none | record<inve
 DEFINE FIELD issued ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD issued_item ON inventory_issue_return_item TYPE none | record<inventory_issue_item> | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_issue_return_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_issue_return_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_issue_return_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue_return_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_issue_return_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 
+DEFINE INDEX iiri_issue_return ON inventory_issue_return_item FIELDS issue_return;
+DEFINE INDEX iiri_item ON inventory_issue_return_item FIELDS item;
 
 
 -- ------------------------------
@@ -1084,13 +1214,16 @@ DEFINE FIELD base_quantity ON inventory_item TYPE none | float | null PERMISSION
 DEFINE FIELD category ON inventory_item TYPE none | record<inventory_category> | null PERMISSIONS FULL;
 DEFINE FIELD code ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD item_types ON inventory_item TYPE array<string> DEFAULT ['raw'] ASSERT array::len($value) > 0 PERMISSIONS FULL;
+DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> PERMISSIONS FULL;
+DEFINE FIELD locations.* ON inventory_item TYPE record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD name ON inventory_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD reorder_levels ON inventory_item TYPE any DEFAULT {  } PERMISSIONS FULL;
-DEFINE FIELD stores ON inventory_item TYPE option<array<record<inventory_store>>|null> PERMISSIONS FULL;
-DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> | null PERMISSIONS FULL;
+DEFINE FIELD stores ON inventory_item TYPE none | array<record<inventory_store>> | null PERMISSIONS FULL;
+DEFINE FIELD stores.* ON inventory_item TYPE record<inventory_store> PERMISSIONS FULL;
 DEFINE FIELD suppliers ON inventory_item TYPE array<record<inventory_supplier>> PERMISSIONS FULL;
+DEFINE FIELD suppliers.* ON inventory_item TYPE record<inventory_supplier> PERMISSIONS FULL;
+DEFINE FIELD taxable ON inventory_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD uom ON inventory_item TYPE none | string | null PERMISSIONS FULL;
 
 
@@ -1104,6 +1237,7 @@ DEFINE TABLE inventory_item_group TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 DEFINE FIELD base_quantity ON inventory_item_group TYPE float PERMISSIONS FULL;
 DEFINE FIELD main_item ON inventory_item_group TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD sub_items ON inventory_item_group TYPE array<record<inventory_item_group_item>> PERMISSIONS FULL;
+DEFINE FIELD sub_items.* ON inventory_item_group TYPE record<inventory_item_group_item> PERMISSIONS FULL;
 
 
 
@@ -1124,23 +1258,28 @@ DEFINE FIELD quantity ON inventory_item_group_item TYPE float PERMISSIONS FULL;
 
 DEFINE TABLE inventory_item_waste TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON inventory_item_waste TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_item_waste TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_item_waste TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_item_waste TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_item_waste TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_item_waste TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_item_waste TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_item_waste TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_item_waste TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_item_waste TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_item_waste TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_item_waste TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON inventory_item_waste TYPE int PERMISSIONS FULL;
 DEFINE FIELD issue ON inventory_item_waste TYPE none | record<inventory_issue> | null PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_item_waste TYPE array<record<inventory_item_waste_item>> PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_item_waste TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_item_waste TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_item_waste TYPE record<inventory_item_waste_item> PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_item_waste TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_item_waste TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD purchase ON inventory_item_waste TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_item_waste TYPE string DEFAULT 'posted' PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_item_waste TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_item_waste TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_item_waste TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_item_waste TYPE none | record<user> PERMISSIONS FULL;
 
+DEFINE INDEX iiw_created_at ON inventory_item_waste FIELDS created_at;
+DEFINE INDEX iiw_invoice_number ON inventory_item_waste FIELDS invoice_number UNIQUE;
+DEFINE INDEX iiw_status_created_at ON inventory_item_waste FIELDS status, created_at;
 DEFINE INDEX invoice_number ON inventory_item_waste FIELDS invoice_number UNIQUE;
 
 
@@ -1152,16 +1291,19 @@ DEFINE TABLE inventory_item_waste_item TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
 DEFINE FIELD comments ON inventory_item_waste_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_item_waste_item TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_item_waste_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD issue_item ON inventory_item_waste_item TYPE none | record<inventory_issue_item> | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_item_waste_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_item_waste_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_item_waste_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD purchase_item ON inventory_item_waste_item TYPE none | record<inventory_purchase_item> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_item_waste_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD source ON inventory_item_waste_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_item_waste_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_item_waste_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD waste ON inventory_item_waste_item TYPE none | record<inventory_item_waste> | null PERMISSIONS FULL;
 
+DEFINE INDEX iiwi_item ON inventory_item_waste_item FIELDS item;
+DEFINE INDEX iiwi_waste ON inventory_item_waste_item FIELDS waste;
 
 
 -- ------------------------------
@@ -1170,26 +1312,46 @@ DEFINE FIELD waste ON inventory_item_waste_item TYPE none | record<inventory_ite
 
 DEFINE TABLE inventory_ledger TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD batch_code ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD business_date ON inventory_ledger TYPE string PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_ledger TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD created_by ON inventory_ledger TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD created_by ON inventory_ledger TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD expiry_date ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD inventory_item ON inventory_ledger TYPE record<inventory_item> PERMISSIONS FULL;
-DEFINE FIELD inventory_location ON inventory_ledger TYPE record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD inventory_location ON inventory_ledger TYPE record<inventory_store> PERMISSIONS FULL;
+DEFINE FIELD inventory_location_new ON inventory_ledger TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD ledger_key ON inventory_ledger TYPE string PERMISSIONS FULL;
-DEFINE FIELD notes ON inventory_ledger TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD manufacturing_date ON inventory_ledger TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD notes ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD quantity_change ON inventory_ledger TYPE float PERMISSIONS FULL;
 DEFINE FIELD reference_id ON inventory_ledger TYPE string PERMISSIONS FULL;
-DEFINE FIELD reference_item ON inventory_ledger TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD reference_item ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD reference_type ON inventory_ledger TYPE string PERMISSIONS FULL;
-DEFINE FIELD reversal_of ON inventory_ledger TYPE none | record<inventory_ledger> | null PERMISSIONS FULL;
-DEFINE FIELD total_cost ON inventory_ledger TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD unit_cost ON inventory_ledger TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD reversal_of ON inventory_ledger TYPE none | record<inventory_ledger> PERMISSIONS FULL;
+DEFINE FIELD total_cost ON inventory_ledger TYPE none | float PERMISSIONS FULL;
+DEFINE FIELD unit_cost ON inventory_ledger TYPE none | float PERMISSIONS FULL;
 
-DEFINE INDEX inventory_ledger_key ON inventory_ledger FIELDS ledger_key UNIQUE;
-DEFINE INDEX inventory_ledger_item_location ON inventory_ledger FIELDS inventory_item, inventory_location;
-DEFINE INDEX inventory_ledger_reference ON inventory_ledger FIELDS reference_type, reference_id;
 DEFINE INDEX inventory_ledger_business_date ON inventory_ledger FIELDS business_date;
+DEFINE INDEX inventory_ledger_item_location ON inventory_ledger FIELDS inventory_item, inventory_location;
+DEFINE INDEX inventory_ledger_key ON inventory_ledger FIELDS ledger_key UNIQUE;
+DEFINE INDEX inventory_ledger_reference ON inventory_ledger FIELDS reference_type, reference_id;
 
+
+-- ------------------------------
+-- TABLE: inventory_location
+-- ------------------------------
+
+DEFINE TABLE inventory_location TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD created_at ON inventory_location TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD is_active ON inventory_location TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD linked_kitchen ON inventory_location TYPE none | record<kitchen> PERMISSIONS FULL;
+DEFINE FIELD linked_store ON inventory_location TYPE none | record<inventory_store> PERMISSIONS FULL;
+DEFINE FIELD name ON inventory_location TYPE string PERMISSIONS FULL;
+DEFINE FIELD type ON inventory_location TYPE string PERMISSIONS FULL;
+
+DEFINE INDEX inventory_location_kitchen ON inventory_location FIELDS linked_kitchen;
+DEFINE INDEX inventory_location_store ON inventory_location FIELDS linked_store;
 
 
 -- ------------------------------
@@ -1198,33 +1360,43 @@ DEFINE INDEX inventory_ledger_business_date ON inventory_ledger FIELDS business_
 
 DEFINE TABLE inventory_purchase TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON inventory_purchase TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_purchase TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_purchase TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_purchase TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_purchase TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_purchase TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_purchase TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_purchase TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD comments ON inventory_purchase TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD cost_allocation_snapshot ON inventory_purchase TYPE any PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_purchase TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_purchase TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_purchase TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_purchase TYPE record<document> PERMISSIONS FULL;
+DEFINE FIELD extras ON inventory_purchase TYPE any PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON inventory_purchase TYPE int PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_purchase TYPE array<record<inventory_purchase_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_purchase TYPE record<inventory_purchase_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_purchase TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD method ON inventory_purchase TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD parent ON inventory_purchase TYPE none | record<inventory_purchase> PERMISSIONS FULL;
 DEFINE FIELD payment_method ON inventory_purchase TYPE none | record<payment_type> | null PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_purchase TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_purchase TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_purchase TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_purchase TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD purchase_order ON inventory_purchase TYPE none | record<inventory_purchase_order> | null PERMISSIONS FULL;
+DEFINE FIELD revision ON inventory_purchase TYPE int DEFAULT 1 PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_purchase TYPE string DEFAULT 'posted' PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_purchase TYPE none | record<inventory_location> | null PERMISSIONS FULL;
+DEFINE FIELD superseded_by ON inventory_purchase TYPE none | record<inventory_purchase> PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase TYPE none | record<inventory_supplier> PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_purchase TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_purchase TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax_amount ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD extras ON inventory_purchase TYPE none | array | null PERMISSIONS FULL;
-DEFINE FIELD cost_allocation_snapshot ON inventory_purchase TYPE any PERMISSIONS FULL;
+DEFINE FIELD tax_rate ON inventory_purchase TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_purchase TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_purchase TYPE none | record<user> PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
+DEFINE INDEX ip_created_at ON inventory_purchase FIELDS created_at;
+DEFINE INDEX ip_invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
+DEFINE INDEX ip_location_created_at ON inventory_purchase FIELDS location, created_at;
+DEFINE INDEX ip_status_created_at ON inventory_purchase FIELDS status, created_at;
+DEFINE INDEX ip_supplier ON inventory_purchase FIELDS supplier;
 
 
 -- ------------------------------
@@ -1233,28 +1405,30 @@ DEFINE INDEX invoice_number ON inventory_purchase FIELDS invoice_number UNIQUE;
 
 DEFINE TABLE inventory_purchase_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD allocated_discount ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD allocated_extra_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD allocated_tax ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD base_quantity ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD code ON inventory_purchase_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD comments ON inventory_purchase_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD expiry_date ON inventory_purchase_item TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD final_unit_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD is_done ON inventory_purchase_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_purchase_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_purchase_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD manufacturing_date ON inventory_purchase_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD purchase ON inventory_purchase_item TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
+DEFINE FIELD purchase_price ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD requested ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_purchase_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
 DEFINE FIELD taxable ON inventory_purchase_item TYPE none | bool | null PERMISSIONS FULL;
-DEFINE FIELD purchase_price ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD allocated_extra_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD allocated_tax ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD allocated_discount ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD final_unit_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD total_inventory_cost ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 
+DEFINE INDEX ipi_item_location ON inventory_purchase_item FIELDS item, location;
+DEFINE INDEX ipi_purchase ON inventory_purchase_item FIELDS purchase;
 
 
 -- ------------------------------
@@ -1263,22 +1437,29 @@ DEFINE FIELD total_inventory_cost ON inventory_purchase_item TYPE none | float |
 
 DEFINE TABLE inventory_purchase_order TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD approved_at ON inventory_purchase_order TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_purchase_order TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_purchase_order TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_purchase_order TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_purchase_order TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_purchase_order TYPE array<record<inventory_purchase_order_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_purchase_order TYPE record<inventory_purchase_order_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_purchase_order TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD po_number ON inventory_purchase_order TYPE int PERMISSIONS FULL;
+DEFINE FIELD rejected_at ON inventory_purchase_order TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD rejected_by ON inventory_purchase_order TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_purchase_order TYPE string PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_order TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_purchase_order TYPE none | record<inventory_location> | null PERMISSIONS FULL;
+DEFINE FIELD submitted_at ON inventory_purchase_order TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD submitted_by ON inventory_purchase_order TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_order TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
-DEFINE FIELD submitted_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD submitted_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD approved_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD rejected_at ON inventory_purchase_order TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD rejected_by ON inventory_purchase_order TYPE none | record<user> | null PERMISSIONS FULL;
 
+DEFINE INDEX ipo_created_at ON inventory_purchase_order FIELDS created_at;
+DEFINE INDEX ipo_location_created_at ON inventory_purchase_order FIELDS location, created_at;
+DEFINE INDEX ipo_po_number ON inventory_purchase_order FIELDS po_number UNIQUE;
+DEFINE INDEX ipo_status_created_at ON inventory_purchase_order FIELDS status, created_at;
+DEFINE INDEX ipo_supplier ON inventory_purchase_order FIELDS supplier;
 DEFINE INDEX po_number ON inventory_purchase_order FIELDS po_number UNIQUE;
 
 
@@ -1316,25 +1497,31 @@ DEFINE FIELD supplier ON inventory_purchase_payment TYPE record<inventory_suppli
 
 DEFINE TABLE inventory_purchase_return TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON inventory_purchase_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_purchase_return TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_purchase_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_purchase_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON inventory_purchase_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON inventory_purchase_return TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON inventory_purchase_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON inventory_purchase_return TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON inventory_purchase_return TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON inventory_purchase_return TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD documents ON inventory_purchase_return TYPE none | array<record<document>> | null PERMISSIONS FULL;
+DEFINE FIELD documents.* ON inventory_purchase_return TYPE record<document> PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON inventory_purchase_return TYPE int PERMISSIONS FULL;
 DEFINE FIELD items ON inventory_purchase_return TYPE array<record<inventory_purchase_return_item>> PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_purchase_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_purchase_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD items.* ON inventory_purchase_return TYPE record<inventory_purchase_return_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_purchase_return TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD posted_at ON inventory_purchase_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON inventory_purchase_return TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD purchase ON inventory_purchase_return TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
 DEFINE FIELD status ON inventory_purchase_return TYPE string DEFAULT 'posted' PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_return TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_purchase_return TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_purchase_return TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_purchase_return TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD voided_at ON inventory_purchase_return TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON inventory_purchase_return TYPE none | record<user> PERMISSIONS FULL;
 
 DEFINE INDEX invoice_number ON inventory_purchase_return FIELDS invoice_number UNIQUE;
+DEFINE INDEX ipr_created_at ON inventory_purchase_return FIELDS created_at;
+DEFINE INDEX ipr_invoice_number ON inventory_purchase_return FIELDS invoice_number UNIQUE;
+DEFINE INDEX ipr_location_created_at ON inventory_purchase_return FIELDS location, created_at;
+DEFINE INDEX ipr_status_created_at ON inventory_purchase_return FIELDS status, created_at;
 
 
 -- ------------------------------
@@ -1345,15 +1532,17 @@ DEFINE TABLE inventory_purchase_return_item TYPE NORMAL SCHEMAFULL PERMISSIONS N
 
 DEFINE FIELD comments ON inventory_purchase_return_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD item ON inventory_purchase_return_item TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON inventory_purchase_return_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_purchase_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD purchase_item ON inventory_purchase_return_item TYPE none | record<inventory_purchase_item> | null PERMISSIONS FULL;
 DEFINE FIELD purchase_return ON inventory_purchase_return_item TYPE none | record<inventory_purchase_return> | null PERMISSIONS FULL;
 DEFINE FIELD purchased ON inventory_purchase_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_purchase_return_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_return_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_purchase_return_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_return_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
 
+DEFINE INDEX ipri_item ON inventory_purchase_return_item FIELDS item;
+DEFINE INDEX ipri_purchase_return ON inventory_purchase_return_item FIELDS purchase_return;
 
 
 -- ------------------------------
@@ -1376,8 +1565,10 @@ DEFINE FIELD address ON inventory_supplier TYPE none | string | null PERMISSIONS
 DEFINE FIELD email ON inventory_supplier TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD name ON inventory_supplier TYPE string PERMISSIONS FULL;
 DEFINE FIELD payments ON inventory_supplier TYPE none | array<record<inventory_purchase_payment>> | null PERMISSIONS FULL;
+DEFINE FIELD payments.* ON inventory_supplier TYPE record<inventory_purchase_payment> PERMISSIONS FULL;
 DEFINE FIELD phone ON inventory_supplier TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD purchases ON inventory_supplier TYPE none | array<record<inventory_purchase>> | null PERMISSIONS FULL;
+DEFINE FIELD purchases.* ON inventory_supplier TYPE record<inventory_purchase> PERMISSIONS FULL;
 
 
 
@@ -1389,8 +1580,10 @@ DEFINE TABLE kitchen TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD deleted_at ON kitchen TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD items ON kitchen TYPE array<record<menu_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON kitchen TYPE record<menu_item> PERMISSIONS FULL;
 DEFINE FIELD name ON kitchen TYPE string PERMISSIONS FULL;
 DEFINE FIELD printers ON kitchen TYPE none | array<record<printer>> | null PERMISSIONS FULL;
+DEFINE FIELD printers.* ON kitchen TYPE record<printer> PERMISSIONS FULL;
 DEFINE FIELD priority ON kitchen TYPE int PERMISSIONS FULL;
 
 
@@ -1422,8 +1615,8 @@ DEFINE FIELD created_at ON kitchen_reconciliation TYPE datetime DEFAULT time::no
 DEFINE FIELD created_by ON kitchen_reconciliation TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD date_from ON kitchen_reconciliation TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD date_to ON kitchen_reconciliation TYPE datetime PERMISSIONS FULL;
-DEFINE FIELD location ON kitchen_reconciliation TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD kitchen ON kitchen_reconciliation TYPE none | record<kitchen> | null PERMISSIONS FULL;
+DEFINE FIELD location ON kitchen_reconciliation TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD notes ON kitchen_reconciliation TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD parent ON kitchen_reconciliation TYPE none | record<kitchen_reconciliation> | null PERMISSIONS FULL;
 DEFINE FIELD revision ON kitchen_reconciliation TYPE int DEFAULT 1 PERMISSIONS FULL;
@@ -1680,10 +1873,12 @@ DEFINE INDEX lt_code ON leave_type FIELDS code UNIQUE;
 DEFINE TABLE menu TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD active ON menu TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON menu TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON menu TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD end_time ON menu TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD ends_on_next_day ON menu TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD items ON menu TYPE array<record<menu_menu_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON menu TYPE record<menu_menu_item> PERMISSIONS FULL;
 DEFINE FIELD name ON menu TYPE string PERMISSIONS FULL;
 DEFINE FIELD start_from ON menu TYPE none | datetime | null PERMISSIONS FULL;
 
@@ -1697,7 +1892,9 @@ DEFINE TABLE menu_item TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD allow_half ON menu_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD allow_service_charges ON menu_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD categories ON menu_item TYPE array<record<category>> PERMISSIONS FULL;
+DEFINE FIELD categories.* ON menu_item TYPE record<category> PERMISSIONS FULL;
 DEFINE FIELD cost ON menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD created_at ON menu_item TYPE none | datetime | null DEFAULT time::now() VALUE time::now() PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
@@ -1705,6 +1902,7 @@ DEFINE FIELD discount ON menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD discount_type ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD dish_photo ON menu_item TYPE none | record<document> | null PERMISSIONS FULL;
 DEFINE FIELD items ON menu_item TYPE none | array<record<menu_item_recipe>> | null PERMISSIONS FULL;
+DEFINE FIELD items.* ON menu_item TYPE record<menu_item_recipe> PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;
@@ -1716,7 +1914,6 @@ DEFINE FIELD tax ON menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD workflow ON menu_item TYPE none | record<workflow> | null PERMISSIONS FULL;
 
 DEFINE INDEX mi_number ON menu_item FIELDS number;
-
 
 
 -- ------------------------------
@@ -1763,6 +1960,7 @@ DEFINE FIELD price ON menu_menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax ON menu_menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD tax_mode ON menu_menu_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;
 DEFINE FIELD taxes ON menu_menu_item TYPE none | array<record<tax>> | null PERMISSIONS FULL;
+DEFINE FIELD taxes.* ON menu_menu_item TYPE record<tax> PERMISSIONS FULL;
 
 
 
@@ -1786,6 +1984,7 @@ DEFINE INDEX mmit_unique ON menu_menu_item_tax FIELDS menu_menu_item, tax UNIQUE
 DEFINE TABLE modifier TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD allowed_next_groups ON modifier TYPE none | array<record<modifier_group> | none> PERMISSIONS FULL;
+DEFINE FIELD allowed_next_groups.* ON modifier TYPE record<modifier_group> | none PERMISSIONS FULL;
 DEFINE FIELD modifier ON modifier TYPE record<menu_item> PERMISSIONS FULL;
 DEFINE FIELD next_group_overrides ON modifier TYPE any PERMISSIONS FULL;
 DEFINE FIELD price ON modifier TYPE float PERMISSIONS FULL;
@@ -1799,9 +1998,11 @@ DEFINE FIELD price ON modifier TYPE float PERMISSIONS FULL;
 DEFINE TABLE modifier_group TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD background ON modifier_group TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON modifier_group TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD color ON modifier_group TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON modifier_group TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD modifiers ON modifier_group TYPE array<record<modifier>> PERMISSIONS FULL;
+DEFINE FIELD modifiers.* ON modifier_group TYPE record<modifier> PERMISSIONS FULL;
 DEFINE FIELD name ON modifier_group TYPE string PERMISSIONS FULL;
 DEFINE FIELD priority ON modifier_group TYPE int PERMISSIONS FULL;
 
@@ -1818,18 +2019,10 @@ DEFINE FIELD payments_data ON notes TYPE string | null PERMISSIONS FULL;
 
 
 -- ------------------------------
--- TABLE: order_number_seq
--- Atomic invoice / auto_id counters for concurrent-safe POS order creates
--- ------------------------------
-
-DEFINE TABLE order_number_seq TYPE NORMAL SCHEMAFULL PERMISSIONS FULL;
-DEFINE FIELD value ON order_number_seq TYPE int DEFAULT 0 PERMISSIONS FULL;
-
--- ------------------------------
 -- TABLE: order
 -- ------------------------------
 
-DEFINE TABLE order TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD auto_id ON order TYPE int DEFAULT 1 PERMISSIONS FULL;
 DEFINE FIELD cashier ON order TYPE none | record<user> | null PERMISSIONS FULL;
@@ -1845,18 +2038,23 @@ DEFINE FIELD discount_amount ON order TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD discount_manager ON order TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD discount_rate ON order TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD extras ON order TYPE none | array<record<order_extras>> | null PERMISSIONS FULL;
+DEFINE FIELD extras.* ON order TYPE record<order_extras> PERMISSIONS FULL;
 DEFINE FIELD floor ON order TYPE none | record<floor> | null PERMISSIONS FULL;
+DEFINE FIELD invoice_display ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD invoice_number ON order TYPE int PERMISSIONS FULL;
 DEFINE FIELD invoice_prefix ON order TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD invoice_display ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD items ON order TYPE array<record<order_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON order TYPE record<order_item> PERMISSIONS FULL;
 DEFINE FIELD notes ON order TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD order_taxes ON order TYPE none | array<record<order_tax>> | null PERMISSIONS FULL;
 DEFINE FIELD order_discounts ON order TYPE none | array<record<order_discount>> | null PERMISSIONS FULL;
+DEFINE FIELD order_discounts.* ON order TYPE record<order_discount> PERMISSIONS FULL;
+DEFINE FIELD order_taxes ON order TYPE none | array<record<order_tax>> | null PERMISSIONS FULL;
+DEFINE FIELD order_taxes.* ON order TYPE record<order_tax> PERMISSIONS FULL;
 DEFINE FIELD order_type ON order TYPE record<order_type> PERMISSIONS FULL;
 DEFINE FIELD owner_heartbeat_at ON order TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD owner_terminal_id ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD payments ON order TYPE none | array<record<order_payment>> | null PERMISSIONS FULL;
+DEFINE FIELD payments.* ON order TYPE record<order_payment> PERMISSIONS FULL;
 DEFINE FIELD server_version ON order TYPE none | int | null DEFAULT 1 PERMISSIONS FULL;
 DEFINE FIELD service_charge ON order TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD service_charge_amount ON order TYPE none | float | null PERMISSIONS FULL;
@@ -1865,6 +2063,7 @@ DEFINE FIELD split ON order TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD status ON order TYPE string PERMISSIONS FULL;
 DEFINE FIELD `table` ON order TYPE none | record<floor_table> | null PERMISSIONS FULL;
 DEFINE FIELD tags ON order TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD tags.* ON order TYPE string PERMISSIONS FULL;
 DEFINE FIELD tax ON order TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD tax_amount ON order TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tip ON order TYPE none | float | null PERMISSIONS FULL;
@@ -1873,22 +2072,21 @@ DEFINE FIELD tip_type ON order TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD updated_at ON order TYPE none | datetime | null DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD user ON order TYPE none | record<user> | null PERMISSIONS FULL;
 
-DEFINE INDEX order_status ON order FIELDS status;
 DEFINE INDEX order_created_at ON order FIELDS created_at;
-DEFINE INDEX order_floor ON order FIELDS floor;
-DEFINE INDEX order_user ON order FIELDS user;
-DEFINE INDEX order_status_created_at ON order FIELDS status, created_at;
-DEFINE INDEX order_type ON order FIELDS order_type;
-DEFINE INDEX order_table ON order FIELDS `table`;
 DEFINE INDEX order_customer ON order FIELDS customer;
-
+DEFINE INDEX order_floor ON order FIELDS floor;
+DEFINE INDEX order_status ON order FIELDS status;
+DEFINE INDEX order_status_created_at ON order FIELDS status, created_at;
+DEFINE INDEX order_table ON order FIELDS `table`;
+DEFINE INDEX order_type ON order FIELDS order_type;
+DEFINE INDEX order_user ON order FIELDS user;
 
 
 -- ------------------------------
 -- TABLE: order_coupon
 -- ------------------------------
 
-DEFINE TABLE order_coupon TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_coupon TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD coupon ON order_coupon TYPE record<coupon> PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_coupon TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
@@ -1900,7 +2098,7 @@ DEFINE FIELD discount ON order_coupon TYPE float PERMISSIONS FULL;
 -- TABLE: order_discount
 -- ------------------------------
 
-DEFINE TABLE order_discount TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_discount TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD application_type ON order_discount TYPE string PERMISSIONS FULL;
 DEFINE FIELD applied_amount ON order_discount TYPE float PERMISSIONS FULL;
@@ -1915,6 +2113,7 @@ DEFINE FIELD line_allocations ON order_discount TYPE any DEFAULT [] PERMISSIONS 
 DEFINE FIELD name ON order_discount TYPE string PERMISSIONS FULL;
 DEFINE FIELD order ON order_discount TYPE record<order> PERMISSIONS FULL;
 DEFINE FIELD order_items ON order_discount TYPE array<record<order_item>> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD order_items.* ON order_discount TYPE record<order_item> PERMISSIONS FULL;
 DEFINE FIELD reason ON order_discount TYPE none | record<discount_reason> | null PERMISSIONS FULL;
 DEFINE FIELD reason_text ON order_discount TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD removed_at ON order_discount TYPE none | datetime | null PERMISSIONS FULL;
@@ -1931,7 +2130,7 @@ DEFINE INDEX od_order_active ON order_discount FIELDS order, removed_at;
 -- TABLE: order_extras
 -- ------------------------------
 
-DEFINE TABLE order_extras TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_extras TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON order_extras TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD name ON order_extras TYPE string PERMISSIONS FULL;
@@ -1943,10 +2142,10 @@ DEFINE FIELD `value` ON order_extras TYPE float PERMISSIONS FULL;
 -- TABLE: order_item
 -- ------------------------------
 
-DEFINE TABLE order_item TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_item TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD category ON order_item TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD category_id ON order_item TYPE none | record<category> | string | null PERMISSIONS FULL;
+DEFINE FIELD category_id ON order_item TYPE none | record<category> | null | string PERMISSIONS FULL;
 DEFINE FIELD comments ON order_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD cost ON order_item TYPE none | float PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_item TYPE datetime PERMISSIONS FULL;
@@ -1971,6 +2170,7 @@ DEFINE FIELD service_charges ON order_item TYPE none | float | null PERMISSIONS 
 DEFINE FIELD tax ON order_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD tax_mode ON order_item TYPE string DEFAULT 'exclusive' ASSERT $value INSIDE ['exclusive', 'inclusive'] PERMISSIONS FULL;
 DEFINE FIELD taxes ON order_item TYPE none | array<record<tax>> | null PERMISSIONS FULL;
+DEFINE FIELD taxes.* ON order_item TYPE record<tax> PERMISSIONS FULL;
 DEFINE FIELD updated_at ON order_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD workflow ON order_item TYPE none | record<workflow> | null PERMISSIONS FULL;
 DEFINE FIELD workflow_status ON order_item TYPE none | string | null PERMISSIONS FULL;
@@ -1978,16 +2178,16 @@ DEFINE FIELD workflow_status ON order_item TYPE none | string | null PERMISSIONS
 DEFINE INDEX oi_order ON order_item FIELDS order;
 
 
-
 -- ------------------------------
 -- TABLE: order_item_kitchen
 -- ------------------------------
 
-DEFINE TABLE order_item_kitchen TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_item_kitchen TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD activated_at ON order_item_kitchen TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD completed_at ON order_item_kitchen TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD completed_by ON order_item_kitchen TYPE none | array<record<user>> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD completed_by.* ON order_item_kitchen TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_item_kitchen TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD is_terminal ON order_item_kitchen TYPE none | bool | null DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD kitchen ON order_item_kitchen TYPE record<kitchen> PERMISSIONS FULL;
@@ -2008,7 +2208,7 @@ DEFINE INDEX oik_order_item ON order_item_kitchen FIELDS order_item;
 -- TABLE: order_merge
 -- ------------------------------
 
-DEFINE TABLE order_merge TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_merge TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON order_merge TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD created_by ON order_merge TYPE record<user> PERMISSIONS FULL;
@@ -2016,16 +2216,16 @@ DEFINE FIELD new_items ON order_merge TYPE any PERMISSIONS FULL;
 DEFINE FIELD new_order ON order_merge TYPE record<order> PERMISSIONS FULL;
 DEFINE FIELD old_items ON order_merge TYPE any PERMISSIONS FULL;
 DEFINE FIELD old_orders ON order_merge TYPE array<record<order>> PERMISSIONS FULL;
+DEFINE FIELD old_orders.* ON order_merge TYPE record<order> PERMISSIONS FULL;
 
 DEFINE INDEX om_new_order ON order_merge FIELDS new_order;
-
 
 
 -- ------------------------------
 -- TABLE: order_meta
 -- ------------------------------
 
-DEFINE TABLE order_meta TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_meta TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD name ON order_meta TYPE string PERMISSIONS FULL;
 DEFINE FIELD `value` ON order_meta PERMISSIONS FULL;
@@ -2033,10 +2233,20 @@ DEFINE FIELD `value` ON order_meta PERMISSIONS FULL;
 
 
 -- ------------------------------
+-- TABLE: order_number_seq
+-- ------------------------------
+
+DEFINE TABLE order_number_seq TYPE NORMAL SCHEMAFULL PERMISSIONS FULL;
+
+DEFINE FIELD `value` ON order_number_seq TYPE int DEFAULT 0 PERMISSIONS FULL;
+
+
+
+-- ------------------------------
 -- TABLE: order_payment
 -- ------------------------------
 
-DEFINE TABLE order_payment TYPE ANY SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_payment TYPE ANY SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD amount ON order_payment TYPE float PERMISSIONS FULL;
 DEFINE FIELD comments ON order_payment TYPE none | string | null PERMISSIONS FULL;
@@ -2049,27 +2259,27 @@ DEFINE FIELD payment_type ON order_payment TYPE record<payment_type> PERMISSIONS
 -- TABLE: order_print
 -- ------------------------------
 
-DEFINE TABLE order_print TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_print TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
+DEFINE FIELD is_duplicate ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD is_override ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD order ON order_print TYPE record<order> PERMISSIONS FULL;
 DEFINE FIELD print_type ON order_print TYPE string ASSERT $value INSIDE ['temp', 'final'] PERMISSIONS FULL;
-DEFINE FIELD printed_by ON order_print TYPE option<record<user>> PERMISSIONS FULL;
 DEFINE FIELD printed_at ON order_print TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD is_override ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
-DEFINE FIELD is_duplicate ON order_print TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD printed_by ON order_print TYPE none | record<user> PERMISSIONS FULL;
 
 DEFINE INDEX order_print_order_type ON order_print FIELDS order, print_type;
-
 
 
 -- ------------------------------
 -- TABLE: order_refund
 -- ------------------------------
 
-DEFINE TABLE order_refund TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_refund TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON order_refund TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD items ON order_refund TYPE array<record<order_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON order_refund TYPE record<order_item> PERMISSIONS FULL;
 DEFINE FIELD logged_in_user ON order_refund TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD manager ON order_refund TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD order ON order_refund TYPE record<order> PERMISSIONS FULL;
@@ -2078,29 +2288,28 @@ DEFINE FIELD reason ON order_refund TYPE none | string | null PERMISSIONS FULL;
 DEFINE INDEX or_order ON order_refund FIELDS order;
 
 
-
 -- ------------------------------
 -- TABLE: order_split
 -- ------------------------------
 
-DEFINE TABLE order_split TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_split TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON order_split TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD created_by ON order_split TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD new_items ON order_split TYPE any PERMISSIONS FULL;
 DEFINE FIELD new_orders ON order_split TYPE array<record<order>> PERMISSIONS FULL;
+DEFINE FIELD new_orders.* ON order_split TYPE record<order> PERMISSIONS FULL;
 DEFINE FIELD old_items ON order_split TYPE any PERMISSIONS FULL;
 DEFINE FIELD old_order ON order_split TYPE record<order> PERMISSIONS FULL;
 
 DEFINE INDEX os_old_order ON order_split FIELDS old_order;
 
 
-
 -- ------------------------------
 -- TABLE: order_tax
 -- ------------------------------
 
-DEFINE TABLE order_tax TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_tax TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD amount ON order_tax TYPE float PERMISSIONS FULL;
 DEFINE FIELD order ON order_tax TYPE record<order> PERMISSIONS FULL;
@@ -2116,6 +2325,7 @@ DEFINE INDEX order_tax_unique ON order_tax FIELDS order, tax UNIQUE;
 DEFINE TABLE order_type TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD allow_service_charges ON order_type TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON order_type TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON order_type TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD name ON order_type TYPE string PERMISSIONS FULL;
 DEFINE FIELD priority ON order_type TYPE int PERMISSIONS FULL;
@@ -2126,20 +2336,20 @@ DEFINE FIELD priority ON order_type TYPE int PERMISSIONS FULL;
 -- TABLE: order_void
 -- ------------------------------
 
-DEFINE TABLE order_void TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE order_void TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD comments ON order_void TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD created_at ON order_void TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD deleted_by ON order_void TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD items ON order_void TYPE array<record<order_item>> PERMISSIONS FULL;
+DEFINE FIELD items.* ON order_void TYPE record<order_item> PERMISSIONS FULL;
 DEFINE FIELD logged_in_user ON order_void TYPE none | record<user> | null PERMISSIONS FULL;
 DEFINE FIELD order ON order_void TYPE none | record<order> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON order_void TYPE float PERMISSIONS FULL;
 DEFINE FIELD reason ON order_void TYPE string PERMISSIONS FULL;
 
-DEFINE INDEX ov_order ON order_void FIELDS order;
 DEFINE INDEX ov_created_at ON order_void FIELDS created_at;
-
+DEFINE INDEX ov_order ON order_void FIELDS order;
 
 
 -- ------------------------------
@@ -2148,12 +2358,14 @@ DEFINE INDEX ov_created_at ON order_void FIELDS created_at;
 
 DEFINE TABLE payment_type TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD credentials_updated_at ON payment_type TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD branch_id ON payment_type TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD credentials_updated_at ON payment_type TYPE none | datetime PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON payment_type TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD discounts ON payment_type TYPE none | array<record<discount>> | null PERMISSIONS FULL;
+DEFINE FIELD discounts.* ON payment_type TYPE record<discount> PERMISSIONS FULL;
 DEFINE FIELD gateway ON payment_type TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD gateway_config ON payment_type TYPE none | record<payment_type_gateway_config> | null PERMISSIONS FULL;
-DEFINE FIELD gateway_config_encrypted ON payment_type TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD gateway_config_encrypted ON payment_type TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD gateway_mode ON payment_type TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD has_discount ON payment_type TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD name ON payment_type TYPE string PERMISSIONS FULL;
@@ -2162,6 +2374,7 @@ DEFINE FIELD tax ON payment_type TYPE none | record<tax> | null PERMISSIONS FULL
 DEFINE FIELD type ON payment_type TYPE string PERMISSIONS FULL;
 
 
+DEFINE EVENT audit_payment_type_update ON payment_type WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'payment_type', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: payment_type_gateway_config
@@ -2229,6 +2442,7 @@ DEFINE FIELD status ON payroll_run TYPE string DEFAULT 'draft' PERMISSIONS FULL;
 
 DEFINE INDEX pr_period ON payroll_run FIELDS payroll_period;
 
+DEFINE EVENT audit_payroll_run_update ON payroll_run WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'payroll_run', record_id: <string> (IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { <array<string>> object::keys($after) }), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: payroll_snapshot
@@ -2249,9 +2463,9 @@ DEFINE FIELD holiday_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERM
 DEFINE FIELD is_overridden ON payroll_snapshot TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD net_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD night_premium_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
-DEFINE FIELD override_note ON payroll_snapshot TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD overridden_at ON payroll_snapshot TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD overridden_by ON payroll_snapshot TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD override_note ON payroll_snapshot TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD overtime_hours ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD overtime_pay ON payroll_snapshot TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD paid_days ON payroll_snapshot TYPE none | float | null PERMISSIONS FULL;
@@ -2293,13 +2507,13 @@ DEFINE INDEX pos_code ON position FIELDS code UNIQUE;
 DEFINE TABLE printer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD deleted_at ON printer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD ip_address ON printer TYPE string | none | null PERMISSIONS FULL;
+DEFINE FIELD ip_address ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD name ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD paper_width_mm ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD pid ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD port ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD print_mode ON printer TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD prints ON printer TYPE none | int | null PERMISSIONS FULL;
+DEFINE FIELD prints ON printer TYPE int PERMISSIONS FULL;
 DEFINE FIELD priority ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD type ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD vid ON printer TYPE none | string | null PERMISSIONS FULL;
@@ -2317,13 +2531,13 @@ DEFINE FIELD completed_at ON production_batch TYPE datetime DEFAULT time::now() 
 DEFINE FIELD cost_allocation ON production_batch TYPE string DEFAULT 'yield' ASSERT $value INSIDE ['yield', 'value'] PERMISSIONS FULL;
 DEFINE FIELD created_at ON production_batch TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD created_by ON production_batch TYPE record<user> PERMISSIONS FULL;
+DEFINE FIELD location ON production_batch TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD notes ON production_batch TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD produced_qty ON production_batch TYPE float PERMISSIONS FULL;
 DEFINE FIELD recipe ON production_batch TYPE record<recipe> PERMISSIONS FULL;
 DEFINE FIELD scale_factor ON production_batch TYPE float PERMISSIONS FULL;
 DEFINE FIELD status ON production_batch TYPE string DEFAULT 'completed' ASSERT $value INSIDE ['completed', 'voided'] PERMISSIONS FULL;
 DEFINE FIELD store ON production_batch TYPE record<inventory_store> PERMISSIONS FULL;
-DEFINE FIELD location ON production_batch TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD total_input_cost ON production_batch TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD total_output_cost ON production_batch TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD yield_loss_percent ON production_batch TYPE float DEFAULT 0 PERMISSIONS FULL;
@@ -2339,9 +2553,9 @@ DEFINE TABLE production_batch_input TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD batch ON production_batch_input TYPE record<production_batch> PERMISSIONS FULL;
 DEFINE FIELD item ON production_batch_input TYPE record<inventory_item> PERMISSIONS FULL;
+DEFINE FIELD location ON production_batch_input TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD quantity ON production_batch_input TYPE float PERMISSIONS FULL;
 DEFINE FIELD store ON production_batch_input TYPE record<inventory_store> PERMISSIONS FULL;
-DEFINE FIELD location ON production_batch_input TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD total_cost ON production_batch_input TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD unit_cost ON production_batch_input TYPE float DEFAULT 0 PERMISSIONS FULL;
 
@@ -2359,9 +2573,9 @@ DEFINE FIELD batch ON production_batch_output TYPE record<production_batch> PERM
 DEFINE FIELD disposition ON production_batch_output TYPE string DEFAULT 'inventory' ASSERT $value INSIDE ['inventory', 'waste'] PERMISSIONS FULL;
 DEFINE FIELD item ON production_batch_output TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD ledger_waste_item ON production_batch_output TYPE none | record<inventory_item_waste_item> | null PERMISSIONS FULL;
+DEFINE FIELD location ON production_batch_output TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD quantity ON production_batch_output TYPE float PERMISSIONS FULL;
 DEFINE FIELD store ON production_batch_output TYPE record<inventory_store> PERMISSIONS FULL;
-DEFINE FIELD location ON production_batch_output TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD unit_cost ON production_batch_output TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD yield_percent ON production_batch_output TYPE float DEFAULT 0 PERMISSIONS FULL;
 
@@ -2437,15 +2651,14 @@ DEFINE FIELD yield_percent ON recipe_output TYPE float PERMISSIONS FULL;
 -- TABLE: revoked_session
 -- ------------------------------
 
-DEFINE TABLE revoked_session TYPE NORMAL SCHEMAFULL PERMISSIONS FULL;
+DEFINE TABLE revoked_session TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
+DEFINE FIELD expires_at ON revoked_session TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD jti ON revoked_session TYPE string PERMISSIONS FULL;
 DEFINE FIELD revoked_at ON revoked_session TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD expires_at ON revoked_session TYPE datetime PERMISSIONS FULL;
 
-DEFINE INDEX revoked_session_jti ON revoked_session FIELDS jti UNIQUE;
 DEFINE INDEX revoked_session_expires_at ON revoked_session FIELDS expires_at;
-
+DEFINE INDEX revoked_session_jti ON revoked_session FIELDS jti UNIQUE;
 
 
 -- ------------------------------
@@ -2455,6 +2668,7 @@ DEFINE INDEX revoked_session_expires_at ON revoked_session FIELDS expires_at;
 DEFINE TABLE role_discount_policy TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
 DEFINE FIELD allowed_categories ON role_discount_policy TYPE array<string> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD allowed_categories.* ON role_discount_policy TYPE string PERMISSIONS FULL;
 DEFINE FIELD can_apply_manual ON role_discount_policy TYPE bool DEFAULT true PERMISSIONS FULL;
 DEFINE FIELD can_override_approval ON role_discount_policy TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD max_fixed_amount ON role_discount_policy TYPE none | float | null PERMISSIONS FULL;
@@ -2472,6 +2686,7 @@ DEFINE TABLE schedule_template TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 DEFINE FIELD break_minutes ON schedule_template TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD cost_center ON schedule_template TYPE none | record<cost_center> | null PERMISSIONS FULL;
 DEFINE FIELD days_of_week ON schedule_template TYPE array<int> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD days_of_week.* ON schedule_template TYPE int PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON schedule_template TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD department ON schedule_template TYPE none | record<department> | null PERMISSIONS FULL;
 DEFINE FIELD end_time ON schedule_template TYPE string PERMISSIONS FULL;
@@ -2504,25 +2719,23 @@ DEFINE INDEX ss_employee_start ON scheduled_shift FIELDS employee, start_at;
 DEFINE INDEX ss_schedule ON scheduled_shift FIELDS work_schedule;
 
 
-
 -- ------------------------------
 -- TABLE: security_alert_rules
 -- ------------------------------
 
 DEFINE TABLE security_alert_rules TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD name ON security_alert_rules TYPE string PERMISSIONS FULL;
-DEFINE FIELD description ON security_alert_rules TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD rule_type ON security_alert_rules TYPE string PERMISSIONS FULL;
-DEFINE FIELD threshold ON security_alert_rules TYPE none | int | null PERMISSIONS FULL;
-DEFINE FIELD window_minutes ON security_alert_rules TYPE none | int | null PERMISSIONS FULL;
-DEFINE FIELD severity ON security_alert_rules TYPE string DEFAULT 'warning' PERMISSIONS FULL;
-DEFINE FIELD enabled ON security_alert_rules TYPE bool DEFAULT true PERMISSIONS FULL;
 DEFINE FIELD created_at ON security_alert_rules TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD description ON security_alert_rules TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD enabled ON security_alert_rules TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD name ON security_alert_rules TYPE string PERMISSIONS FULL;
+DEFINE FIELD rule_type ON security_alert_rules TYPE string PERMISSIONS FULL;
+DEFINE FIELD severity ON security_alert_rules TYPE string DEFAULT 'warning' PERMISSIONS FULL;
+DEFINE FIELD threshold ON security_alert_rules TYPE none | int PERMISSIONS FULL;
+DEFINE FIELD window_minutes ON security_alert_rules TYPE none | int PERMISSIONS FULL;
 
-DEFINE INDEX security_alert_rules_type ON security_alert_rules FIELDS rule_type;
 DEFINE INDEX security_alert_rules_enabled ON security_alert_rules FIELDS enabled;
-
+DEFINE INDEX security_alert_rules_type ON security_alert_rules FIELDS rule_type;
 
 
 -- ------------------------------
@@ -2531,28 +2744,47 @@ DEFINE INDEX security_alert_rules_enabled ON security_alert_rules FIELDS enabled
 
 DEFINE TABLE security_alerts TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD acknowledged_at ON security_alerts TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD acknowledged_by ON security_alerts TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD actor_id ON security_alerts TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD actor_login ON security_alerts TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD actor_roles ON security_alerts TYPE array<string> DEFAULT [] PERMISSIONS FULL;
+DEFINE FIELD actor_roles.* ON security_alerts TYPE string PERMISSIONS FULL;
+DEFINE FIELD count ON security_alerts TYPE int DEFAULT 1 PERMISSIONS FULL;
+DEFINE FIELD details ON security_alerts TYPE any PERMISSIONS FULL;
 DEFINE FIELD emitted_at ON security_alerts TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD rule_id ON security_alerts TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD resolution_notes ON security_alerts TYPE none | string PERMISSIONS FULL;
+DEFINE FIELD rule_id ON security_alerts TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD rule_name ON security_alerts TYPE string PERMISSIONS FULL;
 DEFINE FIELD rule_type ON security_alerts TYPE string PERMISSIONS FULL;
 DEFINE FIELD severity ON security_alerts TYPE string PERMISSIONS FULL;
-DEFINE FIELD actor_id ON security_alerts TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD actor_login ON security_alerts TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD actor_roles ON security_alerts TYPE array<string> DEFAULT [] PERMISSIONS FULL;
-DEFINE FIELD source_ip ON security_alerts TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD count ON security_alerts TYPE int DEFAULT 1 PERMISSIONS FULL;
-DEFINE FIELD details ON security_alerts TYPE any PERMISSIONS FULL;
+DEFINE FIELD source_ip ON security_alerts TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD status ON security_alerts TYPE string DEFAULT 'open' PERMISSIONS FULL;
-DEFINE FIELD acknowledged_by ON security_alerts TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD acknowledged_at ON security_alerts TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD resolution_notes ON security_alerts TYPE none | string | null PERMISSIONS FULL;
 
-DEFINE INDEX security_alerts_emitted_at ON security_alerts FIELDS emitted_at;
-DEFINE INDEX security_alerts_status ON security_alerts FIELDS status;
-DEFINE INDEX security_alerts_severity ON security_alerts FIELDS severity;
 DEFINE INDEX security_alerts_actor ON security_alerts FIELDS actor_id;
+DEFINE INDEX security_alerts_emitted_at ON security_alerts FIELDS emitted_at;
 DEFINE INDEX security_alerts_rule ON security_alerts FIELDS rule_id;
+DEFINE INDEX security_alerts_severity ON security_alerts FIELDS severity;
+DEFINE INDEX security_alerts_status ON security_alerts FIELDS status;
 
+
+-- ------------------------------
+-- TABLE: self_order_checkout
+-- ------------------------------
+
+DEFINE TABLE self_order_checkout TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+
+
+
+-- ------------------------------
+-- TABLE: self_order_table
+-- ------------------------------
+
+DEFINE TABLE self_order_table TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+
+DEFINE INDEX self_order_table_token ON self_order_table FIELDS token UNIQUE;
 
 
 -- ------------------------------
@@ -2569,12 +2801,11 @@ DEFINE FIELD values ON setting TYPE any PERMISSIONS FULL;
 DEFINE INDEX setting_key_global ON setting FIELDS key, is_global;
 
 
-
 -- ------------------------------
 -- TABLE: shift
 -- ------------------------------
 
-DEFINE TABLE shift TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE shift TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD deleted_at ON shift TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD end_time ON shift TYPE string PERMISSIONS FULL;
@@ -2607,30 +2838,29 @@ DEFINE FIELD target_employee ON shift_swap_request TYPE none | record<employee> 
 
 DEFINE TABLE stock_transfer TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
-DEFINE FIELD approved_at ON stock_transfer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON stock_transfer TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON stock_transfer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON stock_transfer TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD approved_at ON stock_transfer TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD approved_by ON stock_transfer TYPE none | record<user> PERMISSIONS FULL;
+DEFINE FIELD cancelled_at ON stock_transfer TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD cancelled_by ON stock_transfer TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD created_at ON stock_transfer TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD created_by ON stock_transfer TYPE record<user> PERMISSIONS FULL;
 DEFINE FIELD from_kitchen ON stock_transfer TYPE none | record<kitchen> | null PERMISSIONS FULL;
+DEFINE FIELD from_location ON stock_transfer TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD from_store ON stock_transfer TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD from_location ON stock_transfer TYPE none | record<inventory_location> | null PERMISSIONS FULL;
 DEFINE FIELD notes ON stock_transfer TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD posted_at ON stock_transfer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON stock_transfer TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD posted_at ON stock_transfer TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD posted_by ON stock_transfer TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD status ON stock_transfer TYPE string DEFAULT 'posted' PERMISSIONS FULL;
 DEFINE FIELD to_kitchen ON stock_transfer TYPE none | record<kitchen> | null PERMISSIONS FULL;
+DEFINE FIELD to_location ON stock_transfer TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD to_store ON stock_transfer TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD to_location ON stock_transfer TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD voided_at ON stock_transfer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON stock_transfer TYPE none | record<user> | null PERMISSIONS FULL;
+DEFINE FIELD voided_at ON stock_transfer TYPE none | datetime PERMISSIONS FULL;
+DEFINE FIELD voided_by ON stock_transfer TYPE none | record<user> PERMISSIONS FULL;
 
 DEFINE INDEX st_created_at ON stock_transfer FIELDS created_at;
-DEFINE INDEX st_status_created_at ON stock_transfer FIELDS status, created_at;
 DEFINE INDEX st_from_location ON stock_transfer FIELDS from_location;
+DEFINE INDEX st_status_created_at ON stock_transfer FIELDS status, created_at;
 DEFINE INDEX st_to_location ON stock_transfer FIELDS to_location;
-
 
 
 -- ------------------------------
@@ -2647,14 +2877,46 @@ DEFINE INDEX sti_item ON stock_transfer_item FIELDS item;
 DEFINE INDEX sti_transfer ON stock_transfer_item FIELDS transfer;
 
 
-
 -- ------------------------------
 -- TABLE: sync_accepted_operation
 -- ------------------------------
 
 DEFINE TABLE sync_accepted_operation TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
+
 DEFINE INDEX sync_accepted_operation_id ON sync_accepted_operation FIELDS operation_id UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: sync_branch
+-- ------------------------------
+
+DEFINE TABLE sync_branch TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+DEFINE FIELD active ON sync_branch TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD client_id ON sync_branch TYPE string PERMISSIONS FULL;
+DEFINE FIELD created_at ON sync_branch TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
+DEFINE FIELD name ON sync_branch TYPE string PERMISSIONS FULL;
+DEFINE FIELD updated_at ON sync_branch TYPE none | datetime PERMISSIONS FULL;
+
+DEFINE INDEX sync_branch_client_id ON sync_branch FIELDS client_id UNIQUE;
+
+
+-- ------------------------------
+-- TABLE: sync_catalog_down_cursor
+-- ------------------------------
+
+DEFINE TABLE sync_catalog_down_cursor TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+
+
+
+-- ------------------------------
+-- TABLE: sync_cloud_cursor
+-- ------------------------------
+
+DEFINE TABLE sync_cloud_cursor TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
 
 
 
@@ -2666,14 +2928,24 @@ DEFINE TABLE sync_conflict TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
 
 
+
+-- ------------------------------
+-- TABLE: sync_cursor
+-- ------------------------------
+
+DEFINE TABLE sync_cursor TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
+
+
+
 -- ------------------------------
 -- TABLE: sync_event
 -- ------------------------------
 
 DEFINE TABLE sync_event TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
-DEFINE INDEX sync_event_event_id ON sync_event FIELDS event_id UNIQUE;
 
+DEFINE INDEX sync_event_event_id ON sync_event FIELDS event_id UNIQUE;
 
 
 -- ------------------------------
@@ -2681,6 +2953,7 @@ DEFINE INDEX sync_event_event_id ON sync_event FIELDS event_id UNIQUE;
 -- ------------------------------
 
 DEFINE TABLE sync_event_seq TYPE ANY SCHEMALESS PERMISSIONS NONE;
+
 
 
 
@@ -2692,14 +2965,15 @@ DEFINE TABLE sync_number_counter TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
 
 
+
 -- ------------------------------
 -- TABLE: sync_number_reservation
 -- ------------------------------
 
 DEFINE TABLE sync_number_reservation TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
-DEFINE INDEX sync_number_reservation_id ON sync_number_reservation FIELDS reservation_id UNIQUE;
 
+DEFINE INDEX sync_number_reservation_id ON sync_number_reservation FIELDS reservation_id UNIQUE;
 
 
 -- ------------------------------
@@ -2708,8 +2982,8 @@ DEFINE INDEX sync_number_reservation_id ON sync_number_reservation FIELDS reserv
 
 DEFINE TABLE sync_terminal TYPE ANY SCHEMALESS PERMISSIONS NONE;
 
-DEFINE INDEX sync_terminal_terminal_id ON sync_terminal FIELDS terminal_id UNIQUE;
 
+DEFINE INDEX sync_terminal_terminal_id ON sync_terminal FIELDS terminal_id UNIQUE;
 
 
 -- ------------------------------
@@ -2718,6 +2992,7 @@ DEFINE INDEX sync_terminal_terminal_id ON sync_terminal FIELDS terminal_id UNIQU
 
 DEFINE TABLE tax TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD branch_id ON tax TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON tax TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD name ON tax TYPE string PERMISSIONS FULL;
 DEFINE FIELD priority ON tax TYPE int PERMISSIONS FULL;
@@ -2729,7 +3004,7 @@ DEFINE FIELD rate ON tax TYPE float PERMISSIONS FULL;
 -- TABLE: time_entry
 -- ------------------------------
 
-DEFINE TABLE time_entry TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE time_entry TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD approval_status ON time_entry TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD approved_at ON time_entry TYPE none | datetime | null PERMISSIONS FULL;
@@ -2754,7 +3029,6 @@ DEFINE INDEX te_employee_clock_in ON time_entry FIELDS employee, clock_in;
 DEFINE INDEX te_user_clock_out ON time_entry FIELDS user, clock_out;
 
 
-
 -- ------------------------------
 -- TABLE: time_entry_break
 -- ------------------------------
@@ -2776,7 +3050,7 @@ DEFINE INDEX teb_time_entry ON time_entry_break FIELDS time_entry;
 -- TABLE: tip_distribution
 -- ------------------------------
 
-DEFINE TABLE tip_distribution TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE tip_distribution TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD created_at ON tip_distribution TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
 DEFINE FIELD created_by ON tip_distribution TYPE none | record<user> | null PERMISSIONS FULL;
@@ -2785,6 +3059,7 @@ DEFINE FIELD shift ON tip_distribution TYPE record<shift> PERMISSIONS FULL;
 DEFINE FIELD to_at ON tip_distribution TYPE datetime PERMISSIONS FULL;
 DEFINE FIELD total_tips ON tip_distribution TYPE float PERMISSIONS FULL;
 DEFINE FIELD users ON tip_distribution TYPE array<record<tip_distribution_user_share>> PERMISSIONS FULL;
+DEFINE FIELD users.* ON tip_distribution TYPE record<tip_distribution_user_share> PERMISSIONS FULL;
 
 
 
@@ -2792,7 +3067,7 @@ DEFINE FIELD users ON tip_distribution TYPE array<record<tip_distribution_user_s
 -- TABLE: tip_distribution_user_share
 -- ------------------------------
 
-DEFINE TABLE tip_distribution_user_share TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+DEFINE TABLE tip_distribution_user_share TYPE NORMAL SCHEMAFULL CHANGEFEED 2w PERMISSIONS NONE;
 
 DEFINE FIELD amount ON tip_distribution_user_share TYPE float PERMISSIONS FULL;
 DEFINE FIELD user ON tip_distribution_user_share TYPE none | record<user> | string PERMISSIONS FULL;
@@ -2824,13 +3099,14 @@ DEFINE INDEX tracking_created_at ON tracking FIELDS created_at;
 DEFINE INDEX tracking_module_created_at ON tracking FIELDS module, created_at;
 
 
-
 -- ------------------------------
 -- TABLE: user
 -- ------------------------------
 
 DEFINE TABLE user TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD branch_ids ON user TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD branch_ids.* ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON user TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD first_name ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD last_name ON user TYPE string PERMISSIONS FULL;
@@ -2838,10 +3114,14 @@ DEFINE FIELD login ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD login_method ON user TYPE none | string | null DEFAULT pin PERMISSIONS FULL;
 DEFINE FIELD password ON user TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD roles ON user TYPE array<string> PERMISSIONS FULL;
+DEFINE FIELD roles.* ON user TYPE string PERMISSIONS FULL;
 DEFINE FIELD user_role ON user TYPE none | record<user_role> | null PERMISSIONS FULL;
 DEFINE FIELD user_shift ON user TYPE none | record<shift> | null PERMISSIONS FULL;
 
 
+DEFINE EVENT audit_user_create ON user WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_delete ON user WHEN $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'delete', table_name: 'user', record_id: <string> $before.id, changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_update ON user WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: user_role
@@ -2852,8 +3132,11 @@ DEFINE TABLE user_role TYPE ANY SCHEMALESS PERMISSIONS NONE;
 DEFINE FIELD deleted_at ON user_role TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD name ON user_role TYPE string PERMISSIONS FULL;
 DEFINE FIELD roles ON user_role TYPE array<string> PERMISSIONS FULL;
+DEFINE FIELD roles.* ON user_role TYPE string PERMISSIONS FULL;
 
 
+DEFINE EVENT audit_user_role_create ON user_role WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user_role', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_role_update ON user_role WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user_role', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: work_schedule
@@ -2899,249 +3182,3 @@ DEFINE FIELD workflow ON workflow_stage TYPE record<workflow> PERMISSIONS FULL;
 DEFINE INDEX workflow_stage_seq ON workflow_stage FIELDS workflow, `sequence`;
 
 
-
--- TABLE: inventory_adjustment (see migrations/2026_07_18_inventory_phases_5_9.surql)
-DEFINE TABLE inventory_adjustment TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-DEFINE FIELD created_at ON inventory_adjustment TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD created_by ON inventory_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD invoice_number ON inventory_adjustment TYPE int PERMISSIONS FULL;
-DEFINE FIELD status ON inventory_adjustment TYPE string DEFAULT 'draft' PERMISSIONS FULL;
-DEFINE FIELD reason ON inventory_adjustment TYPE string PERMISSIONS FULL;
-DEFINE FIELD notes ON inventory_adjustment TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD store ON inventory_adjustment TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD items ON inventory_adjustment TYPE none | array<record<inventory_adjustment_item>> | null PERMISSIONS FULL;
-DEFINE FIELD approved_at ON inventory_adjustment TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD approved_by ON inventory_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD posted_at ON inventory_adjustment TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD posted_by ON inventory_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD voided_at ON inventory_adjustment TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD voided_by ON inventory_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_at ON inventory_adjustment TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD cancelled_by ON inventory_adjustment TYPE none | record<user> | null PERMISSIONS FULL;
-DEFINE INDEX inventory_adjustment_invoice ON inventory_adjustment FIELDS invoice_number UNIQUE;
-
-DEFINE TABLE inventory_adjustment_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-DEFINE FIELD adjustment ON inventory_adjustment_item TYPE none | record<inventory_adjustment> | null PERMISSIONS FULL;
-DEFINE FIELD item ON inventory_adjustment_item TYPE record<inventory_item> PERMISSIONS FULL;
-DEFINE FIELD store ON inventory_adjustment_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_adjustment TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD location ON inventory_adjustment_item TYPE none | record<inventory_location> | null PERMISSIONS FULL;
-DEFINE FIELD quantity_change ON inventory_adjustment_item TYPE float PERMISSIONS FULL;
-DEFINE FIELD unit_cost ON inventory_adjustment_item TYPE none | float | null PERMISSIONS FULL;
-DEFINE FIELD comments ON inventory_adjustment_item TYPE none | string | null PERMISSIONS FULL;
-
-DEFINE TABLE inventory_location TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
-DEFINE FIELD created_at ON inventory_location TYPE datetime DEFAULT time::now() PERMISSIONS FULL;
-DEFINE FIELD name ON inventory_location TYPE string PERMISSIONS FULL;
-DEFINE FIELD type ON inventory_location TYPE string PERMISSIONS FULL;
-DEFINE FIELD linked_store ON inventory_location TYPE none | record<inventory_store> | null PERMISSIONS FULL;
-DEFINE FIELD linked_kitchen ON inventory_location TYPE none | record<kitchen> | null PERMISSIONS FULL;
-DEFINE FIELD is_active ON inventory_location TYPE bool DEFAULT true PERMISSIONS FULL;
-DEFINE INDEX inventory_location_store ON inventory_location FIELDS linked_store;
-DEFINE INDEX inventory_location_kitchen ON inventory_location FIELDS linked_kitchen;
-
-DEFINE FIELD revision ON inventory_purchase TYPE int DEFAULT 1 PERMISSIONS FULL;
-DEFINE FIELD parent ON inventory_purchase TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
-DEFINE FIELD superseded_by ON inventory_purchase TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
-DEFINE FIELD revision ON inventory_issue TYPE int DEFAULT 1 PERMISSIONS FULL;
-DEFINE FIELD parent ON inventory_issue TYPE none | record<inventory_issue> | null PERMISSIONS FULL;
-DEFINE FIELD superseded_by ON inventory_issue TYPE none | record<inventory_issue> | null PERMISSIONS FULL;
-DEFINE FIELD batch_code ON inventory_ledger TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD expiry_date ON inventory_ledger TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD manufacturing_date ON inventory_ledger TYPE none | string | null PERMISSIONS FULL;
-
--- Hot-path indexes (from 2026_08_22 / 2026_08_30; UNIQUE invoice indexes already defined above)
-DEFINE INDEX ia_created_at ON inventory_adjustment FIELDS created_at;
-DEFINE INDEX ia_status_created_at ON inventory_adjustment FIELDS status, created_at;
-DEFINE INDEX ia_location_created_at ON inventory_adjustment FIELDS location, created_at;
-DEFINE INDEX iai_item ON inventory_adjustment_item FIELDS item;
-DEFINE INDEX iai_adjustment ON inventory_adjustment_item FIELDS adjustment;
-DEFINE INDEX iai_item_location ON inventory_adjustment_item FIELDS item, location;
-
-DEFINE INDEX ip_created_at ON inventory_purchase FIELDS created_at;
-DEFINE INDEX ip_status_created_at ON inventory_purchase FIELDS status, created_at;
-DEFINE INDEX ip_location_created_at ON inventory_purchase FIELDS location, created_at;
-DEFINE INDEX ip_supplier ON inventory_purchase FIELDS supplier;
-DEFINE INDEX ipi_item_location ON inventory_purchase_item FIELDS item, location;
-DEFINE INDEX ipi_purchase ON inventory_purchase_item FIELDS purchase;
-
-DEFINE INDEX ipr_created_at ON inventory_purchase_return FIELDS created_at;
-DEFINE INDEX ipr_status_created_at ON inventory_purchase_return FIELDS status, created_at;
-DEFINE INDEX ipr_location_created_at ON inventory_purchase_return FIELDS location, created_at;
-DEFINE INDEX ipri_item ON inventory_purchase_return_item FIELDS item;
-DEFINE INDEX ipri_purchase_return ON inventory_purchase_return_item FIELDS purchase_return;
-
-DEFINE INDEX ii_created_at ON inventory_issue FIELDS created_at;
-DEFINE INDEX ii_status_created_at ON inventory_issue FIELDS status, created_at;
-DEFINE INDEX ii_location_created_at ON inventory_issue FIELDS location, created_at;
-DEFINE INDEX iii_item_location ON inventory_issue_item FIELDS item, location;
-DEFINE INDEX iii_issue ON inventory_issue_item FIELDS issue;
-
-DEFINE INDEX iir_created_at ON inventory_issue_return FIELDS created_at;
-DEFINE INDEX iir_status_created_at ON inventory_issue_return FIELDS status, created_at;
-DEFINE INDEX iir_location_created_at ON inventory_issue_return FIELDS location, created_at;
-DEFINE INDEX iiri_item ON inventory_issue_return_item FIELDS item;
-DEFINE INDEX iiri_issue_return ON inventory_issue_return_item FIELDS issue_return;
-
-DEFINE INDEX iiw_created_at ON inventory_item_waste FIELDS created_at;
-DEFINE INDEX iiw_status_created_at ON inventory_item_waste FIELDS status, created_at;
-DEFINE INDEX iiwi_item ON inventory_item_waste_item FIELDS item;
-DEFINE INDEX iiwi_waste ON inventory_item_waste_item FIELDS waste;
-
-DEFINE INDEX ipo_created_at ON inventory_purchase_order FIELDS created_at;
-DEFINE INDEX ipo_status_created_at ON inventory_purchase_order FIELDS status, created_at;
-DEFINE INDEX ipo_location_created_at ON inventory_purchase_order FIELDS location, created_at;
-DEFINE INDEX ipo_supplier ON inventory_purchase_order FIELDS supplier;
-
--- ------------------------------
--- EVENTS: audit_log hooks
--- ------------------------------
-
-DEFINE EVENT audit_user_create ON TABLE user
-  WHEN $event == 'CREATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: 'create',
-      table_name: 'user',
-      record_id: <string>$after.id,
-      changed_fields: [],
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_user_update ON TABLE user
-  WHEN $event == 'UPDATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: 'update',
-      table_name: 'user',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_user_delete ON TABLE user
-  WHEN $event == 'DELETE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: 'delete',
-      table_name: 'user',
-      record_id: <string>$before.id,
-      changed_fields: [],
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_user_role_create ON TABLE user_role
-  WHEN $event == 'CREATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: 'create',
-      table_name: 'user_role',
-      record_id: <string>$after.id,
-      changed_fields: [],
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_user_role_update ON TABLE user_role
-  WHEN $event == 'UPDATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: 'update',
-      table_name: 'user_role',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_oauth_credential_update ON TABLE integration_oauth_credential
-  WHEN $event == 'UPDATE' OR $event == 'CREATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
-      table_name: 'integration_oauth_credential',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_payment_type_update ON TABLE payment_type
-  WHEN $event == 'UPDATE' OR $event == 'CREATE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
-      table_name: 'payment_type',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_payroll_run_update ON TABLE payroll_run
-  WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
-      table_name: 'payroll_run',
-      record_id: <string>(if $event == 'DELETE' { $before.id } else { $after.id }),
-      changed_fields: if $event == 'DELETE' { [] } else { <array<string>>object::keys($after) },
-      source: 'surreal-event',
-    };
-  };
-
-DEFINE EVENT audit_journal_entry_update ON TABLE account_journal_entry
-  WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE'
-  THEN {
-    CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
-      table_name: 'account_journal_entry',
-      record_id: <string>(if $event == 'DELETE' { $before.id } else { $after.id }),
-      changed_fields: if $event == 'DELETE' { [] } else { <array<string>>object::keys($after) },
-      source: 'surreal-event',
-    };
-  };
-
--- ------------------------------
--- FUNCTION: delivery menu payload
--- ------------------------------
-
-DEFINE FUNCTION fn::delivery_menu() {
-	LET $setting = (SELECT * FROM setting WHERE key = 'delivery_menu' LIMIT 1 FETCH
-		values,
-		values.items.menu_menu_item,
-		values.items.menu_item,
-		values.items.menu_item.categories
-	);
-	RETURN $setting;
-} PERMISSIONS FULL;
