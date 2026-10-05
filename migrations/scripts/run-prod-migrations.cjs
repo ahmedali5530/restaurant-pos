@@ -186,15 +186,42 @@ async function markApplied(db, id, note) {
   );
 }
 
-async function applySurql(db, filePath) {
+async function applySurql(db, filePath, transform) {
   const raw = fs.readFileSync(filePath, 'utf8');
-  const sql = stripComments(raw);
+  let sql = stripComments(raw);
+  if (transform) sql = transform(sql);
   if (!sql) {
     console.log(`  (empty after comments) skip ${path.basename(filePath)}`);
     return;
   }
   await db.query(sql);
 }
+
+/**
+ * SurrealDB 3.x rejects an array-element wildcard field (e.g. `foo.*`) when its
+ * parent is declared with the explicit `none | array<T> | null` union that the
+ * schema dumps use. `option<array<T>>` is equivalent and accepted, so rewrite
+ * the baseline before import. No-op once the generated schema is fixed.
+ */
+const normalizeOptionalArrayTypes = (sql) =>
+  sql.replace(
+    /\bnone\s*\|\s*(array<(?:[^<>]|<[^<>]*>)*>)\s*\|\s*null\b/gi,
+    'option<$1>'
+  );
+
+/**
+ * Demo dumps can be full exports (schema + `_schema_migration` tracking). The
+ * baseline and plan already own the schema and migration state, so seed only the
+ * data rows here and drop the dump's DEFINEs and migration records.
+ */
+const toDataOnlySql = (sql) => {
+  const inserts = sql
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('INSERT ') && !line.includes('_schema_migration'));
+  if (inserts.length === 0) return '';
+  return ['OPTION IMPORT;', ...inserts].join('\n');
+};
 
 function runBackfill(scriptName) {
   const scriptPath = path.join(MIGRATIONS_DIR, 'scripts', scriptName);
@@ -217,7 +244,7 @@ async function importBaseline(db) {
     throw new Error(`Fresh database but baseline file not found: ${baselinePath}`);
   }
   console.log(`Fresh database detected — importing full schema baseline: ${BASELINE_FILE}`);
-  await applySurql(db, baselinePath);
+  await applySurql(db, baselinePath, normalizeOptionalArrayTypes);
 }
 
 async function importDemoData(db) {
@@ -227,7 +254,7 @@ async function importDemoData(db) {
     return;
   }
   console.log(`Seeding demo data: ${DEMO_DATA_FILE}`);
-  await applySurql(db, demoPath);
+  await applySurql(db, demoPath, toDataOnlySql);
 }
 
 async function main() {
