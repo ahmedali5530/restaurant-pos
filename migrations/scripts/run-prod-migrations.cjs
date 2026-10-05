@@ -47,6 +47,12 @@ const MIGRATIONS_DIR = process.env.MIGRATIONS_DIR
  */
 const BASELINE_FILE = process.env.BASELINE_FILE || 'latest.surql';
 
+/** Optional demo/seed data loaded only when bootstrapping a brand-new database. */
+const DEMO_DATA_FILE = process.env.DEMO_DATA_FILE || 'demo-data.surql';
+const SEED_DEMO_DATA = ['1', 'true', 'yes', 'on'].includes(
+  String(process.env.SEED_DEMO_DATA || '').trim().toLowerCase()
+);
+
 /**
  * Ordered list of schema migrations + optional post-backfills.
  * Add new entries at the end when shipping schema changes.
@@ -214,6 +220,16 @@ async function importBaseline(db) {
   await applySurql(db, baselinePath);
 }
 
+async function importDemoData(db) {
+  const demoPath = path.join(MIGRATIONS_DIR, DEMO_DATA_FILE);
+  if (!fs.existsSync(demoPath)) {
+    console.warn(`SEED_DEMO_DATA is set but ${DEMO_DATA_FILE} was not found; skipping demo data.`);
+    return;
+  }
+  console.log(`Seeding demo data: ${DEMO_DATA_FILE}`);
+  await applySurql(db, demoPath);
+}
+
 async function main() {
   console.log('=== Production migrations ===');
   console.log(`  plan entries: ${MIGRATION_PLAN.length}`);
@@ -222,7 +238,8 @@ async function main() {
   let db = await connectWithRetry();
 
   const existingTables = await listTables(db);
-  if (existingTables.length === 0) {
+  const isFreshDatabase = existingTables.length === 0;
+  if (isFreshDatabase) {
     await importBaseline(db);
   } else {
     console.log(`Existing database detected (${existingTables.length} tables) — applying pending migrations.`);
@@ -257,6 +274,10 @@ async function main() {
       await markApplied(db, step.id, step.backfill);
       console.log(`[done]  ${step.id}`);
     }
+  }
+
+  if (isFreshDatabase && SEED_DEMO_DATA) {
+    await importDemoData(db);
   }
 
   try {
