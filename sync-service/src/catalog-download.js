@@ -570,7 +570,7 @@ class CatalogDownloadManager {
       () => this.master.query(
         `SELECT * FROM ${tableName}
           WHERE branch_id = NONE OR branch_id = NULL OR branch_id = $branchId
-            OR (type::is::array(branch_ids) AND $branchId IN branch_ids)
+            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)
           LIMIT $limit START $start;`,
         { branchId, limit, start }
       ),
