@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Von Tisch {{table}} zu einem anderen wechseln",
     "reloadCachePrefix": "Cache-Neuladen-Schaltfläche drücken in",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "ordersWarming": "Offene Checks werden geladen… bitte einen Moment warten."
   },
   "guard": {
     "punchDisabled": "Erfassung ist deaktiviert, bis der aktuelle Zyklus abgeschlossen ist oder der aktuelle Zyklusabschluss gelöscht wird.",

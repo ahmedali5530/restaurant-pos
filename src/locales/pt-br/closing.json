@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Trocar da Mesa {{table}} para outra",
     "reloadCachePrefix": "Pressione o botão de recarregar cache em",
-    "settings": "configurações"
+    "settings": "configurações",
+    "ordersWarming": "Carregando contas abertas… aguarde um momento."
   },
   "guard": {
     "punchDisabled": "O lançamento está desativado até que o ciclo atual seja fechado ou o fechamento do ciclo atual seja excluído.",

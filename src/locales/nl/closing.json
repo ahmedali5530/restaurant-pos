@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Wissel van Tafel {{table}} naar een andere",
     "reloadCachePrefix": "Druk op de cache herladen-knop in",
-    "settings": "instellingen"
+    "settings": "instellingen",
+    "ordersWarming": "Open rekeningen laden… even geduld."
   },
   "guard": {
     "punchDisabled": "Invoeren is uitgeschakeld totdat de huidige cyclus is afgesloten, of verwijder de huidige cyclusafsluiting.",

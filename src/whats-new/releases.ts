@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-06',
+    title: 'Faster cache reload — menu before open checks',
+    items: [
+      'Reload cache and first sync project floors, menu, payments, and taxes as soon as those tables finish downloading, while open checks continue in the background.',
+      'Snapshot no longer walks the entire sync history up to the high watermark, so terminals with large event logs warm up much faster. Opening a table waits until open checks are loaded.',
+    ],
+  },
+  {
     date: '2026-10-03',
     title: 'QR page theme and order-ready alerts',
     items: [

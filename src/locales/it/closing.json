@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Passa dal Tavolo {{table}} a un altro",
     "reloadCachePrefix": "Premi il pulsante ricarica cache dalle",
-    "settings": "impostazioni"
+    "settings": "impostazioni",
+    "ordersWarming": "Caricamento conti aperti… attendere un momento."
   },
   "guard": {
     "punchDisabled": "L'inserimento ordini è disabilitato finché il ciclo corrente non è chiuso, oppure elimina la chiusura del ciclo corrente.",

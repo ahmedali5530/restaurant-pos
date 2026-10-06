@@ -30,6 +30,7 @@ import {
 
 const DAY_SCOPED_NUMBER_SERIES = new Set<NumberSeries>(['invoice', 'receipt']);
 
+/** Catalog first (through printers) so the menu can project before orders. */
 const SNAPSHOT_TABLES = [
   Tables.order_types,
   Tables.categories,
@@ -52,9 +53,9 @@ const SNAPSHOT_TABLES = [
   Tables.discounts,
   Tables.discount_reasons,
   Tables.coupons,
+  Tables.printers,
   Tables.customers,
   'coupon_redemption',
-  Tables.printers,
   Tables.orders,
   Tables.order_items,
   Tables.order_items_kitchen,
@@ -109,6 +110,7 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
   let highWatermark = 0;
   let pages = 0;
   const maxPages = 5_000;
+  let catalogNotified = !!(await posStore.getSyncCursor()).catalogReady;
 
   while (!complete) {
     if (pages >= maxPages) {
@@ -118,7 +120,7 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
     const page = await fetchSnapshotPage({ terminalId, resumeToken, limit: 200 });
     pages += 1;
     highWatermark = page.highWatermark;
-    if (page.page.kind === 'records' && page.page.table && page.page.records) {
+    if (page.page.kind === 'records' && page.page.table && page.page.records?.length) {
       const table = page.page.table;
       if (table === 'order') {
         for (const record of page.page.records) {
@@ -132,21 +134,26 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
         if (table === 'floor_table') await projectSnapshotRecords(table, page.page.records);
       }
     }
-    // The trailing events page (event_id <= highWatermark) predates the record
-    // pages we just read, so replaying it could roll state back (e.g. a CREATE
-    // event re-opening an order that is already Paid). Records are the truth
-    // at snapshot time; the cursor jumps to the watermark and pull continues.
+    // Records are the truth at snapshot time. Gateway no longer pages historical
+    // sync_event rows; the cursor jumps to the watermark when complete and pull
+    // continues from there.
     resumeToken = page.resumeToken;
     complete = page.complete;
     if (!complete && resumeToken === previousToken) {
       throw new Error('Snapshot pagination stalled (resume token did not advance)');
     }
+    const markCatalogReady = !catalogNotified && (page.catalogComplete || complete);
     await posStore.setSyncCursor({
       snapshotResumeToken: resumeToken,
       highWatermark,
-      hydrated: complete,
+      ...(markCatalogReady ? { catalogReady: true } : {}),
+      ...(complete ? { catalogReady: true, hydrated: true } : { hydrated: false }),
       cursor: complete ? highWatermark : (await posStore.getSyncCursor()).cursor,
     });
+    if (markCatalogReady) {
+      catalogNotified = true;
+      notifyCatalogReady();
+    }
   }
 }
 
@@ -166,6 +173,13 @@ function notifyRemoteChange(): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('posr-posstore-write'));
     window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
+  }
+}
+
+/** Catalog tables finished; UI may project menu/floors while orders still hydrate. */
+function notifyCatalogReady(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('posr-catalog-ready'));
   }
 }
 

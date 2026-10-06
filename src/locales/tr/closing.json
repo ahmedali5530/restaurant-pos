@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Masa {{table}}'den başka bir masaya geç",
     "reloadCachePrefix": "Önbelleği yeniden yükle düğmesine basın",
-    "settings": "ayarlar"
+    "settings": "ayarlar",
+    "ordersWarming": "Açık hesaplar yükleniyor… lütfen biraz bekleyin."
   },
   "guard": {
     "punchDisabled": "Mevcut döngü kapatılana veya mevcut döngü kapanışı silinene kadar giriş devre dışı.",

@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Switch from Table {{table}} to another",
     "reloadCachePrefix": "Press reload cache button from",
-    "settings": "settings"
+    "settings": "settings",
+    "ordersWarming": "Loading open checks… please wait a moment."
   },
   "guard": {
     "punchDisabled": "Punching is disabled until current cycle is closed, or delete current cycle closing.",

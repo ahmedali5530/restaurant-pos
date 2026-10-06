@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Changer de la table {{table}} vers une autre",
     "reloadCachePrefix": "Appuyez sur le bouton de rechargement du cache depuis les",
-    "settings": "paramètres"
+    "settings": "paramètres",
+    "ordersWarming": "Chargement des notes ouvertes… veuillez patienter."
   },
   "guard": {
     "punchDisabled": "La saisie est désactivée jusqu'à la clôture du cycle en cours, ou supprimez la clôture du cycle actuel.",
