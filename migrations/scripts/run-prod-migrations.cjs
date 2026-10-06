@@ -47,6 +47,14 @@ const MIGRATIONS_DIR = process.env.MIGRATIONS_DIR
  */
 const BASELINE_FILE = process.env.BASELINE_FILE || 'latest.surql';
 
+/**
+ * Core tables that only the full schema defines. A brand-new database can
+ * already contain sidecar tables (the sync service creates `sync_cloud_cursor`
+ * on startup), so freshness is detected by the absence of these core tables
+ * rather than by "the database has no tables at all".
+ */
+const BASELINE_SENTINEL_TABLES = ['category', 'menu_item', 'setting', 'order_type'];
+
 /** Optional demo/seed data loaded only when bootstrapping a brand-new database. */
 const DEMO_DATA_FILE = process.env.DEMO_DATA_FILE || 'demo-data.surql';
 const SEED_DEMO_DATA = ['1', 'true', 'yes', 'on'].includes(
@@ -265,7 +273,9 @@ async function main() {
   let db = await connectWithRetry();
 
   const existingTables = await listTables(db);
-  const isFreshDatabase = existingTables.length === 0;
+  const isFreshDatabase = !existingTables.some((table) =>
+    BASELINE_SENTINEL_TABLES.includes(table)
+  );
   if (isFreshDatabase) {
     await importBaseline(db);
   } else {
