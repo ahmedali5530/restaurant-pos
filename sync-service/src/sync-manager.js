@@ -279,8 +279,8 @@ class SyncManager {
     clearTimeout(this.reconnectTimer);
     clearTimeout(this.pollTimer);
 
-    await closeClient(this.source);
-    await closeClient(this.master);
+    await closeClient(this.source, { timeoutMs: 5000 });
+    await closeClient(this.master, { timeoutMs: 5000 });
     this.source = null;
     this.master = null;
     this.stats.connectedSource = false;
@@ -325,33 +325,43 @@ class SyncManager {
   }
 
   async connectClients() {
-    await closeClient(this.source);
-    await closeClient(this.master);
+    await closeClient(this.source, { timeoutMs: 5000 });
+    await closeClient(this.master, { timeoutMs: 5000 });
+    this.source = null;
+    this.master = null;
+    this.stats.connectedSource = false;
+    this.stats.connectedMaster = false;
 
-    this.source = await withTimeout(
-      createConnectedClient('Source', this.config.source, this.logger),
-      15000,
-      'source.connect'
-    );
+    // createConnectedClient applies its own connect timeout and closes on failure
+    // so a late master bring-up is not blocked by orphaned sockets.
+    this.source = await createConnectedClient('Source', this.config.source, this.logger, {
+      timeoutMs: 15000,
+    });
     this.stats.connectedSource = true;
 
-    this.master = await withTimeout(
-      createConnectedClient('Master', this.config.master, this.logger),
-      15000,
-      'master.connect'
-    );
+    this.master = await createConnectedClient('Master', this.config.master, this.logger, {
+      timeoutMs: 15000,
+    });
     this.stats.connectedMaster = true;
   }
 
   async ensureSourceCursorTable() {
-    await this.source.query('DEFINE TABLE IF NOT EXISTS sync_cloud_cursor SCHEMALESS PERMISSIONS NONE;');
+    await withTimeout(
+      this.source.query('DEFINE TABLE IF NOT EXISTS sync_cloud_cursor SCHEMALESS PERMISSIONS NONE;'),
+      15000,
+      'source.define_sync_cloud_cursor'
+    );
   }
 
   async ensureMasterBranchFields() {
     for (const tableName of this.config.includeTables) {
       try {
-        await this.master.query(
-          `DEFINE FIELD IF NOT EXISTS branch_id ON ${tableName} TYPE option<string> PERMISSIONS FULL;`
+        await withTimeout(
+          this.master.query(
+            `DEFINE FIELD IF NOT EXISTS branch_id ON ${tableName} TYPE option<string> PERMISSIONS FULL;`
+          ),
+          15000,
+          `master.define_branch_id(${tableName})`
         );
       } catch (error) {
         // Master may be schemaless or the table may not exist yet — upsert will create rows.
@@ -449,12 +459,11 @@ class SyncManager {
         this.stats.eventsFailed += 1;
         this.logger.warn('Master unreachable; will reconnect and retry pending changes', {
           error: this.stats.lastError,
+          catalogSyncInFlight: Boolean(this.catalogSyncPromise),
         });
-        // Never tear down sockets while an on-demand catalog download is mid-flight.
-        if (this.catalogSyncPromise) {
-          this.logger.warn('Deferring reconnect: catalog download still running');
-          return;
-        }
+        // Tear down even if Sync now is running — a hung download on a dead
+        // master would otherwise block reconnect forever (lastError stuck on
+        // master.connect timed out until docker rebuild).
         this.scheduleReconnect();
         reconnectScheduled = true;
         return;
@@ -816,24 +825,11 @@ class SyncManager {
 
   scheduleReconnect() {
     if (this.isStopping) return;
-    if (this.catalogSyncPromise) {
-      this.logger.warn('Deferring reconnect until catalog download finishes');
-      this.catalogSyncPromise.finally(() => {
-        if (!this.isStopping && !this.stats.healthy) {
-          this.scheduleReconnect();
-        }
-      }).catch(() => {});
-      return;
-    }
     clearTimeout(this.reconnectTimer);
     clearTimeout(this.pollTimer);
     this.reconnectTimer = setTimeout(() => {
       if (this.isReconnecting) {
         // Still in a previous attempt — try again after another delay.
-        this.scheduleReconnect();
-        return;
-      }
-      if (this.catalogSyncPromise) {
         this.scheduleReconnect();
         return;
       }
@@ -847,17 +843,18 @@ class SyncManager {
 
   async reconnect() {
     if (this.isStopping || this.isReconnecting) return;
-    if (this.catalogSyncPromise) {
-      this.logger.warn('Skipping reconnect while catalog download is running');
-      return;
-    }
     this.isReconnecting = true;
     try {
       clearTimeout(this.pollTimer);
       this.stats.connectedSource = false;
       this.stats.connectedMaster = false;
-      await closeClient(this.source);
-      await closeClient(this.master);
+      // Closing sockets fails any in-flight catalog Sync now; that is preferable
+      // to staying wedged until the process is rebuilt.
+      if (this.catalogSyncPromise) {
+        this.logger.warn('Reconnect while catalog download in flight; closing sockets');
+      }
+      await closeClient(this.source, { timeoutMs: 5000 });
+      await closeClient(this.master, { timeoutMs: 5000 });
       this.source = null;
       this.master = null;
       await this.connectAndStart();

@@ -202,7 +202,11 @@ class CatalogDownloadManager {
   async ensureMasterCatalogFeeds() {
     for (const tableName of this.config.downloadTables) {
       try {
-        await this.master.query(`ALTER TABLE IF EXISTS ${tableName} CHANGEFEED 14d;`);
+        await withTimeout(
+          this.master.query(`ALTER TABLE IF EXISTS ${tableName} CHANGEFEED 14d;`),
+          15000,
+          `master.catalog_changefeed(${tableName})`
+        );
       } catch (error) {
         this.logger.warn('Could not enable catalog changefeed on master', {
           table: tableName,
@@ -210,8 +214,12 @@ class CatalogDownloadManager {
         });
       }
       try {
-        await this.master.query(
-          `DEFINE FIELD IF NOT EXISTS branch_id ON ${tableName} TYPE option<string> PERMISSIONS FULL;`
+        await withTimeout(
+          this.master.query(
+            `DEFINE FIELD IF NOT EXISTS branch_id ON ${tableName} TYPE option<string> PERMISSIONS FULL;`
+          ),
+          15000,
+          `master.catalog_branch_id(${tableName})`
         );
       } catch (error) {
         this.logger.warn('Could not define branch_id on master catalog table', {
@@ -222,8 +230,12 @@ class CatalogDownloadManager {
     }
 
     try {
-      await this.master.query(
-        `DEFINE FIELD IF NOT EXISTS branch_ids ON user TYPE option<array<string>> PERMISSIONS FULL;`
+      await withTimeout(
+        this.master.query(
+          `DEFINE FIELD IF NOT EXISTS branch_ids ON user TYPE option<array<string>> PERMISSIONS FULL;`
+        ),
+        15000,
+        'master.user_branch_ids'
       );
     } catch (error) {
       this.logger.warn('Could not define branch_ids on master user', {
@@ -232,9 +244,13 @@ class CatalogDownloadManager {
     }
 
     try {
-      await this.master.query(`
+      await withTimeout(
+        this.master.query(`
         DEFINE TABLE IF NOT EXISTS catalog_release SCHEMALESS PERMISSIONS NONE;
-      `);
+      `),
+        15000,
+        'master.define_catalog_release'
+      );
     } catch (error) {
       this.logger.warn('Could not define catalog_release on master', {
         error: error.message || String(error),
@@ -242,10 +258,14 @@ class CatalogDownloadManager {
     }
 
     try {
-      await this.master.query(`
+      await withTimeout(
+        this.master.query(`
         DEFINE TABLE IF NOT EXISTS catalog_branch_override SCHEMALESS PERMISSIONS NONE;
         ALTER TABLE IF EXISTS catalog_branch_override CHANGEFEED 14d;
-      `);
+      `),
+        15000,
+        'master.define_catalog_branch_override'
+      );
     } catch (error) {
       this.logger.warn('Could not define catalog_branch_override on master', {
         error: error.message || String(error),
@@ -358,17 +378,25 @@ class CatalogDownloadManager {
     let globalRow = null;
     let branchRow = null;
     try {
-      globalRow = await this.master.select(new RecordId('catalog_release', 'current'));
+      globalRow = await withTimeout(
+        this.master.select(new RecordId('catalog_release', 'current')),
+        10000,
+        'master.catalog_release.current'
+      );
       if (globalRow && globalRow.version != null) globalVersion = Number(globalRow.version) || 0;
     } catch {
-      // missing is fine
+      // missing / timeout is fine for /stats nudge
     }
     try {
       const branchKey = String(this.config.clientId).replace(/[^A-Za-z0-9_-]/g, '_');
-      branchRow = await this.master.select(new RecordId('catalog_release', branchKey));
+      branchRow = await withTimeout(
+        this.master.select(new RecordId('catalog_release', branchKey)),
+        10000,
+        'master.catalog_release.branch'
+      );
       if (branchRow && branchRow.version != null) branchVersion = Number(branchRow.version) || 0;
     } catch {
-      // missing is fine
+      // missing / timeout is fine
     }
     this.releaseTips = { global: globalRow, branch: branchRow };
     this.stats.remoteVersion = Math.max(globalVersion, branchVersion);
