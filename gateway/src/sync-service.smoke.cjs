@@ -12,6 +12,29 @@ assert.ok(
     < syncService.SNAPSHOT_TABLES.indexOf('order'),
 );
 
+// Default snapshot window (no env override in this process).
+assert.strictEqual(syncService.SNAPSHOT_DURATIONS.operational, '3d');
+assert.strictEqual(syncService.SNAPSHOT_DURATIONS.couponRedemption, '90d');
+assert.ok(syncService.SNAPSHOT_FILTERS.order.includes('time::now() - 3d'));
+assert.ok(syncService.SNAPSHOT_FILTERS.coupon_redemption.includes('time::now() - 90d'));
+
+// Lean on-prem window + invalid env fallback.
+const lean = syncService.resolveSnapshotDurations({
+  POS_SNAPSHOT_OPERATIONAL_DURATION: '12h',
+  POS_SNAPSHOT_COUPON_REDEMPTION_DURATION: '7d',
+});
+assert.deepStrictEqual(lean, { operational: '12h', couponRedemption: '7d' });
+const leanFilters = syncService.buildSnapshotFilters(lean);
+assert.ok(leanFilters.order.includes("status = 'In Progress'"));
+assert.ok(leanFilters.order.includes('time::now() - 12h'));
+assert.ok(leanFilters.coupon_redemption.includes('time::now() - 7d'));
+
+const bad = syncService.resolveSnapshotDurations({
+  POS_SNAPSHOT_OPERATIONAL_DURATION: '3 days; DROP',
+  POS_SNAPSHOT_COUPON_REDEMPTION_DURATION: '',
+});
+assert.deepStrictEqual(bad, { operational: '3d', couponRedemption: '90d' });
+
 (async () => {
   const db = { query: async () => [[]] };
   try {

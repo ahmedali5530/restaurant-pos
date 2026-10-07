@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-06',
+    title: 'Lean on-prem snapshot window',
+    items: [
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
+    ],
+  },
+  {
+    date: '2026-10-06',
     title: 'Faster cache reload — menu before open checks',
     items: [
       'Reload cache and first sync project floors, menu, payments, and taxes as soon as those tables finish downloading, while open checks continue in the background.',
