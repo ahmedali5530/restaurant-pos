@@ -683,7 +683,15 @@
     "statusCompleted": "Concluído",
     "statusFailed": "Falhou",
     "statusSkipped": "Ignorado",
-    "noRecords": "Nenhum envio fiscal encontrado para os filtros selecionados"
+    "noRecords": "Nenhum envio fiscal encontrado para os filtros selecionados",
+    "retry": "Tentar novamente",
+    "retrySuccess": "Fatura fiscal enviada com sucesso.",
+    "retryFailed": "Nova tentativa fiscal falhou.",
+    "retryFailedWithError": "Nova tentativa fiscal falhou: {{error}}",
+    "alreadyCompleted": "Este provedor já tem um envio fiscal bem-sucedido para o pedido.",
+    "retryInvoicePending": "Número da fatura ainda não está pronto — tente novamente após a sincronização.",
+    "retryOrderNotFound": "Pedido não encontrado para nova tentativa fiscal.",
+    "retryProviderDisabled": "Provedor fiscal está desativado."
   },
   "empty": {
     "noDiscountTypes": "Nenhum tipo de desconto para o intervalo selecionado.",

@@ -683,7 +683,15 @@
     "statusCompleted": "Abgeschlossen",
     "statusFailed": "Fehlgeschlagen",
     "statusSkipped": "Übersprungen",
-    "noRecords": "Keine fiskalischen Übermittlungen für die ausgewählten Filter gefunden"
+    "noRecords": "Keine fiskalischen Übermittlungen für die ausgewählten Filter gefunden",
+    "retry": "Erneut versuchen",
+    "retrySuccess": "Fiskalrechnung erfolgreich übermittelt.",
+    "retryFailed": "Fiskaler Retry fehlgeschlagen.",
+    "retryFailedWithError": "Fiskaler Retry fehlgeschlagen: {{error}}",
+    "alreadyCompleted": "Für diesen Anbieter gibt es bereits eine erfolgreiche Fiskalübermittlung für die Bestellung.",
+    "retryInvoicePending": "Rechnungsnummer noch nicht bereit — nach Sync erneut versuchen.",
+    "retryOrderNotFound": "Bestellung für Fiskal-Retry nicht gefunden.",
+    "retryProviderDisabled": "Fiskalanbieter ist deaktiviert."
   },
   "empty": {
     "noDiscountTypes": "Keine Rabattarten für den ausgewählten Zeitraum.",

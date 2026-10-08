@@ -683,7 +683,15 @@
     "statusCompleted": "Voltooid",
     "statusFailed": "Mislukt",
     "statusSkipped": "Overgeslagen",
-    "noRecords": "Geen fiscale inzendingen gevonden voor de geselecteerde filters"
+    "noRecords": "Geen fiscale inzendingen gevonden voor de geselecteerde filters",
+    "retry": "Opnieuw proberen",
+    "retrySuccess": "Fiscale factuur succesvol verzonden.",
+    "retryFailed": "Fiscale herpoging mislukt.",
+    "retryFailedWithError": "Fiscale herpoging mislukt: {{error}}",
+    "alreadyCompleted": "Deze provider heeft al een geslaagde fiscale inzending voor de bestelling.",
+    "retryInvoicePending": "Factuurnummer is nog niet klaar — probeer opnieuw na sync.",
+    "retryOrderNotFound": "Bestelling niet gevonden voor fiscale herpoging.",
+    "retryProviderDisabled": "Fiscale provider is uitgeschakeld."
   },
   "empty": {
     "noDiscountTypes": "Geen kortingstypes voor geselecteerd bereik.",

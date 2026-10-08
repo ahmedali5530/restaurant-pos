@@ -86,4 +86,44 @@ export class IntegrationQueueEngine {
     const jobs = await this.store.listByStatus(['Pending', 'Running', 'Waiting', 'DeadLetter']);
     return jobs.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
+
+  async getJob(jobId: string) {
+    return this.store.get(jobId);
+  }
+
+  /** Mark a DeadLetter/Failed job Completed after a successful manual retry. */
+  async markJobCompleted(jobId: string) {
+    const job = await this.store.get(jobId);
+    if (!job) return undefined;
+    job.status = 'Completed';
+    job.lastError = undefined;
+    job.nextRunAt = undefined;
+    job.updatedAt = new Date().toISOString();
+    await this.store.update(job);
+    return job;
+  }
+
+  /** Keep DeadLetter visible but refresh the error after a failed manual retry. */
+  async markJobRetryFailed(jobId: string, error: string) {
+    const job = await this.store.get(jobId);
+    if (!job) return undefined;
+    job.status = 'DeadLetter';
+    job.lastError = error;
+    job.updatedAt = new Date().toISOString();
+    await this.store.update(job);
+    return job;
+  }
+
+  /** Reset a DeadLetter job so the background processor can pick it up again. */
+  async requeueDeadLetter(jobId: string) {
+    const job = await this.store.get(jobId);
+    if (!job || job.status !== 'DeadLetter') return undefined;
+    job.status = 'Pending';
+    job.attempts = 0;
+    job.lastError = undefined;
+    job.nextRunAt = undefined;
+    job.updatedAt = new Date().toISOString();
+    await this.store.update(job);
+    return job;
+  }
 }

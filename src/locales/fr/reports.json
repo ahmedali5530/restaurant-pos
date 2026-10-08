@@ -683,7 +683,15 @@
     "statusCompleted": "Terminé",
     "statusFailed": "Échoué",
     "statusSkipped": "Ignoré",
-    "noRecords": "Aucune soumission fiscale trouvée pour les filtres sélectionnés"
+    "noRecords": "Aucune soumission fiscale trouvée pour les filtres sélectionnés",
+    "retry": "Réessayer",
+    "retrySuccess": "Facture fiscale envoyée avec succès.",
+    "retryFailed": "Échec de la nouvelle tentative fiscale.",
+    "retryFailedWithError": "Échec de la nouvelle tentative fiscale : {{error}}",
+    "alreadyCompleted": "Ce fournisseur a déjà une soumission fiscale réussie pour la commande.",
+    "retryInvoicePending": "Le numéro de facture n'est pas encore prêt — réessayez après la synchronisation.",
+    "retryOrderNotFound": "Commande introuvable pour la nouvelle tentative fiscale.",
+    "retryProviderDisabled": "Le fournisseur fiscal est désactivé."
   },
   "empty": {
     "noDiscountTypes": "Aucun type de remise pour la période sélectionnée.",

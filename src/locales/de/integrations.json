@@ -72,5 +72,15 @@
     "disconnected": "Von QuickBooks getrennt"
   },
   "connectNotSupported": "Verbinden wird von diesem Anbieter nicht unterstützt",
-  "disconnectNotSupported": "Trennen wird von diesem Anbieter nicht unterstützt"
+  "disconnectNotSupported": "Trennen wird von diesem Anbieter nicht unterstützt",
+  "queue": {
+    "retry": "Erneut versuchen",
+    "retrySuccess": "Auftrag erfolgreich erneut versucht.",
+    "retryFailed": "Erneuter Versuch fehlgeschlagen.",
+    "retryFailedWithError": "Erneuter Versuch fehlgeschlagen: {{error}}",
+    "retryAlreadyCompleted": "Fiskalübermittlung war bereits erfolgreich — Warteschlangenauftrag entfernt.",
+    "retryInvoicePending": "Rechnungsnummer noch nicht bereit — nach Sync erneut versuchen.",
+    "retryOrderNotFound": "Bestellung für Fiskal-Retry nicht gefunden.",
+    "retryProviderDisabled": "Anbieter ist deaktiviert."
+  }
 }

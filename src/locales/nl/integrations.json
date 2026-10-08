@@ -69,5 +69,15 @@
     "start": "Autoriseren met QuickBooks",
     "callbackError": "OAuth-callback mislukt. Probeer opnieuw.",
     "disconnected": "Verbroken van QuickBooks"
+  },
+  "queue": {
+    "retry": "Opnieuw proberen",
+    "retrySuccess": "Taak succesvol opnieuw geprobeerd.",
+    "retryFailed": "Opnieuw proberen mislukt.",
+    "retryFailedWithError": "Opnieuw proberen mislukt: {{error}}",
+    "retryAlreadyCompleted": "Fiscale inzending was al voltooid — wachtrijtaak gewist.",
+    "retryInvoicePending": "Factuurnummer is nog niet klaar — probeer opnieuw na sync.",
+    "retryOrderNotFound": "Bestelling niet gevonden voor fiscale herpoging.",
+    "retryProviderDisabled": "Provider is uitgeschakeld."
   }
 }

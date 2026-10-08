@@ -81,9 +81,16 @@ export const submitFiscalInvoices = async (
   options?: {
     getConfig?: (providerId: string) => Promise<Record<string, unknown>>;
     db?: ConfigDb;
+    /** When set, only these enabled fiscal provider ids are submitted. */
+    providerIds?: string[];
   }
 ): Promise<FiscalSettlementResult> => {
-  const fiscalProviders = manager.getEnabledProvidersByCategory('fiscal');
+  const allowedIds = options?.providerIds?.length
+    ? new Set(options.providerIds)
+    : undefined;
+  const fiscalProviders = manager
+    .getEnabledProvidersByCategory('fiscal')
+    .filter((manifest) => !allowedIds || allowedIds.has(manifest.id));
   if (fiscalProviders.length === 0) {
     return {
       resultsByProvider: {},

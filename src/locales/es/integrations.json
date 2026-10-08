@@ -72,5 +72,15 @@
     "disconnected": "Desconectado de QuickBooks"
   },
   "connectNotSupported": "Conectar no es compatible con este proveedor",
-  "disconnectNotSupported": "Desconectar no es compatible con este proveedor"
+  "disconnectNotSupported": "Desconectar no es compatible con este proveedor",
+  "queue": {
+    "retry": "Reintentar",
+    "retrySuccess": "Trabajo reintentado correctamente.",
+    "retryFailed": "Falló el reintento.",
+    "retryFailedWithError": "Falló el reintento: {{error}}",
+    "retryAlreadyCompleted": "El envío fiscal ya estaba completado — trabajo de cola eliminado.",
+    "retryInvoicePending": "El número de factura aún no está listo — inténtelo de nuevo tras la sincronización.",
+    "retryOrderNotFound": "Pedido no encontrado para el reintento fiscal.",
+    "retryProviderDisabled": "El proveedor está deshabilitado."
+  }
 }

@@ -687,7 +687,15 @@
     "statusCompleted": "Completed",
     "statusFailed": "Failed",
     "statusSkipped": "Skipped",
-    "noRecords": "No fiscal submissions found for the selected filters"
+    "noRecords": "No fiscal submissions found for the selected filters",
+    "retry": "Retry",
+    "retrySuccess": "Fiscal invoice submitted successfully.",
+    "retryFailed": "Fiscal retry failed.",
+    "retryFailedWithError": "Fiscal retry failed: {{error}}",
+    "alreadyCompleted": "This provider already has a successful fiscal submission for the order.",
+    "retryInvoicePending": "Invoice number is not ready yet — try again after sync.",
+    "retryOrderNotFound": "Order not found for fiscal retry.",
+    "retryProviderDisabled": "Fiscal provider is disabled."
   },
   "empty": {
     "noDiscountTypes": "No discount types for selected range.",

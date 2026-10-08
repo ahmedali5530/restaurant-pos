@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-08',
+    title: 'Manual fiscal retry',
+    items: [
+      'Retry permanently failed integration jobs from Integrations → Queue (including fiscal invoice submissions after network or authority API errors).',
+      'Successful offline fiscal queue jobs now save the completed submission so receipts and the fiscal report stay in sync.',
+    ],
+  },
+  {
     date: '2026-10-06',
     title: 'Lean on-prem snapshot window',
     items: [
