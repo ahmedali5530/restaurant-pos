@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Match the POS typography (see src/assets/css/app.scss). */
+@font-face {
+  font-family: "Urbanist";
+  src: url("../assets/fonts/Urbanist-Regular.ttf");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Urbanist";
+  src: url("../assets/fonts/Urbanist-SemiBold.ttf");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Quicksand";
+  src: url("../assets/fonts/Quicksand-Bold.ttf");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Defaults are the "classic" brand, light mode. The QR page overwrites these
+ * at runtime from the configured brand (see src/self-order/theme.ts). */
+:root {
+  color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
+  --so-paper: rgb(245 232 211);
+  --so-card: rgb(255 255 255);
+  --so-line: rgb(230 211 181);
+  --so-muted: rgb(115 91 61);
+  --so-fg: rgb(55 38 20);
+  --so-ink: rgb(255 165 20);
+  --so-on-ink: rgb(45 28 5);
+  --so-gold: rgb(255 165 20);
+  --so-gold-soft: rgb(45 28 5);
+  --so-gold-ink: rgb(150 92 22);
+  --so-ink-rgb: 255 165 20;
+  --so-on-ink-rgb: 45 28 5;
+  --so-gold-rgb: 255 165 20;
+  --so-sans: "Urbanist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --so-serif: "Quicksand", "Urbanist", ui-sans-serif, system-ui, sans-serif;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--so-paper);
+  color: var(--so-fg);
+  font-family: var(--so-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--so-ink);
+  color: var(--so-on-ink);
+}
+
+@layer components {
+  .so-serif {
+    font-family: var(--so-serif);
+    letter-spacing: 0.005em;
+    /* Headings need lining figures; prices and order numbers stay aligned. */
+    font-variant-numeric: lining-nums;
+    font-feature-settings: "lnum" 1;
+  }
+
+  .so-eyebrow {
+    font-family: var(--so-sans);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Dotted leader between dish name and price, like a printed menu. */
+  .so-leader {
+    flex: 1 1 auto;
+    min-width: 1.5rem;
+    margin: 0 0.5rem 0.35rem;
+    border-bottom: 1.5px dotted var(--so-gold-ink);
+  }
+
+  .so-btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    border-radius: 999px;
+    background: var(--so-ink);
+    color: var(--so-on-ink);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    box-shadow: 0 10px 30px -12px rgb(var(--so-ink-rgb) / 0.55);
+    transition: transform 120ms ease, background 150ms ease;
+  }
+  .so-btn-primary:active {
+    transform: scale(0.985);
+  }
+  .so-btn-primary:disabled {
+    background: var(--so-muted);
+    color: var(--so-paper);
+    box-shadow: none;
+    opacity: 0.7;
+  }
+
+  .so-btn-ghost {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--so-muted);
+  }
+
+  .so-field {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid var(--so-line);
+    background: var(--so-card);
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    color: var(--so-fg);
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .so-field::placeholder {
+    color: var(--so-muted);
+    opacity: 0.8;
+  }
+  .so-field:focus {
+    border-color: var(--so-gold);
+    box-shadow: 0 0 0 3px rgb(var(--so-gold-rgb) / 0.22);
+  }
+
+  /* Search field sitting on the brand-colored hero. */
+  .so-hero-field {
+    border: 1px solid rgb(var(--so-on-ink-rgb) / 0.28);
+    background: rgb(var(--so-on-ink-rgb) / 0.10);
+    color: var(--so-on-ink);
+  }
+  .so-hero-field::placeholder {
+    color: rgb(var(--so-on-ink-rgb) / 0.6);
+  }
+  .so-hero-field:focus {
+    border-color: rgb(var(--so-on-ink-rgb) / 0.7);
+  }
+
+  .so-choice {
+    appearance: none;
+    flex: none;
+    width: 1.35rem;
+    height: 1.35rem;
+    border: 1.5px solid var(--so-line);
+    background: var(--so-card);
+    display: grid;
+    place-content: center;
+    transition: all 150ms ease;
+  }
+  .so-choice[type="radio"] {
+    border-radius: 999px;
+  }
+  .so-choice[type="checkbox"] {
+    border-radius: 6px;
+  }
+  .so-choice:checked {
+    border-color: var(--so-ink);
+    background: var(--so-ink);
+  }
+  .so-choice:checked::after {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--so-on-ink);
+  }
+  .so-choice[type="checkbox"]:checked::after {
+    width: 0.55rem;
+    height: 0.3rem;
+    border-radius: 0;
+    background: none;
+    border-left: 2px solid var(--so-on-ink);
+    border-bottom: 2px solid var(--so-on-ink);
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+}
+
+.so-scroll-x {
+  scrollbar-width: none;
+}
+.so-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+.so-safe-bottom {
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+.so-hero {
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgb(var(--so-on-ink-rgb) / 0.18) 0%, rgb(var(--so-on-ink-rgb) / 0) 55%),
+    radial-gradient(80% 60% at 0% 100%, rgb(var(--so-on-ink-rgb) / 0.1) 0%, rgb(var(--so-on-ink-rgb) / 0) 60%),
+    var(--so-ink);
+}
+
+.so-spinner {
+  border: 2px solid rgb(var(--so-on-ink-rgb) / 0.25);
+  border-top-color: var(--so-on-ink);
+}
+
+.so-ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--so-on-ink);
+}
+.so-ornament::before,
+.so-ornament::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(90deg, transparent, var(--so-on-ink), transparent);
+}
+
+@keyframes so-slide-up {
+  from {
+    transform: translateY(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes so-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.so-sheet {
+  animation: so-slide-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.so-backdrop {
+  animation: so-fade 180ms ease-out;
+}

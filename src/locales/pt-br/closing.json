@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Trocar da Mesa {{table}} para outra",
     "reloadCachePrefix": "Pressione o botão de recarregar cache em",
-    "settings": "configurações"
+    "settings": "configurações",
+    "ordersWarming": "Carregando contas abertas… aguarde um momento."
   },
   "guard": {
     "punchDisabled": "O lançamento está desativado até que o ciclo atual seja fechado ou o fechamento do ciclo atual seja excluído.",
@@ -22,7 +23,12 @@
     "coins": "Moedas",
     "denomination": "x {{value}}",
     "total": "Total do Terminal: {{amount}}",
-    "add": "Adicionar Terminal"
+    "add": "Adicionar Terminal",
+    "mode": {
+      "breakdown": "Contar cédulas",
+      "total": "Inserir total",
+      "totalLabel": "Total de dinheiro contado"
+    }
   },
   "title": "Fechamento Diário em {{date}}",
   "loading": "Carregando fechamento...",
@@ -43,7 +49,8 @@
     "openChecks": "Contas abertas",
     "shiftRecap": "Resumo do turno",
     "notes": "Observações",
-    "summary": "Resumo da gaveta"
+    "summary": "Resumo da gaveta",
+    "selfOrders": "Autopedidos por QR"
   },
   "fields": {
     "previousDayBalance": "Saldo do Dia Anterior",
@@ -122,5 +129,11 @@
     "skippedSuffix": " ({{count}} ignorada(s))",
     "executionFailed": "Falha ao fechar comandas automaticamente",
     "warning": "As comandas serão fechadas automaticamente em {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "Pagos online pelos clientes na mesa — não entram na gaveta de dinheiro nem no lote de cartões acima.",
+    "orders": "Pedidos QR",
+    "total": "Pago online",
+    "testWarning": "{{count}} pedido(s) de teste ({{amount}}) — nenhum dinheiro foi recebido."
   }
 }

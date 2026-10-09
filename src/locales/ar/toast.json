@@ -134,7 +134,9 @@
     "invalidModifierGroup": "مجموعة المعدّلات غير صالحة",
     "duplicateDishModifierGroup": "مجموعة المعدّلات مرتبطة بالفعل بهذا الطبق",
     "invalidPriority": "الأولوية غير صالحة",
-    "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة"
+    "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة",
+    "loginTaken": "يوجد مستخدم آخر يستخدم هذا الاسم/PIN بالفعل — اختر غيره.",
+    "passwordTaken": "يوجد مستخدم آخر يستخدم كلمة المرور هذه بالفعل — اختر غيرها."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "تم بلوغ حد طباعة الفاتورة النهائية ({{count}}/{{limit}}). موافقة المدير مطلوبة.",
     "overrideRequired": "تجاوز حد الطباعة",
     "recordFailed": "فشل تسجيل طباعة الفاتورة"
+  },
+  "documentDeleted": "تم حذف المستند",
+  "notifications": {
+    "someone": "شخص ما",
+    "clockInTitle": "تسجيل حضور",
+    "clockInWithTime": "سجّل {{name}} الحضور عند {{time}}",
+    "clockIn": "سجّل {{name}} الحضور",
+    "clockOutTitle": "تسجيل انصراف",
+    "clockOutWithTime": "سجّل {{name}} الانصراف عند {{time}}",
+    "voidTitle": "تم إلغاء عنصر",
+    "voidWithReason": "ألغى {{name}} عنصراً — {{reason}}",
+    "void": "ألغى {{name}} عنصراً",
+    "refundTitle": "تم استرداد الطلب",
+    "refundWithReason": "عالج {{name}} عملية استرداد — {{reason}}",
+    "refund": "عالج {{name}} عملية استرداد",
+    "discountTitle": "تم تطبيق خصم كبير",
+    "discountApplied": "طبّق {{name}} {{detail}}",
+    "newEmployeeTitle": "تمت إضافة موظف جديد",
+    "newEmployeeFallback": "موظف جديد",
+    "securityAlertTitle": "تنبيه أمني",
+    "dismiss": "إغلاق"
   }
 }

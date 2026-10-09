@@ -7,7 +7,7 @@ import {formatNumber} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
-import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+import {buildBranchInsideCondition, buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 type MergeRow = {
   id: string;
@@ -84,17 +84,10 @@ export const MergeOrdersReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
 
         const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
         if (branchFilter.emptyResult) {

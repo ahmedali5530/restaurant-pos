@@ -27,11 +27,16 @@
       "sapphire": "ياقوت أزرق",
       "custom": "مخصص"
     },
-    "customDescription": "اختر لونًا أساسيًا. تُبنى الأسطح والحدود واللمسات منه لوضعي الفاتح والداكن.",
+    "customDescription": "اختر لوناً أساسياً. تُشتق الأسطح والحدود والتمييزات منه للوضعين الفاتح والداكن.",
     "customPrimary": "اللون الأساسي",
     "customHex": "Hex",
     "customApply": "تطبيق",
-    "customPreview": "معاينة"
+    "customPreview": "معاينة",
+    "colorCanvas": "الخلفية",
+    "colorSurface": "السطح",
+    "colorForeground": "النص",
+    "colorPrimary": "اللون الأساسي",
+    "colorBorder": "الحدود"
   },
   "touch": {
     "title": "لوحة المفاتيح على الشاشة",

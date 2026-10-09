@@ -8,7 +8,8 @@ import {OrderVoid} from "@/api/model/order_void.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {DateTime} from "luxon";
-import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import { getAppTimezone, toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
@@ -41,9 +42,10 @@ const parseWeekParams = () => {
   const params = new URLSearchParams(window.location.search);
   const weekParam = params.get('week');
 
-  let weekStart = weekParam ? DateTime.fromISO(weekParam) : DateTime.now();
+  const timezone = getAppTimezone();
+  let weekStart = weekParam ? DateTime.fromISO(weekParam, {zone: timezone}) : DateTime.now().setZone(timezone);
   if (!weekStart.isValid) {
-    weekStart = DateTime.now();
+    weekStart = DateTime.now().setZone(timezone);
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
@@ -54,7 +56,7 @@ const parseWeekParams = () => {
     weekEnd,
     weekStartISO: weekStart.toISODate(),
     weekEndISO: weekEnd.toISODate(),
-    // Full day bounds for time::format string compare (date-only end excludes the last day)
+    // Full day bounds so a date-only end still includes the last day
     queryStart: weekStart.startOf('day').toFormat(dateTimeFormat),
     queryEnd: weekEnd.endOf('day').toFormat(dateTimeFormat),
   };
@@ -107,21 +109,25 @@ export const SalesWeeklyReport = () => {
         setLoading(true);
         setError(null);
 
-        const params: Record<string, any> = {start: queryStart, end: queryEnd};
+        const {conditions: dateConditions, params} = buildCreatedAtDateConditions(
+          {startDate: queryStart, endDate: queryEnd},
+          "created_at",
+        );
         const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
         if (branchFilter.emptyResult) {
           setOrders([]);
           setOrderVoids([]);
           return;
         }
-        const branchClause = branchFilter.condition ? ` AND ${branchFilter.condition}` : "";
-        Object.assign(params, branchFilter.params);
+        if (branchFilter.condition) {
+          dateConditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
-          WHERE time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start
-            AND time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end
-            AND status = '${OrderStatus.Paid}'${branchClause}
+          WHERE ${dateConditions.join(' AND ')}
+            AND status = '${OrderStatus.Paid}'
           FETCH ${ORDER_FETCHES.join(', ')}
         `;
 
@@ -130,8 +136,7 @@ export const SalesWeeklyReport = () => {
 
         const voidsQuery = `
           SELECT * FROM ${Tables.order_voids}
-          WHERE time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start
-            AND time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end${branchClause}
+          WHERE ${dateConditions.join(' AND ')}
           FETCH items
         `;
 

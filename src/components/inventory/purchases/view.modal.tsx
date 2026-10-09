@@ -311,7 +311,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                           {doc.name ?? `Document ${index + 1}`}
                         </span>
                         <span className="text-xs text-muted">
-                          {doc.mimeType ?? "File"}
+                          {doc.type ?? "File"}
                         </span>
                       </div>
                     </div>
@@ -322,7 +322,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                         downloadArrayBuffer(
                           doc.content,
                           doc.name ?? `purchase-${viewPurchase.invoice_number}-${index + 1}`,
-                          doc.mimeType ?? "application/octet-stream"
+                          doc.type ?? "application/octet-stream"
                         )
                       }
                     >

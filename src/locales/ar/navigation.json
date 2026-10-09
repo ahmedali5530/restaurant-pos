@@ -15,7 +15,8 @@
     "settings": "الإعدادات",
     "clock": "الساعة",
     "hr": "الموارد البشرية",
-    "integrations": "التكاملات"
+    "integrations": "التكاملات",
+    "requiresApproval": "يتطلب موافقة المدير"
   },
   "modules": {
     "Menu": "القائمة",

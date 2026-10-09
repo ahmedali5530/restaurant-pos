@@ -24,6 +24,7 @@ import {ThemeProvider, useTheme} from "@/providers/theme.provider.tsx";
 import {AppRoutes} from "@/routes/app.routes.tsx";
 import {IntegrationProvider} from "@/providers/integration.provider.tsx";
 import {AiAssistantWidget} from "@/components/ai-assistant/assistant-widget.tsx";
+import {MasterNotificationCenter} from "@/components/notifications/master-notification-banner.tsx";
 import {AppToolbar} from "./components/common/app-toolbar.tsx";
 import {PosStoreProvider} from "@/providers/pos-store.provider.tsx";
 import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
@@ -101,6 +102,7 @@ function App() {
                                   <SessionIdleProvider>
                                     <AutoClockOutProvider>
                                       <GlobalDeliveryOrderPopup/>
+                                      <MasterNotificationCenter/>
                                       <AiAssistantWidget/>
                                       <AppRoutes/>
                                     </AutoClockOutProvider>

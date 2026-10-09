@@ -4,6 +4,7 @@ import { Tab, TabPanel } from "@/components/common/react-aria/tabs";
 import { useMemo, useState } from "react";
 import { AdminFloors } from "@/components/settings/floors";
 import { AdminTables } from "@/components/settings/tables";
+import { AdminSelfOrder } from "@/components/settings/self_order";
 import { AdminDishes } from "@/components/settings/dishes";
 import { AdminCategories } from "@/components/settings/categories";
 import { AdminModifierGroups } from "@/components/settings/modifier_groups";
@@ -35,6 +36,7 @@ const BASE_ADMIN_TAB_KEYS = [
   'categories',
   'modifier_groups',
   'tables',
+  'qr_ordering',
   'floors',
   'discounts',
   'coupons',
@@ -63,6 +65,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   categories: 'tabs.categories',
   modifier_groups: 'tabs.modifierGroups',
   tables: 'tabs.tables',
+  qr_ordering: 'tabs.qrOrdering',
   floors: 'tabs.floors',
   discounts: 'tabs.discounts',
   coupons: 'tabs.coupons',
@@ -86,6 +89,7 @@ const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   categories: 'admin.categories',
   modifier_groups: 'admin.modifier_groups',
   tables: 'admin.tables',
+  qr_ordering: 'admin.tables',
   floors: 'admin.floors',
   discounts: 'admin.discounts',
   coupons: 'admin.coupons',
@@ -114,6 +118,7 @@ export const Admin = () => {
     categories: { component: <AdminCategories/>, title: t('tabs.categories') },
     modifier_groups: { component: <AdminModifierGroups/>, title: t('tabs.modifierGroups') },
     tables: { component: <AdminTables/>, title: t('tabs.tables') },
+    qr_ordering: { component: <AdminSelfOrder/>, title: t('tabs.qrOrdering') },
     floors: { component: <AdminFloors/>, title: t('tabs.floors') },
     discounts: { component: <AdminDiscounts/>, title: t('tabs.discounts') },
     coupons: { component: <AdminCoupons/>, title: t('tabs.coupons') },

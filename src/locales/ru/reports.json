@@ -594,7 +594,12 @@
     "closingsForDay": "Закрытия за этот день",
     "closingsCount": "{{count}} закрытий",
     "branchTotal": "Итого",
-    "branch": "Филиал"
+    "branch": "Филиал",
+    "selfOrders": "Заказы по QR",
+    "selfOrdersHint": "Оплачены гостями онлайн за столом — не входят в кассу и пакет карт выше.",
+    "selfOrdersTotal": "Оплачено онлайн",
+    "selfOrdersTestWarning": "Тестовых заказов: {{count}} ({{amount}}) — деньги за них не получены.",
+    "testPayment": "Тест"
   },
   "metrics": {
     "gross": "Валовый",

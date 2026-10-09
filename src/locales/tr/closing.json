@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Masa {{table}}'den başka bir masaya geç",
     "reloadCachePrefix": "Önbelleği yeniden yükle düğmesine basın",
-    "settings": "ayarlar"
+    "settings": "ayarlar",
+    "ordersWarming": "Açık hesaplar yükleniyor… lütfen biraz bekleyin."
   },
   "guard": {
     "punchDisabled": "Mevcut döngü kapatılana veya mevcut döngü kapanışı silinene kadar giriş devre dışı.",
@@ -22,7 +23,12 @@
     "coins": "Bozuk paralar",
     "denomination": "x {{value}}",
     "total": "Terminal Toplamı: {{amount}}",
-    "add": "Terminal Ekle"
+    "add": "Terminal Ekle",
+    "mode": {
+      "breakdown": "Banknot say",
+      "total": "Toplam gir",
+      "totalLabel": "Sayılan nakit toplamı"
+    }
   },
   "title": "{{date}} tarihli Günlük Kapanış",
   "loading": "Kapanış yükleniyor...",
@@ -43,7 +49,8 @@
     "openChecks": "Açık adisyonlar",
     "shiftRecap": "Vardiya özeti",
     "notes": "Notlar",
-    "summary": "Çekmece özeti"
+    "summary": "Çekmece özeti",
+    "selfOrders": "QR self-siparişler"
   },
   "fields": {
     "previousDayBalance": "Önceki Gün Bakiyesi",
@@ -122,5 +129,11 @@
     "skippedSuffix": " ({{count}} atlandı)",
     "executionFailed": "Adisyonlar otomatik kapatılamadı",
     "warning": "Adisyonlar {{countdown}} içinde otomatik kapanacak"
+  },
+  "selfOrders": {
+    "hint": "Misafirler tarafından masada çevrimiçi ödendi — yukarıdaki kasa çekmecesine veya kart grubuna dahil değil.",
+    "orders": "QR siparişleri",
+    "total": "Çevrimiçi ödenen",
+    "testWarning": "{{count}} test siparişi ({{amount}}) — bunlar için para tahsil edilmedi."
   }
 }

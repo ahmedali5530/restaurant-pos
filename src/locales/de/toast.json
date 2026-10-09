@@ -134,7 +134,9 @@
     "invalidModifierGroup": "Modifier-Gruppe ist ungültig",
     "duplicateDishModifierGroup": "Modifier-Gruppe ist diesem Gericht bereits zugewiesen",
     "invalidPriority": "Priorität ist ungültig",
-    "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig"
+    "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig",
+    "loginTaken": "Ein anderer Benutzer hat bereits diese Anmeldung/PIN – wählen Sie eine andere.",
+    "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Limit für Endrechnung erreicht ({{count}}/{{limit}}). Managerfreigabe erforderlich.",
     "overrideRequired": "Drucklimit überschreiben",
     "recordFailed": "Druck konnte nicht erfasst werden"
+  },
+  "documentDeleted": "Dokument gelöscht",
+  "notifications": {
+    "someone": "Jemand",
+    "clockInTitle": "Einstempeln",
+    "clockInWithTime": "{{name}} hat sich um {{time}} eingestempelt",
+    "clockIn": "{{name}} hat sich eingestempelt",
+    "clockOutTitle": "Ausstempeln",
+    "clockOutWithTime": "{{name}} hat sich um {{time}} ausgestempelt",
+    "voidTitle": "Artikel storniert",
+    "voidWithReason": "{{name}} hat einen Artikel storniert — {{reason}}",
+    "void": "{{name}} hat einen Artikel storniert",
+    "refundTitle": "Bestellung erstattet",
+    "refundWithReason": "{{name}} hat eine Erstattung bearbeitet — {{reason}}",
+    "refund": "{{name}} hat eine Erstattung bearbeitet",
+    "discountTitle": "Großer Rabatt angewendet",
+    "discountApplied": "{{name}} hat {{detail}} angewendet",
+    "newEmployeeTitle": "Neuer Mitarbeiter hinzugefügt",
+    "newEmployeeFallback": "Neuer Mitarbeiter",
+    "securityAlertTitle": "Sicherheitswarnung",
+    "dismiss": "Schließen"
   }
 }

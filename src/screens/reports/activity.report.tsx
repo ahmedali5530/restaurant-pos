@@ -5,6 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Tracking} from "@/api/model/tracking.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 export const detectBrowser = (userAgent?: string) => {
   if (!userAgent) return "-";
@@ -66,17 +67,10 @@ export const ActivityReport = () => {
       setLoading(true);
       setError(null);
 
-      const conditions: string[] = [];
-      const params: Record<string, string> = {};
-
-      if (filters.startDate) {
-        conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-        params.startDate = filters.startDate;
-      }
-      if (filters.endDate) {
-        conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-        params.endDate = filters.endDate;
-      }
+      const {conditions, params} = buildCreatedAtDateConditions(
+        {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+        "created_at",
+      );
 
       const query = `
           SELECT * FROM ${Tables.tracking}

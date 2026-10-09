@@ -45,6 +45,11 @@ import { publishDayClosed } from "@/integrations/events/publish/ops.ts";
 import { entityAfterWrite } from "@/integrations/events/publish/entity.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import {OrderStatus} from "@/api/model/order.ts";
+import {
+  EXCLUDE_QR_ORDERS_SQL,
+  fetchSelfOrderClosing,
+  SelfOrderClosingSummary,
+} from "@/lib/self-order-closing.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -82,6 +87,7 @@ const normalizeTerminalDenomination = (input?: Partial<TerminalDenomination>): T
       acc[denomination] = normalizeDenominationValue(input?.coins?.[denomination]);
       return acc;
     }, {} as Record<string, number>),
+    manual_total: input?.manual_total ?? null,
   };
 };
 
@@ -125,6 +131,7 @@ export const Closing = () => {
   const [paymentSummaries, setPaymentSummaries] = useState<PaymentSummary[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [notes, setNotes] = useState<string>("");
+  const [selfOrders, setSelfOrders] = useState<{ summary: SelfOrderClosingSummary } | null>(null);
 
   const today = LuxonDateTime.now().toFormat(import.meta.env.VITE_DATE_FORMAT);
   const closingWindowLabel = useMemo(() => {
@@ -137,6 +144,10 @@ export const Closing = () => {
   const getTerminalAmount = useCallback((terminalId: string) => {
     const terminal = terminalDenominations[terminalId];
     if (!terminal) return 0;
+
+    if (terminal.manual_total != null) {
+      return safeNumber(terminal.manual_total);
+    }
 
     const notesAmount = Object.entries(terminal.notes).reduce((sum, [denomination, qty]) => {
       return sum + Number(denomination) * Number(qty || 0);
@@ -166,6 +177,7 @@ export const Closing = () => {
           WHERE created_at >= $start
             AND created_at <= $end
             AND status = 'Paid'
+            ${EXCLUDE_QR_ORDERS_SQL}
             ${shiftFilterSql}
               FETCH payments
               , payments.payment_type
@@ -210,6 +222,7 @@ export const Closing = () => {
         WHERE created_at >= $start
           AND created_at <= $end
           AND status = $paid
+          ${EXCLUDE_QR_ORDERS_SQL}
           ${shiftFilterSql}
         GROUP ALL
       `, {...params, paid: OrderStatus.Paid});
@@ -324,6 +337,14 @@ export const Closing = () => {
         setShiftRecap(await fetchShiftRecap());
       }
 
+      // QR self-orders get their own summary (details live in the Cash Closing report);
+      // a completed closing keeps its snapshot totals.
+      setSelfOrders({
+        summary: cycleClosing?.status === "completed" && cycleClosing.shift_recap?.self_order
+          ? cycleClosing.shift_recap.self_order
+          : (await fetchSelfOrderClosing(db, resolvedWindow.window)).summary,
+      });
+
       const open = await listOpenOrdersInCurrentCycle(db);
       setOpenChecks(open);
     } catch (error) {
@@ -420,6 +441,32 @@ export const Closing = () => {
           }
         }
       };
+    });
+  };
+
+  const getTerminalMode = (terminalId: string): "breakdown" | "total" =>
+    terminalDenominations[terminalId]?.manual_total != null ? "total" : "breakdown";
+
+  const setTerminalMode = (terminalId: string, mode: "breakdown" | "total") => {
+    if (isReadOnly) return;
+
+    setTerminalDenominations(prev => {
+      const current = normalizeTerminalDenomination(prev[terminalId]);
+      if (mode === "breakdown") {
+        return {...prev, [terminalId]: {...current, manual_total: null}};
+      }
+      // Switching to "enter total" — start from whatever the bill/coin count
+      // already adds up to, so the number doesn't reset to zero.
+      return {...prev, [terminalId]: {...current, manual_total: getTerminalAmount(terminalId)}};
+    });
+  };
+
+  const updateTerminalManualTotal = (terminalId: string, value: number) => {
+    if (isReadOnly) return;
+
+    setTerminalDenominations(prev => {
+      const current = normalizeTerminalDenomination(prev[terminalId]);
+      return {...prev, [terminalId]: {...current, manual_total: safeNumber(value)}};
     });
   };
 
@@ -607,7 +654,10 @@ export const Closing = () => {
         terminal_cash: computedTerminalCash,
         payments_data: paymentSummaries,
         batch_totals: batchTotals,
-        shift_recap: recap,
+        shift_recap: {
+          ...recap,
+          self_order: (await fetchSelfOrderClosing(db, windowForSave)).summary,
+        },
         variance_reason: varianceReason.trim() || null,
         expenses_data: expenses,
         expenses: totalExpenses,
@@ -812,60 +862,97 @@ export const Closing = () => {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <div className="font-semibold mb-2">{t("closing:terminal.notes")}</div>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                        {DENOMINATION_NOTES.map(denomination => (
-                          <div key={denomination}>
-                            <Input
-                              key={`${terminal.terminal_id}_note_${denomination}`}
-                              type="number"
-                              value={terminalDenominations[terminal.terminal_id]?.notes?.[String(denomination)] ?? 0}
-                              onChange={(e) => updateTerminalDenomination(
-                                terminal.terminal_id,
-                                "notes",
-                                denomination,
-                                Number(e.target.value)
-                              )}
-                              label={t("closing:terminal.denomination", {value: denomination})}
-                              placeholder={t("closing:terminal.denomination", {value: denomination})}
-                              min={0}
-                              step={1}
-                              enableKeyboard
-                              disabled={isReadOnly}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-semibold mb-2">{t("closing:terminal.coins")}</div>
-                      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                        {DENOMINATION_COINS.map(denomination => (
-                          <div key={denomination}>
-                            <Input
-                              key={`${terminal.terminal_id}_coin_${denomination}`}
-                              type="number"
-                              value={terminalDenominations[terminal.terminal_id]?.coins?.[String(denomination)] ?? 0}
-                              onChange={(e) => updateTerminalDenomination(
-                                terminal.terminal_id,
-                                "coins",
-                                denomination,
-                                Number(e.target.value)
-                              )}
-                              placeholder={t("closing:terminal.denomination", {value: denomination})}
-                              label={t("closing:terminal.denomination", {value: denomination})}
-                              min={0}
-                              step={1}
-                              enableKeyboard
-                              disabled={isReadOnly}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={getTerminalMode(terminal.terminal_id) === "breakdown" ? "primary" : "secondary"}
+                      disabled={isReadOnly}
+                      onClick={() => setTerminalMode(terminal.terminal_id, "breakdown")}
+                    >
+                      {t("closing:terminal.mode.breakdown", {defaultValue: "Count bills"})}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={getTerminalMode(terminal.terminal_id) === "total" ? "primary" : "secondary"}
+                      disabled={isReadOnly}
+                      onClick={() => setTerminalMode(terminal.terminal_id, "total")}
+                    >
+                      {t("closing:terminal.mode.total", {defaultValue: "Enter total"})}
+                    </Button>
                   </div>
+
+                  {getTerminalMode(terminal.terminal_id) === "total" ? (
+                    <Input
+                      key={`${terminal.terminal_id}_manual_total`}
+                      type="number"
+                      value={terminalDenominations[terminal.terminal_id]?.manual_total ?? 0}
+                      onChange={(e) => updateTerminalManualTotal(terminal.terminal_id, Number(e.target.value))}
+                      label={t("closing:terminal.mode.totalLabel", {defaultValue: "Counted cash total"})}
+                      placeholder={t("closing:terminal.mode.totalLabel", {defaultValue: "Counted cash total"})}
+                      min={0}
+                      step="0.01"
+                      enableKeyboard
+                      inputSize="lg"
+                      disabled={isReadOnly}
+                    />
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <div className="font-semibold mb-2">{t("closing:terminal.notes")}</div>
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                          {DENOMINATION_NOTES.map(denomination => (
+                            <div key={denomination}>
+                              <Input
+                                key={`${terminal.terminal_id}_note_${denomination}`}
+                                type="number"
+                                value={terminalDenominations[terminal.terminal_id]?.notes?.[String(denomination)] ?? 0}
+                                onChange={(e) => updateTerminalDenomination(
+                                  terminal.terminal_id,
+                                  "notes",
+                                  denomination,
+                                  Number(e.target.value)
+                                )}
+                                label={t("closing:terminal.denomination", {value: denomination})}
+                                placeholder={t("closing:terminal.denomination", {value: denomination})}
+                                min={0}
+                                step={1}
+                                enableKeyboard
+                                disabled={isReadOnly}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-semibold mb-2">{t("closing:terminal.coins")}</div>
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                          {DENOMINATION_COINS.map(denomination => (
+                            <div key={denomination}>
+                              <Input
+                                key={`${terminal.terminal_id}_coin_${denomination}`}
+                                type="number"
+                                value={terminalDenominations[terminal.terminal_id]?.coins?.[String(denomination)] ?? 0}
+                                onChange={(e) => updateTerminalDenomination(
+                                  terminal.terminal_id,
+                                  "coins",
+                                  denomination,
+                                  Number(e.target.value)
+                                )}
+                                placeholder={t("closing:terminal.denomination", {value: denomination})}
+                                label={t("closing:terminal.denomination", {value: denomination})}
+                                min={0}
+                                step={1}
+                                enableKeyboard
+                                disabled={isReadOnly}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="mt-4 p-3 bg-surface rounded-lg font-semibold text-foreground">
                     {t("closing:terminal.total", {amount: withCurrency(getTerminalAmount(terminal.terminal_id))})}
@@ -886,7 +973,7 @@ export const Closing = () => {
                 <span className="font-semibold">{withCurrency(expectedInDrawer)}</span>
               </div>
               <div
-                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}
+                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}
               >
                 <span>{t("closing:totals.overShort")}</span>
                 <span>{withCurrency(overShort)}</span>
@@ -949,7 +1036,7 @@ export const Closing = () => {
                         disabled={isReadOnly}
                       />
                     </div>
-                    <div className={`text-sm font-semibold ${diff === 0 ? "text-foreground" : "text-warning-600"}`}>
+                    <div className={`text-sm font-semibold ${diff === 0 ? "text-foreground" : "text-warning-800"}`}>
                       {t("closing:totals.batchDifference", {amount: withCurrency(diff)})}
                     </div>
                   </div>
@@ -1052,6 +1139,41 @@ export const Closing = () => {
             )}
           </div>
 
+          {selfOrders && selfOrders.summary.orders > 0 && (
+            <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-self-order-section">
+              <h2 className="text-xl font-semibold">{t("closing:sections.selfOrders")}</h2>
+              <p className="text-sm text-muted mb-4">{t("closing:selfOrders.hint")}</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="border rounded-lg p-3">
+                  <div className="text-xs text-muted">{t("closing:selfOrders.orders")}</div>
+                  <div className="text-lg font-semibold">{selfOrders.summary.orders}</div>
+                </div>
+                <div className="border rounded-lg p-3">
+                  <div className="text-xs text-muted">{t("closing:selfOrders.total")}</div>
+                  <div className="text-lg font-semibold tabular-nums">{withCurrency(selfOrders.summary.total)}</div>
+                </div>
+                <div className="border rounded-lg p-3">
+                  <div className="text-xs text-muted">{t("closing:recap.tax")}</div>
+                  <div className="text-lg font-semibold tabular-nums">{withCurrency(selfOrders.summary.tax)}</div>
+                </div>
+                {selfOrders.summary.by_payment_type.map((row) => (
+                  <div key={row.payment_type_id} className="border rounded-lg p-3">
+                    <div className="text-xs text-muted">{row.payment_type_name}</div>
+                    <div className="text-lg font-semibold tabular-nums">{withCurrency(row.amount)}</div>
+                  </div>
+                ))}
+              </div>
+              {selfOrders.summary.test_orders > 0 && (
+                <p className="mt-3 text-sm text-warning">
+                  {t("closing:selfOrders.testWarning", {
+                    count: selfOrders.summary.test_orders,
+                    amount: withCurrency(selfOrders.summary.test_total),
+                  })}
+                </p>
+              )}
+            </div>
+          )}
+
           <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-shift-recap-section">
             <h2 className="text-xl font-semibold mb-4">{t("closing:sections.shiftRecap")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1099,7 +1221,7 @@ export const Closing = () => {
             </div>
           </div>
 
-          <div className="bg-primary-100 rounded-lg shadow-md p-6 mb-8" data-testid="closing-summary-section">
+          <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-summary-section">
             <h2 className="text-2xl font-bold mb-4 text-center">{t("closing:sections.summary")}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
               <div>
@@ -1116,7 +1238,7 @@ export const Closing = () => {
               </div>
               <div>
                 <div className="text-sm text-muted">{t("closing:totals.overShort")}</div>
-                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-600" : "text-danger-600"}`}>
+                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}>
                   {withCurrency(overShort)}
                 </div>
               </div>
@@ -1126,13 +1248,13 @@ export const Closing = () => {
               </div>
               <div>
                 <div className="text-sm text-muted">{t("closing:totals.totalExpensesShort")}</div>
-                <div className="text-xl font-semibold text-red-600">-{withCurrency(totalExpenses)}</div>
+                <div className="text-xl font-semibold text-danger-800">-{withCurrency(totalExpenses)}</div>
               </div>
             </div>
-            <div className="mt-6 p-4 bg-surface-elevated rounded-lg border-2 border-blue-200">
+            <div className="mt-6 p-4 rounded-lg border-2 border-success-800">
               <div className="text-center">
-                <div className="text-lg text-muted">{t("closing:totals.cashLeftNextShift")}</div>
-                <div className="text-3xl font-bold text-green-600 dark:text-success-400">{withCurrency(drawerFloat)}</div>
+                <div className="text-lg text-success-800">{t("closing:totals.cashLeftNextShift")}</div>
+                <div className="text-3xl font-bold text-success-800 dark:text-success-800">{withCurrency(drawerFloat)}</div>
               </div>
               {isClosingCompleted && closedByLabel && (
                 <div className="text-center mt-3 text-sm text-muted">

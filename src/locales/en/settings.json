@@ -31,7 +31,12 @@
     "customPrimary": "Primary color",
     "customHex": "Hex",
     "customApply": "Apply",
-    "customPreview": "Preview"
+    "customPreview": "Preview",
+    "colorCanvas": "Background",
+    "colorSurface": "Surface",
+    "colorForeground": "Text",
+    "colorPrimary": "Primary",
+    "colorBorder": "Border"
   },
   "touch": {
     "title": "On screen keyboard",

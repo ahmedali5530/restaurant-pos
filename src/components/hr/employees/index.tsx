@@ -32,11 +32,28 @@ export const HrEmployees = () => {
     columnHelper.accessor((row) => `${row.first_name} ${row.last_name ?? ""}`.trim(), {
       id: "full_name",
       header: t("columns.fullName"),
+      meta: {filterField: "string::concat(first_name, ' ', last_name ?? '')"},
     }),
-    columnHelper.accessor((row) => entityLabel(row.department), {id: "department", header: t("columns.department")}),
-    columnHelper.accessor((row) => entityLabel(row.position), {id: "position", header: t("columns.position")}),
-    columnHelper.accessor((row) => entityLabel(row.cost_center), {id: "cost_center", header: t("columns.costCenter")}),
-    columnHelper.accessor((row) => entityLabel(row.manager), {id: "manager", header: t("columns.manager")}),
+    columnHelper.accessor((row) => entityLabel(row.department), {
+      id: "department",
+      header: t("columns.department"),
+      meta: {filterField: "department.name"},
+    }),
+    columnHelper.accessor((row) => entityLabel(row.position), {
+      id: "position",
+      header: t("columns.position"),
+      meta: {filterField: "position.name"},
+    }),
+    columnHelper.accessor((row) => entityLabel(row.cost_center), {
+      id: "cost_center",
+      header: t("columns.costCenter"),
+      meta: {filterField: "cost_center.name"},
+    }),
+    columnHelper.accessor((row) => entityLabel(row.manager), {
+      id: "manager",
+      header: t("columns.manager"),
+      meta: {filterField: "string::concat(manager.first_name, ' ', manager.last_name ?? '')"},
+    }),
     columnHelper.accessor("employment_status", {
       header: t("columns.employmentStatus"),
       cell: (info) => {

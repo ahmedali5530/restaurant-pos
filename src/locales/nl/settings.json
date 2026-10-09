@@ -27,11 +27,16 @@
       "sapphire": "Saffier",
       "custom": "Aangepast"
     },
-    "customDescription": "Kies een primaire kleur. Oppervlakken, randen en accenten worden afgeleid voor licht en donker.",
+    "customDescription": "Kies een primaire kleur. Oppervlakken, randen en accenten worden eruit afgeleid voor licht en donker.",
     "customPrimary": "Primaire kleur",
     "customHex": "Hex",
     "customApply": "Toepassen",
-    "customPreview": "Voorbeeld"
+    "customPreview": "Voorbeeld",
+    "colorCanvas": "Achtergrond",
+    "colorSurface": "Oppervlak",
+    "colorForeground": "Tekst",
+    "colorPrimary": "Primair",
+    "colorBorder": "Rand"
   },
   "touch": {
     "title": "Schermtoetsenbord",

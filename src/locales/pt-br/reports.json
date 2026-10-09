@@ -594,7 +594,12 @@
     "closingsForDay": "Fechamentos deste dia",
     "closingsCount": "{{count}} fechamentos",
     "branchTotal": "Total",
-    "branch": "Filial"
+    "branch": "Filial",
+    "selfOrders": "Autopedidos por QR",
+    "selfOrdersHint": "Pagos online pelos clientes na mesa — não entram na gaveta de dinheiro nem no lote de cartões acima.",
+    "selfOrdersTotal": "Pago online",
+    "selfOrdersTestWarning": "{{count}} pedido(s) de teste ({{amount}}) — nenhum dinheiro foi recebido.",
+    "testPayment": "Teste"
   },
   "metrics": {
     "gross": "Bruto",

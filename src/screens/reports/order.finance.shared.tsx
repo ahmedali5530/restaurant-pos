@@ -11,6 +11,7 @@ import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
 import {
   buildBranchInsideCondition,
+  buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -164,14 +165,12 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
         const conditions = [`status = 'Paid'`];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
 
         if (metric === "coupon_discount") {
           conditions.push(`coupon != NONE`);

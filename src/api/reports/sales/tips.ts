@@ -70,18 +70,7 @@ const fetchSavedDistributions = async (
   db: DbClient,
   options: DateRangeFilter & {shiftId?: string},
 ) => {
-  const conditions: string[] = [];
-  const params: Record<string, any> = {};
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
-
-  if (options.startDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") >= $startDate`);
-    params.startDate = options.startDate;
-  }
-  if (options.endDate) {
-    conditions.push(`time::format(from_at, "${dbFormat}") <= $endDate`);
-    params.endDate = options.endDate;
-  }
+  const {conditions, params} = buildCreatedAtDateConditions(options, "from_at");
   const branchFilter = buildBranchInsideCondition(options.branchIds);
   if (branchFilter.emptyResult) {
     return {totalTips: 0, distributionCount: 0, tipsByUser: [] as Array<{name: string; amount: number}>};
@@ -90,6 +79,7 @@ const fetchSavedDistributions = async (
     conditions.push(branchFilter.condition);
     Object.assign(params, branchFilter.params);
   }
+
   if (options.shiftId) {
     conditions.push("shift = $shiftId");
     params.shiftId = options.shiftId;

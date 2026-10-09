@@ -594,7 +594,12 @@
     "closingsForDay": "إغلاقات هذا اليوم",
     "closingsCount": "{{count}} إغلاقات",
     "branchTotal": "الإجمالي",
-    "branch": "الفرع"
+    "branch": "الفرع",
+    "selfOrders": "طلبات QR الذاتية",
+    "selfOrdersHint": "مدفوعة عبر الإنترنت من الضيوف على طاولاتهم — ليست ضمن درج النقد أو دفعة البطاقات أعلاه.",
+    "selfOrdersTotal": "مدفوع عبر الإنترنت",
+    "selfOrdersTestWarning": "{{count}} طلب تجريبي ({{amount}}) — لم يتم تحصيل أي مبلغ لها.",
+    "testPayment": "تجريبي"
   },
   "metrics": {
     "gross": "إجمالي",

@@ -15,7 +15,8 @@
     "settings": "Einstellungen",
     "clock": "Stempeluhr",
     "hr": "Personal",
-    "integrations": "Integrationen"
+    "integrations": "Integrationen",
+    "requiresApproval": "Erfordert Genehmigung durch die Leitung"
   },
   "modules": {
     "Menu": "Menü",

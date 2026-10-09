@@ -27,11 +27,16 @@
       "sapphire": "Safira",
       "custom": "Personalizado"
     },
-    "customDescription": "Escolha uma cor primária. Superfícies, bordas e destaques são gerados para claro e escuro.",
+    "customDescription": "Escolha uma cor primária. Superfícies, bordas e destaques são derivados dela para os modos claro e escuro.",
     "customPrimary": "Cor primária",
     "customHex": "Hex",
     "customApply": "Aplicar",
-    "customPreview": "Prévia"
+    "customPreview": "Prévia",
+    "colorCanvas": "Fundo",
+    "colorSurface": "Superfície",
+    "colorForeground": "Texto",
+    "colorPrimary": "Primário",
+    "colorBorder": "Borda"
   },
   "touch": {
     "title": "Teclado na tela",

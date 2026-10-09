@@ -594,7 +594,12 @@
     "closingsForDay": "Afsluitingen voor deze dag",
     "closingsCount": "{{count}} afsluitingen",
     "branchTotal": "Totaal",
-    "branch": "Vestiging"
+    "branch": "Vestiging",
+    "selfOrders": "QR-zelfbestellingen",
+    "selfOrdersHint": "Online betaald door gasten aan tafel — niet in de kassalade of kaartbatch hierboven.",
+    "selfOrdersTotal": "Online betaald",
+    "selfOrdersTestWarning": "{{count}} testbestelling(en) ({{amount}}) — hiervoor is geen geld ontvangen.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Bruto",

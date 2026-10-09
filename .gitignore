@@ -41,6 +41,7 @@ database/LOCK
 
 # End-user guide generated artifacts (MD/HTML/PDF) and Playwright output
 docs/user-guide/dist
+docs/user-guide/images
 docs-automation/.output
 docs-automation/test-results
 docs-automation/playwright-report
@@ -52,6 +53,7 @@ api/data
 backups/surrealdb
 .qwen
 .commandcode
+.freebuff
 # Real env files carry secrets (SURREAL_USER/PASS, GATEWAY_JWT_SECRET, API keys).
 # Never commit them. Only the .env.example templates are tracked.
 .env

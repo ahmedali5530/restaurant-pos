@@ -17,6 +17,7 @@ function withPushLock(fn) {
   return run;
 }
 
+/** Catalog tables first so the terminal can project the menu before orders. */
 const SNAPSHOT_TABLES = [
   'order_type',
   'category',
@@ -39,9 +40,9 @@ const SNAPSHOT_TABLES = [
   'discount',
   'discount_reason',
   'coupon',
+  'printer',
   'customer',
   'coupon_redemption',
-  'printer',
   'order',
   'order_item',
   'order_item_kitchen',
@@ -49,6 +50,9 @@ const SNAPSHOT_TABLES = [
   'order_refund',
   'order_print',
 ];
+
+/** Last index that is pure catalog (menu/floors/payments). Operational tables follow. */
+const LAST_CATALOG_TABLE_INDEX = SNAPSHOT_TABLES.indexOf('printer');
 
 /**
  * Operational tables are snapshotted for open + recent orders only; history is
@@ -144,82 +148,85 @@ async function snapshotPage(db, body) {
   const hw = token?.highWatermark ?? (await highWatermark(db));
   let tableIndex = Number(token?.tableIndex ?? 0);
   let afterId = token?.afterId ?? null;
-  let phase = token?.phase || 'records';
+  const phase = token?.phase || 'records';
 
-  if (phase === 'records') {
-    while (tableIndex < SNAPSHOT_TABLES.length) {
-      const table = SNAPSHOT_TABLES[tableIndex];
-      // Surreal compares record ids only when $after is a RecordId — a
-      // "table:id" string makes `id > $after` match the first page forever.
-      const afterRecord = afterId ? toRecord(table, afterId) : null;
-      let records = [];
-      try {
-        records = rows(
-          await db.query(snapshotQuery(table, !!afterRecord), {
-            table,
-            after: afterRecord,
-            limit,
-          }),
-        );
-      } catch (err) {
-        const message = String(err?.message || err);
-        // Missing catalog tables should not stall snapshot forever.
-        if (/does not exist|not found/i.test(message)) {
-          tableIndex += 1;
-          afterId = null;
-          continue;
-        }
-        throw err;
-      }
-      if (records.length === 0) {
+  // Legacy resume tokens from the old events phase: records are already truth
+  // at snapshot time — jump the cursor to the watermark without replaying.
+  if (phase === 'events') {
+    return {
+      ok: true,
+      schemaVersion: SCHEMA_VERSION,
+      highWatermark: hw,
+      page: { kind: 'records', table: null, records: [] },
+      complete: true,
+      catalogComplete: true,
+      resumeToken: null,
+    };
+  }
+
+  while (tableIndex < SNAPSHOT_TABLES.length) {
+    const table = SNAPSHOT_TABLES[tableIndex];
+    // Surreal compares record ids only when $after is a RecordId — a
+    // "table:id" string makes `id > $after` match the first page forever.
+    const afterRecord = afterId ? toRecord(table, afterId) : null;
+    let records = [];
+    try {
+      records = rows(
+        await db.query(snapshotQuery(table, !!afterRecord), {
+          table,
+          after: afterRecord,
+          limit,
+        }),
+      );
+    } catch (err) {
+      const message = String(err?.message || err);
+      // Missing catalog tables should not stall snapshot forever.
+      if (/does not exist|not found/i.test(message)) {
         tableIndex += 1;
         afterId = null;
         continue;
       }
-      const lastId = String(records[records.length - 1].id);
-      const advanceTable = records.length < limit;
-      const nextTableIndex = advanceTable ? tableIndex + 1 : tableIndex;
-      const nextAfterId = advanceTable ? null : lastId;
-      const finishedTables = advanceTable && nextTableIndex >= SNAPSHOT_TABLES.length;
-      return {
-        ok: true,
-        schemaVersion: SCHEMA_VERSION,
-        highWatermark: hw,
-        page: { kind: 'records', table, records },
-        complete: false,
-        resumeToken: finishedTables
-          ? encodeToken({ phase: 'events', afterEvent: 0, highWatermark: hw })
-          : encodeToken({
-              phase: 'records',
-              tableIndex: nextTableIndex,
-              afterId: nextAfterId,
-              highWatermark: hw,
-            }),
-      };
+      throw err;
     }
-    phase = 'events';
-    afterId = 0;
+    if (records.length === 0) {
+      tableIndex += 1;
+      afterId = null;
+      continue;
+    }
+    const lastId = String(records[records.length - 1].id);
+    const advanceTable = records.length < limit;
+    const nextTableIndex = advanceTable ? tableIndex + 1 : tableIndex;
+    const nextAfterId = advanceTable ? null : lastId;
+    const finishedTables = advanceTable && nextTableIndex >= SNAPSHOT_TABLES.length;
+    const catalogComplete =
+      finishedTables || nextTableIndex > LAST_CATALOG_TABLE_INDEX;
+    return {
+      ok: true,
+      schemaVersion: SCHEMA_VERSION,
+      highWatermark: hw,
+      page: { kind: 'records', table, records },
+      complete: finishedTables,
+      catalogComplete,
+      resumeToken: finishedTables
+        ? null
+        : encodeToken({
+            phase: 'records',
+            tableIndex: nextTableIndex,
+            afterId: nextAfterId,
+            highWatermark: hw,
+          }),
+    };
   }
 
-  const afterEvent = Number(token?.afterEvent ?? afterId ?? 0);
-  const events = rows(
-    await db.query(
-      `SELECT * FROM sync_event WHERE event_id > $after AND event_id <= $hw
-       ORDER BY event_id ASC LIMIT $limit`,
-      { after: afterEvent, hw, limit },
-    ),
-  );
-  const last = events.length ? Number(events[events.length - 1].event_id) : afterEvent;
-  const complete = events.length < limit || last >= hw;
+  // Every table was empty (or missing) — still finish with the watermark.
   return {
     ok: true,
     schemaVersion: SCHEMA_VERSION,
     highWatermark: hw,
-    page: { kind: 'events', events },
-    complete,
-    resumeToken: complete
-      ? null
-      : encodeToken({ phase: 'events', afterEvent: last, highWatermark: hw }),
+    page: { kind: 'records', table: null, records: [] },
+    complete: true,
+    catalogComplete: true,
+    resumeToken: null,
   };
 }
 

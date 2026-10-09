@@ -15,7 +15,8 @@
     "settings": "Instellingen",
     "clock": "Klok",
     "hr": "HR",
-    "integrations": "Integraties"
+    "integrations": "Integraties",
+    "requiresApproval": "Vereist goedkeuring van de manager"
   },
   "modules": {
     "Menu": "Menu",

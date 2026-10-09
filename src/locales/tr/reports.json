@@ -594,7 +594,12 @@
     "closingsForDay": "Bu günün kapanışları",
     "closingsCount": "{{count}} kapanış",
     "branchTotal": "Toplam",
-    "branch": "Şube"
+    "branch": "Şube",
+    "selfOrders": "QR self-siparişler",
+    "selfOrdersHint": "Misafirler tarafından masada çevrimiçi ödendi — yukarıdaki kasa çekmecesine veya kart grubuna dahil değil.",
+    "selfOrdersTotal": "Çevrimiçi ödenen",
+    "selfOrdersTestWarning": "{{count}} test siparişi ({{amount}}) — bunlar için para tahsil edilmedi.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Brüt",

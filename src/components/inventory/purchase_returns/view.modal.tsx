@@ -147,7 +147,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
                           {doc.name ?? `Document ${index + 1}`}
                         </span>
                         <span className="text-xs text-muted">
-                          {doc.mimeType ?? "File"}
+                          {doc.type ?? "File"}
                         </span>
                       </div>
                     </div>
@@ -158,7 +158,7 @@ export const InventoryPurchaseReturnViewModal = ({open, purchaseReturn, onClose}
                         downloadArrayBuffer(
                           doc.content,
                           doc.name ?? `purchase-return-${viewReturn.invoice_number}-${index + 1}`,
-                          doc.mimeType ?? "application/octet-stream"
+                          doc.type ?? "application/octet-stream"
                         )
                       }
                     >

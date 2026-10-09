@@ -594,7 +594,12 @@
     "closingsForDay": "Clôtures de ce jour",
     "closingsCount": "{{count}} clôtures",
     "branchTotal": "Total",
-    "branch": "Établissement"
+    "branch": "Établissement",
+    "selfOrders": "Commandes QR en libre-service",
+    "selfOrdersHint": "Payées en ligne par les clients à table — hors caisse et hors lot carte ci-dessus.",
+    "selfOrdersTotal": "Payé en ligne",
+    "selfOrdersTestWarning": "{{count}} commande(s) de test ({{amount}}) — aucun argent encaissé.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Brut",

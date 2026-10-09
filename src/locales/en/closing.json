@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Switch from Table {{table}} to another",
     "reloadCachePrefix": "Press reload cache button from",
-    "settings": "settings"
+    "settings": "settings",
+    "ordersWarming": "Loading open checks… please wait a moment."
   },
   "guard": {
     "punchDisabled": "Punching is disabled until current cycle is closed, or delete current cycle closing.",
@@ -22,7 +23,12 @@
     "coins": "Coins",
     "denomination": "x {{value}}",
     "total": "Terminal Total: {{amount}}",
-    "add": "Add Terminal"
+    "add": "Add Terminal",
+    "mode": {
+      "breakdown": "Count bills",
+      "total": "Enter total",
+      "totalLabel": "Counted cash total"
+    }
   },
   "title": "Daily Closing as of {{date}}",
   "loading": "Loading closing...",
@@ -43,7 +49,8 @@
     "openChecks": "Open checks",
     "shiftRecap": "Shift recap",
     "notes": "Notes",
-    "summary": "Drawer summary"
+    "summary": "Drawer summary",
+    "selfOrders": "QR self-orders"
   },
   "fields": {
     "previousDayBalance": "Previous float",
@@ -122,5 +129,11 @@
     "skippedSuffix": " ({{count}} skipped)",
     "executionFailed": "Failed to auto-close checks",
     "warning": "Checks will auto-close in {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "Paid online by guests at their table — not in the cash drawer or card batch above.",
+    "orders": "QR orders",
+    "total": "Paid online",
+    "testWarning": "{{count}} test order(s) ({{amount}}) — no money was collected for these."
   }
 }

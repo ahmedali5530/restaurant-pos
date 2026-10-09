@@ -128,6 +128,9 @@ export interface SyncCursorRow {
   id: 'singleton';
   cursor: number;
   highWatermark?: number;
+  /** Catalog tables projected; menu/floors can render. Orders may still be loading. */
+  catalogReady?: boolean;
+  /** Full snapshot done (catalog + operational). Safe to open/create checks. */
   hydrated: boolean;
   snapshotResumeToken?: string | null;
   /** In-flight gateway refill — reused on retry so Date.now() ids cannot orphan blocks. */

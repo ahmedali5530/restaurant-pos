@@ -130,6 +130,8 @@
     "menuItemsUpdated": "Updated {{count}} item(s)",
     "invalidCategories": "Categories are invalid",
     "passwordRequired": "Password is required for new user",
+    "loginTaken": "Another user already has this login/PIN — choose a different one.",
+    "passwordTaken": "Another user already has this password — choose a different one.",
     "lastMasterRole": "This is the only {{role}} user — assign another user that role first, or the system will have no one left who can manage it.",
     "lastFullAccessRole": "This is the only role with full access — give another role full access first, or the system will have no one left who can manage it.",
     "invalidDishNumber": "Dish number is invalid",
@@ -155,5 +157,26 @@
     "finalLimitReached": "Final bill print limit reached ({{count}}/{{limit}}). Manager approval required.",
     "overrideRequired": "Override print limit",
     "recordFailed": "Failed to record bill print"
+  },
+  "documentDeleted": "Document deleted",
+  "notifications": {
+    "someone": "Someone",
+    "clockInTitle": "Clock in",
+    "clockInWithTime": "{{name}} clocked in at {{time}}",
+    "clockIn": "{{name}} clocked in",
+    "clockOutTitle": "Clock out",
+    "clockOutWithTime": "{{name}} clocked out at {{time}}",
+    "voidTitle": "Order voided",
+    "voidWithReason": "{{name}} voided an item — {{reason}}",
+    "void": "{{name}} voided an item",
+    "refundTitle": "Order refunded",
+    "refundWithReason": "{{name}} processed a refund — {{reason}}",
+    "refund": "{{name}} processed a refund",
+    "discountTitle": "Large discount applied",
+    "discountApplied": "{{name}} applied {{detail}}",
+    "newEmployeeTitle": "New employee added",
+    "newEmployeeFallback": "New employee",
+    "securityAlertTitle": "Security alert",
+    "dismiss": "Dismiss"
   }
 }

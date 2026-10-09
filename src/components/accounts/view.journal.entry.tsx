@@ -181,7 +181,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                           {doc.name ?? t('upload.documentN', {n: index + 1})}
                         </span>
                         <span className="text-xs text-muted">
-                          {doc.mimeType ?? t('upload.file')}
+                          {doc.type ?? t('upload.file')}
                         </span>
                       </div>
                     </div>
@@ -192,7 +192,7 @@ export const ViewJournalEntry = ({open, entry, onClose}: Props) => {
                         downloadArrayBuffer(
                           doc.content,
                           doc.name ?? `entry-${viewEntry.entry_number}-${index + 1}`,
-                          doc.mimeType ?? "application/octet-stream"
+                          doc.type ?? "application/octet-stream"
                         )
                       }
                     >

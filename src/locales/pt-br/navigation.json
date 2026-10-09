@@ -15,7 +15,8 @@
     "settings": "Configurações",
     "clock": "Ponto",
     "hr": "RH",
-    "integrations": "Integrações"
+    "integrations": "Integrações",
+    "requiresApproval": "Requer aprovação do gerente"
   },
   "modules": {
     "Menu": "Cardápio",

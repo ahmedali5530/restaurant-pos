@@ -716,6 +716,7 @@ describe('PosStore clearLocalData (Reload cache)', () => {
 
     const cursor = await posStore.getSyncCursor();
     expect(cursor).toMatchObject({
+      catalogReady: false,
       hydrated: false,
       cursor: 0,
       snapshotResumeToken: null,

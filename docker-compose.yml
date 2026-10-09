@@ -15,6 +15,12 @@ services:
     # Dev mode with Bun + Vite, binding to all interfaces.
     # Assumes you've already run `bun install` on the host.
     command: sh -c "bun run dev -- --host 0.0.0.0 --port 5173"
+    environment:
+      # Server-side Vite proxy target for the customer QR page. The browser
+      # still uses VITE_GATEWAY_URL (http://localhost:3142) from .env.local;
+      # this only affects the proxy running inside this container, where
+      # "localhost" is the app itself — the gateway is reachable as "gateway".
+      - SELF_ORDER_GATEWAY_URL=http://gateway:3142
     ports:
       - "5173:5173"
     depends_on:
@@ -218,7 +224,11 @@ services:
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
     command: sh -c "npm install && node server.js"
     ports:
-      - "3142:3142"
+      # Bind to loopback only: nginx (and the Vite dev proxy) reach the
+      # gateway on localhost. Publishing it on all interfaces would let clients
+      # hit the gateway directly and spoof X-Forwarded-For to bypass the
+      # self-order rate limiter.
+      - "127.0.0.1:3142:3142"
     depends_on:
       - surrealdb
 

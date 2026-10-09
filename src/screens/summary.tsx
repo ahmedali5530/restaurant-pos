@@ -24,6 +24,7 @@ import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate } from "@/lib/datetime.ts";
+import { toReportBoundaryUtcIso } from "@/api/reports/shared/query.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
@@ -86,7 +87,11 @@ export const Summary = () => {
     const f = [`status = '${OrderStatus.Paid}'`];
 
     if (date) {
-      f.push(`(time::format(created_at, "%Y-%m-%d") = "${date?.toString()}")`);
+      const dayStart = toReportBoundaryUtcIso(date.toString());
+      const dayEnd = toReportBoundaryUtcIso(date.toString(), {endOfRange: true});
+      if (dayStart && dayEnd) {
+        f.push(`(created_at >= <datetime>"${dayStart}" AND created_at < <datetime>"${dayEnd}")`);
+      }
     }
 
     return f;
@@ -193,15 +198,16 @@ export const Summary = () => {
     try {
 
       const reportDate = date.toString();
+      const dayStart = toReportBoundaryUtcIso(reportDate);
+      const dayEnd = toReportBoundaryUtcIso(reportDate, {endOfRange: true});
       const [entryRes] = await db.query(
         `SELECT *
          FROM ${Tables.time_entries}
          WHERE clock_out != NONE
-           AND time::format(clock_in, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") = $date
-           AND time::format(clock_out
-             , "${import.meta.env.VITE_DB_DATABASE_FORMAT}") = $date
+           AND clock_in >= <datetime>$dayStart AND clock_in < <datetime>$dayEnd
+           AND clock_out >= <datetime>$dayStart AND clock_out < <datetime>$dayEnd
              FETCH user`,
-        {date: reportDate}
+        {dayStart, dayEnd}
       );
 
       const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];

@@ -13,6 +13,7 @@ import {
   buildCreatedAtDateConditions,
   buildOrConditions,
   buildStringInsideCondition,
+  toReportBoundaryUtcIso,
   unwrapQueryResult,
 } from '@/api/reports/shared/query.ts';
 import type {DateRangeFilter, DbClient} from '@/api/reports/shared/types.ts';
@@ -186,17 +187,20 @@ export const fetchPayProfiles = async (
   const conditions: string[] = [];
   const params: Record<string, string> = {};
 
-  if (startDate) {
-    // open-ended profiles store effective_to as null; coalesce so time::format never sees null
-    conditions.push(
-      `time::format(effective_to ?? d'9999-12-31T23:59:59Z', "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`,
-    );
-    params.startDate = startDate;
+  const profileStart = toReportBoundaryUtcIso(startDate);
+  if (profileStart) {
+    // open-ended profiles store effective_to as null; coalesce so the comparison never sees null
+    conditions.push(`(effective_to ?? d'9999-12-31T23:59:59Z') >= <datetime>$startDate`);
+    params.startDate = profileStart;
   }
 
   if (endDate) {
-    conditions.push(`time::format(effective_from, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-    params.endDate = endDate;
+    const isBareDate = /^\d{4}-\d{2}-\d{2}$/.test(endDate.trim());
+    const profileEnd = toReportBoundaryUtcIso(endDate, {endOfRange: true});
+    if (profileEnd) {
+      conditions.push(isBareDate ? `effective_from < <datetime>$endDate` : `effective_from <= <datetime>$endDate`);
+      params.endDate = profileEnd;
+    }
   }
 
   const employeeFilter = buildOrConditions('employee', employeeIds, 'employee');
@@ -270,19 +274,21 @@ export const fetchPayrollSnapshots = async (
     params.payrollRunId = payrollRunId;
   }
 
-  // Filter strings are "yyyy-MM-dd HH:mm" — use time::format, not <datetime> cast
-  if (startDate) {
-    conditions.push(
-      `time::format(payroll_run.payroll_period.start_date, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $periodStart`,
-    );
-    params.periodStart = startDate;
+  const periodStart = toReportBoundaryUtcIso(startDate);
+  if (periodStart) {
+    conditions.push('payroll_run.payroll_period.start_date >= <datetime>$periodStart');
+    params.periodStart = periodStart;
   }
 
   if (endDate) {
-    conditions.push(
-      `time::format(payroll_run.payroll_period.end_date, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $periodEnd`,
-    );
-    params.periodEnd = endDate;
+    const isBareDate = /^\d{4}-\d{2}-\d{2}$/.test(endDate.trim());
+    const periodEnd = toReportBoundaryUtcIso(endDate, {endOfRange: true});
+    if (periodEnd) {
+      conditions.push(isBareDate
+        ? 'payroll_run.payroll_period.end_date < <datetime>$periodEnd'
+        : 'payroll_run.payroll_period.end_date <= <datetime>$periodEnd');
+      params.periodEnd = periodEnd;
+    }
   }
 
   const employeeFilter = buildOrConditions('employee', employeeIds, 'employee');

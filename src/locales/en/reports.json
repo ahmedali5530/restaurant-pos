@@ -598,7 +598,12 @@
     "closingsForDay": "Closings for this day",
     "closingsCount": "{{count}} closings",
     "branchTotal": "Total",
-    "branch": "Branch"
+    "branch": "Branch",
+    "selfOrders": "QR self-orders",
+    "selfOrdersHint": "Paid online by guests at their table — not in the cash drawer or card batch above.",
+    "selfOrdersTotal": "Paid online",
+    "selfOrdersTestWarning": "{{count}} test order(s) ({{amount}}) — no money was collected for these.",
+    "testPayment": "Test"
   },
   "metrics": {
     "gross": "Gross",

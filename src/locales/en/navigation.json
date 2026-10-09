@@ -15,7 +15,8 @@
     "settings": "Settings",
     "clock": "Clock",
     "hr": "HR",
-    "integrations": "Integrations"
+    "integrations": "Integrations",
+    "requiresApproval": "Requires manager approval"
   },
   "modules": {
     "Menu": "Menu",

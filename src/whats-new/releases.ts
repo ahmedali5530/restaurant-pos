@@ -15,6 +15,41 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-06',
+    title: 'Faster cache reload — menu before open checks',
+    items: [
+      'Reload cache and first sync project floors, menu, payments, and taxes as soon as those tables finish downloading, while open checks continue in the background.',
+      'Snapshot no longer walks the entire sync history up to the high watermark, so terminals with large event logs warm up much faster. Opening a table waits until open checks are loaded.',
+    ],
+  },
+  {
+    date: '2026-10-03',
+    title: 'QR page theme and order-ready alerts',
+    items: [
+      'The QR ordering page now uses the app fonts and can match any brand color pack (Classic, Ocean, Forest, Cream, Ruby, Sapphire) with light, dark, or system appearance — configured in Manage → QR Ordering.',
+      'Guests are alerted on the confirmation screen when the kitchen marks their order ready, with a vibration on supported phones.',
+    ],
+  },
+  {
+    date: '2026-10-02',
+    title: 'QR table ordering',
+    items: [
+      'Guests scan a per-table QR code, order from the live menu and pay online (card, PayPal, or a staff-enabled test mode).',
+      'Paid orders are sent to the kitchen screen and every terminal automatically.',
+      'Manage → QR ordering turns it on per table, lets you print a sheet of QR codes, and can retry a paid order that did not reach the POS.',
+      'QR payments stay out of the drawer and appear in their own section on the Closing screen and Cash Closing report.',
+    ],
+  },
+  {
+    date: '2026-10-01',
+    title: 'Payroll overrides and live alerts',
+    items: [
+      'Pay profiles can set daily overtime and night-premium overrides per employee, and preview runs can be deleted.',
+      'Payroll runs show regular, overtime and premium pay separately, and each snapshot keeps the currency it was calculated in.',
+      'A notification banner alerts the Master user to clock in/out, order voids, refunds, large discounts and security alerts in real time.',
+    ],
+  },
+  {
     date: '2026-09-29',
     title: 'Branch-owned catalog and multi-store employees',
     items: [

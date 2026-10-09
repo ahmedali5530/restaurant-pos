@@ -6,7 +6,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
-import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+import {buildBranchInsideCondition, buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 type SplitOrderRow = {
   id: string;
@@ -88,14 +88,12 @@ export const SplitOrdersReport = () => {
         ];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
 
         const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
         if (branchFilter.emptyResult) {

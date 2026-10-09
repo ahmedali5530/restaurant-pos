@@ -2,6 +2,7 @@ import { ID } from "@/api/model/common.ts";
 import { PaymentType } from "@/api/model/payment_type.ts";
 import { Shift } from "@/api/model/shift.ts";
 import { DateTime } from "surrealdb";
+import type { SelfOrderClosingSummary } from "@/lib/self-order-closing.ts";
 
 export interface TerminalCash {
   terminal_id: string;
@@ -12,6 +13,8 @@ export interface TerminalCash {
 export type TerminalDenomination = {
   notes: Record<string, number>;
   coins: Record<string, number>;
+  /** Set when the terminal was counted as a single total instead of by bill/coin. */
+  manual_total?: number | null;
 };
 
 export interface PaymentSummary {
@@ -43,6 +46,8 @@ export interface ShiftRecap {
   voids: number;
   refunds: number;
   paid_orders: number;
+  /** QR self-orders in the closing window — paid online, kept out of the POS totals above. */
+  self_order?: SelfOrderClosingSummary;
 }
 
 export interface OpenCheckRow {

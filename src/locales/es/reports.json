@@ -594,7 +594,12 @@
     "closingsForDay": "Cierres de este día",
     "closingsCount": "{{count}} cierres",
     "branchTotal": "Total",
-    "branch": "Sucursal"
+    "branch": "Sucursal",
+    "selfOrders": "Autopedidos QR",
+    "selfOrdersHint": "Pagados en línea por los clientes en su mesa — no están en la caja ni en el lote de tarjetas de arriba.",
+    "selfOrdersTotal": "Pagado en línea",
+    "selfOrdersTestWarning": "{{count}} pedido(s) de prueba ({{amount}}) — no se cobró dinero por ellos.",
+    "testPayment": "Prueba"
   },
   "metrics": {
     "gross": "Bruto",

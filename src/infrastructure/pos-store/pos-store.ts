@@ -30,6 +30,7 @@ export class PosStore {
       await db.syncCursor.put({
         id: 'singleton',
         cursor: 0,
+        catalogReady: false,
         hydrated: false,
         snapshotResumeToken: null,
       });
@@ -94,6 +95,7 @@ export class PosStore {
       await db.syncCursor.put({
         id: 'singleton',
         cursor: 0,
+        catalogReady: false,
         hydrated: false,
         snapshotResumeToken: null,
         ...(pendingNumberReservations
@@ -668,6 +670,7 @@ export class PosStore {
       (await db.syncCursor.get('singleton')) ?? {
         id: 'singleton' as const,
         cursor: 0,
+        catalogReady: false,
         hydrated: false,
         snapshotResumeToken: null,
       }
@@ -676,6 +679,7 @@ export class PosStore {
 
   async setSyncCursor(patch: Partial<{
     cursor: number;
+    catalogReady: boolean;
     hydrated: boolean;
     snapshotResumeToken: string | null;
     highWatermark: number;

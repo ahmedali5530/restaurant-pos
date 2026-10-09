@@ -247,8 +247,16 @@ export const HrScheduling = () => {
   ];
 
   const shiftColumns: any = [
-    shiftHelper.accessor((row) => entityLabel(row.employee), {id: "employee", header: t("columns.employee")}),
-    shiftHelper.accessor((row) => row.work_schedule?.name ?? "", {id: "schedule", header: t("columns.name")}),
+    shiftHelper.accessor((row) => entityLabel(row.employee), {
+      id: "employee",
+      header: t("columns.employee"),
+      meta: {filterField: "string::concat(employee.first_name, ' ', employee.last_name ?? '')"},
+    }),
+    shiftHelper.accessor((row) => row.work_schedule?.name ?? "", {
+      id: "schedule",
+      header: t("columns.name"),
+      meta: {filterField: "work_schedule.name"},
+    }),
     shiftHelper.accessor("start_at", {
       header: t("columns.startAt"),
       cell: (info) => formatDisplayDate(info.getValue()),
@@ -257,7 +265,11 @@ export const HrScheduling = () => {
       header: t("columns.endAt"),
       cell: (info) => formatDisplayDate(info.getValue()),
     }),
-    shiftHelper.accessor((row) => entityLabel(row.department), {id: "department", header: t("columns.department")}),
+    shiftHelper.accessor((row) => entityLabel(row.department), {
+      id: "department",
+      header: t("columns.department"),
+      meta: {filterField: "department.name"},
+    }),
     shiftHelper.accessor("status", {
       header: t("columns.status"),
       cell: (info) => {
@@ -306,7 +318,11 @@ export const HrScheduling = () => {
     templateHelper.accessor("name", {header: t("columns.name")}),
     templateHelper.accessor("start_time", {header: t("forms.scheduleTemplate.startTime")}),
     templateHelper.accessor("end_time", {header: t("forms.scheduleTemplate.endTime")}),
-    templateHelper.accessor((row) => entityLabel(row.department), {id: "department", header: t("columns.department")}),
+    templateHelper.accessor((row) => entityLabel(row.department), {
+      id: "department",
+      header: t("columns.department"),
+      meta: {filterField: "department.name"},
+    }),
     templateHelper.accessor("is_active", {
       header: t("columns.status"),
       cell: (info) => (info.getValue() !== false ? t("status.employment.active") : t("status.employment.inactive")),
@@ -328,8 +344,16 @@ export const HrScheduling = () => {
   ];
 
   const swapColumns: any = [
-    swapHelper.accessor((row) => entityLabel(row.requesting_employee), {id: "requesting", header: t("forms.swap.requestingEmployee")}),
-    swapHelper.accessor((row) => entityLabel(row.target_employee), {id: "target", header: t("forms.swap.targetEmployee")}),
+    swapHelper.accessor((row) => entityLabel(row.requesting_employee), {
+      id: "requesting",
+      header: t("forms.swap.requestingEmployee"),
+      meta: {filterField: "string::concat(requesting_employee.first_name, ' ', requesting_employee.last_name ?? '')"},
+    }),
+    swapHelper.accessor((row) => entityLabel(row.target_employee), {
+      id: "target",
+      header: t("forms.swap.targetEmployee"),
+      meta: {filterField: "string::concat(target_employee.first_name, ' ', target_employee.last_name ?? '')"},
+    }),
     swapHelper.accessor((row) => formatDisplayDate(row.scheduled_shift?.start_at), {id: "shift", header: t("columns.startAt")}),
     swapHelper.accessor("status", {
       header: t("columns.status"),

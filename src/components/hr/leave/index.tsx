@@ -96,8 +96,16 @@ export const HrLeave = () => {
   ];
 
   const requestColumns: any = [
-    requestHelper.accessor((row) => entityLabel(row.employee), {id: "employee", header: t("columns.employee")}),
-    requestHelper.accessor((row) => entityLabel(row.leave_type), {id: "leave_type", header: t("columns.leaveType")}),
+    requestHelper.accessor((row) => entityLabel(row.employee), {
+      id: "employee",
+      header: t("columns.employee"),
+      meta: {filterField: "string::concat(employee.first_name, ' ', employee.last_name ?? '')"},
+    }),
+    requestHelper.accessor((row) => entityLabel(row.leave_type), {
+      id: "leave_type",
+      header: t("columns.leaveType"),
+      meta: {filterField: "leave_type.name"},
+    }),
     requestHelper.accessor("start_date", {
       header: t("columns.startDate"),
       cell: (info) => formatDisplayDate(info.getValue()),
