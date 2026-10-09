@@ -239,7 +239,13 @@
     "location": "Locatie",
     "selectDate": "Selecteer datum",
     "allShifts": "Alle diensten van de dag",
-    "cashClosingShiftHint": "Kies een dienst om alleen die afsluiting te openen, of laat leeg om alle afsluitingen van de dag te zien en ertussen te wisselen in het rapport."
+    "cashClosingShiftHint": "Kies een dienst om alleen die afsluiting te openen, of laat leeg om alle afsluitingen van de dag te zien en ertussen te wisselen in het rapport.",
+    "branches": "Vestigingen",
+    "branchesAll": "Alle vestigingen",
+    "branchesHelp": "Laat leeg om alle vestigingen op te nemen waartoe je toegang hebt.",
+    "branchView": "Weergave",
+    "branchViewCombined": "Gecombineerd",
+    "branchViewByBranch": "Per vestiging"
   },
   "datePresets": {
     "today": "Vandaag",
@@ -586,7 +592,9 @@
     "voids": "Voids",
     "refunds": "Terugbetalingen",
     "closingsForDay": "Afsluitingen voor deze dag",
-    "closingsCount": "{{count}} afsluitingen"
+    "closingsCount": "{{count}} afsluitingen",
+    "branchTotal": "Totaal",
+    "branch": "Vestiging"
   },
   "metrics": {
     "gross": "Bruto",

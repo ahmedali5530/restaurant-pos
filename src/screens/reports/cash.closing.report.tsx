@@ -8,6 +8,10 @@ import {Button} from "@/components/common/input/button.tsx";
 import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
   return {
@@ -42,6 +46,7 @@ const closingTabLabel = (closing: DayClosing, t: (key: string) => string) => {
 export const CashClosingReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [closings, setClosings] = useState<DayClosing[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -56,6 +61,8 @@ export const CashClosingReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -64,10 +71,21 @@ export const CashClosingReport = () => {
         const conditions = [
           `time::format(date_from, "${import.meta.env.VITE_DB_DATABASE_DATE_FORMAT}") = $selectedDate`,
         ];
-        const params: Record<string, unknown> = {selectedDate};
+        const params: Record<string, any> = {selectedDate};
         if (filterShiftId) {
           conditions.push(`shift = $shiftId`);
           params.shiftId = toRecordId(filterShiftId);
+        }
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setClosings([]);
+          setSelectedId(null);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
         }
 
         const [rows] = await queryRef.current(
@@ -92,7 +110,7 @@ export const CashClosingReport = () => {
     };
 
     void fetchData();
-  }, [selectedDate, filterShiftId]);
+  }, [branchScope.ready, branchScope.branchIds, selectedDate, filterShiftId]);
 
   const closing = useMemo(
     () => closings.find((item) => toRecordString(item.id) === selectedId) || null,
@@ -168,25 +186,9 @@ export const CashClosingReport = () => {
       ? t('labels.closingsCount', { count: closings.length, defaultValue: `${closings.length} closings` })
       : null,
   ].filter(Boolean).join(" · ");
-  const openingBalance = Number((closing as any)?.previous_day_balance ?? closing?.opening_balance ?? 0);
-  const totalCash = Number((closing?.terminal_cash || []).reduce((sum, item: any) => sum + Number(item?.cash_amount || 0), 0));
-  const totalOtherPayments = Number((closing?.payments_data || [])
-    .filter((item: any) => String(item?.payment_type?.type || "").toLowerCase() !== "cash")
-    .reduce((sum, item: any) => sum + Number(item?.amount || 0), 0));
-  const totalExpenses = Number(closing?.expenses || 0);
-  const closingBalance = Number(closing?.closing_balance || 0);
-  const drawerFloat = Number((closing as any)?.drawer_float ?? closingBalance);
-  const cashDrop = Number((closing as any)?.cash_withdrawn ?? (closing as any)?.cash_withdraw ?? 0);
-  const varianceReason = String((closing as any)?.variance_reason || "");
-  const batchTotals = Array.isArray((closing as any)?.batch_totals) ? (closing as any).batch_totals : [];
-  const shiftRecap = (closing as any)?.shift_recap as Record<string, number> | undefined;
-  const closedBy = closing?.closed_by as { first_name?: string; last_name?: string; login?: string } | undefined;
-  const closedByName = closedBy
-    ? ([closedBy.first_name, closedBy.last_name].filter(Boolean).join(" ").trim() || closedBy.login || "")
-    : "";
   const transactionsTotal = transactions.reduce((sum, row) => sum + row.amount, 0);
 
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return (
       <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
         <div className="py-12 text-center text-muted">{t('loading.cashClosing')}</div>
@@ -220,6 +222,66 @@ export const CashClosingReport = () => {
 
   return (
     <ReportsLayout title={t('titles.cashClosing')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={closings}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows: sectionClosings, key}) => (
+          <CashClosingBranchBlock
+            key={key}
+            closings={sectionClosings}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+            closing={sectionClosings.find((item) => toRecordString(item.id) === selectedId) || sectionClosings[0] || null}
+            transactions={transactions}
+            transactionsLoading={transactionsLoading}
+            transactionsTotal={transactionsTotal}
+            t={t}
+          />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const CashClosingBranchBlock = ({
+  closings,
+  selectedId,
+  onSelect,
+  closing,
+  transactions,
+  transactionsLoading,
+  transactionsTotal,
+  t,
+}: {
+  closings: DayClosing[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  closing: DayClosing | null;
+  transactions: TransactionRow[];
+  transactionsLoading: boolean;
+  transactionsTotal: number;
+  t: (key: string, opts?: any) => string;
+}) => {
+  const openingBalance = Number((closing as any)?.previous_day_balance ?? closing?.opening_balance ?? 0);
+  const totalCash = Number((closing?.terminal_cash || []).reduce((sum, item: any) => sum + Number(item?.cash_amount || 0), 0));
+  const totalOtherPayments = Number((closing?.payments_data || [])
+    .filter((item: any) => String(item?.payment_type?.type || "").toLowerCase() !== "cash")
+    .reduce((sum, item: any) => sum + Number(item?.amount || 0), 0));
+  const totalExpenses = Number(closing?.expenses || 0);
+  const closingBalance = Number(closing?.closing_balance || 0);
+  const drawerFloat = Number((closing as any)?.drawer_float ?? closingBalance);
+  const cashDrop = Number((closing as any)?.cash_withdrawn ?? (closing as any)?.cash_withdraw ?? 0);
+  const varianceReason = String((closing as any)?.variance_reason || "");
+  const batchTotals = Array.isArray((closing as any)?.batch_totals) ? (closing as any).batch_totals : [];
+  const shiftRecap = (closing as any)?.shift_recap as Record<string, number> | undefined;
+  const closedBy = closing?.closed_by as { first_name?: string; last_name?: string; login?: string } | undefined;
+  const closedByName = closedBy
+    ? ([closedBy.first_name, closedBy.last_name].filter(Boolean).join(" ").trim() || closedBy.login || "")
+    : "";
+
+  return (
       <div className="space-y-6">
         {closings.length > 0 && (
           <div className="space-y-2" data-testid="cash-closing-selector">
@@ -229,14 +291,14 @@ export const CashClosingReport = () => {
             <div className="flex flex-wrap gap-2">
               {closings.map((item) => {
                 const id = toRecordString(item.id);
-                const isSelected = id === selectedId;
+                const isSelected = id === selectedId || (!selectedId && id === toRecordString(closings[0]?.id));
                 return (
                   <Button
                     key={id}
                     type="button"
                     flat
                     variant={isSelected ? "primary" : "secondary"}
-                    onClick={() => setSelectedId(id)}
+                    onClick={() => onSelect(id)}
                     className={cn(
                       "px-4 py-2 rounded-lg border text-sm font-medium",
                       !isSelected && "bg-surface-elevated border-border text-foreground"
@@ -512,6 +574,5 @@ export const CashClosingReport = () => {
           </>
         )}
       </div>
-    </ReportsLayout>
   );
 };

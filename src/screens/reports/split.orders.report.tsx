@@ -4,10 +4,14 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
 
 type SplitOrderRow = {
   id: string;
   created_at: unknown;
+  branch_id?: string | null;
   invoice_number?: number;
   split?: number;
   status?: string;
@@ -23,9 +27,43 @@ const parseFilters = () => {
   return {startDate, endDate};
 };
 
+const SplitTable = ({rows}: {rows: SplitOrderRow[]}) => (
+  <div className="overflow-hidden rounded-lg border border-border">
+    <table className="min-w-full divide-y divide-neutral-200">
+      <thead className="bg-surface">
+      <tr>
+        <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
+        <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Order</th>
+        <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Split #</th>
+        <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Status</th>
+        <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Table</th>
+        <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">User</th>
+      </tr>
+      </thead>
+      <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+      {rows.length === 0 ? (
+        <tr>
+          <td colSpan={6} className="py-6 text-center text-sm text-muted">No split orders for selected range.</td>
+        </tr>
+      ) : rows.map((row) => (
+        <tr key={row.id}>
+          <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+          <td className="py-3 px-3 text-sm text-foreground">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
+          <td className="py-3 px-3 text-sm text-foreground">{row.split ?? "-"}</td>
+          <td className="py-3 px-3 text-sm text-foreground">{row.status || "-"}</td>
+          <td className="py-3 px-3 text-sm text-foreground">{row.table ? `${row.table.name || "Table"} ${row.table.number || ""}`.trim() : "-"}</td>
+          <td className="py-3 px-3 text-sm text-foreground">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
+        </tr>
+      ))}
+      </tbody>
+    </table>
+  </div>
+);
+
 export const SplitOrdersReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [rows, setRows] = useState<SplitOrderRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +76,8 @@ export const SplitOrdersReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -46,7 +86,7 @@ export const SplitOrdersReport = () => {
         const conditions = [
           `(split != NONE OR status = 'Spilt' OR tags CONTAINS 'Split' OR tags CONTAINS 'Split Order')`,
         ];
-        const params: Record<string, string> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -55,6 +95,16 @@ export const SplitOrdersReport = () => {
         if (filters.endDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.endDate = filters.endDate;
+        }
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setRows([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
         }
 
         const query = `
@@ -75,9 +125,9 @@ export const SplitOrdersReport = () => {
     };
 
     void fetchData();
-  }, [filters.endDate, filters.startDate]);
+  }, [branchScope.ready, branchScope.branchIds, filters.endDate, filters.startDate]);
 
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.splitOrders')}</div></ReportsLayout>;
   }
   if (error) {
@@ -86,36 +136,13 @@ export const SplitOrdersReport = () => {
 
   return (
     <ReportsLayout title={t('titles.splitOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-border">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-surface">
-          <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.order')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Split #</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.status')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.table')}</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('filters.user')}</th>
-          </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={6} className="py-6 text-center text-sm text-muted">No split orders for selected range.</td>
-            </tr>
-          ) : rows.map((row) => (
-            <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{row.invoice_number ? `#${row.invoice_number}` : row.id}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{row.split ?? "-"}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{row.status || "-"}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{row.table ? `${row.table.name || "Table"} ${row.table.number || ""}`.trim() : "-"}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{`${row.user?.first_name || ""} ${row.user?.last_name || ""}`.trim() || "-"}</td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </div>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={rows}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows: sectionRows, key}) => <SplitTable key={key} rows={sectionRows} />}
+      />
     </ReportsLayout>
   );
 };

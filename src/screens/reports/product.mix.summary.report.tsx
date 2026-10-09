@@ -10,6 +10,9 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faMinus} from "@fortawesome/free-solid-svg-icons";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+
 const COLUMN_COUNT = 15;
 
 interface ModifierSummaryTotals {
@@ -110,10 +113,8 @@ const parseFilters = (): ReportFilters => {
 export const ProductMixSummaryReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const { enabled: showInclusive } = useShowInclusivePrices();
-  const [categoryGroups, setCategoryGroups] = useState<CategoryGroup[]>([]);
-  const [modifiersSummary, setModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
-  const [accumulatedModifiersSummary, setAccumulatedModifiersSummary] = useState<ModifierSummaryMetrics[]>([]);
   const [expandedDishes, setExpandedDishes] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,29 +124,23 @@ export const ProductMixSummaryReport = () => {
     ? `${filters.startDate} to ${filters.endDate}`
     : undefined;
 
+  const [orders, setOrders] = useState<any[]>([]);
+
   const fetchData = async () => {
+    if (!branchScope.ready) return;
     try {
       setLoading(true);
       setError(null);
 
-      const orders = await fetchOrders(db, {
+      const fetched = await fetchOrders(db, {
         startDate: filters.startDate,
         endDate: filters.endDate,
+        branchIds: branchScope.branchIds,
         fetches: PRODUCT_MIX_FETCHES,
         orderTakerIds: filters.orderTakerIds,
         orderTypeIds: filters.orderTypeIds,
       });
-
-      const productMixFilters = {
-        categoryIds: filters.categoryIds,
-        menuItemIds: filters.menuItemIds,
-        modifierIds: filters.modifierIds,
-        showInclusivePrices: showInclusive,
-      };
-
-      setCategoryGroups(aggregateProductMixByCategory(orders, productMixFilters));
-      setModifiersSummary(aggregateModifiersSummary(orders, productMixFilters));
-      setAccumulatedModifiersSummary(aggregateAccumulatedModifiersSummary(orders, productMixFilters));
+      setOrders(fetched);
     } catch (err) {
       console.error("Failed to load product mix summary report", err);
       setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
@@ -157,6 +152,8 @@ export const ProductMixSummaryReport = () => {
   useEffect(() => {
     void fetchData();
   }, [
+    branchScope.ready,
+    branchScope.branchIds,
     filters.startDate,
     filters.endDate,
     filters.orderTakerIds.join(','),
@@ -179,60 +176,7 @@ export const ProductMixSummaryReport = () => {
     });
   };
 
-  const grandTotals = useMemo(() => {
-    const totals = categoryGroups.reduce(
-      (acc, category) => ({
-        numSold: acc.numSold + category.totals.numSold,
-        amount: acc.amount + category.totals.amount,
-        cost: acc.cost + category.totals.cost,
-        profit: acc.profit + category.totals.profit,
-        salePercent: acc.salePercent + category.totals.salePercent,
-        discount: acc.discount + category.totals.discount,
-        tax: acc.tax + category.totals.tax,
-        serviceCharges: acc.serviceCharges + category.totals.serviceCharges,
-        totalCollected: acc.totalCollected + category.totals.totalCollected,
-      }),
-      {
-        numSold: 0,
-        amount: 0,
-        cost: 0,
-        profit: 0,
-        salePercent: 0,
-        discount: 0,
-        tax: 0,
-        serviceCharges: 0,
-        totalCollected: 0,
-      }
-    );
-
-    return {
-      ...totals,
-      priceSold: totals.numSold > 0 ? totals.amount / totals.numSold : 0,
-      foodCostPercent: totals.amount > 0 ? (totals.cost / totals.amount) * 100 : 0,
-    };
-  }, [categoryGroups]);
-
-  const modifierSummaryTotals = useMemo(() => {
-    return modifiersSummary.reduce((totals, modifier) => ({
-      quantity: totals.quantity + modifier.quantity,
-      total: totals.total + modifier.total,
-    }), {
-      quantity: 0,
-      total: 0,
-    });
-  }, [modifiersSummary]);
-
-  const accumulatedModifierSummaryTotals = useMemo(() => {
-    return accumulatedModifiersSummary.reduce((totals, modifier) => ({
-      quantity: totals.quantity + modifier.quantity,
-      total: totals.total + modifier.total,
-    }), {
-      quantity: 0,
-      total: 0,
-    });
-  }, [accumulatedModifiersSummary]);
-
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return (
       <ReportsLayout title={t('reports.productMixSummary')} subtitle={subtitle}>
         <div className="py-12 text-center text-muted">{t('loading.productMixSummary')}</div>
@@ -250,6 +194,91 @@ export const ProductMixSummaryReport = () => {
 
   return (
     <ReportsLayout onRefresh={fetchData} title={t('reports.productMixSummary')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <ProductMixSummaryBody
+            key={key}
+            orders={rows}
+            filters={filters}
+            showInclusive={showInclusive}
+            expandedDishes={expandedDishes}
+            toggleExpand={toggleExpand}
+          />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+// Body uses partitioned orders so by-branch aggregates are recomputed.
+const ProductMixSummaryBody = ({
+  orders,
+  filters,
+  showInclusive,
+  expandedDishes,
+  toggleExpand,
+}: {
+  orders: any[];
+  filters: ReportFilters;
+  showInclusive: boolean;
+  expandedDishes: Set<string>;
+  toggleExpand: (dishKey: string) => void;
+}) => {
+  const { t } = useTranslation('reports');
+  const productMixFilters = {
+    categoryIds: filters.categoryIds,
+    menuItemIds: filters.menuItemIds,
+    modifierIds: filters.modifierIds,
+    showInclusivePrices: showInclusive,
+  };
+  const categoryGroups = useMemo(
+    () => aggregateProductMixByCategory(orders, productMixFilters),
+    [orders, filters.categoryIds, filters.menuItemIds, filters.modifierIds, showInclusive],
+  );
+  const modifiersSummary = useMemo(
+    () => aggregateModifiersSummary(orders, productMixFilters),
+    [orders, filters.categoryIds, filters.menuItemIds, filters.modifierIds, showInclusive],
+  );
+  const accumulatedModifiersSummary = useMemo(
+    () => aggregateAccumulatedModifiersSummary(orders, productMixFilters),
+    [orders, filters.categoryIds, filters.menuItemIds, filters.modifierIds, showInclusive],
+  );
+  const grandTotals = useMemo(() => {
+    const totals = categoryGroups.reduce(
+      (acc, category) => ({
+        numSold: acc.numSold + category.totals.numSold,
+        amount: acc.amount + category.totals.amount,
+        cost: acc.cost + category.totals.cost,
+        profit: acc.profit + category.totals.profit,
+        salePercent: acc.salePercent + category.totals.salePercent,
+        discount: acc.discount + category.totals.discount,
+        tax: acc.tax + category.totals.tax,
+        serviceCharges: acc.serviceCharges + category.totals.serviceCharges,
+        totalCollected: acc.totalCollected + category.totals.totalCollected,
+      }),
+      {numSold: 0, amount: 0, cost: 0, profit: 0, salePercent: 0, discount: 0, tax: 0, serviceCharges: 0, totalCollected: 0},
+    );
+    return {
+      ...totals,
+      priceSold: totals.numSold > 0 ? totals.amount / totals.numSold : 0,
+      foodCostPercent: totals.amount > 0 ? (totals.cost / totals.amount) * 100 : 0,
+    };
+  }, [categoryGroups]);
+  const modifierSummaryTotals = useMemo(() => modifiersSummary.reduce((totals, modifier) => ({
+    quantity: totals.quantity + modifier.quantity,
+    total: totals.total + modifier.total,
+  }), {quantity: 0, total: 0}), [modifiersSummary]);
+  const accumulatedModifierSummaryTotals = useMemo(() => accumulatedModifiersSummary.reduce((totals, modifier) => ({
+    quantity: totals.quantity + modifier.quantity,
+    total: totals.total + modifier.total,
+  }), {quantity: 0, total: 0}), [accumulatedModifiersSummary]);
+
+  return (
+      <>
       <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-border">
@@ -498,6 +527,6 @@ export const ProductMixSummaryReport = () => {
         emptyMessage="No accumulated modifiers available for the selected filters"
         showDepthIndent={false}
       />
-    </ReportsLayout>
+    </>
   );
 };

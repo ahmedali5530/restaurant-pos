@@ -239,7 +239,13 @@
     "location": "Standort",
     "selectDate": "Datum wählen",
     "allShifts": "Alle Schichten des Tages",
-    "cashClosingShiftHint": "Wählen Sie eine Schicht, um nur deren Abschluss zu öffnen, oder lassen Sie das Feld leer, um alle Abschlüsse des Tages anzuzeigen und im Bericht umzuschalten."
+    "cashClosingShiftHint": "Wählen Sie eine Schicht, um nur deren Abschluss zu öffnen, oder lassen Sie das Feld leer, um alle Abschlüsse des Tages anzuzeigen und im Bericht umzuschalten.",
+    "branches": "Filialen",
+    "branchesAll": "Alle Filialen",
+    "branchesHelp": "Leer lassen, um alle Filialen einzubeziehen, auf die Sie Zugriff haben.",
+    "branchView": "Ansicht",
+    "branchViewCombined": "Kombiniert",
+    "branchViewByBranch": "Nach Filiale"
   },
   "datePresets": {
     "today": "Heute",
@@ -586,7 +592,9 @@
     "voids": "Stornos",
     "refunds": "Rückerstattungen",
     "closingsForDay": "Abschlüsse für diesen Tag",
-    "closingsCount": "{{count}} Abschlüsse"
+    "closingsCount": "{{count}} Abschlüsse",
+    "branchTotal": "Gesamt",
+    "branch": "Filiale"
   },
   "metrics": {
     "gross": "Brutto",

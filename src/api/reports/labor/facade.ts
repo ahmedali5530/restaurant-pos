@@ -68,6 +68,7 @@ const resolvePeriod = (options: LaborDateRange = {}): Required<Pick<DateRangeFil
 const loadLaborContext = async (db: DbClient, options: LaborDateRange = {}) => {
   const {startDate, endDate} = resolvePeriod(options);
   const employeeIds = options.employeeIds ?? [];
+  const {branchIds} = options;
 
   const [
     employees,
@@ -78,7 +79,7 @@ const loadLaborContext = async (db: DbClient, options: LaborDateRange = {}) => {
     rules,
   ] = await Promise.all([
     fetchEmployees(db, {employeeIds}),
-    fetchTimeEntries(db, {startDate, endDate, employeeIds, includeOpen: true}),
+    fetchTimeEntries(db, {startDate, endDate, branchIds, employeeIds, includeOpen: true}),
     fetchPayProfiles(db, {startDate, endDate, employeeIds}),
     fetchPublicHolidays(db, {startDate, endDate}),
     fetchLaborAdjustments(db, {startDate, endDate, employeeIds}),
@@ -154,7 +155,7 @@ export const getLaborPercent = async (
   const {startDate, endDate} = resolvePeriod(options);
   const [{context}, sales] = await Promise.all([
     loadLaborContext(db, options),
-    getSalesSummary(db, {startDate, endDate}),
+    getSalesSummary(db, {startDate, endDate, branchIds: options.branchIds}),
   ]);
   const totals = aggregateTotalLaborCost(context);
   const netSales = safeNumber(sales.totalNetSales);
@@ -172,7 +173,7 @@ export const getSalesPerLaborHour = async (
   const {startDate, endDate} = resolvePeriod(options);
   const [{context}, sales] = await Promise.all([
     loadLaborContext(db, options),
-    getSalesSummary(db, {startDate, endDate}),
+    getSalesSummary(db, {startDate, endDate, branchIds: options.branchIds}),
   ]);
   const totals = aggregateTotalLaborCost(context);
   const netSales = safeNumber(sales.totalNetSales);
@@ -190,7 +191,7 @@ export const getRevenuePerEmployee = async (
   const {startDate, endDate} = resolvePeriod(options);
   const [{employees}, sales] = await Promise.all([
     loadLaborContext(db, options),
-    getSalesSummary(db, {startDate, endDate}),
+    getSalesSummary(db, {startDate, endDate, branchIds: options.branchIds}),
   ]);
   const netSales = safeNumber(sales.totalNetSales);
   const employeeCount = employees.length;
@@ -209,9 +210,10 @@ export const getOvertimeReport = async (db: DbClient, options: LaborDateRange = 
 export const getAttendanceReport = async (db: DbClient, options: LaborDateRange = {}) => {
   const {startDate, endDate} = resolvePeriod(options);
   const employeeIds = options.employeeIds ?? [];
+  const {branchIds} = options;
   const [scheduledShifts, timeEntries] = await Promise.all([
     fetchScheduledShifts(db, {startDate, endDate, employeeIds}),
-    fetchTimeEntries(db, {startDate, endDate, employeeIds, includeOpen: true}),
+    fetchTimeEntries(db, {startDate, endDate, branchIds, employeeIds, includeOpen: true}),
   ]);
   return aggregateAttendanceReport(scheduledShifts, timeEntries);
 };
@@ -221,6 +223,7 @@ export const getLateArrivalReport = async (db: DbClient, options: LaborDateRange
   const timeEntries = await fetchTimeEntries(db, {
     startDate,
     endDate,
+    branchIds: options.branchIds,
     employeeIds: options.employeeIds,
     includeOpen: true,
   });
@@ -230,9 +233,10 @@ export const getLateArrivalReport = async (db: DbClient, options: LaborDateRange
 export const getAbsenceReport = async (db: DbClient, options: LaborDateRange = {}) => {
   const {startDate, endDate} = resolvePeriod(options);
   const employeeIds = options.employeeIds ?? [];
+  const {branchIds} = options;
   const [scheduledShifts, timeEntries] = await Promise.all([
     fetchScheduledShifts(db, {startDate, endDate, employeeIds}),
-    fetchTimeEntries(db, {startDate, endDate, employeeIds, includeOpen: true}),
+    fetchTimeEntries(db, {startDate, endDate, branchIds, employeeIds, includeOpen: true}),
   ]);
   return aggregateAbsenceReport(scheduledShifts, timeEntries);
 };
@@ -267,6 +271,7 @@ export const getManagerApprovalReport = async (db: DbClient, options: LaborDateR
   const timeEntries = await fetchTimeEntries(db, {
     startDate,
     endDate,
+    branchIds: options.branchIds,
     employeeIds: options.employeeIds,
     includeOpen: true,
   });
@@ -315,7 +320,7 @@ export const getLaborTrend = async (db: DbClient, options: LaborDateRange = {}) 
   const {startDate, endDate} = resolvePeriod(options);
   const {context} = await loadLaborContext(db, options);
   const dailyCosts = aggregateDailyLaborCost(context);
-  const sales = await getSalesSummary(db, {startDate, endDate});
+  const sales = await getSalesSummary(db, {startDate, endDate, branchIds: options.branchIds});
   const netSalesByDay = Object.fromEntries(
     Object.entries(sales.dayPartTotals).map(([label, totals]) => [label, totals.sales]),
   );

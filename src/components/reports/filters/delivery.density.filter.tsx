@@ -11,6 +11,7 @@ import {Coupon} from "@/api/model/coupon.ts";
 import {useDB} from "@/api/db/db.ts";
 import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends {id?: any}>(
   item: T | undefined,
@@ -98,6 +99,8 @@ export const DeliveryDensityFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">

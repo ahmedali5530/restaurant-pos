@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 import {DateTime as SurrealDateTime} from 'surrealdb';
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 interface WeekOption {
   label: string;
@@ -149,6 +150,7 @@ export const ProductMixWeeklyReportFilter = () => {
       className="flex flex-col gap-3 items-start"
       target="_blank"
     >
+      <BranchScopeFilter />
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="product-mix-weekly-week" className="form-label">Week</label>
         <select

@@ -239,7 +239,13 @@
     "location": "Emplacement",
     "selectDate": "Sélectionner la date",
     "allShifts": "Toutes les vacations du jour",
-    "cashClosingShiftHint": "Choisissez une vacation pour n’ouvrir que sa clôture, ou laissez vide pour voir toutes les clôtures du jour et basculer entre elles dans le rapport."
+    "cashClosingShiftHint": "Choisissez une vacation pour n’ouvrir que sa clôture, ou laissez vide pour voir toutes les clôtures du jour et basculer entre elles dans le rapport.",
+    "branches": "Établissements",
+    "branchesAll": "Tous les établissements",
+    "branchesHelp": "Laissez vide pour inclure tous les établissements auxquels vous avez accès.",
+    "branchView": "Vue",
+    "branchViewCombined": "Combinée",
+    "branchViewByBranch": "Par établissement"
   },
   "datePresets": {
     "today": "Aujourd'hui",
@@ -586,7 +592,9 @@
     "voids": "Annulations",
     "refunds": "Remboursements",
     "closingsForDay": "Clôtures de ce jour",
-    "closingsCount": "{{count}} clôtures"
+    "closingsCount": "{{count}} clôtures",
+    "branchTotal": "Total",
+    "branch": "Établissement"
   },
   "metrics": {
     "gross": "Brut",

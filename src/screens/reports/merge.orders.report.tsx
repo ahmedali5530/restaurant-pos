@@ -5,10 +5,14 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {formatNumber} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
 
 type MergeRow = {
   id: string;
   created_at: unknown;
+  branch_id?: string | null;
   created_by?: {first_name?: string; last_name?: string};
   new_order?: {id?: string; invoice_number?: number};
   old_orders?: Array<{id?: string; invoice_number?: number}>;
@@ -21,9 +25,46 @@ const parseFilters = () => {
   return {startDate, endDate};
 };
 
+const MergeTable = ({rows}: {rows: MergeRow[]}) => (
+  <>
+    <div className="overflow-hidden rounded-lg border border-border">
+      <table className="min-w-full divide-y divide-neutral-200">
+        <thead className="bg-surface">
+        <tr>
+          <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Merged at</th>
+          <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Merged by</th>
+          <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">New order</th>
+          <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Old orders</th>
+        </tr>
+        </thead>
+        <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+        {rows.length === 0 ? (
+          <tr>
+            <td colSpan={4} className="py-6 text-center text-sm text-muted">No merge events for selected range.</td>
+          </tr>
+        ) : rows.map((row) => (
+          <tr key={row.id}>
+            <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+            <td className="py-3 px-3 text-sm text-foreground">{`${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-"}</td>
+            <td className="py-3 px-3 text-sm text-foreground">{row.new_order?.invoice_number ? `#${row.new_order.invoice_number}` : row.new_order?.id || "-"}</td>
+            <td className="py-3 px-3 text-sm text-foreground">
+              {(row.old_orders || []).length > 0
+                ? (row.old_orders || []).map((order) => order?.invoice_number ? `#${order.invoice_number}` : order?.id || "-").join(", ")
+                : "-"}
+            </td>
+          </tr>
+        ))}
+        </tbody>
+      </table>
+    </div>
+    <div className="mt-4 text-sm text-muted">Total merge events: <span className="font-semibold">{formatNumber(rows.length)}</span></div>
+  </>
+);
+
 export const MergeOrdersReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [rows, setRows] = useState<MergeRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,13 +77,15 @@ export const MergeOrdersReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
         const conditions: string[] = [];
-        const params: Record<string, string> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -51,6 +94,16 @@ export const MergeOrdersReport = () => {
         if (filters.endDate) {
           conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           params.endDate = filters.endDate;
+        }
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setRows([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
         }
 
         const query = `
@@ -70,9 +123,9 @@ export const MergeOrdersReport = () => {
     };
 
     void fetchData();
-  }, [filters.endDate, filters.startDate]);
+  }, [branchScope.ready, branchScope.branchIds, filters.endDate, filters.startDate]);
 
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.mergeOrders')}</div></ReportsLayout>;
   }
 
@@ -82,37 +135,13 @@ export const MergeOrdersReport = () => {
 
   return (
     <ReportsLayout title={t('titles.mergeOrders')} subtitle={subtitle}>
-      <div className="overflow-hidden rounded-lg border border-border">
-        <table className="min-w-full divide-y divide-neutral-200">
-          <thead className="bg-surface">
-          <tr>
-            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Merged at</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Merged by</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">New order</th>
-            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">Old orders</th>
-          </tr>
-          </thead>
-          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-          {rows.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="py-6 text-center text-sm text-muted">No merge events for selected range.</td>
-            </tr>
-          ) : rows.map((row) => (
-            <tr key={row.id}>
-              <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{`${row.created_by?.first_name || ""} ${row.created_by?.last_name || ""}`.trim() || "-"}</td>
-              <td className="py-3 px-3 text-sm text-foreground">{row.new_order?.invoice_number ? `#${row.new_order.invoice_number}` : row.new_order?.id || "-"}</td>
-              <td className="py-3 px-3 text-sm text-foreground">
-                {(row.old_orders || []).length > 0
-                  ? (row.old_orders || []).map((order) => order?.invoice_number ? `#${order.invoice_number}` : order?.id || "-").join(", ")
-                  : "-"}
-              </td>
-            </tr>
-          ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="mt-4 text-sm text-muted">Total merge events: <span className="font-semibold">{formatNumber(rows.length)}</span></div>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={rows}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows: sectionRows, key}) => <MergeTable key={key} rows={sectionRows} />}
+      />
     </ReportsLayout>
   );
 };

@@ -6,6 +6,7 @@ import {useDB} from "@/api/db/db.ts";
 import {DateTime} from "luxon";
 import {DateTime as SurrealDateTime} from 'surrealdb';
 import {Tables} from "@/api/db/tables.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 interface WeekOption {
   label: string;
@@ -117,6 +118,7 @@ export const SalesWeeklyFilter = () => {
       className="flex flex-col gap-3 items-start"
       target="_blank"
     >
+      <BranchScopeFilter />
       <div>
         <label htmlFor="week-select" className="form-label">Select a week</label>
         <select

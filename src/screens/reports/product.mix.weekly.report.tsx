@@ -10,10 +10,13 @@ import {getOrderFilteredItems} from "@/lib/order.ts";
 import {DateTime} from "luxon";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
+  buildBranchInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -84,6 +87,7 @@ interface OrderTakerMetrics {
 export const ProductMixWeeklyReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +102,8 @@ export const ProductMixWeeklyReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -137,6 +143,16 @@ export const ProductMixWeeklyReport = () => {
           Object.assign(params, menuItemFilter.params);
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(' AND ')}
@@ -154,10 +170,56 @@ export const ProductMixWeeklyReport = () => {
     };
 
     fetchData();
-  }, [queryStart, queryEnd, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
+  }, [branchScope.ready, branchScope.branchIds, queryStart, queryEnd, filters.orderTakerIds, filters.orderTypeIds, filters.categoryIds, filters.menuItemIds]);
 
-  // Orders already filtered in SurrealQL; keep item-level filtering for aggregation
-  const filteredOrders = orders;
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.productMixWeekly')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <ProductMixWeeklyBody
+            key={key}
+            orders={rows}
+            filters={filters}
+            weekStart={weekStart}
+          />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const ProductMixWeeklyBody = ({
+  orders,
+  filters,
+  weekStart,
+}: {
+  orders: Order[];
+  filters: ReportFilters;
+  weekStart: DateTime;
+}) => {
+  const { t } = useTranslation('reports');
+
   // Filter items within orders by category and menu item
   const getFilteredOrderItems = (order: Order) => {
     const validItems = getOrderFilteredItems(order);
@@ -197,7 +259,7 @@ export const ProductMixWeeklyReport = () => {
       dayKeys.push(dayDate.toISODate() || '');
     }
 
-    filteredOrders.forEach(order => {
+    orders.forEach(order => {
       const orderDate = toLuxonDateTime(order.created_at);
       const dayKey = orderDate.toISODate() || '';
       
@@ -251,7 +313,7 @@ export const ProductMixWeeklyReport = () => {
     });
 
     return Array.from(metricsMap.values()).sort((a, b) => a.userName.localeCompare(b.userName));
-  }, [filteredOrders, weekStart, filters.categoryIds, filters.menuItemIds]);
+  }, [orders, weekStart, filters.categoryIds, filters.menuItemIds]);
 
   const dayHeaders = useMemo(() => {
     return WEEK_DAYS.map((day, index) => ({
@@ -261,24 +323,7 @@ export const ProductMixWeeklyReport = () => {
     }));
   }, [weekStart]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.productMixWeekly')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t('reports.productMixWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-border">
           <thead className="bg-surface">
@@ -348,6 +393,5 @@ export const ProductMixWeeklyReport = () => {
           </tbody>
         </table>
       </div>
-    </ReportsLayout>
   );
 };

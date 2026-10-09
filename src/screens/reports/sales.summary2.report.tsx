@@ -16,6 +16,11 @@ import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -144,8 +149,11 @@ const emptySegmentMetrics = (name: string): SegmentMetrics => ({
 
 const getOrderEmployeeName = (order: Order): string => {
   const user = order.user as {first_name?: string; last_name?: string; login?: string} | string | undefined;
-  if (!user || typeof user === "string") {
-    return user?.trim() || "Unknown";
+  if (!user) {
+    return "Unknown";
+  }
+  if (typeof user === "string") {
+    return user.trim() || "Unknown";
   }
   const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
   return name || user.login || "Unknown";
@@ -245,13 +253,13 @@ function calculateOrderMetrics(order: Order) {
 export const SalesSummary2Report = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [statusOrders, setStatusOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => new Set());
 
   const filters = useMemo(parseFilters, []);
   const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
@@ -261,13 +269,15 @@ export const SalesSummary2Report = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
         const orderConditions: string[] = [];
-        const params: Record<string, string> = {};
+        const params: Record<string, any> = {};
 
         if (filters.startDate) {
           orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -279,6 +289,18 @@ export const SalesSummary2Report = () => {
           params.endDate = filters.endDate;
         }
         orderConditions.push(`status = '${OrderStatus.Paid}'`);
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          setStatusOrders([]);
+          setOrderVoids([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          orderConditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
@@ -307,7 +329,11 @@ export const SalesSummary2Report = () => {
             `time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") < $startDate`,
             `status = '${OrderStatus["In Progress"]}'`,
           ];
-          const carriedOverParams = {startDate: filters.startDate};
+          const carriedOverParams: Record<string, any> = {startDate: filters.startDate};
+          if (branchFilter.condition) {
+            carriedOverConditions.push(branchFilter.condition);
+            Object.assign(carriedOverParams, branchFilter.params);
+          }
 
           const carriedOverQuery = `
             SELECT * FROM ${Tables.orders}
@@ -322,7 +348,7 @@ export const SalesSummary2Report = () => {
 
         // Fetch order voids
         const voidConditions: string[] = [];
-        const voidParams: Record<string, string> = {};
+        const voidParams: Record<string, any> = {};
 
         if (filters.startDate) {
           voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
@@ -332,6 +358,10 @@ export const SalesSummary2Report = () => {
         if (filters.endDate) {
           voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
           voidParams.endDate = filters.endDate;
+        }
+        if (branchFilter.condition) {
+          voidConditions.push(branchFilter.condition);
+          Object.assign(voidParams, branchFilter.params);
         }
 
         const voidsQuery = `
@@ -352,8 +382,72 @@ export const SalesSummary2Report = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate]);
 
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.salesSummary2')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => {
+          const voidsForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? orderVoids
+              : orderVoids.filter((v) => getRowBranchId(v) === key);
+          const statusForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? statusOrders
+              : statusOrders.filter((o) => getRowBranchId(o) === key);
+          return (
+            <SalesSummary2Body
+              key={key}
+              orders={rows}
+              statusOrders={statusForSection}
+              orderVoids={voidsForSection}
+              startDate={filters.startDate}
+              endDate={filters.endDate}
+            />
+          );
+        }}
+      />
+    </ReportsLayout>
+  );
+};
+
+const SalesSummary2Body = ({
+  orders,
+  statusOrders,
+  orderVoids,
+  startDate,
+  endDate,
+}: {
+  orders: Order[];
+  statusOrders: Order[];
+  orderVoids: OrderVoid[];
+  startDate?: string;
+  endDate?: string;
+}) => {
+  const { t } = useTranslation('reports');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(() => new Set());
   // First section: Financial calculations
   const financialMetrics = useMemo(() => {
     const settlementFigures = orders.map(order => getOrderSettlementFigures(order));
@@ -518,34 +612,34 @@ export const SalesSummary2Report = () => {
   }, [statusOrders, orderVoids]);
 
   const checkStatusMetrics = useMemo(() => {
-    const startDate = filters.startDate ? toJsDate(filters.startDate) : null;
-    const endDate = filters.endDate ? toJsDate(filters.endDate) : null;
-    const checksCarriedOver = startDate
+    const rangeStart = startDate ? toJsDate(startDate) : null;
+    const rangeEnd = endDate ? toJsDate(endDate) : null;
+    const checksCarriedOver = rangeStart
       ? statusOrders.filter(order => {
           const orderCreatedAt = toJsDate(order.created_at);
-          if (!(orderCreatedAt < startDate) || !order.completed_at) {
+          if (!(orderCreatedAt < rangeStart) || !order.completed_at) {
             return false;
           }
 
           const orderCompletedAt = toJsDate(order.completed_at);
-          const completedWithinStart = orderCompletedAt >= startDate;
-          const completedWithinEnd = endDate ? orderCompletedAt <= endDate : true;
+          const completedWithinStart = orderCompletedAt >= rangeStart;
+          const completedWithinEnd = rangeEnd ? orderCompletedAt <= rangeEnd : true;
 
           return completedWithinStart && completedWithinEnd;
         }).length
       : 0;
-    const checksBegun = filters.startDate && filters.endDate
+    const checksBegun = startDate && endDate
       ? statusOrders.filter(order => {
           const orderDate = toJsDate(order.created_at);
-          const start = toJsDate(filters.startDate!);
-          const end = toJsDate(filters.endDate!);
+          const start = toJsDate(startDate);
+          const end = toJsDate(endDate);
           return orderDate >= start && orderDate <= end;
         }).length
       : statusOrders.filter(order => {
-          if (!startDate) {
+          if (!rangeStart) {
             return true;
           }
-          return toJsDate(order.created_at) >= startDate;
+          return toJsDate(order.created_at) >= rangeStart;
         }).length;
     const checksPaid = statusOrders.filter(order => order.status === OrderStatus.Paid).length;
     const checksCancelled = statusOrders.filter(order => order.status === OrderStatus.Cancelled).length;
@@ -562,7 +656,7 @@ export const SalesSummary2Report = () => {
       checksOpen,
       outstandingChecks,
     };
-  }, [statusOrders, filters.startDate, filters.endDate]);
+  }, [statusOrders, startDate, endDate]);
 
   const discountTypesBreakdown = useMemo(() => {
     const discountTypes = aggregateOrderDiscountBreakdown(orders, 'name');
@@ -764,24 +858,8 @@ export const SalesSummary2Report = () => {
     setExpandedCategories(new Set());
   };
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.salesSummary2')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
 
   return (
-    <ReportsLayout title={t('titles.salesSummary2')} subtitle={subtitle}>
       <div className="space-y-8">
         {/* First section: Financial calculations with 4 sub-columns */}
         <div className="overflow-hidden rounded-lg border border-border">
@@ -1496,6 +1574,5 @@ export const SalesSummary2Report = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
   );
 };

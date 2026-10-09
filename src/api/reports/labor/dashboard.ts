@@ -1,4 +1,4 @@
-import type {DbClient} from '@/api/reports/shared/types.ts';
+import type {DateRangeFilter, DbClient} from '@/api/reports/shared/types.ts';
 import {formatDateTimeForQuery} from '@/api/reports/shared/filters.ts';
 import {getSalesSummary} from '@/api/reports/sales';
 import {
@@ -23,13 +23,17 @@ import {toLuxonDateTime, getAppTimezone} from '@/lib/datetime.ts';
 import {safeNumber} from '@/lib/utils.ts';
 import {DateTime} from 'luxon';
 
-export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDashboardSnapshot> => {
+export const getLaborDashboardSnapshot = async (
+  db: DbClient,
+  options: Pick<DateRangeFilter, 'branchIds'> = {},
+): Promise<LaborDashboardSnapshot> => {
   const now = DateTime.now().setZone(getAppTimezone());
   // SurrealDB `time::format(datetime, ...)` comparisons behave in DB timezone (UTC in our setup),
   // while the UI/business logic uses `getAppTimezone()`. Convert the business-day boundaries to UTC
   // so "today" matches correctly for scheduled shifts and clock-in entries.
   const startDate = formatDateTimeForQuery(now.startOf('day').toUTC());
   const endDate = formatDateTimeForQuery(now.endOf('day').toUTC());
+  const {branchIds} = options;
 
   const [
     employees,
@@ -45,8 +49,8 @@ export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDash
     sales,
   ] = await Promise.all([
     fetchEmployees(db, {activeOnly: true}),
-    fetchTimeEntries(db, {startDate, endDate, includeOpen: true}),
-    fetchTimeEntries(db, {activeOnly: true, includeOpen: true}),
+    fetchTimeEntries(db, {startDate, endDate, branchIds, includeOpen: true}),
+    fetchTimeEntries(db, {activeOnly: true, branchIds, includeOpen: true}),
     fetchScheduledShifts(db, {startDate, endDate}),
     fetchPayProfiles(db, {startDate, endDate}),
     fetchPublicHolidays(db, {startDate, endDate}),
@@ -54,7 +58,7 @@ export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDash
     fetchLaborPayRules(db),
     fetchActiveBreakCount(db),
     fetchPendingApprovalCount(db),
-    getSalesSummary(db, {startDate, endDate}),
+    getSalesSummary(db, {startDate, endDate, branchIds}),
   ]);
 
   const context = buildLaborReportContext({
@@ -127,12 +131,16 @@ export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDash
   };
 };
 
-export const getLaborDashboardTrend = async (db: DbClient) => {
+export const getLaborDashboardTrend = async (
+  db: DbClient,
+  options: Pick<DateRangeFilter, 'branchIds'> = {},
+) => {
   const now = DateTime.now().setZone(getAppTimezone());
   const startDate = formatDateTimeForQuery(now.minus({days: 13}).startOf('day').toUTC());
   const endDate = formatDateTimeForQuery(now.endOf('day').toUTC());
+  const {branchIds} = options;
   const employees = await fetchEmployees(db, {activeOnly: true});
-  const timeEntries = await fetchTimeEntries(db, {startDate, endDate, includeOpen: true});
+  const timeEntries = await fetchTimeEntries(db, {startDate, endDate, branchIds, includeOpen: true});
   const payProfiles = await fetchPayProfiles(db, {startDate, endDate});
   const holidays = await fetchPublicHolidays(db, {startDate, endDate});
   const adjustments = await fetchLaborAdjustments(db, {startDate, endDate});

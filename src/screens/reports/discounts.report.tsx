@@ -16,6 +16,9 @@ import {
 import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -185,6 +188,7 @@ const groupLinesOntoOrders = (lines: OrderDiscount[]): Order[] => {
 export const DiscountsReport = () => {
   const {t} = useTranslation("reports");
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orderDiscounts, setOrderDiscounts] = useState<OrderDiscount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -199,6 +203,8 @@ export const DiscountsReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -230,6 +236,15 @@ export const DiscountsReport = () => {
           }
         }
 
+        if (branchScope.branchIds !== undefined) {
+          if (branchScope.branchIds.length === 0) {
+            setOrderDiscounts([]);
+            return;
+          }
+          conditions.push("order.branch_id INSIDE $branchIds");
+          params.branchIds = branchScope.branchIds;
+        }
+
         const query = `
           SELECT * FROM ${Tables.order_discounts}
           WHERE ${conditions.join(" AND ")}
@@ -248,7 +263,52 @@ export const DiscountsReport = () => {
     };
 
     void fetchData();
-  }, [filters.discountId, filters.endDate, filters.startDate]);
+  }, [branchScope.ready, branchScope.branchIds, filters.discountId, filters.endDate, filters.startDate]);
+
+
+  const rowsWithBranch = useMemo(
+    () =>
+      orderDiscounts.map((row) => {
+        const order = typeof row.order === "object" && row.order ? row.order : null;
+        return {
+          ...row,
+          branch_id: order?.branch_id ?? undefined,
+        };
+      }),
+    [orderDiscounts],
+  );
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t("loading.discounts")}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t("errors.failedToLoad", {error})}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={rowsWithBranch}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => <DiscountsBody key={key} orderDiscounts={rows} />}
+      />
+    </ReportsLayout>
+  );
+};
+
+const DiscountsBody = ({orderDiscounts}: {orderDiscounts: OrderDiscount[]}) => {
+  const {t} = useTranslation("reports");
 
   const detailRows = useMemo(() => buildDetailRows(orderDiscounts), [orderDiscounts]);
 
@@ -277,24 +337,7 @@ export const DiscountsReport = () => {
     return ids.size;
   }, [detailRows]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t("loading.discounts")}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t("errors.failedToLoad", {error})}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t("titles.discount")} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="grid grid-cols-3 gap-4">
           <div className="border rounded-lg p-4 bg-surface">
@@ -456,6 +499,5 @@ export const DiscountsReport = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
   );
 };

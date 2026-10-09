@@ -8,6 +8,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {User} from "@/api/model/user.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {OrderVoidReason} from "@/api/model/order_void.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -46,6 +47,8 @@ export const VoidsFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">

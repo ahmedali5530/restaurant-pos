@@ -37,6 +37,10 @@ import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel}
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const faIcon = (icon: IconDefinition) =>
   ({className}: {className?: string}) => <FontAwesomeIcon icon={icon} className={className} />;
 
@@ -1198,6 +1202,7 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
 export const SalesDashboardReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [periodSales, setPeriodSales] = useState<PeriodSalesItem[]>([]);
@@ -1214,6 +1219,8 @@ export const SalesDashboardReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -1222,6 +1229,7 @@ export const SalesDashboardReport = () => {
         const fetchedOrders = await fetchDashboardOrders(db, {
           startDate: filters.startDate ?? undefined,
           endDate: filters.endDate ?? undefined,
+          branchIds: branchScope.branchIds,
         });
         setOrders(fetchedOrders);
 
@@ -1239,7 +1247,7 @@ export const SalesDashboardReport = () => {
 
         const queryTotalForRange = async (start: DateTime | null, end: DateTime | null) => {
           const conditions: string[] = [`status = '${OrderStatus.Paid}'`];
-          const rangeParams: Record<string, string> = {};
+          const rangeParams: Record<string, any> = {};
           if (start) {
             conditions.push(`created_at >= <datetime>$startDate`);
             rangeParams.startDate = start.toISO() ?? '';
@@ -1247,6 +1255,14 @@ export const SalesDashboardReport = () => {
           if (end) {
             conditions.push(`created_at <= <datetime>$endDate`);
             rangeParams.endDate = end.toISO() ?? '';
+          }
+          const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+          if (branchFilter.emptyResult) {
+            return 0;
+          }
+          if (branchFilter.condition) {
+            conditions.push(branchFilter.condition);
+            Object.assign(rangeParams, branchFilter.params);
           }
           const rangeQuery = `
             SELECT payments
@@ -1318,8 +1334,67 @@ export const SalesDashboardReport = () => {
     };
 
     fetchData();
+  }, [branchScope.ready, branchScope.branchIds, filters]);
+
+
+  const reportTitle = useMemo(() => {
+    if (filters.startDate && filters.endDate) {
+      return `Sales Dashboard - ${filters.startDate} to ${filters.endDate}`;
+    } else if (filters.startDate) {
+      return `Sales Dashboard - From ${filters.startDate}`;
+    } else if (filters.endDate) {
+      return `Sales Dashboard - Until ${filters.endDate}`;
+    }
+    return 'Sales Dashboard - All Time';
   }, [filters]);
 
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('reports.salesDashboard')}>
+        <div className="py-12 text-center text-muted">{t('loading.chart')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('reports.salesDashboard')}>
+        <div className="py-12 text-center text-danger-500">Failed to load dashboard: {error}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('reports.salesDashboard')} subtitle={reportTitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <SalesDashboardBody
+            key={key}
+            orders={rows}
+            periodSales={periodSales}
+            showGlobalWidgets={!branchScope.isByBranch || key === "total" || key === "combined"}
+          />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const SalesDashboardBody = ({
+  orders,
+  periodSales,
+  showGlobalWidgets,
+}: {
+  orders: Order[];
+  periodSales: PeriodSalesItem[];
+  showGlobalWidgets: boolean;
+}) => {
+  const { t } = useTranslation('reports');
   // ==================== Data Processing ====================
   const paidOrders = useMemo(() => orders.filter(order => order.status === OrderStatus.Paid), [orders]);
 
@@ -1561,27 +1636,8 @@ export const SalesDashboardReport = () => {
     );
   }, [orders]);
 
-  const reportTitle = useMemo(() => {
-    if (filters.startDate && filters.endDate) {
-      return `Sales Dashboard - ${filters.startDate} to ${filters.endDate}`;
-    } else if (filters.startDate) {
-      return `Sales Dashboard - From ${filters.startDate}`;
-    } else if (filters.endDate) {
-      return `Sales Dashboard - Until ${filters.endDate}`;
-    }
-    return 'Sales Dashboard - All Time';
-  }, [filters]);
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('reports.salesDashboard')}>
-        <div className="py-12 text-center text-danger-500">Failed to load dashboard: {error}</div>
-      </ReportsLayout>
-    );
-  }
 
   return (
-    <ReportsLayout title={t('reports.salesDashboard')} subtitle={reportTitle}>
       <div className="space-y-5">
         {/* KPI Metrics Grid - Matching clock.tsx style */}
         <div className="rounded-lg shadow-xl border">
@@ -1751,7 +1807,7 @@ export const SalesDashboardReport = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           <DeliverySection orders={deliveryOrders} />
-          <ActivitySection />
+          {showGlobalWidgets && <ActivitySection />}
         </div>
 
         {/* Sales Chart and Delivery Section */}
@@ -1759,11 +1815,11 @@ export const SalesDashboardReport = () => {
           <div className="lg:col-span-2">
             <SalesLineChart
               data={salesTrendData}
-              isLoading={loading}
+              isLoading={false}
             />
           </div>
           <div className="lg:col-span-1">
-            <PeriodComparisonSection periodSales={periodSales} />
+            {showGlobalWidgets && <PeriodComparisonSection periodSales={periodSales} />}
           </div>
         </div>
 
@@ -1772,7 +1828,7 @@ export const SalesDashboardReport = () => {
           <div className="lg:col-span-2">
             <OrdersPerHourChart
               data={ordersPerHourData}
-              isLoading={loading}
+              isLoading={false}
             />
           </div>
           <CategoryPieWidget categories={categorySales} />
@@ -1832,11 +1888,10 @@ export const SalesDashboardReport = () => {
         </div>
 
         {/* User Sessions */}
-        <UserSessionsWidget />
+        {showGlobalWidgets && <UserSessionsWidget />}
 
         {/* Latest Orders */}
         <LatestOrdersTable orders={latestOrders} />
       </div>
-    </ReportsLayout>
   );
 };

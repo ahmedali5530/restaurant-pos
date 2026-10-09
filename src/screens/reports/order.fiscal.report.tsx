@@ -13,6 +13,9 @@ import {
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+
 /** Friendly labels for known fiscal provider record ids. */
 const PROVIDER_LABELS: Record<string, string> = {
   'provider:fbr': 'FBR',
@@ -67,6 +70,7 @@ const statusBadgeClass = (status: string): string => {
 export const OrderFiscalReport = () => {
   const {t} = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [submissions, setSubmissions] = useState<OrderFiscalSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,6 +84,8 @@ export const OrderFiscalReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -107,6 +113,15 @@ export const OrderFiscalReport = () => {
           Object.assign(params, statusFilter.params);
         }
 
+        if (branchScope.branchIds !== undefined) {
+          if (branchScope.branchIds.length === 0) {
+            setSubmissions([]);
+            return;
+          }
+          conditions.push('order.branch_id INSIDE $branchIds');
+          params.branchIds = branchScope.branchIds;
+        }
+
         const query = `
           SELECT * FROM ${Tables.integration_order_fiscals}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -127,7 +142,52 @@ export const OrderFiscalReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
+
+
+  const rowsWithBranch = useMemo(
+    () =>
+      submissions.map((sub) => {
+        const order = getOrder(sub);
+        return {
+          ...sub,
+          branch_id: order?.branch_id ?? undefined,
+        };
+      }),
+    [submissions],
+  );
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.orderFiscal')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', {error})}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={rowsWithBranch}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => <OrderFiscalBody key={key} submissions={rows} />}
+      />
+    </ReportsLayout>
+  );
+};
+
+const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) => {
+  const {t} = useTranslation('reports');
 
   const statusLabel = (status: string): string => {
     switch (status) {
@@ -187,24 +247,7 @@ export const OrderFiscalReport = () => {
     );
   }, [submissions]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.orderFiscal')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', {error})}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
       <div className="space-y-8">
         {/* Summary sections */}
         <div className="grid grid-cols-2 gap-4">
@@ -374,6 +417,5 @@ export const OrderFiscalReport = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
   );
 };

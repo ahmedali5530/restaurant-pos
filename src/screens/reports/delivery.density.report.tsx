@@ -10,6 +10,10 @@ import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
 import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 interface ReportFilters {
   startDate?: string | null;
   endDate?: string | null;
@@ -174,6 +178,7 @@ const DeliveryDensityClusterOverlay = ({orders}: {orders: Order[]}) => {
 export const DeliveryDensityReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,6 +207,8 @@ export const DeliveryDensityReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -255,6 +262,16 @@ export const DeliveryDensityReport = () => {
           conditions.push(`(${itemParts.join(" OR ")})`);
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const ordersQuery = `
           SELECT *
           FROM ${Tables.orders}
@@ -272,7 +289,55 @@ export const DeliveryDensityReport = () => {
     };
 
     fetchData();
-  }, [filters]);
+  }, [branchScope.ready, branchScope.branchIds, filters]);
+
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.deliveryDensity')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <DeliveryDensityBody
+            key={key}
+            orders={rows}
+            filters={filters}
+            mapCenter={mapCenter}
+          />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const DeliveryDensityBody = ({
+  orders,
+  filters,
+  mapCenter,
+}: {
+  orders: Order[];
+  filters: ReturnType<typeof parseFilters>;
+  mapCenter: {lat: number; lng: number};
+}) => {
+  const { t } = useTranslation('reports');
 
   const filteredOrders = useMemo(() => {
     let next = [...orders];
@@ -308,24 +373,7 @@ export const DeliveryDensityReport = () => {
     return locations.size;
   }, [filteredOrders]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.deliveryDensity')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t('titles.deliveryDensity')} subtitle={subtitle}>
       <div className="space-y-8">
         <div className="overflow-hidden rounded-lg border border-border">
           <div className="bg-surface px-6 py-3 flex items-center justify-between">
@@ -410,6 +458,5 @@ export const DeliveryDensityReport = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
   );
 };

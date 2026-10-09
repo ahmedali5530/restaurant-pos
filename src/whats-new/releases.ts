@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-08',
+    title: 'Multi-branch HQ reports',
+    items: [
+      'On a cloud reporting database with multiple registered branches, sales, orders, cash closing, and labor reports offer a Branches filter and Combined or By branch views.',
+      'Combined totals sum the selected stores; By branch shows each store then a Total row with rates recomputed from the combined figures. Access follows each user’s branch_ids.',
+    ],
+  },
+  {
     date: '2026-09-29',
     title: 'Branch-owned catalog and multi-store employees',
     items: [

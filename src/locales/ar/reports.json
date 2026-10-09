@@ -239,7 +239,13 @@
     "location": "الموقع",
     "selectDate": "اختر التاريخ",
     "allShifts": "كل الورديات لليوم",
-    "cashClosingShiftHint": "اختر وردية لفتح إغلاقها فقط، أو اتركه فارغًا لعرض كل إغلاقات اليوم والتبديل بينها في التقرير."
+    "cashClosingShiftHint": "اختر وردية لفتح إغلاقها فقط، أو اتركه فارغًا لعرض كل إغلاقات اليوم والتبديل بينها في التقرير.",
+    "branches": "الفروع",
+    "branchesAll": "كل الفروع",
+    "branchesHelp": "اتركه فارغًا لتضمين كل الفروع التي يمكنك الوصول إليها.",
+    "branchView": "العرض",
+    "branchViewCombined": "مجمّع",
+    "branchViewByBranch": "حسب الفرع"
   },
   "datePresets": {
     "today": "اليوم",
@@ -586,7 +592,9 @@
     "voids": "إلغاءات",
     "refunds": "استردادات",
     "closingsForDay": "إغلاقات هذا اليوم",
-    "closingsCount": "{{count}} إغلاقات"
+    "closingsCount": "{{count}} إغلاقات",
+    "branchTotal": "الإجمالي",
+    "branch": "الفرع"
   },
   "metrics": {
     "gross": "إجمالي",

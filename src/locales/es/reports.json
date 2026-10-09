@@ -239,7 +239,13 @@
     "location": "Ubicación",
     "selectDate": "Seleccionar fecha",
     "allShifts": "Todos los turnos del día",
-    "cashClosingShiftHint": "Elija un turno para abrir solo ese cierre, o déjelo vacío para ver todos los cierres del día y cambiar entre ellos en el informe."
+    "cashClosingShiftHint": "Elija un turno para abrir solo ese cierre, o déjelo vacío para ver todos los cierres del día y cambiar entre ellos en el informe.",
+    "branches": "Sucursales",
+    "branchesAll": "Todas las sucursales",
+    "branchesHelp": "Déjelo vacío para incluir todas las sucursales a las que tiene acceso.",
+    "branchView": "Vista",
+    "branchViewCombined": "Combinada",
+    "branchViewByBranch": "Por sucursal"
   },
   "datePresets": {
     "today": "Hoy",
@@ -586,7 +592,9 @@
     "voids": "Anulaciones",
     "refunds": "Reembolsos",
     "closingsForDay": "Cierres de este día",
-    "closingsCount": "{{count}} cierres"
+    "closingsCount": "{{count}} cierres",
+    "branchTotal": "Total",
+    "branch": "Sucursal"
   },
   "metrics": {
     "gross": "Bruto",

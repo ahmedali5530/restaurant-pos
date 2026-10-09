@@ -14,6 +14,7 @@ import {Discount} from "@/api/model/discount.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Menu} from "@/api/model/menu.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -53,6 +54,8 @@ export const SalesAdvancedFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">

@@ -9,6 +9,7 @@ import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Shift } from "@/api/model/shift.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 type ShiftOption = { label: string; value: string };
 
@@ -24,6 +25,7 @@ export const CashClosingFilter = () => {
       className="flex flex-col gap-3 items-start w-full"
       target="_blank"
     >
+      <BranchScopeFilter />
       <div className="w-full">
         <DatePicker
           label={t('filters.selectDate', { defaultValue: 'Select date' })}
