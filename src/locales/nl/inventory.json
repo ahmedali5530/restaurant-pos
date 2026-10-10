@@ -604,5 +604,14 @@
     "submittedAt": "Ingediend op",
     "approvedAt": "Goedgekeurd op",
     "rejectedAt": "Afgewezen op"
+  },
+  "import": {
+    "codeAutoFilled": "Code \"{{code}}\" ingevuld vanuit bestaand artikel \"{{name}}\"",
+    "itemNameOrCodeRequired": "Artikelnaam of code is verplicht",
+    "itemNotFound": "Artikel niet gevonden: {{key}}",
+    "supplierRequired": "Leverancier is verplicht",
+    "locationRequired": "Locatie is verplicht",
+    "supplierNotOnItem": "Leverancier \"{{supplier}}\" is niet gekoppeld aan artikel \"{{item}}\"",
+    "locationNotOnItem": "Locatie \"{{location}}\" is niet gekoppeld aan artikel \"{{item}}\""
   }
 }

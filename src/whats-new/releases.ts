@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-08',
+    title: 'Purchase AI import improvements',
+    items: [
+      'Purchase AI Import fills item codes automatically when the line matches an existing inventory item by name.',
+      'Supplier and location on purchase AI Import are dropdowns of existing records instead of free-text fields.',
+      'Fixed purchase approve/post failing with a Surreal transaction error when ledger location was still typed as store.',
+    ],
+  },
+  {
+    date: '2026-10-08',
     title: 'Manual fiscal retry',
     items: [
       'Retry permanently failed integration jobs from Integrations → Queue (including fiscal invoice submissions after network or authority API errors).',

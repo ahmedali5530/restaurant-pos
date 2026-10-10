@@ -607,5 +607,14 @@
     "submittedAt": "Submitted at",
     "approvedAt": "Approved at",
     "rejectedAt": "Rejected at"
+  },
+  "import": {
+    "codeAutoFilled": "Filled code \"{{code}}\" from existing item \"{{name}}\"",
+    "itemNameOrCodeRequired": "Item name or code is required",
+    "itemNotFound": "Item not found: {{key}}",
+    "supplierRequired": "Supplier is required",
+    "locationRequired": "Location is required",
+    "supplierNotOnItem": "Supplier \"{{supplier}}\" is not linked to item \"{{item}}\"",
+    "locationNotOnItem": "Location \"{{location}}\" is not linked to item \"{{item}}\""
   }
 }

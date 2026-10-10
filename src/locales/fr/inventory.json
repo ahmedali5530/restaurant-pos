@@ -604,5 +604,14 @@
     "submittedAt": "Soumis le",
     "approvedAt": "Approuvé le",
     "rejectedAt": "Rejeté le"
+  },
+  "import": {
+    "codeAutoFilled": "Code \"{{code}}\" renseigné à partir de l'article existant \"{{name}}\"",
+    "itemNameOrCodeRequired": "Le nom ou le code de l'article est requis",
+    "itemNotFound": "Article introuvable : {{key}}",
+    "supplierRequired": "Le fournisseur est requis",
+    "locationRequired": "L'emplacement est requis",
+    "supplierNotOnItem": "Le fournisseur « {{supplier}} » n'est pas lié à l'article « {{item}} »",
+    "locationNotOnItem": "L'emplacement « {{location}} » n'est pas lié à l'article « {{item}} »"
   }
 }
