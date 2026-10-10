@@ -11,6 +11,11 @@ import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 interface HourlyData {
   hour: number;
   startTime: string;
@@ -27,6 +32,7 @@ interface HourlyData {
 export const SalesHourlyLabourReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
@@ -46,18 +52,30 @@ export const SalesHourlyLabourReport = () => {
   }, []);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Build orders query with optional date filter
         const orderConditions: string[] = ["status = 'Paid'"];
         const {conditions: orderDateConditions, params: orderParams} = buildCreatedAtDateConditions(
           {startDate: params.startDate ?? undefined, endDate: params.endDate ?? undefined},
           "created_at",
         );
         orderConditions.push(...orderDateConditions);
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          setTimeEntries([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          orderConditions.push(branchFilter.condition);
+          Object.assign(orderParams, branchFilter.params);
+        }
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
@@ -66,16 +84,18 @@ export const SalesHourlyLabourReport = () => {
         `;
 
         const ordersResult: any = await queryRef.current(ordersQuery, orderParams);
-        const fetchedOrders = (ordersResult[0] || []) as Order[];
-        setOrders(fetchedOrders);
+        setOrders((ordersResult[0] || []) as Order[]);
 
-        // Build time entries query with optional date filter
         const timeEntryConditions: string[] = ["clock_out != NONE"];
         const {conditions: clockInDateConditions, params: timeEntryParams} = buildCreatedAtDateConditions(
           {startDate: params.startDate ?? undefined, endDate: params.endDate ?? undefined},
           "clock_in",
         );
         timeEntryConditions.push(...clockInDateConditions);
+        if (branchFilter.condition) {
+          timeEntryConditions.push(branchFilter.condition);
+          Object.assign(timeEntryParams, branchFilter.params);
+        }
 
         const timeEntriesQuery = `
           SELECT * FROM ${Tables.time_entries}
@@ -84,8 +104,7 @@ export const SalesHourlyLabourReport = () => {
         `;
 
         const timeEntriesResult: any = await queryRef.current(timeEntriesQuery, timeEntryParams);
-        const fetchedTimeEntries = (timeEntriesResult[0] || []) as TimeEntry[];
-        setTimeEntries(fetchedTimeEntries);
+        setTimeEntries((timeEntriesResult[0] || []) as TimeEntry[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch data');
         console.error('Error fetching report data:', err);
@@ -95,7 +114,68 @@ export const SalesHourlyLabourReport = () => {
     };
 
     fetchData();
-  }, [params.startDate, params.endDate]);
+  }, [branchScope.ready, branchScope.branchIds, params.startDate, params.endDate]);
+
+  const subtitle = params.startDate && params.endDate 
+    ? `${params.startDate} to ${params.endDate}`
+    : undefined;
+
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
+        <div className="text-center p-8">{t('common:actions.loading')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
+        <div className="text-center p-8 text-red-600">Error: {error}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout
+      title={t('reports.salesHourlyLabour')}
+      subtitle={subtitle}
+    >
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => {
+          const entriesForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? timeEntries
+              : timeEntries.filter((e) => getRowBranchId(e) === key);
+          return (
+            <SalesHourlyLabourBody
+              key={key}
+              orders={rows}
+              timeEntries={entriesForSection}
+              hours={params.hours}
+            />
+          );
+        }}
+      />
+    </ReportsLayout>
+  );
+}
+
+const SalesHourlyLabourBody = ({
+  orders,
+  timeEntries,
+  hours,
+}: {
+  orders: Order[];
+  timeEntries: TimeEntry[];
+  hours: string[];
+}) => {
+  const { t } = useTranslation('reports');
 
   const hourlyData = useMemo(() => {
     const data: HourlyData[] = [];
@@ -103,7 +183,7 @@ export const SalesHourlyLabourReport = () => {
     // Generate hours from 1am to 12am (1-24)
     for (let hour = 1; hour <= 24; hour++) {
       // Skip hours if filter is applied and this hour is not in the filter
-      if (params.hours.length > 0 && !params.hours.includes(String(hour - 1))) {
+      if (hours.length > 0 && !hours.includes(String(hour - 1))) {
         continue;
       }
 
@@ -203,7 +283,7 @@ export const SalesHourlyLabourReport = () => {
     }
 
     return data;
-  }, [orders, timeEntries, params.hours]);
+  }, [orders, timeEntries, hours]);
 
   const totals = useMemo(() => {
     return hourlyData.reduce((acc, row) => {
@@ -239,31 +319,7 @@ export const SalesHourlyLabourReport = () => {
     ? totals.grossSale / totals.checks 
     : 0;
 
-  const subtitle = params.startDate && params.endDate 
-    ? `${params.startDate} to ${params.endDate}`
-    : undefined;
-
-  if (loading) {
-    return (
-      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
-        <div className="text-center p-8">{t('common:actions.loading')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('reports.salesHourlyLabour')} subtitle={subtitle}>
-        <div className="text-center p-8 text-red-600">Error: {error}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout
-      title={t('reports.salesHourlyLabour')}
-      subtitle={subtitle}
-    >
       <table className="table table-hover">
         <thead>
           <tr>
@@ -314,6 +370,5 @@ export const SalesHourlyLabourReport = () => {
           </tr>
         </tfoot>
       </table>
-    </ReportsLayout>
   );
 }

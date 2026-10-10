@@ -6,6 +6,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Dish} from "@/api/model/dish.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -38,6 +39,8 @@ export const ProductHourlyFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="flex flex-col gap-2">
         <label htmlFor="product-hourly-menu-items" className="form-label">{t('filters.menuItems')}</label>

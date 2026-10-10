@@ -10,10 +10,13 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount, getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderDiscountTotal} from "@/lib/order.ts";
 import {
+  buildBranchInsideCondition,
   buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 type MetricKey = "discount_amount" | "tax_amount" | "coupon_discount";
 
@@ -67,9 +70,79 @@ interface Props {
   metricHeader: string;
 }
 
+const FinanceSection = ({
+  orders,
+  metric,
+  metricHeader,
+  t,
+}: {
+  orders: Order[];
+  metric: MetricKey;
+  metricHeader: string;
+  t: (key: string) => string;
+}) => {
+  const totalMetric = orders.reduce((sum, order) => sum + getMetricAmount(order, metric), 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="border rounded-lg p-4 bg-surface">
+        <div className="text-sm text-muted">{t('categories.orders')}</div>
+        <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
+        <div className="text-sm text-muted mt-2">Total {metricHeader.toLowerCase()}</div>
+        <div className="text-xl font-semibold">{withCurrency(totalMetric)}</div>
+      </div>
+      <div className="overflow-hidden rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-neutral-200">
+          <thead className="bg-surface">
+          <tr>
+            <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.order')}</th>
+            <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('metrics.cashier')}</th>
+            <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('metrics.gross')}</th>
+            {metric === "tax_amount" && (
+              <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('columns.taxPercent')}</th>
+            )}
+            <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{metricHeader}</th>
+            <th className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{t('metrics.net')}</th>
+          </tr>
+          </thead>
+          <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+          {orders.length === 0 ? (
+            <tr>
+              <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-muted">No rows found for selected range.</td>
+            </tr>
+          ) : orders.map((order) => {
+            const gross = calculateGross(order);
+            const metricAmount = getMetricAmount(order, metric);
+            const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
+              - getOrderDiscountTotal(order) - safeNumber(order.coupon?.discount);
+            const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
+
+            return (
+              <tr key={order.id.toString()}>
+                <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
+                <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
+                <td className="py-3 px-3 text-sm text-foreground">{cashierName || "-"}</td>
+                <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(gross)}</td>
+                {metric === "tax_amount" && (
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{formatTaxPercent(order)}</td>
+                )}
+                <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(metricAmount)}</td>
+                <td className="py-3 pr-6 text-right text-sm text-foreground">{withCurrency(net)}</td>
+              </tr>
+            );
+          })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +155,8 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -126,6 +201,16 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
           }
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(" AND ")}
@@ -144,13 +229,9 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
     };
 
     void fetchData();
-  }, [filters.couponId, filters.discountId, filters.endDate, filters.startDate, filters.taxId, metric, title]);
+  }, [branchScope.ready, branchScope.branchIds, filters.couponId, filters.discountId, filters.endDate, filters.startDate, filters.taxId, metric, title]);
 
-  const totalMetric = useMemo(() => {
-    return orders.reduce((sum, order) => sum + getMetricAmount(order, metric), 0);
-  }, [orders, metric]);
-
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return <ReportsLayout title={title} subtitle={subtitle}><div className="py-12 text-center text-muted">Loading {title.toLowerCase()}...</div></ReportsLayout>;
   }
   if (error) {
@@ -159,58 +240,15 @@ export const OrderFinanceReport = ({title, metric, metricHeader}: Props) => {
 
   return (
     <ReportsLayout title={title} subtitle={subtitle}>
-      <div className="space-y-4">
-        <div className="border rounded-lg p-4 bg-surface">
-          <div className="text-sm text-muted">{t('categories.orders')}</div>
-          <div className="text-xl font-semibold">{formatNumber(orders.length)}</div>
-          <div className="text-sm text-muted mt-2">Total {metricHeader.toLowerCase()}</div>
-          <div className="text-xl font-semibold">{withCurrency(totalMetric)}</div>
-        </div>
-        <div className="overflow-hidden rounded-lg border border-border">
-          <table className="min-w-full divide-y divide-neutral-200">
-            <thead className="bg-surface">
-            <tr>
-              <th className="py-3 pl-6 pr-3 text-left text-sm font-semibold text-foreground">Created at</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('columns.order')}</th>
-              <th className="py-3 px-3 text-left text-sm font-semibold text-foreground">{t('metrics.cashier')}</th>
-              <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('metrics.gross')}</th>
-              {metric === "tax_amount" && (
-                <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{t('columns.taxPercent')}</th>
-              )}
-              <th className="py-3 px-3 text-right text-sm font-semibold text-foreground">{metricHeader}</th>
-              <th className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{t('metrics.net')}</th>
-            </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-            {orders.length === 0 ? (
-              <tr>
-                <td colSpan={metric === "tax_amount" ? 7 : 6} className="py-6 text-center text-sm text-muted">No rows found for selected range.</td>
-              </tr>
-            ) : orders.map((order) => {
-              const gross = calculateGross(order);
-              const metricAmount = getMetricAmount(order, metric);
-              const net = gross + getOrderTaxAmount(order) + safeNumber(order.service_charge_amount) + safeNumber(order.tip_amount)
-                - getOrderDiscountTotal(order) - safeNumber(order.coupon?.discount);
-              const cashierName = `${(order.cashier as any)?.first_name || (order.user as any)?.first_name || ""} ${(order.cashier as any)?.last_name || (order.user as any)?.last_name || ""}`.trim();
-
-              return (
-                <tr key={order.id.toString()}>
-                  <td className="py-3 pl-6 pr-3 text-sm text-foreground">{toLuxonDateTime(order.created_at as any).toFormat("yyyy-LL-dd HH:mm")}</td>
-                  <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number ? `#${order.invoice_number}` : order.id.toString()}</td>
-                  <td className="py-3 px-3 text-sm text-foreground">{cashierName || "-"}</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(gross)}</td>
-                  {metric === "tax_amount" && (
-                    <td className="py-3 px-3 text-right text-sm text-foreground">{formatTaxPercent(order)}</td>
-                  )}
-                  <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(metricAmount)}</td>
-                  <td className="py-3 pr-6 text-right text-sm text-foreground">{withCurrency(net)}</td>
-                </tr>
-              );
-            })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <FinanceSection key={key} orders={rows} metric={metric} metricHeader={metricHeader} t={t} />
+        )}
+      />
     </ReportsLayout>
   );
 };

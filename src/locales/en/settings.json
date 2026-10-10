@@ -322,5 +322,25 @@
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
       "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
+  },
+  "catalogSync": {
+    "title": "Catalog sync",
+    "description": "Download menu and other front-of-house catalog data published from the cloud. Use Sync now to pull updates on demand.",
+    "mode": "Distribution mode",
+    "localVersion": "Applied catalog version",
+    "remoteVersion": "Published catalog version",
+    "updateAvailable": "A newer catalog is available. Sync to apply it.",
+    "upToDate": "Catalog is up to date.",
+    "lastSynced": "Last downloaded: {{table}} {{record}}",
+    "syncNow": "Sync catalog now",
+    "syncing": "Syncing…",
+    "refresh": "Refresh status",
+    "queued": "Catalog sync queued",
+    "failed": "Catalog sync failed",
+    "unreachable": "Cannot reach the sync service. Check VITE_SYNC_SERVICE_URL and that sync is running.",
+    "modeRequired": "Set SYNC_DISTRIBUTION_MODE=full on the sync service to enable catalog download.",
+    "complete": "Catalog sync finished",
+    "progressTable": "Downloading {{table}}…",
+    "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)"
   }
 }

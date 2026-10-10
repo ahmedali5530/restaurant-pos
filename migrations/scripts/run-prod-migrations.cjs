@@ -47,6 +47,14 @@ const MIGRATIONS_DIR = process.env.MIGRATIONS_DIR
  */
 const BASELINE_FILE = process.env.BASELINE_FILE || 'latest.surql';
 
+/**
+ * Core tables that only the full schema defines. A brand-new database can
+ * already contain sidecar tables (the sync service creates `sync_cloud_cursor`
+ * on startup), so freshness is detected by the absence of these core tables
+ * rather than by "the database has no tables at all".
+ */
+const BASELINE_SENTINEL_TABLES = ['category', 'menu_item', 'setting', 'order_type'];
+
 /** Optional demo/seed data loaded only when bootstrapping a brand-new database. */
 const DEMO_DATA_FILE = process.env.DEMO_DATA_FILE || 'demo-data.surql';
 const SEED_DEMO_DATA = ['1', 'true', 'yes', 'on'].includes(
@@ -112,6 +120,10 @@ const MIGRATION_PLAN = [
   { id: '2026_09_24_foh_changefeed', file: '2026_09_24_foh_changefeed.surql' },
   { id: '2026_09_24_foh_changefeed_fiscal', file: '2026_09_24_foh_changefeed_fiscal.surql' },
   { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
+  { id: '2026_09_26_catalog_down_cursor', file: '2026_09_26_catalog_down_cursor.surql' },
+  { id: '2026_09_27_hq_catalog_publish', file: '2026_09_27_hq_catalog_publish.surql' },
+  { id: '2026_09_28_catalog_branch_override', file: '2026_09_28_catalog_branch_override.surql' },
+  { id: '2026_09_29_branch_owned_catalog_and_user_branches', file: '2026_09_29_branch_owned_catalog_and_user_branches.surql' },
   { id: '2026_10_02_payroll_snapshot_currency', file: '2026_10_02_payroll_snapshot_currency.surql' },
 ];
 
@@ -183,15 +195,42 @@ async function markApplied(db, id, note) {
   );
 }
 
-async function applySurql(db, filePath) {
+async function applySurql(db, filePath, transform) {
   const raw = fs.readFileSync(filePath, 'utf8');
-  const sql = stripComments(raw);
+  let sql = stripComments(raw);
+  if (transform) sql = transform(sql);
   if (!sql) {
     console.log(`  (empty after comments) skip ${path.basename(filePath)}`);
     return;
   }
   await db.query(sql);
 }
+
+/**
+ * SurrealDB 3.x rejects an array-element wildcard field (e.g. `foo.*`) when its
+ * parent is declared with the explicit `none | array<T> | null` union that the
+ * schema dumps use. `option<array<T>>` is equivalent and accepted, so rewrite
+ * the baseline before import. No-op once the generated schema is fixed.
+ */
+const normalizeOptionalArrayTypes = (sql) =>
+  sql.replace(
+    /\bnone\s*\|\s*(array<(?:[^<>]|<[^<>]*>)*>)\s*\|\s*null\b/gi,
+    'option<$1>'
+  );
+
+/**
+ * Demo dumps can be full exports (schema + `_schema_migration` tracking). The
+ * baseline and plan already own the schema and migration state, so seed only the
+ * data rows here and drop the dump's DEFINEs and migration records.
+ */
+const toDataOnlySql = (sql) => {
+  const inserts = sql
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('INSERT ') && !line.includes('_schema_migration'));
+  if (inserts.length === 0) return '';
+  return ['OPTION IMPORT;', ...inserts].join('\n');
+};
 
 function runBackfill(scriptName) {
   const scriptPath = path.join(MIGRATIONS_DIR, 'scripts', scriptName);
@@ -214,7 +253,7 @@ async function importBaseline(db) {
     throw new Error(`Fresh database but baseline file not found: ${baselinePath}`);
   }
   console.log(`Fresh database detected — importing full schema baseline: ${BASELINE_FILE}`);
-  await applySurql(db, baselinePath);
+  await applySurql(db, baselinePath, normalizeOptionalArrayTypes);
 }
 
 async function importDemoData(db) {
@@ -224,7 +263,7 @@ async function importDemoData(db) {
     return;
   }
   console.log(`Seeding demo data: ${DEMO_DATA_FILE}`);
-  await applySurql(db, demoPath);
+  await applySurql(db, demoPath, toDataOnlySql);
 }
 
 async function main() {
@@ -235,7 +274,9 @@ async function main() {
   let db = await connectWithRetry();
 
   const existingTables = await listTables(db);
-  const isFreshDatabase = existingTables.length === 0;
+  const isFreshDatabase = !existingTables.some((table) =>
+    BASELINE_SENTINEL_TABLES.includes(table)
+  );
   if (isFreshDatabase) {
     await importBaseline(db);
   } else {

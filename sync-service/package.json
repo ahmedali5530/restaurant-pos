@@ -7,7 +7,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node --test src/*.test.js"
+    "test": "node --test src/*.test.js",
+    "smoke:upload": "node scripts/smoke-changefeed.cjs",
+    "smoke:catalog": "node scripts/smoke-catalog-download.cjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

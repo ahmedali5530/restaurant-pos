@@ -20,6 +20,9 @@ import {
 import {Tracking} from "@/api/model/tracking.ts";
 import {orderReceiptUrl} from "@/routes/posr.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 type TimelineType = "start" | "addition" | "deletion" | "kitchen_complete" | "payment" | string;
 
 type TimelineEvent = {
@@ -47,6 +50,7 @@ const parseFilters = () => {
 export const OrderLifecycleReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [state, setState] = useState<LifecycleState>({
     order: null,
@@ -66,6 +70,7 @@ export const OrderLifecycleReport = () => {
   }, [db]);
 
   const fetchData = async () => {
+    if (!branchScope.ready) return;
     if (!orderSuffix) {
       setError("Order ID is required.");
       setLoading(false);
@@ -86,6 +91,21 @@ export const OrderLifecycleReport = () => {
       );
 
       const order = (Array.isArray(orderRows) ? orderRows[0] : orderRows || null) as Order | null;
+
+      if (order && branchScope.branchIds !== undefined) {
+        const bid = order.branch_id == null || order.branch_id === "" ? null : String(order.branch_id);
+        if (bid == null || !branchScope.branchIds.includes(bid)) {
+          setState({
+            order: null,
+            additions: [],
+            deletions: [],
+            kitchenCompletions: [],
+            tracking: []
+          });
+          setLoading(false);
+          return;
+        }
+      }
 
       if (!order) {
         setState({
@@ -169,9 +189,8 @@ export const OrderLifecycleReport = () => {
   };
 
   useEffect(() => {
-  
     void fetchData();
-  }, [orderSuffix]);
+  }, [branchScope.ready, branchScope.branchIds, orderSuffix]);
 
   const events = useMemo(() => {
     const timeline: TimelineEvent[] = [];
@@ -272,7 +291,7 @@ export const OrderLifecycleReport = () => {
 
   const reportTitle = 'Order lifecycle report';
 
-  if (loading) {
+  if (loading || !branchScope.ready) {
     return <ReportsLayout title={reportTitle} subtitle={subtitle}><div className="py-12 text-center text-muted">{t('loading.orderLifecycle')}</div></ReportsLayout>;
   }
   if (error) {

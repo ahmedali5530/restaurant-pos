@@ -322,5 +322,25 @@
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
       "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
+  },
+  "catalogSync": {
+    "title": "مزامنة الكتالوج",
+    "description": "تنزيل قائمة الطعام وبيانات واجهة البيع المنشورة من السحابة. استخدم المزامنة الآن لسحب التحديثات عند الطلب.",
+    "mode": "وضع التوزيع",
+    "localVersion": "إصدار الكتالوج المطبق",
+    "remoteVersion": "إصدار الكتالوج المنشور",
+    "updateAvailable": "يتوفر كتالوج أحدث. زامِن لتطبيقه.",
+    "upToDate": "الكتالوج محدّث.",
+    "lastSynced": "آخر تنزيل: {{table}} {{record}}",
+    "syncNow": "مزامنة الكتالوج الآن",
+    "syncing": "جاري المزامنة…",
+    "refresh": "تحديث الحالة",
+    "queued": "تمت جدولة مزامنة الكتالوج",
+    "failed": "فشلت مزامنة الكتالوج",
+    "unreachable": "تعذر الوصول إلى خدمة المزامنة. تحقق من VITE_SYNC_SERVICE_URL وأن الخدمة تعمل.",
+    "modeRequired": "عيّن SYNC_DISTRIBUTION_MODE=full على خدمة المزامنة لتفعيل تنزيل الكتالوج.",
+    "complete": "اكتملت مزامنة الكتالوج",
+    "progressTable": "جاري تنزيل {{table}}…",
+    "progressCount": "{{completed}} / {{total}} جداول ({{percent}}٪)"
   }
 }

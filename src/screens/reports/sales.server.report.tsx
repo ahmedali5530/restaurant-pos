@@ -12,11 +12,14 @@ import {OrderItem} from "@/api/model/order_item.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PART_LABELS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {
+  buildBranchInsideCondition,
   buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 interface CategoryAggregate {
   id: string;
@@ -249,6 +252,7 @@ const ensureCategoryAggregate = (
 export const SalesServerReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,6 +265,8 @@ export const SalesServerReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchOrders = async () => {
       try {
         setLoading(true);
@@ -312,6 +318,16 @@ export const SalesServerReport = () => {
           Object.assign(params, categoryFilter.params);
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.orders}
           WHERE ${conditions.join(' AND ')}
@@ -344,8 +360,51 @@ export const SalesServerReport = () => {
     };
 
     fetchOrders();
-  }, [filters.startDate, filters.endDate, filters.userIds, filters.orderTypeIds, filters.floorIds, filters.tableIds, filters.dishIds, filters.categoryIds]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.userIds, filters.orderTypeIds, filters.floorIds, filters.tableIds, filters.dishIds, filters.categoryIds]);
 
+
+  const subtitle = filters.startDate && filters.endDate
+    ? `${filters.startDate} to ${filters.endDate}`
+    : undefined;
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
+        <div className="text-center p-6">{t('loading.report')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
+        <div className="text-center p-6 text-danger-600">
+          {t('errors.failedToLoad', { error })}
+        </div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout
+      title={t('titles.serverSales')}
+      subtitle={subtitle}
+    >
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <SalesServerBody key={key} orders={rows} />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const SalesServerBody = ({orders}: {orders: Order[]}) => {
+  const { t } = useTranslation('reports');
   const filteredOrders = orders;
   const sections: UserReportSection[] = useMemo(() => {
     if (!filteredOrders.length) {
@@ -415,43 +474,16 @@ export const SalesServerReport = () => {
     }));
   }, [filteredOrders]);
 
-  const subtitle = filters.startDate && filters.endDate
-    ? `${filters.startDate} to ${filters.endDate}`
-    : undefined;
-
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
-        <div className="text-center p-6">{t('loading.report')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
-        <div className="text-center p-6 text-danger-600">
-          {t('errors.failedToLoad', { error })}
-        </div>
-      </ReportsLayout>
-    );
-  }
 
   if (!sections.length) {
     return (
-      <ReportsLayout title={t('titles.serverSales')} subtitle={subtitle}>
-        <div className="text-center p-6 text-muted">
-          No server sales found for the selected filters.
-        </div>
-      </ReportsLayout>
+      <div className="text-center p-6 text-muted">
+        No server sales found for the selected filters.
+      </div>
     );
   }
 
   return (
-    <ReportsLayout
-      title={t('titles.serverSales')}
-      subtitle={subtitle}
-    >
       <div className="flex flex-col gap-10">
         {sections.map(section => {
           const categoryTotals = section.categories.reduce((totals, row) => ({
@@ -609,6 +641,6 @@ export const SalesServerReport = () => {
           );
         })}
       </div>
-    </ReportsLayout>
+
   );
 };

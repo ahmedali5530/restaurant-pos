@@ -15,6 +15,8 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminCoupons = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -133,7 +135,7 @@ export const AdminCoupons = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button
+          <HqCatalogBaseOnlyAction><Button
             variant="primary"
             data-testid="admin-add-coupons"
             onClick={() => {
@@ -149,7 +151,7 @@ export const AdminCoupons = () => {
             key="new-coupon"
           >
             Coupon
-          </Button>,
+          </Button></HqCatalogBaseOnlyAction>,
         ]}
       />
 
@@ -167,5 +169,7 @@ export const AdminCoupons = () => {
 
     </>
   );
+
+  useHqCatalogListScope(loadHook);
 };
 

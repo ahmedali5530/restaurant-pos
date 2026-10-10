@@ -24,4 +24,6 @@ export interface TimeEntry {
   late_minutes?: number
   early_leave_minutes?: number
   original_time_entry?: string
+  /** Cloud master only — stamped by sync-service from SYNC_CLIENT_ID. */
+  branch_id?: string | null
 }

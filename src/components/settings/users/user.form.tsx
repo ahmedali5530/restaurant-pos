@@ -29,6 +29,10 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { UserRoleForm } from "@/components/settings/users/roles/role.form.tsx";
 import { ShiftForm } from "@/components/settings/users/shifts/shift.form.tsx";
 import { PROTECTED_LAST_ADMIN_ROLE_NAME } from "@/lib/access.rules.ts";
+import { listSyncBranches } from '@/lib/catalog-publish.ts';
+
+const CATALOG_PUBLISH_ENABLED =
+  String(import.meta.env.VITE_CATALOG_PUBLISH_ENABLED || '').toLowerCase() === 'true';
 
 interface Props {
   open: boolean
@@ -131,6 +135,12 @@ export const UserForm = ({
         password: null,
         create_employee: false,
         employee_number: '',
+        branch_ids: Array.isArray((data as any).branch_ids)
+          ? (data as any).branch_ids.map((id: string) => ({
+              label: id,
+              value: id,
+            }))
+          : [],
       });
     }
   }, [data, reset]);
@@ -176,6 +186,11 @@ export const UserForm = ({
     vals.roles = selectedRoleModules;
     vals.user_shift = values.user_shift?.value ? new StringRecordId(values.user_shift.value) : null;
     vals.login_method = values.login_method.value;
+    const branchIds = CATALOG_PUBLISH_ENABLED
+      ? (values.branch_ids || [])
+          .map((o: any) => String(o?.value || o || '').trim())
+          .filter(Boolean)
+      : undefined;
 
     if (vals.login_method === "pin") {
       vals.password = vals.login;
@@ -260,16 +275,19 @@ export const UserForm = ({
     try {
       if( data?.id ) {
         if (vals.login_method === "pin") {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+            ...vals,
+            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
           });
         } else if (vals.password) {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+            ...vals,
+            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
           });
         } else {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift`, {
-            ...vals
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+            ...vals,
+            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
           });
         }
 
@@ -285,10 +303,13 @@ export const UserForm = ({
           roles: vals.roles,
           user_role: vals.user_role,
           user_shift: vals.user_shift,
+          ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
         };
 
         const result = await db.query(
-          `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift) RETURN AFTER`,
+          branchIds
+            ? `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift, branch_ids) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift, $branch_ids) RETURN AFTER`
+            : `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift) RETURN AFTER`,
           userParams,
         );
         const createdUser = extractFirstRecord<User>(result);
@@ -336,6 +357,30 @@ export const UserForm = ({
 
   const [roleModal, setRoleModal] = useState(false);
   const [shiftModal, setShiftModal] = useState(false);
+  const [branchOptions, setBranchOptions] = useState<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    if (!open || !CATALOG_PUBLISH_ENABLED) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const branches = await listSyncBranches(db);
+        if (cancelled) return;
+        setBranchOptions(
+          branches
+            .filter((b) => b.active !== false)
+            .map((b) => ({
+              label: `${b.name} (${b.client_id})`,
+              value: b.client_id,
+            }))
+        );
+      } catch {
+        // sync_branch may be missing until HQ migration
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- never put db in hook deps
+  }, [open]);
 
   return (
     <>
@@ -420,6 +465,27 @@ export const UserForm = ({
               </div>
               <IconTooltipButton label={t('common:actions.add')} type="button" variant="primary" onClick={() => setShiftModal(true)}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
+
+            {CATALOG_PUBLISH_ENABLED && (
+              <div className="flex-1">
+                <label htmlFor="branch_ids">{t('forms.userBranches')}</label>
+                <Controller
+                  name="branch_ids"
+                  control={control}
+                  render={({field}) => (
+                    <ReactSelect
+                      isMulti
+                      isClearable
+                      value={field.value}
+                      onChange={field.onChange}
+                      options={branchOptions}
+                      placeholder={t('forms.userBranchesShared')}
+                    />
+                  )}
+                />
+                <p className="text-xs text-muted mt-1">{t('forms.userBranchesHint')}</p>
+              </div>
+            )}
 
             {isCreateMode && (
               <div className="flex flex-col gap-3 pt-2 border-t border-border">

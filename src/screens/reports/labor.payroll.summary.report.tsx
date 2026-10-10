@@ -6,10 +6,12 @@ import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getPayrollSummary} from '@/api/reports/labor';
 import type {PayrollSummaryResult} from '@/api/reports/labor/shared/types.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
+import {useReportBranchScope} from '@/hooks/useReportBranchScope.ts';
 
 export const LaborPayrollSummaryReport = () => {
   const {t} = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [summary, setSummary] = useState<PayrollSummaryResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,13 +23,16 @@ export const LaborPayrollSummaryReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const load = async () => {
       try {
         setLoading(true);
         setError(null);
+        // Payroll snapshots are not branch-stamped; branchIds is forwarded for API consistency.
         const data = await getPayrollSummary(
           {query: queryRef.current.bind(db)},
-          {startDate: filters.startDate, endDate: filters.endDate},
+          {startDate: filters.startDate, endDate: filters.endDate, branchIds: branchScope.branchIds},
         );
         setSummary(data);
       } catch (err) {
@@ -37,7 +42,7 @@ export const LaborPayrollSummaryReport = () => {
       }
     };
     void load();
-  }, [filters.startDate, filters.endDate]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate]);
 
   const subtitle = summary?.periodStart && summary?.periodEnd
     ? `${summary.periodStart} to ${summary.periodEnd}`
@@ -47,9 +52,9 @@ export const LaborPayrollSummaryReport = () => {
 
   return (
     <ReportsLayout title={t('titles.payrollSummary')} subtitle={subtitle}>
-      {loading ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
+      {loading || !branchScope.ready ? <div className="py-12 text-center text-muted">{t('loading.chart')}</div> : null}
       {error ? <div className="py-12 text-center text-danger-500">{error}</div> : null}
-      {!loading && !error && summary ? (
+      {!loading && branchScope.ready && !error && summary ? (
         <div className="space-y-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-surface-elevated border rounded-lg p-4"><p className="text-sm text-muted">Employees</p><p className="text-xl font-bold">{formatNumber(summary.employeeCount)}</p></div>

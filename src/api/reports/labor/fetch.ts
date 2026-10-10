@@ -8,7 +8,14 @@ import type {ScheduledShift} from '@/api/model/scheduled_shift.ts';
 import type {TimeEntry} from '@/api/model/time_entry.ts';
 import type {LaborAdjustment} from '@/api/model/labor_adjustment.ts';
 import type {LaborPayRule} from '@/api/model/labor_pay_rule.ts';
-import {buildCreatedAtDateConditions, buildOrConditions, buildStringInsideCondition, toReportBoundaryUtcIso, unwrapQueryResult} from '@/api/reports/shared/query.ts';
+import {
+  buildBranchInsideCondition,
+  buildCreatedAtDateConditions,
+  buildOrConditions,
+  buildStringInsideCondition,
+  toReportBoundaryUtcIso,
+  unwrapQueryResult,
+} from '@/api/reports/shared/query.ts';
 import type {DateRangeFilter, DbClient} from '@/api/reports/shared/types.ts';
 import {toRecordId} from '@/lib/utils.ts';
 
@@ -97,13 +104,14 @@ export const fetchTimeEntries = async (
   const {
     startDate,
     endDate,
+    branchIds,
     employeeIds = [],
     activeOnly = false,
     includeOpen = true,
   } = options;
 
   const conditions: string[] = [];
-  const params: Record<string, string> = {};
+  const params: Record<string, any> = {};
 
   if (activeOnly) {
     conditions.push('clock_out = NONE');
@@ -114,6 +122,15 @@ export const fetchTimeEntries = async (
   const dateFilter = buildDateFieldConditions({startDate, endDate}, 'clock_in');
   conditions.push(...dateFilter.conditions);
   Object.assign(params, dateFilter.params);
+
+  const branchFilter = buildBranchInsideCondition(branchIds);
+  if (branchFilter.emptyResult) {
+    return [];
+  }
+  if (branchFilter.condition) {
+    conditions.push(branchFilter.condition);
+    Object.assign(params, branchFilter.params);
+  }
 
   const employeeFilter = buildOrConditions('employee', employeeIds, 'employee');
   if (employeeFilter.condition) {

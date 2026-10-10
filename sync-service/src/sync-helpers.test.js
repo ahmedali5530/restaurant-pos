@@ -12,8 +12,22 @@ const {
   normalizeSelectPage,
   tableNameFromRecordId,
   jsonSafe,
+  shouldApplyCatalogRow,
+  stripUserSecrets,
+  prepareCatalogPayload,
+  resolveCatalogSyncTables,
+  pickWinningCatalogRelease,
 } = require('./sync-helpers');
-const { resolveIncludeTables, DEFAULT_INCLUDE_TABLES, parseList } = require('./config');
+const {
+  resolveIncludeTables,
+  DEFAULT_INCLUDE_TABLES,
+  DEFAULT_UPLOAD_TABLES,
+  DEFAULT_DOWNLOAD_TABLES,
+  parseList,
+  assertDisjointAllowlists,
+  resolveDistributionMode,
+  loadConfig,
+} = require('./config');
 
 describe('isRetryableError', () => {
   it('retries timeouts', () => {
@@ -197,5 +211,168 @@ describe('resolveIncludeTables', () => {
 
   it('parseList trims empty parts', () => {
     assert.deepEqual(parseList(' a, ,b '), ['a', 'b']);
+  });
+});
+
+describe('distribution allowlists', () => {
+  it('keeps upload and download disjoint by default', () => {
+    assert.doesNotThrow(() => assertDisjointAllowlists(DEFAULT_UPLOAD_TABLES, DEFAULT_DOWNLOAD_TABLES));
+    assert.ok(!DEFAULT_DOWNLOAD_TABLES.includes('order'));
+    assert.ok(DEFAULT_DOWNLOAD_TABLES.includes('menu_item'));
+  });
+
+  it('throws when allowlists overlap', () => {
+    assert.throws(
+      () => assertDisjointAllowlists(['order', 'menu_item'], ['menu_item', 'tax']),
+      /overlap/
+    );
+  });
+
+  it('defaults mode to report_only when master is set and mode unset', () => {
+    assert.equal(resolveDistributionMode({}, 'wss://master'), 'report_only');
+    assert.equal(resolveDistributionMode({}, ''), 'off');
+    assert.equal(resolveDistributionMode({ SYNC_DISTRIBUTION_MODE: 'full' }, 'wss://x'), 'full');
+  });
+
+  it('loadConfig enables download only in full mode', () => {
+    const base = {
+      SYNC_CLIENT_ID: 'b1',
+      SYNC_SOURCE_URL: 'ws://s',
+      SYNC_SOURCE_NS: 'n',
+      SYNC_SOURCE_DB: 'd',
+      SYNC_SOURCE_USER: 'u',
+      SYNC_SOURCE_PASS: 'p',
+      SYNC_MASTER_URL: 'wss://m',
+      SYNC_MASTER_NS: 'n',
+      SYNC_MASTER_DB: 'd',
+      SYNC_MASTER_USER: 'u',
+      SYNC_MASTER_PASS: 'p',
+    };
+    const report = loadConfig({ ...base });
+    assert.equal(report.distributionMode, 'report_only');
+    assert.equal(report.uploadEnabled, true);
+    assert.equal(report.downloadEnabled, false);
+
+    const full = loadConfig({ ...base, SYNC_DISTRIBUTION_MODE: 'full' });
+    assert.equal(full.downloadEnabled, true);
+    assert.ok(full.downloadTables.includes('menu_item'));
+  });
+});
+
+describe('catalog row filter and secrets', () => {
+  it('applies shared and matching branch rows only', () => {
+    assert.equal(shouldApplyCatalogRow({ name: 'A' }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: null }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: 'b1' }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'A', branch_id: 'b2' }, 'b1'), false);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b2'), false);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: [] }, 'b1'), true);
+  });
+
+  it('strips user secrets', () => {
+    const cleaned = prepareCatalogPayload('user', {
+      name: 'Sam',
+      password: 'secret',
+      pin: '1234',
+      password_hash: 'x',
+    });
+    assert.equal(cleaned.name, 'Sam');
+    assert.equal(cleaned.password, undefined);
+    assert.equal(cleaned.pin, undefined);
+    assert.equal(stripUserSecrets({ pin: '1' }).pin, undefined);
+    const dish = prepareCatalogPayload('menu_item', { name: 'Wings', price: 1 });
+    assert.deepEqual(dish.categories, []);
+    const user = prepareCatalogPayload('user', { name: 'A', password: 'x' });
+    assert.deepEqual(user.roles, []);
+    assert.equal(user.password, undefined);
+
+    const sparse = prepareCatalogPayload('discount', {
+      name: 'fix',
+      type: 'Fixed',
+      priority: 1,
+      category: null,
+      application_mode: null,
+    });
+    assert.equal(sparse.name, 'fix');
+    assert.equal(sparse.type, 'Fixed');
+    assert.equal(sparse.priority, 1);
+    assert.equal('category' in sparse, true);
+    assert.equal(sparse.application_mode, 'manual');
+    assert.equal(sparse.scope, 'cart');
+  });
+});
+
+describe('resolveCatalogSyncTables (Phase 5)', () => {
+  const allowlist = ['menu_item', 'category', 'tax', 'floor'];
+
+  it('returns full allowlist when releases omit tables', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 1,
+        globalRelease: { version: 2 },
+        branchRelease: null,
+      }),
+      allowlist
+    );
+  });
+
+  it('intersects declared tables with allowlist', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 1,
+        globalRelease: { version: 3, tables: ['menu_item', 'tax', 'order'] },
+      }),
+      ['menu_item', 'tax']
+    );
+  });
+
+  it('unions tables from tip releases newer than local', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 2,
+        globalRelease: { version: 3, tables: ['menu_item'] },
+        branchRelease: { version: 4, tables: ['tax', 'floor'] },
+      }),
+      ['menu_item', 'tax', 'floor']
+    );
+  });
+
+  it('ignores tip releases already applied locally', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 5,
+        globalRelease: { version: 3, tables: ['menu_item'] },
+        branchRelease: { version: 4, tables: ['tax'] },
+      }),
+      // force / already current → use winning tip (branch 4)
+      ['tax']
+    );
+  });
+
+  it('falls back to full allowlist when intersection empty', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist,
+        localVersion: 0,
+        globalRelease: { version: 1, tables: ['not_a_catalog_table'] },
+      }),
+      allowlist
+    );
+  });
+
+  it('pickWinningCatalogRelease prefers higher version then branch on tie', () => {
+    assert.equal(
+      pickWinningCatalogRelease({ version: 2 }, { version: 5 }).version,
+      5
+    );
+    const branch = { version: 3, id: 'b' };
+    const global = { version: 3, id: 'g' };
+    assert.equal(pickWinningCatalogRelease(global, branch), branch);
+    assert.equal(pickWinningCatalogRelease(global, null), global);
   });
 });

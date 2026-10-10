@@ -80,9 +80,10 @@ bypasses the backoff.
 includes `catalogComplete: true` so the terminal can project the menu while
 operational tables (`customer`, orders, …) continue. Operational tables are
 filtered to keep hydration bounded: orders that are `In Progress` or created
-in the last 3 days (`order`, `order_item`, `order_item_kitchen`).
-`order` rows are returned with `FETCH payments, order_taxes, order_discounts,
-extras, coupon`; the client expands them into child stores.
+in the last **1 day** (`order`, `order_item`, `order_item_kitchen`,
+voids/refunds/prints). `order` rows are returned with `FETCH payments,
+order_taxes, order_discounts, extras, coupon`; the client expands them into
+child stores.
 
 When the last record page finishes, the snapshot returns `complete: true`
 with no events phase. Records are the truth at snapshot time; the client

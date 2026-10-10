@@ -239,7 +239,13 @@
     "location": "Posizione",
     "selectDate": "Seleziona data",
     "allShifts": "Tutti i turni del giorno",
-    "cashClosingShiftHint": "Scegli un turno per aprire solo quella chiusura, oppure lascia vuoto per vedere tutte le chiusure del giorno e passare da una all’altra nel report."
+    "cashClosingShiftHint": "Scegli un turno per aprire solo quella chiusura, oppure lascia vuoto per vedere tutte le chiusure del giorno e passare da una all’altra nel report.",
+    "branches": "Sedi",
+    "branchesAll": "Tutte le sedi",
+    "branchesHelp": "Lascia vuoto per includere tutte le sedi a cui hai accesso.",
+    "branchView": "Vista",
+    "branchViewCombined": "Combinata",
+    "branchViewByBranch": "Per sede"
   },
   "datePresets": {
     "today": "Oggi",
@@ -587,6 +593,8 @@
     "refunds": "Rimborsi",
     "closingsForDay": "Chiusure di questo giorno",
     "closingsCount": "{{count}} chiusure",
+    "branchTotal": "Totale",
+    "branch": "Sede",
     "selfOrders": "Ordini QR self-service",
     "selfOrdersHint": "Pagati online dagli ospiti al tavolo — non inclusi nel cassetto contanti né nel batch carte sopra.",
     "selfOrdersTotal": "Pagato online",

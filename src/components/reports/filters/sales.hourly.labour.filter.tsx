@@ -3,6 +3,7 @@ import {REPORTS_SALES_HOURLY_LABOUR} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 export const SalesHourlyLabourFilter = () => {
   const { t } = useTranslation('reports');
@@ -13,6 +14,8 @@ export const SalesHourlyLabourFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range"/>
+
+      <BranchScopeFilter />
 
       <div>
         <label htmlFor="hours" className="form-label">{t('metrics.hours')}</label>

@@ -24,4 +24,6 @@ export interface OrderVoid {
   order_item: OrderItem
   quantity: number
   items?: OrderItem[]
+  /** Cloud master only — stamped by sync-service from SYNC_CLIENT_ID. */
+  branch_id?: string | null
 }

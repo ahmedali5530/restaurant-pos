@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import {REPORTS_AUDIT, REPORTS_SALES_SUMMARY} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 export const SalesSummaryFilter = () => {
   const { t } = useTranslation('reports');
@@ -12,6 +13,8 @@ export const SalesSummaryFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <Button
         variant="primary"

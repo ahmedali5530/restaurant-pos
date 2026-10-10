@@ -67,6 +67,9 @@ export interface Order extends ID{
   owner_terminal_id?: string | null
   owner_heartbeat_at?: DateTime | string | null
   server_version?: number | null
+
+  /** Cloud master only — stamped by sync-service from SYNC_CLIENT_ID. */
+  branch_id?: string | null
 }
 
 export interface OrderExtra extends ID{

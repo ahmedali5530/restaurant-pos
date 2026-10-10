@@ -35,6 +35,8 @@ import {
 } from "@/api/model/modifier.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -237,6 +239,8 @@ const ModifierNextGroups = ({
 
 export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.modifier_groups);
+  const structuralLocked = lockStructuralFields(data);
   const closeModal = () => {
     onClose();
   }
@@ -267,6 +271,8 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     let cancelled = false;
 
     const loadForm = async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      const src: any = merged || data;
       const modifiers = await Promise.all(
         data.modifiers.map(async (item) => {
           const dishId = toRecordId(item.modifier.id).toString();
@@ -289,8 +295,8 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
 
       if (!cancelled) {
         reset({
-          name: data.name,
-          priority: data.priority.toString(),
+          name: src.name ?? data.name,
+          priority: String(src.priority ?? data.priority ?? ''),
           modifiers,
         });
       }
@@ -301,7 +307,8 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [data, open, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, open, reset, isBranchEditMode]);
 
   useEffect(() => {
     if (open) {
@@ -328,57 +335,85 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
     const vals = { ...values };
 
     vals.priority = Number(vals.priority);
-    const modifiers = [];
-    if (vals.modifiers) {
-      for (const m of vals.modifiers) {
-        const allowedNextGroups = (m.allowed_next_groups ?? []).map((id: string) => toRecordId(id));
-
-        if (m?.id) {
-          await db.merge(toRecordId(m.id), {
-            modifier: toRecordId(m.modifier.value),
-            price: Number(m.price),
-            allowed_next_groups: allowedNextGroups,
-            next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
-          });
-
-          modifiers.push(toRecordId(m.id));
-        } else {
-          const [record] = await db.create(Tables.modifiers, {
-            modifier: toRecordId(m.modifier.value),
-            price: m.price,
-            allowed_next_groups: allowedNextGroups,
-            next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
-          });
-
-          modifiers.push(record.id);
-        }
-      }
-
-      vals.modifiers = modifiers;
-    }
 
     try {
-      if (data?.id) {
-        await db.merge(toRecordId(data.id), {
-          ...vals
-        })
-      } else {
-        await db.create(Tables.modifier_groups, {
-          ...vals
-        });
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.modifier_groups,
-        entityId: data?.id ? String(data.id) : Tables.modifier_groups,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          priority: vals.priority,
+          color: vals.color,
+          background: vals.background,
+        },
+        structuralWrite: async () => {
+          const modifiers = [];
+          if (vals.modifiers) {
+            for (const m of vals.modifiers) {
+              const allowedNextGroups = (m.allowed_next_groups ?? []).map((id: string) => toRecordId(id));
+
+              if (m?.id) {
+                await db.merge(toRecordId(m.id), {
+                  modifier: toRecordId(m.modifier.value),
+                  price: Number(m.price),
+                  allowed_next_groups: allowedNextGroups,
+                  next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
+                });
+
+                modifiers.push(toRecordId(m.id));
+              } else {
+                const [record] = await db.create(Tables.modifiers, {
+                  modifier: toRecordId(m.modifier.value),
+                  price: m.price,
+                  allowed_next_groups: allowedNextGroups,
+                  next_group_overrides: normalizeNextGroupOverrides(m.next_group_overrides),
+                });
+
+                modifiers.push(record.id);
+              }
+            }
+
+            vals.modifiers = modifiers;
+          }
+
+          if (data?.id) {
+            await db.merge(toRecordId(data.id), {
+              ...vals,
+              ...(soleBranchId && isBranchOwnedBy(data)
+                ? { branch_id: soleBranchId }
+                : {}),
+            });
+          } else {
+            await db.create(Tables.modifier_groups, {
+              ...vals,
+              ...(soleBranchId ? { branch_id: soleBranchId } : {}),
+            });
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.modifier_groups,
+            entityId: data?.id ? String(data.id) : Tables.modifier_groups,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.modifierGroupSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.modifierGroupSaved', { name: values.name })
+      );
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -397,9 +432,12 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
         size="lg"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="mb-3 flex gap-3">
             <div>
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div>
               <Controller
@@ -419,7 +457,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
           </div>
 
           <div className="mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3">
+            <fieldset className="border-2 border-border rounded-lg p-3" disabled={structuralLocked}>
               <legend>{t('columns.modifiers')}</legend>
 
               <div className="flex gap-3 mb-3">
@@ -430,11 +468,11 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                     allowed_next_groups: [],
                     next_group_overrides: [],
                   })
-                }} variant="primary" type="button" icon={faPlus}>{t('entities.modifier')}</Button>
+                }} variant="primary" type="button" icon={faPlus} disabled={structuralLocked}>{t('entities.modifier')}</Button>
 
                 <Button onClick={() => {
                   setDishModal(true)
-                }} variant="primary" type="button" icon={faPlus} flat>{t('forms.newModifier')}</Button>
+                }} variant="primary" type="button" icon={faPlus} flat disabled={structuralLocked}>{t('forms.newModifier')}</Button>
               </div>
 
               {fields.map((item, index) => (
@@ -469,6 +507,7 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                             value: dish.id.toString()
                           }))}
                           isLoading={loadingDishes}
+                          isDisabled={structuralLocked}
                         />
                       )}
                     />
@@ -483,13 +522,14 @@ export const ModifierGroupForm = ({ open, onClose, data }: Props) => {
                           label={t('common:actions.price')}
                           value={field.value}
                           onChange={field.onChange}
+                          disabled={structuralLocked}
                         />
                       )}
                     />
                   </div>
                   <div className="self-start flex flex-col">
                     <label htmlFor="">&nbsp;</label>
-                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" type="button" onClick={() => remove(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash} /></IconTooltipButton>
                   </div>
                   <ModifierNextGroups
                     index={index}

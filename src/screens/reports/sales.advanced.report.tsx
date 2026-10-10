@@ -20,6 +20,11 @@ import {
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const recordToString = (value: any): string => recordIdToString(value);
 
 const collectMenuDishIds = (menus: Menu[]): Set<string> => {
@@ -121,11 +126,11 @@ const parseFilters = (): ReportFilters => {
 export const SalesAdvancedReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
-  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +143,8 @@ export const SalesAdvancedReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -307,6 +314,17 @@ export const SalesAdvancedReport = () => {
           }
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          setOrderVoids([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          orderConditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const totalQuery = `math::sum(payments.map(|$v| $v.payable)) as ttl`;
         const ordersQuery = `
             SELECT *, ${totalQuery}
@@ -322,6 +340,10 @@ export const SalesAdvancedReport = () => {
           {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
           "created_at",
         );
+        if (branchFilter.condition) {
+          voidConditions.push(branchFilter.condition);
+          Object.assign(voidParams, branchFilter.params);
+        }
         const voidsQuery = `
             SELECT *
             FROM ${Tables.order_voids} ${voidConditions.length ? `WHERE ${voidConditions.join(" AND ")}` : ""}
@@ -339,6 +361,8 @@ export const SalesAdvancedReport = () => {
 
     fetchData();
   }, [
+    branchScope.ready,
+    branchScope.branchIds,
     filters.startDate,
     filters.endDate,
     filters.refund,
@@ -359,6 +383,63 @@ export const SalesAdvancedReport = () => {
     filters.sortBy, filters.sortDirection
   ]);
 
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.salesAdvanced')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => {
+          const voidsForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? orderVoids
+              : orderVoids.filter((v) => getRowBranchId(v) === key);
+          return (
+            <SalesAdvancedBody
+              key={key}
+              orders={rows}
+              orderVoids={voidsForSection}
+              filters={filters}
+              showInclusive={showInclusive}
+            />
+          );
+        }}
+      />
+    </ReportsLayout>
+  );
+};
+
+const SalesAdvancedBody = ({
+  orders,
+  orderVoids,
+  filters,
+  showInclusive,
+}: {
+  orders: Order[];
+  orderVoids: OrderVoid[];
+  filters: ReturnType<typeof parseFilters>;
+  showInclusive: boolean;
+}) => {
+  const { t } = useTranslation('reports');
+  const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
   const filteredOrders = orders;
   const baseColumns = 10;
   const detailsColumns = filters.showDetails ? 14 : 1;
@@ -481,24 +562,8 @@ export const SalesAdvancedReport = () => {
     [orderVoids],
   );
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.salesAdvanced')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
 
   return (
-    <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
       <div className="space-y-8">
         {/* Summary Totals */}
         <div className="overflow-hidden rounded-lg border border-border">
@@ -778,6 +843,5 @@ export const SalesAdvancedReport = () => {
         </div>
 
       </div>
-    </ReportsLayout>
   );
 };

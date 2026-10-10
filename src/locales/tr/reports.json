@@ -239,7 +239,13 @@
     "location": "Konum",
     "selectDate": "Tarih seç",
     "allShifts": "Günün tüm vardiyaları",
-    "cashClosingShiftHint": "Yalnızca o kapanışı açmak için bir vardiya seçin; günün tüm kapanışlarını görüp raporda aralarında geçiş yapmak için boş bırakın."
+    "cashClosingShiftHint": "Yalnızca o kapanışı açmak için bir vardiya seçin; günün tüm kapanışlarını görüp raporda aralarında geçiş yapmak için boş bırakın.",
+    "branches": "Şubeler",
+    "branchesAll": "Tüm şubeler",
+    "branchesHelp": "Erişiminiz olan tüm şubeleri dahil etmek için boş bırakın.",
+    "branchView": "Görünüm",
+    "branchViewCombined": "Birleşik",
+    "branchViewByBranch": "Şubeye göre"
   },
   "datePresets": {
     "today": "Bugün",
@@ -587,6 +593,8 @@
     "refunds": "İadeler",
     "closingsForDay": "Bu günün kapanışları",
     "closingsCount": "{{count}} kapanış",
+    "branchTotal": "Toplam",
+    "branch": "Şube",
     "selfOrders": "QR self-siparişler",
     "selfOrdersHint": "Misafirler tarafından masada çevrimiçi ödendi — yukarıdaki kasa çekmecesine veya kart grubuna dahil değil.",
     "selfOrdersTotal": "Çevrimiçi ödenen",

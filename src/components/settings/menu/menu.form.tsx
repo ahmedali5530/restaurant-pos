@@ -15,6 +15,8 @@ import { nowSurrealDateTime, toJsDate, toSurrealDateTime } from "@/lib/datetime.
 import { InputField, TimeField } from "@/components/common/form/rhf-fields.tsx";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -33,6 +35,8 @@ export const MenuForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.menus);
+  const structuralLocked = lockStructuralFields(data);
 
   // Helper function to convert Date to time string (HH:mm)
   const dateToTimeString = (date: unknown): string | null => {
@@ -70,17 +74,24 @@ export const MenuForm = ({
   });
 
   useEffect(() => {
-    if(data){
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
         ...data,
         name: data.name,
         start_from: dateToTimeString(data.start_from),
         end_time: dateToTimeString(data.end_time),
         ends_on_next_day: data.ends_on_next_day || false,
-        active: data.active !== undefined ? data.active : true,
+        active: src.active !== undefined ? src.active : (data.active !== undefined ? data.active : true),
       });
-    }
-  }, [data, reset]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const db = useDB();
 
@@ -98,36 +109,65 @@ export const MenuForm = ({
     }
 
     try {
-      if(data?.id){
-        await db.merge(data.id, {
-          name: vals.name,
-          start_from: vals.start_from,
-          end_time: vals.end_time,
-          ends_on_next_day: vals.ends_on_next_day,
-          active: vals.active !== undefined ? vals.active : true
-        })
-      }else{
-        await db.create(Tables.menus, {
-          name: vals.name,
-          start_from: vals.start_from,
-          end_time: vals.end_time,
-          ends_on_next_day: vals.ends_on_next_day,
-          active: vals.active !== undefined ? vals.active : true,
-          items: []
-        });
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.menus,
-        entityId: data?.id ? String(data.id) : Tables.menus,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      const active = vals.active !== undefined ? vals.active : true;
+
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          active,
+        },
+        structuralWrite: async () => {
+          const stamp =
+            soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {};
+          if (data?.id) {
+            await db.merge(data.id, {
+              name: vals.name,
+              start_from: vals.start_from,
+              end_time: vals.end_time,
+              ends_on_next_day: vals.ends_on_next_day,
+              active,
+              ...stamp,
+            });
+          } else {
+            await db.create(Tables.menus, {
+              name: vals.name,
+              start_from: vals.start_from,
+              end_time: vals.end_time,
+              ends_on_next_day: vals.ends_on_next_day,
+              active,
+              items: [],
+              ...stamp,
+            });
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.menus,
+            entityId: data?.id ? String(data.id) : Tables.menus,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.menuSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.menuSaved', { name: values.name })
+      );
     }catch(e){
       toast.error(e);
       console.log(e)
@@ -143,51 +183,60 @@ export const MenuForm = ({
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} />
+              <InputField name="name" control={control} label={t('columns.name')} autoFocus error={errors?.name?.message} disabled={structuralLocked} />
             </div>
           </div>
-          <div className="flex gap-3 mb-3">
-            <div className="flex-1">
-              <TimeField
-                name="start_from"
-                control={control}
-                label={t('columns.startTime')}
-                error={errors?.start_from?.message}
-              />
+          <fieldset className="border-0 p-0 m-0 min-w-0" disabled={structuralLocked}>
+            <div className="flex gap-3 mb-3">
+              <div className="flex-1">
+                <TimeField
+                  name="start_from"
+                  control={control}
+                  label={t('columns.startTime')}
+                  error={errors?.start_from?.message}
+                />
+              </div>
+              <div className="flex-1">
+                <TimeField
+                  name="end_time"
+                  control={control}
+                  label={t('columns.endTime')}
+                  error={errors?.end_time?.message}
+                />
+              </div>
             </div>
-            <div className="flex-1">
-              <TimeField
-                name="end_time"
-                control={control}
-                label={t('columns.endTime')}
-                error={errors?.end_time?.message}
-              />
+            <div className="mb-3">
+              <div className="flex-1">
+                <Controller
+                  name={`ends_on_next_day`}
+                  control={control}
+                  render={({ field }) => (
+                    <div>
+                      <Switch checked={field.value || false} onChange={field.onChange}>
+                        Ends on next day
+                      </Switch>
+                    </div>
+                  )}
+                />
+              </div>
             </div>
-          </div>
-          <div className="mb-3">
-            <div className="flex-1">
-              <Controller
-                name={`ends_on_next_day`}
-                control={control}
-                render={({ field }) => (
-                  <Switch checked={field.value || false} onChange={field.onChange}>
-                    Ends on next day
-                  </Switch>
-                )}
-              />
-            </div>
-          </div>
+          </fieldset>
           <div className="mb-3">
             <div className="flex-1">
               <Controller
                 name={`active`}
                 control={control}
                 render={({ field }) => (
-                  <Switch checked={field.value !== undefined ? field.value : true} onChange={field.onChange}>
-                    Active
-                  </Switch>
+                  <div>
+                    <Switch checked={field.value !== undefined ? field.value : true} onChange={field.onChange}>
+                      Active
+                    </Switch>
+                  </div>
                 )}
               />
             </div>

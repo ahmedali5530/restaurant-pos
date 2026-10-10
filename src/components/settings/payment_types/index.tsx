@@ -18,6 +18,8 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createPaymentTypeImportConfig} from "@/components/settings/payment_types/payment-type.import.config.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminPaymentTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -33,6 +35,8 @@ export const AdminPaymentTypes = () => {
     () => createPaymentTypeImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<PaymentType>();
 
@@ -124,7 +128,7 @@ export const AdminPaymentTypes = () => {
               description: getAccessRuleChildLabel('admin.payment_types.import'),
             });
           }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -132,7 +136,7 @@ export const AdminPaymentTypes = () => {
               module: 'admin.payment_types.create',
               description: getAccessRuleChildLabel('admin.payment_types.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button>
+          }} icon={faPlus} data-testid="admin-add-payment_types">{t('buttons.paymentType')}</Button></HqCatalogBaseOnlyAction>
         ]}
       />
 

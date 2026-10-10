@@ -10,8 +10,10 @@ import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
-import {buildCreatedAtDateConditions, buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
+import {buildBranchInsideCondition, buildCreatedAtDateConditions, buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -62,6 +64,7 @@ interface MenuItemMetrics {
 export const ProductHourlyReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,6 +80,8 @@ export const ProductHourlyReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -92,6 +97,16 @@ export const ProductHourlyReport = () => {
         if (menuItemFilter.condition) {
           conditions.push(menuItemFilter.condition);
           Object.assign(params, menuItemFilter.params);
+        }
+
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
         }
 
         const ordersQuery = `
@@ -111,7 +126,49 @@ export const ProductHourlyReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.menuItemIds]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.menuItemIds]);
+
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.productHourly')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
+      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <ProductHourlyBody key={key} orders={rows} filters={filters} />
+        )}
+      />
+    </ReportsLayout>
+  );
+}
+
+const ProductHourlyBody = ({
+  orders,
+  filters,
+}: {
+  orders: Order[];
+  filters: ReportFilters;
+}) => {
+  const { t } = useTranslation('reports');
 
   // Calculate metrics grouped by menu item and hour
   const menuItemMetrics = useMemo(() => {
@@ -227,25 +284,7 @@ export const ProductHourlyReport = () => {
     return totals;
   }, [menuItemMetrics]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.productHourly')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t('titles.productHourly')} subtitle={subtitle}>
-      <div className="alert alert-warning">This report doesn't include taxes, discounts, service charges, extras and tips</div>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-border">
           <thead className="bg-surface">
@@ -344,6 +383,5 @@ export const ProductHourlyReport = () => {
           </tfoot>
         </table>
       </div>
-    </ReportsLayout>
   );
 }

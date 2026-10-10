@@ -16,10 +16,14 @@ import { terminalSyncService } from "@/infrastructure/sync/sync-service.ts";
 import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 import type { SyncConflictRow } from "@/infrastructure/pos-store/types.ts";
 import { cn } from "@/lib/utils.ts";
-import { REPORTS } from "@/routes/posr.ts";
+import { REPORTS, ADMIN } from "@/routes/posr.ts";
+import { HqCatalogBranchToolbarSlot } from "@/components/settings/hq_catalog_branch_banner.tsx";
 
 /** Must match `html[data-app-toolbar='1'] { --app-toolbar-h }` in app.scss. */
-export const APP_TOOLBAR_HEIGHT = "2.75rem";
+export const APP_TOOLBAR_HEIGHT = "3.5rem";
+
+const CATALOG_PUBLISH_ENABLED =
+  String(import.meta.env.VITE_CATALOG_PUBLISH_ENABLED || "").toLowerCase() === "true";
 
 const shortId = (value?: string): string => {
   if (!value) return "";
@@ -225,12 +229,17 @@ export function AppToolbar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-end gap-3 border-t border-border bg-surface-elevated px-4"
+      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-between gap-3 border-t border-border bg-surface-elevated px-4"
       data-testid="app-toolbar"
       style={{ height: APP_TOOLBAR_HEIGHT }}
     >
-      {/* Future toolbar slots go here (left / center). */}
-      <div className="relative flex items-center">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        {CATALOG_PUBLISH_ENABLED && pathname.replace(/\/+$/, "") === ADMIN && (
+          <HqCatalogBranchToolbarSlot />
+        )}
+        {/* Future left/center slots: sync progress, printers, clock, … */}
+      </div>
+      <div className="relative flex shrink-0 items-center">
         {showConflicts && (
           <SyncConflictPanel onChanged={() => setSync(getSyncStatus())} />
         )}

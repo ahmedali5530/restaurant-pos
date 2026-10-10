@@ -162,7 +162,7 @@ export const getServerSales = async (db: DbClient, options: DateRangeFilter & {l
 
   orders.forEach(order => {
     const user = order.user as {id?: unknown; first_name?: string; last_name?: string} | undefined;
-    const userId = recordToString(user?.id ?? user);
+    const userId = recordIdToString(user?.id ?? user);
     const userName = user
       ? `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown"
       : "Unknown";
@@ -247,7 +247,7 @@ export const getHourlyProductSales = async (
     const hour = DateTime.fromJSDate(jsDate).hour;
 
     getOrderFilteredItems(order).forEach(item => {
-      const dishId = recordToString((item.item as {id?: unknown})?.id ?? item.item);
+      const dishId = recordIdToString((item.item as {id?: unknown})?.id ?? item.item);
       const name = (item.item as {name?: string})?.name ?? "Unknown";
       const key = `${dishId}-${hour}`;
       const revenue = safeNumber(calculateOrderItemPrice(item));
@@ -278,7 +278,7 @@ export const listStaff = async (db: DbClient, options: {search?: string; limit?:
 
   return users
     .map(user => ({
-      id: recordToString(user.id),
+      id: recordIdToString(user.id),
       name: `${user.first_name || ""} ${user.last_name || ""}`.trim(),
     }))
     .filter(user => !search || user.name.toLowerCase().includes(search));

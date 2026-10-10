@@ -57,14 +57,16 @@ const LAST_CATALOG_TABLE_INDEX = SNAPSHOT_TABLES.indexOf('printer');
 /**
  * Operational tables are snapshotted for open + recent orders only; history is
  * served by SurrealDB reports, not the terminal cache.
+ * Window is 1 day of settled traffic (plus all open checks). History stays
+ * on Surreal reports, not the terminal Dexie cache.
  */
 const SNAPSHOT_FILTERS = {
-  order: `(status = 'In Progress' OR created_at > time::now() - 3d)`,
-  order_item: `(order.status = 'In Progress' OR created_at > time::now() - 3d)`,
-  order_item_kitchen: `(order_item.order.status = 'In Progress' OR created_at > time::now() - 3d)`,
-  order_void: `(order.status = 'In Progress' OR created_at > time::now() - 3d)`,
-  order_refund: `(order.status = 'In Progress' OR created_at > time::now() - 3d)`,
-  order_print: `(order.status = 'In Progress' OR printed_at > time::now() - 3d)`,
+  order: `(status = 'In Progress' OR created_at > time::now() - 1d)`,
+  order_item: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
+  order_item_kitchen: `(order_item.order.status = 'In Progress' OR created_at > time::now() - 1d)`,
+  order_void: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
+  order_refund: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
+  order_print: `(order.status = 'In Progress' OR printed_at > time::now() - 1d)`,
   coupon_redemption: `(created_at > time::now() - 90d)`,
 };
 
