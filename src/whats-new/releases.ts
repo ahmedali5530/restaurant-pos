@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-10',
+    title: 'Stable HQ branch record ids',
+    items: [
+      'Registering sync branches with hyphenated client ids (for example branch-02 or CLIENT-001) no longer collapses to the same Surreal record and overwrite prior stores.',
+      'Opening Catalog publish repairs any truncated sync_branch ids left from earlier saves.',
+    ],
+  },
+  {
     date: '2026-10-08',
     title: 'Multi-branch HQ reports',
     items: [

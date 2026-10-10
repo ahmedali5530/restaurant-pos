@@ -1,4 +1,4 @@
-import { toRecordId } from '@/lib/utils.ts';
+import { RecordId } from 'surrealdb';
 import { sanitizeBranchReleaseKey } from '@/lib/catalog-sync-tables.ts';
 import { nowSurrealDateTime, toSurrealDateTime } from '@/lib/datetime.ts';
 
@@ -49,15 +49,76 @@ function asRows<T>(result: unknown): T[] {
   return [];
 }
 
-export function catalogReleaseThing(key: string): any {
-  return toRecordId(`catalog_release:${key}`);
+/**
+ * Prefer RecordId(table, key) over StringRecordId("table:key").
+ * Hyphenated keys like `branch-02` / `CLIENT-001` are parsed as subtraction
+ * when passed as `table:branch-02`, collapsing every id to `sync_branch:branch`
+ * and overwriting prior rows. RecordId emits `table:⟨branch-02⟩`.
+ */
+export function catalogReleaseThing(key: string): RecordId {
+  return new RecordId('catalog_release', String(key || '').trim());
 }
 
-export function syncBranchThing(clientId: string): any {
-  return toRecordId(`sync_branch:${sanitizeBranchReleaseKey(clientId)}`);
+export function syncBranchThing(clientId: string): RecordId {
+  return new RecordId('sync_branch', sanitizeBranchReleaseKey(clientId));
+}
+
+function recordIdKey(id: unknown): string {
+  if (id == null) return '';
+  if (typeof id === 'object' && id !== null && 'id' in (id as any)) {
+    return String((id as {id: unknown}).id ?? '');
+  }
+  const raw = String(id);
+  const idx = raw.indexOf(':');
+  if (idx < 0) return raw;
+  let key = raw.slice(idx + 1);
+  if (key.startsWith('⟨') && key.endsWith('⟩')) {
+    key = key.slice(1, -1);
+  }
+  return key;
+}
+
+/**
+ * Rewrite truncated sync_branch ids created via StringRecordId("table:id-with-hyphen").
+ * Safe to call repeatedly — no-ops when the record id already matches client_id.
+ */
+export async function repairTruncatedSyncBranchIds(db: DbLike): Promise<number> {
+  const rows = asRows<any>(await db.query(`SELECT * FROM sync_branch`));
+  let repaired = 0;
+  for (const row of rows) {
+    const clientId = String(row.client_id || '').trim();
+    if (!clientId) continue;
+    const expectedKey = sanitizeBranchReleaseKey(clientId);
+    const actualKey = recordIdKey(row.id);
+    if (!expectedKey || actualKey === expectedKey) continue;
+
+    const thing = syncBranchThing(clientId);
+    await db.upsert(thing, {
+      client_id: clientId,
+      name: String(row.name || clientId),
+      active: row.active !== false,
+      created_at: row.created_at
+        ? toSurrealDateTime(row.created_at)
+        : nowSurrealDateTime(),
+      updated_at: nowSurrealDateTime(),
+    });
+    try {
+      // Delete the truncated leftover (e.g. sync_branch:branch).
+      await db.query(`DELETE $old`, {old: row.id});
+    } catch {
+      // Best-effort; duplicate client_id unique index may already block the old row.
+    }
+    repaired += 1;
+  }
+  return repaired;
 }
 
 export async function listSyncBranches(db: DbLike): Promise<SyncBranch[]> {
+  try {
+    await repairTruncatedSyncBranchIds(db);
+  } catch {
+    // Listing must still work if repair cannot run (permissions / older schema).
+  }
   const rows = asRows<any>(
     await db.query(`SELECT * FROM sync_branch ORDER BY name ASC`)
   );
