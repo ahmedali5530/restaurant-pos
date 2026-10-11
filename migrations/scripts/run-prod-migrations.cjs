@@ -114,6 +114,7 @@ const MIGRATION_PLAN = [
   { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
   { id: '2026_10_02_payroll_snapshot_currency', file: '2026_10_02_payroll_snapshot_currency.surql' },
   { id: '2026_10_08_ledger_location_type', file: '2026_10_08_ledger_location_type.surql' },
+  { id: '2026_10_11_settings_branding_access', file: '2026_10_11_settings_branding_access.surql' },
 ];
 
 const rows = (result) => {

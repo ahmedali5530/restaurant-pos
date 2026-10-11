@@ -38,6 +38,21 @@
     "colorPrimary": "Primario",
     "colorBorder": "Bordo"
   },
+  "branding": {
+    "title": "Branding",
+    "description": "Carica il logo del ristorante da mostrare nella schermata di accesso sotto il marchio POSR.",
+    "logo": "Logo del brand",
+    "logoHint": "PNG, JPEG, GIF o WebP. Max 500 KB.",
+    "upload": "Carica logo",
+    "remove": "Rimuovi logo",
+    "preview": "Anteprima logo",
+    "updated": "Impostazioni branding aggiornate",
+    "saveDescription": "Salva impostazioni branding",
+    "tooLarge": "Il file supera la dimensione massima di {{size}}.",
+    "invalidType": "Usa un’immagine PNG, JPEG, GIF o WebP.",
+    "readFailed": "Impossibile leggere il file immagine",
+    "saveFailed": "Salvataggio delle impostazioni branding non riuscito"
+  },
   "touch": {
     "title": "Tastiera su schermo",
     "description": "Abilita o disabilita la tastiera su schermo. Si applica solo a questo dispositivo."

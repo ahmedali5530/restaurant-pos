@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-11',
+    title: 'Login branding',
+    items: [
+      'Settings → Branding lets you upload a restaurant logo shown on the login screen under the POSR mark.',
+      'The login page is split into a logo panel and the PIN or form sign-in on larger screens.',
+    ],
+  },
+  {
     date: '2026-10-08',
     title: 'Purchase AI import improvements',
     items: [

@@ -38,6 +38,21 @@
     "colorPrimary": "Primär",
     "colorBorder": "Rahmen"
   },
+  "branding": {
+    "title": "Branding",
+    "description": "Laden Sie Ihr Restaurantlogo hoch, das auf dem Anmeldebildschirm unter dem POSR-Zeichen angezeigt wird.",
+    "logo": "Markenlogo",
+    "logoHint": "PNG, JPEG, GIF oder WebP. Max. 500 KB.",
+    "upload": "Logo hochladen",
+    "remove": "Logo entfernen",
+    "preview": "Logo-Vorschau",
+    "updated": "Branding-Einstellungen aktualisiert",
+    "saveDescription": "Branding-Einstellungen speichern",
+    "tooLarge": "Die Datei überschreitet die maximale Größe von {{size}}.",
+    "invalidType": "Verwenden Sie ein PNG-, JPEG-, GIF- oder WebP-Bild.",
+    "readFailed": "Bilddatei konnte nicht gelesen werden",
+    "saveFailed": "Branding-Einstellungen konnten nicht gespeichert werden"
+  },
   "touch": {
     "title": "Bildschirmtastatur",
     "description": "Bildschirmtastatur aktivieren oder deaktivieren. Gilt nur für dieses Gerät."

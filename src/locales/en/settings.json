@@ -38,6 +38,21 @@
     "colorPrimary": "Primary",
     "colorBorder": "Border"
   },
+  "branding": {
+    "title": "Branding",
+    "description": "Upload your restaurant logo to show on the login screen below the POSR mark.",
+    "logo": "Brand logo",
+    "logoHint": "PNG, JPEG, GIF, or WebP. Max 500 KB.",
+    "upload": "Upload logo",
+    "remove": "Remove logo",
+    "preview": "Logo preview",
+    "updated": "Branding settings updated",
+    "saveDescription": "Save branding settings",
+    "tooLarge": "File exceeds the maximum size of {{size}}.",
+    "invalidType": "Use a PNG, JPEG, GIF, or WebP image.",
+    "readFailed": "Could not read the image file",
+    "saveFailed": "Failed to save branding settings"
+  },
   "touch": {
     "title": "On screen keyboard",
     "description": "Enable or disable on screen keyboard. Only applies to this device."

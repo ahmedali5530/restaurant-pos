@@ -38,6 +38,21 @@
     "colorPrimary": "Primario",
     "colorBorder": "Borde"
   },
+  "branding": {
+    "title": "Marca",
+    "description": "Suba el logo de su restaurante para mostrarlo en la pantalla de inicio de sesión debajo del símbolo POSR.",
+    "logo": "Logo de la marca",
+    "logoHint": "PNG, JPEG, GIF o WebP. Máx. 500 KB.",
+    "upload": "Subir logo",
+    "remove": "Quitar logo",
+    "preview": "Vista previa del logo",
+    "updated": "Configuración de marca actualizada",
+    "saveDescription": "Guardar configuración de marca",
+    "tooLarge": "El archivo supera el tamaño máximo de {{size}}.",
+    "invalidType": "Use una imagen PNG, JPEG, GIF o WebP.",
+    "readFailed": "No se pudo leer el archivo de imagen",
+    "saveFailed": "No se pudo guardar la configuración de marca"
+  },
   "touch": {
     "title": "Teclado en pantalla",
     "description": "Habilite o deshabilite el teclado en pantalla. Solo se aplica a este dispositivo."
