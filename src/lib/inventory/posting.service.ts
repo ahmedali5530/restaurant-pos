@@ -514,7 +514,7 @@ export const postDocument = async (
       if (!itemId) continue;
       const p = `lc_${itemId.replace(/[^a-zA-Z0-9]/g, "_")}_`;
       statements.push({
-        sql: `UPDATE $item_id SET
+        sql: `UPDATE $${p}item_id SET
           purchase_price = $${p}purchase_price,
           allocated_extra_cost = $${p}allocated_extra_cost,
           allocated_tax = $${p}allocated_tax,
@@ -522,7 +522,7 @@ export const postDocument = async (
           final_unit_cost = $${p}final_unit_cost,
           total_inventory_cost = $${p}total_inventory_cost`,
         params: {
-          item_id: toRecordId(itemId),
+          [`${p}item_id`]: toRecordId(itemId),
           [`${p}purchase_price`]: line.purchase_price,
           [`${p}allocated_extra_cost`]: line.allocated_extra_cost,
           [`${p}allocated_tax`]: line.allocated_tax,

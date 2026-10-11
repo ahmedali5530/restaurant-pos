@@ -604,5 +604,14 @@
     "submittedAt": "Отправлено",
     "approvedAt": "Утверждено",
     "rejectedAt": "Отклонено"
+  },
+  "import": {
+    "codeAutoFilled": "Код \"{{code}}\" заполнен из существующей позиции \"{{name}}\"",
+    "itemNameOrCodeRequired": "Требуется название или код позиции",
+    "itemNotFound": "Позиция не найдена: {{key}}",
+    "supplierRequired": "Поставщик обязателен",
+    "locationRequired": "Локация обязательна",
+    "supplierNotOnItem": "Поставщик \"{{supplier}}\" не связан с позицией \"{{item}}\"",
+    "locationNotOnItem": "Локация \"{{location}}\" не связана с позицией \"{{item}}\""
   }
 }

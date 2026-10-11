@@ -1318,8 +1318,7 @@ DEFINE FIELD created_at ON inventory_ledger TYPE datetime DEFAULT time::now() PE
 DEFINE FIELD created_by ON inventory_ledger TYPE none | record<user> PERMISSIONS FULL;
 DEFINE FIELD expiry_date ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD inventory_item ON inventory_ledger TYPE record<inventory_item> PERMISSIONS FULL;
-DEFINE FIELD inventory_location ON inventory_ledger TYPE record<inventory_store> PERMISSIONS FULL;
-DEFINE FIELD inventory_location_new ON inventory_ledger TYPE none | record<inventory_location> PERMISSIONS FULL;
+DEFINE FIELD inventory_location ON inventory_ledger TYPE record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD ledger_key ON inventory_ledger TYPE string PERMISSIONS FULL;
 DEFINE FIELD manufacturing_date ON inventory_ledger TYPE none | string PERMISSIONS FULL;
 DEFINE FIELD notes ON inventory_ledger TYPE none | string PERMISSIONS FULL;

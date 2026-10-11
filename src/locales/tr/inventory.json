@@ -604,5 +604,14 @@
     "submittedAt": "Gönderilme",
     "approvedAt": "Onaylanma",
     "rejectedAt": "Reddedilme"
+  },
+  "import": {
+    "codeAutoFilled": "\"{{name}}\" mevcut kaleminden \"{{code}}\" kodu dolduruldu",
+    "itemNameOrCodeRequired": "Kalem adı veya kodu gerekli",
+    "itemNotFound": "Kalem bulunamadı: {{key}}",
+    "supplierRequired": "Tedarikçi gerekli",
+    "locationRequired": "Konum gerekli",
+    "supplierNotOnItem": "\"{{supplier}}\" tedarikçisi \"{{item}}\" kalemine bağlı değil",
+    "locationNotOnItem": "\"{{location}}\" konumu \"{{item}}\" kalemine bağlı değil"
   }
 }

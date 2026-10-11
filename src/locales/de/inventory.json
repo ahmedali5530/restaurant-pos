@@ -604,5 +604,14 @@
     "submittedAt": "Eingereicht am",
     "approvedAt": "Genehmigt am",
     "rejectedAt": "Abgelehnt am"
+  },
+  "import": {
+    "codeAutoFilled": "Code \"{{code}}\" aus bestehendem Artikel \"{{name}}\" übernommen",
+    "itemNameOrCodeRequired": "Artikelname oder Code ist erforderlich",
+    "itemNotFound": "Artikel nicht gefunden: {{key}}",
+    "supplierRequired": "Lieferant ist erforderlich",
+    "locationRequired": "Standort ist erforderlich",
+    "supplierNotOnItem": "Lieferant \"{{supplier}}\" ist nicht mit Artikel \"{{item}}\" verknüpft",
+    "locationNotOnItem": "Standort \"{{location}}\" ist nicht mit Artikel \"{{item}}\" verknüpft"
   }
 }
