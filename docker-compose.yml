@@ -228,7 +228,7 @@ services:
       # gateway on localhost. Publishing it on all interfaces would let clients
       # hit the gateway directly and spoof X-Forwarded-For to bypass the
       # self-order rate limiter.
-      - "127.0.0.1:3142:3142"
+      - "${GATEWAY_PORT}:3142"
     depends_on:
       - surrealdb
 

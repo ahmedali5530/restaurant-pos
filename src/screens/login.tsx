@@ -403,23 +403,27 @@ export const Login = () => {
           className="relative z-10 flex flex-col items-center justify-center gap-6 px-8 py-10 lg:w-2/5 lg:min-h-screen border-b lg:border-b-0 lg:border-r border-neutral-700"
           data-testid="login-branding-panel"
         >
-          <img
-            src="/pwa-512.png"
-            alt={t('login.posrLogoAlt')}
-            className="w-28 h-28 sm:w-36 sm:h-36 object-contain rounded-2xl"
-            data-testid="login-posr-logo"
-          />
           {brandLogo && (
             <>
-              <div className="w-24 sm:w-32 border-t border-neutral-600" aria-hidden="true" />
+
+              {import.meta.env.VITE_RESTAURANT_NAME && (
+                <h1 className="text-4xl">{import.meta.env.VITE_RESTAURANT_NAME}</h1>
+              )}
               <img
                 src={brandLogo}
                 alt={t('login.brandLogoAlt')}
                 className="max-h-28 sm:max-h-36 max-w-[220px] sm:max-w-[280px] object-contain"
                 data-testid="login-brand-logo"
               />
+              <div className="w-24 sm:w-32 border-t border-neutral-600" aria-hidden="true" />
             </>
           )}
+          <img
+            src="/pwa-512.png"
+            alt={t('login.posrLogoAlt')}
+            className="w-28 h-28 sm:w-36 sm:h-36 object-contain rounded-2xl"
+            data-testid="login-posr-logo"
+          />
         </aside>
         <div className="relative flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
           <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
