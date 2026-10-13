@@ -95,6 +95,7 @@ export const CatalogSyncSettingsCard = () => {
           toast.error(t('catalogSync.failed'));
         } else {
           toast.success(t('catalogSync.complete'));
+          toast.message(t('catalogSync.reloadCacheHint'));
         }
       }
 

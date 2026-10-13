@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-13',
+    title: 'Catalog Sync now re-downloads from cloud',
+    items: [
+      'Sync catalog now always re-runs a full SELECT backfill from master, so a publish after an empty first sync no longer leaves the branch with zero menu rows.',
+      'After catalog sync finishes, reload cache in Settings so the POS UI picks up the downloaded catalog.',
+    ],
+  },
+  {
     date: '2026-10-10',
     title: 'Stable HQ branch record ids',
     items: [

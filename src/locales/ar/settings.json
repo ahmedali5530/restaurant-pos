@@ -341,6 +341,7 @@
     "modeRequired": "عيّن SYNC_DISTRIBUTION_MODE=full على خدمة المزامنة لتفعيل تنزيل الكتالوج.",
     "complete": "اكتملت مزامنة الكتالوج",
     "progressTable": "جاري تنزيل {{table}}…",
-    "progressCount": "{{completed}} / {{total}} جداول ({{percent}}٪)"
+    "progressCount": "{{completed}} / {{total}} جداول ({{percent}}٪)",
+    "reloadCacheHint": "اكتملت مزامنة الكتالوج. أعد تحميل الذاكرة المؤقتة من الإعدادات حتى يظهر القائمة في نقطة البيع."
   }
 }

@@ -341,6 +341,7 @@
     "modeRequired": "Imposta SYNC_DISTRIBUTION_MODE=full sul servizio sync per abilitare il download del catalogo.",
     "complete": "Sincronizzazione catalogo completata",
     "progressTable": "Download di {{table}}…",
-    "progressCount": "{{completed}} / {{total}} tabelle ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} tabelle ({{percent}}%)",
+    "reloadCacheHint": "Sincronizzazione catalogo completata. Ricarica la cache in Impostazioni così il POS mostra il nuovo menu."
   }
 }

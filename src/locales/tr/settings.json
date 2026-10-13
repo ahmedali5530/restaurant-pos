@@ -341,6 +341,7 @@
     "modeRequired": "Katalog indirmeyi açmak için sync hizmetinde SYNC_DISTRIBUTION_MODE=full ayarlayın.",
     "complete": "Katalog senkronu tamamlandı",
     "progressTable": "{{table}} indiriliyor…",
-    "progressCount": "{{completed}} / {{total}} tablo (%{{percent}})"
+    "progressCount": "{{completed}} / {{total}} tablo (%{{percent}})",
+    "reloadCacheHint": "Katalog senkronu tamamlandı. POS’un yeni menüyü alması için Ayarlar’dan önbelleği yenileyin."
   }
 }

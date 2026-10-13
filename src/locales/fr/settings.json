@@ -341,6 +341,7 @@
     "modeRequired": "Définissez SYNC_DISTRIBUTION_MODE=full sur le service de sync pour activer le téléchargement du catalogue.",
     "complete": "Synchronisation catalogue terminée",
     "progressTable": "Téléchargement de {{table}}…",
-    "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)",
+    "reloadCacheHint": "Synchronisation catalogue terminée. Rechargez le cache dans Paramètres pour que le POS affiche le nouveau menu."
   }
 }

@@ -78,6 +78,8 @@ class CatalogDownloadManager {
     this.tableState = new Map();
     this.writeChain = Promise.resolve();
     this.forceNextPoll = false;
+    /** When true, next forced pollAll clears backfill_done so SELECT re-runs. */
+    this.resetBackfillOnNextForce = false;
     /** @type {Map<string, Record<string, unknown>>} */
     this.overrideCache = new Map();
     this.stats = {
@@ -421,6 +423,10 @@ class CatalogDownloadManager {
 
   requestForceSync() {
     this.forceNextPoll = true;
+    // Sync now must re-SELECT from master. Without this, a prior empty backfill
+    // (or a sync before HQ data existed) leaves backfill_done=true and only
+    // tails changefeeds — so publish bumps the version but downloads 0 rows.
+    this.resetBackfillOnNextForce = true;
     for (const tableName of this.config.downloadTables) {
       const state = this.ensureTableState(tableName);
       state.blockedUntil = 0;
@@ -436,6 +442,36 @@ class CatalogDownloadManager {
       startedAt: new Date().toISOString(),
       finishedAt: null,
     };
+  }
+
+  /**
+   * Clear down-cursors so pollTable runs a full SELECT backfill again.
+   * Also resets the override-control cursor so patches are reloaded.
+   */
+  async resetCatalogBackfillCursors(tables) {
+    const names = new Set([...(tables || []), OVERRIDE_CONTROL_TABLE]);
+    for (const tableName of names) {
+      const state = this.ensureTableState(tableName);
+      state.backfillDone = false;
+      state.versionstamp = null;
+      state.blockedUntil = 0;
+      state.backoffMs = 1000;
+      state.lastError = null;
+      try {
+        await this.saveCursor(tableName, {
+          backfillDone: false,
+          versionstamp: null,
+        });
+      } catch (error) {
+        this.logger.warn('Failed to reset catalog down cursor', {
+          table: tableName,
+          error: error.message || String(error),
+        });
+      }
+    }
+    this.logger.info('Catalog Sync now will re-backfill', {
+      tables: [...names],
+    });
   }
 
   async initialize() {
@@ -486,9 +522,15 @@ class CatalogDownloadManager {
       filtered: tables.length < this.config.downloadTables.length,
       localVersion: this.stats.localVersion,
       remoteVersion: this.stats.remoteVersion,
+      rebackfill: Boolean(this.resetBackfillOnNextForce),
     });
 
     try {
+      if (this.resetBackfillOnNextForce) {
+        this.resetBackfillOnNextForce = false;
+        await this.resetCatalogBackfillCursors(tables);
+      }
+
       await this.loadOverrideCache();
 
       for (let i = 0; i < tables.length; i += 1) {
@@ -593,12 +635,16 @@ class CatalogDownloadManager {
 
   async selectMasterPage(tableName, limit, start) {
     const branchId = this.config.clientId;
-    // Shared (no branch_id) or this branch. Users may also list branch_ids[].
+    // Shared (no / empty branch_id) or this branch. Users may also list branch_ids[].
+    // Only `user` defines branch_ids — avoid referencing it on other SCHEMAFULL tables.
+    const where = tableName === 'user'
+      ? `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId
+            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)`
+      : `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId`;
     const result = await withRetry(
       () => this.master.query(
         `SELECT * FROM ${tableName}
-          WHERE branch_id = NONE OR branch_id = NULL OR branch_id = $branchId
-            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)
+          ${where}
           LIMIT $limit START $start;`,
         { branchId, limit, start }
       ),

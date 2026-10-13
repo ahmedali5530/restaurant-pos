@@ -341,6 +341,7 @@
     "modeRequired": "SYNC_DISTRIBUTION_MODE=full am Sync-Dienst setzen, um Katalog-Download zu aktivieren.",
     "complete": "Katalog-Sync abgeschlossen",
     "progressTable": "Lade {{table}} herunter…",
-    "progressCount": "{{completed}} / {{total}} Tabellen ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} Tabellen ({{percent}}%)",
+    "reloadCacheHint": "Katalog-Sync abgeschlossen. Cache in den Einstellungen neu laden, damit die Kasse das neue Menü übernimmt."
   }
 }

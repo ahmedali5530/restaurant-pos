@@ -341,6 +341,7 @@
     "modeRequired": "Defina SYNC_DISTRIBUTION_MODE=full no serviço de sync para habilitar o download do catálogo.",
     "complete": "Sincronização de catálogo concluída",
     "progressTable": "Baixando {{table}}…",
-    "progressCount": "{{completed}} / {{total}} tabelas ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} tabelas ({{percent}}%)",
+    "reloadCacheHint": "Sincronização de catálogo concluída. Recarregue o cache em Configurações para o PDV mostrar o novo cardápio."
   }
 }

@@ -341,6 +341,7 @@
     "modeRequired": "Configura SYNC_DISTRIBUTION_MODE=full en el servicio de sync para habilitar la descarga del catálogo.",
     "complete": "Sincronización de catálogo finalizada",
     "progressTable": "Descargando {{table}}…",
-    "progressCount": "{{completed}} / {{total}} tablas ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} tablas ({{percent}}%)",
+    "reloadCacheHint": "Sincronización de catálogo finalizada. Recargue la caché en Ajustes para que el TPV muestre el menú nuevo."
   }
 }

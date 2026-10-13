@@ -341,6 +341,7 @@
     "modeRequired": "Stel SYNC_DISTRIBUTION_MODE=full in op de sync-service om catalogusdownload in te schakelen.",
     "complete": "Catalogussync voltooid",
     "progressTable": "{{table}} downloaden…",
-    "progressCount": "{{completed}} / {{total}} tabellen ({{percent}}%)"
+    "progressCount": "{{completed}} / {{total}} tabellen ({{percent}}%)",
+    "reloadCacheHint": "Catalogussync voltooid. Herlaad de cache in Instellingen zodat de kassa het nieuwe menu toont."
   }
 }
