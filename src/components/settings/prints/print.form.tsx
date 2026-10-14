@@ -1,8 +1,14 @@
 import {useDB} from "@/api/db/db.ts";
+import {Tables} from "@/api/db/tables.ts";
 import {toast} from "sonner";
 import {useTranslation} from 'react-i18next';
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Setting} from "@/api/model/setting.ts";
+import {
+  BRANDING_KEY,
+  BrandingSettings,
+  brandingLogoToDataUri,
+} from "@/api/model/branding.ts";
 import {Controller, useForm} from "react-hook-form";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -135,6 +141,7 @@ export const PrintForm = ({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoArrayBuffer, setLogoArrayBuffer] = useState<ArrayBuffer | null>(null);
   const [logoRemoved, setLogoRemoved] = useState(false);
+  const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
 
   const db = useDB();
   const {handleSubmit, control, reset, setValue, getValues, watch} = useForm<PrintFormValues>();
@@ -229,6 +236,27 @@ export const PrintForm = ({
     };
   }, [existingLogoUrl, logoPreview]);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [rows] = await db.query<Setting[]>(
+          `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
+          { key: BRANDING_KEY },
+        );
+        if (cancelled) return;
+        const values = (rows?.[0]?.values || {}) as BrandingSettings;
+        setBrandLogoUrl(brandingLogoToDataUri(values.logo, values.mime));
+      } catch (err) {
+        console.log('Failed to load brand logo', err);
+        if (!cancelled) setBrandLogoUrl(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
     if (!file) {
@@ -270,6 +298,26 @@ export const PrintForm = ({
     setLogoArrayBuffer(null);
     setValue('logo', null);
     setLogoRemoved(true);
+  };
+
+  const handleUseBrandLogo = async () => {
+    if (!brandLogoUrl) return;
+    try {
+      const buffer = await fetch(brandLogoUrl).then((res) => res.arrayBuffer());
+      const mime = detectMimeType(buffer, 'image/png');
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview);
+      }
+      const objectUrl = URL.createObjectURL(new Blob([buffer], { type: mime }));
+      setLogoArrayBuffer(buffer);
+      setLogoPreview(objectUrl);
+      setLogoRemoved(false);
+      setValue('logo', buffer);
+      setValue('showLogo', true);
+    } catch (err) {
+      console.log('Failed to use brand logo', err);
+      toast.error(t('forms.useBrandLogoFailed'));
+    }
   };
 
   const handleLogoPresetChange = (option: SelectOption | null) => {
@@ -450,7 +498,7 @@ export const PrintForm = ({
                   )}
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 flex flex-col gap-2">
                 {currentLogoUrl && !logoRemoved ? (
                   <div className="relative inline-block">
                     <img
@@ -483,6 +531,26 @@ export const PrintForm = ({
                       />
                     )}
                   />
+                )}
+                {brandLogoUrl && (
+                  <div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      data-testid="print-use-brand-logo"
+                      onClick={() => {
+                        void handleUseBrandLogo();
+                      }}
+                    >
+                      <img
+                        src={brandLogoUrl}
+                        alt=""
+                        className="h-6 w-auto max-w-[4rem] object-contain mr-2 inline-block align-middle"
+                      />
+                      {t('forms.useBrandLogo')}
+                    </Button>
+                    <p className="text-xs text-muted mt-1">{t('forms.useBrandLogoHint')}</p>
+                  </div>
                 )}
               </div>
             </div>

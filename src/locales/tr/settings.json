@@ -38,6 +38,21 @@
     "colorPrimary": "Ana renk",
     "colorBorder": "Kenarlık"
   },
+  "branding": {
+    "title": "Marka",
+    "description": "Giriş ekranında POSR işaretinin altında gösterilecek restoran logonuzu yükleyin.",
+    "logo": "Marka logosu",
+    "logoHint": "PNG, JPEG, GIF veya WebP. En fazla 500 KB.",
+    "upload": "Logo yükle",
+    "remove": "Logoyu kaldır",
+    "preview": "Logo önizleme",
+    "updated": "Marka ayarları güncellendi",
+    "saveDescription": "Marka ayarlarını kaydet",
+    "tooLarge": "Dosya {{size}} en büyük boyutunu aşıyor.",
+    "invalidType": "PNG, JPEG, GIF veya WebP bir görsel kullanın.",
+    "readFailed": "Görsel dosyası okunamadı",
+    "saveFailed": "Marka ayarları kaydedilemedi"
+  },
   "touch": {
     "title": "Ekran klavyesi",
     "description": "Ekran klavyesini etkinleştirin veya devre dışı bırakın. Yalnızca bu cihaza uygulanır."

@@ -691,7 +691,15 @@
     "statusCompleted": "Tamamlandı",
     "statusFailed": "Başarısız",
     "statusSkipped": "Atlandı",
-    "noRecords": "Seçilen filtreler için fiskal gönderim bulunamadı"
+    "noRecords": "Seçilen filtreler için fiskal gönderim bulunamadı",
+    "retry": "Yeniden dene",
+    "retrySuccess": "Mali fatura başarıyla gönderildi.",
+    "retryFailed": "Mali yeniden deneme başarısız.",
+    "retryFailedWithError": "Mali yeniden deneme başarısız: {{error}}",
+    "alreadyCompleted": "Bu sağlayıcının sipariş için zaten başarılı bir mali gönderimi var.",
+    "retryInvoicePending": "Fatura numarası henüz hazır değil — senkronizasyondan sonra tekrar deneyin.",
+    "retryOrderNotFound": "Mali yeniden deneme için sipariş bulunamadı.",
+    "retryProviderDisabled": "Mali sağlayıcı devre dışı."
   },
   "empty": {
     "noDiscountTypes": "Seçilen aralık için indirim türü yok.",

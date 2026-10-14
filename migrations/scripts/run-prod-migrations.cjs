@@ -125,6 +125,8 @@ const MIGRATION_PLAN = [
   { id: '2026_09_28_catalog_branch_override', file: '2026_09_28_catalog_branch_override.surql' },
   { id: '2026_09_29_branch_owned_catalog_and_user_branches', file: '2026_09_29_branch_owned_catalog_and_user_branches.surql' },
   { id: '2026_10_02_payroll_snapshot_currency', file: '2026_10_02_payroll_snapshot_currency.surql' },
+  { id: '2026_10_08_ledger_location_type', file: '2026_10_08_ledger_location_type.surql' },
+  { id: '2026_10_11_settings_branding_access', file: '2026_10_11_settings_branding_access.surql' },
 ];
 
 const rows = (result) => {

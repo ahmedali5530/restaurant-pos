@@ -80,10 +80,12 @@ bypasses the backoff.
 includes `catalogComplete: true` so the terminal can project the menu while
 operational tables (`customer`, orders, …) continue. Operational tables are
 filtered to keep hydration bounded: orders that are `In Progress` or created
-in the last **1 day** (`order`, `order_item`, `order_item_kitchen`,
-voids/refunds/prints). `order` rows are returned with `FETCH payments,
-order_taxes, order_discounts, extras, coupon`; the client expands them into
-child stores.
+within `POS_SNAPSHOT_OPERATIONAL_DURATION` (default `3d`; on-prem LAN often
+`12h`) for `order`, `order_item`, `order_item_kitchen`, voids/refunds/prints.
+Coupon redemptions use `POS_SNAPSHOT_COUPON_REDEMPTION_DURATION` (default
+`90d`; on-prem often `7d`). Durations must match `^\d+[smhdw]$`.
+`order` rows are returned with `FETCH payments, order_taxes, order_discounts,
+extras, coupon`; the client expands them into child stores.
 
 When the last record page finishes, the snapshot returns `complete: true`
 with no events phase. Records are the truth at snapshot time; the client

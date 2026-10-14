@@ -38,6 +38,21 @@
     "colorPrimary": "Primaire",
     "colorBorder": "Bordure"
   },
+  "branding": {
+    "title": "Image de marque",
+    "description": "Téléversez le logo de votre restaurant pour l’afficher sur l’écran de connexion sous la marque POSR.",
+    "logo": "Logo de la marque",
+    "logoHint": "PNG, JPEG, GIF ou WebP. Max. 500 Ko.",
+    "upload": "Téléverser le logo",
+    "remove": "Supprimer le logo",
+    "preview": "Aperçu du logo",
+    "updated": "Paramètres d’image de marque mis à jour",
+    "saveDescription": "Enregistrer les paramètres d’image de marque",
+    "tooLarge": "Le fichier dépasse la taille maximale de {{size}}.",
+    "invalidType": "Utilisez une image PNG, JPEG, GIF ou WebP.",
+    "readFailed": "Impossible de lire le fichier image",
+    "saveFailed": "Échec de l’enregistrement des paramètres d’image de marque"
+  },
   "touch": {
     "title": "Clavier à l'écran",
     "description": "Activer ou désactiver le clavier à l'écran. S'applique uniquement à cet appareil."

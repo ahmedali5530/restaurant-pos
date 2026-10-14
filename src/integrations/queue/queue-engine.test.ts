@@ -95,4 +95,40 @@ describe('IntegrationQueueEngine', () => {
     expect(second.id).not.toBe(first.id);
     expect(second.status).toBe('Pending');
   });
+
+  it('requeues dead-letter jobs and can mark them completed after manual retry', async () => {
+    const engine = new IntegrationQueueEngine(new InMemoryQueueStore(), {
+      jitter: false,
+      maxRetries: 0,
+      baseDelayMs: 0,
+      maxDelayMs: 0,
+    });
+
+    await engine.enqueue({
+      providerId: 'provider:test',
+      action: 'invoiceSubmission',
+      payload: {},
+      priority: 0,
+      maxRetries: 0,
+    });
+
+    const dead = await engine.processNext(async () => {
+      throw new Error('offline');
+    });
+    expect(dead?.status).toBe('DeadLetter');
+
+    const requeued = await engine.requeueDeadLetter(dead!.id);
+    expect(requeued?.status).toBe('Pending');
+    expect(requeued?.attempts).toBe(0);
+
+    // Force dead letter again then mark completed (manual fiscal retry path).
+    const deadAgain = await engine.processNext(async () => {
+      throw new Error('offline');
+    });
+    expect(deadAgain?.status).toBe('DeadLetter');
+
+    const completed = await engine.markJobCompleted(deadAgain!.id);
+    expect(completed?.status).toBe('Completed');
+    expect(completed?.lastError).toBeUndefined();
+  });
 });

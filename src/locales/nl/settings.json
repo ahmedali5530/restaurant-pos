@@ -38,6 +38,21 @@
     "colorPrimary": "Primair",
     "colorBorder": "Rand"
   },
+  "branding": {
+    "title": "Branding",
+    "description": "Upload het logo van uw restaurant om het op het inlogscherm onder het POSR-merk te tonen.",
+    "logo": "Merklogo",
+    "logoHint": "PNG, JPEG, GIF of WebP. Max. 500 KB.",
+    "upload": "Logo uploaden",
+    "remove": "Logo verwijderen",
+    "preview": "Logovoorbeeld",
+    "updated": "Brandinginstellingen bijgewerkt",
+    "saveDescription": "Brandinginstellingen opslaan",
+    "tooLarge": "Het bestand overschrijdt de maximale grootte van {{size}}.",
+    "invalidType": "Gebruik een PNG-, JPEG-, GIF- of WebP-afbeelding.",
+    "readFailed": "Kan het afbeeldingsbestand niet lezen",
+    "saveFailed": "Brandinginstellingen opslaan mislukt"
+  },
   "touch": {
     "title": "Schermtoetsenbord",
     "description": "Schermtoetsenbord in- of uitschakelen. Geldt alleen voor dit apparaat."

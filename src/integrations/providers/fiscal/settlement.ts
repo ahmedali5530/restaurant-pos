@@ -8,6 +8,7 @@ import {
 import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 import { ORDER_PAYMENT_FETCHES, parseOrderQueryResult } from '@/api/model/order.ts';
 import {
+  listOrderFiscalSubmissions,
   persistFiscalSubmissionsForOrder,
   resolveFiscalQrcodeForPrint,
   resolveFiscalQrcodesForPrint,
@@ -16,6 +17,7 @@ import {
   attachFiscalReceiptLogos,
   FiscalQrPrintItem,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
+import { toRecordId } from '@/lib/utils.ts';
 
 type DbLike = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
@@ -96,4 +98,70 @@ export const getFiscalQrcodesForOrderPrint = async (
 
 export const getFiscalQrcodeForOrderPrint = async (db: DbLike, orderId: unknown) => {
   return resolveFiscalQrcodeForPrint(db, orderId);
+};
+
+export type FiscalRetryResult =
+  | { skipped: true; reason: 'already_completed' | 'order_not_found' | 'provider_disabled' | 'invoice_pending' }
+  | { skipped: false; success: boolean; result: FiscalSettlementResult };
+
+/** True when any completed submission exists for this order+provider. */
+export const hasCompletedFiscalSubmission = async (
+  db: DbLike,
+  orderId: unknown,
+  providerId: string
+): Promise<boolean> => {
+  const rows = await listOrderFiscalSubmissions(db, orderId);
+  return rows.some(
+    (row) =>
+      row.provider_id === providerId &&
+      row.status === 'completed' &&
+      Boolean(row.qrcode || row.invoice_number)
+  );
+};
+
+/**
+ * Manually resubmit a failed fiscal invoice for one order + provider.
+ * Skips when that provider already has a completed submission.
+ */
+export const retryFiscalSubmissionForOrder = async (
+  manager: IntegrationManager,
+  db: DbLike,
+  orderId: unknown,
+  providerId: string
+): Promise<FiscalRetryResult> => {
+  if (!manager.isProviderEnabled(providerId)) {
+    return { skipped: true, reason: 'provider_disabled' };
+  }
+
+  const orderRecordId = String(toRecordId(orderId));
+  const order = await loadOrderForFiscal(db, orderRecordId);
+  if (!order) {
+    return { skipped: true, reason: 'order_not_found' };
+  }
+
+  if (await hasCompletedFiscalSubmission(db, order.id, providerId)) {
+    return { skipped: true, reason: 'already_completed' };
+  }
+
+  const getConfig = (id: string) => getIntegrationProviderConfig(db, id);
+  const result = await submitFiscalInvoices(manager, order, {
+    getConfig,
+    providerIds: [providerId],
+  });
+
+  if (result.blockedCode === 'INVOICE_PENDING') {
+    return { skipped: true, reason: 'invoice_pending' };
+  }
+
+  if (Object.keys(result.resultsByProvider).length === 0) {
+    return { skipped: true, reason: 'provider_disabled' };
+  }
+
+  const persisted = await persistFiscalSettlement(db, order.id, result);
+  const providerResult = persisted.resultsByProvider[providerId];
+  return {
+    skipped: false,
+    success: providerResult?.status === 'completed',
+    result: persisted,
+  };
 };

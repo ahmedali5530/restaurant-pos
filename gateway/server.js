@@ -203,6 +203,7 @@ server.listen(PORT, HOST, () => {
   console.log('POST /auth/login');
   console.log('POST /auth/logout');
   console.log('GET  /auth/session');
+  console.log('GET  /auth/branding');
   console.log('POST /auth/db-token');
   console.log('GET  /alerts              (admin-only — security alerts)');
   console.log('POST /alerts/:id/acknowledge (admin-only)');

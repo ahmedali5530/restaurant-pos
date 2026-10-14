@@ -604,5 +604,14 @@
     "submittedAt": "تاريخ الإرسال",
     "approvedAt": "تاريخ الموافقة",
     "rejectedAt": "تاريخ الرفض"
+  },
+  "import": {
+    "codeAutoFilled": "تم تعبئة الرمز \"{{code}}\" من الصنف الموجود \"{{name}}\"",
+    "itemNameOrCodeRequired": "اسم الصنف أو الرمز مطلوب",
+    "itemNotFound": "الصنف غير موجود: {{key}}",
+    "supplierRequired": "المورد مطلوب",
+    "locationRequired": "الموقع مطلوب",
+    "supplierNotOnItem": "المورد \"{{supplier}}\" غير مرتبط بالصنف \"{{item}}\"",
+    "locationNotOnItem": "الموقع \"{{location}}\" غير مرتبط بالصنف \"{{item}}\""
   }
 }

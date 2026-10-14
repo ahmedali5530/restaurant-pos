@@ -31,11 +31,20 @@ import {
   setSessionTokens,
   type GatewayLoginResponse,
 } from "@/lib/session.ts";
+import { fetchLoginBrandLogo } from "@/lib/branding.ts";
 
 const TIME_ENTRY_CHECK_RETRIES = 3;
 const TIME_ENTRY_RETRY_DELAY_MS = 400;
 const LOGIN_MAX_ATTEMPTS = 5;
 const LOGIN_LOCKOUT_MINUTES = 15;
+
+type LoginMethod = 'pin' | 'form';
+
+/** Default login tab from VITE_DEFAULT_LOGIN_METHOD (`pin` | `form`). Falls back to pin. */
+const getDefaultLoginMethod = (): LoginMethod => {
+  const raw = String(import.meta.env.VITE_DEFAULT_LOGIN_METHOD ?? 'pin').toLowerCase().trim();
+  return raw === 'form' ? 'form' : 'pin';
+};
 
 const sleep = (ms: number) => new Promise<void>((resolve) => {
   window.setTimeout(resolve, ms);
@@ -54,7 +63,7 @@ export const Login = () => {
   const gatewayAuth = isGatewayAuthEnabled();
 
   const [code, setCode] = useState('');
-  const [loginMethod, setLoginMethod] = useState<'pin'|'form'>('pin');
+  const [loginMethod, setLoginMethod] = useState<LoginMethod>(getDefaultLoginMethod);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useAtom(appPage);
@@ -62,9 +71,20 @@ export const Login = () => {
   const [showClockInModal, setShowClockInModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [brandLogo, setBrandLogo] = useState<string | null>(null);
 
   const navigation = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchLoginBrandLogo(gatewayAuth ? null : db).then((logo) => {
+      if (!cancelled) setBrandLogo(logo);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [gatewayAuth]);
 
   const onClear = () => {
     setCode('');
@@ -378,122 +398,150 @@ export const Login = () => {
   return (
     <div className="relative" data-testid="login-page">
       <DocumentTitle parts={[t('login.title')]} />
-      <div className="bg-neutral-900 flex justify-center items-center h-screen flex-col gap-8">
-        <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            data-testid="login-method-pin"
-            className={cn(
-              "w-56 border-2 transition-all duration-150 btn btn-filled lg",
-              loginMethod === 'pin'
-                ? "!bg-warning text-black border-warning"
-                : "!bg-black text-white"
-            )}
-            onClick={() => {
-              setLoginMethod('pin');
-              setError(false);
-              setUsername('');
-              setPassword('');
-              setCode('');
-            }}
-          >
-            {t('login.pin')}
-          </button>
-          <button
-            type="button"
-            data-testid="login-method-form"
-            className={cn(
-              "w-56 border-2 transition-all duration-150 btn btn-filled lg",
-              loginMethod === 'form'
-                ? "!bg-warning text-black border-warning"
-                : "!bg-black text-white"
-            )}
-            onClick={() => {
-              setLoginMethod('form');
-              setError(false);
-              setUsername('');
-              setPassword('');
-              setCode('');
-            }}
-          >
-            {t('login.form')}
-          </button>
-        </div>
-        {page.locked && (
-          <div className="alert alert-warning" data-testid="login-locked-banner">{t('login.systemLocked', {
-            name: `${page?.lockedBy?.first_name ?? ''} ${page?.lockedBy?.last_name ?? ''}`.trim()
-          })}</div>
-        )}
-        {loginMethod === 'pin' && (
-          <>
-            <div className={
-              cn(
-                "flex gap-3 text-neutral-100",
-                error && 'login-error'
-              )
-            }>
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 1 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 2 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
-              <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
-            </div>
-            <div className="wrapper w-[400px]" data-testid="login-pin-pad">
-              <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
-                <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
-                <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>
-                <button type="button" onClick={() => onKey('3')} className="btn-login">3</button>
-                <button type="button" onClick={() => onKey('4')} className="btn-login">4</button>
-                <button type="button" onClick={() => onKey('5')} className="btn-login">5</button>
-                <button type="button" onClick={() => onKey('6')} className="btn-login">6</button>
-                <button type="button" onClick={() => onKey('7')} className="btn-login">7</button>
-                <button type="button" onClick={() => onKey('8')} className="btn-login">8</button>
-                <button type="button" onClick={() => onKey('9')} className="btn-login">9</button>
-                <button type="button" onClick={onBack} className="btn-login danger"><FontAwesomeIcon icon={faBackspace}/>
-                </button>
-                <button type="button" onClick={() => onKey('0')} className="btn-login">0</button>
-                <button type="button" onClick={onClear} className="btn-login danger">C</button>
+      <div className="bg-neutral-900 flex flex-col lg:flex-row min-h-screen">
+        <aside
+          className="relative z-10 flex flex-col items-center justify-center gap-6 px-8 py-10 lg:w-2/5 lg:min-h-screen border-b lg:border-b-0 lg:border-r border-neutral-700"
+          data-testid="login-branding-panel"
+        >
+          {brandLogo && (
+            <>
+
+              {import.meta.env.VITE_RESTAURANT_NAME && (
+                <h1 className="text-4xl">{import.meta.env.VITE_RESTAURANT_NAME}</h1>
+              )}
+              <img
+                src={brandLogo}
+                alt={t('login.brandLogoAlt')}
+                className="max-h-28 sm:max-h-36 max-w-[220px] sm:max-w-[280px] object-contain"
+                data-testid="login-brand-logo"
+              />
+              <div className="w-24 sm:w-32 border-t border-neutral-600" aria-hidden="true" />
+            </>
+          )}
+          <img
+            src="/pwa-512.png"
+            alt={t('login.posrLogoAlt')}
+            className="w-28 h-28 sm:w-36 sm:h-36 object-contain rounded-2xl"
+            data-testid="login-posr-logo"
+          />
+        </aside>
+        <div className="relative flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
+          <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              data-testid="login-method-pin"
+              className={cn(
+                "w-56 border-2 transition-all duration-150 btn btn-filled lg",
+                loginMethod === 'pin'
+                  ? "!bg-warning text-black border-warning"
+                  : "!bg-black text-white"
+              )}
+              onClick={() => {
+                setLoginMethod('pin');
+                setError(false);
+                setUsername('');
+                setPassword('');
+                setCode('');
+              }}
+            >
+              {t('login.pin')}
+            </button>
+            <button
+              type="button"
+              data-testid="login-method-form"
+              className={cn(
+                "w-56 border-2 transition-all duration-150 btn btn-filled lg",
+                loginMethod === 'form'
+                  ? "!bg-warning text-black border-warning"
+                  : "!bg-black text-white"
+              )}
+              onClick={() => {
+                setLoginMethod('form');
+                setError(false);
+                setUsername('');
+                setPassword('');
+                setCode('');
+              }}
+            >
+              {t('login.form')}
+            </button>
+          </div>
+          {page.locked && (
+            <div className="alert alert-warning" data-testid="login-locked-banner">{t('login.systemLocked', {
+              name: `${page?.lockedBy?.first_name ?? ''} ${page?.lockedBy?.last_name ?? ''}`.trim()
+            })}</div>
+          )}
+          {loginMethod === 'pin' && (
+            <>
+              <div className={
+                cn(
+                  "flex gap-3 text-neutral-100",
+                  error && 'login-error'
+                )
+              }>
+                <FontAwesomeIcon size="lg" icon={code.trim().length >= 1 ? faCircle : circleRegular} />
+                <FontAwesomeIcon size="lg" icon={code.trim().length >= 2 ? faCircle : circleRegular} />
+                <FontAwesomeIcon size="lg" icon={code.trim().length >= 3 ? faCircle : circleRegular} />
+                <FontAwesomeIcon size="lg" icon={code.trim().length === 4 ? faCircle : circleRegular} />
               </div>
-            </div>
-          </>
-        )}
-        {loginMethod === 'form' && (
-          <form
-            className="w-[400px] flex flex-col gap-3"
-            data-testid="login-form"
-            onSubmit={async (event) => {
-              event.preventDefault();
-              await checkLogin(username, password, 'form');
-            }}
-          >
-            <div>
-              <label className="text-white" htmlFor="username">{t('login.username')}</label>
-              <Input
-                id="username"
-                data-testid="login-username"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="text-white" htmlFor="password">{t('login.password')}</label>
-              <Input
-                id="password"
-                data-testid="login-password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-            </div>
-            <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
-          </form>
-        )}
+              <div className="wrapper w-[400px]" data-testid="login-pin-pad">
+                <div className="grid grid-cols-3 gap-2 sm:gap-5 place-items-center">
+                  <button type="button" onClick={() => onKey('1')} className="btn-login">1</button>
+                  <button type="button" onClick={() => onKey('2')} className="btn-login">2</button>
+                  <button type="button" onClick={() => onKey('3')} className="btn-login">3</button>
+                  <button type="button" onClick={() => onKey('4')} className="btn-login">4</button>
+                  <button type="button" onClick={() => onKey('5')} className="btn-login">5</button>
+                  <button type="button" onClick={() => onKey('6')} className="btn-login">6</button>
+                  <button type="button" onClick={() => onKey('7')} className="btn-login">7</button>
+                  <button type="button" onClick={() => onKey('8')} className="btn-login">8</button>
+                  <button type="button" onClick={() => onKey('9')} className="btn-login">9</button>
+                  <button type="button" onClick={onBack} className="btn-login danger"><FontAwesomeIcon icon={faBackspace}/>
+                  </button>
+                  <button type="button" onClick={() => onKey('0')} className="btn-login">0</button>
+                  <button type="button" onClick={onClear} className="btn-login danger">C</button>
+                </div>
+              </div>
+            </>
+          )}
+          {loginMethod === 'form' && (
+            <form
+              className="w-[400px] flex flex-col gap-3"
+              data-testid="login-form"
+              onSubmit={async (event) => {
+                event.preventDefault();
+                await checkLogin(username, password, 'form');
+              }}
+            >
+              <div>
+                <label className="text-white" htmlFor="username">{t('login.username')}</label>
+                <Input
+                  id="username"
+                  data-testid="login-username"
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="text-white" htmlFor="password">{t('login.password')}</label>
+                <Input
+                  id="password"
+                  data-testid="login-password"
+                  type="password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </div>
+              <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
+            </form>
+          )}
+          <div className="size-[100px] bg-warning/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
+          <div className="size-[200px] bg-primary/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>
+          <div className="size-[200px] bg-surface-elevated/20 absolute bottom-[100px] transition-all right-24 pointer-events-none rotate-45 blur-2xl"></div>
+          <div className="size-[200px] bg-[tomato]/20 absolute bottom-[30%] transition-all left-[150px] pointer-events-none blur-2xl"></div>
+        </div>
       </div>
-      <div className="size-[100px] bg-warning/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
-      <div className="size-[200px] bg-primary/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>
-      <div className="size-[200px] bg-surface-elevated/20 absolute bottom-[100px] transition-all right-24 pointer-events-none rotate-45 blur-2xl"></div>
-      <div className="size-[200px] bg-[tomato]/20 absolute bottom-[30%] transition-all left-[150px] pointer-events-none blur-2xl"></div>
 
       {showClockInModal && (
         <Modal

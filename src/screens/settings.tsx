@@ -12,6 +12,7 @@ import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle
 import {NumberPolicySettingsCard} from "@/components/user_settings/number_policy.tsx";
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ThemeSettings} from "@/components/user_settings/theme.tsx";
+import {BrandingSettingsCard} from "@/components/user_settings/branding.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
@@ -47,6 +48,7 @@ export const Settings = () => {
         <MasonryItem><CatalogSyncSettingsCard /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>
+        <MasonryItem><BrandingSettingsCard /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
         <MasonryItem><Printersettings /></MasonryItem>
         <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>

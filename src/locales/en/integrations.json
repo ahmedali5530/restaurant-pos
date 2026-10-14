@@ -72,5 +72,15 @@
     "disconnected": "Disconnected from QuickBooks"
   },
   "connectNotSupported": "Connect is not supported by this provider",
-  "disconnectNotSupported": "Disconnect is not supported by this provider"
+  "disconnectNotSupported": "Disconnect is not supported by this provider",
+  "queue": {
+    "retry": "Retry",
+    "retrySuccess": "Job retried successfully.",
+    "retryFailed": "Retry failed.",
+    "retryFailedWithError": "Retry failed: {{error}}",
+    "retryAlreadyCompleted": "Fiscal submission was already completed — queue job cleared.",
+    "retryInvoicePending": "Invoice number is not ready yet — try again after sync.",
+    "retryOrderNotFound": "Order not found for fiscal retry.",
+    "retryProviderDisabled": "Provider is disabled."
+  }
 }

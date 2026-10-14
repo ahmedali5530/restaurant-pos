@@ -72,5 +72,15 @@
     "disconnected": "Déconnecté de QuickBooks"
   },
   "connectNotSupported": "La connexion n'est pas prise en charge par ce fournisseur",
-  "disconnectNotSupported": "La déconnexion n'est pas prise en charge par ce fournisseur"
+  "disconnectNotSupported": "La déconnexion n'est pas prise en charge par ce fournisseur",
+  "queue": {
+    "retry": "Réessayer",
+    "retrySuccess": "Tâche réessayée avec succès.",
+    "retryFailed": "Échec de la nouvelle tentative.",
+    "retryFailedWithError": "Échec de la nouvelle tentative : {{error}}",
+    "retryAlreadyCompleted": "La soumission fiscale était déjà réussie — tâche de file effacée.",
+    "retryInvoicePending": "Le numéro de facture n'est pas encore prêt — réessayez après la synchronisation.",
+    "retryOrderNotFound": "Commande introuvable pour la nouvelle tentative fiscale.",
+    "retryProviderDisabled": "Le fournisseur est désactivé."
+  }
 }

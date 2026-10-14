@@ -69,5 +69,15 @@
     "start": "QuickBooks ile yetkilendir",
     "callbackError": "OAuth geri çağrısı başarısız. Lütfen tekrar deneyin.",
     "disconnected": "QuickBooks bağlantısı kesildi"
+  },
+  "queue": {
+    "retry": "Yeniden dene",
+    "retrySuccess": "İş başarıyla yeniden denendi.",
+    "retryFailed": "Yeniden deneme başarısız.",
+    "retryFailedWithError": "Yeniden deneme başarısız: {{error}}",
+    "retryAlreadyCompleted": "Mali gönderim zaten tamamlanmış — kuyruk işi temizlendi.",
+    "retryInvoicePending": "Fatura numarası henüz hazır değil — senkronizasyondan sonra tekrar deneyin.",
+    "retryOrderNotFound": "Mali yeniden deneme için sipariş bulunamadı.",
+    "retryProviderDisabled": "Sağlayıcı devre dışı."
   }
 }

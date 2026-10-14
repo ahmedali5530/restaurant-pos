@@ -144,6 +144,15 @@ async function main() {
   const alreadyLocationTyped = locationFieldDef.includes('record<inventory_location>');
 
   if (!alreadyLocationTyped) {
+    // Surreal revalidates the whole record on UPDATE. Rows that already hold
+    // inventory_location ids while the field is still store-typed cannot be
+    // updated until we widen the type.
+    if (!DRY_RUN) {
+      await db.query(
+        `DEFINE FIELD OVERWRITE inventory_location ON inventory_ledger TYPE option<record<inventory_location> | record<inventory_store>> PERMISSIONS FULL`
+      );
+    }
+
     if (!hasLocationNewField && !DRY_RUN) {
       await db.query(
         `DEFINE FIELD OVERWRITE inventory_location_new ON inventory_ledger TYPE option<record<inventory_location>> PERMISSIONS FULL`

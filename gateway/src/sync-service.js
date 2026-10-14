@@ -54,21 +54,64 @@ const SNAPSHOT_TABLES = [
 /** Last index that is pure catalog (menu/floors/payments). Operational tables follow. */
 const LAST_CATALOG_TABLE_INDEX = SNAPSHOT_TABLES.indexOf('printer');
 
+/** Surreal duration literals only — blocks SurrealQL injection via env. */
+const SURREAL_DURATION_RE = /^\d+[smhdw]$/;
+
+/**
+ * @param {string | undefined} raw
+ * @param {string} fallback
+ * @returns {string}
+ */
+function parseSnapshotDuration(raw, fallback) {
+  const value = String(raw ?? '').trim().toLowerCase();
+  if (SURREAL_DURATION_RE.test(value)) return value;
+  if (value) {
+    console.warn(
+      `[sync] invalid snapshot duration "${raw}"; using default ${fallback}`,
+    );
+  }
+  return fallback;
+}
+
 /**
  * Operational tables are snapshotted for open + recent orders only; history is
  * served by SurrealDB reports, not the terminal cache.
- * Window is 1 day of settled traffic (plus all open checks). History stays
- * on Surreal reports, not the terminal Dexie cache.
+ *
+ * Env (gateway):
+ * - POS_SNAPSHOT_OPERATIONAL_DURATION — default `3d` (on-prem LAN often `12h`)
+ * - POS_SNAPSHOT_COUPON_REDEMPTION_DURATION — default `90d` (on-prem often `7d`)
+ *
+ * @param {NodeJS.ProcessEnv} [env]
  */
-const SNAPSHOT_FILTERS = {
-  order: `(status = 'In Progress' OR created_at > time::now() - 1d)`,
-  order_item: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
-  order_item_kitchen: `(order_item.order.status = 'In Progress' OR created_at > time::now() - 1d)`,
-  order_void: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
-  order_refund: `(order.status = 'In Progress' OR created_at > time::now() - 1d)`,
-  order_print: `(order.status = 'In Progress' OR printed_at > time::now() - 1d)`,
-  coupon_redemption: `(created_at > time::now() - 90d)`,
-};
+function resolveSnapshotDurations(env = process.env) {
+  return {
+    operational: parseSnapshotDuration(env.POS_SNAPSHOT_OPERATIONAL_DURATION, '3d'),
+    couponRedemption: parseSnapshotDuration(
+      env.POS_SNAPSHOT_COUPON_REDEMPTION_DURATION,
+      '90d',
+    ),
+  };
+}
+
+/**
+ * @param {{ operational: string, couponRedemption: string }} durations
+ */
+function buildSnapshotFilters(durations) {
+  const op = durations.operational;
+  const coupon = durations.couponRedemption;
+  return {
+    order: `(status = 'In Progress' OR created_at > time::now() - ${op})`,
+    order_item: `(order.status = 'In Progress' OR created_at > time::now() - ${op})`,
+    order_item_kitchen: `(order_item.order.status = 'In Progress' OR created_at > time::now() - ${op})`,
+    order_void: `(order.status = 'In Progress' OR created_at > time::now() - ${op})`,
+    order_refund: `(order.status = 'In Progress' OR created_at > time::now() - ${op})`,
+    order_print: `(order.status = 'In Progress' OR printed_at > time::now() - ${op})`,
+    coupon_redemption: `(created_at > time::now() - ${coupon})`,
+  };
+}
+
+const SNAPSHOT_DURATIONS = resolveSnapshotDurations();
+const SNAPSHOT_FILTERS = buildSnapshotFilters(SNAPSHOT_DURATIONS);
 
 /**
  * Order child relations are embedded in the `order` page (FETCH) — the client
@@ -482,6 +525,11 @@ module.exports = {
   PROTOCOL_VERSION,
   SCHEMA_VERSION,
   SNAPSHOT_TABLES,
+  SNAPSHOT_DURATIONS,
+  SNAPSHOT_FILTERS,
+  parseSnapshotDuration,
+  resolveSnapshotDurations,
+  buildSnapshotFilters,
   handshake,
   snapshotPage,
   reserveNumberRange,

@@ -38,6 +38,21 @@
     "colorPrimary": "Primário",
     "colorBorder": "Borda"
   },
+  "branding": {
+    "title": "Identidade visual",
+    "description": "Envie o logo do seu restaurante para exibir na tela de login abaixo da marca POSR.",
+    "logo": "Logo da marca",
+    "logoHint": "PNG, JPEG, GIF ou WebP. Máx. 500 KB.",
+    "upload": "Enviar logo",
+    "remove": "Remover logo",
+    "preview": "Prévia do logo",
+    "updated": "Configurações de identidade visual atualizadas",
+    "saveDescription": "Salvar configurações de identidade visual",
+    "tooLarge": "O arquivo excede o tamanho máximo de {{size}}.",
+    "invalidType": "Use uma imagem PNG, JPEG, GIF ou WebP.",
+    "readFailed": "Não foi possível ler o arquivo de imagem",
+    "saveFailed": "Falha ao salvar as configurações de identidade visual"
+  },
   "touch": {
     "title": "Teclado na tela",
     "description": "Ativar ou desativar o teclado na tela. Aplica-se somente a este dispositivo."

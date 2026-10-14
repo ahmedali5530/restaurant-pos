@@ -15,6 +15,14 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-11',
+    title: 'Login branding',
+    items: [
+      'Settings → Branding lets you upload a restaurant logo shown on the login screen under the POSR mark.',
+      'The login page is split into a logo panel and the PIN or form sign-in on larger screens.',
+    ],
+  },
+  {
     date: '2026-10-10',
     title: 'Stable HQ branch record ids',
     items: [
@@ -28,6 +36,31 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'On a cloud reporting database with multiple registered branches, sales, orders, cash closing, and labor reports offer a Branches filter and Combined or By branch views.',
       'Combined totals sum the selected stores; By branch shows each store then a Total row with rates recomputed from the combined figures. Access follows each user’s branch_ids.',
+    ],
+  },
+  {
+    date: '2026-10-08',
+    title: 'Purchase AI import improvements',
+    items: [
+      'Purchase AI Import fills item codes automatically when the line matches an existing inventory item by name.',
+      'Supplier and location on purchase AI Import are dropdowns of existing records instead of free-text fields.',
+      'Fixed purchase approve/post failing with a Surreal transaction error when ledger location was still typed as store.',
+    ],
+  },
+  {
+    date: '2026-10-08',
+    title: 'Manual fiscal retry',
+    items: [
+      'Retry permanently failed integration jobs from Integrations → Queue (including fiscal invoice submissions after network or authority API errors).',
+      'Successful offline fiscal sync jobs now save the completed submission so receipts and the fiscal report stay in sync.',
+    ],
+  },
+  {
+    date: '2026-10-06',
+    title: 'Lean on-prem snapshot window',
+    items: [
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
     ],
   },
   {
