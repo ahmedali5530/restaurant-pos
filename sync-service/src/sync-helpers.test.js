@@ -375,4 +375,15 @@ describe('resolveCatalogSyncTables (Phase 5)', () => {
     assert.equal(pickWinningCatalogRelease(global, branch), branch);
     assert.equal(pickWinningCatalogRelease(global, null), global);
   });
+
+  it('injects user_role before user when an older release omitted roles', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist: ['setting', 'user_role', 'user', 'tax'],
+        localVersion: 0,
+        globalRelease: { version: 2, tables: ['user', 'tax'] },
+      }),
+      ['user_role', 'user', 'tax']
+    );
+  });
 });

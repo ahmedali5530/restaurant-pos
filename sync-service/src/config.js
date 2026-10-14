@@ -44,6 +44,8 @@ const DEFAULT_DOWNLOAD_TABLES = [
   'menu',
   'menu_menu_item',
   'setting',
+  // Roles before users so user.user_role record refs resolve after download.
+  'user_role',
   'user',
   'extra',
   'discount',

@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-14',
+    title: 'Catalog sync includes user roles',
+    items: [
+      'Sync now downloads user_role (permission modules) from HQ before users, so branch staff keep the HQ role assignment and module list instead of leftover seed roles.',
+    ],
+  },
+  {
     date: '2026-10-13',
     title: 'Catalog Sync now re-downloads from cloud',
     items: [

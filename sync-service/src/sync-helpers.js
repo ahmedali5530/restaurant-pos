@@ -358,7 +358,7 @@ function resolveCatalogSyncTables({
       ? [pickWinningCatalogRelease(globalRelease, branchRelease)].filter(Boolean)
       : [];
 
-  if (!consider.length) return [...allowed];
+  if (!consider.length) return ensureUserRoleBeforeUser([...allowed]);
 
   const declared = [];
   let anyDeclared = false;
@@ -371,11 +371,29 @@ function resolveCatalogSyncTables({
     }
   }
 
-  if (!anyDeclared) return [...allowed];
+  if (!anyDeclared) return ensureUserRoleBeforeUser([...allowed]);
 
   const wanted = new Set(declared);
   const filtered = allowed.filter((name) => wanted.has(name));
-  return filtered.length ? filtered : [...allowed];
+  // Older publishes listed `user` without `user_role` — still pull roles when users sync.
+  return ensureUserRoleBeforeUser(filtered.length ? filtered : [...allowed]);
+}
+
+/** Users reference user_role; download roles first, and always with users. */
+function ensureUserRoleBeforeUser(tables) {
+  const out = Array.isArray(tables) ? [...tables] : [];
+  if (!out.includes('user')) return out;
+  const roleIdx = out.indexOf('user_role');
+  const userIdx = out.indexOf('user');
+  if (roleIdx < 0) {
+    out.splice(userIdx, 0, 'user_role');
+    return out;
+  }
+  if (roleIdx > userIdx) {
+    out.splice(roleIdx, 1);
+    out.splice(userIdx, 0, 'user_role');
+  }
+  return out;
 }
 
 function pickWinningCatalogRelease(globalRelease, branchRelease) {
@@ -408,6 +426,7 @@ module.exports = {
   prepareCatalogPayload,
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
+  ensureUserRoleBeforeUser,
   USER_SECRET_FIELDS,
   RELATION_CATALOG_TABLES,
 };

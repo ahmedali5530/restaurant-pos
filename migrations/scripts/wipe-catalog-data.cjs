@@ -88,6 +88,9 @@ const CATALOG_CORE_TABLES = [
   'discount_reason',
   'coupon',
   'printer',
+  // Permission roles (user.user_role). Wiped even when users are kept so Sync
+  // now can replace seed roles/modules from HQ.
+  'user_role',
 ];
 
 const CATALOG_CURSOR_TABLES = [
