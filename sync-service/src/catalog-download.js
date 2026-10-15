@@ -27,6 +27,29 @@ const {
   overrideCacheKey,
 } = require('./catalog-override-fields');
 
+/**
+ * Catalog tables that may carry branch_id / branch_ids scoping on master.
+ * Everything else in the download allowlist is shared HQ data (notably
+ * user_role) — never filter those by branch_id or a bad DEFINE FIELD can
+ * make Sync now return zero role rows and lock branches out.
+ */
+const BRANCH_SCOPED_CATALOG_TABLES = new Set([
+  'menu_item',
+  'category',
+  'menu',
+  'tax',
+  'payment_type',
+  'order_type',
+  'extra',
+  'coupon',
+  'modifier_group',
+  'discount',
+  'floor',
+  'floor_table',
+  'printer',
+  'user',
+]);
+
 function isRecordIdString(value) {
   return typeof value === 'string' && /^[A-Za-z_][A-Za-z0-9_]*:[^\s]+$/.test(value.trim());
 }
@@ -215,6 +238,8 @@ class CatalogDownloadManager {
           error: error.message || String(error),
         });
       }
+      if (!BRANCH_SCOPED_CATALOG_TABLES.has(tableName)) continue;
+
       try {
         await withTimeout(
           this.master.query(
@@ -635,18 +660,25 @@ class CatalogDownloadManager {
 
   async selectMasterPage(tableName, limit, start) {
     const branchId = this.config.clientId;
-    // Shared (no / empty branch_id) or this branch. Users may also list branch_ids[].
-    // Only `user` defines branch_ids — avoid referencing it on other SCHEMAFULL tables.
-    const where = tableName === 'user'
-      ? `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId
-            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)`
-      : `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId`;
+    // Shared tables (user_role, setting, …) must not use a branch_id filter —
+    // ensureMasterCatalogFeeds used to DEFINE branch_id on them and empty
+    // SELECT pages left branches with users but no permission modules.
+    let where = '';
+    const vars = { limit, start };
+    if (tableName === 'user') {
+      where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId
+            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)`;
+      vars.branchId = branchId;
+    } else if (BRANCH_SCOPED_CATALOG_TABLES.has(tableName)) {
+      where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId`;
+      vars.branchId = branchId;
+    }
     const result = await withRetry(
       () => this.master.query(
         `SELECT * FROM ${tableName}
           ${where}
           LIMIT $limit START $start;`,
-        { branchId, limit, start }
+        vars
       ),
       { label: `master.selectPage(${tableName})`, timeoutMs: 30000, retries: 3 }
     );

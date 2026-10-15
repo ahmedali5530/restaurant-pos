@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-15',
+    title: 'Reliable user_role catalog download',
+    items: [
+      'Shared tables such as user_role are no longer filtered by branch_id during Sync now, which could return zero roles and lock branches out after a clean catalog wipe.',
+      'migrations/scripts/restore-user-roles.cjs can copy HQ roles onto a branch or emergency-unlock a login when Manage is inaccessible.',
+    ],
+  },
+  {
     date: '2026-10-14',
     title: 'Catalog sync includes user roles',
     items: [
