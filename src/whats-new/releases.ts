@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-15',
+    title: 'Build-time app module include/exclude',
+    items: [
+      'VITE_APP_MODULES (allowlist) and VITE_APP_MODULES_EXCLUDE (denylist) filter sidebar items, section tabs, and top-level routes at build time so HQ vs branch bundles ship only the areas you need.',
+      'Excluding a top-level module (for example menu or admin) omits that route chunk from the bundle; tab-level ids such as admin.qr_ordering or inventory.kitchen_reconciliation hide only those tabs.',
+    ],
+  },
+  {
+    date: '2026-10-15',
     title: 'Reliable user_role catalog download',
     items: [
       'Shared tables such as user_role are no longer filtered by branch_id during Sync now, which could return zero roles and lock branches out after a clean catalog wipe.',

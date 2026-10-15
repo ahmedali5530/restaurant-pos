@@ -1,6 +1,6 @@
 import {useNavigate} from "react-router";
 import {useTranslation} from "react-i18next";
-import {MENU} from "@/routes/posr.ts";
+import {getDefaultAppPath} from "@/lib/build-modules.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
@@ -112,7 +112,7 @@ export const NotFound = () => {
         <p className="text-lg text-muted">{t('notFound.description')}</p>
       </div>
 
-      <Button variant="primary" size="lg" icon={faArrowLeft} onClick={() => navigate(MENU)}>
+      <Button variant="primary" size="lg" icon={faArrowLeft} onClick={() => navigate(getDefaultAppPath())}>
         {t('notFound.backToMenu')}
       </Button>
 
