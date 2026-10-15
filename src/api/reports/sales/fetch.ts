@@ -3,7 +3,13 @@ import {ORDER_FETCHES} from "@/api/model/order.ts";
 import {MODIFIER_FETCH_DEPTH, buildModifierFetches} from "@/api/model/order_fetches.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {OrderVoid} from "@/api/model/order_void.ts";
-import {buildCreatedAtDateConditions, buildNestedRecordAnyCondition, buildOrConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {
+  buildBranchInsideCondition,
+  buildCreatedAtDateConditions,
+  buildNestedRecordAnyCondition,
+  buildOrConditions,
+  unwrapQueryResult,
+} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 
 export const SALES_SUMMARY_FETCHES = [
@@ -53,6 +59,7 @@ export const fetchOrders = async (
   const {
     startDate,
     endDate,
+    branchIds,
     fetches = SALES_SUMMARY_FETCHES,
     paidOnly = false,
     orderTakerIds = [],
@@ -71,6 +78,15 @@ export const fetchOrders = async (
   const dateFilter = buildCreatedAtDateConditions({startDate, endDate});
   conditions.push(...dateFilter.conditions);
   Object.assign(params, dateFilter.params);
+
+  const branchFilter = buildBranchInsideCondition(branchIds);
+  if (branchFilter.emptyResult) {
+    return [];
+  }
+  if (branchFilter.condition) {
+    conditions.push(branchFilter.condition);
+    Object.assign(params, branchFilter.params);
+  }
 
   const userFilter = buildOrConditions("user", orderTakerIds, "userIds");
   if (userFilter.condition) {
@@ -129,6 +145,14 @@ export const fetchOrderVoids = async (
   options: DateRangeFilter = {},
 ): Promise<OrderVoid[]> => {
   const {conditions, params} = buildCreatedAtDateConditions(options);
+  const branchFilter = buildBranchInsideCondition(options.branchIds);
+  if (branchFilter.emptyResult) {
+    return [];
+  }
+  if (branchFilter.condition) {
+    conditions.push(branchFilter.condition);
+    Object.assign(params, branchFilter.params);
+  }
 
   const query = `
     SELECT * FROM ${Tables.order_voids}

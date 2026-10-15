@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AvailableProviderEntry } from '@/integrations/core/integration-manager.ts';
 import { DocumentTitle } from '@/components/common/document-title.tsx';
+import { filterPagesByBuildModule, firstPageKey, isBuildModuleEnabled } from '@/lib/build-modules.ts';
 
 const INTEGRATION_TAB_MODULES: Record<string, string> = {
   providers: 'integrations.providers',
@@ -36,12 +37,14 @@ export const IntegrationsScreen = () => {
   const [healthRows, setHealthRows] = useState<IntegrationHealthSnapshot[]>([]);
   const [queueRows, setQueueRows] = useState<IntegrationQueueJob[]>([]);
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     providers: { title: t('tabs.providers') },
     configuration: { title: t('tabs.configuration') },
     health: { title: t('tabs.health') },
     queue: { title: t('tabs.queue') },
-  }), [t]);
+  }, INTEGRATION_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   useEffect(() => {
     if (!initialized) return;
@@ -142,11 +145,11 @@ export const IntegrationsScreen = () => {
 
   return (
     <Layout>
-      <DocumentTitle parts={[pages[selected as keyof typeof pages]?.title, tNav('sidebar.integrations')]} />
+      <DocumentTitle parts={[pages[selectedKey as keyof typeof pages]?.title, tNav('sidebar.integrations')]} />
       <div data-testid="integrations-page">
         <Tabs
           className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => setSelected(key), {
               module: INTEGRATION_TAB_MODULES[key],
@@ -166,6 +169,7 @@ export const IntegrationsScreen = () => {
             ))}
           </TabList>
 
+          {isBuildModuleEnabled(INTEGRATION_TAB_MODULES.providers) && (
           <TabPanel id="providers" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-providers">
               <ProvidersPanel
@@ -175,7 +179,9 @@ export const IntegrationsScreen = () => {
               />
             </div>
           </TabPanel>
+          )}
 
+          {isBuildModuleEnabled(INTEGRATION_TAB_MODULES.configuration) && (
           <TabPanel id="configuration" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-configuration">
               <ConfigurationPanel
@@ -188,13 +194,17 @@ export const IntegrationsScreen = () => {
               />
             </div>
           </TabPanel>
+          )}
 
+          {isBuildModuleEnabled(INTEGRATION_TAB_MODULES.health) && (
           <TabPanel id="health" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-health">
               <HealthPanel rows={healthRows} />
             </div>
           </TabPanel>
+          )}
 
+          {isBuildModuleEnabled(INTEGRATION_TAB_MODULES.queue) && (
           <TabPanel id="queue" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-queue">
               <QueuePanel
@@ -206,6 +216,7 @@ export const IntegrationsScreen = () => {
               />
             </div>
           </TabPanel>
+          )}
         </Tabs>
       </div>
     </Layout>

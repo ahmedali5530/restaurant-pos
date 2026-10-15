@@ -9,7 +9,7 @@ import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {MENU} from "@/routes/posr.ts";
+import {getDefaultAppPath} from "@/lib/build-modules.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -327,8 +327,7 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    // redirect to menu
-    navigation(MENU);
+    navigation(getDefaultAppPath());
   }
 
   const handleClockIn = async () => {
@@ -381,7 +380,9 @@ export const Login = () => {
     }
     if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const returnPath = from ? `${from.pathname}${from.search ?? ''}` : MENU;
+      const returnPath = from
+        ? `${from.pathname}${from.search ?? ''}`
+        : getDefaultAppPath();
       navigation(returnPath, { replace: true });
     }
   }, [gatewayAuth, page.user, page.locked, location.state, navigation]);

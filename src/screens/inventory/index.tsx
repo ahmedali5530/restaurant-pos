@@ -26,6 +26,7 @@ import {BuffetMenus} from "@/components/inventory/buffet/menus/index.tsx";
 import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {filterPagesByBuildModule, firstPageKey} from "@/lib/build-modules.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const INVENTORY_TAB_MODULES: Record<string, string> = {
@@ -57,7 +58,7 @@ export const Inventory = () => {
   const [selected, setSelected] = useState('inventory');
   const {protectAction} = useSecurity();
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     'inventory': {component: <InventorySummary/>, title: t('tabs.inventory')},
     'items': {component: <InventoryItems/>, title: t('tabs.items')},
     'suppliers': {component: <InventorySuppliers/>, title: t('tabs.suppliers')},
@@ -78,17 +79,19 @@ export const Inventory = () => {
     'production-history': {component: <InventoryProductionHistory/>, title: t('tabs.productionHistory')},
     'buffet-menus': {component: <BuffetMenus/>, title: t('tabs.buffetMenus')},
     'buffet-sessions': {component: <BuffetSessions/>, title: t('tabs.buffetSessions')},
-  }), [t]);
+  }, INVENTORY_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   return (
     <Layout
       containerClassName=""
     >
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.inventory')]} />
+      <DocumentTitle parts={[pages[selectedKey]?.title, tNav('sidebar.inventory')]} />
       <div data-testid="inventory-page">
         <Tabs
           className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => {
               setSelected(key);

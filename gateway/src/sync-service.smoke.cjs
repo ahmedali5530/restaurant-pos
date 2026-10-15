@@ -6,6 +6,11 @@ const syncService = require('./sync-service');
 assert.strictEqual(syncService.PROTOCOL_VERSION, 1);
 assert.strictEqual(syncService.SCHEMA_VERSION, 1);
 assert.ok(syncService.SNAPSHOT_TABLES.includes('menu_item'));
+assert.ok(syncService.SNAPSHOT_TABLES.includes('user_role'));
+assert.ok(
+  syncService.SNAPSHOT_TABLES.indexOf('user_role')
+    < syncService.SNAPSHOT_TABLES.indexOf('user'),
+);
 // Catalog (printer) must precede operational tables so menu can warm first.
 assert.ok(
   syncService.SNAPSHOT_TABLES.indexOf('printer')

@@ -14,6 +14,11 @@ import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, t
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -82,6 +87,7 @@ interface DayMetrics {
 export const SalesWeeklyReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
@@ -96,6 +102,8 @@ export const SalesWeeklyReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -105,6 +113,16 @@ export const SalesWeeklyReport = () => {
           {startDate: queryStart, endDate: queryEnd},
           "created_at",
         );
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrders([]);
+          setOrderVoids([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          dateConditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
@@ -116,7 +134,6 @@ export const SalesWeeklyReport = () => {
         const ordersResult: any = await queryRef.current(ordersQuery, params);
         setOrders((ordersResult?.[0] ?? []) as Order[]);
 
-        // Fetch order voids
         const voidsQuery = `
           SELECT * FROM ${Tables.order_voids}
           WHERE ${dateConditions.join(' AND ')}
@@ -134,7 +151,61 @@ export const SalesWeeklyReport = () => {
     };
 
     fetchData();
-  }, [queryStart, queryEnd]);
+  }, [branchScope.ready, branchScope.branchIds, queryStart, queryEnd]);
+
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.salesWeekly')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orders}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => {
+          const voidsForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? orderVoids
+              : orderVoids.filter((v) => getRowBranchId(v) === key);
+          return (
+            <SalesWeeklyBody
+              key={key}
+              orders={rows}
+              orderVoids={voidsForSection}
+              weekStart={weekStart}
+            />
+          );
+        }}
+      />
+    </ReportsLayout>
+  );
+};
+
+const SalesWeeklyBody = ({
+  orders,
+  orderVoids,
+  weekStart,
+}: {
+  orders: Order[];
+  orderVoids: OrderVoid[];
+  weekStart: DateTime;
+}) => {
+  const { t } = useTranslation('reports');
 
   const dayMetrics = useMemo(() => {
     const metrics: Record<string, DayMetrics> = {};
@@ -366,26 +437,9 @@ export const SalesWeeklyReport = () => {
     });
 
     return rowData;
-  }, [dayMetrics, dayHeaders]);
-
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.salesWeekly')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
+  }, [dayMetrics, dayHeaders, t]);
 
   return (
-    <ReportsLayout title={t('titles.salesWeekly')} subtitle={subtitle}>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-neutral-200 border border-border">
           <thead className="bg-surface">
@@ -417,6 +471,5 @@ export const SalesWeeklyReport = () => {
           </tbody>
         </table>
       </div>
-    </ReportsLayout>
   );
 };
