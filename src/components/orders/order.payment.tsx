@@ -30,7 +30,7 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {useAtom} from "jotai";
 import {appPage, appSettings} from "@/store/jotai.ts";
 import {Extra} from "@/api/model/extra.ts";
@@ -62,7 +62,7 @@ enum PaymentOptions {
 }
 
 export const OrderPayment = ({
-  order, onClose
+  order: orderProp, onClose
 }: Props) => {
   const {t} = useTranslation('payment');
   const db = useDB();
@@ -71,6 +71,48 @@ export const OrderPayment = ({
 
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
+
+  // Parent often passes a snapshot taken before gateway mint; keep invoice fields live.
+  const [order, setOrder] = useState(orderProp);
+  useEffect(() => {
+    setOrder(orderProp);
+  }, [orderProp]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const syncInvoiceFields = () => {
+      void (async () => {
+        const local = await posStore.getOrder(String(orderProp.id)).catch(() => null);
+        if (cancelled || !local) return;
+        setOrder((prev) => {
+          const invoice_number = local.invoice_number ?? prev.invoice_number;
+          const invoice_display = local.invoice_display ?? prev.invoice_display;
+          const invoice_prefix = local.invoice_prefix ?? (prev as any).invoice_prefix;
+          if (
+            invoice_number === prev.invoice_number
+            && invoice_display === prev.invoice_display
+            && invoice_prefix === (prev as any).invoice_prefix
+          ) {
+            return prev;
+          }
+          return {
+            ...prev,
+            invoice_number,
+            invoice_display,
+            invoice_prefix,
+          } as Order;
+        });
+      })();
+    };
+    syncInvoiceFields();
+    window.addEventListener('posr-posstore-write', syncInvoiceFields);
+    window.addEventListener('posr-operational-orders-updated', syncInvoiceFields);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('posr-posstore-write', syncInvoiceFields);
+      window.removeEventListener('posr-operational-orders-updated', syncInvoiceFields);
+    };
+  }, [orderProp.id]);
 
   const itemsTotal = calculateOrderTotal(order);
   const [paymentTypes, setPaymentTypes] = useState<OrderPaymentModal[]>([]);
@@ -655,7 +697,7 @@ export const OrderPayment = ({
 
   return (
     <Modal
-      title={t('title', {invoice: order.invoice_number})}
+      title={t('title', {invoice: getInvoiceNumber(order)})}
       open={true}
       onClose={closeModal}
       size="full"

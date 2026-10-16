@@ -71,7 +71,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
           shouldCloseOnInteractOutside={shouldCloseOnInteractOutside}
           className={
             cn(
-              'react-aria-ModalOverlay',
+              'react-aria-ModalOverlay ',
               props.bottomSheet ? 'bottom-sheet' : ''
             )
           }
@@ -89,7 +89,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
             <Dialog
               data-testid={props.testId}
               className={cn(
-                'react-aria-Dialog max-w-[100vw]',
+                'react-aria-Dialog max-w-[100vw] mb-12',
                 size === "full" && "modal-full",
                 size === "sm" && "modal-sm",
                 size === 'lg' && 'modal-lg',

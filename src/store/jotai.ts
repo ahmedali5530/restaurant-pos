@@ -114,6 +114,8 @@ export interface AppPageInterface {
   brand?: AppBrandId
   /** Primary hex for brand === 'custom' (e.g. #0046FE). Palette is derived on the fly. */
   customPrimary?: string
+  /** Four base colors (hex) for brand === 'custom'; dark variants are derived. */
+  customPaletteBase?: { canvas: string; surface: string; foreground: string; primary: string }
   /** @deprecated Prefer customPrimary; kept for older device storage. */
   customPalette?: BrandPalette
   /** Last What's New release date dismissed on this device (YYYY-MM-DD). */

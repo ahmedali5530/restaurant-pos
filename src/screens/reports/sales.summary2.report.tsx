@@ -15,6 +15,7 @@ import {aggregateOrderDiscountBreakdown, getOrderAmountDueFromPayments, getOrder
 import { toJsDate } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {buildCreatedAtDateConditions, toReportBoundaryUtcIso} from "@/api/reports/shared/query.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -266,18 +267,10 @@ export const SalesSummary2Report = () => {
         setLoading(true);
         setError(null);
 
-        const orderConditions: string[] = [];
-        const params: Record<string, string> = {};
-
-        if (filters.startDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: orderConditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
         orderConditions.push(`status = '${OrderStatus.Paid}'`);
 
         const ordersQuery = `
@@ -302,12 +295,13 @@ export const SalesSummary2Report = () => {
 
         // Include carried-over open checks for check status calculations.
         let carriedOverOrders: Order[] = [];
-        if (filters.startDate) {
+        const carriedOverStart = toReportBoundaryUtcIso(filters.startDate ?? undefined);
+        if (carriedOverStart) {
           const carriedOverConditions = [
-            `time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") < $startDate`,
+            `created_at < <datetime>$startDate`,
             `status = '${OrderStatus["In Progress"]}'`,
           ];
-          const carriedOverParams = {startDate: filters.startDate};
+          const carriedOverParams = {startDate: carriedOverStart};
 
           const carriedOverQuery = `
             SELECT * FROM ${Tables.orders}
@@ -321,18 +315,10 @@ export const SalesSummary2Report = () => {
         setStatusOrders([...baseStatusOrders, ...carriedOverOrders]);
 
         // Fetch order voids
-        const voidConditions: string[] = [];
-        const voidParams: Record<string, string> = {};
-
-        if (filters.startDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          voidParams.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          voidParams.endDate = filters.endDate;
-        }
+        const {conditions: voidConditions, params: voidParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
 
         const voidsQuery = `
           SELECT * FROM ${Tables.order_voids}

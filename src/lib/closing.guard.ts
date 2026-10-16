@@ -17,6 +17,7 @@ import {toSurrealDateTime} from "@/lib/datetime.ts";
 import {OrderStatus} from "@/api/model/order.ts";
 import {getCatalogTable} from "@/infrastructure/pos-store/catalog.ts";
 import type {Setting} from "@/api/model/setting.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 type DBLike = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<unknown[][]>;
@@ -38,20 +39,32 @@ export const getCycleEndedMessage = (cycleEndedAt: Date) => {
   return i18n.t("closing:guard.cycleEnded", {time: formatClosingCycleTime(cycleEndedAt)});
 };
 
+/**
+ * `shiftId` scopes the lookup to one shift's own closing within the window,
+ * so a second shift starting a closing the same day gets its own record
+ * instead of finding (and overwriting) the first shift's. `undefined` means
+ * "don't care" (any shift); `null` means "only the no-shift record" — pass
+ * the value from the caller's current user's shift as-is.
+ */
 export const getClosingRecordForWindow = async (
   db: DBLike,
-  window: ClosingCycleWindow
+  window: ClosingCycleWindow,
+  shiftId?: string | null
 ): Promise<Closing | null> => {
+  const scopeToShift = shiftId !== undefined;
   const [result] = await db.query(
     `
       SELECT *
       FROM ${Tables.closings}
       WHERE date_from = $dateFrom
+        ${scopeToShift ? (shiftId ? "AND shift = $shiftId" : "AND shift = NONE") : ""}
       ORDER BY created_at DESC
       LIMIT 1
+      FETCH shift, closed_by
     `,
     {
       dateFrom: toSurrealDateTime(window.date_from),
+      ...(scopeToShift && shiftId ? {shiftId: toRecordId(shiftId)} : {}),
     }
   );
 
@@ -62,19 +75,85 @@ export const getClosingRecordForWindow = async (
   return result[0] as Closing;
 };
 
-export const getCurrentCycleClosing = async (db: DBLike, now: Date = new Date()): Promise<Closing | null> => {
-  const {window} = await resolveClosingWindow(db, now);
-  return getClosingRecordForWindow(db, window);
+/** All closings for a window, one per shift — used to list/report every
+ *  shift's closing for a day instead of just the latest. */
+export const getClosingRecordsForWindow = async (
+  db: DBLike,
+  window: ClosingCycleWindow
+): Promise<Closing[]> => {
+  const [result] = await db.query(
+    `
+      SELECT *
+      FROM ${Tables.closings}
+      WHERE date_from = $dateFrom
+      ORDER BY created_at ASC
+      FETCH shift
+    `,
+    {
+      dateFrom: toSurrealDateTime(window.date_from),
+    }
+  );
+
+  return Array.isArray(result) ? (result as Closing[]) : [];
 };
 
+export const getCurrentCycleClosing = async (
+  db: DBLike,
+  now: Date = new Date(),
+  shiftId?: string | null
+): Promise<Closing | null> => {
+  const {window} = await resolveClosingWindow(db, now);
+  return getClosingRecordForWindow(db, window, shiftId);
+};
+
+/** Cash left in the drawer for the next shift: prefers drawer_float, falls
+ *  back to closing_balance for closings saved before that field existed. */
+export const getPreviousClosingBalance = async (
+  db: DBLike,
+  window: ClosingCycleWindow,
+  excludeId?: string | null
+): Promise<number> => {
+  const [result] = await db.query(
+    `
+      SELECT drawer_float, closing_balance, closed_at, created_at
+      FROM ${Tables.closings}
+      WHERE status = 'completed'
+        AND date_from <= $dateFrom
+        ${excludeId ? "AND id != $excludeId" : ""}
+      ORDER BY closed_at DESC, created_at DESC
+      LIMIT 1
+    `,
+    {
+      dateFrom: toSurrealDateTime(window.date_from),
+      ...(excludeId ? {excludeId: toRecordId(excludeId)} : {}),
+    }
+  );
+
+  const row = Array.isArray(result)
+    ? result[0] as { drawer_float?: number | null; closing_balance?: number } | undefined
+    : undefined;
+  if (!row) return 0;
+  if (row.drawer_float != null && !Number.isNaN(Number(row.drawer_float))) {
+    return Number(row.drawer_float);
+  }
+  return Number(row.closing_balance || 0);
+};
+
+/**
+ * Order-taking gate: ANY shift's completed closing for the window ends the
+ * business day for everyone, regardless of who closed it — intentionally
+ * unscoped by shift (unlike getCurrentCycleClosing, used by the Closing
+ * screen itself to find/create the current user's own record).
+ */
 export const isCurrentCycleClosed = async (db: DBLike, now: Date = new Date()): Promise<boolean> => {
   const {config} = await loadClosingCycleConfig(db);
   if (!isClosingCycleEnabled(config)) {
     return false;
   }
 
-  const closing = await getCurrentCycleClosing(db, now);
-  return closing?.status === "completed";
+  const {window} = await resolveClosingWindow(db, now);
+  const closings = await getClosingRecordsForWindow(db, window);
+  return closings.some((closing) => closing.status === "completed");
 };
 
 async function loadClosingCycleConfigLocal(): Promise<{
@@ -217,15 +296,32 @@ const OPEN_ORDER_STATUSES = [
 ];
 
 export const hasOpenOrdersInCurrentCycle = async (db: DBLike): Promise<boolean> => {
-  const {window} = await resolveClosingWindow(db, new Date());
+  const open = await listOpenOrdersInCurrentCycle(db);
+  return open.length > 0;
+};
+
+export type OpenOrderForClosing = {
+  id: string;
+  invoice_number?: number | string | null;
+  table_name?: string;
+  status: string;
+  total: number;
+};
+
+export const listOpenOrdersInCurrentCycle = async (
+  db: DBLike,
+  now: Date = new Date()
+): Promise<OpenOrderForClosing[]> => {
+  const {window} = await resolveClosingWindow(db, now);
   const [result] = await db.query(
     `
-      SELECT id
+      SELECT id, invoice_number, status, total, table, created_at
       FROM ${Tables.orders}
       WHERE created_at >= $start
         AND created_at <= $end
         AND status IN $statuses
-      LIMIT 1
+      ORDER BY created_at ASC
+      FETCH table
     `,
     {
       start: toSurrealDateTime(window.date_from),
@@ -234,5 +330,13 @@ export const hasOpenOrdersInCurrentCycle = async (db: DBLike): Promise<boolean> 
     }
   );
 
-  return Array.isArray(result) && result.length > 0;
+  if (!Array.isArray(result)) return [];
+
+  return result.map((row: any) => ({
+    id: String(row.id),
+    invoice_number: row.invoice_number,
+    table_name: row.table?.name || undefined,
+    status: String(row.status || ""),
+    total: Number(row.total || 0),
+  }));
 };

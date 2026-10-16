@@ -39,6 +39,7 @@ export interface FiscalSettlementResult {
   resultsByProvider: Record<string, FiscalSubmissionRecord>;
   blocked: boolean;
   blockedError?: string;
+  blockedCode?: 'INVOICE_PENDING';
 }
 
 type ConfigDb = Parameters<typeof getIntegrationProviderConfig>[0];
@@ -80,9 +81,16 @@ export const submitFiscalInvoices = async (
   options?: {
     getConfig?: (providerId: string) => Promise<Record<string, unknown>>;
     db?: ConfigDb;
+    /** When set, only these enabled fiscal provider ids are submitted. */
+    providerIds?: string[];
   }
 ): Promise<FiscalSettlementResult> => {
-  const fiscalProviders = manager.getEnabledProvidersByCategory('fiscal');
+  const allowedIds = options?.providerIds?.length
+    ? new Set(options.providerIds)
+    : undefined;
+  const fiscalProviders = manager
+    .getEnabledProvidersByCategory('fiscal')
+    .filter((manifest) => !allowedIds || allowedIds.has(manifest.id));
   if (fiscalProviders.length === 0) {
     return {
       resultsByProvider: {},
@@ -110,6 +118,15 @@ export const submitFiscalInvoices = async (
   let blocked = false;
   let blockedError: string | undefined;
   const submittedAt = toJsDate(nowSurrealDateTime()).toISOString();
+  const invoiceReady = order.invoice_number != null && Number.isFinite(Number(order.invoice_number));
+  if (!invoiceReady) {
+    return {
+      resultsByProvider: {},
+      blocked: await shouldBlockSettlementForFiscal(manager, getConfig),
+      blockedCode: 'INVOICE_PENDING',
+      blockedError: 'Invoice number is pending sync — fiscal submit waits until the gateway assigns it',
+    };
+  }
 
   for (const manifest of fiscalProviders) {
     const providerId = manifest.id;

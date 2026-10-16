@@ -74,8 +74,12 @@
           "effect": "Logo sul ticket."
         },
         {
+          "name": "Larghezza / altezza / predefinito logo",
+          "effect": "Dimensione di stampa in punti (predefinito 150×150). I predefiniti impostano larghezza e altezza; le immagini si stirano al riquadro."
+        },
+        {
           "name": "Sezioni header/footer",
-          "effect": "Blocchi testo/immagine."
+          "effect": "Testo (va a capo su più righe) o blocchi immagine con larghezza/altezza opzionali sopra e sotto il corpo."
         },
         {
           "name": "Nome/n° IVA",

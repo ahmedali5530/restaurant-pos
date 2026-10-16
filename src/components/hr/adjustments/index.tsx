@@ -29,7 +29,11 @@ export const HrAdjustments = () => {
   const columnHelper = createColumnHelper<LaborAdjustment>();
 
   const columns: any = [
-    columnHelper.accessor((row) => entityLabel(row.employee), {id: "employee", header: t("columns.employee")}),
+    columnHelper.accessor((row) => entityLabel(row.employee), {
+      id: "employee",
+      header: t("columns.employee"),
+      meta: {filterField: "string::concat(employee.first_name, ' ', employee.last_name ?? '')"},
+    }),
     columnHelper.accessor("type", {
       header: t("columns.adjustmentType"),
       cell: (info) => {

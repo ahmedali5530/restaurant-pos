@@ -131,6 +131,27 @@
       "caption": "Ventana horaria del ciclo de cierre."
     },
     {
+      "id": "invoice-numbers",
+      "title": "Invoice numbers",
+      "intro": "One policy engine controls how POS invoice numbers are minted, reset, scoped, and formatted. The integer stays fiscal-safe; the display string is snapshotted at mint. Sync all tills after changing this global setting.",
+      "steps": [
+        "Open the Invoice numbers card.",
+        "Pick a preset (Date reset is recommended for fiscal countries).",
+        "Adjust template tokens ({seq}, {prefix}, {yyyy}, {branch}, {terminal}, …), pad, start-at, branch code, and this terminal’s code as needed.",
+        "Read the pros/cons text for the selected preset. Terminal, pool, and hybrid presets require acknowledging fiscal-gap risk before save.",
+        "Save (manager approval may be required), then Sync / Reload cache on other tills."
+      ],
+      "image": "settings-invoice-numbers.png",
+      "caption": "Invoice number policy presets and live preview.",
+      "notes": [
+        "Date reset / global / period with gateway mint: restaurant-wide continuous sequence — preferred when fiscal authorities reject jumps.",
+        "Terminal sequential and reserved pools work offline but create holes across tills — unsafe for continuous fiscal sequences.",
+        "Hybrid online sequential + offline pool still leaves unused reserved numbers after reconnect.",
+        "Fiscal authority numbers (FBR/PRA) are stored on fiscal submissions; POSR does not invent FBR-looking strings.",
+        "Offline checks show a temporary random code (configurable length) until the gateway assigns the real number."
+      ]
+    },
+    {
       "id": "auto-check-close",
       "title": "Cierre automático de cuentas",
       "intro": "Cierra automáticamente cuentas abiertas al final del ciclo con un tipo de pago predeterminado.",

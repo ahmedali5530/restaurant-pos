@@ -12,7 +12,9 @@
     "createOrder": "Sipariş oluşturulamadı.",
     "openPayment": "Ödeme açılamadı.",
     "notOwner": "Bu sipariş başka bir terminalde açık",
-    "numbersExhausted": "Çevrimdışı fatura numarası kalmadı — sipariş oluşturmaya devam etmek için yeniden bağlanın",
+    "numbersExhausted": "Çevrimdışı ayrılmış sipariş kimliği kalmadı — devam etmek için yeniden bağlanın",
+    "invoicePendingSync": "Fatura numarası senkron bekliyor — mali gönderimden önce siparişin çevrimiçi olmasını bekleyin",
+    "fiscalFailed": "Mali gönderim başarısız",
     "fireFailed": "Bekletilen ürünler gönderilemedi"
   },
   "tracking": {

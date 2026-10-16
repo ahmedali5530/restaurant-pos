@@ -14,6 +14,7 @@ import {
 import type { OrderItem } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import {
+  buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
   buildStringInsideCondition,
@@ -140,15 +141,12 @@ export const VoidsReport = () => {
         const conditions: string[] = [];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
 
         const reasonFilter = buildStringInsideCondition('reason', filters.reasonIds, 'reasonIds');
         if (reasonFilter.condition) {

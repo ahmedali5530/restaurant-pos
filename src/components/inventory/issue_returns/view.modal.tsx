@@ -152,7 +152,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
                           {doc.name ?? `Document ${index + 1}`}
                         </span>
                         <span className="text-xs text-muted">
-                          {doc.mimeType ?? "File"}
+                          {doc.type ?? "File"}
                         </span>
                       </div>
                     </div>
@@ -163,7 +163,7 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
                         downloadArrayBuffer(
                           doc.content,
                           doc.name ?? `issue-return-${viewReturn.invoice_number}-${index + 1}`,
-                          doc.mimeType ?? "application/octet-stream"
+                          doc.type ?? "application/octet-stream"
                         )
                       }
                     >

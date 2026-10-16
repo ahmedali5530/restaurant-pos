@@ -132,6 +132,7 @@ test('toSurrealContent coerces declared order aggregate links and preserves modi
     order_taxes: [],
     created_at: '2026-09-06T14:56:33.847Z',
     owner_terminal_id: 'terminal:abc',
+    local_invoice_code: 'ABC123',
   });
 
   assert.equal(Object.hasOwn(content, 'id'), false);
@@ -148,6 +149,7 @@ test('toSurrealContent coerces declared order aggregate links and preserves modi
   assert.deepEqual(content.order_taxes, []);
   assert.ok(content.created_at instanceof Date);
   assert.equal(content.owner_terminal_id, 'terminal:abc');
+  assert.equal(Object.hasOwn(content, 'local_invoice_code'), false);
 
   const item = toSurrealContent('order_item', {
     id: 'order_item:i1',
@@ -190,9 +192,37 @@ test('CREATE_RECORD writes children before order and links only written items', 
   const kitchen = contents.find((value) => String(value?.order_item) === 'order_item:ritem');
   const order = contents.find((value) => Array.isArray(value?.items));
   assert.ok(item && kitchen && order);
+  assert.equal(order.invoice_number, 1);
+  assert.equal(order.invoice_display, '1');
   assert.ok(order.items.every(isRecordId));
   assert.equal(item.position, 0);
   assert.equal(item.modifiers[0].id, 'modifier:cheese');
+});
+
+test('CREATE_RECORD retry returns the already-assigned invoice number', async () => {
+  const db = recordingDb((query) => {
+    if (query.includes('sync_accepted_operation WHERE operation_id')) {
+      return { event_id: 'event:1', operation_id: 'terminal:test:CREATE_RECORD' };
+    }
+    if (query.startsWith('SELECT * FROM $id')) {
+      return {
+        invoice_number: 7,
+        invoice_display: 'INV-007',
+        invoice_prefix: 'INV-',
+        status: 'In Progress',
+      };
+    }
+    return undefined;
+  });
+  const result = await applyOperation(db, operation('CREATE_RECORD'), 'terminal:test', 'default');
+  assert.equal(result.status, 'accepted');
+  assert.equal(result.invoiceNumber, 7);
+  assert.equal(result.invoiceDisplay, 'INV-007');
+  assert.equal(result.invoicePrefix, 'INV-');
+  assert.equal(
+    db.calls.some(({ query }) => query.includes('UPSERT')),
+    false,
+  );
 });
 
 test('MERGE_RECORD upserts children then appends links — never MERGE-replaces items', async () => {

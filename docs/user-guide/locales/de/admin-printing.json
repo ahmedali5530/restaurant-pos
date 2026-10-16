@@ -74,8 +74,12 @@
           "effect": "Hochgeladenes Logo auf Ticket."
         },
         {
+          "name": "Logo-Breite / -Höhe / Vorlage",
+          "effect": "Druckgröße in Punkten (Standard 150×150). Vorlagen setzen Breite und Höhe; Bilder werden auf den Rahmen gestreckt."
+        },
+        {
           "name": "Kopf- / Fußbereiche",
-          "effect": "Text- oder Bildblöcke oben/unten."
+          "effect": "Text (umbricht über mehrere Zeilen) oder Bildblöcke mit optionaler Breite/Höhe über und unter dem Inhalt."
         },
         {
           "name": "USt-Name / -Nummer",

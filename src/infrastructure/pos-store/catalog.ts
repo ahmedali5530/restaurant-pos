@@ -477,9 +477,8 @@ export async function getOpenOrders(): Promise<OrderRecord[]> {
 }
 
 /**
- * Remove open/pending Dexie rows that never received an invoice number — sync
- * shells from sparse MERGE replay or id-only imports. Safe: real checks always
- * allocate an invoice at CREATE.
+ * Remove open/pending Dexie rows that are empty sync shells (no invoice, owner,
+ * or items). Local checks waiting for a gateway invoice are kept.
  */
 export async function pruneGhostOperationalOrders(): Promise<number> {
   const db = getPosStoreDatabase();

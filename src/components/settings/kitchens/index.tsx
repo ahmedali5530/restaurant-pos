@@ -42,7 +42,7 @@ export const AdminKitchens = () => {
     }),
     columnHelper.accessor("printers", {
       header: t('columns.printers'),
-      cell: info => info.getValue()?.map(item => <span className="tag" key={item.id}>{item.name}</span>)
+      cell: info => info.getValue()?.filter(Boolean).map(item => <span className="tag" key={item.id}>{item.name}</span>)
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')

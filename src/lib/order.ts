@@ -9,11 +9,24 @@ import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
 
 export const getInvoiceNumber = (order?: OrderModel | null) => {
-  if (!order || order.invoice_number == null) {
+  if (!order) {
     return '-';
   }
 
-  return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
+  if (typeof order.invoice_display === 'string' && order.invoice_display.trim()) {
+    return order.split ? `${order.invoice_display}/${order.split}` : order.invoice_display;
+  }
+
+  if (order.invoice_number != null && Number.isFinite(Number(order.invoice_number))) {
+    return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
+  }
+
+  const local = order.local_invoice_code;
+  if (typeof local === 'string' && local.trim()) {
+    return order.split ? `${local}/${order.split}` : local;
+  }
+
+  return '-';
 }
 
 export const getOrderFilteredItems = (order: OrderModel) => {

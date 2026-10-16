@@ -9,6 +9,7 @@ import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
 import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -209,14 +210,12 @@ export const DeliveryDensityReport = () => {
         const conditions: string[] = ["delivery != NONE"];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
 
         const statusConditions: string[] = [];
         if (filters.refund) statusConditions.push(`status = '${OrderStatus.Refunded}'`);

@@ -27,6 +27,9 @@ import {DocumentCategory} from "@/api/model/hr.types.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {assertFileWithinLimit, viewArrayBufferInNewTab} from "@/utils/files.ts";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faEye, faFile} from "@fortawesome/free-solid-svg-icons";
 
 const DOCUMENT_CATEGORIES: DocumentCategory[] = [
   "contract", "certificate", "license", "id_document", "medical", "warning", "other",
@@ -106,6 +109,16 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
   const onSubmit = async (values: FormValues) => {
     try {
       if (data?.id) {
+        if (values.file && data.document?.id) {
+          const content = await values.file.arrayBuffer();
+          await db.update(data.document.id, {
+            name: values.file.name,
+            content,
+            size: values.file.size,
+            type: values.file.type || undefined,
+          });
+        }
+
         await db.update(data.id, {
           employee: toRecordId(values.employee?.value),
           category: values.category ?? "other",
@@ -123,8 +136,10 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
           name: values.file.name,
           content,
           size: values.file.size,
-          mimeType: values.file.type || undefined,
-          type: "employee_document",
+          // The `document` table only has `type` (no `mimeType` field) — it
+          // holds the file's MIME type; the document's HR category lives
+          // separately on employee_document.category below.
+          type: values.file.type || undefined,
         });
         const docId = Array.isArray(created) ? created[0]?.id : (created as {id?: string})?.id;
 
@@ -183,23 +198,61 @@ export const DocumentForm = ({open, onClose, data}: Props) => {
             control={control}
             error={errors.expires_at?.message}
           />
-          {!data && (
-            <HrFormField label={t("forms.document.attachFile")} error={errors.file?.message as string | undefined}>
-              <Controller
-                control={control}
-                name="file"
-                render={({field}) => (
-                  <input
-                    type="file"
-                    className="input w-full"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      field.onChange(e.target.files?.[0] ?? null);
-                    }}
-                  />
-                )}
-              />
+          {data && (
+            <HrFormField label={t("forms.document.currentFile", {defaultValue: "Current file"})}>
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FontAwesomeIcon icon={faFile} className="text-muted shrink-0" />
+                  <span className="truncate text-sm text-foreground">
+                    {data.document?.name ?? t("forms.document.attachFile")}
+                  </span>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="neutral"
+                  icon={faEye}
+                  disabled={!data.document?.content}
+                  onClick={() => {
+                    if (!data.document?.content) return;
+                    viewArrayBufferInNewTab(data.document.content, data.document.type ?? "application/octet-stream");
+                  }}
+                >
+                  {t("buttons.view", {defaultValue: "View"})}
+                </Button>
+              </div>
             </HrFormField>
           )}
+          <HrFormField
+            label={data
+              ? t("forms.document.replaceFile", {defaultValue: "Replace file (optional)"})
+              : t("forms.document.attachFile")}
+            error={errors.file?.message as string | undefined}
+          >
+            <Controller
+              control={control}
+              name="file"
+              render={({field}) => (
+                <input
+                  type="file"
+                  className="input w-full"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                    const picked = e.target.files?.[0] ?? null;
+                    if (picked) {
+                      try {
+                        assertFileWithinLimit(picked);
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : String(error));
+                        e.target.value = "";
+                        return;
+                      }
+                    }
+                    field.onChange(picked);
+                  }}
+                />
+              )}
+            />
+          </HrFormField>
         </div>
         <Button type="submit" variant="primary">{t("buttons.save")}</Button>
       </form>

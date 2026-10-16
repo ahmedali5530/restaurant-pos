@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "الانتقال من الطاولة {{table}} إلى أخرى",
     "reloadCachePrefix": "اضغط زر إعادة تحميل ذاكرة التخزين المؤقت من",
-    "settings": "الإعدادات"
+    "settings": "الإعدادات",
+    "ordersWarming": "جاري تحميل الطلبات المفتوحة… يرجى الانتظار لحظة."
   },
   "guard": {
     "punchDisabled": "الإدخال معطّل حتى إغلاق الدورة الحالية، أو حذف إغلاق الدورة الحالية.",
@@ -22,36 +23,79 @@
     "coins": "عملات معدنية",
     "denomination": "× {{value}}",
     "total": "إجمالي الجهاز: {{amount}}",
-    "add": "إضافة جهاز"
+    "add": "إضافة جهاز",
+    "mode": {
+      "breakdown": "عدّ الأوراق النقدية",
+      "total": "إدخال الإجمالي",
+      "totalLabel": "إجمالي النقد المعدود"
+    }
   },
   "title": "الإغلاق اليومي بتاريخ {{date}}",
   "loading": "جارٍ تحميل الإغلاق...",
   "alerts": {
     "cycleDisabled": "دورة الإغلاق معطّلة. يُستخدم وقت آخر إغلاق مكتمل كبداية لهذه الفترة، ويُستخدم الوقت الحالي كنهاية.",
     "cycleCompleted": "اكتمل الإغلاق لهذه الدورة. استقبال الطلبات محظور حتى الدورة التالية.",
-    "periodCompleted": "اكتمل الإغلاق لهذه الفترة."
+    "periodCompleted": "اكتمل الإغلاق لهذه الفترة.",
+    "varianceReasonRequired": "أدخل سبب الزيادة أو النقص في النقد قبل إكمال الإغلاق."
   },
   "sections": {
-    "previousDayBalance": "رصيد اليوم السابق",
-    "pettyCash": "الصندوق الصغير",
+    "previousDayBalance": "النقد المتبقي من الإغلاق السابق",
+    "pettyCash": "نقد نثري وارد",
+    "cashDrop": "إسقاط نقد / خزنة",
     "terminalCash": "نقدية الجهاز",
     "paymentTypesSummary": "ملخص أنواع الدفع من النظام",
+    "nonCashBatch": "مطابقة دفعات غير نقدية",
     "expenses": "المصروفات",
+    "openChecks": "الفواتير المفتوحة",
+    "shiftRecap": "ملخص الوردية",
     "notes": "ملاحظات",
-    "summary": "الملخص"
+    "summary": "ملخص الدرج",
+    "selfOrders": "طلبات QR الذاتية"
   },
   "fields": {
     "previousDayBalance": "رصيد اليوم السابق",
     "pettyCash": "الصندوق الصغير",
+    "cashDrop": "نقد منقول للخزنة",
     "description": "الوصف",
     "category": "الفئة",
     "amount": "المبلغ",
+    "batchAmount": "مبلغ الدفعة / الجهاز",
+    "varianceReason": "سبب الزيادة / النقص",
+    "varianceReasonPlaceholder": "اشرح فرق النقد...",
     "notesPlaceholder": "أضف أي ملاحظات إضافية..."
+  },
+  "labels": {
+    "cashSystemTotal": "نقد من النظام",
+    "systemAmount": "النظام",
+    "noNonCash": "لا توجد طرق دفع غير نقدية لهذه الفترة.",
+    "noOpenChecks": "لا توجد فواتير مفتوحة في هذه الفترة.",
+    "closedBy": "أغلق بواسطة {{name}}"
+  },
+  "columns": {
+    "invoice": "فاتورة",
+    "table": "طاولة",
+    "status": "الحالة",
+    "amount": "المبلغ"
+  },
+  "recap": {
+    "paidOrders": "طلبات مدفوعة",
+    "discounts": "خصومات",
+    "tax": "ضريبة",
+    "serviceCharge": "رسوم خدمة",
+    "tips": "بقشيش",
+    "voids": "إلغاءات",
+    "refunds": "استردادات"
   },
   "totals": {
     "totalCash": "إجمالي النقد: {{amount}}",
+    "cashSales": "مبيعات نقدية (النظام)",
     "cashFromPayments": "النقد من ملخص الدفع",
+    "expectedInDrawer": "المتوقع في الدرج",
+    "overShort": "زيادة / نقص",
+    "cashLeftNextShift": "نقد متبقٍ للوردية التالية",
+    "countedCash": "نقد معدود",
     "difference": "الفرق: {{amount}}",
+    "batchDifference": "فرق الدفعة: {{amount}}",
     "totalOtherPayments": "إجمالي المدفوعات الأخرى: {{amount}}",
     "totalExpenses": "إجمالي المصروفات: {{amount}}",
     "previousBalance": "الرصيد السابق",
@@ -85,5 +129,11 @@
     "skippedSuffix": " ({{count}} تم تخطيها)",
     "executionFailed": "فشل الإغلاق التلقائي للفواتير",
     "warning": "سيتم إغلاق الفواتير تلقائياً خلال {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "مدفوعة عبر الإنترنت من الضيوف على طاولاتهم — ليست ضمن درج النقد أو دفعة البطاقات أعلاه.",
+    "orders": "طلبات QR",
+    "total": "مدفوع عبر الإنترنت",
+    "testWarning": "{{count}} طلب تجريبي ({{amount}}) — لم يتم تحصيل أي مبلغ لها."
   }
 }

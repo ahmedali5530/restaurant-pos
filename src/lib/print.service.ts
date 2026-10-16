@@ -61,7 +61,7 @@ const PRINT_CONFIG_KEYS: Record<string, string> = {
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$', PKR: 'Rs', EUR: '€', GBP: '£',
+  USD: '$', PKR: 'Rs', EUR: '€', GBP: '£', IDR: 'Rp',
 };
 
 // Set VITE_PRINT_SERVER_URL in .env (e.g. http://localhost:3132) to override.

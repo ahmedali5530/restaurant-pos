@@ -11,6 +11,17 @@ const isDuplicate = (
   return applied.some(a => a.rule.id === candidate.rule.id)
 }
 
+/**
+ * "Highest wins" means the rule with the largest effect. For deductions
+ * (negative totals) that is the largest magnitude, not the least-negative:
+ * a group of penalties/advances should apply the strongest one. Sorting on
+ * the raw total would otherwise pick the smallest deduction.
+ */
+const pickStrongest = (group: LaborRuleCandidate[]): LaborRuleCandidate =>
+  [...group].sort(
+    (a, b) => Math.abs(b.totalAmount) - Math.abs(a.totalAmount)
+  )[0]
+
 const resolveGroup = (
   group: LaborRuleCandidate[],
   stackingMode: string
@@ -18,7 +29,7 @@ const resolveGroup = (
   if (group.length === 0) return []
 
   if (stackingMode === 'prevent' || stackingMode === 'highest_wins') {
-    return [group.sort((a, b) => b.totalAmount - a.totalAmount)[0]]
+    return [pickStrongest(group)]
   }
 
   if (stackingMode === 'priority') {
@@ -56,7 +67,10 @@ export const resolveRuleStacking = (
 
   const byGroup = new Map<string, LaborRuleCandidate[]>()
   for (const c of candidates) {
-    if (c.totalAmount <= 0) {
+    // Deductions carry a negative totalAmount by design — only a true
+    // no-op (exactly 0) has nothing to apply. `<= 0` here silently
+    // rejected every pure-deduction rule regardless of eligibility.
+    if (c.totalAmount === 0) {
       rejected.push(c)
       continue
     }
@@ -85,7 +99,7 @@ export const resolveRuleStacking = (
 
   const anyPrevent = applied.some(a => a.rule.stacking_mode === 'prevent')
   if (anyPrevent && applied.length > 1) {
-    const best = [...applied].sort((a, b) => b.totalAmount - a.totalAmount)[0]
+    const best = pickStrongest(applied)
     return {
       applied: [best],
       rejected: [...applied.filter(a => a !== best), ...rejected],

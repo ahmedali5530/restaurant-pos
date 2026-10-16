@@ -12,7 +12,9 @@
     "createOrder": "Bestellung konnte nicht erstellt werden.",
     "openPayment": "Zahlung konnte nicht geöffnet werden.",
     "notOwner": "Diese Bestellung ist auf einem anderen Terminal geöffnet",
-    "numbersExhausted": "Offline sind keine Rechnungsnummern mehr verfügbar — verbinden Sie sich erneut, um weitere Bestellungen anzulegen",
+    "numbersExhausted": "Offline sind keine reservierten Bestell-IDs mehr verfügbar — verbinden Sie sich erneut, um fortzufahren",
+    "invoicePendingSync": "Die Rechnungsnummer wartet auf die Synchronisierung — warten Sie, bis die Bestellung online ist, bevor Sie fiskalisch senden",
+    "fiscalFailed": "Fiskalische Übermittlung fehlgeschlagen",
     "fireFailed": "Zurückgehaltene Artikel konnten nicht gesendet werden"
   },
   "tracking": {

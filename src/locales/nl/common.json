@@ -254,7 +254,8 @@
       "bogoDiscount": "Automatische BOGO-korting voor voorgerechten maken",
       "addDish": "Nieuw gerecht Margherita toevoegen voor €x",
       "listUsers": "Alle POS-gebruikers weergeven",
-      "inventoryStock": "Voorraadartikelen onder bestelniveau tonen"
+      "inventoryStock": "Voorraadartikelen onder bestelniveau tonen",
+      "howToPurchase": "Hoe boekt u een voorraadaankoop?"
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"

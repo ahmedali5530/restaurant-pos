@@ -75,4 +75,14 @@ describe("selectAssistantToolsForPrompt", () => {
     const names = toolNames("list modifier groups", ["admin.modifier_groups"]);
     expect(names).toContain("list_modifier_groups");
   });
+
+  it("always includes lookup_user_guide", () => {
+    const names = toolNames("show me today's sales");
+    expect(names).toContain("lookup_user_guide");
+  });
+
+  it("puts lookup_user_guide first for how-to prompts", () => {
+    const names = toolNames("How do I post an inventory purchase?");
+    expect(names[0]).toBe("lookup_user_guide");
+  });
 });

@@ -13,7 +13,7 @@ import {
   aggregateOrderDiscountBreakdown,
   getInvoiceNumber,
 } from "@/lib/order.ts";
-import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
+import {buildCreatedAtDateConditions, buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
@@ -210,18 +210,12 @@ export const DiscountsReport = () => {
         ];
         const params: Record<string, any> = {};
 
-        if (filters.startDate) {
-          conditions.push(
-            `time::format(order.created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`,
-          );
-          params.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          conditions.push(
-            `time::format(order.created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`,
-          );
-          params.endDate = filters.endDate;
-        }
+        const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "order.created_at",
+        );
+        conditions.push(...dateConditions);
+        Object.assign(params, dateParams);
         if (filters.discountId) {
           const discountFilter = buildRecordInsideCondition("discount", [filters.discountId], "discountIds");
           if (discountFilter.condition) {

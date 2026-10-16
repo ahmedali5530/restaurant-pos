@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Günlük maks. saat",
       "maxHoursPerWeek": "Haftalık maks. saat",
       "breakRules": "Mola kuralları",
-      "notes": "Notlar"
+      "notes": "Notlar",
+      "overtimeSection": "Fazla mesai",
+      "overtimeSectionHelp": "Varsayılan olarak günde 8 saati aşan saatler 1,5x ödenir. Bunu yalnızca bu çalışan için geçersiz kılın veya kapatın.",
+      "overtimeThreshold": "Günlük eşik (saat)",
+      "overtimeMultiplier": "Çarpan",
+      "nightPremiumSection": "Gece primi",
+      "nightPremiumSectionHelp": "Varsayılan olarak 22:00–06:00 arasında çalışılan saatlere %25 ek ödenir. Bunu yalnızca bu çalışan için geçersiz kılın veya kapatın.",
+      "nightStart": "Başlangıç saati",
+      "nightEnd": "Bitiş saati",
+      "nightMultiplier": "Çarpan",
+      "policyMode": {
+        "default": "Varsayılanı kullan",
+        "custom": "Özel",
+        "disabled": "Devre dışı"
+      }
     },
     "payRule": {
       "create": "Ödeme kuralı oluştur",
@@ -352,7 +366,10 @@
       "category": "Kategori",
       "title": "Başlık",
       "expiresAt": "Son kullanma tarihi",
-      "attachFile": "Dosya ekle"
+      "attachFile": "Dosya ekle",
+      "currentFile": "Geçerli dosya",
+      "replaceFile": "Dosyayı değiştir (isteğe bağlı)",
+      "deleteConfirm": "Bu belge silinsin mi? Bu işlem geri alınamaz."
     },
     "performance": {
       "create": "Performans notu ekle",
@@ -557,7 +574,10 @@
     "saveOverride": "Düzeltmeyi kaydet",
     "resetOverrides": "Düzeltmeleri sıfırla",
     "confirmResetOverrides": "Tüm satırlar yeniden hesaplansın ve yönetici düzeltmeleri silinsin mi?",
-    "overrideHelp": "Önizleme çalıştırmasında tutarları düzenleyin. Yeniden hesaplama, sıfırlamadığınız sürece düzeltilmiş satırları korur."
+    "overrideHelp": "Önizleme çalıştırmasında tutarları düzenleyin. Yeniden hesaplama, sıfırlamadığınız sürece düzeltilmiş satırları korur.",
+    "deleted": "Bordro çalıştırması silindi",
+    "deleteConfirm": "Bu taslak bordro çalıştırması silinsin mi? Bu işlem geri alınamaz.",
+    "premiumPay": "Prim ödemesi"
   },
   "dashboard": {
     "title": "İşgücü paneli",

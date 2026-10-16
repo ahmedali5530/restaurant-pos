@@ -70,7 +70,7 @@ function syncDocumentTheme(
   customPrimary: string,
 ): void {
   if (typeof document === 'undefined') return;
-  const key = `${resolved}|${brand}|${customPrimary}|${palette.primary}|${palette.canvas}`;
+  const key = `${resolved}|${brand}|${customPrimary}|${JSON.stringify(palette)}`;
   if (key === lastAppliedKey) return;
   lastAppliedKey = key;
   applyDocumentTheme(resolved);

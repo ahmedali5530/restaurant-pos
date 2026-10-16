@@ -15,13 +15,13 @@ REMOVE TABLE IF EXISTS sync_aggregate_version;
 REMOVE TABLE IF EXISTS sync_cursor;
 REMOVE TABLE IF EXISTS sync_array_test;
 
-DEFINE TABLE sync_terminal SCHEMALESS;
-DEFINE TABLE sync_event SCHEMALESS;
-DEFINE TABLE sync_event_seq SCHEMALESS;
-DEFINE TABLE sync_accepted_operation SCHEMALESS;
-DEFINE TABLE sync_conflict SCHEMALESS;
-DEFINE TABLE sync_number_reservation SCHEMALESS;
-DEFINE TABLE sync_number_counter SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_terminal SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_event SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_event_seq SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_accepted_operation SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_conflict SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_number_reservation SCHEMALESS;
+DEFINE TABLE IF NOT EXISTS sync_number_counter SCHEMALESS;
 
 DEFINE INDEX IF NOT EXISTS sync_terminal_terminal_id ON sync_terminal FIELDS terminal_id UNIQUE;
 DEFINE INDEX IF NOT EXISTS sync_event_event_id ON sync_event FIELDS event_id UNIQUE;

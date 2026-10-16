@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Veuillez choisir une nouvelle table",
     "success": "Fusion réussie dans {{invoiceNumber}}",
+    "successPending": "Commandes fusionnées. Le numéro de facture apparaîtra après la synchronisation.",
     "failed": "Échec de la fusion des commandes",
     "chooseTable": "Choisir une table",
     "selectTwoOrMore": "Sélectionner 2 commandes ou plus",

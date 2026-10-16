@@ -69,5 +69,15 @@
     "start": "Авторизовать через QuickBooks",
     "callbackError": "Ошибка обратного вызова OAuth. Попробуйте снова.",
     "disconnected": "Отключено от QuickBooks"
+  },
+  "queue": {
+    "retry": "Повторить",
+    "retrySuccess": "Задача успешно повторена.",
+    "retryFailed": "Повтор не удался.",
+    "retryFailedWithError": "Повтор не удался: {{error}}",
+    "retryAlreadyCompleted": "Фискальная отправка уже была успешной — задача очереди очищена.",
+    "retryInvoicePending": "Номер счёта ещё не готов — повторите после синхронизации.",
+    "retryOrderNotFound": "Заказ не найден для повторной фискальной отправки.",
+    "retryProviderDisabled": "Провайдер отключён."
   }
 }

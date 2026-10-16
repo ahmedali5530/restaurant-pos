@@ -74,8 +74,12 @@
           "effect": "Incluye logo cargado en el ticket."
         },
         {
+          "name": "Ancho / alto / preajuste del logo",
+          "effect": "Tamaño de impresión en puntos (predeterminado 150×150). Los preajustes rellenan ancho y alto; la imagen se estira al cuadro."
+        },
+        {
           "name": "Secciones encabezado / pie",
-          "effect": "Bloques de texto o imagen arriba/abajo."
+          "effect": "Texto (se ajusta en varias líneas) o bloques de imagen con ancho/alto opcionales arriba y abajo del cuerpo."
         },
         {
           "name": "Nombre / número IVA",

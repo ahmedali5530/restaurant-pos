@@ -254,7 +254,8 @@
       "bogoDiscount": "Başlangıçlar için otomatik BOGO indirimi oluştur",
       "addDish": "x TL'ye yeni Margherita yemeği ekle",
       "listUsers": "Tüm POS kullanıcılarını listele",
-      "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster"
+      "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster",
+      "howToPurchase": "Envanter satın alma kaydını nasıl oluştururum?"
     },
     "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
     "passwordWillBeSet": "Onaylandığında şifre ayarlanacak"

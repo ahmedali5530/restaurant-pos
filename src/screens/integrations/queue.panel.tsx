@@ -1,9 +1,16 @@
+import { useState } from 'react';
 import { IntegrationQueueJob, IntegrationQueueStatus } from '@/integrations/queue/types.ts';
 import { toLuxonDateTime } from '@/lib/datetime.ts';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import { Button } from '@/components/common/input/button.tsx';
+import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
+import { useIntegrationManager } from '@/providers/integration.provider.tsx';
+import { useDB } from '@/api/db/db.ts';
 
 interface QueuePanelProps {
   rows: IntegrationQueueJob[];
+  onRefresh?: () => Promise<void> | void;
 }
 
 const STATUS_STYLES: Record<IntegrationQueueStatus, string> = {
@@ -54,8 +61,47 @@ const getOrderSummary = (payload: Record<string, unknown>) => {
     : `#${invoiceNumber}`;
 };
 
-export const QueuePanel = ({ rows }: QueuePanelProps) => {
+export const QueuePanel = ({ rows, onRefresh }: QueuePanelProps) => {
   const { t } = useTranslation('integrations');
+  const { manager } = useIntegrationManager();
+  const db = useDB();
+  const [retryingId, setRetryingId] = useState<string | null>(null);
+
+  const onRetry = async (job: IntegrationQueueJob) => {
+    setRetryingId(job.id);
+    try {
+      const outcome = await manager.retryDeadLetterJob(job.id, db);
+      if (outcome.success) {
+        if (outcome.reason === 'already_completed') {
+          toast.info(t('queue.retryAlreadyCompleted'));
+        } else {
+          toast.success(t('queue.retrySuccess'));
+        }
+      } else if (outcome.skipped) {
+        if (outcome.reason === 'invoice_pending') {
+          toast.error(t('queue.retryInvoicePending'));
+        } else if (outcome.reason === 'provider_disabled') {
+          toast.error(t('queue.retryProviderDisabled'));
+        } else if (outcome.reason === 'order_not_found') {
+          toast.error(t('queue.retryOrderNotFound'));
+        } else {
+          toast.error(t('queue.retryFailed'));
+        }
+      } else {
+        toast.error(
+          outcome.error
+            ? t('queue.retryFailedWithError', { error: outcome.error })
+            : t('queue.retryFailed')
+        );
+      }
+      await onRefresh?.();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(t('queue.retryFailedWithError', { error: message }));
+    } finally {
+      setRetryingId(null);
+    }
+  };
 
   return (
     <div className="p-5 space-y-3">
@@ -69,6 +115,7 @@ export const QueuePanel = ({ rows }: QueuePanelProps) => {
         const orderLabel = getOrderSummary(row.payload);
         const statusClass = STATUS_STYLES[row.status] ?? STATUS_STYLES.Waiting;
         const statusLabel = t(`status.${row.status}`, { defaultValue: row.status });
+        const canRetry = row.status === 'DeadLetter';
 
         return (
           <div
@@ -90,11 +137,25 @@ export const QueuePanel = ({ rows }: QueuePanelProps) => {
                 <p className="text-sm text-muted">{humanizeAction(row.action)}</p>
               </div>
 
-              <span
-                className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusClass}`}
-              >
-                {statusLabel}
-              </span>
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <span
+                  className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${statusClass}`}
+                >
+                  {statusLabel}
+                </span>
+                {canRetry ? (
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    icon={faRotateRight}
+                    isLoading={retryingId === row.id}
+                    disabled={retryingId != null}
+                    onClick={() => void onRetry(row)}
+                  >
+                    {t('queue.retry')}
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">

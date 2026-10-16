@@ -180,7 +180,6 @@ export const SplitItems = ({
     if (!canSave) return;
 
     setIsSaving(true);
-    const allocatedInvoices: number[] = [];
     const allocatedAutoIds: number[] = [];
     let committed = false;
     try {
@@ -192,14 +191,10 @@ export const SplitItems = ({
       const groups = [];
       for (const split of actualSplits) {
         if (split.items.length === 0) continue;
-        const invoiceNumber = await posStore.consumeInvoiceNumber();
-        allocatedInvoices.push(invoiceNumber);
         const autoId = await posStore.consumeAutoId();
         allocatedAutoIds.push(autoId);
         groups.push({
           itemIds: split.items.map((item) => String(item.id)),
-          // Reserved int ranges — never provisional strings.
-          invoiceNumber,
           autoId,
           order: {
             covers: Math.ceil(order.covers / actualSplits.length) || 1,
@@ -235,7 +230,6 @@ export const SplitItems = ({
     } catch (error) {
       if (!committed) {
         await Promise.all([
-          ...allocatedInvoices.map((value) => posStore.releaseNumber('invoice', value)),
           ...allocatedAutoIds.map((value) => posStore.releaseNumber('auto_id', value)),
         ]);
       }

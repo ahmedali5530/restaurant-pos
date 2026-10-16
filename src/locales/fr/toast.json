@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} article(s) mis à jour",
     "invalidCategories": "Les catégories sont invalides",
     "passwordRequired": "Le mot de passe est requis pour un nouvel utilisateur",
+    "lastMasterRole": "Vous êtes le seul utilisateur avec le rôle {{role}} — attribuez d’abord ce rôle à un autre utilisateur, sinon plus personne ne pourra gérer le système.",
+    "lastFullAccessRole": "C’est le seul rôle avec un accès complet — donnez d’abord un accès complet à un autre rôle, sinon plus personne ne pourra gérer le système.",
     "invalidDishNumber": "Le numéro du plat est invalide",
     "invalidDishNameOrNumber": "Le nom ou le numéro du plat est invalide",
     "ambiguousDishName": "Plusieurs plats correspondent à ce nom ; utilisez le numéro du plat",
@@ -132,7 +134,9 @@
     "invalidModifierGroup": "Le groupe de modificateurs est invalide",
     "duplicateDishModifierGroup": "Le groupe de modificateurs est déjà associé à ce plat",
     "invalidPriority": "La priorité est invalide",
-    "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide"
+    "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide",
+    "loginTaken": "Un autre utilisateur utilise déjà cet identifiant/PIN — choisissez-en un autre.",
+    "passwordTaken": "Un autre utilisateur utilise déjà ce mot de passe — choisissez-en un autre."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} est utilisé et a été désactivé.",
@@ -153,5 +157,26 @@
     "finalLimitReached": "Limite d'impression de la note finale atteinte ({{count}}/{{limit}}). Approbation du responsable requise.",
     "overrideRequired": "Contourner la limite d'impression",
     "recordFailed": "Échec de l'enregistrement de l'impression"
+  },
+  "documentDeleted": "Document supprimé",
+  "notifications": {
+    "someone": "Quelqu'un",
+    "clockInTitle": "Arrivée",
+    "clockInWithTime": "{{name}} a pointé son arrivée à {{time}}",
+    "clockIn": "{{name}} a pointé son arrivée",
+    "clockOutTitle": "Départ",
+    "clockOutWithTime": "{{name}} a pointé son départ à {{time}}",
+    "voidTitle": "Article annulé",
+    "voidWithReason": "{{name}} a annulé un article — {{reason}}",
+    "void": "{{name}} a annulé un article",
+    "refundTitle": "Commande remboursée",
+    "refundWithReason": "{{name}} a traité un remboursement — {{reason}}",
+    "refund": "{{name}} a traité un remboursement",
+    "discountTitle": "Remise importante appliquée",
+    "discountApplied": "{{name}} a appliqué {{detail}}",
+    "newEmployeeTitle": "Nouvel employé ajouté",
+    "newEmployeeFallback": "Nouvel employé",
+    "securityAlertTitle": "Alerte de sécurité",
+    "dismiss": "Fermer"
   }
 }

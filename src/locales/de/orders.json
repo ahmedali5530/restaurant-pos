@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Bitte einen neuen Tisch wählen",
     "success": "Erfolgreich in {{invoiceNumber}} zusammengeführt",
+    "successPending": "Bestellungen zusammengeführt. Die Rechnungsnummer erscheint nach der Synchronisierung.",
     "failed": "Zusammenführen der Bestellungen fehlgeschlagen",
     "chooseTable": "Tisch wählen",
     "selectTwoOrMore": "Mindestens 2 Bestellungen auswählen",

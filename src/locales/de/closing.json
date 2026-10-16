@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Von Tisch {{table}} zu einem anderen wechseln",
     "reloadCachePrefix": "Cache-Neuladen-Schaltfläche drücken in",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "ordersWarming": "Offene Checks werden geladen… bitte einen Moment warten."
   },
   "guard": {
     "punchDisabled": "Erfassung ist deaktiviert, bis der aktuelle Zyklus abgeschlossen ist oder der aktuelle Zyklusabschluss gelöscht wird.",
@@ -22,36 +23,79 @@
     "coins": "Münzen",
     "denomination": "x {{value}}",
     "total": "Terminal-Gesamt: {{amount}}",
-    "add": "Terminal hinzufügen"
+    "add": "Terminal hinzufügen",
+    "mode": {
+      "breakdown": "Scheine zählen",
+      "total": "Summe eingeben",
+      "totalLabel": "Gezählter Bargeldbetrag"
+    }
   },
   "title": "Tagesabschluss per {{date}}",
   "loading": "Tagesabschluss wird geladen...",
   "alerts": {
     "cycleDisabled": "Abschlusszyklus ist deaktiviert. Die Zeit des letzten abgeschlossenen Abschlusses wird als Start dieses Zeitraums verwendet, die aktuelle Uhrzeit als Ende.",
     "cycleCompleted": "Abschluss für diesen Zyklus abgeschlossen. Bestellaufnahme ist bis zum nächsten Zyklus gesperrt.",
-    "periodCompleted": "Abschluss für diesen Zeitraum abgeschlossen."
+    "periodCompleted": "Abschluss für diesen Zeitraum abgeschlossen.",
+    "varianceReasonRequired": "Geben Sie einen Grund für die Kassendifferenz an, bevor Sie den Abschluss speichern."
   },
   "sections": {
-    "previousDayBalance": "Vortagssaldo",
-    "pettyCash": "Wechselgeld",
+    "previousDayBalance": "Bargeld aus vorherigem Abschluss",
+    "pettyCash": "Nebenkasse hinein",
+    "cashDrop": "Kasseneinlage / Safe",
     "terminalCash": "Terminal-Bargeld",
     "paymentTypesSummary": "Zahlungsarten-Zusammenfassung aus System",
+    "nonCashBatch": "Unbare Batch-Prüfung",
     "expenses": "Ausgaben",
+    "openChecks": "Offene Checks",
+    "shiftRecap": "Schichtüberblick",
     "notes": "Notizen",
-    "summary": "Zusammenfassung"
+    "summary": "Kassenzusammenfassung",
+    "selfOrders": "QR-Selbstbestellungen"
   },
   "fields": {
     "previousDayBalance": "Vortagssaldo",
     "pettyCash": "Wechselgeld",
+    "cashDrop": "Bargeld in den Safe",
     "description": "Beschreibung",
     "category": "Kategorie",
     "amount": "Betrag",
+    "batchAmount": "Batch- / Terminalbetrag",
+    "varianceReason": "Grund Über / Unter",
+    "varianceReasonPlaceholder": "Kassendifferenz erklären...",
     "notesPlaceholder": "Zusätzliche Notizen hinzufügen..."
+  },
+  "labels": {
+    "cashSystemTotal": "Bargeld aus System",
+    "systemAmount": "System",
+    "noNonCash": "Keine unbaren Zahlungsarten in diesem Zeitraum.",
+    "noOpenChecks": "Keine offenen Checks in diesem Fenster.",
+    "closedBy": "Abgeschlossen von {{name}}"
+  },
+  "columns": {
+    "invoice": "Rechnung",
+    "table": "Tisch",
+    "status": "Status",
+    "amount": "Betrag"
+  },
+  "recap": {
+    "paidOrders": "Bezahlte Bestellungen",
+    "discounts": "Rabatte",
+    "tax": "Steuer",
+    "serviceCharge": "Servicegebühr",
+    "tips": "Trinkgeld",
+    "voids": "Stornos",
+    "refunds": "Rückerstattungen"
   },
   "totals": {
     "totalCash": "Bargeld gesamt: {{amount}}",
+    "cashSales": "Barverkäufe (System)",
     "cashFromPayments": "Bargeld aus Zahlungsübersicht",
+    "expectedInDrawer": "Erwartet in der Kasse",
+    "overShort": "Über / Unter",
+    "cashLeftNextShift": "Bargeld für nächste Schicht",
+    "countedCash": "Gezähltes Bargeld",
     "difference": "Differenz: {{amount}}",
+    "batchDifference": "Batch-Differenz: {{amount}}",
     "totalOtherPayments": "Sonstige Zahlungen gesamt: {{amount}}",
     "totalExpenses": "Ausgaben gesamt: {{amount}}",
     "previousBalance": "Vorheriger Saldo",
@@ -85,5 +129,11 @@
     "skippedSuffix": " ({{count}} übersprungen)",
     "executionFailed": "Rechnungen konnten nicht automatisch geschlossen werden",
     "warning": "Rechnungen werden in {{countdown}} automatisch geschlossen"
+  },
+  "selfOrders": {
+    "hint": "Von Gästen am Tisch online bezahlt — nicht in der Kasse oder im Kartenabschluss oben enthalten.",
+    "orders": "QR-Bestellungen",
+    "total": "Online bezahlt",
+    "testWarning": "{{count}} Testbestellung(en) ({{amount}}) — dafür wurde kein Geld eingezogen."
   }
 }

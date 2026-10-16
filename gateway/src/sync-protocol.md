@@ -75,10 +75,20 @@ bypasses the backoff.
 
 ## Snapshot
 
-`SNAPSHOT_TABLES` covers the catalog plus operational tables. Operational
-tables are filtered to keep hydration bounded: orders that are `In Progress`
-or created in the last 3 days (`order`, `order_item`, `order_item_kitchen`).
+`SNAPSHOT_TABLES` covers the catalog plus operational tables. Catalog tables
+(through `printer`) are paged first; when that prefix finishes the response
+includes `catalogComplete: true` so the terminal can project the menu while
+operational tables (`customer`, orders, …) continue. Operational tables are
+filtered to keep hydration bounded: orders that are `In Progress` or created
+within `POS_SNAPSHOT_OPERATIONAL_DURATION` (default `3d`; on-prem LAN often
+`12h`) for `order`, `order_item`, `order_item_kitchen`, voids/refunds/prints.
+Coupon redemptions use `POS_SNAPSHOT_COUPON_REDEMPTION_DURATION` (default
+`90d`; on-prem often `7d`). Durations must match `^\d+[smhdw]$`.
 `order` rows are returned with `FETCH payments, order_taxes, order_discounts,
-extras, coupon`; the client expands them into child stores. Trailing events up
-to the snapshot watermark are **not** replayed — records are the truth at
-snapshot time and pull continues from the watermark.
+extras, coupon`; the client expands them into child stores.
+
+When the last record page finishes, the snapshot returns `complete: true`
+with no events phase. Records are the truth at snapshot time; the client
+sets its pull cursor to `highWatermark` and `/sync/pull` only fetches events
+created after that watermark. Legacy resume tokens with `phase: 'events'`
+complete immediately without replaying history.

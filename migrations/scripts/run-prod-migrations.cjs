@@ -39,6 +39,21 @@ const MIGRATIONS_DIR = process.env.MIGRATIONS_DIR
   || path.join(REPO_ROOT, 'migrations');
 
 /**
+ * Full-schema snapshot used to bootstrap a brand-new database. It provides the
+ * base schema that the earliest plan entry assumes already exists. The snapshot
+ * is schema-only (no seed rows, no changefeeds), so the plan still runs after it
+ * to add those and to record migration state. After that first pass, subsequent
+ * runs only apply newly added migrations.
+ */
+const BASELINE_FILE = process.env.BASELINE_FILE || 'latest.surql';
+
+/** Optional demo/seed data loaded only when bootstrapping a brand-new database. */
+const DEMO_DATA_FILE = process.env.DEMO_DATA_FILE || 'demo-data.surql';
+const SEED_DEMO_DATA = ['1', 'true', 'yes', 'on'].includes(
+  String(process.env.SEED_DEMO_DATA || '').trim().toLowerCase()
+);
+
+/**
  * Ordered list of schema migrations + optional post-backfills.
  * Add new entries at the end when shipping schema changes.
  */
@@ -87,16 +102,35 @@ const MIGRATION_PLAN = [
     backfill: 'backfill-security-alerts-access.cjs',
   },
   { id: '2026_09_04_terminal_sync', file: '2026_09_04_terminal_sync.surql' },
+  { id: '2026_09_05_delivery_menu_function', file: '2026_09_05_delivery_menu_function.surql' },
   { id: '2026_09_06_sync_schemaless_reset', file: '2026_09_06_sync_schemaless_reset.surql' },
   { id: '2026_09_06_order_sync_ownership_fields', file: '2026_09_06_order_sync_ownership_fields.surql' },
   { id: '2026_09_12_refund_print_settings', file: '2026_09_12_refund_print_settings.surql' },
   { id: '2026_09_18_printer_print_mode_paper_width', file: '2026_09_18_printer_print_mode_paper_width.surql' },
+  { id: '2026_09_19_order_invoice_display', file: '2026_09_19_order_invoice_display.surql' },
+  { id: '2026_09_20_day_closing_shift', file: '2026_09_20_day_closing_shift.surql' },
+  { id: '2026_09_24_foh_changefeed', file: '2026_09_24_foh_changefeed.surql' },
+  { id: '2026_09_24_foh_changefeed_fiscal', file: '2026_09_24_foh_changefeed_fiscal.surql' },
+  { id: '2026_09_26_day_closing_drawer', file: '2026_09_26_day_closing_drawer.surql' },
+  { id: '2026_10_02_payroll_snapshot_currency', file: '2026_10_02_payroll_snapshot_currency.surql' },
+  { id: '2026_10_08_ledger_location_type', file: '2026_10_08_ledger_location_type.surql' },
+  { id: '2026_10_11_settings_branding_access', file: '2026_10_11_settings_branding_access.surql' },
 ];
 
 const rows = (result) => {
   const first = Array.isArray(result) ? result[0] : undefined;
   return Array.isArray(first) ? first : [];
 };
+
+/**
+ * Table names present in the target database. `INFO FOR DB` returns a single
+ * object shaped like `{ tables: { ... } }`; a brand-new database has none.
+ */
+async function listTables(db) {
+  const result = await db.query('INFO FOR DB');
+  const info = Array.isArray(result) ? result[0] : result;
+  return Object.keys((info && info.tables) || {});
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -176,12 +210,40 @@ function runBackfill(scriptName) {
   }
 }
 
+async function importBaseline(db) {
+  const baselinePath = path.join(MIGRATIONS_DIR, BASELINE_FILE);
+  if (!fs.existsSync(baselinePath)) {
+    throw new Error(`Fresh database but baseline file not found: ${baselinePath}`);
+  }
+  console.log(`Fresh database detected — importing full schema baseline: ${BASELINE_FILE}`);
+  await applySurql(db, baselinePath);
+}
+
+async function importDemoData(db) {
+  const demoPath = path.join(MIGRATIONS_DIR, DEMO_DATA_FILE);
+  if (!fs.existsSync(demoPath)) {
+    console.warn(`SEED_DEMO_DATA is set but ${DEMO_DATA_FILE} was not found; skipping demo data.`);
+    return;
+  }
+  console.log(`Seeding demo data: ${DEMO_DATA_FILE}`);
+  await applySurql(db, demoPath);
+}
+
 async function main() {
   console.log('=== Production migrations ===');
   console.log(`  plan entries: ${MIGRATION_PLAN.length}`);
   console.log(`  migrations dir: ${MIGRATIONS_DIR}`);
 
   let db = await connectWithRetry();
+
+  const existingTables = await listTables(db);
+  const isFreshDatabase = existingTables.length === 0;
+  if (isFreshDatabase) {
+    await importBaseline(db);
+  } else {
+    console.log(`Existing database detected (${existingTables.length} tables) — applying pending migrations.`);
+  }
+
   await ensureMigrationTable(db);
 
   for (const step of MIGRATION_PLAN) {
@@ -211,6 +273,10 @@ async function main() {
       await markApplied(db, step.id, step.backfill);
       console.log(`[done]  ${step.id}`);
     }
+  }
+
+  if (isFreshDatabase && SEED_DEMO_DATA) {
+    await importDemoData(db);
   }
 
   try {

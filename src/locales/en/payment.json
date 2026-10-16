@@ -12,7 +12,9 @@
     "createOrder": "Unable to create order.",
     "openPayment": "Unable to open payment.",
     "notOwner": "This order is open on another terminal",
-    "numbersExhausted": "No invoice numbers left offline — reconnect to continue creating orders",
+    "numbersExhausted": "No reserved order IDs left offline — reconnect to continue",
+    "invoicePendingSync": "Invoice number is pending sync — wait until the order is online before fiscal submit",
+    "fiscalFailed": "Fiscal submission failed",
     "fireFailed": "Could not fire the held items"
   },
   "tracking": {

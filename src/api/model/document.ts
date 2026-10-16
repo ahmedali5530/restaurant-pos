@@ -4,5 +4,7 @@ export interface Document {
   content?: ArrayBuffer
   path?: string
   size?: number
-  mimeType?: string
+  /** File's MIME type. Matches the `document` table's `type` field — there
+   *  is no `mimeType` column in the schema. */
+  type?: string
 }

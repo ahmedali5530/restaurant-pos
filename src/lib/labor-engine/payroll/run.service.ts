@@ -18,8 +18,10 @@ import { closePeriod, lockPeriod } from '@/lib/labor-engine/payroll/period.servi
 import { emitLaborCostEvent } from '@/lib/labor-engine/events/labor-cost.events.ts'
 import { logLaborChange } from '@/lib/labor-engine/audit/labor-audit.service.ts'
 import { toEntityRecordId, toUserRecordId } from '@/lib/labor-engine/record-id.ts'
-import { nowSurrealDateTime } from '@/lib/datetime.ts'
+import { nowSurrealDateTime, getAppTimezone, toLuxonDateTime, toSurrealDateTime } from '@/lib/datetime.ts'
 import { safeNumber, toRecordId } from '@/lib/utils.ts'
+import { entryWorkedHours } from '@/lib/labor-engine/calculations/hours.calculations.ts'
+import type { TimeEntryWithBreaks } from '@/lib/labor-engine/types.ts'
 import { publishPayrollPosted } from '@/integrations/accounting/events/publish.ts'
 
 const DEDUCTION_ADJUSTMENT_TYPES = new Set<LaborAdjustmentType>([
@@ -82,6 +84,11 @@ export interface ApproveRunParams {
 export interface ExportRunParams {
   runId: string
   exportedBy?: User
+}
+
+export interface DeleteRunParams {
+  runId: string
+  deletedBy?: User
 }
 
 const loadPeriod = async (db: DbClient, periodId: string): Promise<PayrollPeriod> => {
@@ -154,6 +161,40 @@ const loadTimeEntriesForEmployee = async (
     }
   )
   return result?.[0] ?? []
+}
+
+/**
+ * Hours the employee already worked in the same ISO week as the pay period's
+ * first day, but before the period started. `bucketHours` seeds the first
+ * week's overtime budget from this, so a period that begins mid-week doesn't
+ * pay regular time for hours that should already count against the weekly cap.
+ */
+const loadPriorWeekHoursForEmployee = async (
+  db: DbClient,
+  employeeId: string,
+  period: PayrollPeriod
+): Promise<number> => {
+  const periodStart = toLuxonDateTime(period.start_date).setZone(getAppTimezone())
+  if (!periodStart.isValid) return 0
+
+  const weekStart = periodStart.startOf('week')
+  if (weekStart >= periodStart) return 0
+
+  const result = await db.query<[TimeEntryWithBreaks[]]>(
+    `SELECT * FROM ${Tables.time_entries}
+     WHERE employee = $employeeId
+       AND approval_status = 'approved'
+       AND clock_in >= $weekStart AND clock_in < $periodStart
+     FETCH breaks`,
+    {
+      employeeId: toRecordId(employeeId),
+      weekStart: toSurrealDateTime(weekStart.toJSDate()),
+      periodStart: period.start_date,
+    }
+  )
+
+  const entries = result?.[0] ?? []
+  return entries.reduce((sum, entry) => sum + entryWorkedHours(entry), 0)
 }
 
 const loadApprovedLeave = async (
@@ -243,6 +284,7 @@ const computeRunResults = async (
     if (!payProfile) continue
 
     const timeEntries = await loadTimeEntriesForEmployee(db, employee.id, period)
+    const priorWeekHours = await loadPriorWeekHoursForEmployee(db, employee.id, period)
 
     results.push(
       calculateEmployeeLabor({
@@ -253,6 +295,7 @@ const computeRunResults = async (
         holidays,
         periodStart: period.start_date,
         periodEnd: period.end_date,
+        priorWeekHours,
         leaveRequests: leaveForEmployee(leaveRequests, employee.id),
         adjustments: adjustmentsForEmployee(adjustments, employee.id),
       })
@@ -580,4 +623,45 @@ export const exportRun = async (
   })
 
   return { run, rows }
+}
+
+/**
+ * Draft/preview runs only — once a run is locked/approved/exported it's a
+ * payroll record tied to real pay decisions, so it stays as history instead of
+ * being deletable. Void/reverse it through a new run if it was wrong. Runs are
+ * created as 'preview' (see generatePreview/recalculateRun), so that is the
+ * state the UI's delete action targets.
+ */
+export const deleteRun = async (
+  db: DbClient,
+  params: DeleteRunParams
+): Promise<void> => {
+  const existing = await db.query<[PayrollRun[]]>(
+    `SELECT * FROM ${Tables.payroll_runs} WHERE id = $id LIMIT 1`,
+    { id: toRecordId(params.runId) }
+  )
+  const before = existing?.[0]?.[0]
+  if (!before) throw new Error('Payroll run not found')
+  if (before.status !== 'draft' && before.status !== 'preview') {
+    throw new Error('Only draft or preview runs can be deleted')
+  }
+
+  // Snapshots first, then the run, in one transaction so a failure can't leave
+  // a run without its snapshots (or vice versa).
+  await db.query(
+    `BEGIN TRANSACTION;
+     DELETE ${Tables.payroll_snapshots} WHERE payroll_run = $runId;
+     DELETE ${Tables.payroll_runs} WHERE id = $id;
+     COMMIT TRANSACTION;`,
+    { runId: toRecordId(params.runId), id: toRecordId(params.runId) }
+  )
+
+  await logLaborChange(db, {
+    entityType: 'payroll_run',
+    entityId: params.runId,
+    action: 'delete_run',
+    before,
+    after: null,
+    changedBy: params.deletedBy,
+  })
 }

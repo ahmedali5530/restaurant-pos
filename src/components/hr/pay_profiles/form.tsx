@@ -19,6 +19,7 @@ import {
   HrInputField,
   HrSelectField,
   HrStringSelectField,
+  HrTimeField,
 } from "@/components/hr/shared/form-field.tsx";
 import {
   SelectOption,
@@ -30,20 +31,65 @@ import {
   toRecordId,
 } from "@/components/hr/shared/form.utils.ts";
 import {PayType} from "@/api/model/hr.types.ts";
+import {LaborPolicy} from "@/api/model/labor_policy.ts";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 import {
   isHourlyLikePayType,
   isWorkDaysPayType,
 } from "@/lib/labor-engine/calculations/work-days.calculations.ts";
+import {
+  DEFAULT_DAILY_OT_THRESHOLD_HOURS,
+  DEFAULT_NIGHT_END_TIME,
+  DEFAULT_NIGHT_MULTIPLIER,
+  DEFAULT_NIGHT_START_TIME,
+  DEFAULT_OT_MULTIPLIER,
+} from "@/lib/labor-engine/constants.ts";
 
 const PAY_TYPES: PayType[] = ["hourly", "monthly_salary", "weekly_salary", "daily_wage", "contract", "commission", "mixed"];
 const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const;
+
+// A free-text currency field let someone save "LY" and crash every page that
+// formats this profile's amounts (Intl.NumberFormat throws on an unknown
+// code, with no error boundary above it) — restrict to real ISO 4217 codes.
+// tsconfig targets ES2020, which predates Intl.supportedValuesOf's types.
+const intlWithSupportedValues = Intl as typeof Intl & {supportedValuesOf?: (key: string) => string[]};
+const CURRENCY_OPTIONS = (
+  intlWithSupportedValues.supportedValuesOf?.("currency") ?? ["USD", "IDR", "EUR", "GBP"]
+).map((code) => ({value: code, label: code}));
+
+// A threshold this high means "never reached" for any real shift — the
+// calculation engine (hours.calculations.ts) has no explicit on/off switch,
+// so "disabled" is represented the same way a very generous policy would be.
+const OT_DISABLED_THRESHOLD_HOURS = 999999;
+// multiplier 1 means "no extra pay for night hours" — the engine still
+// buckets them as night hours (for reporting) but the premium is $0.
+const NIGHT_DISABLED_MULTIPLIER = 1;
+
+type PolicyMode = "default" | "custom" | "disabled";
+
+const POLICY_MODES: PolicyMode[] = ["default", "custom", "disabled"];
+
+const overtimeModeFromPolicy = (policy?: LaborPolicy): PolicyMode => {
+  if (!policy) return "default";
+  const threshold = policy.config?.threshold_hours;
+  return threshold != null && threshold >= OT_DISABLED_THRESHOLD_HOURS ? "disabled" : "custom";
+};
+
+const nightModeFromPolicy = (policy?: LaborPolicy): PolicyMode => {
+  if (!policy) return "default";
+  const multiplier = policy.config?.multiplier;
+  return multiplier != null && multiplier <= 1 ? "disabled" : "custom";
+};
+
+const randomPolicyCode = (prefix: string) =>
+  `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
 
 interface FormValues {
   id?: string;
   employee: SelectOption | null;
   pay_type: PayType;
   base_rate: number;
+  currency: string;
   expected_work_days?: number | null;
   work_weekdays: number[];
   maximum_hours_per_day?: number | null;
@@ -51,6 +97,13 @@ interface FormValues {
   effective_from: DateValue | null;
   effective_to?: DateValue | null;
   notes?: string;
+  overtime_mode: PolicyMode;
+  overtime_threshold_hours?: number | null;
+  overtime_multiplier?: number | null;
+  night_mode: PolicyMode;
+  night_start_time?: string | null;
+  night_end_time?: string | null;
+  night_multiplier?: number | null;
 }
 
 interface Props {
@@ -63,6 +116,10 @@ const emptyForm = {
   employee: null,
   pay_type: "hourly" as PayType,
   base_rate: 0,
+  // The employee_pay_profile schema itself defaults currency to 'USD'
+  // regardless of the store's actual operating currency — default the form
+  // to VITE_CURRENCY instead so new profiles don't silently inherit that.
+  currency: (import.meta.env.VITE_CURRENCY as string) || "USD",
   expected_work_days: undefined,
   work_weekdays: [] as number[],
   maximum_hours_per_day: undefined,
@@ -71,6 +128,13 @@ const emptyForm = {
   effective_to: null,
   notes: "",
   id: undefined,
+  overtime_mode: "default" as PolicyMode,
+  overtime_threshold_hours: DEFAULT_DAILY_OT_THRESHOLD_HOURS,
+  overtime_multiplier: DEFAULT_OT_MULTIPLIER,
+  night_mode: "default" as PolicyMode,
+  night_start_time: DEFAULT_NIGHT_START_TIME,
+  night_end_time: DEFAULT_NIGHT_END_TIME,
+  night_multiplier: DEFAULT_NIGHT_MULTIPLIER,
 };
 
 const validationSchema = yup.object({
@@ -78,6 +142,7 @@ const validationSchema = yup.object({
   employee: yup.object({label: yup.string().required(), value: yup.string().required()}).nullable().required("Required"),
   pay_type: yup.string().required("Required"),
   base_rate: yup.number().typeError("Required").required("Required"),
+  currency: yup.string().optional(),
   expected_work_days: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
   work_weekdays: yup.array().of(yup.number()).optional(),
   maximum_hours_per_day: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
@@ -85,6 +150,13 @@ const validationSchema = yup.object({
   effective_from: yup.mixed().nullable().required("Required"),
   effective_to: yup.mixed().nullable().optional(),
   notes: yup.string().optional(),
+  overtime_mode: yup.string().oneOf(POLICY_MODES).required(),
+  overtime_threshold_hours: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
+  overtime_multiplier: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
+  night_mode: yup.string().oneOf(POLICY_MODES).required(),
+  night_start_time: yup.string().nullable().optional(),
+  night_end_time: yup.string().nullable().optional(),
+  night_multiplier: yup.number().transform((value, original) => (original === '' || original === null || Number.isNaN(value) ? null : value)).nullable().optional(),
 }).required();
 
 const baseRateLabelKey = (payType?: string) => {
@@ -119,6 +191,18 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
   const selectedDays = (watch("work_weekdays") ?? []) as number[];
   const showWorkDays = isWorkDaysPayType(payType);
   const showHourlyFields = isHourlyLikePayType(payType);
+  const overtimeMode = watch("overtime_mode") as PolicyMode;
+  const nightMode = watch("night_mode") as PolicyMode;
+
+  const policyModeOptions = useMemo(
+    () => POLICY_MODES.map((mode) => ({
+      value: mode,
+      label: t(`forms.payProfile.policyMode.${mode}`, {
+        defaultValue: mode === "default" ? "Use default" : mode === "custom" ? "Custom" : "Disabled",
+      }),
+    })),
+    [t],
+  );
 
   const employeeOptions = useMemo(
     () => (employeesHook.data?.data ?? []).map((item) => ({
@@ -148,6 +232,7 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         } : null,
         pay_type: data.pay_type,
         base_rate: data.base_rate,
+        currency: data.currency || (import.meta.env.VITE_CURRENCY as string) || "USD",
         expected_work_days: data.expected_work_days ?? undefined,
         work_weekdays: Array.isArray(data.work_weekdays)
           ? data.work_weekdays.map(day => Number(day))
@@ -157,6 +242,13 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         effective_from: toCalendarDateValue(data.effective_from),
         effective_to: toCalendarDateValue(data.effective_to),
         notes: data.notes ?? "",
+        overtime_mode: overtimeModeFromPolicy(data.overtime_policy),
+        overtime_threshold_hours: data.overtime_policy?.config?.threshold_hours ?? DEFAULT_DAILY_OT_THRESHOLD_HOURS,
+        overtime_multiplier: data.overtime_policy?.config?.multiplier ?? DEFAULT_OT_MULTIPLIER,
+        night_mode: nightModeFromPolicy(data.night_policy),
+        night_start_time: data.night_policy?.config?.start_time ?? DEFAULT_NIGHT_START_TIME,
+        night_end_time: data.night_policy?.config?.end_time ?? DEFAULT_NIGHT_END_TIME,
+        night_multiplier: data.night_policy?.config?.multiplier ?? DEFAULT_NIGHT_MULTIPLIER,
       });
     } else if (open) {
       reset(emptyForm);
@@ -170,12 +262,80 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
     setValue("work_weekdays", next, {shouldDirty: true});
   };
 
+  // Overtime/night premium live as separate labor_policy records the pay
+  // profile links to — "default" means no link (engine falls back to its
+  // hardcoded defaults), "custom"/"disabled" upsert one dedicated record per
+  // profile so it doesn't collide with other employees' overrides.
+  const resolvePolicyLink = async (
+    existingPolicy: LaborPolicy | undefined,
+    mode: PolicyMode,
+    config: Record<string, unknown>,
+    policyType: string,
+    codePrefix: string,
+    name: string,
+  ): Promise<string | null> => {
+    // Only a record this form created carries the generated `OT_`/`NIGHT_`
+    // prefix. A profile can also be linked to a seeded/global labor_policy;
+    // updating that in place would silently rewrite it for every other
+    // profile that references it, so only reuse records we own.
+    const isOwned = Boolean(existingPolicy?.code?.startsWith(`${codePrefix}_`));
+
+    if (mode === "default") {
+      // Unlink. Deactivate an owned override so it doesn't linger as an
+      // active, selectable policy; never touch seeded/global records.
+      if (existingPolicy?.id && isOwned) {
+        await db.merge(existingPolicy.id, {is_active: false});
+      }
+      return null;
+    }
+
+    if (existingPolicy?.id && isOwned) {
+      await db.update(existingPolicy.id, {config, is_active: true});
+      return String(existingPolicy.id);
+    }
+
+    const [created] = await db.create(Tables.labor_policies, {
+      code: randomPolicyCode(codePrefix),
+      name,
+      policy_type: policyType,
+      config,
+      is_active: true,
+    });
+    return String(created.id);
+  };
+
   const onSubmit = async (values: FormValues) => {
     try {
+      const employeeLabel = values.employee?.label ?? "";
+
+      const overtimeConfig = values.overtime_mode === "disabled"
+        ? {threshold_hours: OT_DISABLED_THRESHOLD_HOURS, multiplier: 1}
+        : {
+            threshold_hours: Number(values.overtime_threshold_hours ?? DEFAULT_DAILY_OT_THRESHOLD_HOURS),
+            multiplier: Number(values.overtime_multiplier ?? DEFAULT_OT_MULTIPLIER),
+          };
+      const nightConfig = values.night_mode === "disabled"
+        ? {start_time: DEFAULT_NIGHT_START_TIME, end_time: DEFAULT_NIGHT_END_TIME, multiplier: NIGHT_DISABLED_MULTIPLIER}
+        : {
+            start_time: values.night_start_time || DEFAULT_NIGHT_START_TIME,
+            end_time: values.night_end_time || DEFAULT_NIGHT_END_TIME,
+            multiplier: Number(values.night_multiplier ?? DEFAULT_NIGHT_MULTIPLIER),
+          };
+
+      const overtimePolicyId = await resolvePolicyLink(
+        data?.overtime_policy, values.overtime_mode, overtimeConfig, "overtime", "OT",
+        `Overtime override — ${employeeLabel}`.trim(),
+      );
+      const nightPolicyId = await resolvePolicyLink(
+        data?.night_policy, values.night_mode, nightConfig, "night", "NIGHT",
+        `Night premium override — ${employeeLabel}`.trim(),
+      );
+
       const payload = {
         employee: toRecordId(values.employee?.value),
         pay_type: values.pay_type,
         base_rate: Number(values.base_rate),
+        currency: values.currency?.trim().toUpperCase() || (import.meta.env.VITE_CURRENCY as string) || "USD",
         expected_work_days: values.expected_work_days
           ? Number(values.expected_work_days)
           : null,
@@ -189,6 +349,8 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
         effective_from: calendarDateToSurreal(values.effective_from),
         effective_to: calendarDateToSurreal(values.effective_to),
         notes: values.notes?.trim() || undefined,
+        overtime_policy: overtimePolicyId ? toRecordId(overtimePolicyId) : null,
+        night_policy: nightPolicyId ? toRecordId(nightPolicyId) : null,
       };
 
       if (data?.id) {
@@ -235,16 +397,27 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
             options={payTypeOptions}
             error={typeof errors.pay_type?.message === "string" ? errors.pay_type.message : undefined}
           />
-          <div>
-            <HrInputField
-              type="number"
-              step="0.01"
-              name="base_rate"
-              control={control}
-              label={t(baseRateLabelKey(payType))}
-                  error={typeof errors.base_rate?.message === "string" ? errors.base_rate.message : undefined}
-            />
-            <p className="text-xs text-muted mt-1">{t(baseRateHelpKey(payType))}</p>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <HrInputField
+                type="number"
+                step="0.01"
+                name="base_rate"
+                control={control}
+                label={t(baseRateLabelKey(payType))}
+                error={typeof errors.base_rate?.message === "string" ? errors.base_rate.message : undefined}
+              />
+              <p className="text-xs text-muted mt-1">{t(baseRateHelpKey(payType))}</p>
+            </div>
+            <div className="w-40">
+              <HrStringSelectField
+                name="currency"
+                control={control}
+                label={t("forms.payProfile.currency", {defaultValue: "Currency"})}
+                options={CURRENCY_OPTIONS}
+                isClearable={false}
+              />
+            </div>
           </div>
           {showWorkDays && (
             <>
@@ -296,6 +469,81 @@ export const PayProfileForm = ({open, onClose, data}: Props) => {
               </div>
             </div>
           )}
+          <HrFormField label={t("forms.payProfile.overtimeSection", {defaultValue: "Overtime"})}>
+            <p className="text-xs text-muted mb-1">
+              {t("forms.payProfile.overtimeSectionHelp", {
+                defaultValue: `By default, hours past ${DEFAULT_DAILY_OT_THRESHOLD_HOURS}/day are paid at ${DEFAULT_OT_MULTIPLIER}x. Override or turn this off for this employee only.`,
+              })}
+            </p>
+            <HrStringSelectField
+              name="overtime_mode"
+              control={control}
+              options={policyModeOptions}
+              isClearable={false}
+            />
+            {overtimeMode === "custom" && (
+              <div className="flex gap-3 mt-2">
+                <div className="flex-1">
+                  <HrInputField
+                    type="number"
+                    step="0.5"
+                    name="overtime_threshold_hours"
+                    control={control}
+                    label={t("forms.payProfile.overtimeThreshold", {defaultValue: "Daily threshold (hours)"})}
+                  />
+                </div>
+                <div className="flex-1">
+                  <HrInputField
+                    type="number"
+                    step="0.05"
+                    name="overtime_multiplier"
+                    control={control}
+                    label={t("forms.payProfile.overtimeMultiplier", {defaultValue: "Multiplier"})}
+                  />
+                </div>
+              </div>
+            )}
+          </HrFormField>
+          <HrFormField label={t("forms.payProfile.nightPremiumSection", {defaultValue: "Night-shift premium"})}>
+            <p className="text-xs text-muted mb-1">
+              {t("forms.payProfile.nightPremiumSectionHelp", {
+                defaultValue: `By default, hours worked between ${DEFAULT_NIGHT_START_TIME}–${DEFAULT_NIGHT_END_TIME} get an extra ${Math.round((DEFAULT_NIGHT_MULTIPLIER - 1) * 100)}%. Override or turn this off for this employee only.`,
+              })}
+            </p>
+            <HrStringSelectField
+              name="night_mode"
+              control={control}
+              options={policyModeOptions}
+              isClearable={false}
+            />
+            {nightMode === "custom" && (
+              <div className="flex gap-3 mt-2">
+                <div className="flex-1">
+                  <HrTimeField
+                    label={t("forms.payProfile.nightStart", {defaultValue: "Start time"})}
+                    name="night_start_time"
+                    control={control}
+                  />
+                </div>
+                <div className="flex-1">
+                  <HrTimeField
+                    label={t("forms.payProfile.nightEnd", {defaultValue: "End time"})}
+                    name="night_end_time"
+                    control={control}
+                  />
+                </div>
+                <div className="flex-1">
+                  <HrInputField
+                    type="number"
+                    step="0.05"
+                    name="night_multiplier"
+                    control={control}
+                    label={t("forms.payProfile.nightMultiplier", {defaultValue: "Multiplier"})}
+                  />
+                </div>
+              </div>
+            )}
+          </HrFormField>
           <div className="flex gap-3">
             <div className="flex-1">
               <HrDateField

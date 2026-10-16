@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} item(ns) atualizado(s)",
     "invalidCategories": "As categorias são inválidas",
     "passwordRequired": "Senha é obrigatória para novo usuário",
+    "lastMasterRole": "Você é o único usuário com a função {{role}} — atribua essa função a outro usuário primeiro, ou o sistema ficará sem ninguém que possa gerenciá-lo.",
+    "lastFullAccessRole": "Esta é a única função com acesso total — dê acesso total a outra função primeiro, ou o sistema ficará sem ninguém que possa gerenciá-lo.",
     "invalidDishNumber": "Número do prato é inválido",
     "invalidDishNameOrNumber": "Nome ou número do prato é inválido",
     "ambiguousDishName": "Vários pratos correspondem a este nome; use o número do prato",
@@ -132,7 +134,9 @@
     "invalidModifierGroup": "Grupo de modificadores é inválido",
     "duplicateDishModifierGroup": "Grupo de modificadores já está vinculado a este prato",
     "invalidPriority": "Prioridade é inválida",
-    "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido"
+    "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido",
+    "loginTaken": "Outro usuário já tem este login/PIN — escolha outro.",
+    "passwordTaken": "Outro usuário já tem esta senha — escolha outra."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está em uso e foi desativado.",
@@ -153,5 +157,26 @@
     "finalLimitReached": "Limite de impressão da conta final atingido ({{count}}/{{limit}}). Aprovação do gerente necessária.",
     "overrideRequired": "Substituir limite de impressão",
     "recordFailed": "Falha ao registrar impressão da conta"
+  },
+  "documentDeleted": "Documento excluído",
+  "notifications": {
+    "someone": "Alguém",
+    "clockInTitle": "Entrada",
+    "clockInWithTime": "{{name}} registrou entrada às {{time}}",
+    "clockIn": "{{name}} registrou entrada",
+    "clockOutTitle": "Saída",
+    "clockOutWithTime": "{{name}} registrou saída às {{time}}",
+    "voidTitle": "Item cancelado",
+    "voidWithReason": "{{name}} cancelou um item — {{reason}}",
+    "void": "{{name}} cancelou um item",
+    "refundTitle": "Pedido reembolsado",
+    "refundWithReason": "{{name}} processou um reembolso — {{reason}}",
+    "refund": "{{name}} processou um reembolso",
+    "discountTitle": "Desconto grande aplicado",
+    "discountApplied": "{{name}} aplicou {{detail}}",
+    "newEmployeeTitle": "Novo funcionário adicionado",
+    "newEmployeeFallback": "Novo funcionário",
+    "securityAlertTitle": "Alerta de segurança",
+    "dismiss": "Fechar"
   }
 }

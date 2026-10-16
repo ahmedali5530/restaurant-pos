@@ -9,7 +9,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import React, {FC, ReactNode, useEffect, useState,} from "react";
+import React, {FC, ReactNode, useEffect, useRef, useState,} from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose, faRefresh, faSearch, } from "@fortawesome/free-solid-svg-icons";
@@ -53,6 +53,12 @@ interface TableComponentProps {
 
   customSearch?: boolean
   customSearchHandler?: (value?: string) => void
+
+  // Filters/params owned by the parent (e.g. a date-range picker rendered in
+  // `buttons`) that must always stay ANDed together with whatever the search
+  // box below submits, instead of one wiping out the other.
+  externalFilters?: string[]
+  externalParameters?: Record<string, any>
 }
 
 export const TableComponent: FC<TableComponentProps> = ({
@@ -64,7 +70,9 @@ export const TableComponent: FC<TableComponentProps> = ({
   enableSelection, selectionButtons, rowSelection: controlledRowSelection, onRowSelectionChange,
   customSearchHandler,
   customSearch = false,
-  defaultSort = []
+  defaultSort = [],
+  externalFilters = [],
+  externalParameters = {},
 }) => {
   const { t } = useTranslation();
 
@@ -173,7 +181,8 @@ export const TableComponent: FC<TableComponentProps> = ({
   const {
     handleSubmit,
     control,
-    setValue
+    setValue,
+    getValues
   } = useForm();
 
   const filterOptions = table
@@ -190,34 +199,55 @@ export const TableComponent: FC<TableComponentProps> = ({
     }
   }, [table.getAllColumns()]);
 
+  // Builds the search-box condition (if any) and ANDs it onto whatever the
+  // parent owns via externalFilters (e.g. a date-range picker in `buttons`),
+  // so neither one wipes out the other.
   const handleColumnFilter = (values: any) => {
-    if( values.value && values.value.trim() !== '' ) {
-      handleFilterChange([
-        `string::similarity::fuzzy(string::lowercase($this[$column] ?? ''), string::lowercase($value ?? '')) > 0`
-      ]);
-      handleParameterChange({
-        column: values.column.value,
-        value: values.value.toString().toLowerCase()
-      });
+    const searchFilters: string[] = [];
+    let searchParams: Record<string, any> = {};
+
+    if (values?.value && String(values.value).trim() !== '') {
+      // Columns whose id is a record-link field (e.g. "employee", "department")
+      // hold a record reference, not a string — $this[$column] on those throws
+      // a SurrealDB type error. Such columns can set meta.filterField to a
+      // literal SurrealQL expression (e.g. "employee.first_name") to search
+      // instead; it's embedded directly since it comes from our own column
+      // definitions, never from user input.
+      const column = table.getColumn(values.column.value);
+      const filterField = column?.columnDef.meta?.filterField;
+
+      if (filterField) {
+        searchFilters.push(
+          `string::similarity::fuzzy(string::lowercase(${filterField} ?? ''), string::lowercase($value ?? '')) > 0`
+        );
+        searchParams = { value: values.value.toString().toLowerCase() };
+      } else {
+        searchFilters.push(
+          `string::similarity::fuzzy(string::lowercase($this[$column] ?? ''), string::lowercase($value ?? '')) > 0`
+        );
+        searchParams = { column: values.column.value, value: values.value.toString().toLowerCase() };
+      }
     }
 
-    if(Object.values(values).length > 0) {
-      // for (const value of Object.values(values)) {
-      //   console.log(value)
-      //   if (value.value && value.value.trim() !== '') {
-      //     handleFilterChange([
-      //       `string::lowercase($this[$column]) ~ $value`
-      //     ]);
-      //     handleParameterChange({
-      //       'column': value.name,
-      //       'value': values.value
-      //     });
-      //   }
-      // }
-    }else{
-      handleFilterChange([]);
-    }
+    handleFilterChange([...externalFilters, ...searchFilters]);
+    handleParameterChange({ ...externalParameters, ...searchParams });
   };
+
+  // Re-apply whenever the parent's externalFilters/externalParameters change
+  // (e.g. the date picker moves to a new day), keeping the current search
+  // box value combined with the new external condition instead of dropping it.
+  // Skips the initial mount: the hook's own initialFilters already seeded the
+  // first query, and firing handleFilterChange([]) here before the user has
+  // touched anything would silently wipe that out for every table's first load.
+  const isFirstExternalFilterRun = useRef(true);
+  useEffect(() => {
+    if (isFirstExternalFilterRun.current) {
+      isFirstExternalFilterRun.current = false;
+      return;
+    }
+    handleColumnFilter(getValues());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(externalFilters), JSON.stringify(externalParameters)]);
 
   const handleCustomSearch = (values: any) => {
     customSearchHandler?.(values?.customSearchValue);
@@ -300,8 +330,11 @@ export const TableComponent: FC<TableComponentProps> = ({
                   className="btn btn-danger"
                   type="button"
                   onClick={() => {
-                    resetFilters()
-                    setValue('value', undefined)
+                    // Clear only the search box's condition — resetFilters()
+                    // would also wipe externalFilters (e.g. the date picker)
+                    // and reset sort/pagination, which the user didn't ask for.
+                    setValue('value', '')
+                    handleColumnFilter({ ...getValues(), value: '' })
                   }}>
                   <FontAwesomeIcon icon={faClose}/>
                 </button>

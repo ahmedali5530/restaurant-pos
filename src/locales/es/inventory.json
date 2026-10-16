@@ -604,5 +604,14 @@
     "submittedAt": "Enviado el",
     "approvedAt": "Aprobado el",
     "rejectedAt": "Rechazado el"
+  },
+  "import": {
+    "codeAutoFilled": "Código \"{{code}}\" rellenado desde el artículo existente \"{{name}}\"",
+    "itemNameOrCodeRequired": "Se requiere el nombre o el código del artículo",
+    "itemNotFound": "Artículo no encontrado: {{key}}",
+    "supplierRequired": "El proveedor es obligatorio",
+    "locationRequired": "La ubicación es obligatoria",
+    "supplierNotOnItem": "El proveedor \"{{supplier}}\" no está vinculado al artículo \"{{item}}\"",
+    "locationNotOnItem": "La ubicación \"{{location}}\" no está vinculada al artículo \"{{item}}\""
   }
 }

@@ -12,7 +12,9 @@
     "createOrder": "Kan bestelling niet aanmaken.",
     "openPayment": "Kan betaling niet openen.",
     "notOwner": "Deze bestelling is open op een andere terminal",
-    "numbersExhausted": "Geen factuurnummers meer beschikbaar offline — maak opnieuw verbinding om bestellingen te blijven aanmaken",
+    "numbersExhausted": "Geen gereserveerde order-ID's meer offline — maak opnieuw verbinding om door te gaan",
+    "invoicePendingSync": "Factuurnummer wacht op synchronisatie — wacht tot de bestelling online is voordat je fiscaal verzendt",
+    "fiscalFailed": "Fiscale verzending mislukt",
     "fireFailed": "Kon de vastgehouden items niet doorsturen"
   },
   "tracking": {

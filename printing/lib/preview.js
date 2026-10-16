@@ -1,6 +1,6 @@
 'use strict';
 
-const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp } = require('./receipt-helpers');
+const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp, wrapReceiptText, STORE_LOGO_BOX_PX } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
 
@@ -49,9 +49,16 @@ function renderSectionsToHtml(sections) {
     const alignCls = sectionAlignClass(section.align);
     if (section.type === 'image' && section.content) {
       const src = /^data:/.test(section.content) ? section.content : `data:image/png;base64,${section.content}`;
-      parts.push(`<div class="section ${alignCls}"><img class="receipt-img" src="${escapeHtml(src)}" alt="" /></div>`);
+      const w = section.width || STORE_LOGO_BOX_PX;
+      const h = section.height || STORE_LOGO_BOX_PX;
+      parts.push(
+        `<div class="section ${alignCls}"><img class="receipt-img" style="width:${w}px;height:${h}px" src="${escapeHtml(src)}" alt="" /></div>`
+      );
     } else if (section.type === 'text' && section.content) {
-      parts.push(`<div class="section ${alignCls} ${sectionSizeClass(section.size)}">${escapeHtml(section.content)}</div>`);
+      const lines = wrapReceiptText(section.content, section.size)
+        .map((line) => escapeHtml(line) || '&nbsp;')
+        .join('<br/>');
+      parts.push(`<div class="section ${alignCls} ${sectionSizeClass(section.size)}">${lines}</div>`);
     }
   });
   return parts.join('\n  ');
@@ -106,7 +113,11 @@ function renderBrandingHeader(cfg) {
   const parts = [];
   if (cfg.showLogo && cfg.logo && String(cfg.logo).trim()) {
     const src = /^data:/.test(cfg.logo) ? cfg.logo : `data:image/png;base64,${cfg.logo}`;
-    parts.push(`<div class="logo"><img class="receipt-img" src="${escapeHtml(src)}" alt="Logo" /></div>`);
+    const w = cfg.logoWidth || STORE_LOGO_BOX_PX;
+    const h = cfg.logoHeight || STORE_LOGO_BOX_PX;
+    parts.push(
+      `<div class="logo"><img class="receipt-img" style="width:${w}px;height:${h}px" src="${escapeHtml(src)}" alt="Logo" /></div>`
+    );
   }
   const headerSections = renderSectionsToHtml(cfg.headerSections);
   if (headerSections) parts.push(headerSections);
@@ -126,12 +137,12 @@ const receiptPreviewStyles = `
     .row span:last-child { text-align: right; }
     .bold { font-weight: bold; }
     .thankyou { margin-top: 8px; }
-    .section { margin: 2px 0; }
+    .section { margin: 2px 0; white-space: pre-wrap; word-break: break-word; }
     .size-medium { font-size: 14px; }
     .size-large { font-size: 16px; font-weight: bold; }
     hr { border: none; border-top: 1px dashed #333; margin: 6px 0; }
     .logo { text-align: center; margin-bottom: 4px; }
-    .receipt-img { width: 150px; height: 150px; max-width: 100%; object-fit: contain; display: inline-block; vertical-align: middle; }
+    .receipt-img { max-width: 100%; object-fit: fill; display: inline-block; vertical-align: middle; }
     .fiscal-block { margin: 8px 0; text-align: center; }
     .fiscal-qr { font-size: 10px; border: 1px solid #999; padding: 12px 8px; margin: 4px auto; max-width: 150px; }
     .fiscal-logo { margin-bottom: 4px; }

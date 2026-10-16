@@ -254,7 +254,8 @@
       "bogoDiscount": "Automatischen BOGO-Rabatt für Vorspeisen erstellen",
       "addDish": "Neues Gericht Margherita für x € hinzufügen",
       "listUsers": "Alle POS-Benutzer auflisten",
-      "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen"
+      "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen",
+      "howToPurchase": "Wie buche ich einen Bestandseinkauf?"
     },
     "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau.",
     "passwordWillBeSet": "Passwort wird bei Bestätigung gesetzt"

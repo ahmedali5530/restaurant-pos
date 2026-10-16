@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Max hours per day",
       "maxHoursPerWeek": "Max hours per week",
       "breakRules": "Break rules",
-      "notes": "Notes"
+      "notes": "Notes",
+      "overtimeSection": "Overtime",
+      "overtimeSectionHelp": "By default, hours past 8/day are paid at 1.5x. Override or turn this off for this employee only.",
+      "overtimeThreshold": "Daily threshold (hours)",
+      "overtimeMultiplier": "Multiplier",
+      "nightPremiumSection": "Night-shift premium",
+      "nightPremiumSectionHelp": "By default, hours worked between 22:00–06:00 get an extra 25%. Override or turn this off for this employee only.",
+      "nightStart": "Start time",
+      "nightEnd": "End time",
+      "nightMultiplier": "Multiplier",
+      "policyMode": {
+        "default": "Use default",
+        "custom": "Custom",
+        "disabled": "Disabled"
+      }
     },
     "payRule": {
       "create": "Create pay rule",
@@ -374,7 +388,10 @@
       "category": "Category",
       "title": "Title",
       "expiresAt": "Expiry date",
-      "attachFile": "Attach file"
+      "attachFile": "Attach file",
+      "currentFile": "Current file",
+      "replaceFile": "Replace file (optional)",
+      "deleteConfirm": "Delete this document? This cannot be undone."
     },
     "performance": {
       "create": "Add performance note",
@@ -557,7 +574,10 @@
     "saveOverride": "Save override",
     "resetOverrides": "Reset overrides",
     "confirmResetOverrides": "Recalculate all lines and discard manager overrides?",
-    "overrideHelp": "Edit amounts on a preview run. Recalculate keeps overridden lines unless you reset them."
+    "overrideHelp": "Edit amounts on a preview run. Recalculate keeps overridden lines unless you reset them.",
+    "deleted": "Payroll run deleted",
+    "deleteConfirm": "Delete this draft payroll run? This cannot be undone.",
+    "premiumPay": "Premium pay"
   },
   "dashboard": {
     "title": "Labor dashboard",

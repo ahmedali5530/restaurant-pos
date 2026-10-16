@@ -16,6 +16,9 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import {isFullAccessRoleModules} from "@/lib/access.rules.ts";
+import {toRecordId} from "@/lib/utils.ts";
+import {toast} from "sonner";
 
 export const AdminUserRoles = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -74,7 +77,7 @@ export const AdminUserRoles = () => {
           <div className="separator"></div>
           <DeleteConfirm
             message={t('delete.role', { name: info.row.original.name })}
-            onConfirm={() => protectAction(() => deleteItem(info.row.original.id), {
+            onConfirm={() => protectAction(() => deleteItem(info.row.original), {
               module: 'admin.roles.delete',
               description: getAccessRuleChildLabel('admin.roles.delete'),
             })}
@@ -84,7 +87,27 @@ export const AdminUserRoles = () => {
     }),
   ];
 
-  const deleteItem = async (id: string) => {
+  const deleteItem = async (role: UserRole) => {
+    const id = role.id;
+
+    if (isFullAccessRoleModules(role.roles)) {
+      const [otherFullAccessRoles] = await db.query(
+        `SELECT roles FROM ${Tables.user_roles} WHERE deleted_at = none AND id != $selfId`,
+        { selfId: toRecordId(id) },
+      ) as [UserRole[]];
+
+      const hasAnotherFullAccessRole = (otherFullAccessRoles || []).some(
+        (other) => isFullAccessRoleModules(other.roles),
+      );
+
+      if (!hasAnotherFullAccessRole) {
+        toast.error(t('toast:admin.lastFullAccessRole', {
+          defaultValue: "This is the only role with full access — give another role full access first, or the system will have no one left who can manage it.",
+        }));
+        return;
+      }
+    }
+
     await executeSettingsDelete({
       db,
       id,

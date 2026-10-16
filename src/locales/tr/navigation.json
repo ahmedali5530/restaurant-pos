@@ -15,7 +15,8 @@
     "settings": "Ayarlar",
     "clock": "Saat",
     "hr": "İK",
-    "integrations": "Entegrasyonlar"
+    "integrations": "Entegrasyonlar",
+    "requiresApproval": "Yönetici onayı gerektirir"
   },
   "modules": {
     "Menu": "Menü",

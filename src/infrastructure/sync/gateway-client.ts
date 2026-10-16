@@ -113,8 +113,10 @@ export async function fetchSnapshotPage(input: {
     ok: boolean;
     schemaVersion: number;
     highWatermark: number;
-    page: { kind: 'records' | 'events'; table?: string; records?: any[]; events?: any[] };
+    page: { kind: 'records' | 'events'; table?: string | null; records?: any[]; events?: any[] };
     complete: boolean;
+    /** True once all catalog tables (through printer) have been paged. */
+    catalogComplete?: boolean;
     resumeToken: string | null;
   }>('/sync/snapshot', {
     method: 'POST',
@@ -164,6 +166,13 @@ export async function pushOperations(input: {
   return syncFetch<{
     ok: boolean;
     accepted: string[];
+    assignments?: Array<{
+      operationId: string;
+      aggregateId: string;
+      invoiceNumber: number;
+      invoiceDisplay?: string;
+      invoicePrefix?: string;
+    }>;
     conflicts: Array<{ operationId: string; code: string; message: string }>;
   }>('/sync/push', {
     method: 'POST',

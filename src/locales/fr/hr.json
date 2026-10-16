@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Heures max par jour",
       "maxHoursPerWeek": "Heures max par semaine",
       "breakRules": "Règles de pause",
-      "notes": "Notes"
+      "notes": "Notes",
+      "overtimeSection": "Heures supplémentaires",
+      "overtimeSectionHelp": "Par défaut, les heures au-delà de 8/jour sont payées à 1,5x. Remplacez ou désactivez ceci pour cet employé uniquement.",
+      "overtimeThreshold": "Seuil quotidien (heures)",
+      "overtimeMultiplier": "Multiplicateur",
+      "nightPremiumSection": "Prime de nuit",
+      "nightPremiumSectionHelp": "Par défaut, les heures travaillées entre 22:00 et 06:00 donnent 25 % de plus. Remplacez ou désactivez ceci pour cet employé uniquement.",
+      "nightStart": "Heure de début",
+      "nightEnd": "Heure de fin",
+      "nightMultiplier": "Multiplicateur",
+      "policyMode": {
+        "default": "Utiliser la valeur par défaut",
+        "custom": "Personnalisé",
+        "disabled": "Désactivé"
+      }
     },
     "payRule": {
       "create": "Créer une règle de paie",
@@ -352,7 +366,10 @@
       "category": "Catégorie",
       "title": "Titre",
       "expiresAt": "Date d'expiration",
-      "attachFile": "Joindre un fichier"
+      "attachFile": "Joindre un fichier",
+      "currentFile": "Fichier actuel",
+      "replaceFile": "Remplacer le fichier (facultatif)",
+      "deleteConfirm": "Supprimer ce document ? Cette action est irréversible."
     },
     "performance": {
       "create": "Ajouter une note de performance",
@@ -557,7 +574,10 @@
     "saveOverride": "Enregistrer la modification",
     "resetOverrides": "Réinitialiser les modifications",
     "confirmResetOverrides": "Recalculer toutes les lignes et supprimer les modifications du responsable ?",
-    "overrideHelp": "Modifiez les montants sur une exécution en aperçu. Recalculer conserve les lignes modifiées sauf si vous les réinitialisez."
+    "overrideHelp": "Modifiez les montants sur une exécution en aperçu. Recalculer conserve les lignes modifiées sauf si vous les réinitialisez.",
+    "deleted": "Exécution de paie supprimée",
+    "deleteConfirm": "Supprimer ce brouillon d'exécution de paie ? Cette action est irréversible.",
+    "premiumPay": "Prime"
   },
   "dashboard": {
     "title": "Tableau de bord de la main-d'œuvre",

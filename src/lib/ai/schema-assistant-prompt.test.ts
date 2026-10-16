@@ -9,6 +9,7 @@ vi.mock("@/lib/datetime.ts", () => ({
 }));
 
 import {
+  AI_ASSISTANT_GUIDE_RULES,
   AI_ASSISTANT_WRITE_RULES,
   getAiAssistantSystemPrompt,
   getAiReportSystemPrompt,
@@ -55,5 +56,19 @@ describe("getAiAssistantSystemPrompt", () => {
     expect(salesOnly).toContain("get_sales_summary");
     expect(salesOnly).not.toContain("forecast_inventory_need");
     expect(inventoryOnly).toContain("forecast_inventory_need");
+  });
+
+  it("includes lookup_user_guide rules and suggested chapter", () => {
+    const prompt = getAiAssistantSystemPrompt(["inventory"], true, [], {
+      language: "es",
+      pathname: "/inventory",
+      suggestedChapter: "inventory-overview",
+    });
+
+    expect(prompt).toContain("lookup_user_guide");
+    expect(prompt).toContain(AI_ASSISTANT_GUIDE_RULES);
+    expect(prompt).toContain("inventory-overview");
+    expect(prompt).toContain("/inventory");
+    expect(prompt).toContain("es");
   });
 });

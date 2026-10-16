@@ -9,6 +9,7 @@ import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 interface HourlyData {
   hour: number;
@@ -52,14 +53,11 @@ export const SalesHourlyLabourReport = () => {
 
         // Build orders query with optional date filter
         const orderConditions: string[] = ["status = 'Paid'"];
-        const orderParams: Record<string, string> = {};
-
-        if (params.startDate && params.endDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          orderParams.startDate = params.startDate;
-          orderParams.endDate = params.endDate;
-        }
+        const {conditions: orderDateConditions, params: orderParams} = buildCreatedAtDateConditions(
+          {startDate: params.startDate ?? undefined, endDate: params.endDate ?? undefined},
+          "created_at",
+        );
+        orderConditions.push(...orderDateConditions);
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
@@ -73,14 +71,11 @@ export const SalesHourlyLabourReport = () => {
 
         // Build time entries query with optional date filter
         const timeEntryConditions: string[] = ["clock_out != NONE"];
-        const timeEntryParams: Record<string, string> = {};
-
-        if (params.startDate && params.endDate) {
-          timeEntryConditions.push(`time::format(clock_in, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          timeEntryConditions.push(`time::format(clock_in, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          timeEntryParams.startDate = params.startDate;
-          timeEntryParams.endDate = params.endDate;
-        }
+        const {conditions: clockInDateConditions, params: timeEntryParams} = buildCreatedAtDateConditions(
+          {startDate: params.startDate ?? undefined, endDate: params.endDate ?? undefined},
+          "clock_in",
+        );
+        timeEntryConditions.push(...clockInDateConditions);
 
         const timeEntriesQuery = `
           SELECT * FROM ${Tables.time_entries}

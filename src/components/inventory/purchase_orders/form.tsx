@@ -178,7 +178,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         name: file.name,
         content,
         size: file.size,
-        mimeType: file.type || undefined,
+        type: file.type || undefined,
       });
 
       if (created?.id) {

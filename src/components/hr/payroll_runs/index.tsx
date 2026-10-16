@@ -15,6 +15,7 @@ import {appPage} from "@/store/jotai.ts";
 import {toast} from "sonner";
 import {
   approveRun,
+  deleteRun,
   exportRun,
   lockRun,
   recalculateRun,
@@ -22,6 +23,7 @@ import {
 import {PayrollRunForm} from "@/components/hr/payroll_runs/run.form.tsx";
 import {PayrollRunSnapshots} from "@/components/hr/payroll_runs/snapshots.modal.tsx";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 
 export const HrPayrollRuns = () => {
   const {t} = useTranslation("hr");
@@ -82,6 +84,20 @@ export const HrPayrollRuns = () => {
     }
   };
 
+  const handleDelete = async (run: PayrollRun) => {
+    if (!page.user) return;
+    setBusyId(run.id);
+    try {
+      await deleteRun(db, {runId: run.id, deletedBy: page.user});
+      toast.success(t("payroll.deleted", {defaultValue: "Payroll run deleted"}));
+      loadHook.fetchData();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusyId(undefined);
+    }
+  };
+
   const columns: any = [
     columnHelper.accessor("run_number", {header: t("columns.runNumber")}),
     columnHelper.accessor((row) => row.payroll_period?.name ?? "", {
@@ -112,6 +128,7 @@ export const HrPayrollRuns = () => {
         const canLock = status === "preview";
         const canApprove = status === "locked";
         const canExport = status === "approved";
+        const canDelete = status === "draft" || status === "preview";
 
         return (
           <div className="flex flex-wrap gap-2">
@@ -158,6 +175,18 @@ export const HrPayrollRuns = () => {
             >
               {t("buttons.export")}
             </Button>
+            {canDelete && (
+              <DeleteConfirm
+                message={t("payroll.deleteConfirm", {
+                  defaultValue: "Delete this draft payroll run? This cannot be undone.",
+                })}
+                onConfirm={() => handleDelete(row)}
+              >
+                <Button variant="danger" size="sm" disabled={disabled}>
+                  {t("common:actions.delete", {defaultValue: "Delete"})}
+                </Button>
+              </DeleteConfirm>
+            )}
           </div>
         );
       },

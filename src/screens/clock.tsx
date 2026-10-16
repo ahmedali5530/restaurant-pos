@@ -11,8 +11,10 @@ import { useNavigate } from "react-router";
 import { LOGIN } from "@/routes/posr.ts";
 import { Countdown } from "@/components/floor/countdown.tsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBriefcase, faClock, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faBriefcase, faClock, faUser, faTriangleExclamation, faThumbsUp, faClipboardCheck, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { TimeEntry } from "@/api/model/time_entry.ts";
+import { EmployeePerformanceNote } from "@/api/model/employee_performance_note.ts";
+import { findEmployeeByUser } from "@/lib/labor-engine/employee.resolver.ts";
 import { StringRecordId } from "surrealdb";
 import { Order, OrderStatus } from "@/api/model/order.ts";
 import { calculateOrderItemPrice } from "@/lib/cart.ts";
@@ -32,6 +34,38 @@ const formatShiftClock = (time: string) => {
   return dt.isValid ? dt.toFormat('h:mm a') : trimmed;
 };
 
+const NOTE_STYLES: Record<string, {
+  icon: typeof faTriangleExclamation;
+  icon_color: string;
+  container: string;
+  badge: string;
+}> = {
+  warning: {
+    icon: faTriangleExclamation,
+    icon_color: 'text-warning-600 dark:text-warning-400',
+    container: 'border-warning-300 bg-warning-100 dark:border-warning-700 dark:bg-warning-900/30',
+    badge: 'bg-warning-200 text-warning-800 dark:bg-warning-800/60 dark:text-warning-200',
+  },
+  compliment: {
+    icon: faThumbsUp,
+    icon_color: 'text-success-600 dark:text-success-400',
+    container: 'border-success-300 bg-success-100 dark:border-success-700 dark:bg-success-900/30',
+    badge: 'bg-success-200 text-success-800 dark:bg-success-800/60 dark:text-success-200',
+  },
+  incident: {
+    icon: faCircleExclamation,
+    icon_color: 'text-danger-600 dark:text-danger-400',
+    container: 'border-danger-300 bg-danger-100 dark:border-danger-700 dark:bg-danger-900/30',
+    badge: 'bg-danger-200 text-danger-800 dark:bg-danger-800/60 dark:text-danger-200',
+  },
+  review: {
+    icon: faClipboardCheck,
+    icon_color: 'text-info-600 dark:text-info-400',
+    container: 'border-info-300 bg-info-100 dark:border-info-700 dark:bg-info-900/30',
+    badge: 'bg-info-200 text-info-800 dark:bg-info-800/60 dark:text-info-200',
+  },
+};
+
 export const Clock = () => {
   const {t} = useTranslation(["summary", "toast"]);
   const {t: tNav} = useTranslation('navigation');
@@ -43,6 +77,47 @@ export const Clock = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [resolvedShift, setResolvedShift] = useState<UserShift | null>(null);
+  const [visibleNotes, setVisibleNotes] = useState<EmployeePerformanceNote[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadVisibleNotes = async () => {
+      if (!page.user) {
+        if (!cancelled) setVisibleNotes([]);
+        return;
+      }
+
+      try {
+        const employee = await findEmployeeByUser(db, page.user);
+        if (!employee) {
+          if (!cancelled) setVisibleNotes([]);
+          return;
+        }
+
+        const result = await db.query(
+          `SELECT * FROM ${Tables.employee_performance_notes}
+           WHERE employee = $employeeId AND visible_to_employee = true AND deleted_at = NONE
+           ORDER BY created_at DESC
+           FETCH created_by`,
+          {employeeId: toRecordId(employee.id)},
+        );
+        const rows = (result?.[0] ?? []) as EmployeePerformanceNote[];
+        if (!cancelled) setVisibleNotes(rows);
+      } catch (error) {
+        console.error('Failed to load performance notes:', error);
+        if (!cancelled) setVisibleNotes([]);
+      }
+    };
+
+    void loadVisibleNotes();
+    return () => {
+      cancelled = true;
+    };
+    // `db` is deliberately omitted: useDB returns a new client object on every
+    // render, so including it re-runs this effect (and its query) in a loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page.user]);
 
   const loadTimeEntry = async () => {
     if (!page.user) {
@@ -117,7 +192,10 @@ export const Clock = () => {
     return () => {
       cancelled = true;
     };
-  }, [page.user, db]);
+    // `db` is deliberately omitted: useDB returns a new client object on every
+    // render, so including it re-runs this effect (and its query) in a loop.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page.user]);
 
   const loadOrders = async () => {
     if (!timeEntry || !page.user) return;
@@ -433,6 +511,36 @@ export const Clock = () => {
             )}
           </div>
         </div>
+
+        {visibleNotes.length > 0 && (
+          <div className="mb-5 space-y-3" data-testid="clock-performance-notes">
+            {visibleNotes.map((note) => {
+              const style = NOTE_STYLES[note.type] ?? NOTE_STYLES.review;
+              return (
+                <div
+                  key={note.id}
+                  className={`flex items-start gap-3 rounded-lg border p-4 ${style.container}`}
+                >
+                  <FontAwesomeIcon icon={style.icon} className={`mt-0.5 text-lg ${style.icon_color}`} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-foreground">{note.title}</p>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${style.badge}`}>
+                        {t(`hr:performanceTypes.${note.type}`, {defaultValue: note.type})}
+                      </span>
+                    </div>
+                    {note.content && (
+                      <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{note.content}</p>
+                    )}
+                    <p className="mt-1 text-xs text-muted">
+                      {note.created_at ? toLuxonDateTime(note.created_at).toFormat('MMMM dd, yyyy') : ''}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="space-y-4">
           <div className="bg-surface border border-border p-5 rounded-lg text-center dark:bg-neutral-800" data-testid="clock-elapsed">

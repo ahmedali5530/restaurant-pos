@@ -7,6 +7,128 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-11',
+    title: 'Login branding',
+    items: [
+      'Settings → Branding lets you upload a restaurant logo shown on the login screen under the POSR mark.',
+      'The login page is split into a logo panel and the PIN or form sign-in on larger screens.',
+    ],
+  },
+  {
+    date: '2026-10-08',
+    title: 'Purchase AI import improvements',
+    items: [
+      'Purchase AI Import fills item codes automatically when the line matches an existing inventory item by name.',
+      'Supplier and location on purchase AI Import are dropdowns of existing records instead of free-text fields.',
+      'Fixed purchase approve/post failing with a Surreal transaction error when ledger location was still typed as store.',
+    ],
+  },
+  {
+    date: '2026-10-08',
+    title: 'Manual fiscal retry',
+    items: [
+      'Retry permanently failed integration jobs from Integrations → Queue (including fiscal invoice submissions after network or authority API errors).',
+      'Successful offline fiscal queue jobs now save the completed submission so receipts and the fiscal report stay in sync.',
+    ],
+  },
+  {
+    date: '2026-10-06',
+    title: 'Lean on-prem snapshot window',
+    items: [
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
+    ],
+  },
+  {
+    date: '2026-10-06',
+    title: 'Faster cache reload — menu before open checks',
+    items: [
+      'Reload cache and first sync project floors, menu, payments, and taxes as soon as those tables finish downloading, while open checks continue in the background.',
+      'Snapshot no longer walks the entire sync history up to the high watermark, so terminals with large event logs warm up much faster. Opening a table waits until open checks are loaded.',
+    ],
+  },
+  {
+    date: '2026-10-03',
+    title: 'QR page theme and order-ready alerts',
+    items: [
+      'The QR ordering page now uses the app fonts and can match any brand color pack (Classic, Ocean, Forest, Cream, Ruby, Sapphire) with light, dark, or system appearance — configured in Manage → QR Ordering.',
+      'Guests are alerted on the confirmation screen when the kitchen marks their order ready, with a vibration on supported phones.',
+    ],
+  },
+  {
+    date: '2026-10-02',
+    title: 'QR table ordering',
+    items: [
+      'Guests scan a per-table QR code, order from the live menu and pay online (card, PayPal, or a staff-enabled test mode).',
+      'Paid orders are sent to the kitchen screen and every terminal automatically.',
+      'Manage → QR ordering turns it on per table, lets you print a sheet of QR codes, and can retry a paid order that did not reach the POS.',
+      'QR payments stay out of the drawer and appear in their own section on the Closing screen and Cash Closing report.',
+    ],
+  },
+  {
+    date: '2026-10-01',
+    title: 'Payroll overrides and live alerts',
+    items: [
+      'Pay profiles can set daily overtime and night-premium overrides per employee, and preview runs can be deleted.',
+      'Payroll runs show regular, overtime and premium pay separately, and each snapshot keeps the currency it was calculated in.',
+      'A notification banner alerts the Master user to clock in/out, order voids, refunds, large discounts and security alerts in real time.',
+    ],
+  },
+  {
+    date: '2026-09-26',
+    title: 'Restaurant drawer close',
+    items: [
+      'Day closing is a cash-only drawer: expected cash, drop to the safe, over/short with a required reason, and cash left for the next shift.',
+      'Card and other tenders stay out of the float and get a batch check against the system total.',
+      'Open checks are listed before Complete, and a shift recap shows discounts, tax, service charge, tips, voids, and refunds.',
+      'The drawer summary is visible while counting, and Complete records who closed.',
+    ],
+  },
+  {
+    date: '2026-09-24',
+    title: 'Durable local-to-cloud sync',
+    items: [
+      'Branch sales data (including fiscal submission rows) uploads to the cloud master via SurrealDB changefeeds with a first-run backfill, so failed or offline uploads retry instead of being dropped.',
+      'Each uploaded row is stamped with the branch id so multiple stores can share one reporting database.',
+    ],
+  },
+  {
+    date: '2026-09-23',
+    title: 'AI Assistant user guides',
+    items: [
+      'The floating AI assistant can look up end-user guide chapters (how-to steps) in your language when you ask how to use a screen or feature.',
+      'Guide answers follow the documented UI steps instead of inventing menus; live sales and inventory numbers still use data tools.',
+    ],
+  },
+  {
+    date: '2026-09-22',
+    title: 'Last admin guard and per-shift closings',
+    items: [
+      'You cannot demote or delete the last Master-role user, or delete the only full-access role, so admin/settings cannot be locked out.',
+      'Cash closings are saved per shift for the same business day, so a second shift no longer overwrites the first.',
+      'Cash Closing report lists every closing for the day with a shift selector and itemized paid transactions (filtered by shift when set).',
+      'Completing any closing still ends order-taking for the whole day — use Save draft for mid-day shift handoffs.',
+      'Previous closing balance is read-only and comes from the last completed closing’s outstanding balance.',
+      'Cash Closing report filter can pick an optional shift to open only that closing, or leave empty to switch between all closings for the day.',
+    ],
+  },
+  {
+    date: '2026-09-21',
+    title: 'Print logo size and header wrap',
+    items: [
+      'Print settings let you set store logo width, height, and common size presets; header/footer images have their own width and height.',
+      'Logos and section images stretch to the configured size (default still 150×150 when unset).',
+      'Header and footer text sections wrap long paragraphs across multiple receipt lines instead of cutting after one row.',
+    ],
+  },
+  {
+    date: '2026-09-21',
+    title: 'Schema catch-up for terminal sync',
+    items: [
+      'Fresh installs and production migrations now include PosStore sync tables, order ownership/version fields, the delivery menu function, and related security/accounting schema that was missing from the latest dump.',
+    ],
+  },
+  {
     date: '2026-09-20',
     title: 'Desktop offline shell (Tauri)',
     items: [
@@ -20,6 +142,24 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Closing payment totals',
     items: [
       'Day closing payment type totals now use the same applied amounts as Summary (tendered cash minus change), instead of raw tendered amounts.',
+    ],
+  },
+  {
+    date: '2026-09-19',
+    title: 'Configurable invoice number policies',
+    items: [
+      'Settings → Invoice numbers lets each restaurant choose how POS invoices are minted (gateway / terminal pool / hybrid), reset (day / month / year / never), scoped (restaurant / branch / terminal), and formatted with tokens such as {prefix}{yyyy}-{seq}.',
+      'The default stays Date Reset: shared daily 1, 2, 3… from the gateway, with a temporary local code offline until sync. Formatted labels are snapshotted on the order so changing the policy later does not rewrite old checks.',
+      'Terminal, pool, and hybrid presets warn about fiscal gaps and require acknowledgement. Fiscal submit still uses the integer invoice number; authority numbers stay on fiscal submissions.',
+    ],
+  },
+  {
+    date: '2026-09-19',
+    title: 'Gateway-assigned invoice numbers',
+    items: [
+      'POS invoice numbers are assigned by the gateway when the order is created on the server, so every till shares one daily sequence (1, 2, 3…) with no reserved-block jumps.',
+      'New checks can be taken offline without an invoice number; kitchen and floor keep working. Until sync, the check shows a 6-character local code (e.g. ABC123). The real number replaces it after the gateway assigns it.',
+      'Fiscal submit waits until that number exists and uses the same invoice number. Split and merge children also get numbers from the gateway, not from a local 200-block. Auto / receipt ids still use reserved pools.',
     ],
   },
   {

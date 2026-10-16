@@ -15,7 +15,8 @@
     "settings": "Настройки",
     "clock": "Часы",
     "hr": "HR",
-    "integrations": "Интеграции"
+    "integrations": "Интеграции",
+    "requiresApproval": "Требуется одобрение руководителя"
   },
   "modules": {
     "Menu": "Меню",

@@ -21,10 +21,11 @@ const PAPER_IMAGE_WIDTH_PX = DEFAULT_IMAGE_LINE_COLS * DOTS_PER_COL;
 const PAPER_IMAGE_WIDTH_80MM_PX = FULL_80MM_LINE_COLS * DOTS_PER_COL;
 /** Max content width when scaling full-bleed images (safe for 58mm). */
 const MAX_IMAGE_WIDTH_PX = 384;
-/** Store logo + header/footer + provider logos: fixed contain box (no stretch). */
+/** Default store logo + header/footer image box when width/height unset. */
 const STORE_LOGO_BOX_PX = 150;
 /** @deprecated use MAX_IMAGE_WIDTH_PX */
 const MAX_LOGO_WIDTH_PX = MAX_IMAGE_WIDTH_PX;
+const MIN_IMAGE_BOX_PX = 8;
 
 const DEFAULTS = {
   bottomMargin: 0,
@@ -48,6 +49,8 @@ const DEFAULTS = {
   showLogo: false,
   /** Horizontal logo shift in dots (negative = left, positive = right). */
   logoOffsetX: 0,
+  logoWidth: STORE_LOGO_BOX_PX,
+  logoHeight: STORE_LOGO_BOX_PX,
   showVatNumber: false,
   vatName: 'VAT',
   vatNumber: '',
@@ -168,6 +171,21 @@ function normalizeLogo(logo) {
   return `data:${decoded.mime};base64,${decoded.buf.toString('base64')}`;
 }
 
+/**
+ * Clamp image dimension to a safe printable range.
+ * @param {*} value
+ * @param {number} [fallback=STORE_LOGO_BOX_PX]
+ * @param {number} [max=PAPER_IMAGE_WIDTH_80MM_PX]
+ * @returns {number}
+ */
+function clampImageDim(value, fallback, max) {
+  const def = fallback != null ? fallback : STORE_LOGO_BOX_PX;
+  const cap = max != null ? max : PAPER_IMAGE_WIDTH_80MM_PX;
+  const n = parseInt(value, 10);
+  if (Number.isNaN(n) || n <= 0) return def;
+  return Math.max(MIN_IMAGE_BOX_PX, Math.min(cap, n));
+}
+
 function normalizeSection(section) {
   if (!section || typeof section !== 'object') return null;
   const align = ['left', 'center', 'right'].includes(section.align) ? section.align : 'center';
@@ -180,7 +198,8 @@ function normalizeSection(section) {
       console.warn('[print] image section content empty after normalize');
     }
   } else {
-    content = String(section.content || '').slice(0, PRINTER_WIDTH);
+    // Keep full text; printSections wraps to printer columns.
+    content = String(section.content || '');
   }
   return {
     enabled: section.enabled !== false,
@@ -188,6 +207,8 @@ function normalizeSection(section) {
     align,
     size,
     content,
+    width: clampImageDim(section.width, STORE_LOGO_BOX_PX),
+    height: clampImageDim(section.height, STORE_LOGO_BOX_PX),
   };
 }
 
@@ -260,6 +281,8 @@ function normalizeConfig(c = {}) {
     showItemTotal: Boolean(c.showItemTotal !== undefined ? c.showItemTotal : DEFAULTS.showItemTotal),
     showLogo: Boolean(c.showLogo !== undefined ? c.showLogo : DEFAULTS.showLogo),
     logoOffsetX: signedInt(c.logoOffsetX, DEFAULTS.logoOffsetX),
+    logoWidth: clampImageDim(c.logoWidth, DEFAULTS.logoWidth),
+    logoHeight: clampImageDim(c.logoHeight, DEFAULTS.logoHeight),
     showVatNumber: Boolean(c.showVatNumber !== undefined ? c.showVatNumber : DEFAULTS.showVatNumber),
     vatName: String(n(c.vatName, DEFAULTS.vatName) || 'VAT'),
     vatNumber: String(n(c.vatNumber, DEFAULTS.vatNumber)),
@@ -555,43 +578,59 @@ function applyMargins(printer, config) {
 
 /**
  * Compute full paper-width canvas dimensions for a logo/QR box image.
- * @param {number} boxSize
+ * Accepts square boxSize (legacy) or rectangular boxWidth × boxHeight.
+ * @param {number} boxWidthOrSize - width in px, or square size when height omitted
  * @param {number} [paperWidth]
  * @param {string} [hAlign]
  * @param {number} [offsetX]
- * @returns {{ canvasWidth: number, side: number, dx: number }}
+ * @param {number} [boxHeight] - defaults to boxWidthOrSize (square)
+ * @returns {{ canvasWidth: number, side: number, boxW: number, boxH: number, dx: number }}
  */
-function computeBoxCanvasLayout(boxSize, paperWidth, hAlign, offsetX) {
-  const side = Math.max(8, Math.ceil(boxSize / 8) * 8);
-  const rawPaperWidth = Math.max(side, paperWidth || PAPER_IMAGE_WIDTH_PX);
+function computeBoxCanvasLayout(boxWidthOrSize, paperWidth, hAlign, offsetX, boxHeight) {
+  const rawW = Number(boxWidthOrSize) || STORE_LOGO_BOX_PX;
+  const boxW = Math.max(MIN_IMAGE_BOX_PX, Math.ceil(rawW / 8) * 8);
+  const rawH = boxHeight != null ? Number(boxHeight) : rawW;
+  const boxH = Math.max(MIN_IMAGE_BOX_PX, Math.ceil(rawH / 8) * 8);
+  const side = boxW; // legacy alias used by older callers/tests
+  const rawPaperWidth = Math.max(boxW, paperWidth || PAPER_IMAGE_WIDTH_PX);
   const canvasWidth = Math.max(8, Math.ceil(rawPaperWidth / 8) * 8);
   let dx = 0;
   const align = hAlign === 'left' || hAlign === 'right' ? hAlign : 'center';
-  if (align === 'center') dx = Math.floor((canvasWidth - side) / 2);
-  else if (align === 'right') dx = canvasWidth - side;
+  if (align === 'center') dx = Math.floor((canvasWidth - boxW) / 2);
+  else if (align === 'right') dx = canvasWidth - boxW;
   const shift = Math.floor(Number(offsetX) || 0);
   if (shift) {
-    dx = Math.max(0, Math.min(canvasWidth - side, dx + shift));
+    dx = Math.max(0, Math.min(canvasWidth - boxW, dx + shift));
   }
-  return { canvasWidth, side, dx };
+  return { canvasWidth, side, boxW, boxH, dx };
 }
 
 /**
  * Resize/re-encode image for thermal.
- * - boxSize: N×N contain square on a full paperWidth canvas (centering baked into bitmap).
+ * - boxSize / boxWidth+boxHeight: place on full paperWidth canvas.
+ *   Default for logo/sections is stretch-to-box; pass stretch:false for contain.
+ * - fitHeight: contain-fit height (legacy fiscal helpers).
  * - maxWidth only: scale preserving aspect, pad width to multiple of 8
  * Always returns PNG so get-pixels / escpos Image.load get a consistent format.
  * @param {Buffer} buf
  * @param {string} [mime]
- * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, paperWidth?: number, hAlign?: string, logoOffsetX?: number }} [opts]
+ * @param {{ maxWidth?: number, forceMono?: boolean, boxSize?: number, boxWidth?: number, boxHeight?: number, stretch?: boolean, paperWidth?: number, hAlign?: string, logoOffsetX?: number, fitHeight?: boolean }} [opts]
  * @returns {Promise<Buffer|null>}
  */
 function prepareImageForPrint(buf, mime, opts) {
   const options = opts || {};
   const maxWidth = Math.max(8, options.maxWidth || MAX_IMAGE_WIDTH_PX);
   const forceMono = options.forceMono !== false;
-  const boxSize = options.boxSize != null ? Math.max(8, Number(options.boxSize) || 0) : 0;
+  const boxSize = options.boxSize != null ? Math.max(MIN_IMAGE_BOX_PX, Number(options.boxSize) || 0) : 0;
+  const hasRect = options.boxWidth != null || options.boxHeight != null;
+  const boxWidth = hasRect
+    ? clampImageDim(options.boxWidth, boxSize || STORE_LOGO_BOX_PX)
+    : boxSize;
+  const boxHeight = hasRect
+    ? clampImageDim(options.boxHeight, boxSize || STORE_LOGO_BOX_PX)
+    : boxSize;
   const hAlign = options.hAlign === 'left' || options.hAlign === 'right' ? options.hAlign : 'center';
+  const stretch = options.stretch !== false;
 
   return new Promise((resolve) => {
     try {
@@ -603,24 +642,25 @@ function prepareImageForPrint(buf, mime, opts) {
             return;
           }
 
-          if (boxSize > 0) {
-            const { canvasWidth, side, dx } = computeBoxCanvasLayout(
-              boxSize,
+          if (boxWidth > 0 || boxHeight > 0) {
+            const { canvasWidth, boxW, boxH, dx } = computeBoxCanvasLayout(
+              boxWidth || STORE_LOGO_BOX_PX,
               options.paperWidth || PAPER_IMAGE_WIDTH_PX,
               hAlign,
-              options.logoOffsetX
+              options.logoOffsetX,
+              boxHeight || boxWidth || STORE_LOGO_BOX_PX
             );
             const fitHeight = options.fitHeight === true;
-            let canvasH = side;
-            let drawW = side;
-            let drawH = side;
+            let canvasH = boxH;
+            let drawW = boxW;
+            let drawH = boxH;
             let drawX = dx;
             let drawY = 0;
             if (fitHeight) {
-              const scale = Math.min(side / img.width, side / img.height);
+              const scale = Math.min(boxW / img.width, boxH / img.height);
               drawW = Math.max(1, Math.round(img.width * scale));
               drawH = Math.max(1, Math.round(img.height * scale));
-              drawX = dx + Math.floor((side - drawW) / 2);
+              drawX = dx + Math.floor((boxW - drawW) / 2);
               canvasH = Math.max(8, Math.ceil(drawH / 8) * 8);
             }
             const canvas = createCanvas(canvasWidth, canvasH);
@@ -629,8 +669,24 @@ function prepareImageForPrint(buf, mime, opts) {
             ctx.fillRect(0, 0, canvasWidth, canvasH);
             if (fitHeight) {
               ctx.drawImage(img, drawX, drawY, drawW, drawH);
+            } else if (stretch) {
+              ctx.drawImage(img, dx, 0, boxW, boxH);
+            } else if (boxW === boxH) {
+              drawContainInSquare(ctx, img, dx, 0, boxW);
             } else {
-              drawContainInSquare(ctx, img, dx, 0, side);
+              // Contain into rectangle
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(dx, 0, boxW, boxH);
+              const scale = Math.min(boxW / img.width, boxH / img.height);
+              const w = Math.max(1, Math.round(img.width * scale));
+              const h = Math.max(1, Math.round(img.height * scale));
+              ctx.drawImage(
+                img,
+                dx + Math.floor((boxW - w) / 2),
+                Math.floor((boxH - h) / 2),
+                w,
+                h
+              );
             }
             if (forceMono) forceCanvasMono(ctx, canvasWidth, canvasH);
             resolve(canvas.toBuffer('image/png'));
@@ -669,10 +725,10 @@ function prepareImageForPrint(buf, mime, opts) {
 }
 
 /**
- * Print store / header / footer image: 150×150 contain on full paper-width canvas, D24.
+ * Print store / header / footer image: stretch into configured W×H on full paper canvas, D24.
  * @param {Object} printer - escpos Printer
  * @param {*} logo
- * @param {{ align?: string, hAlign?: string }} [opts]
+ * @param {{ align?: string, hAlign?: string, boxWidth?: number, boxHeight?: number }} [opts]
  * @param {Object} [config]
  * @returns {Promise<void>}
  */
@@ -681,8 +737,18 @@ function printLogo(printer, logo, opts, config) {
   const hAlign = options.hAlign || options.align || 'center';
   const paperWidth = resolvePaperWidthPx(config);
   const logoOffsetX = resolveLogoOffsetX(config);
+  const boxWidth = clampImageDim(
+    options.boxWidth != null ? options.boxWidth : (config && config.logoWidth),
+    STORE_LOGO_BOX_PX
+  );
+  const boxHeight = clampImageDim(
+    options.boxHeight != null ? options.boxHeight : (config && config.logoHeight),
+    STORE_LOGO_BOX_PX
+  );
   return printEscposImage(printer, logo, {
-    boxSize: STORE_LOGO_BOX_PX,
+    boxWidth,
+    boxHeight,
+    stretch: true,
     paperWidth,
     hAlign,
     logoOffsetX,
@@ -781,6 +847,61 @@ function feedBottomMargin(printer, config) {
 }
 
 /**
+ * Word-wrap receipt section text to printer column width.
+ * Splits on newlines first, then wraps each paragraph; hard-breaks oversized tokens.
+ * @param {string} text
+ * @param {string} [size='normal']
+ * @returns {string[]}
+ */
+function wrapReceiptText(text, size) {
+  const maxLen = getEffectiveLineWidth(size || 'normal');
+  const paragraphs = String(text || '').split(/\r?\n/);
+  const lines = [];
+
+  paragraphs.forEach((paragraph) => {
+    const raw = String(paragraph || '');
+    if (!raw) {
+      lines.push('');
+      return;
+    }
+    const words = raw.split(/(\s+)/);
+    let current = '';
+    words.forEach((token) => {
+      if (!token) return;
+      if (token.match(/^\s+$/)) {
+        if (current.length + token.length <= maxLen) {
+          current += token;
+        }
+        return;
+      }
+      if (token.length > maxLen) {
+        if (current.trim()) {
+          lines.push(current.trimEnd());
+          current = '';
+        }
+        for (let i = 0; i < token.length; i += maxLen) {
+          lines.push(token.slice(i, i + maxLen));
+        }
+        return;
+      }
+      if (!current) {
+        current = token;
+        return;
+      }
+      if (current.length + token.length <= maxLen) {
+        current += token;
+      } else {
+        lines.push(current.trimEnd());
+        current = token;
+      }
+    });
+    if (current) lines.push(current.trimEnd());
+  });
+
+  return lines.length ? lines : [''];
+}
+
+/**
  * Print configured receipt sections (text or image).
  * @param {Object} printer
  * @param {Array} sections
@@ -798,12 +919,23 @@ function printSections(printer, sections, config) {
           console.warn('[print] skipping empty image section');
           return Promise.resolve();
         }
-        // Same pipeline as store logo: 150×150 contain on full paper canvas + feed after
-        return printLogo(printer, section.content, { align: section.align, hAlign: section.align }, config);
+        return printLogo(
+          printer,
+          section.content,
+          {
+            align: section.align,
+            hAlign: section.align,
+            boxWidth: section.width,
+            boxHeight: section.height,
+          },
+          config
+        );
       }
       if (section.type === 'text' && section.content) {
-        printAlignedText(printer, section.content, section.align, {
-          size: section.size,
+        wrapReceiptText(section.content, section.size).forEach((line) => {
+          printAlignedText(printer, line, section.align, {
+            size: section.size,
+          });
         });
       }
       return Promise.resolve();
@@ -1283,6 +1415,9 @@ async function printEscposImage(printer, input, opts) {
       maxWidth: options.maxWidth || MAX_IMAGE_WIDTH_PX,
       forceMono: options.forceMono !== false,
       boxSize: options.boxSize,
+      boxWidth: options.boxWidth,
+      boxHeight: options.boxHeight,
+      stretch: options.stretch,
       paperWidth: options.paperWidth || PAPER_IMAGE_WIDTH_PX,
       hAlign: options.hAlign || 'center',
       logoOffsetX: options.logoOffsetX,
@@ -1509,6 +1644,8 @@ module.exports = {
   printReceiptHeader,
   printFooterSections,
   printSections,
+  wrapReceiptText,
+  clampImageDim,
   printCenteredText,
   printAlignedText,
   padAlign,

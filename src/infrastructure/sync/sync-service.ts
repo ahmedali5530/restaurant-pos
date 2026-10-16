@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import { posStore } from '@/infrastructure/pos-store/pos-store.ts';
+import { scrubOrderOutboxPayload } from '@/infrastructure/pos-store/commands.ts';
 import {
   applyRemoteEvent,
   projectSnapshotOrder,
@@ -8,6 +9,11 @@ import {
 import type { NumberSeries, PendingNumberReservation, SyncPhase } from '@/infrastructure/pos-store/types.ts';
 import { Tables } from '@/api/db/tables.ts';
 import { getBusinessDayUnixRange } from '@/lib/datetime.ts';
+import {
+  normalizeNumberPolicy,
+  NUMBER_POLICY_KEY,
+  policyUsesLocalInvoicePool,
+} from '@/lib/number-policy.ts';
 import {
   fetchSnapshotPage,
   handshake,
@@ -24,6 +30,7 @@ import {
 
 const DAY_SCOPED_NUMBER_SERIES = new Set<NumberSeries>(['invoice', 'receipt']);
 
+/** Catalog first (through printers) so the menu can project before orders. */
 const SNAPSHOT_TABLES = [
   Tables.order_types,
   Tables.categories,
@@ -46,9 +53,9 @@ const SNAPSHOT_TABLES = [
   Tables.discounts,
   Tables.discount_reasons,
   Tables.coupons,
+  Tables.printers,
   Tables.customers,
   'coupon_redemption',
-  Tables.printers,
   Tables.orders,
   Tables.order_items,
   Tables.order_items_kitchen,
@@ -70,13 +77,25 @@ const OPERATIONAL_TABLES = new Set<string>([
 ]);
 
 /**
- * Reserved int ranges per series. Surreal `invoice_number` / `auto_id` are ints,
- * so the terminal must never fall back to provisional strings — reserve big
- * blocks and top up as soon as half is consumed.
+ * Reserved int ranges per series. Invoice numbers are usually gateway-minted;
+ * `auto_id` always uses a local reserved block. When the restaurant chooses
+ * pool/hybrid mint, invoice rejoins this refill loop.
  */
 const NUMBER_BLOCK_SIZE = 200;
 const NUMBER_REFILL_THRESHOLD = NUMBER_BLOCK_SIZE / 2;
-const NUMBER_SERIES: NumberSeries[] = ['invoice', 'auto_id'];
+
+async function numberSeriesForPolicy(): Promise<NumberSeries[]> {
+  try {
+    const row = await posStore.getGlobalSetting(NUMBER_POLICY_KEY);
+    const policy = normalizeNumberPolicy(row?.values ?? row?.payload?.values);
+    if (policyUsesLocalInvoicePool(policy)) {
+      return ['invoice', 'auto_id'];
+    }
+  } catch {
+    // Default: gateway mint — no invoice pool.
+  }
+  return ['auto_id'];
+}
 
 let syncInFlight: Promise<void> | null = null;
 /** Set when synchronize() is requested while a run is already in flight. */
@@ -91,6 +110,7 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
   let highWatermark = 0;
   let pages = 0;
   const maxPages = 5_000;
+  let catalogNotified = !!(await posStore.getSyncCursor()).catalogReady;
 
   while (!complete) {
     if (pages >= maxPages) {
@@ -100,7 +120,7 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
     const page = await fetchSnapshotPage({ terminalId, resumeToken, limit: 200 });
     pages += 1;
     highWatermark = page.highWatermark;
-    if (page.page.kind === 'records' && page.page.table && page.page.records) {
+    if (page.page.kind === 'records' && page.page.table && page.page.records?.length) {
       const table = page.page.table;
       if (table === 'order') {
         for (const record of page.page.records) {
@@ -114,21 +134,26 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
         if (table === 'floor_table') await projectSnapshotRecords(table, page.page.records);
       }
     }
-    // The trailing events page (event_id <= highWatermark) predates the record
-    // pages we just read, so replaying it could roll state back (e.g. a CREATE
-    // event re-opening an order that is already Paid). Records are the truth
-    // at snapshot time; the cursor jumps to the watermark and pull continues.
+    // Records are the truth at snapshot time. Gateway no longer pages historical
+    // sync_event rows; the cursor jumps to the watermark when complete and pull
+    // continues from there.
     resumeToken = page.resumeToken;
     complete = page.complete;
     if (!complete && resumeToken === previousToken) {
       throw new Error('Snapshot pagination stalled (resume token did not advance)');
     }
+    const markCatalogReady = !catalogNotified && (page.catalogComplete || complete);
     await posStore.setSyncCursor({
       snapshotResumeToken: resumeToken,
       highWatermark,
-      hydrated: complete,
+      ...(markCatalogReady ? { catalogReady: true } : {}),
+      ...(complete ? { catalogReady: true, hydrated: true } : { hydrated: false }),
       cursor: complete ? highWatermark : (await posStore.getSyncCursor()).cursor,
     });
+    if (markCatalogReady) {
+      catalogNotified = true;
+      notifyCatalogReady();
+    }
   }
 }
 
@@ -148,6 +173,13 @@ function notifyRemoteChange(): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('posr-posstore-write'));
     window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
+  }
+}
+
+/** Catalog tables finished; UI may project menu/floors while orders still hydrate. */
+function notifyCatalogReady(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('posr-catalog-ready'));
   }
 }
 
@@ -287,6 +319,10 @@ export class TerminalSyncService {
       const operations = pending
         .map((row) => row.operation)
         .filter((op): op is NonNullable<typeof op> => !!op)
+        .map((op) => ({
+          ...op,
+          payload: scrubOrderOutboxPayload(op.payload),
+        }))
         .sort((a, b) => Number(a.sequence ?? 0) - Number(b.sequence ?? 0));
 
       // Push in small batches so a hung Surreal write cannot stall all 40+ ops,
@@ -310,6 +346,9 @@ export class TerminalSyncService {
               message,
             );
             throw error;
+          }
+          if (result.assignments?.length) {
+            await posStore.applyInvoiceAssignments(result.assignments);
           }
           if (result.accepted?.length) {
             for (const operationId of result.accepted) clearConflictAutoRetry(operationId);
@@ -413,8 +452,9 @@ export class TerminalSyncService {
   ): Promise<void> {
     const { day, startUnix, endUnix } = getBusinessDayUnixRange();
     let lastError: unknown;
+    const seriesList = await numberSeriesForPolicy();
 
-    for (const series of NUMBER_SERIES) {
+    for (const series of seriesList) {
       try {
         const dayScoped = DAY_SCOPED_NUMBER_SERIES.has(series);
         if (dayScoped) {
@@ -482,11 +522,11 @@ export class TerminalSyncService {
     }
 
     if (options?.required) {
-      const invoiceLeft = await posStore.countReservedNumbers('invoice', day);
-      if (invoiceLeft === 0) {
+      const autoIdLeft = await posStore.countReservedNumbers('auto_id');
+      if (autoIdLeft === 0) {
         throw lastError instanceof Error
           ? lastError
-          : new Error('No reserved invoice numbers after refill — check the gateway');
+          : new Error('No reserved receipt numbers after refill — check the gateway');
       }
     }
   }

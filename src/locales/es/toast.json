@@ -121,6 +121,8 @@
     "menuItemsUpdated": "{{count}} artículo(s) actualizado(s)",
     "invalidCategories": "Las categorías no son válidas",
     "passwordRequired": "La contraseña es obligatoria para un usuario nuevo",
+    "lastMasterRole": "Eres el único usuario con el rol {{role}} — asigna primero ese rol a otro usuario, o el sistema se quedará sin nadie que pueda gestionarlo.",
+    "lastFullAccessRole": "Este es el único rol con acceso completo — dale primero acceso completo a otro rol, o el sistema se quedará sin nadie que pueda gestionarlo.",
     "invalidDishNumber": "El número del plato no es válido",
     "invalidDishNameOrNumber": "El nombre o número del plato no es válido",
     "ambiguousDishName": "Varios platos coinciden con este nombre; use el número del plato",
@@ -132,7 +134,9 @@
     "invalidModifierGroup": "El grupo de modificadores no es válido",
     "duplicateDishModifierGroup": "El grupo de modificadores ya está vinculado a este plato",
     "invalidPriority": "La prioridad no es válida",
-    "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido"
+    "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido",
+    "loginTaken": "Otro usuario ya tiene este inicio de sesión/PIN; elige otro.",
+    "passwordTaken": "Otro usuario ya tiene esta contraseña; elige otra."
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está en uso y fue desactivado.",
@@ -153,5 +157,26 @@
     "finalLimitReached": "Límite de impresión de factura final alcanzado ({{count}}/{{limit}}). Se requiere aprobación del gerente.",
     "overrideRequired": "Anular límite de impresión",
     "recordFailed": "No se pudo registrar la impresión de la factura"
+  },
+  "documentDeleted": "Documento eliminado",
+  "notifications": {
+    "someone": "Alguien",
+    "clockInTitle": "Entrada",
+    "clockInWithTime": "{{name}} fichó de entrada a las {{time}}",
+    "clockIn": "{{name}} fichó de entrada",
+    "clockOutTitle": "Salida",
+    "clockOutWithTime": "{{name}} fichó de salida a las {{time}}",
+    "voidTitle": "Artículo anulado",
+    "voidWithReason": "{{name}} anuló un artículo — {{reason}}",
+    "void": "{{name}} anuló un artículo",
+    "refundTitle": "Pedido reembolsado",
+    "refundWithReason": "{{name}} procesó un reembolso — {{reason}}",
+    "refund": "{{name}} procesó un reembolso",
+    "discountTitle": "Descuento grande aplicado",
+    "discountApplied": "{{name}} aplicó {{detail}}",
+    "newEmployeeTitle": "Nuevo empleado añadido",
+    "newEmployeeFallback": "Nuevo empleado",
+    "securityAlertTitle": "Alerta de seguridad",
+    "dismiss": "Descartar"
   }
 }

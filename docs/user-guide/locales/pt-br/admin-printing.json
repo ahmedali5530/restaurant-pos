@@ -74,6 +74,10 @@
           "effect": "Logo no ticket."
         },
         {
+          "name": "Largura / altura / predefinição do logo",
+          "effect": "Tamanho de impressão em pontos (padrão 150×150). Predefinições preenchem largura e altura; a imagem é esticada para a caixa."
+        },
+        {
           "name": "Seções cabeçalho/rodapé",
           "effect": "Blocos texto/imagem."
         },

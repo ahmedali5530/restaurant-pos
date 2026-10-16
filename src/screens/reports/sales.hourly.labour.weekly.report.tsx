@@ -8,8 +8,9 @@ import {TimeEntry} from "@/api/model/time_entry.ts";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
-import { toLuxonDateTime } from "@/lib/datetime.ts";
+import { getAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
+import {buildCreatedAtDateConditions, toReportBoundaryUtcIso} from "@/api/reports/shared/query.ts";
 
 type WeekdayName = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
 type MetricKey = 'amountCollected' | 'grossSales' | 'couponAmount' | 'labourMinutes';
@@ -44,9 +45,10 @@ const parseWeekParams = () => {
   const params = new URLSearchParams(window.location.search);
   const weekParam = params.get('week');
 
-  let weekStart = weekParam ? DateTime.fromISO(weekParam) : DateTime.now();
+  const timezone = getAppTimezone();
+  let weekStart = weekParam ? DateTime.fromISO(weekParam, {zone: timezone}) : DateTime.now().setZone(timezone);
   if (!weekStart.isValid) {
-    weekStart = DateTime.now();
+    weekStart = DateTime.now().setZone(timezone);
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
@@ -57,7 +59,7 @@ const parseWeekParams = () => {
     weekEnd,
     weekStartISO: weekStart.toISODate(),
     weekEndISO: weekEnd.toISODate(),
-    // Full day bounds for time::format string compare (date-only end excludes the last day)
+    // Full day bounds so a date-only end still includes the last day
     queryStart: weekStart.startOf('day').toFormat(dateTimeFormat),
     queryEnd: weekEnd.endOf('day').toFormat(dateTimeFormat),
   };
@@ -97,26 +99,33 @@ export const SalesHourlyLabourWeeklyReport = () => {
         setLoading(true);
         setError(null);
 
-        const params = {start: queryStart, end: queryEnd};
+        const {conditions: dateConditions, params} = buildCreatedAtDateConditions(
+          {startDate: queryStart, endDate: queryEnd},
+          "created_at",
+        );
 
         const ordersQuery = `
           SELECT * FROM ${Tables.orders}
           WHERE status = 'Paid'
-            AND time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start
-            AND time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end
+            AND ${dateConditions.join(' AND ')}
           FETCH payments, items, items.item, items.item.categories, coupon, coupon.coupon
         `;
 
+        // Overlap check: the time entry spans any part of the week.
+        const timeEntryParams = {
+          rangeStart: toReportBoundaryUtcIso(queryStart),
+          rangeEnd: toReportBoundaryUtcIso(queryEnd),
+        };
         const timeEntriesQuery = `
           SELECT * FROM ${Tables.time_entries}
           WHERE clock_out != NONE
-            AND time::format(clock_in, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $end
-            AND time::format(clock_out, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $start
+            AND clock_in <= <datetime>$rangeEnd
+            AND clock_out >= <datetime>$rangeStart
         `;
 
         const [ordersResult, timeEntriesResult]: any = await Promise.all([
           queryRef.current(ordersQuery, params),
-          queryRef.current(timeEntriesQuery, params),
+          queryRef.current(timeEntriesQuery, timeEntryParams),
         ]);
 
         setOrders((ordersResult?.[0] ?? []) as Order[]);

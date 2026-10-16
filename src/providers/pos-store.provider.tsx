@@ -38,13 +38,13 @@ export function PosStoreProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         setReady(true);
         const cursor = await posStore.getSyncCursor();
-        if (cursor.hydrated) {
+        if (cursor.catalogReady || cursor.hydrated) {
           const catalog = await posStore.loadHydratedCatalog();
           setAppSettings((prev: AppSettingsInterface) => ({
             ...prev,
             ...catalog,
           }));
-          setHydrated(true);
+          setHydrated(!!cursor.hydrated);
         }
       } catch (err) {
         if (!cancelled) {
@@ -68,9 +68,9 @@ export async function refreshCatalogIntoSettings(
   setAppSettings: (updater: (prev: AppSettingsInterface) => AppSettingsInterface) => void,
 ): Promise<void> {
   const cursor = await posStore.getSyncCursor();
-  // Never project an empty wipe over a populated jotai cache mid-hydrate /
-  // mid Reload cache — wait until the snapshot has finished.
-  if (!cursor.hydrated) return;
+  // Project once catalog tables are in Dexie — do not wait for operational
+  // orders. Never project an empty wipe before catalogReady.
+  if (!cursor.catalogReady && !cursor.hydrated) return;
   const catalog = await posStore.loadHydratedCatalog();
   setAppSettings((prev) => {
     const nextFloors = catalog.floors ?? [];

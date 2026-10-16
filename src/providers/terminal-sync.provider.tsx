@@ -53,6 +53,16 @@ export function TerminalSyncProvider({ children }: { children: ReactNode }) {
     setAppSettings,
   ]);
 
+  // Snapshot catalog tables finish before orders — project menu immediately.
+  useEffect(() => {
+    if (!isReady || !hasSession) return;
+    const onCatalogReady = () => {
+      void refreshCatalogIntoSettings(setAppSettings);
+    };
+    window.addEventListener('posr-catalog-ready', onCatalogReady);
+    return () => window.removeEventListener('posr-catalog-ready', onCatalogReady);
+  }, [isReady, hasSession, setAppSettings]);
+
   useEffect(() => {
     if (!isReady || !hasSession || !isEffectivelyConnected) return;
 

@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Max ore al giorno",
       "maxHoursPerWeek": "Max ore a settimana",
       "breakRules": "Regole pause",
-      "notes": "Note"
+      "notes": "Note",
+      "overtimeSection": "Straordinari",
+      "overtimeSectionHelp": "Per impostazione predefinita, le ore oltre 8/giorno sono pagate a 1,5x. Sostituisci o disattiva solo per questo dipendente.",
+      "overtimeThreshold": "Soglia giornaliera (ore)",
+      "overtimeMultiplier": "Moltiplicatore",
+      "nightPremiumSection": "Premio notturno",
+      "nightPremiumSectionHelp": "Per impostazione predefinita, le ore tra 22:00 e 06:00 ricevono il 25% in più. Sostituisci o disattiva solo per questo dipendente.",
+      "nightStart": "Ora di inizio",
+      "nightEnd": "Ora di fine",
+      "nightMultiplier": "Moltiplicatore",
+      "policyMode": {
+        "default": "Usa predefinito",
+        "custom": "Personalizzato",
+        "disabled": "Disattivato"
+      }
     },
     "payRule": {
       "create": "Crea regola retributiva",
@@ -352,7 +366,10 @@
       "category": "Categoria",
       "title": "Titolo",
       "expiresAt": "Data scadenza",
-      "attachFile": "Allega file"
+      "attachFile": "Allega file",
+      "currentFile": "File corrente",
+      "replaceFile": "Sostituisci file (opzionale)",
+      "deleteConfirm": "Eliminare questo documento? L'operazione non può essere annullata."
     },
     "performance": {
       "create": "Aggiungi nota prestazioni",
@@ -557,7 +574,10 @@
     "saveOverride": "Salva sovrascrittura",
     "resetOverrides": "Reimposta sovrascritture",
     "confirmResetOverrides": "Ricalcolare tutte le righe e scartare le sovrascritture del responsabile?",
-    "overrideHelp": "Modifica gli importi su un'esecuzione in anteprima. Ricalcola mantiene le righe sovrascritte a meno che non le reimposti."
+    "overrideHelp": "Modifica gli importi su un'esecuzione in anteprima. Ricalcola mantiene le righe sovrascritte a meno che non le reimposti.",
+    "deleted": "Esecuzione paghe eliminata",
+    "deleteConfirm": "Eliminare questa esecuzione paghe in bozza? L'operazione non può essere annullata.",
+    "premiumPay": "Premi"
   },
   "dashboard": {
     "title": "Dashboard manodopera",

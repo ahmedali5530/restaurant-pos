@@ -86,6 +86,7 @@ export const calculateEmployeeLabor = (
     hours,
     cost,
     payType: ctx.payProfile.pay_type,
+    currency: ctx.payProfile.currency,
     paidDays: calendar.paidDays,
     unpaidLeaveDays: calendar.unpaidLeaveDaysCount,
     expectedWorkDays:

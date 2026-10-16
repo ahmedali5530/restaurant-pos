@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Please choose a new table",
     "success": "Successfully merged into {{invoiceNumber}}",
+    "successPending": "Orders merged. Invoice number will appear after sync.",
     "failed": "Failed to create merging orders",
     "chooseTable": "Choose a table",
     "selectTwoOrMore": "Select 2 or more orders",

@@ -9,7 +9,7 @@ import {
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
 import {getAiAssistantSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
-import {filterWriteToolsByPermissions, canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
+import {canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
 import {listWriteToolNames} from "@/lib/ai/tools/write-tool-registry.ts";
 import {buildWriteProposal, type TFunc, type WriteProposal, type WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
@@ -17,6 +17,12 @@ import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
 import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
+import {LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
+import {
+  isUserGuideHowToPrompt,
+  lookupUserGuide,
+  suggestUserGuideChapterForPath,
+} from "@/lib/ai/user-guide.ts";
 
 const MAX_ITERATIONS = 10;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
@@ -50,6 +56,10 @@ export type AssistantAgentOptions = {
   /** User prompt for tool routing; derived from history on resume when omitted. */
   prompt?: string;
   writeContext?: WriteToolContext;
+  /** App UI language (i18n) for user-guide locale folder. */
+  language?: string;
+  /** Current route for suggested guide chapter. */
+  pathname?: string;
 };
 
 export type AssistantAgentResult =
@@ -140,6 +150,26 @@ async function runLoop(
         return {type: "write_proposal", proposal, toolCallId: toolCall.id, charts: dedupeCharts(context.charts), messages};
       }
 
+      if (name === LOOKUP_USER_GUIDE_TOOL_NAME) {
+        try {
+          const chapter = typeof args.chapter === "string" ? args.chapter : "";
+          const query = typeof args.query === "string" ? args.query : undefined;
+          const result = await lookupUserGuide({
+            chapter,
+            language: options.language ?? "en",
+            query,
+          });
+          messages.push({role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result)});
+        } catch (err) {
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({error: err instanceof Error ? err.message : "Guide lookup failed"}),
+          });
+        }
+        continue;
+      }
+
       try {
         const result = await executeAiReportTool(db, name, args, context);
         messages.push({role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result)});
@@ -172,7 +202,14 @@ export async function runAiAssistantAgent(
   const writeToolNames = tools
     .map(tool => tool.function.name)
     .filter(name => WRITE_TOOL_NAME_SET.has(name));
-  const systemContent = getAiAssistantSystemPrompt(domains, compact, writeToolNames);
+  const suggestedChapter = options.pathname
+    ? suggestUserGuideChapterForPath(options.pathname)
+    : null;
+  const systemContent = getAiAssistantSystemPrompt(domains, compact, writeToolNames, {
+    language: options.language,
+    pathname: options.pathname,
+    suggestedChapter,
+  });
 
   const turnMessages = (extra?: OpenAIChatMessage[]): OpenAIChatMessage[] => [
     {role: "system", content: systemContent},
@@ -190,36 +227,40 @@ export async function runAiAssistantAgent(
     messages: turnMessages([...(extra ?? []), {role: "assistant", content: answer}]),
   });
 
-  const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
-    onToolStart: options.onToolStart,
-  });
-  if (inventoryFastPath) {
-    const response = await callOpenAIChat({
-      messages: fastPathMessages(inventoryFastPath.instruction),
-      tools: [],
-      task: options.task ?? "reporting",
-    });
-    const answer = messageText(response.choices[0]?.message?.content);
-    if (!answer) {
-      throw new Error("AI returned an empty response.");
-    }
-    return finishAnswer(answer);
-  }
+  const skipDataFastPaths = isUserGuideHowToPrompt(trimmed);
 
-  const employeeFastPath = await tryEmployeeDetailFastPath(db, trimmed, {
-    onToolStart: options.onToolStart,
-  });
-  if (employeeFastPath) {
-    const response = await callOpenAIChat({
-      messages: fastPathMessages(employeeFastPath.instruction),
-      tools: [],
-      task: options.task ?? "reporting",
+  if (!skipDataFastPaths) {
+    const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
+      onToolStart: options.onToolStart,
     });
-    const answer = messageText(response.choices[0]?.message?.content);
-    if (!answer) {
-      throw new Error("AI returned an empty response.");
+    if (inventoryFastPath) {
+      const response = await callOpenAIChat({
+        messages: fastPathMessages(inventoryFastPath.instruction),
+        tools: [],
+        task: options.task ?? "reporting",
+      });
+      const answer = messageText(response.choices[0]?.message?.content);
+      if (!answer) {
+        throw new Error("AI returned an empty response.");
+      }
+      return finishAnswer(answer);
     }
-    return finishAnswer(answer);
+
+    const employeeFastPath = await tryEmployeeDetailFastPath(db, trimmed, {
+      onToolStart: options.onToolStart,
+    });
+    if (employeeFastPath) {
+      const response = await callOpenAIChat({
+        messages: fastPathMessages(employeeFastPath.instruction),
+        tools: [],
+        task: options.task ?? "reporting",
+      });
+      const answer = messageText(response.choices[0]?.message?.content);
+      if (!answer) {
+        throw new Error("AI returned an empty response.");
+      }
+      return finishAnswer(answer);
+    }
   }
 
   return runLoop(db, t, turnMessages(), {...options, prompt: trimmed, tools});

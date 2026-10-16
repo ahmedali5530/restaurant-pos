@@ -39,13 +39,15 @@ export const FloorLayout = () => {
   const { orders: localOrders, terminalId, refresh: refreshOrders } = usePosOpenOrders();
   const [catalogFloors, setCatalogFloors] = useState<any[] | null>(null);
   const [catalogTables, setCatalogTables] = useState<any[] | null>(null);
-  const [catalogHydrated, setCatalogHydrated] = useState(false);
+  const [catalogReady, setCatalogReady] = useState(false);
+  const [ordersHydrated, setOrdersHydrated] = useState(false);
   const [syncPhase, setSyncPhase] = useState(() => getSyncStatus().phase);
 
   const loadCatalog = useCallback(async () => {
     try {
       const cursor = await posStore.getSyncCursor();
-      setCatalogHydrated(!!cursor.hydrated);
+      setCatalogReady(!!cursor.catalogReady || !!cursor.hydrated);
+      setOrdersHydrated(!!cursor.hydrated);
       const catalog = await posStore.loadHydratedCatalog();
       setCatalogFloors(Array.isArray(catalog.floors) ? catalog.floors : []);
       setCatalogTables(Array.isArray(catalog.tables) ? catalog.tables : []);
@@ -58,19 +60,37 @@ export const FloorLayout = () => {
     void loadCatalog();
   }, [loadCatalog]);
 
-  useEffect(() => subscribeSyncStatus((s) => setSyncPhase(s.phase)), []);
+  useEffect(() => {
+    const onCatalogReady = () => { void loadCatalog(); };
+    const onOrdersUpdated = () => { void loadCatalog(); };
+    window.addEventListener('posr-catalog-ready', onCatalogReady);
+    window.addEventListener('posr-operational-orders-updated', onOrdersUpdated);
+    window.addEventListener('posr-posstore-write', onOrdersUpdated);
+    return () => {
+      window.removeEventListener('posr-catalog-ready', onCatalogReady);
+      window.removeEventListener('posr-operational-orders-updated', onOrdersUpdated);
+      window.removeEventListener('posr-posstore-write', onOrdersUpdated);
+    };
+  }, [loadCatalog]);
+
+  useEffect(() => subscribeSyncStatus((s) => {
+    setSyncPhase(s.phase);
+    if (s.phase === 'idle' || s.phase === 'syncing') {
+      void loadCatalog();
+    }
+  }), [loadCatalog]);
 
   const floors = useMemo(() => {
     if (catalogFloors && catalogFloors.length > 0) return catalogFloors;
-    if (catalogFloors && catalogHydrated) return catalogFloors;
+    if (catalogFloors && catalogReady) return catalogFloors;
     return settings.floors ?? [];
-  }, [catalogFloors, catalogHydrated, settings.floors]);
+  }, [catalogFloors, catalogReady, settings.floors]);
 
   const allTables = useMemo(() => {
     if (catalogTables && catalogTables.length > 0) return catalogTables;
-    if (catalogTables && catalogHydrated) return catalogTables;
+    if (catalogTables && catalogReady) return catalogTables;
     return settings.tables ?? [];
-  }, [catalogTables, catalogHydrated, settings.tables]);
+  }, [catalogTables, catalogReady, settings.tables]);
 
   const tables = useMemo(() => {
     if (state.floor) {
@@ -89,9 +109,14 @@ export const FloorLayout = () => {
   }, [allTables, state.floor]);
 
   const catalogLoading =
-    !catalogHydrated
+    !catalogReady
     && (syncPhase === 'hydrating' || syncPhase === 'initializing' || syncPhase === 'syncing')
     && floors.length === 0;
+
+  const ordersWarming =
+    catalogReady
+    && !ordersHydrated
+    && (syncPhase === 'hydrating' || syncPhase === 'initializing');
 
   const categories = useMemo(() => {
     return (settings.categories ?? []).filter(item => item.show_in_menu !== false);
@@ -253,6 +278,21 @@ export const FloorLayout = () => {
   }
 
   const onClick = async (item: Table) => {
+    // Wait until open/recent orders are in Dexie so we do not start a second
+    // check on a table that already has one still downloading.
+    const cursor = await posStore.getSyncCursor();
+    if (!cursor.hydrated) {
+      setAlert(prev => ({
+        ...prev,
+        message: t('floor.ordersWarming', {
+          defaultValue: 'Loading open checks… please wait a moment.',
+        }),
+        type: 'warning',
+        opened: true,
+      }));
+      return;
+    }
+
     // PosStore settings only — do not hit Surreal on table select.
     const enforcementState = await getClosingEnforcementStateLocal(
       new Date(),
@@ -458,6 +498,13 @@ export const FloorLayout = () => {
           {state.switchTable && <div className="text-xl"><FontAwesomeIcon icon={faChair}/> {t('floor.switchTable', {
             table: `${state?.table?.name ?? ''}${state?.table?.number ?? ''}`
           })}</div>}
+          {ordersWarming && (
+            <div className="alert alert-info w-full" data-testid="floor-orders-warming">
+              {t('floor.ordersWarming', {
+                defaultValue: 'Loading open checks… please wait a moment.',
+              })}
+            </div>
+          )}
           {isClosingLocked && closingLockMessage && (
             <div className="alert alert-warning w-full">
               {closingLockMessage}

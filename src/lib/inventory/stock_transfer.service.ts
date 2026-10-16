@@ -3,6 +3,7 @@ import {Tables} from "@/api/db/tables.ts";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
 import {nowSurrealDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {toReportBoundaryUtcIso} from "@/api/reports/shared/query.ts";
 import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import type {IntegrationManager} from "@/integrations/core/integration-manager.ts";
@@ -393,15 +394,19 @@ export const fetchStoreTransferLinesForReport = async (
     "to_location != NONE",
   ];
   const params: Record<string, unknown> = {};
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
-  if (dateFrom) {
-    where.push(`time::format(created_at, '${dbFormat}') >= $dateFrom`);
-    params.dateFrom = dateFrom;
+  const rangeStart = toReportBoundaryUtcIso(dateFrom ?? undefined);
+  if (rangeStart) {
+    where.push("created_at >= <datetime>$dateFrom");
+    params.dateFrom = rangeStart;
   }
   if (dateTo) {
-    where.push(`time::format(created_at, '${dbFormat}') <= $dateTo`);
-    params.dateTo = dateTo;
+    const isBareDate = /^\d{4}-\d{2}-\d{2}$/.test(dateTo.trim());
+    const rangeEnd = toReportBoundaryUtcIso(dateTo, {endOfRange: true});
+    if (rangeEnd) {
+      where.push(isBareDate ? "created_at < <datetime>$dateTo" : "created_at <= <datetime>$dateTo");
+      params.dateTo = rangeEnd;
+    }
   }
 
   const whereClause = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";

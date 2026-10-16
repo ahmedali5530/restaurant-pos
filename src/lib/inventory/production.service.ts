@@ -7,6 +7,7 @@ import {
   Recipe,
 } from "@/api/model/recipe.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
+import {toReportBoundaryUtcIso} from "@/api/reports/shared/query.ts";
 import {
   scaleRecipe,
   validateRecipe,
@@ -609,7 +610,6 @@ export const listProductionBatches = async (
     limit: pageSize,
     start: page * pageSize,
   };
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
@@ -620,13 +620,18 @@ export const listProductionBatches = async (
     where.push("recipe = $recipe");
     params.recipe = toRecipeRecordId(filters.recipeId);
   }
-  if (filters.dateFrom) {
-    where.push(`time::format(created_at, '${dbFormat}') >= $dateFrom`);
-    params.dateFrom = filters.dateFrom;
+  const batchRangeStart = toReportBoundaryUtcIso(filters.dateFrom);
+  if (batchRangeStart) {
+    where.push("created_at >= <datetime>$dateFrom");
+    params.dateFrom = batchRangeStart;
   }
   if (filters.dateTo) {
-    where.push(`time::format(created_at, '${dbFormat}') <= $dateTo`);
-    params.dateTo = filters.dateTo;
+    const isBareDate = /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo.trim());
+    const batchRangeEnd = toReportBoundaryUtcIso(filters.dateTo, {endOfRange: true});
+    if (batchRangeEnd) {
+      where.push(isBareDate ? "created_at < <datetime>$dateTo" : "created_at <= <datetime>$dateTo");
+      params.dateTo = batchRangeEnd;
+    }
   }
 
   const whereClause = where.length > 0 ? `WHERE ${where.join(" AND ")}` : "";
@@ -738,7 +743,6 @@ export const fetchProductionLinesForReport = async (
 ): Promise<ProductionReportLine[]> => {
   const where: string[] = ["status = 'completed'"];
   const params: Record<string, unknown> = {};
-  const dbFormat = import.meta.env.VITE_DB_DATABASE_FORMAT as string;
 
   const locationFilter = filters.locationId || filters.storeId;
   if (locationFilter) {
@@ -749,13 +753,18 @@ export const fetchProductionLinesForReport = async (
     where.push("recipe = $recipe");
     params.recipe = toRecipeRecordId(filters.recipeId);
   }
-  if (filters.dateFrom) {
-    where.push(`time::format(created_at, '${dbFormat}') >= $dateFrom`);
-    params.dateFrom = filters.dateFrom;
+  const lineRangeStart = toReportBoundaryUtcIso(filters.dateFrom);
+  if (lineRangeStart) {
+    where.push("created_at >= <datetime>$dateFrom");
+    params.dateFrom = lineRangeStart;
   }
   if (filters.dateTo) {
-    where.push(`time::format(created_at, '${dbFormat}') <= $dateTo`);
-    params.dateTo = filters.dateTo;
+    const isBareDate = /^\d{4}-\d{2}-\d{2}$/.test(filters.dateTo.trim());
+    const lineRangeEnd = toReportBoundaryUtcIso(filters.dateTo, {endOfRange: true});
+    if (lineRangeEnd) {
+      where.push(isBareDate ? "created_at < <datetime>$dateTo" : "created_at <= <datetime>$dateTo");
+      params.dateTo = lineRangeEnd;
+    }
   }
 
   const whereClause = `WHERE ${where.join(" AND ")}`;

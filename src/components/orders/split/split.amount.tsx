@@ -10,7 +10,7 @@ import {faCheck, faPlus, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {toast} from "sonner";
 import {nanoid} from "nanoid";
-import {getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
 import {assertOrderMutationsAllowed} from "@/lib/closing.guard.ts";
 import {useAtom} from "jotai";
 import {appPage} from "@/store/jotai.ts";
@@ -179,7 +179,6 @@ export const SplitAmount = ({
     if (!isValid) return;
 
     setIsSaving(true);
-    const allocatedInvoices: number[] = [];
     const allocatedAutoIds: number[] = [];
     let committed = false;
     try {
@@ -223,13 +222,10 @@ export const SplitAmount = ({
           };
         });
 
-        const invoiceNumber = await posStore.consumeInvoiceNumber();
-        allocatedInvoices.push(invoiceNumber);
         const autoId = await posStore.consumeAutoId();
         allocatedAutoIds.push(autoId);
         groups.push({
           newItems,
-          invoiceNumber,
           autoId,
           order: {
             covers: Math.ceil(order.covers / splits.length) || 1,
@@ -285,7 +281,6 @@ export const SplitAmount = ({
     } catch (error) {
       if (!committed) {
         await Promise.all([
-          ...allocatedInvoices.map((value) => posStore.releaseNumber('invoice', value)),
           ...allocatedAutoIds.map((value) => posStore.releaseNumber('auto_id', value)),
         ]);
       }
@@ -306,7 +301,7 @@ export const SplitAmount = ({
     <>
       <Modal
         testId="order-split-amount"
-        title={t('split.titleByAmount', {invoice: order.invoice_number})}
+        title={t('split.titleByAmount', {invoice: getInvoiceNumber(order)})}
         open={true}
         size="full"
         onClose={onClose}

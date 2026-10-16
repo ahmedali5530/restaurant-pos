@@ -50,7 +50,9 @@ export const defaultNormalBalanceForHead = (headType: AccountHeadType): NormalBa
 };
 
 export const formatMoney = (value: number) => {
-  return new Intl.NumberFormat(undefined, {
+  // Locale explicit, not the device's OS locale — otherwise this diverges
+  // from withCurrency()'s formatting depending on what device it's viewed on.
+  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(value || 0);

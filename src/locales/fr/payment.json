@@ -12,7 +12,9 @@
     "createOrder": "Impossible de créer la commande.",
     "openPayment": "Impossible d'ouvrir le paiement.",
     "notOwner": "Cette commande est ouverte sur un autre terminal",
-    "numbersExhausted": "Plus de numéros de facture disponibles hors ligne — reconnectez-vous pour continuer à créer des commandes",
+    "numbersExhausted": "Plus d'identifiants de commande réservés hors ligne — reconnectez-vous pour continuer",
+    "invoicePendingSync": "Le numéro de facture est en attente de synchronisation — attendez que la commande soit en ligne avant l'envoi fiscal",
+    "fiscalFailed": "Échec de l'envoi fiscal",
     "fireFailed": "Impossible d'envoyer les articles en attente"
   },
   "tracking": {

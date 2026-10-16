@@ -69,7 +69,7 @@ const shouldAutoExpand = (content: string): boolean =>
  * screen remains available during the transition.
  */
 export function AiAssistantWidget() {
-  const {t} = useTranslation(["admin", "common", "toast"]);
+  const {t, i18n} = useTranslation(["admin", "common", "toast"]);
   const location = useLocation();
   const [{user}] = useAtom(appPage);
   const db = useDB() as unknown as AssistantDbClient;
@@ -253,7 +253,12 @@ export function AiAssistantWidget() {
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {allowedModules, writeContext});
+      const result = await runAiAssistantAgent(db, t, trimmed, {
+        allowedModules,
+        writeContext,
+        language: i18n.language,
+        pathname: location.pathname,
+      });
       applyResult(result);
     } catch (err) {
       if (err instanceof SessionAuthError) {
@@ -293,7 +298,12 @@ export function AiAssistantWidget() {
         },
       ]);
       const result = await resumeAiAssistantAgent(
-        db, t, history, toolCallId, {confirmed: true, summary}, {allowedModules, writeContext},
+        db, t, history, toolCallId, {confirmed: true, summary}, {
+          allowedModules,
+          writeContext,
+          language: i18n.language,
+          pathname: location.pathname,
+        },
       );
       applyResult(result);
     } catch (err) {
@@ -301,7 +311,12 @@ export function AiAssistantWidget() {
       setError(message);
       try {
         const result = await resumeAiAssistantAgent(
-          db, t, history, toolCallId, {confirmed: false, error: message}, {allowedModules, writeContext},
+          db, t, history, toolCallId, {confirmed: false, error: message}, {
+            allowedModules,
+            writeContext,
+            language: i18n.language,
+            pathname: location.pathname,
+          },
         );
         applyResult(result);
       } catch {
@@ -324,7 +339,12 @@ export function AiAssistantWidget() {
       const result = await resumeAiAssistantAgent(
         db, t, history, toolCallId,
         {confirmed: false, error: t("common:aiAssistant.cancelled")},
-        {allowedModules, writeContext},
+        {
+          allowedModules,
+          writeContext,
+          language: i18n.language,
+          pathname: location.pathname,
+        },
       );
       applyResult(result);
     } catch (err) {

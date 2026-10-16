@@ -3,11 +3,101 @@
 const express = require('express');
 const { authenticatePosUser } = require('./auth.service');
 const { signSession, verifySession, revokeSession, extractBearer } = require('./jwt');
-const { issueSurrealAccessToken } = require('./surreal-client');
+const { getClient, issueSurrealAccessToken } = require('./surreal-client');
 const { loginRateLimit, recordAuthResult } = require('./rate-limiter');
 const auditLog = require('./audit-log');
 
 const router = express.Router();
+
+/* Light per-IP limit for public branding (login screen logo). */
+const BRANDING_WINDOW_MS = 60_000;
+const BRANDING_MAX_PER_MINUTE = 60;
+const BRANDING_MAX_TRACKED = 10_000;
+const brandingHits = new Map();
+function brandingLimit(req, res, next) {
+  const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+  const now = Date.now();
+  const entry = brandingHits.get(ip);
+  if (!entry || now - entry.start > BRANDING_WINDOW_MS) {
+    if (brandingHits.size >= BRANDING_MAX_TRACKED) {
+      let evicted = 0;
+      for (const key of brandingHits.keys()) {
+        brandingHits.delete(key);
+        if (++evicted >= Math.floor(BRANDING_MAX_TRACKED / 2)) break;
+      }
+    }
+    brandingHits.set(ip, { start: now, count: 1 });
+    return next();
+  }
+  entry.count += 1;
+  if (entry.count > BRANDING_MAX_PER_MINUTE) {
+    return res.status(429).json({ ok: false, error: 'Too many requests' });
+  }
+  return next();
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of brandingHits) {
+    if (now - entry.start > BRANDING_WINDOW_MS) brandingHits.delete(key);
+  }
+}, BRANDING_WINDOW_MS).unref?.();
+
+const ALLOWED_LOGO_MIME = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+]);
+
+function logoToDataUri(logo, mime) {
+  if (logo == null) return null;
+  if (typeof logo === 'string') {
+    if (logo.startsWith('data:image/')) return logo;
+    const type = mime && ALLOWED_LOGO_MIME.has(mime) ? mime : 'image/png';
+    return `data:${type};base64,${logo}`;
+  }
+
+  let u8;
+  if (logo instanceof ArrayBuffer) {
+    u8 = new Uint8Array(logo);
+  } else if (logo instanceof Uint8Array) {
+    u8 = logo;
+  } else if (ArrayBuffer.isView?.(logo)) {
+    u8 = new Uint8Array(logo.buffer, logo.byteOffset, logo.byteLength);
+  } else if (Array.isArray(logo)) {
+    u8 = Uint8Array.from(logo);
+  } else if (typeof logo === 'object' && logo.type === 'Buffer' && Array.isArray(logo.data)) {
+    u8 = Uint8Array.from(logo.data);
+  } else {
+    return null;
+  }
+
+  if (!u8.byteLength) return null;
+
+  const type = mime && ALLOWED_LOGO_MIME.has(mime) ? mime : 'image/png';
+  return `data:${type};base64,${Buffer.from(u8).toString('base64')}`;
+}
+
+/**
+ * Public branding for the login screen (no session required).
+ * Returns { ok, logo } where logo is a data URI or null.
+ */
+router.get('/branding', brandingLimit, async (_req, res) => {
+  try {
+    const db = await getClient();
+    const result = await db.query(
+      `SELECT values FROM setting WHERE key = $key AND is_global = true LIMIT 1`,
+      { key: 'branding' }
+    );
+    const rows = Array.isArray(result?.[0]) ? result[0] : [];
+    const values = rows[0]?.values || {};
+    const logo = logoToDataUri(values.logo, values.mime);
+    return res.json({ ok: true, logo: logo || null });
+  } catch (err) {
+    console.error('[auth/branding]', err);
+    return res.status(500).json({ ok: false, error: 'Failed to load branding' });
+  }
+});
 
 router.post('/login', loginRateLimit(), async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -79,35 +79,36 @@ export const OrderFiscalReport = () => {
     queryRef.current = db.query;
   }, [db]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
+  const fetchData = useCallback(async (opts?: {silent?: boolean}) => {
+    try {
+      if (!opts?.silent) {
         setLoading(true);
-        setError(null);
+      }
+      setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
+      const conditions: string[] = [];
+      const params: Record<string, any> = {};
 
-        const dateFilter = buildCreatedAtDateConditions(
-          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
-          'submitted_at',
-        );
-        conditions.push(...dateFilter.conditions);
-        Object.assign(params, dateFilter.params);
+      const dateFilter = buildCreatedAtDateConditions(
+        {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+        'submitted_at',
+      );
+      conditions.push(...dateFilter.conditions);
+      Object.assign(params, dateFilter.params);
 
-        const providerFilter = buildStringInsideCondition('provider_id', filters.providerIds, 'providerIds');
-        if (providerFilter.condition) {
-          conditions.push(providerFilter.condition);
-          Object.assign(params, providerFilter.params);
-        }
+      const providerFilter = buildStringInsideCondition('provider_id', filters.providerIds, 'providerIds');
+      if (providerFilter.condition) {
+        conditions.push(providerFilter.condition);
+        Object.assign(params, providerFilter.params);
+      }
 
-        const statusFilter = buildStringInsideCondition('status', filters.statuses, 'statuses');
-        if (statusFilter.condition) {
-          conditions.push(statusFilter.condition);
-          Object.assign(params, statusFilter.params);
-        }
+      const statusFilter = buildStringInsideCondition('status', filters.statuses, 'statuses');
+      if (statusFilter.condition) {
+        conditions.push(statusFilter.condition);
+        Object.assign(params, statusFilter.params);
+      }
 
-        const query = `
+      const query = `
           SELECT * FROM ${Tables.integration_order_fiscals}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY submitted_at DESC
@@ -116,18 +117,22 @@ export const OrderFiscalReport = () => {
             order.items, order.items.taxes, order.items.tax_mode, order.items.modifiers
         `;
 
-        const result: any = await queryRef.current(query, params);
-        setSubmissions((result?.[0] ?? []) as OrderFiscalSubmission[]);
-      } catch (err) {
-        console.error('Failed to load order fiscal report:', err);
-        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
-      } finally {
+      const result: any = await queryRef.current(query, params);
+      setSubmissions((result?.[0] ?? []) as OrderFiscalSubmission[]);
+    } catch (err) {
+      console.error('Failed to load order fiscal report:', err);
+      setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
+    } finally {
+      if (!opts?.silent) {
         setLoading(false);
       }
-    };
+    }
+  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses, t]);
 
-    fetchData();
-  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
+  useEffect(() => {
+    void fetchData();
+  }, [fetchData]);
+
 
   const statusLabel = (status: string): string => {
     switch (status) {
@@ -174,7 +179,6 @@ export const OrderFiscalReport = () => {
         const order = getOrder(sub);
         if (!order) return acc;
         const figures = getOrderSettlementFigures(order);
-        // items only so: gross + tax - discount + service + extras (+ tips) = grand
         acc.gross += figures.itemsTotal;
         acc.tax += figures.tax;
         acc.discount += figures.discounts;
@@ -206,9 +210,7 @@ export const OrderFiscalReport = () => {
   return (
     <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
       <div className="space-y-8">
-        {/* Summary sections */}
         <div className="grid grid-cols-2 gap-4">
-          {/* By provider */}
           <div className="overflow-hidden rounded-lg border border-border">
             <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byProvider')}</h3>
             <div className="overflow-x-auto">
@@ -243,7 +245,6 @@ export const OrderFiscalReport = () => {
             </div>
           </div>
 
-          {/* By status */}
           <div className="overflow-hidden rounded-lg border border-border">
             <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byStatus')}</h3>
             <div className="overflow-x-auto">
@@ -277,7 +278,6 @@ export const OrderFiscalReport = () => {
           </div>
         </div>
 
-        {/* Detail table */}
         <div className="overflow-hidden rounded-lg border border-border">
           <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.detail')}</h3>
           <div className="overflow-x-auto">

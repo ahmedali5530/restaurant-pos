@@ -197,7 +197,13 @@ export const IntegrationsScreen = () => {
 
           <TabPanel id="queue" className="bg-surface-elevated shadow flex-grow flex-shrink-0">
             <div data-testid="integrations-panel-queue">
-              <QueuePanel rows={queueRows} />
+              <QueuePanel
+                rows={queueRows}
+                onRefresh={async () => {
+                  const queue = await manager.getQueueSnapshot();
+                  setQueueRows(queue);
+                }}
+              />
             </div>
           </TabPanel>
         </Tabs>

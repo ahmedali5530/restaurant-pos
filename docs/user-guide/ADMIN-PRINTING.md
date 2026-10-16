@@ -62,7 +62,8 @@ Each print job type (temp bill, final receipt, kitchen, summary, delivery, refun
 - **Paper width** — 58 mm (384 dots) or 80 mm (576 dots); used for raster and image centering.
 - **Raster threshold / max height** — Optional mono cutoff and chunk height when mode is Raster.
 - **Show logo** — Includes uploaded logo on the ticket.
-- **Header / footer sections** — Rich text or image blocks above and below the body.
+- **Logo width / height / preset** — Print size in dots (default 150×150). Presets fill width and height; images stretch to the box.
+- **Header / footer sections** — Text (multi-line, wraps on the printer) or image blocks with optional width/height.
 - **VAT name / number** — Tax registration block on guest receipts.
 - **Margins** — Top, bottom, left, right spacing in printer dots.
 - **Item columns** — Toggle number, name, qty, price, and line total columns.

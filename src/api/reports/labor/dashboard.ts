@@ -25,11 +25,12 @@ import {DateTime} from 'luxon';
 
 export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDashboardSnapshot> => {
   const now = DateTime.now().setZone(getAppTimezone());
-  // SurrealDB `time::format(datetime, ...)` comparisons behave in DB timezone (UTC in our setup),
-  // while the UI/business logic uses `getAppTimezone()`. Convert the business-day boundaries to UTC
-  // so "today" matches correctly for scheduled shifts and clock-in entries.
-  const startDate = formatDateTimeForQuery(now.startOf('day').toUTC());
-  const endDate = formatDateTimeForQuery(now.endOf('day').toUTC());
+  // Report date filters (buildCreatedAtDateConditions) already interpret these
+  // strings as local wall-clock time in the app timezone and convert to UTC
+  // internally — pass local boundaries directly, matching the `DateRange`
+  // filter UI's convention, rather than pre-converting to UTC here.
+  const startDate = formatDateTimeForQuery(now.startOf('day'));
+  const endDate = formatDateTimeForQuery(now.endOf('day'));
 
   const [
     employees,
@@ -129,8 +130,11 @@ export const getLaborDashboardSnapshot = async (db: DbClient): Promise<LaborDash
 
 export const getLaborDashboardTrend = async (db: DbClient) => {
   const now = DateTime.now().setZone(getAppTimezone());
-  const startDate = formatDateTimeForQuery(now.minus({days: 13}).startOf('day').toUTC());
-  const endDate = formatDateTimeForQuery(now.endOf('day').toUTC());
+  // Same convention as getLaborDashboardSnapshot: pass local wall-clock
+  // boundaries; buildCreatedAtDateConditions converts them to UTC. Calling
+  // .toUTC() here would double-convert and shift the window by the zone offset.
+  const startDate = formatDateTimeForQuery(now.minus({days: 13}).startOf('day'));
+  const endDate = formatDateTimeForQuery(now.endOf('day'));
   const employees = await fetchEmployees(db, {activeOnly: true});
   const timeEntries = await fetchTimeEntries(db, {startDate, endDate, includeOpen: true});
   const payProfiles = await fetchPayProfiles(db, {startDate, endDate});

@@ -5,7 +5,8 @@
   "floor": {
     "switchTable": "Перейти со стола {{table}} на другой",
     "reloadCachePrefix": "Нажмите кнопку перезагрузки кэша в",
-    "settings": "настройках"
+    "settings": "настройках",
+    "ordersWarming": "Загрузка открытых чеков… подождите немного."
   },
   "guard": {
     "punchDisabled": "Пробитие отключено до закрытия текущего цикла или удаления текущего закрытия смены.",
@@ -22,36 +23,79 @@
     "coins": "Монеты",
     "denomination": "× {{value}}",
     "total": "Итого по терминалу: {{amount}}",
-    "add": "Добавить терминал"
+    "add": "Добавить терминал",
+    "mode": {
+      "breakdown": "Считать купюры",
+      "total": "Ввести итог",
+      "totalLabel": "Итог наличных"
+    }
   },
   "title": "Ежедневное закрытие на {{date}}",
   "loading": "Загрузка закрытия смены...",
   "alerts": {
     "cycleDisabled": "Цикл закрытия отключён. Время последнего завершённого закрытия используется как начало периода, текущее время — как конец.",
     "cycleCompleted": "Закрытие смены для этого цикла завершено. Приём заказов заблокирован до следующего цикла.",
-    "periodCompleted": "Закрытие смены для этого периода завершено."
+    "periodCompleted": "Закрытие смены для этого периода завершено.",
+    "varianceReasonRequired": "Укажите причину излишка или недостачи перед завершением закрытия."
   },
   "sections": {
-    "previousDayBalance": "Остаток предыдущего дня",
-    "pettyCash": "Подотчётные средства",
+    "previousDayBalance": "Наличные с предыдущего закрытия",
+    "pettyCash": "Подотчётные поступления",
+    "cashDrop": "Инкассация / сейф",
     "terminalCash": "Наличные в терминале",
     "paymentTypesSummary": "Сводка по типам оплаты из системы",
+    "nonCashBatch": "Сверка безналичных партий",
     "expenses": "Расходы",
+    "openChecks": "Открытые счета",
+    "shiftRecap": "Итоги смены",
     "notes": "Примечания",
-    "summary": "Сводка"
+    "summary": "Итог ящика",
+    "selfOrders": "Заказы по QR"
   },
   "fields": {
     "previousDayBalance": "Остаток предыдущего дня",
     "pettyCash": "Подотчётные средства",
+    "cashDrop": "Наличные в сейф",
     "description": "Описание",
     "category": "Категория",
     "amount": "Сумма",
+    "batchAmount": "Сумма партии / терминала",
+    "varianceReason": "Причина излишка / недостачи",
+    "varianceReasonPlaceholder": "Объясните разницу в кассе...",
     "notesPlaceholder": "Добавьте дополнительные примечания..."
+  },
+  "labels": {
+    "cashSystemTotal": "Наличные из системы",
+    "systemAmount": "Система",
+    "noNonCash": "Нет безналичных способов оплаты за период.",
+    "noOpenChecks": "Нет открытых счетов в этом окне.",
+    "closedBy": "Закрыл {{name}}"
+  },
+  "columns": {
+    "invoice": "Счёт",
+    "table": "Стол",
+    "status": "Статус",
+    "amount": "Сумма"
+  },
+  "recap": {
+    "paidOrders": "Оплаченные заказы",
+    "discounts": "Скидки",
+    "tax": "Налог",
+    "serviceCharge": "Сервисный сбор",
+    "tips": "Чаевые",
+    "voids": "Отмены",
+    "refunds": "Возвраты"
   },
   "totals": {
     "totalCash": "Всего наличных: {{amount}}",
+    "cashSales": "Наличные продажи (система)",
     "cashFromPayments": "Наличные из сводки оплат",
+    "expectedInDrawer": "Ожидается в ящике",
+    "overShort": "Излишек / недостача",
+    "cashLeftNextShift": "Наличные на следующую смену",
+    "countedCash": "Пересчитанные наличные",
     "difference": "Разница: {{amount}}",
+    "batchDifference": "Разница партии: {{amount}}",
     "totalOtherPayments": "Прочие оплаты: {{amount}}",
     "totalExpenses": "Всего расходов: {{amount}}",
     "previousBalance": "Предыдущий остаток",
@@ -85,5 +129,11 @@
     "skippedSuffix": " (пропущено: {{count}})",
     "executionFailed": "Не удалось автозакрыть чеки",
     "warning": "Чеки будут автозакрыты через {{countdown}}"
+  },
+  "selfOrders": {
+    "hint": "Оплачены гостями онлайн за столом — не входят в кассу и пакет карт выше.",
+    "orders": "Заказы по QR",
+    "total": "Оплачено онлайн",
+    "testWarning": "Тестовых заказов: {{count}} ({{amount}}) — деньги за них не получены."
   }
 }

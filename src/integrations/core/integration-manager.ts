@@ -401,7 +401,72 @@ export class IntegrationManager {
         providerId: job.providerId,
         payload: { jobId: job.id, response },
       });
+
+      await this.persistFiscalQueueSuccess(job.providerId, job.action, job.payload, response);
     });
+  }
+
+  /**
+   * When offline fiscal buffering eventually succeeds, write a completed
+   * integration_order_fiscal row so reports/print QR catch up.
+   */
+  private async persistFiscalQueueSuccess(
+    providerId: string,
+    action: string,
+    payload: Record<string, unknown>,
+    response: IntegrationExecutionResponse
+  ) {
+    if (action !== 'invoiceSubmission') return;
+
+    const provider = this.registry.get(providerId);
+    if (!provider || provider.getManifest().category !== 'fiscal') return;
+
+    const db = this.dbLoader?.();
+    if (!db) return;
+
+    const order = payload?.order as { id?: unknown } | undefined;
+    if (!order?.id) return;
+
+    const {
+      listOrderFiscalSubmissions,
+      persistFiscalSubmissionsForOrder,
+    } = await import('@/integrations/storage/order-fiscal-repository.ts');
+
+    const existing = await listOrderFiscalSubmissions(db, order.id);
+    const alreadyCompleted = existing.some(
+      (row) =>
+        row.provider_id === providerId &&
+        row.status === 'completed' &&
+        Boolean(row.qrcode || row.invoice_number)
+    );
+    if (alreadyCompleted) return;
+
+    const config = await this.configLoader(providerId);
+    const runtime = parseFiscalRuntimeConfig(config);
+    const data = (response.data ?? {}) as {
+      invoiceNumber?: string;
+      qrcode?: string;
+      code?: number | string;
+      request?: unknown;
+      response?: unknown;
+    };
+    const invoiceNumber = data.invoiceNumber ?? data.qrcode;
+
+    await persistFiscalSubmissionsForOrder(
+      db,
+      order.id,
+      {
+        [providerId]: {
+          invoiceNumber,
+          code: data.code,
+          status: 'completed',
+          requestPayload: data.request,
+          responsePayload: data.response,
+          qrPriority: runtime.qrPriority,
+        },
+      },
+      providerId
+    );
   }
 
   private providerSupportsEvent(
@@ -468,5 +533,62 @@ export class IntegrationManager {
 
   async getQueueSnapshot() {
     return this.queue.listActiveJobs();
+  }
+
+  /**
+   * Manual retry from Integrations → Queue.
+   * Fiscal invoiceSubmission jobs call the fiscal retry path immediately;
+   * other DeadLetter jobs are re-queued for background processing.
+   */
+  async retryDeadLetterJob(
+    jobId: string,
+    db?: {
+      query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
+      create: (thing: string, data: Record<string, unknown>) => Promise<unknown>;
+      merge: (thing: unknown, data: Record<string, unknown>) => Promise<unknown>;
+    }
+  ): Promise<{ success: boolean; skipped?: boolean; reason?: string; error?: string }> {
+    const job = await this.queue.getJob(jobId);
+    if (!job) {
+      return { success: false, error: 'Job not found' };
+    }
+    if (job.status !== 'DeadLetter') {
+      return { success: false, skipped: true, reason: 'not_dead_letter' };
+    }
+
+    if (job.action === 'invoiceSubmission' && db) {
+      const order = job.payload?.order as { id?: unknown } | undefined;
+      if (!order?.id) {
+        return { success: false, error: 'Order payload missing from queue job' };
+      }
+
+      const { retryFiscalSubmissionForOrder } = await import(
+        '@/integrations/providers/fiscal/settlement.ts'
+      );
+      const outcome = await retryFiscalSubmissionForOrder(this, db, order.id, job.providerId);
+
+      if (outcome.skipped) {
+        if (outcome.reason === 'already_completed') {
+          await this.queue.markJobCompleted(jobId);
+          return { success: true, skipped: true, reason: 'already_completed' };
+        }
+        return { success: false, skipped: true, reason: outcome.reason };
+      }
+
+      if (outcome.success) {
+        await this.queue.markJobCompleted(jobId);
+        return { success: true };
+      }
+
+      const error =
+        outcome.result.resultsByProvider[job.providerId]?.error ||
+        outcome.result.blockedError ||
+        'Fiscal retry failed';
+      await this.queue.markJobRetryFailed(jobId, error);
+      return { success: false, error };
+    }
+
+    await this.queue.requeueDeadLetter(jobId);
+    return { success: true };
   }
 }

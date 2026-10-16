@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -12,10 +12,11 @@ import { Button } from "@/components/common/input/button.tsx";
 import { useDB } from "@/api/db/db.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { UserRole } from "@/api/model/user_role.ts";
-import { ACCESS_RULE_MODULES, normalizeModules } from "@/lib/access.rules.ts";
+import { ACCESS_RULE_MODULES, isFullAccessRoleModules, normalizeModules } from "@/lib/access.rules.ts";
 import { getAccessRuleChildLabel, getAccessRuleModuleLabel } from "@/lib/access.rules.i18n.ts";
 import { Checkbox } from "@/components/common/input/checkbox.tsx";
 import { useTranslation } from "react-i18next";
+import { toRecordId } from "@/lib/utils.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 interface Props {
@@ -35,10 +36,12 @@ type ModuleCatalogItem = {
   children: ChildItem[];
 };
 
+type SetUpdater = (prev: Set<string>) => Set<string>;
+
 interface ModuleCheckboxProps {
   module: ModuleCatalogItem;
   selectedSet: Set<string>;
-  onChange: (modules: string[]) => void;
+  onChange: (updater: SetUpdater) => void;
   searchTerm: string;
   expanded: boolean;
   onToggleExpand: (moduleKey: string) => void;
@@ -102,32 +105,34 @@ const ModuleCheckbox = memo(function ModuleCheckbox({
   const visibleChildren = term ? filteredChildren : module.children;
 
   const handleModuleChange = (checked: boolean) => {
-    if (checked) {
-      const next = new Set(selectedSet);
-      next.add(module.key);
-      module.children.forEach((c) => next.add(c.key));
-      onChange([...next]);
-    } else {
-      const remove = new Set([module.key, ...module.children.map((c) => c.key)]);
-      onChange([...selectedSet].filter((m) => !remove.has(m)));
-    }
+    onChange((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(module.key);
+        module.children.forEach((c) => next.add(c.key));
+      } else {
+        next.delete(module.key);
+        module.children.forEach((c) => next.delete(c.key));
+      }
+      return next;
+    });
   };
 
   const handleChildChange = (child: string, checked: boolean) => {
-    const next = new Set(selectedSet);
-
-    if (checked) {
-      next.add(child);
-      next.add(module.key);
-      const parts = child.split(".");
-      if (parts.length >= 3) {
-        next.add(`${parts[0]}.${parts[1]}`);
+    onChange((prev) => {
+      const next = new Set(prev);
+      if (checked) {
+        next.add(child);
+        next.add(module.key);
+        const parts = child.split(".");
+        if (parts.length >= 3) {
+          next.add(`${parts[0]}.${parts[1]}`);
+        }
+      } else {
+        next.delete(child);
       }
-    } else {
-      next.delete(child);
-    }
-
-    onChange([...next]);
+      return next;
+    });
   };
 
   return (
@@ -194,6 +199,12 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedSet, setSelectedSet] = useState<Set<string>>(() => new Set());
+  // Mirrors selectedSet so updateRoles can build the next set from the latest
+  // value outside of a state updater (updaters must stay pure).
+  const selectedSetRef = useRef(selectedSet);
+  useEffect(() => {
+    selectedSetRef.current = selectedSet;
+  }, [selectedSet]);
   const [expandedModules, setExpandedModules] = useState<Set<string>>(() => new Set());
   const { t, i18n } = useTranslation(["admin", "common", "validation", "toast"]);
 
@@ -234,11 +245,17 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     return () => window.clearTimeout(timer);
   }, [searchTerm]);
 
-  const setRoles = useCallback(
-    (modules: string[]) => {
-      setSelectedSet(new Set(modules));
-      setValue("roles", modules, { shouldDirty: true, shouldValidate: false });
-      if (modules.length > 0) {
+  // Applied via setSelectedSet's functional form so it always builds off
+  // React's true latest state — never a stale closure from a memo-skipped
+  // ModuleCheckbox (checking a box in one group could otherwise silently
+  // discard a change just made in another group).
+  const updateRoles = useCallback(
+    (updater: (prev: Set<string>) => Set<string>) => {
+      const next = updater(selectedSetRef.current);
+      selectedSetRef.current = next;
+      setSelectedSet(next);
+      setValue("roles", [...next], { shouldDirty: true, shouldValidate: false });
+      if (next.size > 0) {
         clearErrors("roles");
       }
     },
@@ -311,6 +328,24 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
   }, [moduleCatalog, debouncedSearch]);
 
   const onSubmit = async (values: RoleFormValues) => {
+    if (data?.id != null && isFullAccessRoleModules(data.roles) && !isFullAccessRoleModules(values.roles)) {
+      const [otherFullAccessRoles] = await db.query(
+        `SELECT roles FROM ${Tables.user_roles} WHERE deleted_at = none AND id != $selfId`,
+        { selfId: toRecordId(data.id) },
+      ) as [UserRole[]];
+
+      const hasAnotherFullAccessRole = (otherFullAccessRoles || []).some(
+        (other) => isFullAccessRoleModules(other.roles),
+      );
+
+      if (!hasAnotherFullAccessRole) {
+        toast.error(t("toast:admin.lastFullAccessRole", {
+          defaultValue: "This is the only role with full access — give another role full access first, or the system will have no one left who can manage it.",
+        }));
+        return;
+      }
+    }
+
     const payload = {
       name: values.name,
       roles: values.roles,
@@ -384,7 +419,7 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
                 key={module.key}
                 module={module}
                 selectedSet={selectedSet}
-                onChange={setRoles}
+                onChange={updateRoles}
                 searchTerm={debouncedSearch}
                 expanded={expandedModules.has(module.key)}
                 onToggleExpand={onToggleExpand}

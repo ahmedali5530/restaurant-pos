@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Máx. horas por día",
       "maxHoursPerWeek": "Máx. horas por semana",
       "breakRules": "Reglas de descanso",
-      "notes": "Notas"
+      "notes": "Notas",
+      "overtimeSection": "Horas extra",
+      "overtimeSectionHelp": "Por defecto, las horas que superen 8/día se pagan a 1,5x. Anula o desactiva esto solo para este empleado.",
+      "overtimeThreshold": "Umbral diario (horas)",
+      "overtimeMultiplier": "Multiplicador",
+      "nightPremiumSection": "Plus nocturno",
+      "nightPremiumSectionHelp": "Por defecto, las horas trabajadas entre 22:00 y 06:00 reciben un 25 % extra. Anula o desactiva esto solo para este empleado.",
+      "nightStart": "Hora de inicio",
+      "nightEnd": "Hora de fin",
+      "nightMultiplier": "Multiplicador",
+      "policyMode": {
+        "default": "Usar predeterminado",
+        "custom": "Personalizado",
+        "disabled": "Desactivado"
+      }
     },
     "payRule": {
       "create": "Crear regla de pago",
@@ -374,7 +388,10 @@
       "category": "Categoría",
       "title": "Título",
       "expiresAt": "Fecha de vencimiento",
-      "attachFile": "Adjuntar archivo"
+      "attachFile": "Adjuntar archivo",
+      "currentFile": "Archivo actual",
+      "replaceFile": "Reemplazar archivo (opcional)",
+      "deleteConfirm": "¿Eliminar este documento? No se puede deshacer."
     },
     "performance": {
       "create": "Agregar nota de desempeño",
@@ -557,7 +574,10 @@
     "saveOverride": "Guardar modificación",
     "resetOverrides": "Restablecer modificaciones",
     "confirmResetOverrides": "¿Recalcular todas las líneas y descartar las modificaciones del responsable?",
-    "overrideHelp": "Edite importes en una ejecución de vista previa. Recalcular conserva las líneas modificadas salvo que las restablezca."
+    "overrideHelp": "Edite importes en una ejecución de vista previa. Recalcular conserva las líneas modificadas salvo que las restablezca.",
+    "deleted": "Ejecución de nómina eliminada",
+    "deleteConfirm": "¿Eliminar esta ejecución de nómina en borrador? No se puede deshacer.",
+    "premiumPay": "Pago de complementos"
   },
   "dashboard": {
     "title": "Panel de mano de obra",

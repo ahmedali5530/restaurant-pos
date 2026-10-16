@@ -69,5 +69,15 @@
     "start": "Autorizza con QuickBooks",
     "callbackError": "Callback OAuth fallito. Riprova.",
     "disconnected": "Disconnesso da QuickBooks"
+  },
+  "queue": {
+    "retry": "Riprova",
+    "retrySuccess": "Processo riprovato con successo.",
+    "retryFailed": "Nuovo tentativo non riuscito.",
+    "retryFailedWithError": "Nuovo tentativo non riuscito: {{error}}",
+    "retryAlreadyCompleted": "L'invio fiscale era già completato — processo in coda rimosso.",
+    "retryInvoicePending": "Numero fattura non ancora pronto — riprovare dopo la sincronizzazione.",
+    "retryOrderNotFound": "Ordine non trovato per il nuovo tentativo fiscale.",
+    "retryProviderDisabled": "Il provider è disabilitato."
   }
 }

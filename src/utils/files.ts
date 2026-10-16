@@ -63,6 +63,47 @@ export const downloadArrayBuffer = (
 };
 
 /**
+ * MIME types that are safe to hand to the browser's inline viewer from a
+ * same-origin Blob URL. Anything else (notably text/html and image/svg+xml,
+ * which can execute script on the app origin) is forced to a download.
+ */
+const INLINE_VIEWABLE_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+  'image/bmp',
+  'text/plain',
+]);
+
+/**
+ * Opens an ArrayBuffer in a new browser tab (PDFs/images render inline via
+ * the browser's own viewer, which has its own download/print controls)
+ * instead of forcing an immediate download. Call must happen synchronously
+ * inside the click handler or popup blockers will block the new tab; the
+ * object URL is revoked after a delay so the new tab has time to load it.
+ *
+ * The MIME type comes from the uploaded file, so it is treated as untrusted:
+ * only known-safe types render inline, everything else is served as
+ * application/octet-stream (a download) to prevent stored XSS on the app
+ * origin via an uploaded HTML/SVG file.
+ */
+export const viewArrayBufferInNewTab = (
+  arrayBuffer: ArrayBuffer | string,
+  mimeType: string = 'application/octet-stream'
+) => {
+  const buffer = toArrayBuffer(arrayBuffer);
+  const safeMimeType = INLINE_VIEWABLE_MIME_TYPES.has(mimeType)
+    ? mimeType
+    : 'application/octet-stream';
+  const blob = new Blob([buffer], { type: safeMimeType });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank', 'noopener,noreferrer');
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+};
+
+/**
  * Converts binary data from SurrealDB (Uint8Array, ArrayBuffer, base64 string) to Uint8Array
  */
 export const toUint8Array = (value: unknown): Uint8Array => {

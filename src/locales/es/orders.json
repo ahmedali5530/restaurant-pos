@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Elija una nueva mesa",
     "success": "Combinado correctamente en {{invoiceNumber}}",
+    "successPending": "Pedidos combinados. El número de factura aparecerá después de la sincronización.",
     "failed": "Error al combinar los pedidos",
     "chooseTable": "Elija una mesa",
     "selectTwoOrMore": "Seleccione 2 o más pedidos",

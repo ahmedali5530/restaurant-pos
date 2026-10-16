@@ -1,12 +1,14 @@
 import {useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
+import {DateValue} from "react-aria-components";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {TimeEntry} from "@/api/model/time_entry.ts";
 import {TableComponent} from "@/components/common/table/table.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
+import {DatePicker} from "@/components/common/antd/datepicker.tsx";
 import {faCheck, faPlus} from "@fortawesome/free-solid-svg-icons";
 import {entityLabel, formatDisplayDate} from "@/components/hr/shared/form.utils.ts";
 import {AttendanceManualForm} from "@/components/hr/attendance/form.tsx";
@@ -18,14 +20,30 @@ import {approveEntry} from "@/lib/labor-engine/attendance/attendance.service.ts"
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createAttendanceImportConfig} from "@/components/hr/attendance/attendance.import.config.ts";
+import {calendarDateToAppDateTime} from "@/lib/datetime.ts";
+import {getToday} from "@/utils/date.ts";
 
 export const HrAttendance = () => {
   const {t} = useTranslation("hr");
   const db = useDB();
   const [page] = useAtom(appPage);
+  const [date, setDate] = useState<DateValue | null>(getToday());
+
+  // Computed once per `date` change; also used as useApi's initialFilters
+  // below so the very first query is already scoped to today, not "all dates".
+  const dateFilters = useMemo(() => {
+    if (!date) return [];
+    const dayStart = calendarDateToAppDateTime({year: date.year, month: date.month, day: date.day});
+    const dayEnd = dayStart.plus({days: 1});
+    const startIso = dayStart.toUTC().toISO();
+    const endIso = dayEnd.toUTC().toISO();
+    if (!startIso || !endIso) return [];
+    return [`clock_in >= <datetime>"${startIso}" AND clock_in < <datetime>"${endIso}"`];
+  }, [date]);
+
   const loadHook = useApi<SettingsData<TimeEntry>>(
     Tables.time_entries,
-    [],
+    dateFilters,
     ["clock_in DESC"],
     0,
     10,
@@ -61,14 +79,20 @@ export const HrAttendance = () => {
   };
 
   const columns: any = [
-    columnHelper.accessor((row) => entityLabel(row.employee), {id: "employee", header: t("columns.employee")}),
+    columnHelper.accessor((row) => entityLabel(row.employee), {
+      id: "employee",
+      header: t("columns.employee"),
+      meta: {filterField: "string::concat(employee.first_name, ' ', employee.last_name ?? '')"},
+    }),
     columnHelper.accessor("clock_in", {
       header: t("columns.clockIn"),
       cell: (info) => formatDisplayDate(info.getValue()),
+      meta: {filterField: "<string>clock_in"},
     }),
     columnHelper.accessor("clock_out", {
       header: t("columns.clockOut"),
       cell: (info) => formatDisplayDate(info.getValue()),
+      meta: {filterField: "<string>clock_out"},
     }),
     columnHelper.accessor("attendance_status", {
       header: t("columns.attendanceStatus"),
@@ -122,7 +146,15 @@ export const HrAttendance = () => {
         columns={columns}
         loaderHook={loadHook}
         loaderLineItems={columns.length}
+        externalFilters={dateFilters}
         buttons={[
+          <DatePicker
+            key="attendance-date"
+            value={date}
+            onChange={setDate}
+            isClearable
+            maxValue={getToday()}
+          />,
           <Button key="manual-entry" variant="primary" data-testid="hr-add-attendance" onClick={() => setFormModal(true)} icon={faPlus}>
             {t("buttons.manualEntry")}
           </Button>,

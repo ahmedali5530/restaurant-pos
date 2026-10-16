@@ -6,6 +6,11 @@ export type AccessRuleModule = {
   children: string[];
 };
 
+/** The one role expected to always have someone assigned — losing the last
+ *  holder locks everyone out of admin/settings with no way back in. Used to
+ *  block both self-demotion and deletion of the last user in this role. */
+export const PROTECTED_LAST_ADMIN_ROLE_NAME = "Master";
+
 /** Hierarchical permission IDs: section | section.resource | section.resource.action */
 export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
   menu: {
@@ -324,9 +329,11 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "settings.auto_clock_out",
       "settings.show_inclusive_prices",
       "settings.currency_symbol",
+      "settings.branding",
       "settings.access_control",
       "settings.inventory",
       "settings.translate_receipts",
+      "settings.number_policy",
     ],
   },
   accounts: {
@@ -581,9 +588,11 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   "Auto clock-out": "settings.auto_clock_out",
   "Show inclusive prices": "settings.show_inclusive_prices",
   "Currency symbol": "settings.currency_symbol",
+  Branding: "settings.branding",
   "Access control": "settings.access_control",
   "Inventory Settings": "settings.inventory",
   "Translate receipts": "settings.translate_receipts",
+  "Invoice numbers": "settings.number_policy",
 
   // Accounts
   "Chart of Accounts": "accounts.chart_of_accounts",
@@ -630,6 +639,16 @@ export const normalizeModules = (modules: string[] | undefined | null): string[]
     }
   }
   return [...next];
+};
+
+/**
+ * A role counts as "full access" when it grants every known canonical
+ * permission — used to guard against deleting the last such role and
+ * leaving nothing able to reach admin/settings.
+ */
+export const isFullAccessRoleModules = (modules: string[] | undefined | null): boolean => {
+  const normalized = new Set(normalizeModules(modules));
+  return [...KNOWN_MODULE_IDS].every((id) => normalized.has(id));
 };
 
 /** Candidates for DB `IN` checks during legacy→new transition. */

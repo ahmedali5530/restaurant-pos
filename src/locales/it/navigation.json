@@ -15,7 +15,8 @@
     "settings": "Impostazioni",
     "clock": "Orologio",
     "hr": "Risorse umane",
-    "integrations": "Integrazioni"
+    "integrations": "Integrazioni",
+    "requiresApproval": "Richiede l'approvazione del responsabile"
   },
   "modules": {
     "Menu": "Menu",

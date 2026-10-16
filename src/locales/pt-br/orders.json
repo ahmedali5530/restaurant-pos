@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Por favor, escolha uma nova mesa",
     "success": "Mesclado com sucesso em {{invoiceNumber}}",
+    "successPending": "Pedidos mesclados. O número da fatura aparecerá após a sincronização.",
     "failed": "Falha ao mesclar pedidos",
     "chooseTable": "Escolha uma mesa",
     "selectTwoOrMore": "Selecione 2 ou mais pedidos",

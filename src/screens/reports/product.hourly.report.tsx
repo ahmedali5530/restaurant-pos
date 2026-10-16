@@ -10,7 +10,7 @@ import {getOrderItemTaxAmount} from "@/lib/tax-calculator.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import { toJsDate } from "@/lib/datetime.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
-import {buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
+import {buildCreatedAtDateConditions, buildNestedRecordAnyCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 
 const safeNumber = (value: unknown) => {
@@ -82,16 +82,11 @@ export const ProductHourlyReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, any> = {};
-
         // Date range filter
-        if (filters.startDate && filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.startDate = filters.startDate;
-          params.endDate = filters.endDate;
-        }
+        const {conditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate, endDate: filters.endDate},
+          "created_at",
+        );
 
         const menuItemFilter = buildNestedRecordAnyCondition('items.item', filters.menuItemIds, 'menuItem');
         if (menuItemFilter.condition) {

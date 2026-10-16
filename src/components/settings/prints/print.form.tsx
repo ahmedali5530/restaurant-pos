@@ -4,6 +4,11 @@ import {toast} from "sonner";
 import {useTranslation} from 'react-i18next';
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Setting} from "@/api/model/setting.ts";
+import {
+  BRANDING_KEY,
+  BrandingSettings,
+  brandingLogoToDataUri,
+} from "@/api/model/branding.ts";
 import {Controller, useForm} from "react-hook-form";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
@@ -14,9 +19,21 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faTimes} from "@fortawesome/free-solid-svg-icons";
 import {detectMimeType, toArrayBuffer} from "@/utils/files.ts";
 import {ReceiptSectionEditor} from "@/components/settings/prints/receipt-section.editor.tsx";
-import {ReceiptSection} from "@/api/model/receipt-section.ts";
+import {DEFAULT_SECTION_IMAGE_PX, ReceiptSection} from "@/api/model/receipt-section.ts";
 
 type SelectOption = { label: string; value: string };
+
+const DEFAULT_LOGO_PX = 150;
+const MIN_IMAGE_PX = 8;
+
+const LOGO_PRESET_SIZES: Array<{ width: number; height: number }> = [
+  { width: 80, height: 80 },
+  { width: 120, height: 120 },
+  { width: 150, height: 150 },
+  { width: 200, height: 80 },
+  { width: 256, height: 80 },
+  { width: 384, height: 100 },
+];
 
 type PrintFormValues = {
   printMode?: SelectOption | string
@@ -25,6 +42,8 @@ type PrintFormValues = {
   rasterMaxHeightPx?: number | string
   showLogo?: boolean
   logo?: ArrayBuffer | null
+  logoWidth?: number
+  logoHeight?: number
   logoOffsetX?: number
   headerSections?: ReceiptSection[]
   footerSections?: ReceiptSection[]
@@ -55,6 +74,20 @@ function selectValue(v: SelectOption | string | number | undefined, fallback: st
   return String(v);
 }
 
+function clampImageDim(value: unknown, fallback: number, maxWidth: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return fallback;
+  return Math.max(MIN_IMAGE_PX, Math.min(maxWidth, Math.round(n)));
+}
+
+function parseSectionDim(value: unknown): number {
+  return clampImageDim(value, DEFAULT_SECTION_IMAGE_PX, 576);
+}
+
+function logoPresetValue(width: number, height: number): string {
+  return `${width}x${height}`;
+}
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -71,6 +104,8 @@ function normalizeSectionsFromDb(sections: unknown): ReceiptSection[] {
       align: s.align === 'left' || s.align === 'right' ? s.align : 'center',
       size: s.size === 'medium' || s.size === 'large' ? s.size : 'normal',
       content: s.content ?? '',
+      width: parseSectionDim(s.width),
+      height: parseSectionDim(s.height),
     };
   });
 }
@@ -81,15 +116,20 @@ function preserveSectionImages(
 ): ReceiptSection[] {
   if (!sections) return [];
   return sections.map((section, index) => {
-    if (section.type !== 'image') return section;
-    const hasNewImage = section.content instanceof ArrayBuffer
-      || (Array.isArray(section.content) && section.content.length > 0);
-    if (hasNewImage) return section;
+    const next: ReceiptSection = {
+      ...section,
+      width: parseSectionDim(section.width),
+      height: parseSectionDim(section.height),
+    };
+    if (next.type !== 'image') return next;
+    const hasNewImage = next.content instanceof ArrayBuffer
+      || (Array.isArray(next.content) && next.content.length > 0);
+    if (hasNewImage) return next;
     const prev = existing?.[index];
     if (prev?.type === 'image' && prev.content) {
-      return {...section, content: prev.content};
+      return {...next, content: prev.content};
     }
-    return section;
+    return next;
   });
 }
 
@@ -101,10 +141,14 @@ export const PrintForm = ({
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoArrayBuffer, setLogoArrayBuffer] = useState<ArrayBuffer | null>(null);
   const [logoRemoved, setLogoRemoved] = useState(false);
+  const [brandLogoUrl, setBrandLogoUrl] = useState<string | null>(null);
 
   const db = useDB();
-  const {handleSubmit, control, reset, setValue, watch} = useForm<PrintFormValues>();
+  const {handleSubmit, control, reset, setValue, getValues, watch} = useForm<PrintFormValues>();
   const watchedPrintMode = watch('printMode');
+  const watchedPaperWidthMm = watch('paperWidthMm');
+  const watchedLogoWidth = watch('logoWidth');
+  const watchedLogoHeight = watch('logoHeight');
 
   const printModeOptions: SelectOption[] = useMemo(() => [
     { label: t('forms.printModeText'), value: 'text' },
@@ -116,7 +160,32 @@ export const PrintForm = ({
     { label: t('forms.paperWidth80'), value: '80' },
   ], [t]);
 
+  const logoPresetOptions: SelectOption[] = useMemo(() => {
+    const presets = LOGO_PRESET_SIZES.map(({ width, height }) => ({
+      label: `${width} × ${height}`,
+      value: logoPresetValue(width, height),
+    }));
+    return [
+      ...presets,
+      { label: t('forms.logoPresetCustom'), value: 'custom' },
+    ];
+  }, [t]);
+
   const isRasterMode = selectValue(watchedPrintMode, 'text') === 'raster';
+  const paperWidthMm = Number(selectValue(watchedPaperWidthMm, '80'));
+  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : 576;
+
+  const selectedLogoPreset = useMemo(() => {
+    const w = Number(watchedLogoWidth) || DEFAULT_LOGO_PX;
+    const h = Number(watchedLogoHeight) || DEFAULT_LOGO_PX;
+    const match = LOGO_PRESET_SIZES.find((p) => p.width === w && p.height === h);
+    if (match) {
+      return logoPresetOptions.find((o) => o.value === logoPresetValue(match.width, match.height))
+        ?? logoPresetOptions[logoPresetOptions.length - 1];
+    }
+    return logoPresetOptions.find((o) => o.value === 'custom')
+      ?? logoPresetOptions[logoPresetOptions.length - 1];
+  }, [watchedLogoWidth, watchedLogoHeight, logoPresetOptions]);
 
   const existingLogoUrl = useMemo(() => {
     if (!data?.values?.logo) return null;
@@ -144,6 +213,8 @@ export const PrintForm = ({
         rasterMaxHeightPx: data.values.rasterMaxHeightPx != null && data.values.rasterMaxHeightPx !== ''
           ? Number(data.values.rasterMaxHeightPx)
           : '',
+        logoWidth: clampImageDim(data.values.logoWidth, DEFAULT_LOGO_PX, 576),
+        logoHeight: clampImageDim(data.values.logoHeight, DEFAULT_LOGO_PX, 576),
         logo: null,
         headerSections: normalizeSectionsFromDb(data.values.headerSections),
         footerSections: normalizeSectionsFromDb(data.values.footerSections),
@@ -164,6 +235,27 @@ export const PrintForm = ({
       }
     };
   }, [existingLogoUrl, logoPreview]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [rows] = await db.query<Setting[]>(
+          `SELECT * FROM ${Tables.settings} WHERE key = $key AND is_global = true LIMIT 1`,
+          { key: BRANDING_KEY },
+        );
+        if (cancelled) return;
+        const values = (rows?.[0]?.values || {}) as BrandingSettings;
+        setBrandLogoUrl(brandingLogoToDataUri(values.logo, values.mime));
+      } catch (err) {
+        console.log('Failed to load brand logo', err);
+        if (!cancelled) setBrandLogoUrl(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
@@ -208,6 +300,36 @@ export const PrintForm = ({
     setLogoRemoved(true);
   };
 
+  const handleUseBrandLogo = async () => {
+    if (!brandLogoUrl) return;
+    try {
+      const buffer = await fetch(brandLogoUrl).then((res) => res.arrayBuffer());
+      const mime = detectMimeType(buffer, 'image/png');
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview);
+      }
+      const objectUrl = URL.createObjectURL(new Blob([buffer], { type: mime }));
+      setLogoArrayBuffer(buffer);
+      setLogoPreview(objectUrl);
+      setLogoRemoved(false);
+      setValue('logo', buffer);
+      setValue('showLogo', true);
+    } catch (err) {
+      console.log('Failed to use brand logo', err);
+      toast.error(t('forms.useBrandLogoFailed'));
+    }
+  };
+
+  const handleLogoPresetChange = (option: SelectOption | null) => {
+    if (!option || option.value === 'custom') return;
+    const [wRaw, hRaw] = option.value.split('x');
+    const width = Number(wRaw);
+    const height = Number(hRaw);
+    if (!Number.isFinite(width) || !Number.isFinite(height)) return;
+    setValue('logoWidth', clampImageDim(width, DEFAULT_LOGO_PX, maxLogoWidthPx));
+    setValue('logoHeight', clampImageDim(height, DEFAULT_LOGO_PX, 576));
+  };
+
   const closeModal = () => {
     onClose();
   }
@@ -215,14 +337,18 @@ export const PrintForm = ({
   const onSubmit = async (values: PrintFormValues) => {
     const maxHRaw = values.rasterMaxHeightPx;
     const maxH = maxHRaw === '' || maxHRaw == null ? null : Number(maxHRaw);
+    const paperMm = Number(selectValue(values.paperWidthMm, '80'));
+    const maxW = paperMm === 58 ? 384 : 576;
     const vals: Record<string, unknown> = {
       ...values,
       printMode: selectValue(values.printMode, 'text'),
-      paperWidthMm: Number(selectValue(values.paperWidthMm, '80')),
+      paperWidthMm: paperMm,
       rasterThreshold: values.rasterThreshold != null && values.rasterThreshold !== ('' as unknown)
         ? Number(values.rasterThreshold)
         : 180,
       rasterMaxHeightPx: maxH != null && !Number.isNaN(maxH) && maxH > 0 ? maxH : null,
+      logoWidth: clampImageDim(values.logoWidth, DEFAULT_LOGO_PX, maxW),
+      logoHeight: clampImageDim(values.logoHeight, DEFAULT_LOGO_PX, 576),
       renderOptions: (data?.values?.renderOptions && typeof data.values.renderOptions === 'object')
         ? data.values.renderOptions
         : {},
@@ -367,12 +493,12 @@ export const PrintForm = ({
                       checked={field.value}
                       onChange={field.onChange}
                     >
-                      Show logo
+                      {t('forms.showLogo')}
                     </Switch>
                   )}
                 />
               </div>
-              <div className="flex-1">
+              <div className="flex-1 flex flex-col gap-2">
                 {currentLogoUrl && !logoRemoved ? (
                   <div className="relative inline-block">
                     <img
@@ -406,10 +532,78 @@ export const PrintForm = ({
                     )}
                   />
                 )}
+                {brandLogoUrl && (
+                  <div>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      data-testid="print-use-brand-logo"
+                      onClick={() => {
+                        void handleUseBrandLogo();
+                      }}
+                    >
+                      <img
+                        src={brandLogoUrl}
+                        alt=""
+                        className="h-6 w-auto max-w-[4rem] object-contain mr-2 inline-block align-middle"
+                      />
+                      {t('forms.useBrandLogo')}
+                    </Button>
+                    <p className="text-xs text-muted mt-1">{t('forms.useBrandLogoHint')}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid md:grid-cols-4 gap-3">
+              <div>
+                <label className="block mb-1">{t('forms.logoPreset')}</label>
+                <div>
+                  <ReactSelect
+                    value={selectedLogoPreset}
+                    onChange={handleLogoPresetChange}
+                    options={logoPresetOptions}
+                  />
+                </div>
+              </div>
+              <div>
+                <Controller
+                  name="logoWidth"
+                  control={control}
+                  render={({field}) => (
+                    <div>
+                      <Input
+                        label={t('forms.logoWidth')}
+                        type="number"
+                        value={field.value ?? DEFAULT_LOGO_PX}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          field.onChange(raw === '' ? DEFAULT_LOGO_PX : Number(raw));
+                        }}
+                      />
+                    </div>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="logoHeight"
+                  control={control}
+                  render={({field}) => (
+                    <div>
+                      <Input
+                        label={t('forms.logoHeight')}
+                        type="number"
+                        value={field.value ?? DEFAULT_LOGO_PX}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          field.onChange(raw === '' ? DEFAULT_LOGO_PX : Number(raw));
+                        }}
+                      />
+                    </div>
+                  )}
+                />
+              </div>
               <div>
                 <Controller
                   name="logoOffsetX"
@@ -424,6 +618,7 @@ export const PrintForm = ({
                           const raw = e.target.value;
                           field.onChange(raw === '' ? 0 : Number(raw));
                         }}
+                        allowNegative
                       />
                       <p className="text-xs text-muted mt-1">{t('forms.logoOffsetXHint')}</p>
                     </div>
@@ -431,17 +626,22 @@ export const PrintForm = ({
                 />
               </div>
             </div>
+            <p className="text-xs text-muted -mt-2">{t('forms.logoDimensionsHint')}</p>
 
             <ReceiptSectionEditor
               control={control}
               name="headerSections"
               label={t('forms.headerSections')}
+              setValue={setValue}
+              getValues={getValues}
             />
 
             <ReceiptSectionEditor
               control={control}
               name="footerSections"
               label={t('forms.footerSections')}
+              setValue={setValue}
+              getValues={getValues}
             />
 
             <div className="grid md:grid-cols-3 gap-3">
@@ -454,7 +654,7 @@ export const PrintForm = ({
                       checked={field.value}
                       onChange={field.onChange}
                     >
-                      Show VAT number
+                      {t('forms.showVatNumber')}
                     </Switch>
                   )}
                 />

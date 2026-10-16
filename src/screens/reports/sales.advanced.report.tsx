@@ -14,6 +14,7 @@ import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import { getOrderItemDisplayLineTotal } from "@/lib/order-item-display.ts";
 import {
+  buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
@@ -142,18 +143,11 @@ export const SalesAdvancedReport = () => {
         setLoading(true);
         setError(null);
 
-        const orderConditions: string[] = [];
-        const params: Record<string, any> = {};
-
-        if (filters.startDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          orderConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions: orderConditions, params: dateParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
+        const params: Record<string, any> = {...dateParams};
 
         // Build status conditions
         // If no status filters are selected, show all orders
@@ -324,16 +318,10 @@ export const SalesAdvancedReport = () => {
         const ordersResult: any = await queryRef.current(ordersQuery, params);
         setOrders((ordersResult?.[0] ?? []) as Order[]);
 
-        const voidConditions: string[] = [];
-        const voidParams: Record<string, string> = {};
-        if (filters.startDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          voidParams.startDate = filters.startDate;
-        }
-        if (filters.endDate) {
-          voidConditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          voidParams.endDate = filters.endDate;
-        }
+        const {conditions: voidConditions, params: voidParams} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
         const voidsQuery = `
             SELECT *
             FROM ${Tables.order_voids} ${voidConditions.length ? `WHERE ${voidConditions.join(" AND ")}` : ""}

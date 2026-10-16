@@ -7,6 +7,7 @@ import {Order, ORDER_FETCHES} from "@/api/model/order.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderNetSales} from "@/lib/order.ts";
 import {StringRecordId} from "surrealdb";
+import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -74,18 +75,10 @@ export const SaleVsConsumptionReport = () => {
         setLoading(true);
         setError(null);
 
-        const conditions: string[] = [];
-        const params: Record<string, string> = {};
-
-        if (filters.startDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") >= $startDate`);
-          params.startDate = filters.startDate;
-        }
-
-        if (filters.endDate) {
-          conditions.push(`time::format(created_at, "${import.meta.env.VITE_DB_DATABASE_FORMAT}") <= $endDate`);
-          params.endDate = filters.endDate;
-        }
+        const {conditions, params} = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          "created_at",
+        );
 
         // Fetch orders
         const ordersQuery = `

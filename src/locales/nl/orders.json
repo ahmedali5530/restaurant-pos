@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Kies een nieuwe tafel",
     "success": "Succesvol samengevoegd in {{invoiceNumber}}",
+    "successPending": "Bestellingen samengevoegd. Het factuurnummer verschijnt na synchronisatie.",
     "failed": "Bestellingen samenvoegen mislukt",
     "chooseTable": "Kies een tafel",
     "selectTwoOrMore": "Selecteer 2 of meer bestellingen",

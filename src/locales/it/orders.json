@@ -28,6 +28,7 @@
   "merge": {
     "chooseTableAlert": "Scegli un nuovo tavolo",
     "success": "Unito con successo in {{invoiceNumber}}",
+    "successPending": "Ordini uniti. Il numero fattura apparirà dopo la sincronizzazione.",
     "failed": "Creazione unione ordini non riuscita",
     "chooseTable": "Scegli un tavolo",
     "selectTwoOrMore": "Seleziona 2 o più ordini",

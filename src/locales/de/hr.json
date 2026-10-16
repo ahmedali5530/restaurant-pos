@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Max. Stunden pro Tag",
       "maxHoursPerWeek": "Max. Stunden pro Woche",
       "breakRules": "Pausenregeln",
-      "notes": "Notizen"
+      "notes": "Notizen",
+      "overtimeSection": "Überstunden",
+      "overtimeSectionHelp": "Standardmäßig werden Stunden über 8/Tag mit 1,5x vergütet. Überschreiben oder deaktivieren Sie dies nur für diesen Mitarbeiter.",
+      "overtimeThreshold": "Täglicher Schwellenwert (Stunden)",
+      "overtimeMultiplier": "Multiplikator",
+      "nightPremiumSection": "Nachtzuschlag",
+      "nightPremiumSectionHelp": "Standardmäßig erhalten zwischen 22:00 und 06:00 geleistete Stunden 25 % extra. Überschreiben oder deaktivieren Sie dies nur für diesen Mitarbeiter.",
+      "nightStart": "Startzeit",
+      "nightEnd": "Endzeit",
+      "nightMultiplier": "Multiplikator",
+      "policyMode": {
+        "default": "Standard verwenden",
+        "custom": "Benutzerdefiniert",
+        "disabled": "Deaktiviert"
+      }
     },
     "payRule": {
       "create": "Gehaltsregel erstellen",
@@ -352,7 +366,10 @@
       "category": "Kategorie",
       "title": "Titel",
       "expiresAt": "Ablaufdatum",
-      "attachFile": "Datei anhängen"
+      "attachFile": "Datei anhängen",
+      "currentFile": "Aktuelle Datei",
+      "replaceFile": "Datei ersetzen (optional)",
+      "deleteConfirm": "Dieses Dokument löschen? Dies kann nicht rückgängig gemacht werden."
     },
     "performance": {
       "create": "Leistungsnotiz hinzufügen",
@@ -557,7 +574,10 @@
     "saveOverride": "Überschreibung speichern",
     "resetOverrides": "Überschreibungen zurücksetzen",
     "confirmResetOverrides": "Alle Zeilen neu berechnen und manuelle Überschreibungen verwerfen?",
-    "overrideHelp": "Beträge in einer Vorschau bearbeiten. Neu berechnen behält überschriebene Zeilen, sofern Sie sie nicht zurücksetzen."
+    "overrideHelp": "Beträge in einer Vorschau bearbeiten. Neu berechnen behält überschriebene Zeilen, sofern Sie sie nicht zurücksetzen.",
+    "deleted": "Lohnlauf gelöscht",
+    "deleteConfirm": "Diesen Entwurfs-Lohnlauf löschen? Dies kann nicht rückgängig gemacht werden.",
+    "premiumPay": "Zuschläge"
   },
   "dashboard": {
     "title": "Personal-Dashboard",

@@ -253,7 +253,21 @@
       "maxHoursPerDay": "Máx. horas por dia",
       "maxHoursPerWeek": "Máx. horas por semana",
       "breakRules": "Regras de intervalo",
-      "notes": "Notas"
+      "notes": "Notas",
+      "overtimeSection": "Horas extras",
+      "overtimeSectionHelp": "Por padrão, horas acima de 8/dia são pagas a 1,5x. Substitua ou desative isso apenas para este funcionário.",
+      "overtimeThreshold": "Limite diário (horas)",
+      "overtimeMultiplier": "Multiplicador",
+      "nightPremiumSection": "Adicional noturno",
+      "nightPremiumSectionHelp": "Por padrão, horas trabalhadas entre 22:00 e 06:00 recebem 25% a mais. Substitua ou desative isso apenas para este funcionário.",
+      "nightStart": "Hora de início",
+      "nightEnd": "Hora de término",
+      "nightMultiplier": "Multiplicador",
+      "policyMode": {
+        "default": "Usar padrão",
+        "custom": "Personalizado",
+        "disabled": "Desativado"
+      }
     },
     "payRule": {
       "create": "Criar regra de pagamento",
@@ -352,7 +366,10 @@
       "category": "Categoria",
       "title": "Título",
       "expiresAt": "Data de validade",
-      "attachFile": "Anexar arquivo"
+      "attachFile": "Anexar arquivo",
+      "currentFile": "Arquivo atual",
+      "replaceFile": "Substituir arquivo (opcional)",
+      "deleteConfirm": "Excluir este documento? Isso não pode ser desfeito."
     },
     "performance": {
       "create": "Adicionar nota de desempenho",
@@ -557,7 +574,10 @@
     "saveOverride": "Salvar substituição",
     "resetOverrides": "Redefinir substituições",
     "confirmResetOverrides": "Recalcular todas as linhas e descartar substituições do gestor?",
-    "overrideHelp": "Edite valores em uma execução de prévia. Recalcular mantém as linhas substituídas, a menos que você as redefina."
+    "overrideHelp": "Edite valores em uma execução de prévia. Recalcular mantém as linhas substituídas, a menos que você as redefina.",
+    "deleted": "Execução de folha excluída",
+    "deleteConfirm": "Excluir esta execução de folha em rascunho? Isso não pode ser desfeito.",
+    "premiumPay": "Adicionais"
   },
   "dashboard": {
     "title": "Painel de mão de obra",

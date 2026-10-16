@@ -193,10 +193,24 @@ const OrderPaymentReceivingContent = ({
       // unreachable we settle locally and let the post-settle fiscal run catch up.
       let blockBeforePaid = false;
       let fiscalOrderSnapshot: Order | undefined;
+      let settledOrder = order;
       try {
+        if (settledOrder.invoice_number == null) {
+          await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
+          const local = await posStore.getOrder(String(settledOrder.id));
+          if (local?.invoice_number != null) {
+            settledOrder = { ...settledOrder, invoice_number: local.invoice_number } as Order;
+          }
+        }
         blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
         if (blockBeforePaid) {
-          fiscalOrderSnapshot = await loadOrderForFiscal(db, String(order.id));
+          fiscalOrderSnapshot = await loadOrderForFiscal(db, String(settledOrder.id));
+          if (fiscalOrderSnapshot && settledOrder.invoice_number != null) {
+            fiscalOrderSnapshot = {
+              ...fiscalOrderSnapshot,
+              invoice_number: settledOrder.invoice_number,
+            };
+          }
         }
       } catch (fiscalCheckError) {
         console.warn('Fiscal pre-check skipped (offline?)', fiscalCheckError);
@@ -223,7 +237,11 @@ const OrderPaymentReceivingContent = ({
             }
           );
           if (preResult.blocked) {
-            toast.error(preResult.blockedError ?? 'Fiscal submission failed');
+            toast.error(
+              preResult.blockedCode === 'INVOICE_PENDING'
+                ? t('errors.invoicePendingSync')
+                : (preResult.blockedError ?? t('errors.fiscalFailed')),
+            );
             return;
           }
           if (Object.values(preResult.resultsByProvider).some((row) => row.status === 'failed')) {
