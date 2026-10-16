@@ -15,8 +15,19 @@ $SurrealVer = if ($env:POSR_SURREAL_VERSION) { $env:POSR_SURREAL_VERSION } else 
 
 New-Item -ItemType Directory -Force -Path $BinDir, (Join-Path $ResDir "sidecars"), (Join-Path $ResDir "migrations") | Out-Null
 
-$nodeDest = Join-Path $BinDir "node-$Triple.exe"
-$surrealDest = Join-Path $BinDir "surreal-$Triple.exe"
+$nodeDest = Join-Path $BinDir "posr-node-$Triple.exe"
+$surrealDest = Join-Path $BinDir "posr-surreal-$Triple.exe"
+
+$legacyNode = Join-Path $BinDir "node-$Triple.exe"
+$legacySurreal = Join-Path $BinDir "surreal-$Triple.exe"
+if (-not (Test-Path $nodeDest) -and (Test-Path $legacyNode)) {
+  Move-Item $legacyNode $nodeDest
+  Write-Host "Renamed $legacyNode -> $nodeDest"
+}
+if (-not (Test-Path $surrealDest) -and (Test-Path $legacySurreal)) {
+  Move-Item $legacySurreal $surrealDest
+  Write-Host "Renamed $legacySurreal -> $surrealDest"
+}
 
 if (-not (Test-Path $nodeDest)) {
   $tmp = Join-Path $env:TEMP ("posr-node-" + [guid]::NewGuid())
@@ -42,7 +53,7 @@ foreach ($svc in $services) {
   $dest = Join-Path $ResDir "sidecars/$svc"
   if (-not (Test-Path $src)) { Write-Warning "missing $src"; continue }
   New-Item -ItemType Directory -Force -Path $dest | Out-Null
-  robocopy $src $dest /MIR /XD node_modules .git coverage /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
+  robocopy $src $dest /MIR /XD node_modules .git coverage /XF .env .env.local /NFL /NDL /NJH /NJS /nc /ns /np | Out-Null
   if (-not $SkipNpm) {
     Push-Location $dest
     npm install --omit=dev --no-fund --no-audit

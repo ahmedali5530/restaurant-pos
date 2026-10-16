@@ -1,5 +1,6 @@
 import { DateTime as LuxonDateTime } from "luxon";
 import { DateTime as SurrealDateTime } from "surrealdb";
+import { runtimeTimezone } from "@/lib/runtime-config.ts";
 
 export type DateInput =
   | SurrealDateTime
@@ -120,7 +121,7 @@ export const getAppStartOfDaySurreal = (): SurrealDateTime => {
 };
 
 export const getAppTimezone = (): string => {
-  const timezone = (import.meta.env.VITE_APP_TIMEZONE as string | undefined)?.trim();
+  const timezone = runtimeTimezone()?.trim() || (import.meta.env.VITE_APP_TIMEZONE as string | undefined)?.trim();
   if (!timezone) {
     return "UTC";
   }

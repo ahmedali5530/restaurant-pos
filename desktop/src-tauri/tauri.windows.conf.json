@@ -2,6 +2,12 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "bundle": {
     "targets": ["nsis"],
+    "resources": [
+      "resources/sidecars/**/*",
+      "resources/migrations/**/*",
+      "windows/configure-posr.ps1",
+      "windows/installer-settings.template.json"
+    ],
     "windows": {
       "webviewInstallMode": {
         "type": "embedBootstrapper",
@@ -9,7 +15,8 @@
       },
       "nsis": {
         "installMode": "currentUser",
-        "displayLanguageSelector": false
+        "displayLanguageSelector": false,
+        "installerHooks": "./windows/hooks.nsh"
       }
     }
   }

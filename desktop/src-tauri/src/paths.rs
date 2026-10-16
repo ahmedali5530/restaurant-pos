@@ -116,17 +116,25 @@ pub fn resolve_node_bin(app: Option<&AppHandle>) -> PathBuf {
     }
   }
   if let Some(app) = app {
-    if let Some(p) = bundled_bin(app, "node") {
+    if let Some(p) = bundled_bin(app, "posr-node") {
       return p;
     }
   }
   // Dev: binaries prepared by prepare-sidecars
   let local = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries").join(format!(
-    "node-{}",
+    "posr-node-{}",
     current_target_triple_stub()
   ));
   if local.exists() {
     return local;
+  }
+  // Legacy name from early builds
+  let legacy = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries").join(format!(
+    "node-{}",
+    current_target_triple_stub()
+  ));
+  if legacy.exists() {
+    return legacy;
   }
 
   let home = std::env::var("HOME")
@@ -186,16 +194,23 @@ pub fn resolve_surreal_bin(app: Option<&AppHandle>) -> PathBuf {
     }
   }
   if let Some(app) = app {
-    if let Some(p) = bundled_bin(app, "surreal") {
+    if let Some(p) = bundled_bin(app, "posr-surreal") {
       return p;
     }
   }
   let local = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries").join(format!(
-    "surreal-{}",
+    "posr-surreal-{}",
     current_target_triple_stub()
   ));
   if local.exists() {
     return local;
+  }
+  let legacy = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("binaries").join(format!(
+    "surreal-{}",
+    current_target_triple_stub()
+  ));
+  if legacy.exists() {
+    return legacy;
   }
   // Prefer a v3 binary if present next to common install paths
   for c in ["/usr/local/bin/surreal", "/usr/bin/surreal"] {
@@ -256,11 +271,29 @@ pub fn resolve_app_data(app: &AppHandle) -> Result<PathBuf, String> {
 }
 
 pub fn allowed_origins(repo_root: Option<&Path>) -> String {
-  std::env::var("GATEWAY_ALLOWED_ORIGINS")
+  let base = std::env::var("GATEWAY_ALLOWED_ORIGINS")
     .ok()
     .filter(|s| !s.trim().is_empty())
     .or_else(|| {
       repo_root.and_then(|root| load_dotenv_value(root, "GATEWAY_ALLOWED_ORIGINS"))
     })
-    .unwrap_or_else(|| DEFAULT_ALLOWED_ORIGINS.to_string())
+    .unwrap_or_else(|| DEFAULT_ALLOWED_ORIGINS.to_string());
+  // Always ensure Tauri webview origins are present (packaged login CORS).
+  let mut parts: Vec<String> = base
+    .split(',')
+    .map(|s| s.trim().to_string())
+    .filter(|s| !s.is_empty())
+    .collect();
+  for required in [
+    "tauri://localhost",
+    "https://tauri.localhost",
+    "http://tauri.localhost",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+  ] {
+    if !parts.iter().any(|p| p.eq_ignore_ascii_case(required)) {
+      parts.push(required.to_string());
+    }
+  }
+  parts.join(",")
 }

@@ -286,6 +286,24 @@
     "samplesPath": "Beispiel-Migrationsordner",
     "samplesFailed": "Migrationsordner nicht gefunden",
     "settingsTitle": "SurrealQL importieren",
-    "settingsHelp": "Schema-Updates oder Demodaten durch Import von .surql-Dateien in die lokale SurrealDB anwenden."
+    "settingsHelp": "Schema-Updates oder Demodaten durch Import von .surql-Dateien in die lokale SurrealDB anwenden.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Desktop-Protokolle",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Desktop-Protokolle (Gateway) für Details öffnen.",
+    "openLink": "Desktop-Protokolle öffnen",
+    "installerSummary": "Installer settings"
   }
 }

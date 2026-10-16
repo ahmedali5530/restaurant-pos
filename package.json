@@ -24,6 +24,7 @@
     "api-server": "cd api && npm start",
     "desktop:dev": "cd desktop && bun run dev",
     "desktop:build": "cd desktop && bun run build",
+    "desktop:build:linux": "cd desktop && bun run build:linux",
     "desktop:build:windows": "cd desktop && bun run build:windows",
     "desktop:prepare": "bash desktop/scripts/prepare-sidecars.sh",
     "desktop:prepare:bin": "bash desktop/scripts/prepare-sidecars.sh --skip-npm",

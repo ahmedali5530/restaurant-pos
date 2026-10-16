@@ -286,6 +286,24 @@
     "samplesPath": "Pasta de migrações de exemplo",
     "samplesFailed": "Pasta de migrações não encontrada",
     "settingsTitle": "Importar SurrealQL",
-    "settingsHelp": "Aplique atualizações de esquema ou dados de demonstração importando arquivos .surql no SurrealDB local."
+    "settingsHelp": "Aplique atualizações de esquema ou dados de demonstração importando arquivos .surql no SurrealDB local.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Logs do desktop",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Abra os logs do desktop (gateway) para detalhes.",
+    "openLink": "Abrir logs do desktop",
+    "installerSummary": "Installer settings"
   }
 }

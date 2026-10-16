@@ -33,11 +33,27 @@ SURREAL_VER="${POSR_SURREAL_VERSION:-v3.0.5}"
 
 mkdir -p "$BIN_DIR" "$RES_DIR/sidecars" "$RES_DIR/migrations"
 
-node_dest="$BIN_DIR/node-$TRIPLE"
-surreal_dest="$BIN_DIR/surreal-$TRIPLE"
+node_dest="$BIN_DIR/posr-node-$TRIPLE"
+surreal_dest="$BIN_DIR/posr-surreal-$TRIPLE"
 if [[ "$TRIPLE" == *windows* ]]; then
-  node_dest="$BIN_DIR/node-$TRIPLE.exe"
-  surreal_dest="$BIN_DIR/surreal-$TRIPLE.exe"
+  node_dest="$BIN_DIR/posr-node-$TRIPLE.exe"
+  surreal_dest="$BIN_DIR/posr-surreal-$TRIPLE.exe"
+fi
+
+# Migrate old sidecar names (node-/surreal-) that conflicted with /usr/bin/node on .deb
+legacy_node="$BIN_DIR/node-$TRIPLE"
+legacy_surreal="$BIN_DIR/surreal-$TRIPLE"
+if [[ "$TRIPLE" == *windows* ]]; then
+  legacy_node="$BIN_DIR/node-$TRIPLE.exe"
+  legacy_surreal="$BIN_DIR/surreal-$TRIPLE.exe"
+fi
+if [[ ! -f "$node_dest" && -f "$legacy_node" ]]; then
+  mv "$legacy_node" "$node_dest"
+  echo "Renamed $legacy_node -> $node_dest"
+fi
+if [[ ! -f "$surreal_dest" && -f "$legacy_surreal" ]]; then
+  mv "$legacy_surreal" "$surreal_dest"
+  echo "Renamed $legacy_surreal -> $surreal_dest"
 fi
 
 download() {
@@ -140,8 +156,8 @@ else
   echo "exists: $surreal_dest"
 fi
 
-# Tauri externalBin expects binaries/<name> without triple at runtime naming —
-# we keep triple-suffixed files as required by Tauri CLI.
+# Tauri externalBin expects binaries/<name>-<triple>; install name is posr-node / posr-surreal
+# (not plain "node"/"surreal", which would overwrite /usr/bin/node on Debian packages).
 echo "Binaries ready under $BIN_DIR"
 
 # --- Stage sidecar sources (+ npm install for release packaging) ---
@@ -165,6 +181,9 @@ for svc in "${SERVICES[@]}"; do
     --exclude '.git' \
     --exclude 'coverage' \
     --exclude '*.log' \
+    --exclude '.env' \
+    --exclude '.env.local' \
+    --exclude '.env.*.local' \
     "$src/" "$dest/"
   if [[ "$SKIP_NPM" -eq 0 ]]; then
     echo "npm install --omit=dev in $dest"

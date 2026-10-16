@@ -286,6 +286,24 @@
     "samplesPath": "Dossier des migrations d’exemple",
     "samplesFailed": "Dossier des migrations introuvable",
     "settingsTitle": "Importer SurrealQL",
-    "settingsHelp": "Appliquez des mises à jour de schéma ou des données de démo en important des fichiers .surql dans SurrealDB local."
+    "settingsHelp": "Appliquez des mises à jour de schéma ou des données de démo en important des fichiers .surql dans SurrealDB local.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Journaux bureau",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Ouvrez les journaux bureau (gateway) pour les détails.",
+    "openLink": "Ouvrir les journaux",
+    "installerSummary": "Installer settings"
   }
 }

@@ -286,6 +286,24 @@
     "samplesPath": "Папка примеров миграций",
     "samplesFailed": "Папка миграций не найдена",
     "settingsTitle": "Импорт SurrealQL",
-    "settingsHelp": "Применяйте обновления схемы или демо-данные, импортируя файлы .surql в локальную SurrealDB."
+    "settingsHelp": "Применяйте обновления схемы или демо-данные, импортируя файлы .surql в локальную SurrealDB.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Журналы рабочего стола",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Откройте журналы рабочего стола (gateway) для подробностей.",
+    "openLink": "Открыть журналы",
+    "installerSummary": "Installer settings"
   }
 }

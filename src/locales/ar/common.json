@@ -286,6 +286,24 @@
     "samplesPath": "مجلد نماذج الترحيل",
     "samplesFailed": "تعذر العثور على مجلد الترحيلات",
     "settingsTitle": "استيراد SurrealQL",
-    "settingsHelp": "طبّق تحديثات المخطط أو البيانات التجريبية باستيراد ملفات .surql إلى SurrealDB المحلي."
+    "settingsHelp": "طبّق تحديثات المخطط أو البيانات التجريبية باستيراد ملفات .surql إلى SurrealDB المحلي.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "سجلات سطح المكتب",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "افتح سجلات سطح المكتب (gateway) للتفاصيل.",
+    "openLink": "فتح سجلات سطح المكتب",
+    "installerSummary": "Installer settings"
   }
 }

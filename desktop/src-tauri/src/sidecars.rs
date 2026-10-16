@@ -1,5 +1,6 @@
 //! Start / stop SurrealDB + Node sidecars (Docker-parity stack).
 
+use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::path::{Path, PathBuf};
@@ -8,15 +9,32 @@ use std::sync::Mutex;
 use std::thread;
 use std::time::Duration;
 
+use serde::Serialize;
 use tauri::AppHandle;
 
-use crate::config::{self, DesktopConfig};
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
+use crate::config::{self, DesktopConfig, InstallerSettings};
+use crate::logging::LogHub;
 use crate::paths;
+
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 pub struct SidecarSupervisor {
   pub children: Mutex<Vec<(String, Child)>>,
   pub app_data: PathBuf,
   pub config: DesktopConfig,
+  pub log_hub: LogHub,
+  pub statuses: Mutex<HashMap<String, String>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ServiceStatusDto {
+  pub name: String,
+  pub status: String,
 }
 
 impl SidecarSupervisor {
@@ -27,11 +45,59 @@ impl SidecarSupervisor {
         match child.kill() {
           Ok(()) => {
             let _ = child.wait();
-            eprintln!("[posr-desktop] stopped {name} pid={pid}");
+            self.log_hub.shell(&format!("stopped {name} pid={pid}"));
           }
-          Err(err) => eprintln!("[posr-desktop] failed to stop {name} pid={pid}: {err}"),
+          Err(err) => self
+            .log_hub
+            .shell(&format!("failed to stop {name} pid={pid}: {err}")),
         }
       }
+    }
+  }
+
+  pub fn set_status(&self, name: &str, status: &str) {
+    if let Ok(mut g) = self.statuses.lock() {
+      g.insert(name.to_string(), status.to_string());
+    }
+  }
+
+  pub fn snapshot_statuses(&self) -> Vec<ServiceStatusDto> {
+    let names = [
+      "surreal", "gateway", "print", "payment", "tracking", "api", "sync",
+    ];
+    let guard = self.statuses.lock().ok();
+    names
+      .iter()
+      .map(|n| {
+        let status = guard
+          .as_ref()
+          .and_then(|g| g.get(*n).cloned())
+          .unwrap_or_else(|| "unknown".into());
+        ServiceStatusDto {
+          name: (*n).to_string(),
+          status,
+        }
+      })
+      .collect()
+  }
+
+  pub fn refresh_health(&self) {
+    let checks: &[(&str, &str, &str)] = &[
+      ("surreal", "127.0.0.1:8000", ""),
+      ("gateway", "127.0.0.1:3142", "posr-gateway"),
+      ("print", "127.0.0.1:3132", "posr-print-server"),
+      ("payment", "127.0.0.1:3134", "ok"),
+      ("tracking", "127.0.0.1:3138", "ok"),
+      ("api", "127.0.0.1:3140", "ok"),
+      ("sync", "127.0.0.1:3136", "ok"),
+    ];
+    for (name, addr, needle) in checks {
+      let up = if *name == "surreal" {
+        wait_tcp(addr, 1, 0)
+      } else {
+        http_health(addr, needle)
+      };
+      self.set_status(name, if up { "up" } else { "down" });
     }
   }
 }
@@ -64,6 +130,9 @@ fn http_health(host_port: &str, needle: &str) -> bool {
   let mut buf = Vec::new();
   let _ = stream.read_to_end(&mut buf);
   let body = String::from_utf8_lossy(&buf);
+  if needle.is_empty() {
+    return body.contains("200");
+  }
   body.contains(needle) || body.contains("\"ok\":true")
 }
 
@@ -91,8 +160,24 @@ fn wait_health(host_port: &str, needle: &str, attempts: u32) -> bool {
   false
 }
 
-fn push_child(supervisor: &SidecarSupervisor, name: &str, child: Child) {
-  eprintln!("[posr-desktop] started {name} pid={}", child.id());
+fn configure_no_window(cmd: &mut Command) {
+  #[cfg(windows)]
+  {
+    cmd.creation_flags(CREATE_NO_WINDOW);
+  }
+  let _ = cmd;
+}
+
+fn push_child(supervisor: &SidecarSupervisor, name: &str, mut child: Child) {
+  let stdout = child.stdout.take();
+  let stderr = child.stderr.take();
+  supervisor
+    .log_hub
+    .pump_child_stdio(name, stdout, stderr);
+  supervisor
+    .log_hub
+    .shell(&format!("started {name} pid={}", child.id()));
+  supervisor.set_status(name, "starting");
   if let Ok(mut guard) = supervisor.children.lock() {
     guard.push((name.to_string(), child));
   }
@@ -102,17 +187,19 @@ fn spawn_surreal(
   app: &AppHandle,
   cfg: &DesktopConfig,
   app_data: &Path,
+  hub: &LogHub,
 ) -> Result<Child, String> {
   let bin = paths::resolve_surreal_bin(Some(app));
   let data = config::surreal_data_dir(app_data);
   std::fs::create_dir_all(&data).map_err(|e| format!("surreal data dir: {e}"))?;
   let endpoint = format!("surrealkv://{}", data.display());
-  eprintln!(
-    "[posr-desktop] starting surreal: {} (data={})",
+  hub.shell(&format!(
+    "starting surreal: {} (data={})",
     bin.display(),
     data.display()
-  );
-  Command::new(&bin)
+  ));
+  let mut cmd = Command::new(&bin);
+  cmd
     .args([
       "start",
       "--user",
@@ -124,16 +211,61 @@ fn spawn_surreal(
       &endpoint,
     ])
     .stdin(Stdio::null())
-    .stdout(Stdio::inherit())
-    .stderr(Stdio::inherit())
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped());
+  configure_no_window(&mut cmd);
+  cmd
     .spawn()
     .map_err(|e| format!("spawn surreal ({}): {e}", bin.display()))
+}
+
+fn apply_ai_env(cmd: &mut Command, ai: &config::InstallerAi) {
+  if ai.enabled {
+    cmd.env("AI_ENABLED", "true");
+  } else {
+    cmd.env("AI_ENABLED", "false");
+  }
+  if !ai.default_profile.is_empty() {
+    cmd.env("AI_DEFAULT_PROFILE", &ai.default_profile);
+  }
+  if !ai.profiles.is_empty() {
+    let names: Vec<&str> = ai.profiles.iter().map(|p| p.name.as_str()).collect();
+    cmd.env("AI_PROFILES", names.join(","));
+  }
+  if let Some(d) = ai.daily_limit {
+    cmd.env("AI_DAILY_LIMIT", d.to_string());
+  }
+  if let Some(m) = ai.monthly_limit {
+    cmd.env("AI_MONTHLY_LIMIT", m.to_string());
+  }
+  for p in &ai.profiles {
+    if p.name.is_empty() {
+      continue;
+    }
+    let prefix = format!("AI_{}", p.name.to_ascii_uppercase().replace('-', "_"));
+    if !p.url.is_empty() {
+      cmd.env(format!("{prefix}_URL"), &p.url);
+    }
+    if !p.key.is_empty() {
+      cmd.env(format!("{prefix}_KEY"), &p.key);
+    }
+    if !p.model.is_empty() {
+      cmd.env(format!("{prefix}_MODEL"), &p.model);
+    }
+    if !p.auth.is_empty() {
+      cmd.env(format!("{prefix}_AUTH"), &p.auth);
+    }
+    if let Some(c) = p.compact {
+      cmd.env(format!("{prefix}_COMPACT"), if c { "true" } else { "false" });
+    }
+  }
 }
 
 fn apply_common_env(
   cmd: &mut Command,
   cfg: &DesktopConfig,
   origins: &str,
+  installer: Option<&InstallerSettings>,
 ) {
   cmd
     .env("SURREAL_USER", &cfg.surreal_user)
@@ -158,16 +290,43 @@ fn apply_common_env(
     .env("SYNC_SOURCE_NS", &cfg.surreal_ns)
     .env("SYNC_SOURCE_DB", &cfg.surreal_db)
     .env("SYNC_SOURCE_USER", &cfg.surreal_user)
-    .env("SYNC_SOURCE_PASS", &cfg.surreal_pass);
+    .env("SYNC_SOURCE_PASS", &cfg.surreal_pass)
+    .env(
+      "INTEGRATION_TOKEN_ENCRYPTION_KEY",
+      &cfg.integration_token_encryption_key,
+    )
+    .env(
+      "PAYMENT_CREDENTIAL_ENCRYPTION_KEY",
+      &cfg.integration_token_encryption_key,
+    );
+
+  if let Some(inst) = installer {
+    apply_ai_env(cmd, &inst.ai);
+    let integ = &inst.integrations;
+    if !integ.qbo_client_id.is_empty() {
+      cmd.env("QBO_CLIENT_ID", &integ.qbo_client_id);
+    }
+    if !integ.qbo_client_secret.is_empty() {
+      cmd.env("QBO_CLIENT_SECRET", &integ.qbo_client_secret);
+    }
+    if !integ.qbo_redirect_uri.is_empty() {
+      cmd.env("QBO_REDIRECT_URI", &integ.qbo_redirect_uri);
+    }
+    if !integ.qbo_env.is_empty() {
+      cmd.env("QBO_ENV", &integ.qbo_env);
+    }
+  }
 }
 
 fn spawn_node_service(
   app: &AppHandle,
   cfg: &DesktopConfig,
   origins: &str,
+  installer: Option<&InstallerSettings>,
   service_folder: &str,
   label: &str,
   extra_env: &[(&str, &str)],
+  hub: &LogHub,
 ) -> Result<Child, String> {
   let dir = paths::resolve_service_dir(Some(app), service_folder)
     .ok_or_else(|| format!("{service_folder}/ not found (set POSR_REPO_ROOT or package resources)"))?;
@@ -176,20 +335,25 @@ fn spawn_node_service(
   if !server_js.exists() {
     return Err(format!("{} missing in {}", server_js.display(), dir.display()));
   }
-  eprintln!(
-    "[posr-desktop] starting {label}: {} {} (cwd={})",
+  hub.shell(&format!(
+    "starting {label}: {} {} (cwd={})",
     node.display(),
     server_js.display(),
     dir.display()
-  );
+  ));
+  hub.shell(&format!(
+    "env ok: jwt=set surreal=set origins_len={} integration_key=set",
+    origins.len()
+  ));
   let mut cmd = Command::new(&node);
   cmd
     .arg(&server_js)
     .current_dir(&dir)
     .stdin(Stdio::null())
-    .stdout(Stdio::inherit())
-    .stderr(Stdio::inherit());
-  apply_common_env(&mut cmd, cfg, origins);
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped());
+  configure_no_window(&mut cmd);
+  apply_common_env(&mut cmd, cfg, origins, installer);
   for (k, v) in extra_env {
     cmd.env(k, v);
   }
@@ -201,53 +365,61 @@ fn spawn_node_service(
 pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
   let app_data = paths::resolve_app_data(app)?;
   let cfg = config::load_or_create_config(&app_data)?;
+  let installer = config::load_installer_settings(&app_data).ok();
   let repo = paths::resolve_repo_root();
   let origins = paths::allowed_origins(repo.as_deref());
+  let log_hub = LogHub::new(&app_data);
+  log_hub.shell("sidecar supervisor starting");
 
   let supervisor = SidecarSupervisor {
     children: Mutex::new(Vec::new()),
     app_data: app_data.clone(),
     config: cfg.clone(),
+    log_hub: log_hub.clone(),
+    statuses: Mutex::new(HashMap::new()),
   };
 
   if use_external_services() {
-    eprintln!("[posr-desktop] POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
+    log_hub.shell("POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
     return Ok(supervisor);
   }
 
-  // Surreal
   if !wait_tcp("127.0.0.1:8000", 1, 0) {
-    let child = spawn_surreal(app, &cfg, &app_data)?;
+    let child = spawn_surreal(app, &cfg, &app_data, &log_hub)?;
     push_child(&supervisor, "surreal", child);
     if !wait_tcp("127.0.0.1:8000", 40, 250) {
       return Err("SurrealDB did not become ready on 127.0.0.1:8000".into());
     }
+    supervisor.set_status("surreal", "up");
   } else {
-    eprintln!("[posr-desktop] Surreal already listening on :8000 — reusing");
+    log_hub.shell("Surreal already listening on :8000 — reusing");
+    supervisor.set_status("surreal", "up");
   }
 
-  // Gateway
   if !http_health("127.0.0.1:3142", "posr-gateway") {
     let child = spawn_node_service(
       app,
       &cfg,
       &origins,
+      installer.as_ref(),
       "gateway",
       "gateway",
       &[
         ("GATEWAY_HOST", "127.0.0.1"),
         ("GATEWAY_PORT", "3142"),
       ],
+      &log_hub,
     )?;
     push_child(&supervisor, "gateway", child);
     if !wait_health("127.0.0.1:3142", "posr-gateway", 40) {
       return Err("Gateway did not become healthy on :3142".into());
     }
+    supervisor.set_status("gateway", "up");
   } else {
-    eprintln!("[posr-desktop] gateway already healthy — reusing");
+    log_hub.shell("gateway already healthy — reusing");
+    supervisor.set_status("gateway", "up");
   }
 
-  // Remaining Node services (parallel-ish sequential spawn)
   let services: &[(&str, &str, &[(&str, &str)], &str, &str)] = &[
     (
       "printing",
@@ -305,24 +477,41 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
 
   for (folder, label, env, health_addr, needle) in services {
     if http_health(health_addr, needle) {
-      eprintln!("[posr-desktop] {label} already healthy — reusing");
+      log_hub.shell(&format!("{label} already healthy — reusing"));
+      supervisor.set_status(label, "up");
       continue;
     }
-    match spawn_node_service(app, &cfg, &origins, folder, label, env) {
-      Ok(child) => push_child(&supervisor, label, child),
-      Err(err) => {
-        // sync is optional-ish; log and continue. Others are required for full POS.
-        if *label == "sync" {
-          eprintln!("[posr-desktop] sync skipped: {err}");
+    match spawn_node_service(
+      app,
+      &cfg,
+      &origins,
+      installer.as_ref(),
+      folder,
+      label,
+      env,
+      &log_hub,
+    ) {
+      Ok(child) => {
+        push_child(&supervisor, label, child);
+        if wait_health(health_addr, needle, 20) {
+          supervisor.set_status(label, "up");
         } else {
-          eprintln!("[posr-desktop] WARN {label}: {err}");
+          supervisor.set_status(label, "starting");
+        }
+      }
+      Err(err) => {
+        if *label == "sync" {
+          log_hub.shell(&format!("sync skipped: {err}"));
+          supervisor.set_status(label, "down");
+        } else {
+          log_hub.shell(&format!("WARN {label}: {err}"));
+          supervisor.set_status(label, "down");
         }
       }
     }
   }
 
-  // Best-effort wait for print (most critical after gateway)
   let _ = wait_health("127.0.0.1:3132", "posr-print-server", 25);
-
+  supervisor.refresh_health();
   Ok(supervisor)
 }

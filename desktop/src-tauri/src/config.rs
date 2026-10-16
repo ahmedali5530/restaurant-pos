@@ -1,4 +1,4 @@
-//! Persisted desktop secrets and setup marker under the app data directory.
+//! Persisted desktop secrets, installer settings, and setup marker.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -13,6 +13,8 @@ pub struct DesktopConfig {
   pub gateway_jwt_secret: String,
   pub surreal_ns: String,
   pub surreal_db: String,
+  #[serde(default)]
+  pub integration_token_encryption_key: String,
 }
 
 impl DesktopConfig {
@@ -23,6 +25,166 @@ impl DesktopConfig {
       gateway_jwt_secret: random_hex(48),
       surreal_ns: "posr".to_string(),
       surreal_db: "posr".to_string(),
+      integration_token_encryption_key: random_hex(32),
+    }
+  }
+
+  pub fn ensure_secrets(&mut self) {
+    if self.gateway_jwt_secret.len() < 32 {
+      self.gateway_jwt_secret = random_hex(48);
+    }
+    if self.integration_token_encryption_key.len() < 16 {
+      self.integration_token_encryption_key = random_hex(32);
+    }
+    if self.surreal_pass.is_empty() {
+      self.surreal_pass = random_hex(24);
+    }
+    if self.surreal_user.is_empty() {
+      self.surreal_user = "root".to_string();
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerStore {
+  #[serde(default)]
+  pub store_name: String,
+  #[serde(default)]
+  pub store_address: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerLocale {
+  #[serde(default = "default_language")]
+  pub default_language: String,
+  #[serde(default = "default_locale")]
+  pub locale: String,
+  #[serde(default = "default_currency")]
+  pub currency: String,
+  #[serde(default)]
+  pub currency_symbol: String,
+  #[serde(default = "default_decimals")]
+  pub decimal_places: i32,
+  #[serde(default = "default_tz")]
+  pub timezone: String,
+  #[serde(default = "default_date")]
+  pub date_format: String,
+  #[serde(default = "default_time")]
+  pub time_format: String,
+}
+
+fn default_language() -> String {
+  "en".into()
+}
+fn default_locale() -> String {
+  "en-US".into()
+}
+fn default_currency() -> String {
+  "USD".into()
+}
+fn default_decimals() -> i32 {
+  2
+}
+fn default_tz() -> String {
+  "UTC".into()
+}
+fn default_date() -> String {
+  "yyyy-MM-dd".into()
+}
+fn default_time() -> String {
+  "HH:mm".into()
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct AiProfile {
+  #[serde(default)]
+  pub name: String,
+  #[serde(default)]
+  pub url: String,
+  #[serde(default)]
+  pub key: String,
+  #[serde(default)]
+  pub model: String,
+  #[serde(default)]
+  pub auth: String,
+  #[serde(default)]
+  pub compact: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerAi {
+  #[serde(default)]
+  pub enabled: bool,
+  #[serde(default)]
+  pub default_profile: String,
+  #[serde(default)]
+  pub profiles: Vec<AiProfile>,
+  #[serde(default)]
+  pub daily_limit: Option<u32>,
+  #[serde(default)]
+  pub monthly_limit: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerIntegrations {
+  #[serde(default)]
+  pub token_encryption_key: String,
+  #[serde(default)]
+  pub qbo_client_id: String,
+  #[serde(default)]
+  pub qbo_client_secret: String,
+  #[serde(default)]
+  pub qbo_redirect_uri: String,
+  #[serde(default)]
+  pub qbo_env: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerSettings {
+  #[serde(default)]
+  pub store: InstallerStore,
+  #[serde(default)]
+  pub locale: InstallerLocale,
+  #[serde(default)]
+  pub ai: InstallerAi,
+  #[serde(default)]
+  pub integrations: InstallerIntegrations,
+  #[serde(default)]
+  pub applied: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RuntimeConfigDto {
+  pub store_name: String,
+  pub store_address: String,
+  pub default_language: String,
+  pub locale: String,
+  pub currency: String,
+  pub currency_symbol: String,
+  pub decimal_places: i32,
+  pub timezone: String,
+  pub date_format: String,
+  pub time_format: String,
+  pub has_installer_settings: bool,
+  pub applied: bool,
+}
+
+impl InstallerSettings {
+  pub fn to_runtime_dto(&self) -> RuntimeConfigDto {
+    RuntimeConfigDto {
+      store_name: self.store.store_name.clone(),
+      store_address: self.store.store_address.clone(),
+      default_language: self.locale.default_language.clone(),
+      locale: self.locale.locale.clone(),
+      currency: self.locale.currency.clone(),
+      currency_symbol: self.locale.currency_symbol.clone(),
+      decimal_places: self.locale.decimal_places,
+      timezone: self.locale.timezone.clone(),
+      date_format: self.locale.date_format.clone(),
+      time_format: self.locale.time_format.clone(),
+      has_installer_settings: true,
+      applied: self.applied,
     }
   }
 }
@@ -37,6 +199,10 @@ pub fn config_path(app_data: &Path) -> PathBuf {
   app_data.join("desktop-config.json")
 }
 
+pub fn installer_settings_path(app_data: &Path) -> PathBuf {
+  app_data.join("installer-settings.json")
+}
+
 pub fn setup_marker_path(app_data: &Path) -> PathBuf {
   app_data.join(".posr_setup_done")
 }
@@ -48,27 +214,39 @@ pub fn surreal_data_dir(app_data: &Path) -> PathBuf {
 pub fn load_or_create_config(app_data: &Path) -> Result<DesktopConfig, String> {
   fs::create_dir_all(app_data).map_err(|e| format!("create app data: {e}"))?;
   let path = config_path(app_data);
-  if path.exists() {
+  let mut cfg = if path.exists() {
     let raw = fs::read_to_string(&path).map_err(|e| format!("read config: {e}"))?;
-    let cfg: DesktopConfig =
+    let mut cfg: DesktopConfig =
       serde_json::from_str(&raw).map_err(|e| format!("parse config: {e}"))?;
-    return Ok(cfg);
+    cfg.ensure_secrets();
+    cfg
+  } else {
+    let mut cfg = DesktopConfig::generate();
+    if let Ok(root) = std::env::var("POSR_REPO_ROOT") {
+      let root = PathBuf::from(root);
+      if let Some(v) = crate::paths::load_dotenv_value(&root, "GATEWAY_JWT_SECRET") {
+        cfg.gateway_jwt_secret = v;
+      }
+      if let Some(v) = crate::paths::load_dotenv_value(&root, "SURREAL_USER") {
+        cfg.surreal_user = v;
+      }
+      if let Some(v) = crate::paths::load_dotenv_value(&root, "SURREAL_PASS") {
+        cfg.surreal_pass = v;
+      }
+      if let Some(v) = crate::paths::load_dotenv_value(&root, "INTEGRATION_TOKEN_ENCRYPTION_KEY") {
+        cfg.integration_token_encryption_key = v;
+      }
+    }
+    cfg
+  };
+
+  // Merge installer encryption key if present and config key empty/generated placeholder.
+  if let Ok(inst) = load_installer_settings(app_data) {
+    if !inst.integrations.token_encryption_key.trim().is_empty() {
+      cfg.integration_token_encryption_key = inst.integrations.token_encryption_key.trim().to_string();
+    }
   }
-  let cfg = DesktopConfig::generate();
-  // Prefer repo .env.local secrets when present (dev parity with Docker).
-  let mut cfg = cfg;
-  if let Ok(root) = std::env::var("POSR_REPO_ROOT") {
-    let root = PathBuf::from(root);
-    if let Some(v) = crate::paths::load_dotenv_value(&root, "GATEWAY_JWT_SECRET") {
-      cfg.gateway_jwt_secret = v;
-    }
-    if let Some(v) = crate::paths::load_dotenv_value(&root, "SURREAL_USER") {
-      cfg.surreal_user = v;
-    }
-    if let Some(v) = crate::paths::load_dotenv_value(&root, "SURREAL_PASS") {
-      cfg.surreal_pass = v;
-    }
-  }
+  cfg.ensure_secrets();
   save_config(app_data, &cfg)?;
   Ok(cfg)
 }
@@ -80,6 +258,43 @@ pub fn save_config(app_data: &Path, cfg: &DesktopConfig) -> Result<(), String> {
   fs::write(&path, raw).map_err(|e| format!("write config: {e}"))
 }
 
+pub fn load_installer_settings(app_data: &Path) -> Result<InstallerSettings, String> {
+  let path = installer_settings_path(app_data);
+  if !path.exists() {
+    return Err("installer-settings.json not found".into());
+  }
+  let raw = fs::read_to_string(&path).map_err(|e| format!("read installer-settings: {e}"))?;
+  serde_json::from_str(&raw).map_err(|e| format!("parse installer-settings: {e}"))
+}
+
+pub fn save_installer_settings(app_data: &Path, settings: &InstallerSettings) -> Result<(), String> {
+  fs::create_dir_all(app_data).map_err(|e| format!("create app data: {e}"))?;
+  let path = installer_settings_path(app_data);
+  let raw =
+    serde_json::to_string_pretty(settings).map_err(|e| format!("serialize installer-settings: {e}"))?;
+  fs::write(&path, raw).map_err(|e| format!("write installer-settings: {e}"))
+}
+
+pub fn runtime_config_dto(app_data: &Path) -> RuntimeConfigDto {
+  match load_installer_settings(app_data) {
+    Ok(s) => s.to_runtime_dto(),
+    Err(_) => RuntimeConfigDto {
+      store_name: String::new(),
+      store_address: String::new(),
+      default_language: default_language(),
+      locale: default_locale(),
+      currency: default_currency(),
+      currency_symbol: String::new(),
+      decimal_places: default_decimals(),
+      timezone: default_tz(),
+      date_format: default_date(),
+      time_format: default_time(),
+      has_installer_settings: false,
+      applied: false,
+    },
+  }
+}
+
 pub fn is_setup_complete(app_data: &Path) -> bool {
   setup_marker_path(app_data).exists()
 }
@@ -87,4 +302,14 @@ pub fn is_setup_complete(app_data: &Path) -> bool {
 pub fn mark_setup_complete(app_data: &Path) -> Result<(), String> {
   fs::create_dir_all(app_data).map_err(|e| format!("create app data: {e}"))?;
   fs::write(setup_marker_path(app_data), b"1").map_err(|e| format!("write setup marker: {e}"))
+}
+
+/// Mark installer settings applied after schema import / setup.
+pub fn mark_installer_applied(app_data: &Path) -> Result<(), String> {
+  let mut settings = load_installer_settings(app_data).unwrap_or_default();
+  settings.applied = true;
+  if settings.integrations.token_encryption_key.trim().is_empty() {
+    // keep desktop-config key
+  }
+  save_installer_settings(app_data, &settings)
 }

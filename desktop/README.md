@@ -12,7 +12,21 @@ Native shell around the Vite React app that **starts the full Docker-parity stac
 | API | `3140` |
 | Sync | `3136` |
 
-First launch opens **Desktop database setup** so you can import any `.surql` file (schema, demo, or later patches). Nothing is auto-seeded.
+First launch opens **Desktop database setup** so you can import any `.surql` file (schema, demo, or patches). Nothing is auto-seeded.
+
+## Ops UX (logs, tray, installer config)
+
+- **No console windows** for Surreal/Node on Windows (`CREATE_NO_WINDOW` + piped stdio).
+- **Unified logs** under app data `logs/sidecars.log` + in-app viewer at `/desktop-logs` (also tray → Open logs folder).
+- **System tray** shows Surreal / Gateway / Print / Payment / Tracking / API / Sync status (Windows/macOS by default; Linux needs `libayatana-appindicator3-dev` — build auto-enables `--features tray` when pkg-config finds it).
+- **Installer settings** (`installer-settings.json` in app data): store name, locale, currency, decimals, timezone, optional AI profiles, integration encryption key.
+  - Windows: NSIS post-install runs `configure-posr.ps1` (WinForms wizard).
+  - Linux: `posr-desktop-configure` (zenity) shipped in app resources; `.deb` runs `linux/postinst.sh` after install when a display is available.
+  - macOS: `macos/configure-posr.sh` (osascript).
+- Sidecar binaries are named `posr-node` / `posr-surreal` (not `node` / `surreal`) so `.deb` install does not overwrite `/usr/bin/node`.
+- Linux packages build **deb + AppImage** only (RPM skipped — often hangs without full rpm tooling).
+- Service URLs stay `127.0.0.1` (baked at frontend build). Locale/currency use a **runtime config bridge** on desktop.
+- Code signing / SmartScreen is still out of scope; prefer Windows 10/11 for support.
 
 ## Prerequisites
 
@@ -62,7 +76,8 @@ On first run: import `migrations/latest.surql`, then optionally `migrations/demo
 
 ```bash
 bun run desktop:prepare          # binaries + sidecar trees with node_modules
-bun run desktop:build            # Linux deb/AppImage (etc.)
+bun run desktop:build            # Linux .deb (default; skips RPM)
+bun run desktop:build:linux      # Linux deb + AppImage
 bun run desktop:build:windows    # on Windows → NSIS setup.exe
 ```
 

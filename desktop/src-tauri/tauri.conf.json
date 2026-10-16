@@ -40,12 +40,17 @@
       "icons/icon.ico"
     ],
     "externalBin": [
-      "binaries/node",
-      "binaries/surreal"
+      "binaries/posr-node",
+      "binaries/posr-surreal"
     ],
     "resources": [
       "resources/sidecars/**/*",
-      "resources/migrations/**/*"
+      "resources/migrations/**/*",
+      "windows/configure-posr.ps1",
+      "windows/installer-settings.template.json",
+      "linux/posr-desktop-configure.sh",
+      "linux/installer-settings.template.json",
+      "macos/configure-posr.sh"
     ],
     "windows": {
       "webviewInstallMode": {
@@ -54,7 +59,13 @@
       },
       "nsis": {
         "installMode": "currentUser",
-        "displayLanguageSelector": false
+        "displayLanguageSelector": false,
+        "installerHooks": "./windows/hooks.nsh"
+      }
+    },
+    "linux": {
+      "deb": {
+        "postInstallScript": "linux/postinst.sh"
       }
     }
   },

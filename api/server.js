@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 // Layered env loading: committed `.env` holds non-secret defaults; local
 // `.env.local` (gitignored) holds real credentials and overrides `.env`.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
+// Process env (Tauri supervisor) must win over any packaged .env.local.
+dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: false });
 
 /**
  * Expand ${VAR} references in process.env (dotenv does not do this by itself).

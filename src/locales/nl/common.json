@@ -286,6 +286,24 @@
     "samplesPath": "Voorbeeldmigratiemap",
     "samplesFailed": "Migratiemap niet gevonden",
     "settingsTitle": "SurrealQL importeren",
-    "settingsHelp": "Pas schema-updates of demogegevens toe door .surql-bestanden te importeren in lokale SurrealDB."
+    "settingsHelp": "Pas schema-updates of demogegevens toe door .surql-bestanden te importeren in lokale SurrealDB.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Desktoplogboeken",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Open desktoplogboeken (gateway) voor details.",
+    "openLink": "Desktoplogboeken openen",
+    "installerSummary": "Installer settings"
   }
 }

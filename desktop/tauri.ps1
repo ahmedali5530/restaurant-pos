@@ -22,4 +22,20 @@ if (-not $env:POSR_REPO_ROOT) {
   $env:POSR_REPO_ROOT = (Resolve-Path (Join-Path $Root "..")).Path
 }
 
-bunx tauri @args
+# Always enable tray on Windows (no AppIndicator requirement).
+$tauriArgs = @($args)
+if ($tauriArgs.Count -gt 0 -and ($tauriArgs[0] -eq "build" -or $tauriArgs[0] -eq "dev")) {
+  $hasFeatures = $false
+  foreach ($a in $tauriArgs) {
+    if ($a -eq "--features" -or "$a".StartsWith("features=")) { $hasFeatures = $true }
+  }
+  if (-not $hasFeatures) {
+    $rest = @()
+    if ($tauriArgs.Count -gt 1) {
+      $rest = $tauriArgs[1..($tauriArgs.Count - 1)]
+    }
+    $tauriArgs = @($tauriArgs[0], "--features", "tray") + $rest
+  }
+}
+
+bunx tauri @tauriArgs

@@ -286,6 +286,24 @@
     "samplesPath": "Örnek migrasyon klasörü",
     "samplesFailed": "Migrasyon klasörü bulunamadı",
     "settingsTitle": "SurrealQL içe aktar",
-    "settingsHelp": ".surql dosyalarını yerel SurrealDB’ye aktararak şema güncellemeleri veya demo veri uygulayın."
+    "settingsHelp": ".surql dosyalarını yerel SurrealDB’ye aktararak şema güncellemeleri veya demo veri uygulayın.",
+    "installerSummary": "Installer settings",
+    "viewLogs": "View logs"
+  },
+  "desktopLogs": {
+    "title": "Masaüstü günlükleri",
+    "desktopOnly": "Desktop logs are only available in the POSR Desktop app.",
+    "refresh": "Refresh",
+    "openFolder": "Open folder",
+    "clear": "Clear",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "empty": "No log lines yet.",
+    "refreshFailed": "Could not refresh logs",
+    "openFailed": "Could not open logs folder",
+    "clearBody": "Clear the in-memory log view? Files on disk are kept.",
+    "loginHint": "Ayrıntılar için masaüstü günlüklerini (gateway) açın.",
+    "openLink": "Masaüstü günlüklerini aç",
+    "installerSummary": "Installer settings"
   }
 }

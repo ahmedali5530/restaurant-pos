@@ -1,4 +1,4 @@
-//! SurrealQL import + desktop status Tauri commands.
+//! SurrealQL import + desktop status / logs / runtime config Tauri commands.
 
 use std::path::PathBuf;
 use std::process::Command;
@@ -6,9 +6,16 @@ use std::process::Command;
 use serde::Serialize;
 use tauri::{AppHandle, Manager, State};
 
-use crate::config;
+use crate::config::{self, RuntimeConfigDto};
+use crate::logging;
 use crate::paths;
-use crate::sidecars::SidecarSupervisor;
+use crate::sidecars::{ServiceStatusDto, SidecarSupervisor};
+
+#[cfg(windows)]
+use std::os::windows::process::CommandExt;
+
+#[cfg(windows)]
+const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -68,7 +75,6 @@ pub fn desktop_status(
   let setup_complete = config::is_setup_complete(&app_data);
   let surreal_ready = tcp_up("127.0.0.1:8000");
   let gateway_ready = health_ok("127.0.0.1:3142", "posr-gateway");
-  // Needs setup until the operator marks complete after at least one import path.
   let needs_setup = !setup_complete;
   let _ = app;
   Ok(DesktopStatus {
@@ -83,6 +89,7 @@ pub fn desktop_status(
 
 #[tauri::command]
 pub fn mark_setup_complete(supervisor: State<'_, SidecarSupervisor>) -> Result<(), String> {
+  let _ = config::mark_installer_applied(&supervisor.app_data);
   config::mark_setup_complete(&supervisor.app_data)
 }
 
@@ -126,26 +133,29 @@ pub fn import_surql(
       });
     }
 
-    eprintln!(
-      "[posr-desktop] importing {} via {}",
-      path.display(),
-      surreal.display()
-    );
-    let output = Command::new(&surreal)
-      .args([
-        "import",
-        "--endpoint",
-        "http://127.0.0.1:8000",
-        "--username",
-        &cfg.surreal_user,
-        "--password",
-        &cfg.surreal_pass,
-        "--namespace",
-        &cfg.surreal_ns,
-        "--database",
-        &cfg.surreal_db,
-      ])
-      .arg(&path)
+    supervisor
+      .log_hub
+      .shell(&format!("importing {}", path.display()));
+    let mut cmd = Command::new(&surreal);
+    cmd.args([
+      "import",
+      "--endpoint",
+      "http://127.0.0.1:8000",
+      "--username",
+      &cfg.surreal_user,
+      "--password",
+      &cfg.surreal_pass,
+      "--namespace",
+      &cfg.surreal_ns,
+      "--database",
+      &cfg.surreal_db,
+    ])
+    .arg(&path);
+    #[cfg(windows)]
+    {
+      cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    let output = cmd
       .output()
       .map_err(|e| format!("failed to run surreal import: {e}"))?;
 
@@ -165,6 +175,8 @@ pub fn import_surql(
     }
     imported.push(path.display().to_string());
   }
+
+  let _ = config::mark_installer_applied(&supervisor.app_data);
 
   Ok(ImportResult {
     ok: true,
@@ -194,7 +206,6 @@ pub async fn pick_surql_files(app: AppHandle) -> Result<Vec<String>, String> {
 
 #[tauri::command]
 pub fn open_migrations_folder(app: AppHandle) -> Result<String, String> {
-  // Prefer packaged samples, then repo migrations/
   if let Ok(resource) = app.path().resource_dir() {
     let p = resource.join("migrations");
     if p.is_dir() {
@@ -208,4 +219,43 @@ pub fn open_migrations_folder(app: AppHandle) -> Result<String, String> {
     }
   }
   Err("migrations folder not found".into())
+}
+
+#[tauri::command]
+pub fn get_service_status(
+  supervisor: State<'_, SidecarSupervisor>,
+) -> Result<Vec<ServiceStatusDto>, String> {
+  supervisor.refresh_health();
+  Ok(supervisor.snapshot_statuses())
+}
+
+#[tauri::command]
+pub fn get_log_tail(
+  supervisor: State<'_, SidecarSupervisor>,
+  source: Option<String>,
+  lines: Option<usize>,
+) -> Result<Vec<String>, String> {
+  let max = lines.unwrap_or(500).clamp(50, 5000);
+  Ok(supervisor.log_hub.tail(source.as_deref(), max))
+}
+
+#[tauri::command]
+pub fn open_logs_dir(supervisor: State<'_, SidecarSupervisor>) -> Result<String, String> {
+  let dir = supervisor.log_hub.logs_dir();
+  std::fs::create_dir_all(&dir).map_err(|e| format!("logs dir: {e}"))?;
+  logging::open_logs_dir(&dir)?;
+  Ok(dir.display().to_string())
+}
+
+#[tauri::command]
+pub fn clear_logs(supervisor: State<'_, SidecarSupervisor>) -> Result<(), String> {
+  supervisor.log_hub.clear_ring();
+  Ok(())
+}
+
+#[tauri::command]
+pub fn get_runtime_config(
+  supervisor: State<'_, SidecarSupervisor>,
+) -> Result<RuntimeConfigDto, String> {
+  Ok(config::runtime_config_dto(&supervisor.app_data))
 }

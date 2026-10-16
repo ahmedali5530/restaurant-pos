@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node ./run-tauri.mjs dev",
-    "build": "node ./run-tauri.mjs build",
+    "build": "node ./run-tauri.mjs build --bundles deb",
+    "build:linux": "node ./run-tauri.mjs build --bundles deb,appimage",
     "build:windows": "node ./run-tauri.mjs build --bundles nsis",
     "prepare:sidecars": "bash ./scripts/prepare-sidecars.sh",
     "tauri": "node ./run-tauri.mjs"

@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/common/input/button.tsx';
 import { DocumentTitle } from '@/components/common/document-title.tsx';
-import { LOGIN } from '@/routes/posr.ts';
+import { LOGIN, DESKTOP_LOGS } from '@/routes/posr.ts';
 import {
   getDesktopStatus,
   importSurqlFiles,
@@ -18,6 +18,7 @@ import {
   pickSurqlFiles,
   type DesktopStatus,
 } from '@/lib/desktop.ts';
+import { hydrateRuntimeConfig, getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
 import { toast } from 'sonner';
 
 export const DesktopSetup = () => {
@@ -27,6 +28,7 @@ export const DesktopSetup = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<string[]>([]);
+  const [installerSummary, setInstallerSummary] = useState<string>('');
 
   const refresh = useCallback(async () => {
     if (!isTauriDesktop()) {
@@ -36,6 +38,21 @@ export const DesktopSetup = () => {
     try {
       const s = await getDesktopStatus();
       setStatus(s);
+      await hydrateRuntimeConfig();
+      const cfg = getCachedRuntimeConfig();
+      if (cfg?.hasInstallerSettings) {
+        setInstallerSummary(
+          [
+            cfg.storeName,
+            cfg.locale,
+            cfg.currency,
+            `decimals=${cfg.decimalPlaces}`,
+            cfg.timezone,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+        );
+      }
     } catch (err: any) {
       toast.error(err?.message || t('desktopSetup.statusFailed'));
     }
@@ -116,6 +133,18 @@ export const DesktopSetup = () => {
           <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
             {t('desktopSetup.subtitle')}
           </p>
+          {installerSummary ? (
+            <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300">
+              {t('desktopSetup.installerSummary')}: {installerSummary}
+            </p>
+          ) : null}
+          <button
+            type="button"
+            className="mt-2 text-sm underline text-primary-700"
+            onClick={() => navigate(DESKTOP_LOGS)}
+          >
+            {t('desktopSetup.viewLogs')}
+          </button>
         </div>
 
         <div className="grid grid-cols-2 gap-3 text-sm">

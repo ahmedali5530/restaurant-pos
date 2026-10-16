@@ -15,6 +15,11 @@ export type ImportSurqlResult = {
   error?: string | null;
 };
 
+export type ServiceStatus = {
+  name: string;
+  status: string;
+};
+
 export function isTauriDesktop(): boolean {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 }
@@ -39,4 +44,22 @@ export async function markDesktopSetupComplete(): Promise<void> {
 
 export async function openMigrationsFolder(): Promise<string> {
   return invoke<string>('open_migrations_folder');
+}
+
+export async function getServiceStatus(): Promise<ServiceStatus[]> {
+  if (!isTauriDesktop()) return [];
+  return invoke<ServiceStatus[]>('get_service_status');
+}
+
+export async function getLogTail(source?: string, lines = 500): Promise<string[]> {
+  if (!isTauriDesktop()) return [];
+  return invoke<string[]>('get_log_tail', { source: source || null, lines });
+}
+
+export async function openLogsDir(): Promise<string> {
+  return invoke<string>('open_logs_dir');
+}
+
+export async function clearDesktopLogs(): Promise<void> {
+  await invoke('clear_logs');
 }

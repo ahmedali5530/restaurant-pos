@@ -129,6 +129,16 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-09-21',
+    title: 'Desktop logs, tray, and installer setup',
+    items: [
+      'POSR Desktop hides sidecar console windows on Windows and writes unified logs under app data (view them at Desktop logs or from the tray).',
+      'The system tray shows live status for Surreal, gateway, print, payment, tracking, API, and sync.',
+      'Windows/Linux/macOS installers can collect store, locale, currency, AI profiles, and integration secrets into installer-settings.json; the app applies them at runtime without rebuilding Vite URLs.',
+      'Login failures show gateway error details and a link to Desktop logs; sidecar env injection no longer gets overwritten by packaged .env.local files.',
+    ],
+  },
+  {
     date: '2026-09-20',
     title: 'Desktop offline shell (Tauri)',
     items: [
