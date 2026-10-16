@@ -32,6 +32,7 @@ import {
   type GatewayLoginResponse,
 } from "@/lib/session.ts";
 import { fetchLoginBrandLogo } from "@/lib/branding.ts";
+import { LoginAurora } from "@/screens/login-aurora.tsx";
 
 const TIME_ENTRY_CHECK_RETRIES = 3;
 const TIME_ENTRY_RETRY_DELAY_MS = 400;
@@ -425,7 +426,8 @@ export const Login = () => {
             data-testid="login-posr-logo"
           />
         </aside>
-        <div className="relative flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
+        <div className="relative isolate flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
+          <LoginAurora />
           <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
           <div className="flex gap-3">
             <button
@@ -536,10 +538,6 @@ export const Login = () => {
               <Button type="submit" variant="primary" data-testid="login-submit">{t('login.submit')}</Button>
             </form>
           )}
-          <div className="size-[100px] bg-warning/10 absolute top-10 right-[30%] rounded-full pointer-events-none transition-all blur-lg"></div>
-          <div className="size-[200px] bg-primary/10 animate-bounce absolute top-20 left-[20%] rounded-full pointer-events-none transition-all blur-2xl"></div>
-          <div className="size-[200px] bg-surface-elevated/20 absolute bottom-[100px] transition-all right-24 pointer-events-none rotate-45 blur-2xl"></div>
-          <div className="size-[200px] bg-[tomato]/20 absolute bottom-[30%] transition-all left-[150px] pointer-events-none blur-2xl"></div>
         </div>
       </div>
 
