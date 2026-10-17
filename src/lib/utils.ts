@@ -2,8 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import {RecordId, StringRecordId} from "surrealdb";
 import { getShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
-
-const DECIMAL_PLACES = import.meta.env.VITE_DECIMAL_PLACES;
+import { runtimeCurrency, runtimeDecimalPlaces, runtimeLocale } from "@/lib/runtime-config.ts";
 
 type RecordIdInput = {
   id: unknown;
@@ -43,20 +42,22 @@ const isValidCurrencyCode = (code: string): boolean => {
 };
 
 // Almost everything in this app (orders, receipts, reports) is in the
-// restaurant's single operating currency, so `currency` defaults to
-// VITE_CURRENCY. Pass an override only where an amount was computed in a
-// different currency on its own record — e.g. a payroll snapshot frozen from
-// a pay profile explicitly set to a different currency than the store's.
+// restaurant's single operating currency, so `currency` defaults to the
+// runtime currency (installer settings on desktop, otherwise VITE_CURRENCY).
+// Pass an override only where an amount was computed in a different currency
+// on its own record — e.g. a payroll snapshot frozen from a pay profile
+// explicitly set to a different currency than the store's.
 export const withCurrency = (
   amount: string | number | undefined,
-  decimalPlaces = DECIMAL_PLACES,
-  currency: string = import.meta.env.VITE_CURRENCY,
+  decimalPlaces = runtimeDecimalPlaces(),
+  currency: string = runtimeCurrency(),
 ) => {
   const showSymbol = getShowCurrencySymbolInUi();
-  const requested = (currency || import.meta.env.VITE_CURRENCY || "USD").toUpperCase();
-  // Fall back to a known-valid code. Falling back to VITE_CURRENCY would
-  // re-select the invalid value that triggered the fallback in the first place,
-  // and Intl.NumberFormat throws on an unknown currency.
+  const locale = runtimeLocale();
+  const requested = (currency || runtimeCurrency() || "USD").toUpperCase();
+  // Fall back to a known-valid code. Falling back to the configured currency
+  // would re-select the invalid value that triggered the fallback in the first
+  // place, and Intl.NumberFormat throws on an unknown currency.
   const safeCurrency = isValidCurrencyCode(requested) ? requested : "USD";
 
   if (amount === undefined) {
@@ -65,7 +66,7 @@ export const withCurrency = (
     }
     //just return currency symbol
     return (0)
-      .toLocaleString(import.meta.env.VITE_LOCALE, {
+      .toLocaleString(locale, {
         style: "currency",
         currency: safeCurrency,
         minimumFractionDigits: 0,
@@ -76,13 +77,13 @@ export const withCurrency = (
   }
 
   if (!showSymbol) {
-    return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+    return new Intl.NumberFormat(locale, {
       minimumFractionDigits: decimalPlaces,
       maximumFractionDigits: decimalPlaces,
     }).format(Number(amount));
   }
 
-  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+  return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: safeCurrency,
     minimumFractionDigits: decimalPlaces,
@@ -90,8 +91,8 @@ export const withCurrency = (
   }).format(Number(amount));
 };
 
-export const formatNumber = (amount: string | number, decimalPlaces = DECIMAL_PLACES) => {
-  return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
+export const formatNumber = (amount: string | number, decimalPlaces = runtimeDecimalPlaces()) => {
+  return new Intl.NumberFormat(runtimeLocale(), {
     maximumFractionDigits: decimalPlaces,
     useGrouping: false
   }).format(Number(amount));

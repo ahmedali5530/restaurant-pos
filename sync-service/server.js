@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 // `.env` holds defaults; `.env.local` (gitignored) holds real values and overrides `.env`.
 // Do not use override against process.env so Docker Compose injected vars still win.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
+// Process env (Tauri supervisor) must win over any packaged .env.local.
+dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: false });
 
 const express = require('express');
 const { loadConfig } = require('./src/config');

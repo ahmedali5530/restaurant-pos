@@ -78,7 +78,17 @@ function ThemedToaster() {
 
 function App() {
   useEffect(() => {
-    // initializePrintTemplates();
+    void (async () => {
+      const { hydrateRuntimeConfig, runtimeDefaultLanguage } = await import('@/lib/runtime-config.ts');
+      const cfg = await hydrateRuntimeConfig();
+      if (cfg?.defaultLanguage) {
+        const { default: i18n } = await import('@/lib/i18n.ts');
+        const lang = runtimeDefaultLanguage();
+        if (lang && i18n.language !== lang) {
+          await i18n.changeLanguage(lang);
+        }
+      }
+    })();
   }, []);
 
   return (

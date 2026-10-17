@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-17',
+    title: 'Desktop gateway on the LAN',
+    items: [
+      'POSR Desktop listens for the auth gateway on every network interface (port 3142) so phones and other apps on the same LAN can connect. Surreal and the other sidecars stay on this computer only.',
+      'The Windows installer finds the packaged gateway and other sidecars under resources, instead of looking next to the exe and reporting gateway/ not found.',
+      'POSR Desktop applies database schema the same way Docker does: a new database gets the baseline, and later launches only run migrations that are not already recorded.',
+    ],
+  },
+  {
     date: '2026-10-11',
     title: 'Login branding',
     items: [
@@ -126,6 +135,25 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Schema catch-up for terminal sync',
     items: [
       'Fresh installs and production migrations now include PosStore sync tables, order ownership/version fields, the delivery menu function, and related security/accounting schema that was missing from the latest dump.',
+    ],
+  },
+  {
+    date: '2026-09-21',
+    title: 'Desktop logs, tray, and installer setup',
+    items: [
+      'POSR Desktop hides sidecar console windows on Windows and writes unified logs under app data (view them at Desktop logs or from the tray).',
+      'The system tray shows live status for Surreal, gateway, print, payment, tracking, API, and sync.',
+      'Windows/Linux/macOS installers can collect store, locale, currency, AI profiles, and integration secrets into installer-settings.json; the app applies them at runtime without rebuilding Vite URLs.',
+      'Login failures show gateway error details and a link to Desktop logs; sidecar env injection no longer gets overwritten by packaged .env.local files.',
+    ],
+  },
+  {
+    date: '2026-09-20',
+    title: 'Desktop offline shell (Tauri)',
+    items: [
+      'POSR Desktop can run without Docker: SurrealDB, gateway, print, payment, tracking, API, and sync start as local sidecars inside the Tauri app.',
+      'First-run setup lets you import any .surql file (full schema, demo data, or patches). Settings → Import SurrealQL can apply updates later.',
+      'Linux and Windows installers can package Node + Surreal binaries and service trees (see desktop/README.md).',
     ],
   },
   {
