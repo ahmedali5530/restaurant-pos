@@ -262,7 +262,7 @@
   },
   "desktopSetup": {
     "title": "Configurazione database desktop",
-    "subtitle": "Importa un file SurrealQL (.surql) — schema completo, dati demo o aggiornamento. Puoi importare più file in sequenza.",
+    "subtitle": "Gli aggiornamenti dello schema vengono applicati automaticamente quando questa app avvia il proprio database. Usa questa schermata per importare un file .surql aggiuntivo (dati demo o una patch) se non è successo.",
     "surreal": "SurrealDB",
     "gateway": "Gateway",
     "ready": "Pronto",

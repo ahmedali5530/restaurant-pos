@@ -61,5 +61,10 @@ foreach ($svc in $services) {
   }
 }
 
-Copy-Item (Join-Path $Root "migrations/*.surql") (Join-Path $ResDir "migrations") -ErrorAction SilentlyContinue
+$migDir = Join-Path $ResDir "migrations"
+$migScripts = Join-Path $migDir "scripts"
+New-Item -ItemType Directory -Force -Path $migScripts | Out-Null
+Copy-Item (Join-Path $Root "migrations/*.surql") $migDir -ErrorAction SilentlyContinue
+Copy-Item (Join-Path $Root "migrations/scripts/*.cjs") $migScripts -ErrorAction SilentlyContinue
+Copy-Item (Join-Path $Root "migrations/scripts/*.js") $migScripts -ErrorAction SilentlyContinue
 Write-Host "Done (triple=$Triple)"

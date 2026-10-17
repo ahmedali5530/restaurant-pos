@@ -12,7 +12,7 @@ Native shell around the Vite React app that **starts the full Docker-parity stac
 | API | `3140` |
 | Sync | `3136` |
 
-First launch opens **Desktop database setup** so you can import any `.surql` file (schema, demo, or patches). Nothing is auto-seeded.
+When the app starts its own SurrealDB, it runs `migrations/scripts/run-prod-migrations.cjs` (the same runner as Docker Compose `migrate`): an empty database gets `latest.surql`, then only pending migrations are applied. Demo data is not seeded. If Surreal is already running on port 8000, migrations are skipped. `POSR_SKIP_MIGRATIONS=1` skips them too. The database setup screen remains for an extra `.surql` import when automatic setup did not finish.
 
 ## Ops UX (logs, tray, installer config)
 
@@ -63,7 +63,7 @@ export POSR_REPO_ROOT="$(pwd)"
 bun run desktop:dev
 ```
 
-On first run: import `migrations/latest.surql`, then optionally `migrations/demo-data.surql`, then **Finish setup**.
+On first run the schema is applied automatically. Optional demo data can be imported later from settings (`migrations/demo-data.surql`).
 
 ### USB printing (host Node)
 
@@ -92,6 +92,7 @@ App data (DB + `desktop-config.json`): platform app-data dir for `com.posr.deskt
 - `POSR_APP_DATA` — override Surreal data / config directory  
 - `NODE_BINARY` / `SURREAL_BINARY` — force binary paths  
 - `POSR_USE_EXTERNAL_SERVICES=1` — do not spawn sidecars (use Docker/existing)  
+- `POSR_SKIP_MIGRATIONS=1` — do not run schema migrations after Surreal starts  
 - `GATEWAY_ALLOWED_ORIGINS` — CORS allow-list for all Node sidecars  
 
 ## Windows
@@ -109,6 +110,5 @@ On branch `feature/tauri-mvp` (or any branch with this workflow):
 ## Out of scope (later)
 
 - Code signing / notarization  
-- Auto `run-prod-migrations.cjs`  
 - Bundled payment webhook public URL  
 - Mobile / Terminal-only SKU  

@@ -262,7 +262,7 @@
   },
   "desktopSetup": {
     "title": "Desktop-database instellen",
-    "subtitle": "Importeer een SurrealQL-bestand (.surql) — volledig schema, demogegevens of een update. Meerdere bestanden na elkaar mogelijk.",
+    "subtitle": "Schema-updates worden automatisch toegepast wanneer deze app zijn eigen database start. Gebruik dit scherm om een extra .surql-bestand (demogegevens of een patch) te importeren als dat niet is gebeurd.",
     "surreal": "SurrealDB",
     "gateway": "Gateway",
     "ready": "Gereed",

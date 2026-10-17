@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-17',
+    title: 'Desktop gateway on the LAN',
+    items: [
+      'POSR Desktop listens for the auth gateway on every network interface (port 3142) so phones and other apps on the same LAN can connect. Surreal and the other sidecars stay on this computer only.',
+      'The Windows installer finds the packaged gateway and other sidecars under resources, instead of looking next to the exe and reporting gateway/ not found.',
+      'POSR Desktop applies database schema the same way Docker does: a new database gets the baseline, and later launches only run migrations that are not already recorded.',
+    ],
+  },
+  {
     date: '2026-10-11',
     title: 'Login branding',
     items: [

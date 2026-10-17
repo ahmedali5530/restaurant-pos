@@ -191,8 +191,8 @@ for svc in "${SERVICES[@]}"; do
   fi
 done
 
-# Sample migrations (not auto-applied)
-rsync -a --include='*/' --include='*.surql' --exclude='*' \
+# Schema files + runner. The desktop shell applies these on startup.
+rsync -a --include='*/' --include='*.surql' --include='*.cjs' --include='*.js' --exclude='*' \
   "$ROOT/migrations/" "$RES_DIR/migrations/" || true
 # Keep demos + latest at top level for discoverability
 for f in latest.surql demo-data.surql; do

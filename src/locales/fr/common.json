@@ -262,7 +262,7 @@
   },
   "desktopSetup": {
     "title": "Configuration de la base desktop",
-    "subtitle": "Importez un fichier SurrealQL (.surql) — schéma complet, données de démo ou correctif. Vous pouvez importer plusieurs fichiers dans l’ordre.",
+    "subtitle": "Les mises à jour de schéma s’appliquent automatiquement lorsque cette application démarre sa propre base. Utilisez cet écran pour importer un fichier .surql supplémentaire (données de démo ou correctif) si cela n’a pas eu lieu.",
     "surreal": "SurrealDB",
     "gateway": "Passerelle",
     "ready": "Prêt",

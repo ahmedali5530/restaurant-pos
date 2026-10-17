@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/input/button.tsx';
+import { LOGIN } from '@/routes/posr.ts';
 import {
   clearDesktopLogs,
   getLogTail,
@@ -15,6 +17,7 @@ const SOURCES = ['all', 'shell', 'surreal', 'gateway', 'print', 'payment', 'trac
 
 export const DesktopLogs = () => {
   const { t } = useTranslation('common');
+  const navigation = useNavigate();
   const [source, setSource] = useState<(typeof SOURCES)[number]>('all');
   const [lines, setLines] = useState<string[]>([]);
   const [statuses, setStatuses] = useState<ServiceStatus[]>([]);
@@ -59,6 +62,21 @@ export const DesktopLogs = () => {
           {t('desktopLogs.title', { defaultValue: 'Desktop logs' })}
         </h2>
         <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+              if (idx > 0) {
+                navigation(-1);
+              } else {
+                navigation(LOGIN);
+              }
+            }}
+          >
+            {t('actions.back')}
+          </Button>
           <Button type="button" size="sm" variant="secondary" onClick={() => void refresh()} disabled={loading}>
             {t('desktopLogs.refresh', { defaultValue: 'Refresh' })}
           </Button>

@@ -10,7 +10,7 @@ use std::thread;
 use std::time::Duration;
 
 use serde::Serialize;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
@@ -328,8 +328,20 @@ fn spawn_node_service(
   extra_env: &[(&str, &str)],
   hub: &LogHub,
 ) -> Result<Child, String> {
-  let dir = paths::resolve_service_dir(Some(app), service_folder)
-    .ok_or_else(|| format!("{service_folder}/ not found (set POSR_REPO_ROOT or package resources)"))?;
+  let dir = paths::resolve_service_dir(Some(app), service_folder).ok_or_else(|| {
+    let resource = app
+      .path()
+      .resource_dir()
+      .map(|p| p.display().to_string())
+      .unwrap_or_else(|_| "(unavailable)".into());
+    let exe = std::env::current_exe()
+      .ok()
+      .and_then(|p| p.parent().map(|d| d.display().to_string()))
+      .unwrap_or_else(|| "(unavailable)".into());
+    format!(
+      "{service_folder}/ not found (looked under resource_dir={resource} and exe_dir={exe}; expected resources/sidecars/{service_folder})"
+    )
+  })?;
   let node = paths::resolve_node_bin(Some(app));
   let server_js = dir.join("server.js");
   if !server_js.exists() {
@@ -362,6 +374,118 @@ fn spawn_node_service(
     .map_err(|e| format!("spawn {label} ({}): {e}", node.display()))
 }
 
+fn skip_migrations() -> bool {
+  matches!(
+    std::env::var("POSR_SKIP_MIGRATIONS")
+      .ok()
+      .as_deref()
+      .map(str::trim)
+      .map(str::to_ascii_lowercase),
+    Some(v) if v == "1" || v == "true" || v == "yes" || v == "on"
+  )
+}
+
+fn node_path_with(modules: &Path) -> String {
+  let mut paths = vec![modules.to_path_buf()];
+  if let Some(existing) = std::env::var_os("NODE_PATH") {
+    paths.extend(std::env::split_paths(&existing));
+  }
+  std::env::join_paths(&paths)
+    .map(|s| s.to_string_lossy().into_owned())
+    .unwrap_or_else(|_| modules.display().to_string())
+}
+
+fn log_bytes(hub: &LogHub, source: &str, bytes: &[u8]) {
+  let text = String::from_utf8_lossy(bytes);
+  for line in text.lines() {
+    hub.append(source, line);
+  }
+}
+
+/// Same runner as Docker Compose `migrate`: baseline `latest.surql` on an empty
+/// database, then pending files tracked in `_schema_migration`.
+fn run_schema_migrations(app: &AppHandle, cfg: &DesktopConfig, app_data: &Path, hub: &LogHub) {
+  if skip_migrations() {
+    hub.shell("POSR_SKIP_MIGRATIONS set — not applying schema");
+    return;
+  }
+  let Some(script) = paths::resolve_migration_runner(Some(app)) else {
+    hub.shell("schema migrations skipped — run-prod-migrations.cjs not found");
+    return;
+  };
+  let Some(migrations_dir) = script.parent().and_then(|p| p.parent()) else {
+    hub.shell("schema migrations skipped — could not resolve migrations directory");
+    return;
+  };
+  let Some(payments) = paths::resolve_service_dir(Some(app), "payments") else {
+    hub.shell("schema migrations skipped — payments/ not found (needed for surrealdb)");
+    return;
+  };
+  let modules = payments.join("node_modules");
+  if !modules.join("surrealdb").is_dir() || !modules.join("ws").is_dir() {
+    hub.shell(&format!(
+      "schema migrations skipped — surrealdb/ws missing in {}",
+      modules.display()
+    ));
+    return;
+  }
+
+  let node = paths::resolve_node_bin(Some(app));
+  hub.shell(&format!(
+    "applying schema migrations: {} {}",
+    node.display(),
+    script.display()
+  ));
+
+  let mut cmd = Command::new(&node);
+  cmd
+    .arg(&script)
+    .current_dir(migrations_dir)
+    .env("SURREAL_URL", "ws://127.0.0.1:8000/rpc")
+    .env("SURREAL_NS", &cfg.surreal_ns)
+    .env("SURREAL_DB", &cfg.surreal_db)
+    .env("SURREAL_USER", &cfg.surreal_user)
+    .env("SURREAL_PASS", &cfg.surreal_pass)
+    .env("MIGRATIONS_DIR", migrations_dir)
+    .env("PAYMENTS_ROOT", &payments)
+    .env("NODE_PATH", node_path_with(&modules))
+    .env(
+      "INTEGRATION_TOKEN_ENCRYPTION_KEY",
+      &cfg.integration_token_encryption_key,
+    )
+    .env(
+      "PAYMENT_CREDENTIAL_ENCRYPTION_KEY",
+      &cfg.integration_token_encryption_key,
+    )
+    .stdin(Stdio::null())
+    .stdout(Stdio::piped())
+    .stderr(Stdio::piped());
+  configure_no_window(&mut cmd);
+
+  match cmd.output() {
+    Ok(output) => {
+      log_bytes(hub, "migrate", &output.stdout);
+      log_bytes(hub, "migrate", &output.stderr);
+      if output.status.success() {
+        match config::mark_setup_complete(app_data) {
+          Ok(()) => hub.shell("schema migrations finished"),
+          Err(err) => hub.shell(&format!("schema migrations finished; setup marker failed: {err}")),
+        }
+      } else {
+        let code = output
+          .status
+          .code()
+          .map(|c| c.to_string())
+          .unwrap_or_else(|| "signal".into());
+        hub.shell(&format!(
+          "schema migrations failed (exit {code}) — database setup screen will stay available"
+        ));
+      }
+    }
+    Err(err) => hub.shell(&format!("schema migrations failed to start: {err}")),
+  }
+}
+
 pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
   let app_data = paths::resolve_app_data(app)?;
   let cfg = config::load_or_create_config(&app_data)?;
@@ -384,16 +508,24 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
     return Ok(supervisor);
   }
 
-  if !wait_tcp("127.0.0.1:8000", 1, 0) {
+  let spawned_surreal = if !wait_tcp("127.0.0.1:8000", 1, 0) {
     let child = spawn_surreal(app, &cfg, &app_data, &log_hub)?;
     push_child(&supervisor, "surreal", child);
     if !wait_tcp("127.0.0.1:8000", 40, 250) {
       return Err("SurrealDB did not become ready on 127.0.0.1:8000".into());
     }
     supervisor.set_status("surreal", "up");
+    true
   } else {
     log_hub.shell("Surreal already listening on :8000 — reusing");
     supervisor.set_status("surreal", "up");
+    false
+  };
+
+  if spawned_surreal {
+    run_schema_migrations(app, &cfg, &app_data, &log_hub);
+  } else {
+    log_hub.shell("skipping schema migrations — Surreal on :8000 was already running");
   }
 
   if !http_health("127.0.0.1:3142", "posr-gateway") {
@@ -405,7 +537,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "gateway",
       "gateway",
       &[
-        ("GATEWAY_HOST", "127.0.0.1"),
+        ("GATEWAY_HOST", "0.0.0.0"),
         ("GATEWAY_PORT", "3142"),
       ],
       &log_hub,

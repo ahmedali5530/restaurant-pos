@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use serde::Serialize;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, State};
 
 use crate::config::{self, RuntimeConfigDto};
 use crate::logging;
@@ -206,19 +206,9 @@ pub async fn pick_surql_files(app: AppHandle) -> Result<Vec<String>, String> {
 
 #[tauri::command]
 pub fn open_migrations_folder(app: AppHandle) -> Result<String, String> {
-  if let Ok(resource) = app.path().resource_dir() {
-    let p = resource.join("migrations");
-    if p.is_dir() {
-      return Ok(p.display().to_string());
-    }
-  }
-  if let Some(root) = paths::resolve_repo_root() {
-    let p = root.join("migrations");
-    if p.is_dir() {
-      return Ok(p.display().to_string());
-    }
-  }
-  Err("migrations folder not found".into())
+  paths::resolve_migrations_dir(Some(&app))
+    .map(|p| p.display().to_string())
+    .ok_or_else(|| "migrations folder not found".into())
 }
 
 #[tauri::command]

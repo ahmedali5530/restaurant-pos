@@ -262,7 +262,7 @@
   },
   "desktopSetup": {
     "title": "Configuración de base de datos de escritorio",
-    "subtitle": "Importe un archivo SurrealQL (.surql): esquema completo, datos de demo o una actualización. Puede importar varios archivos en orden.",
+    "subtitle": "Las actualizaciones de esquema se aplican automáticamente cuando esta aplicación inicia su propia base de datos. Use esta pantalla para importar un archivo .surql adicional (datos de demo o un parche) si eso no ocurrió.",
     "surreal": "SurrealDB",
     "gateway": "Gateway",
     "ready": "Listo",

@@ -262,7 +262,7 @@
   "loading": "Loading...",
   "desktopSetup": {
     "title": "Desktop database setup",
-    "subtitle": "Import a SurrealQL (.surql) file — full schema, demo data, or an update patch. You can import multiple files in order.",
+    "subtitle": "Schema updates apply automatically when this app starts its own database. Use this screen to import an extra .surql file (demo data or a patch) if that did not run.",
     "surreal": "SurrealDB",
     "gateway": "Gateway",
     "ready": "Ready",

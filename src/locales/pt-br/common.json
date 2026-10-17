@@ -262,7 +262,7 @@
   },
   "desktopSetup": {
     "title": "Configuração do banco desktop",
-    "subtitle": "Importe um arquivo SurrealQL (.surql) — esquema completo, dados de demonstração ou atualização. Você pode importar vários arquivos em ordem.",
+    "subtitle": "As atualizações de esquema são aplicadas automaticamente quando este aplicativo inicia o próprio banco. Use esta tela para importar um arquivo .surql extra (dados de demonstração ou um patch) se isso não aconteceu.",
     "surreal": "SurrealDB",
     "gateway": "Gateway",
     "ready": "Pronto",

@@ -222,12 +222,79 @@ pub fn resolve_surreal_bin(app: Option<&AppHandle>) -> PathBuf {
   PathBuf::from("surreal")
 }
 
-/// Service directory: packaged resources/sidecars/<name> or repo/<name>.
-pub fn resolve_service_dir(app: Option<&AppHandle>, name: &str) -> Option<PathBuf> {
+fn is_service_dir(path: &Path) -> bool {
+  path.join("server.js").exists() || path.join("package.json").exists()
+}
+
+/// Directories that may contain bundled `resources/sidecars/<name>`.
+///
+/// Tauri's `resource_dir()` is the exe folder on Windows and `/usr/lib/<product>`
+/// on Linux. Bundled files keep the `resources/` prefix from `tauri.conf.json`,
+/// so the gateway lives at `{resource_dir}/resources/sidecars/gateway`.
+fn bundled_roots(app: Option<&AppHandle>) -> Vec<PathBuf> {
+  let mut roots = Vec::new();
   if let Some(app) = app {
     if let Ok(resource) = app.path().resource_dir() {
-      let p = resource.join("sidecars").join(name);
-      if p.join("server.js").exists() || p.join("package.json").exists() {
+      roots.push(resource);
+    }
+  }
+  if let Ok(exe) = std::env::current_exe() {
+    if let Some(dir) = exe.parent() {
+      let dir = dir.to_path_buf();
+      if !roots.iter().any(|r| r == &dir) {
+        roots.push(dir);
+      }
+    }
+  }
+  roots
+}
+
+/// `migrations/scripts/run-prod-migrations.cjs` from the package or the repo.
+pub fn resolve_migration_runner(app: Option<&AppHandle>) -> Option<PathBuf> {
+  let rel = Path::new("scripts").join("run-prod-migrations.cjs");
+  let mut candidates = Vec::new();
+  if let Some(dir) = resolve_migrations_dir(app) {
+    candidates.push(dir.join(&rel));
+  }
+  if let Some(root) = resolve_repo_root() {
+    candidates.push(root.join("migrations").join(&rel));
+  }
+  candidates.push(
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+      .join("resources/migrations")
+      .join(&rel),
+  );
+  candidates.into_iter().find(|p| p.is_file())
+}
+
+pub fn resolve_migrations_dir(app: Option<&AppHandle>) -> Option<PathBuf> {
+  for root in bundled_roots(app) {
+    for rel in ["migrations", "resources/migrations"] {
+      let p = root.join(rel);
+      if p.is_dir() {
+        return Some(p);
+      }
+    }
+  }
+  if let Some(root) = resolve_repo_root() {
+    let p = root.join("migrations");
+    if p.is_dir() {
+      return Some(p);
+    }
+  }
+  None
+}
+
+/// Service directory: packaged resources/sidecars/<name> or repo/<name>.
+pub fn resolve_service_dir(app: Option<&AppHandle>, name: &str) -> Option<PathBuf> {
+  for root in bundled_roots(app) {
+    for rel in [
+      format!("sidecars/{name}"),
+      format!("resources/sidecars/{name}"),
+      format!("resources/resources/sidecars/{name}"),
+    ] {
+      let p = root.join(rel);
+      if is_service_dir(&p) {
         return Some(p);
       }
     }
