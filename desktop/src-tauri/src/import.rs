@@ -3,6 +3,36 @@
 use std::path::PathBuf;
 use std::process::Command;
 
+/// Dump files redefine indexes and `field.*` types that Surreal 3 rejects once
+/// `run-prod-migrations` has already created the schema. `INSERT IGNORE` keeps
+/// demo rows that are new and skips migration names already recorded.
+fn relax_import_sql(raw: &str) -> String {
+  let mut out = String::with_capacity(raw.len());
+  for line in raw.split_inclusive('\n') {
+    let newline = line.ends_with('\n');
+    let content = line.trim_end_matches(['\n', '\r']);
+    let trimmed = content.trim_start();
+    let indent_len = content.len() - trimmed.len();
+    if let Some(rest) = trimmed.strip_prefix("DEFINE FIELD ") {
+      let name = rest.split_whitespace().next().unwrap_or("");
+      if name.contains(".*") {
+        continue;
+      }
+    }
+    if trimmed.starts_with("INSERT ") && !trimmed.starts_with("INSERT IGNORE") {
+      out.push_str(&content[..indent_len]);
+      out.push_str("INSERT IGNORE ");
+      out.push_str(&trimmed["INSERT ".len()..]);
+      if newline {
+        out.push('\n');
+      }
+      continue;
+    }
+    out.push_str(line);
+  }
+  out
+}
+
 use serde::Serialize;
 use tauri::{AppHandle, State};
 
@@ -136,6 +166,14 @@ pub fn import_surql(
     supervisor
       .log_hub
       .shell(&format!("importing {}", path.display()));
+    let raw = std::fs::read_to_string(&path).map_err(|e| format!("read {}: {e}", path.display()))?;
+    let relaxed = relax_import_sql(&raw);
+    let tmp = std::env::temp_dir().join(format!(
+      "posr-import-{}-{}.surql",
+      std::process::id(),
+      imported.len()
+    ));
+    std::fs::write(&tmp, relaxed).map_err(|e| format!("write temp import: {e}"))?;
     let mut cmd = Command::new(&surreal);
     cmd.args([
       "import",
@@ -150,18 +188,22 @@ pub fn import_surql(
       "--database",
       &cfg.surreal_db,
     ])
-    .arg(&path);
+    .arg(&tmp);
     #[cfg(windows)]
     {
       cmd.creation_flags(CREATE_NO_WINDOW);
     }
-    let output = cmd
-      .output()
-      .map_err(|e| format!("failed to run surreal import: {e}"))?;
+    let output = cmd.output();
+    let _ = std::fs::remove_file(&tmp);
+    let output = output.map_err(|e| format!("failed to run surreal import: {e}"))?;
+
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    for line in stderr.lines().chain(stdout.lines()) {
+      supervisor.log_hub.append("import", line);
+    }
 
     if !output.status.success() {
-      let stderr = String::from_utf8_lossy(&output.stderr);
-      let stdout = String::from_utf8_lossy(&output.stdout);
       return Ok(ImportResult {
         ok: false,
         imported,

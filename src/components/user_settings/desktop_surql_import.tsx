@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/common/input/button.tsx';
+import { DESKTOP_LOGS } from '@/routes/posr.ts';
 import {
   importSurqlFiles,
   isTauriDesktop,
@@ -12,6 +14,7 @@ import { toast } from 'sonner';
 /** Settings card: import additional .surql patches after go-live (Tauri only). */
 export const DesktopSurqlImportCard = () => {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
 
   if (!isTauriDesktop()) return null;
@@ -60,6 +63,11 @@ export const DesktopSurqlImportCard = () => {
         <div>
           <Button type="button" flat disabled={busy} onClick={onSamples}>
             {t('desktopSetup.showSamples')}
+          </Button>
+        </div>
+        <div>
+          <Button type="button" flat disabled={busy} onClick={() => navigate(DESKTOP_LOGS)}>
+            {t('desktopLogs.openLink')}
           </Button>
         </div>
       </div>
