@@ -14,6 +14,7 @@ export const RELEASES: ReleaseNotes[] = [
       'The Windows installer finds the packaged gateway and other sidecars under resources, instead of looking next to the exe and reporting gateway/ not found.',
       'POSR Desktop applies database schema the same way Docker does: a new database gets the baseline, and later launches only run migrations that are not already recorded.',
       'Importing demo data skips migration rows that are already recorded, and Settings has a button that opens desktop logs.',
+      'The Windows setup wizard script no longer fails to parse after the installer finishes.',
     ],
   },
   {

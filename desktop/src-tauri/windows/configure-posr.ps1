@@ -39,15 +39,15 @@ function Add-Text($y, $default = "") {
 $y = 16
 Add-Label "Store name" $y; $y += 22; $storeName = Add-Text $y "My Store"; $y += 32
 Add-Label "Store address" $y; $y += 22; $storeAddr = Add-Text $y; $y += 32
-Add-Label "Default language (en, es, …)" $y; $y += 22; $lang = Add-Text $y "en"; $y += 32
+Add-Label "Default language (en, es, ...)" $y; $y += 22; $lang = Add-Text $y "en"; $y += 32
 Add-Label "Locale (e.g. en-US, en-PK)" $y; $y += 22; $locale = Add-Text $y "en-US"; $y += 32
-Add-Label "Currency code (USD, PKR, …)" $y; $y += 22; $currency = Add-Text $y "USD"; $y += 32
+Add-Label "Currency code (USD, PKR, ...)" $y; $y += 22; $currency = Add-Text $y "USD"; $y += 32
 Add-Label "Decimal places" $y; $y += 22; $decimals = Add-Text $y "2"; $y += 32
 Add-Label "Timezone (e.g. Asia/Karachi, UTC)" $y; $y += 22; $tz = Add-Text $y "UTC"; $y += 32
 Add-Label "Date format" $y; $y += 22; $dateFmt = Add-Text $y "yyyy-MM-dd"; $y += 32
 Add-Label "Time format" $y; $y += 22; $timeFmt = Add-Text $y "HH:mm"; $y += 36
 
-Add-Label "AI (optional) — profile name" $y; $y += 22; $aiName = Add-Text $y; $y += 32
+Add-Label "AI (optional) - profile name" $y; $y += 22; $aiName = Add-Text $y; $y += 32
 Add-Label "AI API URL" $y; $y += 22; $aiUrl = Add-Text $y; $y += 32
 Add-Label "AI API key" $y; $y += 22; $aiKey = Add-Text $y; $y += 32
 Add-Label "AI model" $y; $y += 22; $aiModel = Add-Text $y; $y += 36
