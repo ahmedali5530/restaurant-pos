@@ -34,12 +34,19 @@ import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
 interface StockTransferItemFormValue {
   item: SelectOption;
   quantity: number | string;
+  entered_uom?: string;
 }
 
 interface StockTransferFormValues {
@@ -86,6 +93,7 @@ const validationSchema = yup
             .typeError("This should be a number")
             .moreThan(0, "Quantity must be greater than 0")
             .required("This is required"),
+          entered_uom: yup.string().nullable().optional(),
         })
       )
       .min(1, "Add at least one item"),
@@ -163,6 +171,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
     formState: {errors, isSubmitting},
     reset,
     watch,
+    setValue,
   } = useForm({
     resolver,
     defaultValues: {
@@ -188,6 +197,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
     (): StockTransferItemFormValue => ({
       item: null,
       quantity: 1,
+      entered_uom: "",
     }),
     []
   );
@@ -217,15 +227,19 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
           notes: data.notes ?? "",
           items:
-            data.items?.map((line) => ({
+            data.items?.map((line) => {
+              const entered = lineEnteredDefaults({...line, item: line.item});
+              return {
               item: line.item
                 ? {
                     label: `${line.item.name}-${line.item.code}`,
                     value: toRecordIdString(line.item.id),
                   }
                 : null,
-              quantity: line.quantity ?? 1,
-            })) ?? [createEmptyItem()],
+              quantity: entered.quantity || 1,
+              entered_uom: entered.entered_uom,
+            };
+            }) ?? [createEmptyItem()],
         } as any);
       } else {
         reset({
@@ -281,6 +295,8 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
     [items]
   );
 
+  const catalogItems = (items?.data ?? []) as InventoryItem[];
+
   const onSubmit = async (values: any) => {
     try {
       const payload = {
@@ -291,10 +307,22 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           ? toJsDate(documentCreatedAtFromDateValue(values.date))
           : undefined,
         notes: values.notes,
-        items: values.items.map((line) => ({
-          itemId: line.item!.value,
-          quantity: Number(line.quantity),
-        })),
+        items: values.items.map((line) => {
+          const catalog = catalogItems.find(
+            (it) => toRecordIdString(it.id) === line.item!.value
+          );
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: Number(line.quantity),
+            enteredUom: line.entered_uom || catalog?.uom,
+            stockUom: catalog?.uom,
+          });
+          return {
+            itemId: line.item!.value,
+            quantity: stock.quantity,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+          };
+        }),
       };
 
       if (values.fromLocation?.value) {
@@ -461,7 +489,18 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     render={({field: itemField}) => (
                       <ReactSelect
                         value={itemField.value}
-                        onChange={itemField.onChange}
+                        onChange={(option) => {
+                          itemField.onChange(option);
+                          const catalog = catalogItems.find(
+                            (it) => toRecordIdString(it.id) === option?.value
+                          );
+                          if (catalog?.uom) {
+                            setValue(
+                              `items.${index}.entered_uom`,
+                              normalizeUom(catalog.uom) ?? catalog.uom
+                            );
+                          }
+                        }}
                         onBlur={itemField.onBlur}
                         options={itemOptions}
                         isLoading={loadingItems}
@@ -470,25 +509,24 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                   />
                   <InputError error={get(errors, ["items", index, "item", "message"])} />
                 </div>
-                <div className="w-40">
-                  <Controller
-                    name={`items.${index}.quantity`}
+                <div className="flex-1">
+                  <QuantityUomFields
                     control={control}
-                    render={({field: qtyField}) => (
-                      <Input
-                        label={t("forms.quantity")}
-                        type="number"
-                        value={qtyField.value}
-                        onChange={qtyField.onChange}
-                        error={get(errors, ["items", index, "quantity", "message"])}
-                      />
-                    )}
+                    quantityName={`items.${index}.quantity`}
+                    uomName={`items.${index}.entered_uom`}
+                    stockUom={
+                      catalogItems.find(
+                        (it) =>
+                          toRecordIdString(it.id) === watchedItems?.[index]?.item?.value
+                      )?.uom
+                    }
+                    quantityLabel={
+                      rowNetQuantities[index] !== undefined
+                        ? t("stockTransfer.available", {qty: rowNetQuantities[index]})
+                        : t("forms.quantity")
+                    }
+                    errors={errors}
                   />
-                  {rowNetQuantities[index] !== undefined && (
-                    <p className="text-xs text-muted mt-1">
-                      {t("stockTransfer.available", {qty: rowNetQuantities[index]})}
-                    </p>
-                  )}
                 </div>
                 <IconTooltipButton label={t('common:actions.remove')}
                   type="button"

@@ -34,6 +34,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {assertItemUomChangeAllowed} from "@/lib/inventory/item.uom.lock.ts";
 
 interface Props {
   open: boolean
@@ -238,6 +239,11 @@ export const InventoryItemForm = ({
       };
 
       if( data?.id ) {
+        await assertItemUomChangeAllowed(db, {
+          itemId: String(data.id),
+          previousUom: data.uom,
+          nextUom: datum.uom,
+        });
         await db.merge(data.id, itemsData);
       } else {
         await db.create(Tables.inventory_items, itemsData);

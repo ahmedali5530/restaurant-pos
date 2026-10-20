@@ -11,6 +11,7 @@ import {formatDateTime} from "@/lib/datetime.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {itemsSubtotal} from "@/lib/inventory/purchase.totals.ts";
 import {lineAmount} from "@/lib/inventory/line.cost.ts";
+import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
 
 interface Props {
   open: boolean;
@@ -148,7 +149,17 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
                               {item.supplier?.name ?? viewOrder.supplier?.name ?? "—"}
                             </td>
                             <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                              {formatNumber(item.quantity)}
+                              {(() => {
+                                const qty = formatLineQuantityDisplay(item as any, formatNumber);
+                                return (
+                                  <>
+                                    {qty.label}
+                                    {qty.stockHint && (
+                                      <div className="text-xs text-muted">{qty.stockHint}</div>
+                                    )}
+                                  </>
+                                );
+                              })()}
                             </td>
                             <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
                               {withCurrency(price)}

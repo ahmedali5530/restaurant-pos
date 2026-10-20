@@ -75,6 +75,22 @@ const restaurantDefaults = () => ({
 const moneyTotal = (lines: InventoryInvoiceLine[]) =>
   lines.reduce((sum, line) => sum + safeNumber(line.total), 0);
 
+/** Prefer entered qty/uom on the printed line; money still uses stock qty. */
+const displayQtyAndUnit = (item: {
+  quantity?: number | null;
+  entered_quantity?: number | null;
+  entered_uom?: string | null;
+  item?: {uom?: string | null} | null;
+}) => {
+  const stockQty = safeNumber(item.quantity);
+  const enteredUom = item.entered_uom ? String(item.entered_uom) : "";
+  const enteredQty = Number(item.entered_quantity);
+  if (enteredUom && Number.isFinite(enteredQty)) {
+    return {qty: enteredQty, unit: enteredUom, stockQty};
+  }
+  return {qty: stockQty, unit: item.item?.uom ?? undefined, stockQty};
+};
+
 const withMoneyTotals = (
   doc: Omit<InventoryInvoiceDoc, "totals"> & {totals?: InventoryInvoiceTotal[]},
   totalLabel = "Total",
@@ -89,7 +105,7 @@ const withMoneyTotals = (
 
 export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (issue.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
@@ -98,9 +114,9 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
       name: item.item?.name ?? "Item",
       sku: item.item?.code || item.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
       note: item.comments,
     };
@@ -124,7 +140,7 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
 
 export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: (item as any).price,
       issuedItem: item.issued_item,
@@ -134,9 +150,9 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
       note: item.comments,
     };
@@ -166,7 +182,7 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
 
 export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (purchase.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
@@ -175,9 +191,9 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       name: item.item?.name ?? "Item",
       sku: item.item?.code || item.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
       note: [
         item.taxable ? "Taxable" : null,
@@ -244,7 +260,7 @@ export const mapPurchaseReturnToInvoice = (
   doc: InventoryPurchaseReturn,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       purchaseItem: item.purchase_item,
@@ -254,9 +270,9 @@ export const mapPurchaseReturnToInvoice = (
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
       note: item.comments,
     };
@@ -288,7 +304,7 @@ export const mapPurchaseOrderToInvoice = (
   order: InventoryPurchaseOrder,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (order.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
@@ -297,9 +313,9 @@ export const mapPurchaseOrderToInvoice = (
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
     };
   });
@@ -321,7 +337,7 @@ export const mapPurchaseOrderToInvoice = (
 
 export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (waste.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveInventoryLineUnitCost({
       price: (item as any).price,
       purchaseItem: item.purchase_item,
@@ -332,9 +348,9 @@ export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc =>
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
       location: item.location?.name,
       note: item.comments,
     };
@@ -370,15 +386,15 @@ export const mapStockTransferToInvoice = (
   transfer: StockTransfer,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (transfer.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
+    const {qty, unit, stockQty} = displayQtyAndUnit(item as any);
     const unitCost = resolveCatalogUnitCost(item.item);
     return {
       name: item.item?.name ?? "Item",
       sku: item.item?.code,
       qty,
-      unit: item.item?.uom,
+      unit,
       unitCost,
-      total: lineAmount(unitCost, qty),
+      total: lineAmount(unitCost, stockQty),
     };
   });
 

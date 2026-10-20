@@ -20,7 +20,8 @@
     "buffetMenus": "قوائم البوفيه",
     "buffetSessions": "جلسات البوفيه",
     "adjustments": "التسويات",
-    "locations": "المواقع"
+    "locations": "المواقع",
+    "units": "الوحدات"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "الاسم",
     "code": "الرمز",
     "category": "الفئة",
-    "uom": "وحدة القياس",
+    "uom": "وحدة",
     "baseQuantity": "الكمية الأساسية",
     "price": "سعر الوحدة",
     "averagePrice": "متوسط السعر",
@@ -126,6 +127,7 @@
     "date": "التاريخ",
     "comments": "ملاحظات",
     "quantity": "الكمية",
+    "packagingNoConversion": "وحدات التعبئة لا يتم تحويلها",
     "requested": "المطلوب",
     "issued": "المصروف",
     "returnedQuantity": "الكمية المُرجعة",
@@ -613,5 +615,50 @@
     "locationRequired": "الموقع مطلوب",
     "supplierNotOnItem": "المورد \"{{supplier}}\" غير مرتبط بالصنف \"{{item}}\"",
     "locationNotOnItem": "الموقع \"{{location}}\" غير مرتبط بالصنف \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "إضافة وحدة"
+    },
+    "columns": {
+      "family": "العائلة",
+      "baseFactor": "معامل الأساس",
+      "active": "نشط",
+      "system": "نظام"
+    },
+    "families": {
+      "weight": "وزن",
+      "volume": "حجم",
+      "count": "عدد",
+      "pack": "عبوة"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "إضافة وحدة",
+      "editTitle": "تعديل {{code}}"
+    },
+    "preview": {
+      "title": "معاينة التحويل",
+      "hint": "تحقق من تحويل الوحدات بالمعاملات الحالية (غالون أمريكي افتراضياً).",
+      "from": "من",
+      "to": "إلى",
+      "unavailable": "اختر وحدات من نفس العائلة"
+    },
+    "validation": {
+      "required": "هذا مطلوب",
+      "number": "يجب أن يكون رقماً",
+      "codeFormat": "استخدم حروفاً أو أرقاماً أو شرطة سفلية (ابدأ بحرف)",
+      "factorPositive": "يجب أن يكون المعامل أكبر من صفر"
+    },
+    "warnings": {
+      "factorChange": "تم تحديث المعامل. كميات المخزون الحالية لا تُعاد حسابها — التحويلات المستقبلية فقط تستخدم المعامل الجديد."
+    },
+    "errors": {
+      "inUse": "لا يمكن تعطيل {{code}}: مستخدم في {{count}} عنصر",
+      "duplicateCode": "رمز الوحدة {{code}} موجود مسبقاً"
+    },
+    "toast": {
+      "saved": "تم حفظ الوحدة {{code}}"
+    }
   }
 }

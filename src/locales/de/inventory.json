@@ -20,7 +20,8 @@
     "buffetMenus": "Buffet-Menüs",
     "buffetSessions": "Buffet-Sitzungen",
     "adjustments": "Anpassungen",
-    "locations": "Standorte"
+    "locations": "Standorte",
+    "units": "Einheiten"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Name",
     "code": "Code",
     "category": "Kategorie",
-    "uom": "Maßeinheit",
+    "uom": "ME",
     "baseQuantity": "Basismenge",
     "price": "Stückpreis",
     "averagePrice": "Durchschnittspreis",
@@ -126,6 +127,7 @@
     "date": "Datum",
     "comments": "Kommentare",
     "quantity": "Menge",
+    "packagingNoConversion": "Verpackungseinheiten werden nicht umgerechnet",
     "requested": "Angefordert",
     "issued": "Ausgegeben",
     "returnedQuantity": "Zurückgegebene Menge",
@@ -613,5 +615,50 @@
     "locationRequired": "Standort ist erforderlich",
     "supplierNotOnItem": "Lieferant \"{{supplier}}\" ist nicht mit Artikel \"{{item}}\" verknüpft",
     "locationNotOnItem": "Standort \"{{location}}\" ist nicht mit Artikel \"{{item}}\" verknüpft"
+  },
+  "uom": {
+    "actions": {
+      "add": "Einheit hinzufügen"
+    },
+    "columns": {
+      "family": "Familie",
+      "baseFactor": "Basisfaktor",
+      "active": "Aktiv",
+      "system": "System"
+    },
+    "families": {
+      "weight": "Gewicht",
+      "volume": "Volumen",
+      "count": "Stück",
+      "pack": "Packung"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Einheit hinzufügen",
+      "editTitle": "{{code}} bearbeiten"
+    },
+    "preview": {
+      "title": "Umwandlungsvorschau",
+      "hint": "Prüfen Sie Umrechnungen mit den aktuellen Faktoren (Standard: US-Gallone).",
+      "from": "Von",
+      "to": "Nach",
+      "unavailable": "Wählen Sie verwandte Einheiten derselben Familie"
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "number": "Muss eine Zahl sein",
+      "codeFormat": "Buchstaben, Zahlen oder Unterstrich (mit Buchstabe beginnen)",
+      "factorPositive": "Faktor muss größer als null sein"
+    },
+    "warnings": {
+      "factorChange": "Faktor aktualisiert. Bestehende Bestände werden nicht neu berechnet — nur künftige Umrechnungen nutzen den neuen Faktor."
+    },
+    "errors": {
+      "inUse": "{{code}} kann nicht deaktiviert werden: von {{count}} Artikel(n) verwendet",
+      "duplicateCode": "Einheitscode {{code}} existiert bereits"
+    },
+    "toast": {
+      "saved": "Einheit {{code}} gespeichert"
+    }
   }
 }

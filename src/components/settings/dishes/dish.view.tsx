@@ -40,9 +40,12 @@ interface DishRecipeRow {
   item?: {
     id: string
     name: string
+    uom?: string
   }
   quantity: number
   cost: number
+  entered_quantity?: number | null
+  entered_uom?: string | null
   is_price_locked?: boolean
 }
 
@@ -313,6 +316,7 @@ export const DishView = ({
                     <tr className="text-left border-b border-border">
                       <th className="py-2">{t('dishView.item')}</th>
                       <th className="py-2">{t('dishView.quantity')}</th>
+                      <th className="py-2">{t('columns.uom')}</th>
                       <th className="py-2">{t('dishView.cost')}</th>
                       <th className="py-2">{t('dishView.priceLocked')}</th>
                       <th className="py-2">{t('dishView.lineTotal')}</th>
@@ -320,13 +324,20 @@ export const DishView = ({
                     </thead>
                     <tbody>
                     {recipes.map((recipe) => {
-                      const quantity = Number(recipe.quantity ?? 0);
+                      const stockQty = Number(recipe.quantity ?? 0);
+                      const enteredQty = Number(recipe.entered_quantity);
+                      const displayQty = Number.isFinite(enteredQty) && recipe.entered_uom
+                        ? enteredQty
+                        : stockQty;
+                      const displayUom =
+                        recipe.entered_uom || recipe.item?.uom || '-';
                       const cost = Number(recipe.cost ?? 0);
-                      const lineTotal = quantity * cost;
+                      const lineTotal = stockQty * cost;
                       return (
                         <tr key={recipe.id} className="border-b border-border">
                           <td className="py-2">{recipe.item?.name ?? '-'}</td>
-                          <td className="py-2">{quantity}</td>
+                          <td className="py-2">{displayQty}</td>
+                          <td className="py-2">{displayUom}</td>
                           <td className="py-2">{withCurrency(cost, 4)}</td>
                           <td className="py-2">{yesNo(recipe.is_price_locked)}</td>
                           <td className="py-2">{withCurrency(lineTotal, 4)}</td>

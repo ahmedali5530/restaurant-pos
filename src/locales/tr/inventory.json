@@ -20,7 +20,8 @@
     "buffetMenus": "Büfe Menüleri",
     "buffetSessions": "Büfe Oturumları",
     "adjustments": "Adjustments",
-    "locations": "Locations"
+    "locations": "Locations",
+    "units": "Birimler"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Ad",
     "code": "Kod",
     "category": "Kategori",
-    "uom": "Ölçü birimi",
+    "uom": "Birim",
     "baseQuantity": "Temel miktar",
     "price": "Birim fiyat",
     "averagePrice": "Ortalama fiyat",
@@ -126,6 +127,7 @@
     "date": "Tarih",
     "comments": "Yorumlar",
     "quantity": "Miktar",
+    "packagingNoConversion": "Ambalaj birimleri dönüştürülmez",
     "requested": "Talep edilen",
     "issued": "Çıkış yapılan",
     "returnedQuantity": "İade edilen miktar",
@@ -613,5 +615,50 @@
     "locationRequired": "Konum gerekli",
     "supplierNotOnItem": "\"{{supplier}}\" tedarikçisi \"{{item}}\" kalemine bağlı değil",
     "locationNotOnItem": "\"{{location}}\" konumu \"{{item}}\" kalemine bağlı değil"
+  },
+  "uom": {
+    "actions": {
+      "add": "Birim ekle"
+    },
+    "columns": {
+      "family": "Aile",
+      "baseFactor": "Temel faktör",
+      "active": "Aktif",
+      "system": "Sistem"
+    },
+    "families": {
+      "weight": "Ağırlık",
+      "volume": "Hacim",
+      "count": "Adet",
+      "pack": "Paket"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Birim ekle",
+      "editTitle": "{{code}} düzenle"
+    },
+    "preview": {
+      "title": "Dönüşüm önizleme",
+      "hint": "Geçerli faktörlerle birim dönüşümlerini kontrol edin (varsayılan ABD galonu).",
+      "from": "Kaynak",
+      "to": "Hedef",
+      "unavailable": "Aynı aileden ilgili birimleri seçin"
+    },
+    "validation": {
+      "required": "Zorunlu",
+      "number": "Sayı olmalıdır",
+      "codeFormat": "Harf, rakam veya alt çizgi kullanın (harfle başlayın)",
+      "factorPositive": "Faktör sıfırdan büyük olmalıdır"
+    },
+    "warnings": {
+      "factorChange": "Faktör güncellendi. Mevcut stok miktarları yeniden hesaplanmaz — yalnızca gelecekteki dönüşümler yeni faktörü kullanır."
+    },
+    "errors": {
+      "inUse": "{{code}} devre dışı bırakılamaz: {{count}} kalemde kullanılıyor",
+      "duplicateCode": "{{code}} kodu zaten var"
+    },
+    "toast": {
+      "saved": "{{code}} birimi kaydedildi"
+    }
   }
 }

@@ -7,6 +7,16 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-20',
+    title: 'Inventory unit converter',
+    items: [
+      'Purchases, issues, returns, waste, adjustments, transfers, and recipes can enter quantities in a related unit (for example kg when stock is in grams). Stock and costs stay in the item’s stock unit.',
+      'Inventory → Units manages conversion factors in the database (view GAL↔L, edit factors, or add custom global units). Defaults use US customary; changing a factor does not rewrite past stock.',
+      'Standard families: weight (MG, G, KG, LB, OZ), volume (ML, L, GAL, QT, PT, FLOZ), and count (PC, DZN). Pack units are not converted.',
+      'The item stock unit cannot be changed after ledger movements or recipe lines exist, so existing balances are not relabeled.',
+    ],
+  },
+  {
     date: '2026-10-11',
     title: 'Login branding',
     items: [

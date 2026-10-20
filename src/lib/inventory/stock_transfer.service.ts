@@ -17,6 +17,8 @@ export type StockTransferType = "location" | "store";
 export type StockTransferLineInput = {
   itemId: string;
   quantity: number;
+  entered_quantity?: number;
+  entered_uom?: string;
 };
 
 export type StockTransferInput = {
@@ -115,6 +117,8 @@ const createLineItems = async (
         transfer: transferRef,
         item: toItemRecordId(line.itemId),
         quantity: Number(line.quantity),
+        entered_quantity: line.entered_quantity,
+        entered_uom: line.entered_uom,
       })
     )
   );

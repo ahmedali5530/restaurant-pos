@@ -1071,6 +1071,10 @@ DEFINE FIELD comments ON inventory_adjustment_item TYPE none | string PERMISSION
 DEFINE FIELD item ON inventory_adjustment_item TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD location ON inventory_adjustment_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD quantity_change ON inventory_adjustment_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_adjustment_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_adjustment_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_adjustment_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD store ON inventory_adjustment_item TYPE none | record<inventory_store> PERMISSIONS FULL;
 DEFINE FIELD unit_cost ON inventory_adjustment_item TYPE none | float PERMISSIONS FULL;
 
@@ -1140,6 +1144,10 @@ DEFINE FIELD item ON inventory_issue_item TYPE record<inventory_item> PERMISSION
 DEFINE FIELD location ON inventory_issue_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_issue_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD requested ON inventory_issue_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_issue_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 
@@ -1197,6 +1205,10 @@ DEFINE FIELD item ON inventory_issue_return_item TYPE record<inventory_item> PER
 DEFINE FIELD location ON inventory_issue_return_item TYPE none | record<inventory_location> PERMISSIONS FULL;
 DEFINE FIELD price ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_issue_return_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_issue_return_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_issue_return_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD store ON inventory_issue_return_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 
 DEFINE INDEX iiri_issue_return ON inventory_issue_return_item FIELDS issue_return;
@@ -1298,6 +1310,10 @@ DEFINE FIELD location ON inventory_item_waste_item TYPE none | record<inventory_
 DEFINE FIELD price ON inventory_item_waste_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD purchase_item ON inventory_item_waste_item TYPE none | record<inventory_purchase_item> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_item_waste_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_item_waste_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_item_waste_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_item_waste_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD source ON inventory_item_waste_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_item_waste_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD waste ON inventory_item_waste_item TYPE none | record<inventory_item_waste> | null PERMISSIONS FULL;
@@ -1420,6 +1436,10 @@ DEFINE FIELD price ON inventory_purchase_item TYPE float PERMISSIONS FULL;
 DEFINE FIELD purchase ON inventory_purchase_item TYPE none | record<inventory_purchase> | null PERMISSIONS FULL;
 DEFINE FIELD purchase_price ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_purchase_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_purchase_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD requested ON inventory_purchase_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD store ON inventory_purchase_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
@@ -1472,6 +1492,10 @@ DEFINE FIELD item ON inventory_purchase_order_item TYPE record<inventory_item> P
 DEFINE FIELD price ON inventory_purchase_order_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD purchase_order ON inventory_purchase_order_item TYPE none | record<inventory_purchase_order> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_purchase_order_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_purchase_order_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_purchase_order_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_purchase_order_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD supplier ON inventory_purchase_order_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
 
 
@@ -1537,6 +1561,10 @@ DEFINE FIELD purchase_item ON inventory_purchase_return_item TYPE none | record<
 DEFINE FIELD purchase_return ON inventory_purchase_return_item TYPE none | record<inventory_purchase_return> | null PERMISSIONS FULL;
 DEFINE FIELD purchased ON inventory_purchase_return_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON inventory_purchase_return_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON inventory_purchase_return_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON inventory_purchase_return_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON inventory_purchase_return_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD store ON inventory_purchase_return_item TYPE none | record<inventory_store> | null PERMISSIONS FULL;
 DEFINE FIELD supplier ON inventory_purchase_return_item TYPE none | record<inventory_supplier> | null PERMISSIONS FULL;
 
@@ -1568,6 +1596,26 @@ DEFINE FIELD payments.* ON inventory_supplier TYPE record<inventory_purchase_pay
 DEFINE FIELD phone ON inventory_supplier TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD purchases ON inventory_supplier TYPE none | array<record<inventory_purchase>> | null PERMISSIONS FULL;
 DEFINE FIELD purchases.* ON inventory_supplier TYPE record<inventory_purchase> PERMISSIONS FULL;
+
+
+
+-- ------------------------------
+-- TABLE: inventory_uom
+-- ------------------------------
+
+DEFINE TABLE inventory_uom TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD code ON inventory_uom TYPE string PERMISSIONS FULL;
+DEFINE FIELD name ON inventory_uom TYPE string PERMISSIONS FULL;
+DEFINE FIELD family ON inventory_uom TYPE string ASSERT $value IN ["weight", "volume", "count", "pack"] PERMISSIONS FULL;
+DEFINE FIELD base_factor ON inventory_uom TYPE float ASSERT $value > 0 PERMISSIONS FULL;
+DEFINE FIELD is_system ON inventory_uom TYPE bool DEFAULT false PERMISSIONS FULL;
+DEFINE FIELD is_active ON inventory_uom TYPE bool DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD sort ON inventory_uom TYPE int DEFAULT 0 PERMISSIONS FULL;
+
+DEFINE INDEX inventory_uom_code ON inventory_uom FIELDS code UNIQUE;
+DEFINE INDEX inventory_uom_family ON inventory_uom FIELDS family;
+DEFINE INDEX inventory_uom_sort ON inventory_uom FIELDS sort;
 
 
 
@@ -1942,6 +1990,10 @@ DEFINE FIELD is_price_locked ON menu_item_recipe TYPE none | bool | null PERMISS
 DEFINE FIELD item ON menu_item_recipe TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD menu_item ON menu_item_recipe TYPE none | record<menu_item> | null PERMISSIONS FULL;
 DEFINE FIELD quantity ON menu_item_recipe TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON menu_item_recipe TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON menu_item_recipe TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON menu_item_recipe TYPE none | string | null PERMISSIONS FULL;
+
 
 
 
@@ -2625,6 +2677,10 @@ DEFINE TABLE recipe_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD item ON recipe_item TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD quantity ON recipe_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON recipe_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON recipe_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON recipe_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD recipe ON recipe_item TYPE record<recipe> PERMISSIONS FULL;
 DEFINE FIELD sort_order ON recipe_item TYPE int DEFAULT 0 PERMISSIONS FULL;
 
@@ -2870,6 +2926,10 @@ DEFINE TABLE stock_transfer_item TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD item ON stock_transfer_item TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD quantity ON stock_transfer_item TYPE float PERMISSIONS FULL;
+DEFINE FIELD entered_price ON stock_transfer_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_quantity ON stock_transfer_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON stock_transfer_item TYPE none | string | null PERMISSIONS FULL;
+
 DEFINE FIELD transfer ON stock_transfer_item TYPE record<stock_transfer> PERMISSIONS FULL;
 
 DEFINE INDEX sti_item ON stock_transfer_item FIELDS item;

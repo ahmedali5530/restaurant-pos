@@ -14,6 +14,7 @@ import {
 } from "@/api/reports/shared/query.ts";
 import {extrasTotal} from "@/lib/inventory/purchase.totals.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import {purchaseReportQuantity} from "@/lib/inventory/unit.convert.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -127,8 +128,11 @@ export const PurchaseReport = () => {
     purchases.forEach(purchase => {
       purchase.items?.forEach(item => {
         const qty = safeNumber(item.quantity);
-        const base = safeNumber(item.base_quantity) || 1;
-        totalQuantity += qty * base;
+        totalQuantity += purchaseReportQuantity({
+          quantity: qty,
+          base_quantity: item.base_quantity,
+          entered_uom: (item as any).entered_uom,
+        });
         totalSubtotal += safeNumber(item.price) * qty;
         totalItems += 1;
         if (item.total_inventory_cost != null) {
@@ -259,8 +263,11 @@ export const PurchaseReport = () => {
                     return purchase.items?.map((item, index) => {
                       const itemName = item.item?.name || 'Unknown';
                       const quantity = safeNumber(item.quantity);
-                      const base = safeNumber(item.base_quantity) || 1;
-                      const effectiveQty = quantity * base;
+                      const effectiveQty = purchaseReportQuantity({
+                        quantity,
+                        base_quantity: item.base_quantity,
+                        entered_uom: (item as any).entered_uom,
+                      });
                       const price = safeNumber(item.price);
                       const amount = quantity * price;
                       const isFirst = index === 0;

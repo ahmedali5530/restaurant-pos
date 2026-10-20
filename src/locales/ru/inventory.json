@@ -20,7 +20,8 @@
     "buffetMenus": "Меню шведского стола",
     "buffetSessions": "Сессии шведского стола",
     "adjustments": "Adjustments",
-    "locations": "Locations"
+    "locations": "Locations",
+    "units": "Единицы"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Название",
     "code": "Код",
     "category": "Категория",
-    "uom": "Единица измерения",
+    "uom": "Ед. изм.",
     "baseQuantity": "Базовое количество",
     "price": "Цена за единицу",
     "averagePrice": "Средняя цена",
@@ -126,6 +127,7 @@
     "date": "Дата",
     "comments": "Комментарии",
     "quantity": "Количество",
+    "packagingNoConversion": "Упаковочные единицы не конвертируются",
     "requested": "Запрошено",
     "issued": "Выдано",
     "returnedQuantity": "Возвращённое количество",
@@ -613,5 +615,50 @@
     "locationRequired": "Локация обязательна",
     "supplierNotOnItem": "Поставщик \"{{supplier}}\" не связан с позицией \"{{item}}\"",
     "locationNotOnItem": "Локация \"{{location}}\" не связана с позицией \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Добавить единицу"
+    },
+    "columns": {
+      "family": "Семейство",
+      "baseFactor": "Базовый коэффициент",
+      "active": "Активна",
+      "system": "Системная"
+    },
+    "families": {
+      "weight": "Вес",
+      "volume": "Объём",
+      "count": "Количество",
+      "pack": "Упаковка"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Добавить единицу",
+      "editTitle": "Изменить {{code}}"
+    },
+    "preview": {
+      "title": "Предпросмотр перевода",
+      "hint": "Проверьте перевод единиц с текущими коэффициентами (по умолчанию галлон США).",
+      "from": "Из",
+      "to": "В",
+      "unavailable": "Выберите связанные единицы одного семейства"
+    },
+    "validation": {
+      "required": "Обязательное поле",
+      "number": "Должно быть числом",
+      "codeFormat": "Буквы, цифры или подчёркивание (начинайте с буквы)",
+      "factorPositive": "Коэффициент должен быть больше нуля"
+    },
+    "warnings": {
+      "factorChange": "Коэффициент обновлён. Существующие остатки не пересчитываются — новый коэффициент действует только для будущих переводов."
+    },
+    "errors": {
+      "inUse": "Нельзя отключить {{code}}: используется в {{count}} товар(ах)",
+      "duplicateCode": "Код {{code}} уже существует"
+    },
+    "toast": {
+      "saved": "Единица {{code}} сохранена"
+    }
   }
 }

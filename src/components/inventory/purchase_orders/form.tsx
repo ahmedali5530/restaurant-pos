@@ -33,11 +33,18 @@ import {DataImportModal} from "@/components/common/data-import/data-import-modal
 import {createPurchaseOrderImportConfig} from "@/components/inventory/purchase_orders/purchase-order.import.config.ts";
 import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
 import {withCurrency} from "@/lib/utils.ts";
+import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 interface PurchaseOrderItemFormValue {
   item: { label: string; value: string } | null;
   quantity: number | string;
   price?: number | string;
+  entered_uom?: string;
   supplier?: { label: string; value: string } | null;
 }
 
@@ -97,6 +104,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       }).required("This is required"),
       quantity: yup.number().typeError("This should be a number").required("This is required"),
       price: yup.number().typeError("This should be a number").optional(),
+      entered_uom: yup.string().nullable().optional(),
       supplier: yup.object({
         label: yup.string(),
         value: yup.string()
@@ -228,18 +236,22 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data?.items?.map(item => ({
+        items: data?.items?.map(item => {
+          const entered = lineEnteredDefaults({...item, item: item.item});
+          return {
           item: {
             label: `${item.item.name}-${item.item.code}`,
             value: item.item.id
           },
-          quantity: item.quantity ?? 1,
-          price: item.price ?? 0,
+          quantity: entered.quantity || 1,
+          price: entered.price,
+          entered_uom: entered.entered_uom,
           supplier: item.supplier ? {
             label: item.supplier.name,
             value: item.supplier.id
           } : null
-        }))
+        };
+        })
       });
       setPreviousPrices({});
     }
@@ -257,6 +269,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         item: null,
         quantity: 1,
         price: 0,
+        entered_uom: "",
         supplier: null
       }]
     });
@@ -334,13 +347,26 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
       }
 
       const itemsRefs = [];
+      const catalogItems = itemsList;
       await Promise.all(
         values.items.map(async (item) => {
+          const catalog = catalogItems.find((it) => String(it.id) === String(item.item?.value));
+          const stockUom = catalog?.uom ?? item.entered_uom;
+          const stock = toStockLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || stockUom,
+            stockUom,
+            enteredPrice: Number(item.price ?? 0),
+            mode: "commercial",
+          });
           const [created] = await db.create(Tables.inventory_purchase_order_items, {
             purchase_order: toRecordId(orderIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
-            quantity: Number(item.quantity),
-            price: Number(item.price),
+            quantity: stock.quantity,
+            price: stock.price,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            entered_price: stock.entered_price,
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
           });
 
@@ -491,7 +517,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   type="button"
                   icon={faPlus}
                   variant="primary"
-                  onClick={() => append({item: null, quantity: 1, price: 0, supplier: null})}
+                  onClick={() => append({item: null, quantity: 1, price: 0, entered_uom: "", supplier: null})}
                 >
                   Add item
                 </Button>
@@ -527,6 +553,15 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                               value={field.value}
                               onChange={(option) => {
                                 field.onChange(option);
+                                const catalog = itemsList.find(
+                                  (it) => String(it.id) === String(option?.value)
+                                );
+                                if (catalog?.uom) {
+                                  setValue(
+                                    `items.${index}.entered_uom`,
+                                    normalizeUom(catalog.uom) ?? catalog.uom
+                                  );
+                                }
                                 void applyPreviousPrice(
                                   rowField.id,
                                   index,
@@ -541,23 +576,15 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         />
                         <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
-                      <div className="flex-1 self-end">
-                        <div>
-                          <Controller
-                            name={`items.${index}.quantity`}
-                            control={control}
-                            render={({field}) => (
-                              <Input
-                                label={t('forms.quantity')}
-                                type="number"
-                                value={field.value as number | string}
-                                onChange={field.onChange}
-                                error={get(errors, ["items", index, "quantity", "message"])}
-                              />
-                            )}
-                          />
-                        </div>
-                      </div>
+                      <QuantityUomFields
+                        control={control}
+                        quantityName={`items.${index}.quantity`}
+                        uomName={`items.${index}.entered_uom`}
+                        stockUom={
+                          itemsList.find((it) => String(it.id) === String(selectedRowItemId))?.uom
+                        }
+                        errors={errors}
+                      />
                       <div className="flex-1 self-end">
                         <div>
                           <label className="block text-sm text-muted mb-1">

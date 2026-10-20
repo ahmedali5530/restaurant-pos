@@ -20,7 +20,8 @@
     "buffetMenus": "Menús de buffet",
     "buffetSessions": "Sesiones de buffet",
     "adjustments": "Ajustes",
-    "locations": "Ubicaciones"
+    "locations": "Ubicaciones",
+    "units": "Unidades"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Nombre",
     "code": "Código",
     "category": "Categoría",
-    "uom": "Unidad de medida",
+    "uom": "UdM",
     "baseQuantity": "Cantidad base",
     "price": "Precio unitario",
     "averagePrice": "Precio promedio",
@@ -126,6 +127,7 @@
     "date": "Fecha",
     "comments": "Comentarios",
     "quantity": "Cantidad",
+    "packagingNoConversion": "Las unidades de empaque no se convierten",
     "requested": "Solicitado",
     "issued": "Emitido",
     "returnedQuantity": "Cantidad devuelta",
@@ -613,5 +615,50 @@
     "locationRequired": "La ubicación es obligatoria",
     "supplierNotOnItem": "El proveedor \"{{supplier}}\" no está vinculado al artículo \"{{item}}\"",
     "locationNotOnItem": "La ubicación \"{{location}}\" no está vinculada al artículo \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Añadir unidad"
+    },
+    "columns": {
+      "family": "Familia",
+      "baseFactor": "Factor base",
+      "active": "Activo",
+      "system": "Sistema"
+    },
+    "families": {
+      "weight": "Peso",
+      "volume": "Volumen",
+      "count": "Cantidad",
+      "pack": "Paquete"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Añadir unidad",
+      "editTitle": "Editar {{code}}"
+    },
+    "preview": {
+      "title": "Vista previa de conversión",
+      "hint": "Compruebe cómo convierten las unidades con los factores actuales (galón US por defecto).",
+      "from": "De",
+      "to": "A",
+      "unavailable": "Elija unidades relacionadas de la misma familia"
+    },
+    "validation": {
+      "required": "Obligatorio",
+      "number": "Debe ser un número",
+      "codeFormat": "Use letras, números o guion bajo (empieze por letra)",
+      "factorPositive": "El factor debe ser mayor que cero"
+    },
+    "warnings": {
+      "factorChange": "Factor actualizado. Las cantidades de stock existentes no se recalculan: solo las conversiones futuras usan el nuevo factor."
+    },
+    "errors": {
+      "inUse": "No se puede desactivar {{code}}: usado por {{count}} artículo(s)",
+      "duplicateCode": "El código {{code}} ya existe"
+    },
+    "toast": {
+      "saved": "Unidad {{code}} guardada"
+    }
   }
 }

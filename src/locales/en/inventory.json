@@ -20,7 +20,8 @@
     "productionHistory": "Production History",
     "buffetMenus": "Buffet Menus",
     "buffetSessions": "Buffet Sessions",
-    "locations": "Locations"
+    "locations": "Locations",
+    "units": "Units"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Name",
     "code": "Code",
     "category": "Category",
-    "uom": "Unit of measurement",
+    "uom": "UOM",
     "baseQuantity": "Base quantity",
     "price": "Unit price",
     "averagePrice": "Average price",
@@ -133,6 +134,7 @@
     "reason": "Reason",
     "lines": "Lines",
     "quantity": "Quantity",
+    "packagingNoConversion": "Packaging units are not converted",
     "requested": "Requested",
     "issued": "Issued",
     "returnedQuantity": "Returned quantity",
@@ -616,5 +618,50 @@
     "locationRequired": "Location is required",
     "supplierNotOnItem": "Supplier \"{{supplier}}\" is not linked to item \"{{item}}\"",
     "locationNotOnItem": "Location \"{{location}}\" is not linked to item \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Add unit"
+    },
+    "columns": {
+      "family": "Family",
+      "baseFactor": "Base factor",
+      "active": "Active",
+      "system": "System"
+    },
+    "families": {
+      "weight": "Weight",
+      "volume": "Volume",
+      "count": "Count",
+      "pack": "Pack"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Add unit",
+      "editTitle": "Edit {{code}}"
+    },
+    "preview": {
+      "title": "Conversion preview",
+      "hint": "Check how units convert with the current factors (US gallon by default).",
+      "from": "From",
+      "to": "To",
+      "unavailable": "Choose related units in the same family"
+    },
+    "validation": {
+      "required": "This is required",
+      "number": "This should be a number",
+      "codeFormat": "Use letters, numbers, or underscore (start with a letter)",
+      "factorPositive": "Factor must be greater than zero"
+    },
+    "warnings": {
+      "factorChange": "Factor updated. Existing stock quantities are not recalculated — only future conversions use the new factor."
+    },
+    "errors": {
+      "inUse": "Cannot deactivate {{code}}: used by {{count}} item(s)",
+      "duplicateCode": "Unit code {{code}} already exists"
+    },
+    "toast": {
+      "saved": "Unit {{code}} saved"
+    }
   }
 }

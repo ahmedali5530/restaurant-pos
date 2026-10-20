@@ -5,6 +5,8 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getStockTransfer} from "@/lib/inventory/stock_transfer.service.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import {formatNumber} from "@/lib/utils.ts";
+import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
 import classNames from "classnames";
 
 interface Props {
@@ -133,14 +135,21 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
                         {line.item?.name ?? "Item"}
                         {line.item?.code ? ` (${line.item.code})` : ""}
                       </div>
-                      {line.item?.uom && (
-                        <div className="text-xs text-muted">{line.item.uom}</div>
-                      )}
                     </div>
-                    <div className="w-24 text-right">
-                      <div className="text-foreground">
-                        {t("forms.quantity")}: {line.quantity}
-                      </div>
+                    <div className="w-28 text-right">
+                      {(() => {
+                        const qty = formatLineQuantityDisplay(line as any, formatNumber);
+                        return (
+                          <>
+                            <div className="text-foreground">
+                              {t("forms.quantity")}: {qty.label}
+                            </div>
+                            {qty.stockHint && (
+                              <div className="text-xs text-muted">{qty.stockHint}</div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 ))}

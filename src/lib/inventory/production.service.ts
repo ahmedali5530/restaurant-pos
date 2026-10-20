@@ -30,6 +30,8 @@ type DatabaseClient = ReturnType<typeof useDB>;
 export type RecipeItemInput = {
   itemId: string;
   quantity: number;
+  entered_quantity?: number;
+  entered_uom?: string;
   sortOrder?: number;
 };
 
@@ -214,6 +216,8 @@ const createRecipeChildren = async (
         recipe: recipeRef,
         item: toItemRecordId(line.itemId),
         quantity: Number(line.quantity),
+        entered_quantity: line.entered_quantity,
+        entered_uom: line.entered_uom,
         sort_order: line.sortOrder ?? index,
       })
     )

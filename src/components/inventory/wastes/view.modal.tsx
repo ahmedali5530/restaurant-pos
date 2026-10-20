@@ -8,6 +8,8 @@ import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
 import {downloadArrayBuffer} from "@/utils/files.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {formatDateTime} from "@/lib/datetime.ts";
+import {formatNumber} from "@/lib/utils.ts";
+import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
 
 interface Props {
   open: boolean;
@@ -108,10 +110,20 @@ export const InventoryWasteViewModal = ({open, waste, onClose}: Props) => {
                         {item.item?.name ?? "Item"}
                       </div>
                     </div>
-                    <div className="w-24 text-right">
-                      <div className="text-foreground">
-                        Qty: {item.quantity}
-                      </div>
+                    <div className="w-28 text-right">
+                      {(() => {
+                        const qty = formatLineQuantityDisplay(item as any, formatNumber);
+                        return (
+                          <>
+                            <div className="text-foreground">
+                              {t("forms.quantity")}: {qty.label}
+                            </div>
+                            {qty.stockHint && (
+                              <div className="text-xs text-muted">{qty.stockHint}</div>
+                            )}
+                          </>
+                        );
+                      })()}
                     </div>
                     <div className="flex-1 min-w-[120px] text-xs text-muted">
                       {item.comments && <div className="truncate">Note: {item.comments}</div>}

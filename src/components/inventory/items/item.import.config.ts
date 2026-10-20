@@ -16,11 +16,9 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {parseItemTypesInput} from "@/utils/inventoryItemTypes.ts";
-import {
-  formatUomList,
-  INVENTORY_UOMS,
-  normalizeUom,
-} from "@/utils/inventoryUom.ts";
+import {formatUomList, normalizeUom} from "@/utils/inventoryUom.ts";
+import {getActiveInventoryUoms} from "@/lib/inventory/uom.catalog.ts";
+import {assertItemUomChangeAllowed} from "@/lib/inventory/item.uom.lock.ts";
 
 const CATALOG_PROMPT_LIMIT = 80;
 
@@ -75,7 +73,7 @@ export function createInventoryItemImportConfig({
       required: true,
       aliases: ["UOM", "Unit"],
       description: `Must be one of: ${formatUomList()}`,
-      allowedValues: [...INVENTORY_UOMS],
+      allowedValues: getActiveInventoryUoms().map((u) => u.code),
       transform: (value) => {
         if (value === null || value === undefined || value === "") return value;
         const raw = String(value).trim();
@@ -265,6 +263,19 @@ export function createInventoryItemImportConfig({
           : await findCsvImportMatches(db, Tables.inventory_items, conditions, {
               softDelete: false,
             });
+
+      if (existing.length === 1) {
+        const [currentRows] = await db.query(
+          `SELECT uom FROM ONLY $id`,
+          {id: toRecordId(existing[0].id)}
+        );
+        const current = Array.isArray(currentRows) ? currentRows[0] : currentRows;
+        await assertItemUomChangeAllowed(db as any, {
+          itemId: String(existing[0].id),
+          previousUom: current?.uom,
+          nextUom: uom,
+        });
+      }
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
