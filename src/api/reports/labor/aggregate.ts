@@ -16,7 +16,6 @@ import {getAppTimezone, toJsDate, toLuxonDateTime} from '@/lib/datetime.ts';
 import {safeNumber} from '@/lib/utils.ts';
 import {DateTime} from 'luxon';
 import type {
-import { runtimeDateTimeFormat } from '@/lib/runtime-config.ts';
   AbsenceRow,
   AttendanceReportRow,
   EmployeeLaborRow,
@@ -36,6 +35,7 @@ import { runtimeDateTimeFormat } from '@/lib/runtime-config.ts';
   ScheduleRosterResult,
   ScheduledVsActualRow,
 } from '@/api/reports/labor/shared/types.ts';
+import { runtimeDateTimeFormat } from '@/lib/runtime-config.ts';
 
 const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 
