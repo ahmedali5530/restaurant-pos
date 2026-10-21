@@ -15,6 +15,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -58,7 +59,7 @@ const parseWeekParams = (weekParam?: string) => {
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
-  const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+  const dateTimeFormat = runtimeDateTimeFormat();
 
   return {
     weekStart,

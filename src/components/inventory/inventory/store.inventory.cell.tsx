@@ -8,6 +8,7 @@ import { toLuxonDateTime } from "@/lib/datetime";
 import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 import {lineAmount, resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 export const StoreInventoryCell = ({locationId, item}: {locationId: string, item?: InventoryItem}) => {
   const { t } = useTranslation('inventory');
@@ -256,7 +257,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
                       {unifiedItem.type.replace(/_/g, " ")}
                       {unifiedItem.reversal ? ` (${t("status.voided")})` : ""}
                     </td>
-                    <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}</td>
+                    <td>{unifiedItem.created_at ? toLuxonDateTime(unifiedItem.created_at).toFormat(runtimeDateFormat()) : ""}</td>
                     <td>
                       {unifiedItem.item?.name}-{unifiedItem.item?.code}
                     </td>
@@ -304,7 +305,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string, item
 
                             return (
                               <tr key={splitItem.id} className={splitItem.reversal ? "opacity-60 line-through" : ""}>
-                                <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT) : splitItem.created_at}</td>
+                                <td>{splitItem.created_at ? toLuxonDateTime(splitItem.created_at).toFormat(runtimeDateFormat()) : splitItem.created_at}</td>
                                 <td>{displayOp}{displayQty} {splitItem.item?.uom || item?.uom}</td>
                               </tr>
                             );

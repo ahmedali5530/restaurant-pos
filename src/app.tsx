@@ -29,6 +29,7 @@ import {AppToolbar} from "./components/common/app-toolbar.tsx";
 import {PosStoreProvider} from "@/providers/pos-store.provider.tsx";
 import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
 import {SessionExpiryBridge} from "@/providers/session-expiry.bridge.tsx";
+import {InlineReportNavigation} from "@/components/reports/inline-report-navigation.tsx";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +107,7 @@ function App() {
                           <TableLockProvider>
                             <SecurityProvider>
                               <BrowserRouter>
+                                <InlineReportNavigation />
                                 <SessionExpiryBridge />
                                 <AppToolbar />
                                 <I18nProvider>

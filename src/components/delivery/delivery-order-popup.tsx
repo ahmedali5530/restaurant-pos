@@ -28,6 +28,7 @@ import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import { runtimeTimeFormat } from "@/lib/runtime-config.ts";
 
 interface DeliveryOrderPopupProps {
   order: Order;
@@ -375,7 +376,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
           <div className="bg-danger-200 p-4 rounded-lg border-2 border-danger-300">
             {order?.created_at && (
               <div className="space-y-2">
-                <p className="text-2xl font-medium">Ordered at: {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}</p>
+                <p className="text-2xl font-medium">Ordered at: {toLuxonDateTime(order.created_at).toFormat(runtimeTimeFormat())}</p>
               </div>
             )}
             <div className="space-y-2">
@@ -383,7 +384,7 @@ export const DeliveryOrderPopup: React.FC<DeliveryOrderPopupProps> = ({
                 Delivery time: {
                   !delivery?.deliveryTime || delivery.deliveryTime === 'now' || delivery.deliveryTime === 'asap'
                     ? 'ASAP'
-                    : toLuxonDateTime(delivery.deliveryTime).toFormat(import.meta.env.VITE_TIME_FORMAT)
+                    : toLuxonDateTime(delivery.deliveryTime).toFormat(runtimeTimeFormat())
                 }
               </p>
             </div>

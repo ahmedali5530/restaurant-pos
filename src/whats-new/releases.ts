@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-21',
+    title: 'Desktop reports and setup',
+    items: [
+      'On POSR Desktop, reports open in the same window. Back returns to the report list. A browser still opens each report in a new tab.',
+      'The Windows installer shows the store setup window after it creates the app data folder, instead of stopping there.',
+    ],
+  },
+  {
     date: '2026-10-17',
     title: 'Desktop gateway on the LAN',
     items: [

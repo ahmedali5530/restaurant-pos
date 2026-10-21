@@ -13,6 +13,7 @@ import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
 import {DAY_PART_LABELS, DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderFilteredItems, getOrderPaymentTotals, getOrderCartDiscountAmount} from "@/lib/order.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -44,7 +45,7 @@ const parseWeekParams = () => {
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
-  const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+  const dateTimeFormat = runtimeDateTimeFormat();
 
   return {
     weekStart,

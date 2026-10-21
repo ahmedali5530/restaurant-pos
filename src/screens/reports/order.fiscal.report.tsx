@@ -12,6 +12,7 @@ import {
   buildCreatedAtDateConditions,
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
+import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
 
 /** Friendly labels for known fiscal provider record ids. */
 const PROVIDER_LABELS: Record<string, string> = {
@@ -312,8 +313,8 @@ export const OrderFiscalReport = () => {
                     const figures = order ? getOrderSettlementFigures(order) : null;
                     const submittedAt = sub.submitted_at ?? sub.created_at;
                     const date = submittedAt ? toLuxonDateTime(submittedAt) : null;
-                    const dateStr = date ? date.toFormat(import.meta.env.VITE_DATE_FORMAT) : '—';
-                    const timeStr = date ? date.toFormat(import.meta.env.VITE_TIME_FORMAT) : '—';
+                    const dateStr = date ? date.toFormat(runtimeDateFormat()) : '—';
+                    const timeStr = date ? date.toFormat(runtimeTimeFormat()) : '—';
                     return (
                       <tr key={String(sub.id)}>
                         <td className="py-3 pl-6 pr-3 text-sm text-foreground">{dateStr}</td>

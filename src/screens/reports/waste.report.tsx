@@ -13,6 +13,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -192,7 +193,7 @@ export const WasteReport = () => {
                 ) : (
                   wastes.flatMap(waste => {
                     const date = toLuxonDateTime(waste.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
                     const createdByName = waste.created_by
                       ? `${waste.created_by.first_name ?? ''} ${waste.created_by.last_name ?? ''}`.trim() || waste.created_by.login || 'Unknown'
                       : 'Unknown';

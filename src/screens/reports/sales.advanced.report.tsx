@@ -19,6 +19,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
 
 const recordToString = (value: any): string => recordIdToString(value);
 
@@ -622,8 +623,8 @@ export const SalesAdvancedReport = () => {
                 const isExpanded = expandedOrderIds.has(orderId);
                 const orderTotals = calculateOrderTotals(order);
                 const orderDate = toLuxonDateTime(order.created_at);
-                const dateStr = orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                const timeStr = orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT);
+                const dateStr = orderDate.toFormat(runtimeDateFormat());
+                const timeStr = orderDate.toFormat(runtimeTimeFormat());
                 const orderTakerName = order.user
                   ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || 'Unknown'
                   : 'Unknown';

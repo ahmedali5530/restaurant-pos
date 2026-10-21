@@ -78,3 +78,17 @@ export function runtimeDateFormat(): string {
 export function runtimeTimeFormat(): string {
   return cache?.timeFormat || (import.meta.env.VITE_TIME_FORMAT as string) || 'HH:mm';
 }
+
+/** Date + time pattern. Luxon throws if this is missing, which blanks the page. */
+export function runtimeDateTimeFormat(): string {
+  if (cache?.dateFormat?.trim() || cache?.timeFormat?.trim()) {
+    return `${runtimeDateFormat()} ${runtimeTimeFormat()}`;
+  }
+  const fromEnv = (import.meta.env.VITE_DATE_TIME_FORMAT as string | undefined)?.trim();
+  return fromEnv || `${runtimeDateFormat()} ${runtimeTimeFormat()}`;
+}
+
+/** Luxon preset such as `ff`. Missing values throw inside toFormat. */
+export function runtimeDateHumanFormat(): string {
+  return (import.meta.env.VITE_DATE_HUMAN_FORMAT as string | undefined)?.trim() || 'ff';
+}

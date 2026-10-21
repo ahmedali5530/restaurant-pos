@@ -16,6 +16,7 @@ import {getAppTimezone, toJsDate, toLuxonDateTime} from '@/lib/datetime.ts';
 import {safeNumber} from '@/lib/utils.ts';
 import {DateTime} from 'luxon';
 import type {
+import { runtimeDateTimeFormat } from '@/lib/runtime-config.ts';
   AbsenceRow,
   AttendanceReportRow,
   EmployeeLaborRow,
@@ -727,7 +728,7 @@ const parseRosterBound = (value: string) => {
   const timezone = getAppTimezone();
   const fromFormat = DateTime.fromFormat(
     value,
-    import.meta.env.VITE_DATE_TIME_FORMAT as string,
+    runtimeDateTimeFormat(),
     {zone: timezone},
   );
   if (fromFormat.isValid) {

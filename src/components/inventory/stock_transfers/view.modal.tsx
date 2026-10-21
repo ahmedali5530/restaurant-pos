@@ -6,6 +6,7 @@ import {useDB} from "@/api/db/db.ts";
 import {getStockTransfer} from "@/lib/inventory/stock_transfer.service.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import classNames from "classnames";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 interface Props {
   open: boolean;
@@ -79,7 +80,7 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
               </div>
               <div className="text-xs text-muted">
                 {viewTransfer.created_at
-                  ? toLuxonDateTime(viewTransfer.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT)
+                  ? toLuxonDateTime(viewTransfer.created_at).toFormat(runtimeDateFormat())
                   : "—"}
               </div>
             </div>

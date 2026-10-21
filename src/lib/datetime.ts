@@ -1,6 +1,6 @@
 import { DateTime as LuxonDateTime } from "luxon";
 import { DateTime as SurrealDateTime } from "surrealdb";
-import { runtimeTimezone } from "@/lib/runtime-config.ts";
+import { runtimeTimezone, runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 export type DateInput =
   | SurrealDateTime
@@ -216,7 +216,7 @@ export const toJsDate = (value?: DateInput): Date => {
 };
 
 export const formatDateTime = (value?: DateInput): string =>
-  toLuxonDateTime(value).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string);
+  toLuxonDateTime(value).toFormat(runtimeDateTimeFormat());
 
 /** Start of a calendar day in the app timezone. */
 export const calendarDateToAppDateTime = (dateValue: {

@@ -1,6 +1,7 @@
 import {DateTime} from "luxon";
 import {InventoryInvoiceDoc} from "@/lib/inventory/invoice.mapper.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 interface Props {
   doc: InventoryInvoiceDoc;
@@ -9,7 +10,7 @@ interface Props {
 export const InventoryInvoice = ({doc}: Props) => {
   const showCost = !!doc.showCostColumns;
   const generatedAt = DateTime.now().toFormat(
-    import.meta.env.VITE_DATE_TIME_FORMAT || "dd/MM/yyyy HH:mm",
+    runtimeDateTimeFormat() || "dd/MM/yyyy HH:mm",
   );
 
   return (

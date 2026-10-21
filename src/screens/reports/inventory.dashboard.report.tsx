@@ -34,6 +34,7 @@ import {
   type LocationStockGroup,
 } from "@/api/reports/inventory/dashboard.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
+import { runtimeDateFormat, runtimeDateHumanFormat } from "@/lib/runtime-config.ts";
 
 const faIcon = (icon: IconDefinition) =>
   ({className}: {className?: string}) => <FontAwesomeIcon icon={icon} className={className} />;
@@ -380,7 +381,7 @@ export const InventoryDashboardReport = () => {
   const chartData = useMemo(() => {
     if (!docs) return [];
     const allDates = new Set<string>();
-    const dateFmt = import.meta.env.VITE_DATE_FORMAT;
+    const dateFmt = runtimeDateFormat();
 
     const addByDate = (
       map: Map<string, number>,
@@ -524,7 +525,7 @@ export const InventoryDashboardReport = () => {
       const extras = (p.extras ?? []).reduce((sum: number, extra: any) => sum + safeNumber(extra.amount), 0);
       return {
         invoice: `#${p.invoice_number || "-"}`,
-        date: DateTime.fromJSDate(p.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+        date: DateTime.fromJSDate(p.created_at).toFormat(runtimeDateHumanFormat()),
         supplier: p.supplier?.name || "-",
         location: p.location?.name || "-",
         createdBy: personName(p.created_by),
@@ -537,7 +538,7 @@ export const InventoryDashboardReport = () => {
   const purchaseReturnsTableData = useMemo(() => {
     return (docs?.purchaseReturns ?? []).slice(0, 20).map((pr: any) => ({
       invoice: `#${pr.invoice_number || "-"}`,
-      date: DateTime.fromJSDate(pr.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(pr.created_at).toFormat(runtimeDateHumanFormat()),
       purchase: pr.purchase ? `#${pr.purchase.invoice_number || "-"}` : "-",
       location: pr.location?.name || "-",
       createdBy: personName(pr.created_by),
@@ -554,7 +555,7 @@ export const InventoryDashboardReport = () => {
   const issuesTableData = useMemo(() => {
     return (docs?.issues ?? []).slice(0, 20).map((i: any) => ({
       invoice: i.invoice_number ? `#${i.invoice_number}` : "-",
-      date: DateTime.fromJSDate(i.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(i.created_at).toFormat(runtimeDateHumanFormat()),
       issuedTo: personName(i.issued_to),
       location: i.location?.name || "-",
       createdBy: personName(i.created_by),
@@ -566,7 +567,7 @@ export const InventoryDashboardReport = () => {
   const issueReturnsTableData = useMemo(() => {
     return (docs?.issueReturns ?? []).slice(0, 20).map((ir: any) => ({
       invoice: `#${ir.invoice_number || "-"}`,
-      date: DateTime.fromJSDate(ir.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(ir.created_at).toFormat(runtimeDateHumanFormat()),
       issuance: ir.issuance?.invoice_number ? `#${ir.issuance.invoice_number}` : "-",
       location: ir.location?.name || "-",
       createdBy: personName(ir.created_by),
@@ -578,7 +579,7 @@ export const InventoryDashboardReport = () => {
   const wastesTableData = useMemo(() => {
     return (docs?.wastes ?? []).slice(0, 20).map((w: any) => ({
       invoice: `#${w.invoice_number || "-"}`,
-      date: DateTime.fromJSDate(w.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(w.created_at).toFormat(runtimeDateHumanFormat()),
       purchase: w.purchase?.invoice_number ? `#${w.purchase.invoice_number}` : "-",
       issue: w.issue?.invoice_number ? `#${w.issue.invoice_number}` : "-",
       createdBy: personName(w.created_by),
@@ -589,7 +590,7 @@ export const InventoryDashboardReport = () => {
 
   const transfersTableData = useMemo(() => {
     return (docs?.transfers ?? []).slice(0, 20).map((tr: any) => ({
-      date: DateTime.fromJSDate(tr.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(tr.created_at).toFormat(runtimeDateHumanFormat()),
       from: tr.from_location?.name || "-",
       to: tr.to_location?.name || "-",
       createdBy: personName(tr.created_by),
@@ -601,7 +602,7 @@ export const InventoryDashboardReport = () => {
   const productionTableData = useMemo(() => {
     return (docs?.productionBatches ?? []).slice(0, 20).map((b: any) => ({
       batch: b.batch_number || "-",
-      date: DateTime.fromJSDate(b.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(b.created_at).toFormat(runtimeDateHumanFormat()),
       recipe: b.recipe?.name || "-",
       location: b.location?.name || "-",
       createdBy: personName(b.created_by),
@@ -612,7 +613,7 @@ export const InventoryDashboardReport = () => {
   const buffetTableData = useMemo(() => {
     return (docs?.buffetSessions ?? []).slice(0, 20).map((s: any) => ({
       session: s.session_number || "-",
-      date: s.business_date || DateTime.fromJSDate(s.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: s.business_date || DateTime.fromJSDate(s.created_at).toFormat(runtimeDateHumanFormat()),
       menu: s.menu?.name || "-",
       location: s.location?.name || "-",
       status: s.status || "-",
@@ -628,7 +629,7 @@ export const InventoryDashboardReport = () => {
   const adjustmentsTableData = useMemo(() => {
     return (docs?.adjustments ?? []).slice(0, 20).map((a: any) => ({
       invoice: `#${a.invoice_number || "-"}`,
-      date: DateTime.fromJSDate(a.created_at).toFormat(import.meta.env.VITE_DATE_HUMAN_FORMAT),
+      date: DateTime.fromJSDate(a.created_at).toFormat(runtimeDateHumanFormat()),
       reason: a.reason || "-",
       location: a.location?.name || "-",
       createdBy: personName(a.created_by),

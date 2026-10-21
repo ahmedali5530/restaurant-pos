@@ -23,7 +23,11 @@
 
   StrCmp $1 "" skip_cfg 0
   ${IfNot} ${Silent}
-    nsExec::ExecToLog '"$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$1" -AppDataDir "$0"'
+    ; nsExec hides the child window, so the WinForms wizard never appears and
+    ; the installer sits on "creating com.posr.desktop". ExecWait shows it.
+    ; -STA is required or ShowDialog deadlocks.
+    DetailPrint "Opening POSR setup..."
+    ExecWait '"$WINDIR\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -STA -ExecutionPolicy Bypass -File "$1" -AppDataDir "$0"'
   ${Else}
     IfFileExists "$0\installer-settings.json" +3 0
     StrCmp $2 "" +2 0

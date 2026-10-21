@@ -14,10 +14,16 @@ Add-Type -AssemblyName System.Drawing
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "POSR Desktop setup"
-$form.Size = New-Object System.Drawing.Size(520, 640)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
+$form.MinimizeBox = $false
+$form.TopMost = $true
+$form.AutoScroll = $true
+$form.Add_Shown({
+  param($sender)
+  $sender.Activate() | Out-Null
+})
 
 function Add-Label($text, $y) {
   $l = New-Object System.Windows.Forms.Label
@@ -56,17 +62,20 @@ Add-Label "Integration encryption key (blank = auto)" $y; $y += 22; $encKey = Ad
 
 $ok = New-Object System.Windows.Forms.Button
 $ok.Text = "Save"
-$ok.Location = New-Object System.Drawing.Point(280, 560)
+$ok.Location = New-Object System.Drawing.Point(280, $y)
 $ok.DialogResult = [System.Windows.Forms.DialogResult]::OK
 $form.AcceptButton = $ok
 $form.Controls.Add($ok)
 
 $cancel = New-Object System.Windows.Forms.Button
 $cancel.Text = "Skip"
-$cancel.Location = New-Object System.Drawing.Point(380, 560)
+$cancel.Location = New-Object System.Drawing.Point(380, $y)
 $cancel.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
 $form.CancelButton = $cancel
 $form.Controls.Add($cancel)
+
+$clientHeight = [Math]::Min(680, $y + 48)
+$form.ClientSize = New-Object System.Drawing.Size(500, $clientHeight)
 
 $result = $form.ShowDialog()
 if ($result -ne [System.Windows.Forms.DialogResult]::OK) {

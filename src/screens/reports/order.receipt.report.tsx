@@ -1,6 +1,8 @@
 import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
-import {faFile, faImage, faPrint} from "@fortawesome/free-solid-svg-icons";
+import {useNavigate} from "react-router";
+import {faChevronLeft, faFile, faImage, faPrint} from "@fortawesome/free-solid-svg-icons";
+import {inlineReportBackTarget, isInlineReport} from "@/lib/inline-report.ts";
 import {useDB} from "@/api/db/db.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {GetOrderDetailOptions} from "@/api/reports/operations/order-detail.ts";
@@ -67,6 +69,9 @@ const hasLookup = (options: GetOrderDetailOptions) =>
 export const OrderReceiptReport = () => {
   const {t} = useTranslation("reports");
   const {t: tNav} = useTranslation("navigation");
+  const {t: tCommon} = useTranslation("common");
+  const navigate = useNavigate();
+  const inline = isInlineReport();
   const db = useDB();
   const queryRef = useRef(db.query);
   const documentRef = useRef<HTMLDivElement>(null);
@@ -191,6 +196,20 @@ export const OrderReceiptReport = () => {
 
       <div className="mx-auto max-w-xl flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2 print:hidden sticky top-0 z-10 bg-surface py-2">
+          {inline && (
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={faChevronLeft}
+              onClick={() => {
+                const target = inlineReportBackTarget();
+                if (target === -1) navigate(-1);
+                else navigate(target);
+              }}
+            >
+              {tCommon("actions.back")}
+            </Button>
+          )}
           <Button
             variant="primary"
             size="sm"

@@ -7,6 +7,7 @@ import { Button } from '@/components/common/input/button.tsx';
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { useIntegrationManager } from '@/providers/integration.provider.tsx';
 import { useDB } from '@/api/db/db.ts';
+import { runtimeDateFormat, runtimeTimeFormat } from '@/lib/runtime-config.ts';
 
 interface QueuePanelProps {
   rows: IntegrationQueueJob[];
@@ -26,8 +27,8 @@ const STATUS_STYLES: Record<IntegrationQueueStatus, string> = {
 const formatQueueDate = (value?: string) => {
   const dt = toLuxonDateTime(value);
   if (!dt.isValid) return '—';
-  const dateFormat = import.meta.env.VITE_DATE_FORMAT || 'yyyy-MM-dd';
-  const timeFormat = import.meta.env.VITE_TIME_FORMAT || 'HH:mm';
+  const dateFormat = runtimeDateFormat() || 'yyyy-MM-dd';
+  const timeFormat = runtimeTimeFormat() || 'HH:mm';
   return dt.toFormat(`${dateFormat} ${timeFormat}`);
 };
 
