@@ -432,6 +432,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Substituição da largura do papel",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
+    "printerCommandSet": "Conjunto de comandos",
+    "printerCommandSetHint": "As TSP100 ignoram texto ESC/POS. O modo gráfico Star envia o cupom como imagem.",
+    "commandSetEscpos": "ESC/POS",
+    "commandSetStar": "Gráfico Star (TSP100)",
     "usePrintSettings": "Usar configurações de impressão"
   },
   "dishView": {

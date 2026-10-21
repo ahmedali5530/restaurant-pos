@@ -4,6 +4,46 @@ const Network = require('escpos-network');
 const net = require('net');
 
 /**
+ * escpos-network closes with socket.destroy(). That aborts the TCP session
+ * with RST after the write is queued. Many thermal printers only release the
+ * ticket on a clean FIN, so the HTTP handler reports success and nothing prints.
+ * end() flushes the buffer and half-closes the socket.
+ */
+const NETWORK_FLUSH_TIMEOUT_MS = 20000;
+
+Network.prototype.close = function (callback) {
+  const sock = this.device;
+  this.device = null;
+  if (!sock || sock.destroyed) {
+    this.emit('disconnect', sock);
+    if (callback) callback(null, sock);
+    return this;
+  }
+
+  let settled = false;
+  const finish = (err) => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timer);
+    this.emit('disconnect', sock);
+    if (callback) callback(err || null, sock);
+  };
+
+  const timer = setTimeout(() => {
+    try {
+      sock.destroy();
+    } catch (_) {
+      // already gone
+    }
+    finish(new Error('Printer connection flush timed out'));
+  }, NETWORK_FLUSH_TIMEOUT_MS);
+
+  sock.once('error', (err) => finish(err));
+  sock.end(() => finish(null));
+  return this;
+};
+
+/**
  * Allow only private / link-local LAN targets for network printers (SSRF guard).
  * Override with PRINT_ALLOWED_IPS=comma,separated,ips.
  */
