@@ -131,6 +131,7 @@ function printerToDriverConfig(p: Printer): Record<string, unknown> {
   if (p.paper_width_mm != null && p.paper_width_mm !== ('' as unknown)) {
     cfg.paper_width_mm = Number(p.paper_width_mm);
   }
+  if (p.command_set) cfg.command_set = String(p.command_set);
   return cfg;
 }
 

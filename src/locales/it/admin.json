@@ -432,6 +432,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Override larghezza carta",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
+    "printerCommandSet": "Set di comandi",
+    "printerCommandSetHint": "Le TSP100 ignorano il testo ESC/POS. La grafica Star invia lo scontrino come immagine.",
+    "commandSetEscpos": "ESC/POS",
+    "commandSetStar": "Grafica Star (TSP100)",
     "usePrintSettings": "Usa impostazioni di stampa"
   },
   "dishView": {

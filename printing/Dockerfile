@@ -1,12 +1,18 @@
 # Node Alpine with libudev and image libs for escpos + USB
 FROM node:20-alpine
 
-# libudev.so.1 required by node_modules/usb for USB access
-# and system libs needed to build node-canvas (used by escpos for images)
+# libudev.so.1 required by node_modules/usb for USB access.
+# canvas.node is dynamically linked; these libs must exist at runtime
+# (libcairo.so.2, pango, libpng, libjpeg.so.8, giflib), not only at build time.
 RUN apk add --no-cache \
   eudev-libs \
-  build-base \
-  cairo-dev pango-dev jpeg-dev giflib-dev \
+  build-base python3 pkgconf \
+  cairo cairo-dev \
+  pango pango-dev \
+  libpng \
+  libjpeg-turbo jpeg-dev \
+  giflib giflib-dev \
+  freetype glib pixman harfbuzz \
   fontconfig ttf-dejavu font-noto font-noto-arabic
 
 WORKDIR /app

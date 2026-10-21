@@ -432,6 +432,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "Remplacement de la largeur du papier",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
+    "printerCommandSet": "Jeu de commandes",
+    "printerCommandSetHint": "Les TSP100 ignorent le texte ESC/POS. Le mode graphique Star envoie le ticket en image.",
+    "commandSetEscpos": "ESC/POS",
+    "commandSetStar": "Graphique Star (TSP100)",
     "usePrintSettings": "Utiliser les paramètres d'impression"
   },
   "dishView": {

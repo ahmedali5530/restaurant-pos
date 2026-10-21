@@ -42,6 +42,10 @@ const validationSchema = yup.object({
     label: yup.string(),
     value: yup.string()
   }).nullable().optional(),
+  command_set: yup.object({
+    label: yup.string(),
+    value: yup.string()
+  }).nullable().optional(),
 });
 
 export const PrinterForm = ({
@@ -63,6 +67,7 @@ export const PrinterForm = ({
       const widthVal = data.paper_width_mm != null && data.paper_width_mm !== ''
         ? String(data.paper_width_mm)
         : '';
+      const commandVal = data.command_set ? String(data.command_set) : '';
       reset({
         ...data,
         name: data.name,
@@ -82,6 +87,12 @@ export const PrinterForm = ({
               value: widthVal,
             }
           : null,
+        command_set: commandVal
+          ? {
+              label: commandVal === 'star-graphic' ? t('forms.commandSetStar') : t('forms.commandSetEscpos'),
+              value: commandVal,
+            }
+          : null,
       });
     }
   }, [data, reset, t]);
@@ -96,6 +107,7 @@ export const PrinterForm = ({
       paper_width_mm: values?.paper_width_mm?.value
         ? Number(values.paper_width_mm.value)
         : null,
+      command_set: values?.command_set?.value ? values.command_set.value : null,
     };
 
     try {
@@ -246,6 +258,28 @@ export const PrinterForm = ({
               </div>
             )}
 
+            <div className="flex-1">
+              <label htmlFor="command_set">{t('forms.printerCommandSet')}</label>
+              <Controller
+                render={({field}) => (
+                  <div>
+                    <ReactSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      isClearable
+                      placeholder={t('forms.commandSetEscpos')}
+                      options={[
+                        { label: t('forms.commandSetEscpos'), value: 'escpos' },
+                        { label: t('forms.commandSetStar'), value: 'star-graphic' },
+                      ]}
+                    />
+                    <p className="text-xs text-muted mt-1">{t('forms.printerCommandSetHint')}</p>
+                  </div>
+                )}
+                name="command_set"
+                control={control}
+              />
+            </div>
             <div className="flex-1">
               <label htmlFor="print_mode">{t('forms.printerPrintMode')}</label>
               <Controller
