@@ -4,6 +4,7 @@ import {
   isGatewayAuthEnabled,
   withGatewayWsToken,
 } from '@/lib/session.ts';
+import { runtimeDbWebsocketUrl } from '@/lib/runtime-config.ts';
 
 export const DB_REST_API = import.meta.env.VITE_DB_WEBDOCKET as string | undefined;
 
@@ -26,7 +27,7 @@ export const withApi = (path: string) => {
 };
 
 export function resolveDbWebsocketUrl(): string {
-  const base = DB_REST_API || '';
+  const base = runtimeDbWebsocketUrl() || DB_REST_API || '';
   if (!isGatewayAuthEnabled()) {
     return base;
   }

@@ -15,6 +15,7 @@ import {
 import {purchaseOrderListTotal} from "@/lib/inventory/document.list.total.ts";
 import {resolveInventoryLineUnitCost, lineAmount} from "@/lib/inventory/line.cost.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -203,7 +204,7 @@ export const PurchaseOrderReport = () => {
                 ) : (
                   orders.flatMap(order => {
                     const date = toLuxonDateTime(order.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
                     const supplierName = order.supplier?.name || 'N/A';
                     const createdBy = (order as any).created_by;
                     const createdByName = createdBy

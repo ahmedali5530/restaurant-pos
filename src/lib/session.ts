@@ -1,3 +1,5 @@
+import { getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
+
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
 
@@ -26,6 +28,10 @@ export function isGatewayAuthEnabled(): boolean {
 }
 
 export function getGatewayBaseUrl(): string {
+  const central = getCachedRuntimeConfig()?.gatewayUrl?.trim();
+  if (central) {
+    return central.replace(/\/$/, '');
+  }
   const explicit = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.trim();
   if (explicit) {
     return explicit.replace(/\/$/, '');

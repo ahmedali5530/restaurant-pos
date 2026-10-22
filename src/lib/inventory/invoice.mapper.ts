@@ -14,6 +14,7 @@ import {
 } from "@/lib/inventory/line.cost.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {safeNumber, withCurrency} from "@/lib/utils.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 export type InventoryInvoiceMeta = {
   label: string;
@@ -60,7 +61,7 @@ const formatDate = (value?: unknown) => {
   if (!value) return "—";
   try {
     return LuxonDateTime.fromJSDate(toJsDate(value as any)).toFormat(
-      import.meta.env.VITE_DATE_TIME_FORMAT || "dd/MM/yyyy HH:mm",
+      runtimeDateTimeFormat() || "dd/MM/yyyy HH:mm",
     );
   } catch {
     return "—";

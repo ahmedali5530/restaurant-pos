@@ -3,6 +3,7 @@ import {REPORTS_ORDER_FISCAL} from "@/routes/posr.ts";
 import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 export const OrderFiscalFilter = () => {
   const {t} = useTranslation('reports');
@@ -25,6 +26,8 @@ export const OrderFiscalFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label={t('filters.selectRange')} />
+
+      <BranchScopeFilter />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">

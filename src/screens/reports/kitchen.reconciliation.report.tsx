@@ -10,6 +10,7 @@ import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.
 import {formatNumber} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {Tables} from "@/api/db/tables.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const toFullRecordIdString = (value: unknown, table: string): string => {
   if (!value) return "";
@@ -137,10 +138,10 @@ export const KitchenReconciliationReport = () => {
       );
       const totals = computeTotals(computedLines);
       const dateFrom = toLuxonDateTime(reconciliation.date_from).toFormat(
-        import.meta.env.VITE_DATE_FORMAT
+        runtimeDateFormat()
       );
       const dateTo = toLuxonDateTime(reconciliation.date_to).toFormat(
-        import.meta.env.VITE_DATE_FORMAT
+        runtimeDateFormat()
       );
 
       return {
@@ -151,7 +152,7 @@ export const KitchenReconciliationReport = () => {
         window: `${dateFrom} – ${dateTo}`,
         verifiedBy: formatUserName(reconciliation.verified_by),
         verifiedAt: reconciliation.verified_at
-          ? toLuxonDateTime(reconciliation.verified_at).toFormat(import.meta.env.VITE_DATE_FORMAT)
+          ? toLuxonDateTime(reconciliation.verified_at).toFormat(runtimeDateFormat())
           : "—",
         lineCount: totals.lineCount,
         totalVariance: totals.totalVariance,

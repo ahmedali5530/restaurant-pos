@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import {DateTime} from "luxon";
 import { Dayjs } from "dayjs";
 import {getAppTimezone} from "@/lib/datetime.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 interface DateRangeProps {
   startName?: string;
@@ -20,17 +21,17 @@ export function DateRange({
 }: DateRangeProps) {
   const { t } = useTranslation('reports');
   const now = () => DateTime.now().setZone(getAppTimezone());
-  const todayStart = now().startOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT);
-  const todayEnd = now().endOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT);
+  const todayStart = now().startOf("day").toFormat(runtimeDateTimeFormat());
+  const todayEnd = now().endOf("day").toFormat(runtimeDateTimeFormat());
   const dates = {
     "Today": `${todayStart}to${todayEnd}`,
-    "Yesterday": `${now().minus({'day': 1}).startOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({'day': 1}).endOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This week": `${now().startOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last week": `${now().minus({week: 1}).startOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({week: 1}).endOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This month": `${now().startOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last month": `${now().minus({month: 1}).startOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({month: 1}).endOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This year": `${now().startOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last year": `${now().minus({year: 1}).startOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({year: 1}).endOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
+    "Yesterday": `${now().minus({'day': 1}).startOf("day").toFormat(runtimeDateTimeFormat())}to${now().minus({'day': 1}).endOf("day").toFormat(runtimeDateTimeFormat())}`,
+    "This week": `${now().startOf('week').toFormat(runtimeDateTimeFormat())}to${now().endOf('week').toFormat(runtimeDateTimeFormat())}`,
+    "Last week": `${now().minus({week: 1}).startOf('week').toFormat(runtimeDateTimeFormat())}to${now().minus({week: 1}).endOf('week').toFormat(runtimeDateTimeFormat())}`,
+    "This month": `${now().startOf('month').toFormat(runtimeDateTimeFormat())}to${now().endOf('month').toFormat(runtimeDateTimeFormat())}`,
+    "Last month": `${now().minus({month: 1}).startOf('month').toFormat(runtimeDateTimeFormat())}to${now().minus({month: 1}).endOf('month').toFormat(runtimeDateTimeFormat())}`,
+    "This year": `${now().startOf('year').toFormat(runtimeDateTimeFormat())}to${now().endOf('year').toFormat(runtimeDateTimeFormat())}`,
+    "Last year": `${now().minus({year: 1}).startOf('year').toFormat(runtimeDateTimeFormat())}to${now().minus({year: 1}).endOf('year').toFormat(runtimeDateTimeFormat())}`,
     "All time": "to",
     "Custom": "CUS"
   }

@@ -1,9 +1,8 @@
 import {toRecordId} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
 import {getAppTimezone} from "@/lib/datetime.ts";
+import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
-const QUERY_DATE_TIME_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
-const QUERY_DATE_FORMAT = import.meta.env.VITE_DATE_FORMAT as string;
 const BARE_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 export const unwrapQueryResult = <T>(result: unknown): T[] => {
@@ -32,12 +31,12 @@ const parseReportBoundary = (value: string): DateTime => {
   const timezone = getAppTimezone();
   const trimmed = value.trim();
 
-  const asDateTime = DateTime.fromFormat(trimmed, QUERY_DATE_TIME_FORMAT, {zone: timezone});
+  const asDateTime = DateTime.fromFormat(trimmed, runtimeDateTimeFormat(), {zone: timezone});
   if (asDateTime.isValid) {
     return asDateTime;
   }
 
-  const asDateOnly = DateTime.fromFormat(trimmed, QUERY_DATE_FORMAT, {zone: timezone});
+  const asDateOnly = DateTime.fromFormat(trimmed, runtimeDateFormat(), {zone: timezone});
   if (asDateOnly.isValid) {
     return asDateOnly.startOf("day");
   }
@@ -207,6 +206,25 @@ export const buildStringInsideCondition = (
     condition: `${field} INSIDE $${paramName}`,
     params: {[paramName]: values},
   };
+};
+
+/**
+ * Cloud-master branch stamp filter (`SYNC_CLIENT_ID` string on FOH rows).
+ * - `undefined` → no condition (single-store or unrestricted "all")
+ * - `[]` → force empty result (`emptyResult: true`)
+ * - non-empty → `branch_id INSIDE $param`
+ */
+export const buildBranchInsideCondition = (
+  branchIds: string[] | undefined,
+  paramName = "branchIds",
+): {condition?: string; params: Record<string, any>; emptyResult?: boolean} => {
+  if (branchIds === undefined) {
+    return {params: {}};
+  }
+  if (branchIds.length === 0) {
+    return {condition: "false", params: {}, emptyResult: true};
+  }
+  return buildStringInsideCondition("branch_id", branchIds, paramName);
 };
 
 /**

@@ -3,6 +3,7 @@ import {Printersettings} from "@/components/user_settings/printers.tsx";
 import {PrintOptionsSettingsCard} from "@/components/user_settings/print_options.tsx";
 import {ServiceChargesSettings} from "@/components/user_settings/service_charges.tsx";
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
+import {CatalogSyncSettingsCard} from "@/components/user_settings/catalog_sync.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
 import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
@@ -20,6 +21,7 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
+import {DesktopSurqlImportCard} from "@/components/user_settings/desktop_surql_import.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -43,7 +45,9 @@ export const Settings = () => {
         data-testid="settings-page"
       >
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
+        <MasonryItem><DesktopSurqlImportCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
+        <MasonryItem><CatalogSyncSettingsCard /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>
         <MasonryItem><BrandingSettingsCard /></MasonryItem>

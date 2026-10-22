@@ -239,7 +239,13 @@
     "location": "Localização",
     "selectDate": "Selecionar data",
     "allShifts": "Todos os turnos do dia",
-    "cashClosingShiftHint": "Escolha um turno para abrir só esse fechamento, ou deixe vazio para ver todos os fechamentos do dia e alternar entre eles no relatório."
+    "cashClosingShiftHint": "Escolha um turno para abrir só esse fechamento, ou deixe vazio para ver todos os fechamentos do dia e alternar entre eles no relatório.",
+    "branches": "Filiais",
+    "branchesAll": "Todas as filiais",
+    "branchesHelp": "Deixe vazio para incluir todas as filiais às quais você tem acesso.",
+    "branchView": "Visualização",
+    "branchViewCombined": "Combinada",
+    "branchViewByBranch": "Por filial"
   },
   "datePresets": {
     "today": "Hoje",
@@ -587,6 +593,8 @@
     "refunds": "Reembolsos",
     "closingsForDay": "Fechamentos deste dia",
     "closingsCount": "{{count}} fechamentos",
+    "branchTotal": "Total",
+    "branch": "Filial",
     "selfOrders": "Autopedidos por QR",
     "selfOrdersHint": "Pagos online pelos clientes na mesa — não entram na gaveta de dinheiro nem no lote de cartões acima.",
     "selfOrdersTotal": "Pago online",

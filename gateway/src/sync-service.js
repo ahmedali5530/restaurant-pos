@@ -35,6 +35,8 @@ const SNAPSHOT_TABLES = [
   'menu',
   'menu_menu_item',
   'setting',
+  // Roles before users so FETCH user_role / offline permissions see modules.
+  'user_role',
   'user',
   'extra',
   'discount',

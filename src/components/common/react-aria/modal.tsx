@@ -133,7 +133,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
                 <div
                   className={cn(
                     "pb-5 modal-container px-5 py-3 bg-surface",
-                    size === "full" ? "overflow-hidden" : "overflow-auto"
+                    size === "full" ? "overflow-y-auto overflow-x-hidden min-h-0" : "overflow-auto"
                   )}
                 >
                   {props.children}

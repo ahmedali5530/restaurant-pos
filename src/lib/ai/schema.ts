@@ -4,10 +4,10 @@ import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {AI_ASSISTANT_PERSONA} from "@/lib/ai/assistant-config.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 export {AI_ASSISTANT_PERSONA};
 
-const QUERY_DATE_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 const APP_CURRENCY = (import.meta.env.VITE_CURRENCY as string) || "PKR";
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$",
@@ -156,7 +156,7 @@ export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string 
   `${AI_ASSISTANT_PERSONA} Use tools to fetch live data — never guess numbers.
 
 ${buildDateContextBlock()}
-Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
+Date format for tool parameters: ${runtimeDateTimeFormat()}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
 
 Rules:
 - Each request is standalone: you only receive the current user message, not earlier chat. Answer only that question — never merge or repeat results from other topics the user may have asked before in the UI.
@@ -185,7 +185,7 @@ const buildFullPrompt = (format: AiReportFormat): string =>
 
 ${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
-- Date format for tool parameters: ${QUERY_DATE_FORMAT} (e.g. 2026-07-01 00:00)
+- Date format for tool parameters: ${runtimeDateTimeFormat()} (e.g. 2026-07-01 00:00)
 - Business timezone: ${getAppTimezone()}
 - Business currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}). Format all monetary amounts using ${APP_CURRENCY} or ${CURRENCY_SYMBOL}. Never use INR, USD, or other currencies.
 - Get local or national events for ${getAppTimezone()} timezone.

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { getDefaultStore } from "jotai";
 import i18n from "@/lib/i18n.ts";
 import { authHeaders } from "@/lib/session.ts";
+import { runtimePrintServerUrl } from "@/lib/runtime-config.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
@@ -308,7 +309,9 @@ export async function dispatchPrint<Payload = any>(
     printers?: Printer[]
   }
 ): Promise<boolean> {
-  const baseUrl = (import.meta.env.VITE_PRINT_SERVER_URL as string) || DEFAULT_PRINT_URL;
+  const baseUrl = runtimePrintServerUrl()
+    || (import.meta.env.VITE_PRINT_SERVER_URL as string)
+    || DEFAULT_PRINT_URL;
   const url = `${baseUrl.replace(/\/$/, '')}/print`;
   const uid = options?.userId != null ? toIdString(options.userId) : null;
 

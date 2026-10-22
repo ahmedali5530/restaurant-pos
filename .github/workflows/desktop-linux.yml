@@ -1,0 +1,93 @@
+# Manual Linux desktop build for QA (.deb).
+# Actions → Desktop Linux build → Run workflow
+name: Desktop Linux build
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-linux-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build deb package
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+
+      - name: Cache Rust
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri -> target
+          shared-key: posr-desktop-linux
+
+      - name: Install JS dependencies (app)
+        run: bun install --frozen-lockfile
+
+      - name: Install JS dependencies (desktop)
+        working-directory: desktop
+        run: bun install --frozen-lockfile
+
+      - name: Prepare sidecars (Node + Surreal + services)
+        run: bash desktop/scripts/prepare-sidecars.sh
+
+      - name: Build Linux deb
+        env:
+          POSR_REPO_ROOT: ${{ github.workspace }}
+        run: bun run desktop:build
+
+      - name: Locate package
+        run: |
+          dir="desktop/src-tauri/target/release/bundle/deb"
+          if [ ! -d "$dir" ]; then
+            echo "deb output missing: $dir" >&2
+            exit 1
+          fi
+          find "$dir" -type f -print
+          find "$dir" -type f -name '*.deb' | grep -q .
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: posr-desktop-linux-deb
+          path: desktop/src-tauri/target/release/bundle/deb/
+          if-no-files-found: error
+          retention-days: 14

@@ -7,6 +7,7 @@ import {formatNumber} from "@/lib/utils.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {fetchLedgerMovements} from "@/lib/inventory/ledger.service.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 type InventoryTransaction = {
   date: string;
@@ -267,7 +268,7 @@ export const DetailedInventoryReport = () => {
               transactions.map((transaction, index) => (
                 <tr key={`${transaction.date}-${transaction.item}-${transaction.type}-${index}`}>
                   <td className="py-4 pl-6 pr-3 text-sm text-foreground">
-                    {transaction.date ? toLuxonDateTime(transaction.date).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}
+                    {transaction.date ? toLuxonDateTime(transaction.date).toFormat(runtimeDateFormat()) : ""}
                   </td>
                   <td className="py-4 px-3 text-sm font-medium text-foreground">
                     {transaction.item}{transaction.itemCode ? ` (${transaction.itemCode})` : ""}
