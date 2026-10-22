@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Données POS locales sur ce terminal. Recharger les efface et télécharge une copie fraîche depuis le serveur. Nécessite une connexion.",
+    "description": "Données POS locales sur ce terminal. Actualiser le catalogue met à jour le menu, les étages, les paiements et les taxes sans toucher aux additions ouvertes. Recharger le cache efface tout et retélécharge depuis le serveur (clients et commandes récentes inclus). Connexion requise.",
+    "refreshCatalog": "Actualiser le catalogue",
     "reload": "Recharger le cache",
     "orderTypes": "Types de commande",
     "categories": "Catégories",
@@ -71,11 +72,14 @@
     "kitchens": "Cuisines",
     "paymentTypes": "Types de paiement",
     "taxes": "Taxes",
+    "catalogReloaded": "Catalogue actualisé depuis le serveur",
+    "catalogReloadFailed": "Échec de l'actualisation du catalogue",
+    "confirmCatalog": "Actualiser le menu, les étages, les paiements et les taxes depuis le serveur ? Les additions ouvertes et les commandes non synchronisées restent sur ce terminal.",
     "reloaded": "Cache effacé et rechargé depuis le serveur",
     "reloadFailed": "Échec du rechargement du cache",
     "confirm": "Effacer le cache POS local et télécharger une copie fraîche depuis le serveur ?",
     "confirmWithPending": "Vous avez {{count}} modification(s) non synchronisée(s) qui seront perdues. Effacer le cache POS local et télécharger une copie fraîche depuis le serveur ?",
-    "offline": "Impossible de recharger le cache hors ligne",
+    "offline": "Impossible d'actualiser le cache hors ligne",
     "offlineHint": "Disponible lorsque la connexion au serveur est établie"
   },
   "serviceCharges": {

@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Önbellek",
-    "description": "Bu terminaldeki yerel POS verileri. Yeniden yükleme bunları temizler ve sunucudan yeni bir kopya indirir. Çevrimiçi bağlantı gerekir.",
+    "description": "Bu terminaldeki yerel POS verileri. Kataloğu yenile, açık adisyonlara dokunmadan menü, katlar, ödemeler ve vergileri günceller. Önbelleği yeniden yükle her şeyi siler ve sunucudan yeniden indirir (müşteriler ve son siparişler dahil). Çevrimiçi bağlantı gerekir.",
+    "refreshCatalog": "Kataloğu yenile",
     "reload": "Önbelleği yeniden yükle",
     "orderTypes": "Sipariş türleri",
     "categories": "Kategoriler",
@@ -71,11 +72,14 @@
     "kitchens": "Mutfaklar",
     "paymentTypes": "Ödeme türleri",
     "taxes": "Vergiler",
+    "catalogReloaded": "Katalog sunucudan yenilendi",
+    "catalogReloadFailed": "Katalog yenilenemedi",
+    "confirmCatalog": "Menü, katlar, ödemeler ve vergiler sunucudan yenilensin mi? Açık adisyonlar ve senkronize edilmemiş siparişler bu terminalde kalır.",
     "reloaded": "Önbellek temizlendi ve sunucudan yeniden yüklendi",
     "reloadFailed": "Önbellek yeniden yüklenemedi",
     "confirm": "Yerel POS önbelleğini temizleyip sunucudan yeni bir kopya indirilsin mi?",
     "confirmWithPending": "Atılacak {{count}} senkronize edilmemiş değişikliğiniz var. Yerel POS önbelleğini temizleyip sunucudan yeni bir kopya indirilsin mi?",
-    "offline": "Çevrimdışıyken önbellek yeniden yüklenemez",
+    "offline": "Çevrimdışıyken önbellek yenilenemez",
     "offlineHint": "Sunucuya bağlıyken kullanılabilir"
   },
   "serviceCharges": {

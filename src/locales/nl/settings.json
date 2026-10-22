@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Lokale POS-gegevens op deze terminal. Herladen wist ze en downloadt een verse kopie van de server. Vereist een online verbinding.",
+    "description": "Lokale POS-gegevens op deze terminal. Catalogus vernieuwen werkt menu, verdiepingen, betalingen en belastingen bij zonder open rekeningen te raken. Cache herladen wist alles en downloadt opnieuw van de server (inclusief klanten en recente orders). Vereist verbinding.",
+    "refreshCatalog": "Catalogus vernieuwen",
     "reload": "Cache herladen",
     "orderTypes": "Bestellingstypes",
     "categories": "Categorieën",
@@ -71,11 +72,14 @@
     "kitchens": "Keukens",
     "paymentTypes": "Betaaltypes",
     "taxes": "Belastingen",
+    "catalogReloaded": "Catalogus vernieuwd vanaf de server",
+    "catalogReloadFailed": "Catalogus vernieuwen mislukt",
+    "confirmCatalog": "Menu, verdiepingen, betalingen en belastingen vanaf de server vernieuwen? Open rekeningen en niet-gesynchroniseerde orders blijven op deze terminal.",
     "reloaded": "Cache gewist en opnieuw geladen vanaf de server",
     "reloadFailed": "Cache herladen mislukt",
     "confirm": "Lokale POS-cache wissen en een verse kopie van de server downloaden?",
     "confirmWithPending": "U heeft {{count}} niet-gesynchroniseerde wijziging(en) die worden verworpen. Lokale POS-cache wissen en een verse kopie van de server downloaden?",
-    "offline": "Kan cache niet offline herladen",
+    "offline": "Cache kan niet offline worden vernieuwd",
     "offlineHint": "Beschikbaar wanneer verbonden met de server"
   },
   "serviceCharges": {
