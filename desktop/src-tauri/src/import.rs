@@ -102,6 +102,20 @@ pub fn desktop_status(
   supervisor: State<'_, SidecarSupervisor>,
 ) -> Result<DesktopStatus, String> {
   let app_data = supervisor.app_data.clone();
+  if let Some(host) = config::load_installer_settings(&app_data)
+    .ok()
+    .and_then(|settings| config::central_host(&settings))
+  {
+    let gateway_ready = health_ok(&format!("{host}:3142"), "posr-gateway");
+    return Ok(DesktopStatus {
+      is_desktop: true,
+      needs_setup: false,
+      surreal_ready: gateway_ready,
+      gateway_ready,
+      setup_complete: true,
+      app_data: app_data.display().to_string(),
+    });
+  }
   let setup_complete = config::is_setup_complete(&app_data);
   let surreal_ready = tcp_up("127.0.0.1:8000");
   let gateway_ready = health_ok("127.0.0.1:3142", "posr-gateway");

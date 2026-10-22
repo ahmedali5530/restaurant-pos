@@ -25,5 +25,8 @@
     "qbo_redirect_uri": "",
     "qbo_env": "sandbox"
   },
+  "server": {
+    "host": ""
+  },
   "applied": false
 }

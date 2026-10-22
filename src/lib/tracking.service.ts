@@ -1,5 +1,6 @@
 import { Tracking } from "@/api/model/tracking.ts";
 import { authHeaders } from "@/lib/session.ts";
+import { runtimeTrackingServerUrl } from "@/lib/runtime-config.ts";
 
 export const TRACKING_SERVER_URL =
   (import.meta.env.VITE_TRACKING_SERVER_URL as string) || "http://localhost:3138";
@@ -120,7 +121,7 @@ export async function postTracking(payload: TrackingRequest): Promise<void> {
   if (!isTrackingEnabled()) return;
 
   try {
-    const url = `${TRACKING_SERVER_URL.replace(/\/$/, "")}/tracking`;
+    const url = `${(runtimeTrackingServerUrl() || TRACKING_SERVER_URL).replace(/\/$/, "")}/tracking`;
     const response = await fetch(url, {
       method: "POST",
       headers: authHeaders(),

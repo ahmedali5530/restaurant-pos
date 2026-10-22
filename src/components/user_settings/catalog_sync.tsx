@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/input/button.tsx';
 import { isTauriDesktop } from '@/lib/desktop.ts';
+import { runtimeSyncServiceUrl } from '@/lib/runtime-config.ts';
 
 /** Packaged POSR Desktop always runs sync-service on this address. */
 const DESKTOP_SYNC_SERVICE_URL = 'http://127.0.0.1:3136';
@@ -43,6 +44,8 @@ type SyncStatsResponse = {
 };
 
 function syncServiceBaseUrl(): string {
+  const central = runtimeSyncServiceUrl();
+  if (central) return central;
   const raw = (import.meta.env.VITE_SYNC_SERVICE_URL as string | undefined)?.trim();
   if (raw) return raw.replace(/\/$/, '');
   if (isTauriDesktop()) return DESKTOP_SYNC_SERVICE_URL;

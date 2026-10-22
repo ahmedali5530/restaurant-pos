@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-22',
+    title: 'Desktop terminal can follow a central POS',
+    items: [
+      'The setup window can name another POSR Desktop as the central terminal. That install does not start its own database. Kitchen and register screens sign in to the central gateway.',
+      'Leave the address blank on the PC that should keep the database. That PC accepts other terminals on the local network.',
+    ],
+  },
+  {
+    date: '2026-10-22',
     title: 'Desktop catalog sync',
     items: [
       'Settings on POSR Desktop shows Catalog sync. Sync now downloads the HQ catalog when the sync service is in full mode.',

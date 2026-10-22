@@ -30,6 +30,7 @@ import {PosStoreProvider} from "@/providers/pos-store.provider.tsx";
 import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
 import {SessionExpiryBridge} from "@/providers/session-expiry.bridge.tsx";
 import {InlineReportNavigation} from "@/components/reports/inline-report-navigation.tsx";
+import {isTauriDesktop} from "@/lib/desktop.ts";
 
 const queryClient = new QueryClient();
 
@@ -78,19 +79,30 @@ function ThemedToaster() {
 }
 
 function App() {
+  const [configReady, setConfigReady] = React.useState(() => !isTauriDesktop());
+
   useEffect(() => {
+    if (configReady) return;
     void (async () => {
-      const { hydrateRuntimeConfig, runtimeDefaultLanguage } = await import('@/lib/runtime-config.ts');
-      const cfg = await hydrateRuntimeConfig();
-      if (cfg?.defaultLanguage) {
-        const { default: i18n } = await import('@/lib/i18n.ts');
-        const lang = runtimeDefaultLanguage();
-        if (lang && i18n.language !== lang) {
-          await i18n.changeLanguage(lang);
+      try {
+        const { hydrateRuntimeConfig, runtimeDefaultLanguage } = await import('@/lib/runtime-config.ts');
+        const cfg = await hydrateRuntimeConfig();
+        if (cfg?.defaultLanguage) {
+          const { default: i18n } = await import('@/lib/i18n.ts');
+          const lang = runtimeDefaultLanguage();
+          if (lang && i18n.language !== lang) {
+            await i18n.changeLanguage(lang);
+          }
         }
+      } finally {
+        setConfigReady(true);
       }
     })();
-  }, []);
+  }, [configReady]);
+
+  if (!configReady) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -9,6 +9,7 @@ STORE_NAME=$(osascript -e 'text returned of (display dialog "Store name" default
 LOCALE=$(osascript -e 'text returned of (display dialog "Locale (e.g. en-US)" default answer "en-US")' 2>/dev/null || echo "en-US")
 CURRENCY=$(osascript -e 'text returned of (display dialog "Currency code" default answer "USD")' 2>/dev/null || echo "USD")
 LANG_CODE=$(osascript -e 'text returned of (display dialog "Default language" default answer "en")' 2>/dev/null || echo "en")
+CENTRAL=$(osascript -e 'text returned of (display dialog "Central terminal address (blank = this PC)" default answer "")' 2>/dev/null || echo "")
 
 python3 - <<PY
 import json
@@ -32,6 +33,7 @@ data = {
     "qbo_redirect_uri": "",
     "qbo_env": "sandbox",
   },
+  "server": {"host": "$CENTRAL"},
   "applied": False,
 }
 with open("$OUT", "w", encoding="utf-8") as f:

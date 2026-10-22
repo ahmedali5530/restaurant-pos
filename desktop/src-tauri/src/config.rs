@@ -140,6 +140,13 @@ pub struct InstallerIntegrations {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct InstallerServer {
+  /// Other POSR Desktop installs connect here. Empty means this PC is the server.
+  #[serde(default)]
+  pub host: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct InstallerSettings {
   #[serde(default)]
   pub store: InstallerStore,
@@ -149,6 +156,8 @@ pub struct InstallerSettings {
   pub ai: InstallerAi,
   #[serde(default)]
   pub integrations: InstallerIntegrations,
+  #[serde(default)]
+  pub server: InstallerServer,
   #[serde(default)]
   pub applied: bool,
 }
@@ -168,10 +177,80 @@ pub struct RuntimeConfigDto {
   pub time_format: String,
   pub has_installer_settings: bool,
   pub applied: bool,
+  /// Set on a satellite terminal. Empty on the PC that runs Surreal.
+  #[serde(default)]
+  pub central_host: String,
+  #[serde(default)]
+  pub gateway_url: String,
+  #[serde(default)]
+  pub db_websocket_url: String,
+  #[serde(default)]
+  pub print_server_url: String,
+  #[serde(default)]
+  pub payment_server_url: String,
+  #[serde(default)]
+  pub tracking_server_url: String,
+  #[serde(default)]
+  pub api_server_url: String,
+  #[serde(default)]
+  pub sync_service_url: String,
+}
+
+/// Host of another POSR Desktop that should serve this install.
+/// `localhost` and `127.0.0.1` mean this PC, so they are ignored.
+pub fn central_host(settings: &InstallerSettings) -> Option<String> {
+  let mut raw = settings.server.host.trim().trim_end_matches('/').to_string();
+  for prefix in ["https://", "http://", "wss://", "ws://"] {
+    if let Some(rest) = raw.strip_prefix(prefix) {
+      raw = rest.to_string();
+      break;
+    }
+  }
+  if let Some((head, _)) = raw.split_once('/') {
+    raw = head.to_string();
+  }
+  if let Some((host, port)) = raw.rsplit_once(':') {
+    if !host.is_empty() && port.chars().all(|c| c.is_ascii_digit()) {
+      raw = host.to_string();
+    }
+  }
+  let raw = raw.trim();
+  if raw.is_empty()
+    || raw.eq_ignore_ascii_case("localhost")
+    || raw == "127.0.0.1"
+    || raw == "0.0.0.0"
+  {
+    return None;
+  }
+  Some(raw.to_string())
+}
+
+fn remote_urls(host: &str) -> [String; 7] {
+  [
+    format!("http://{host}:3142"),
+    format!("ws://{host}:3142/rpc"),
+    format!("http://{host}:3132"),
+    format!("http://{host}:3134"),
+    format!("http://{host}:3138"),
+    format!("http://{host}:3140"),
+    format!("http://{host}:3136"),
+  ]
 }
 
 impl InstallerSettings {
   pub fn to_runtime_dto(&self) -> RuntimeConfigDto {
+    let host = central_host(self);
+    let urls = host.as_deref().map(remote_urls).unwrap_or_else(|| {
+      [
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+      ]
+    });
     RuntimeConfigDto {
       store_name: self.store.store_name.clone(),
       store_address: self.store.store_address.clone(),
@@ -185,6 +264,14 @@ impl InstallerSettings {
       time_format: self.locale.time_format.clone(),
       has_installer_settings: true,
       applied: self.applied,
+      central_host: host.unwrap_or_default(),
+      gateway_url: urls[0].clone(),
+      db_websocket_url: urls[1].clone(),
+      print_server_url: urls[2].clone(),
+      payment_server_url: urls[3].clone(),
+      tracking_server_url: urls[4].clone(),
+      api_server_url: urls[5].clone(),
+      sync_service_url: urls[6].clone(),
     }
   }
 }
@@ -291,6 +378,14 @@ pub fn runtime_config_dto(app_data: &Path) -> RuntimeConfigDto {
       time_format: default_time(),
       has_installer_settings: false,
       applied: false,
+      central_host: String::new(),
+      gateway_url: String::new(),
+      db_websocket_url: String::new(),
+      print_server_url: String::new(),
+      payment_server_url: String::new(),
+      tracking_server_url: String::new(),
+      api_server_url: String::new(),
+      sync_service_url: String::new(),
     },
   }
 }

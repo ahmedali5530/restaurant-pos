@@ -503,8 +503,15 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
     statuses: Mutex::new(HashMap::new()),
   };
 
-  if use_external_services() {
-    log_hub.shell("POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
+  let remote_host = installer.as_ref().and_then(config::central_host);
+  if use_external_services() || remote_host.is_some() {
+    if let Some(host) = remote_host {
+      log_hub.shell(&format!(
+        "central terminal {host} — not spawning bundled sidecars"
+      ));
+    } else {
+      log_hub.shell("POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
+    }
     return Ok(supervisor);
   }
 
@@ -557,7 +564,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "printing",
       "print",
       &[
-        ("PRINT_HOST", "127.0.0.1"),
+        ("PRINT_HOST", "0.0.0.0"),
         ("PRINT_PORT", "3132"),
       ],
       "127.0.0.1:3132",
@@ -567,7 +574,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "payments",
       "payment",
       &[
-        ("PAYMENT_HOST", "127.0.0.1"),
+        ("PAYMENT_HOST", "0.0.0.0"),
         ("PAYMENT_PORT", "3134"),
         ("PAYMENT_BASE_URL", "http://127.0.0.1:3134"),
       ],
@@ -578,7 +585,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "tracking-api",
       "tracking",
       &[
-        ("TRACKING_HOST", "127.0.0.1"),
+        ("TRACKING_HOST", "0.0.0.0"),
         ("TRACKING_PORT", "3138"),
       ],
       "127.0.0.1:3138",
@@ -588,7 +595,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "api",
       "api",
       &[
-        ("API_HOST", "127.0.0.1"),
+        ("API_HOST", "0.0.0.0"),
         ("API_PORT", "3140"),
       ],
       "127.0.0.1:3140",
@@ -598,7 +605,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       "sync-service",
       "sync",
       &[
-        ("SYNC_SERVICE_HOST", "127.0.0.1"),
+        ("SYNC_SERVICE_HOST", "0.0.0.0"),
         ("SYNC_SERVICE_PORT", "3136"),
         ("SYNC_CLIENT_ID", "posr-desktop-local"),
         (

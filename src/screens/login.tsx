@@ -12,6 +12,7 @@ import {useNavigate, useLocation} from "react-router";
 import {DESKTOP_SETUP, DESKTOP_LOGS} from "@/routes/posr.ts";
 import {getDesktopStatus, isTauriDesktop, type DesktopStatus} from "@/lib/desktop.ts";
 import {getDefaultAppPath} from "@/lib/build-modules.ts";
+import {getCachedRuntimeConfig} from "@/lib/runtime-config.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -64,6 +65,7 @@ export const Login = () => {
   const { t } = useTranslation('auth');
   const { t: tCommon } = useTranslation('common');
   const gatewayAuth = isGatewayAuthEnabled();
+  const centralHost = getCachedRuntimeConfig()?.centralHost || '';
 
   const [code, setCode] = useState('');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>(getDefaultLoginMethod);
@@ -479,8 +481,9 @@ export const Login = () => {
           {isTauriDesktop() && desktopStatus && (
             <div className="text-sm text-neutral-300 flex flex-col items-center gap-1">
               <span>
-                Surreal: {desktopStatus.surrealReady ? 'up' : 'down'} · Gateway:{' '}
-                {desktopStatus.gatewayReady ? 'up' : 'down'}
+                {centralHost
+                  ? `Central terminal: ${centralHost} · Gateway: ${desktopStatus.gatewayReady ? 'up' : 'down'}`
+                  : `Surreal: ${desktopStatus.surrealReady ? 'up' : 'down'} · Gateway: ${desktopStatus.gatewayReady ? 'up' : 'down'}`}
               </span>
               <button
                 type="button"

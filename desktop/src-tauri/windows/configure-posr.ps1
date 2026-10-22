@@ -43,6 +43,7 @@ function Add-Text($y, $default = "") {
 }
 
 $y = 16
+Add-Label "Central terminal address (blank = this PC)" $y; $y += 22; $centralHost = Add-Text $y; $y += 32
 Add-Label "Store name" $y; $y += 22; $storeName = Add-Text $y "My Store"; $y += 32
 Add-Label "Store address" $y; $y += 22; $storeAddr = Add-Text $y; $y += 32
 Add-Label "Default language (en, es, ...)" $y; $y += 22; $lang = Add-Text $y "en"; $y += 32
@@ -89,6 +90,7 @@ if ($result -ne [System.Windows.Forms.DialogResult]::OK) {
       }
       ai = @{ enabled = $false; default_profile = ""; profiles = @() }
       integrations = @{ token_encryption_key = ""; qbo_client_id = ""; qbo_client_secret = ""; qbo_redirect_uri = ""; qbo_env = "sandbox" }
+      server = @{ host = "" }
       applied = $false
     }
     ($defaults | ConvertTo-Json -Depth 6) | Set-Content -Path $outPath -Encoding UTF8
@@ -138,6 +140,7 @@ $payload = @{
     qbo_redirect_uri = ""
     qbo_env = "sandbox"
   }
+  server = @{ host = $centralHost.Text.Trim() }
   applied = $false
 }
 

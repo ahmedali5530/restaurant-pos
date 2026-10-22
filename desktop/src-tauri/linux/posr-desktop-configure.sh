@@ -33,6 +33,7 @@ LANG_CODE=$(zenity --entry --title="POSR Desktop" --text="Default language" --en
 CURRENCY=$(zenity --entry --title="POSR Desktop" --text="Currency code" --entry-text="USD" || echo "USD")
 DECIMALS=$(zenity --entry --title="POSR Desktop" --text="Decimal places" --entry-text="2" || echo "2")
 TZ_VAL=$(zenity --entry --title="POSR Desktop" --text="Timezone" --entry-text="UTC" || echo "UTC")
+CENTRAL=$(zenity --entry --title="POSR Desktop" --text="Central terminal address (blank = this PC)" --entry-text="" || true)
 
 python3 - "$OUT" <<PY
 import json, sys
@@ -57,6 +58,7 @@ data = {
     "qbo_redirect_uri": "",
     "qbo_env": "sandbox",
   },
+  "server": {"host": """${CENTRAL:-}"""},
   "applied": False,
 }
 with open(out, "w", encoding="utf-8") as f:
