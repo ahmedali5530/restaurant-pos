@@ -364,8 +364,8 @@ export const AdminDishes = () => {
               `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
             );
             return ((recipes as any[]) ?? []).map((rec) => ({
-              dish_number: String(rec.dish_number ?? rec.menu_item?.number ?? ''),
-              ingredient: rec.item?.code || rec.item?.name || '',
+              dish_number: String(rec.menu_item.name ?? rec.dish_number ?? rec.menu_item?.number ?? ''),
+              ingredient: rec.item.name || rec.item?.code || rec.item?.name || '',
               quantity: String(rec.quantity ?? ''),
               cost: String(rec.cost ?? ''),
               is_price_locked: rec.is_price_locked ? 'true' : 'false',

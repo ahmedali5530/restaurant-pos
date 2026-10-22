@@ -29,14 +29,24 @@ async function handlePrint(body) {
     const p = printers[i];
     try {
       const effective = mergeEffectiveConfig(typeConfig, p);
-      const engine = getEngine(effective.printMode);
+      const commandSet = String(p.command_set || p.commandSet || '').trim().toLowerCase();
+      const engine = commandSet === 'star' || commandSet === 'star-graphic' || commandSet === 'star_graphic'
+        ? getEngine('star-graphic')
+        : getEngine(effective.printMode);
       const escposOptions = p.escposOptions || {};
 
+      const target = p.ip
+        ? `${p.ip}:${p.port || 9100}`
+        : [p.type, p.vid, p.pid].filter((v) => v != null && v !== '').join(' ');
+      console.log(
+        `[print] sending ${printType} x${copies} to ${p.name || p.type || 'printer'} ${target} (${engine.name})`
+      );
       await withPrinterLock(p, async () => {
         for (let c = 0; c < copies; c++) {
           await engine.print(p, escposOptions, printType, data, effective);
         }
       });
+      console.log(`[print] sent ${printType} to ${p.name || target}`);
       results.push({ index: i, ok: true, mode: engine.name });
     } catch (err) {
       results.push({

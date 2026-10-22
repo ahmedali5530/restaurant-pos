@@ -1013,6 +1013,46 @@ table th {
     @apply bg-success text-white border-success;
   }
 }
+.login-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* One hue at a time. Holds, then eases to the next so every wave shifts together. */
+  animation: login-aurora-hue 64s ease-in-out infinite;
+
+  &__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 46%, transparent 72%);
+  }
+
+  &__glow {
+    filter: blur(7px);
+  }
+}
+
+@keyframes login-aurora-hue {
+  0%, 16% {
+    filter: hue-rotate(0deg);
+  }
+  22%, 40% {
+    filter: hue-rotate(88deg);
+  }
+  46%, 64% {
+    filter: hue-rotate(200deg);
+  }
+  70%, 88% {
+    filter: hue-rotate(280deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
 .login-error{
   animation: shake linear 300ms;
 }
@@ -1185,7 +1225,7 @@ table th {
 }
 
 /* Reduce Motion: collapse animations/transitions to effectively instant
- * rather than removing them, so looping/decorative motion (login blobs,
+ * rather than removing them, so looping/decorative motion (login aurora,
  * gradient spins, confetti, the infinite order-ready celebration) stops
  * without deleting the underlying state change it signals. */
 @media (prefers-reduced-motion: reduce) {
