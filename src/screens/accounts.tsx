@@ -16,6 +16,7 @@ import {CashFlow} from "@/components/accounts/cash.flow.tsx";
 import {CustomerStatement} from "@/components/accounts/customer.statement.tsx";
 import {SupplierStatement} from "@/components/accounts/supplier.statement.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {filterPagesByBuildModule, firstPageKey} from "@/lib/build-modules.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const ACCOUNTS_TAB_MODULES: Record<string, string> = {
@@ -37,7 +38,7 @@ export const AccountsScreen = () => {
   const [selected, setSelected] = useState('chart-of-accounts');
   const {protectAction} = useSecurity();
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     'chart-of-accounts': {component: <ChartOfAccounts/>, title: t('tabs.chartOfAccounts')},
     'account-groups': {component: <AccountGroups/>, title: t('tabs.accountGroups')},
     'journal-entries': {component: <JournalEntries/>, title: t('tabs.journalEntries')},
@@ -48,15 +49,17 @@ export const AccountsScreen = () => {
     'cash-flow': {component: <CashFlow/>, title: t('tabs.cashFlow')},
     'customer-statement': {component: <CustomerStatement/>, title: t('tabs.customerStatement')},
     'supplier-statement': {component: <SupplierStatement/>, title: t('tabs.supplierStatement')},
-  }), [t]);
+  }, ACCOUNTS_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   return (
     <Layout containerClassName="">
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.accounts')]} />
+      <DocumentTitle parts={[pages[selectedKey]?.title, tNav('sidebar.accounts')]} />
       <div data-testid="accounts-page">
         <Tabs
           className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => {
               setSelected(key);

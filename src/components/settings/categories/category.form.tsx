@@ -9,12 +9,13 @@ import { Category } from "@/api/model/category.ts";
 import { toast } from 'sonner';
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import React, { useMemo,  useEffect } from "react";
+import { useEffect } from "react";
 import {useTranslation} from 'react-i18next';
 import i18n from '@/lib/i18n.ts';
 import {Switch} from "@/components/common/input/switch.tsx";
-
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean
   onClose: () => void;
@@ -31,6 +32,8 @@ export const CategoryForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.categories);
+  const structuralLocked = lockStructuralFields(data);
 
   const closeModal = () => {
     onClose();
@@ -42,15 +45,22 @@ export const CategoryForm = ({
   }
 
   useEffect(() => {
-    if(data){
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        name: data.name,
-        priority: data.priority.toString(),
-        show_in_menu: data.show_in_menu,
+        ...src,
+        name: src.name,
+        priority: String(src.priority ?? ''),
+        show_in_menu: src.show_in_menu,
       });
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const db = useDB();
 
@@ -63,29 +73,54 @@ export const CategoryForm = ({
     vals.priority = parseInt(vals.priority);
 
     try {
-      if(data?.id){
-        await db.update(data.id, {
-          ...vals
-        })
-      }else{
-        await db.create(Tables.categories, {
-          ...vals
-        });
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.categories,
-        entityId: data?.id ? String(data.id) : Tables.categories,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          priority: vals.priority,
+          show_in_menu: vals.show_in_menu,
+        },
+        structuralWrite: async () => {
+          const row = {
+            ...vals,
+            ...(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? { branch_id: soleBranchId }
+              : {}),
+          };
+          if (data?.id) {
+            await db.update(data.id, row);
+          } else {
+            await db.create(Tables.categories, row);
+          }
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.categories,
+            entityId: data?.id ? String(data.id) : Tables.categories,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.categorySaved', { name: values.name }));
-    }catch(e){
-      toast.error(e);
+      toast.success(
+        isBranchEditMode
+          ? t(soleBranchId && (!data?.id || isBranchOwnedBy(data))
+              ? 'admin:hqBranchEdit.branchOwnedSaved'
+              : 'admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.categorySaved', { name: values.name })
+      );
+    }catch(e: any){
+      toast.error(e?.message || e);
       console.log(e)
     }
   }
@@ -99,9 +134,19 @@ export const CategoryForm = ({
         onClose={closeModal}
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('forms.nameOfCategory')} autoFocus error={errors?.name?.message} />
+              <InputField
+                name="name"
+                control={control}
+                label={t('forms.nameOfCategory')}
+                autoFocus
+                error={errors?.name?.message}
+                disabled={structuralLocked}
+              />
             </div>
             <div className="flex-1">
               <Controller

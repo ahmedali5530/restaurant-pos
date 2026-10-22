@@ -14,6 +14,7 @@ import {
 import type { OrderItem } from "@/api/model/order_item.ts";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
 import {
+  buildBranchInsideCondition,
   buildCreatedAtDateConditions,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
@@ -21,6 +22,8 @@ import {
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -120,6 +123,7 @@ const parseFilters = (): ReportFilters => {
 export const VoidsReport = () => {
   const { t } = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const { enabled: showInclusive } = useShowInclusivePrices();
   const queryRef = useRef(db.query);
   const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
@@ -134,6 +138,8 @@ export const VoidsReport = () => {
   }, [db]);
 
   useEffect(() => {
+    if (!branchScope.ready) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -173,6 +179,16 @@ export const VoidsReport = () => {
           Object.assign(params, menuItemFilter.params);
         }
 
+        const branchFilter = buildBranchInsideCondition(branchScope.branchIds);
+        if (branchFilter.emptyResult) {
+          setOrderVoids([]);
+          return;
+        }
+        if (branchFilter.condition) {
+          conditions.push(branchFilter.condition);
+          Object.assign(params, branchFilter.params);
+        }
+
         const query = `
           SELECT * FROM ${Tables.order_voids}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
@@ -191,8 +207,47 @@ export const VoidsReport = () => {
     };
 
     fetchData();
-  }, [filters.startDate, filters.endDate, filters.reasonIds, filters.managerIds, filters.cashierIds, filters.menuItemIds]);
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.reasonIds, filters.managerIds, filters.cashierIds, filters.menuItemIds]);
 
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.voids')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={orderVoids}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => (
+          <VoidsReportBody key={key} orderVoids={rows} showInclusive={showInclusive} />
+        )}
+      />
+    </ReportsLayout>
+  );
+};
+
+const VoidsReportBody = ({
+  orderVoids,
+  showInclusive,
+}: {
+  orderVoids: OrderVoid[];
+  showInclusive: boolean;
+}) => {
+  const { t } = useTranslation('reports');
   // Summary: Voids by reason
   const voidsByReason = useMemo(() => {
     const map = new Map<string, {count: number; quantity: number; amount: number}>();
@@ -262,28 +317,9 @@ export const VoidsReport = () => {
       .sort((a, b) => b.count - a.count);
   }, [orderVoids]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.voids')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.voids')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', { error })}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout
-      title={t('titles.voids')}
-      subtitle={subtitle}
-    >
-      <div className="space-y-8">
+      <>
+<div className="space-y-8">
         {/* Summary sections */}
         <div className="grid grid-cols-3 gap-4">
           {/* Voids by Reason */}
@@ -511,6 +547,6 @@ export const VoidsReport = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
+      </>
   );
-}
+};

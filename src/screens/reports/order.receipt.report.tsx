@@ -19,6 +19,9 @@ import {
   printDocument,
 } from "@/lib/export.document.ts";
 
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
   return {
@@ -73,6 +76,7 @@ export const OrderReceiptReport = () => {
   const navigate = useNavigate();
   const inline = isInlineReport();
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const documentRef = useRef<HTMLDivElement>(null);
 
@@ -94,6 +98,8 @@ export const OrderReceiptReport = () => {
     let cancelled = false;
 
     const load = async () => {
+      if (!branchScope.ready) return;
+
       if (!hasLookup(lookup)) {
         setError(t("errors.orderIdRequired"));
         setOrder(null);
@@ -118,6 +124,13 @@ export const OrderReceiptReport = () => {
         if (!next) {
           setError(t("errors.noOrderFound"));
           return;
+        }
+        if (branchScope.branchIds !== undefined) {
+          const bid = next.branch_id == null || next.branch_id === "" ? null : String(next.branch_id);
+          if (bid == null || !branchScope.branchIds.includes(bid)) {
+            setError(t("errors.noOrderFound"));
+            return;
+          }
         }
         setOrder(next);
         try {
@@ -146,7 +159,7 @@ export const OrderReceiptReport = () => {
     return () => {
       cancelled = true;
     };
-  }, [lookup, t]);
+  }, [branchScope.ready, branchScope.branchIds, lookup, t]);
 
   const baseName = `order-receipt-${invoiceLabel || "order"}`;
 
@@ -239,7 +252,7 @@ export const OrderReceiptReport = () => {
           </Button>
         </div>
 
-        {loading && (
+        {(loading || !branchScope.ready) && (
           <div className="py-12 text-center text-muted print:hidden">
             {t("loading.orderReceipt")}
           </div>

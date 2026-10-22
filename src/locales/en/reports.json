@@ -243,7 +243,13 @@
     "location": "Location",
     "selectDate": "Select date",
     "allShifts": "All shifts for the day",
-    "cashClosingShiftHint": "Pick a shift to open only that closing, or leave empty to see every closing for the day and switch between them in the report."
+    "cashClosingShiftHint": "Pick a shift to open only that closing, or leave empty to see every closing for the day and switch between them in the report.",
+    "branches": "Branches",
+    "branchesAll": "All branches",
+    "branchesHelp": "Leave empty to include every branch you can access.",
+    "branchView": "View",
+    "branchViewCombined": "Combined",
+    "branchViewByBranch": "By branch"
   },
   "datePresets": {
     "today": "Today",
@@ -591,6 +597,8 @@
     "refunds": "Refunds",
     "closingsForDay": "Closings for this day",
     "closingsCount": "{{count}} closings",
+    "branchTotal": "Total",
+    "branch": "Branch",
     "selfOrders": "QR self-orders",
     "selfOrdersHint": "Paid online by guests at their table — not in the cash drawer or card batch above.",
     "selfOrdersTotal": "Paid online",

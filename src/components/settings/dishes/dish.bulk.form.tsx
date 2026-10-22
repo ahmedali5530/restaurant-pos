@@ -29,6 +29,7 @@ import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 import {withCurrency} from "@/lib/utils.ts";
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 
 const inventoryItemOptionLabel = (item: InventoryItem) =>
   item.uom ? `${item.name} (${item.uom})` : item.name;
@@ -99,6 +100,7 @@ const validationSchema = yup.object({
 
 export const DishBulkForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode } = useHqCatalogBranchEdit(Tables.dishes);
   const defaultValues = {
     price: undefined,
     cost: undefined,
@@ -235,6 +237,10 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
   };
 
   const onSubmit = async (values: any) => {
+    if (isBranchEditMode) {
+      toast.error(t('admin:hqBranchEdit.bulkBlocked'));
+      return;
+    }
     if (!data?.length) {
       toast.error(t('toast:admin.noDishesSelected'));
       return;
@@ -338,6 +344,9 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
         size="full"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.bulkBlocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
               <Controller

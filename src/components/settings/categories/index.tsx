@@ -20,6 +20,8 @@ import {useTranslation} from 'react-i18next';
 import {executeSettingsDelete} from "@/lib/settings-delete.service.ts";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminCategories = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -40,6 +42,8 @@ export const AdminCategories = () => {
     () => createCategoryImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<Category>();
 
@@ -130,7 +134,7 @@ export const AdminCategories = () => {
               description: getAccessRuleChildLabel('admin.categories.import'),
             });
           }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -138,7 +142,7 @@ export const AdminCategories = () => {
               module: 'admin.categories.create',
               description: getAccessRuleChildLabel('admin.categories.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-categories">{t('buttons.category')}</Button>
+          }} icon={faPlus} data-testid="admin-add-categories">{t('buttons.category')}</Button></HqCatalogBaseOnlyAction>
         ]}
         enableSelection
         rowSelection={rowSelection}

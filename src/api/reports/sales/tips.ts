@@ -2,7 +2,11 @@ import {Tables} from "@/api/db/tables.ts";
 import type {Order} from "@/api/model/order.ts";
 import type {User} from "@/api/model/user.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
-import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
+import {
+  buildBranchInsideCondition,
+  buildCreatedAtDateConditions,
+  unwrapQueryResult,
+} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
@@ -67,6 +71,14 @@ const fetchSavedDistributions = async (
   options: DateRangeFilter & {shiftId?: string},
 ) => {
   const {conditions, params} = buildCreatedAtDateConditions(options, "from_at");
+  const branchFilter = buildBranchInsideCondition(options.branchIds);
+  if (branchFilter.emptyResult) {
+    return {totalTips: 0, distributionCount: 0, tipsByUser: [] as Array<{name: string; amount: number}>};
+  }
+  if (branchFilter.condition) {
+    conditions.push(branchFilter.condition);
+    Object.assign(params, branchFilter.params);
+  }
 
   if (options.shiftId) {
     conditions.push("shift = $shiftId");
@@ -176,10 +188,31 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
   const normalizedShiftId = options.shiftId ? recordIdToString(options.shiftId) : undefined;
 
   const conditions = ["status = 'Paid'", "tip_amount > 0"];
-  const params: Record<string, string> = {};
+  const params: Record<string, any> = {};
   const {conditions: dateConditions, params: dateParams} = buildCreatedAtDateConditions(options);
   conditions.push(...dateConditions);
   Object.assign(params, dateParams);
+
+  const branchFilter = buildBranchInsideCondition(options.branchIds);
+  if (branchFilter.emptyResult) {
+    return {
+      tipsCollected: 0,
+      orderCountWithTips: 0,
+      tipsByCashier: [] as TipStaffRow[],
+      savedDistributions: {totalTips: 0, distributionCount: 0, tipsByUser: []},
+      projectedShares: [] as TipStaffRow[],
+      shiftId: normalizedShiftId,
+      distributionNote: undefined as string | undefined,
+      dateRange: {
+        startDate: options.startDate,
+        endDate: options.endDate,
+      },
+    };
+  }
+  if (branchFilter.condition) {
+    conditions.push(branchFilter.condition);
+    Object.assign(params, branchFilter.params);
+  }
 
   const orders = unwrapQueryResult<Order>(
     await db.query(
@@ -216,6 +249,7 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
   const savedDistributions = await fetchSavedDistributions(db, {
     startDate: options.startDate,
     endDate: options.endDate,
+    branchIds: options.branchIds,
     shiftId: normalizedShiftId,
   });
 

@@ -1,5 +1,6 @@
 import {DateTime} from "luxon";
 import {getAppTimezone} from "@/lib/datetime.ts";
+import type {BranchScopeParams, BranchView} from "@/api/reports/shared/branch-scope.ts";
 import type {DateRangeFilter} from "@/api/reports/shared/types.ts";
 import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
@@ -15,6 +16,15 @@ export const parseMultiFilter = (params: URLSearchParams, name: string): string[
 export const parseDateRangeFromParams = (params: URLSearchParams): DateRangeFilter => ({
   startDate: params.get("start") || undefined,
   endDate: params.get("end") || undefined,
+});
+
+export const parseBranchView = (raw: string | null | undefined): BranchView => {
+  return raw === "by_branch" ? "by_branch" : "combined";
+};
+
+export const parseBranchScopeFromParams = (params: URLSearchParams): BranchScopeParams => ({
+  selectedBranchIds: parseMultiFilter(params, "branches"),
+  branchView: parseBranchView(params.get("branchView")),
 });
 
 export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(runtimeDateTimeFormat());
