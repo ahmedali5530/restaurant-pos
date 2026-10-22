@@ -601,6 +601,10 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
         ("SYNC_SERVICE_HOST", "127.0.0.1"),
         ("SYNC_SERVICE_PORT", "3136"),
         ("SYNC_CLIENT_ID", "posr-desktop-local"),
+        (
+          "SYNC_ALLOWED_ORIGINS",
+          "http://tauri.localhost,https://tauri.localhost,http://localhost:5173,http://127.0.0.1:5173",
+        ),
       ],
       "127.0.0.1:3136",
       "ok",

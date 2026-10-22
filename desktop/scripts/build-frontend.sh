@@ -20,6 +20,7 @@ export VITE_PRINT_SERVER_URL=http://127.0.0.1:3132
 export VITE_PAYMENT_SERVER_URL=http://127.0.0.1:3134
 export VITE_TRACKING_SERVER_URL=http://127.0.0.1:3138
 export VITE_API_SERVER_URL=http://127.0.0.1:3140
+export VITE_SYNC_SERVICE_URL=http://127.0.0.1:3136
 
 # CI has no .env. Luxon throws on a missing format and that blanks the page.
 # Installer settings override these after launch.

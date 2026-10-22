@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-22',
+    title: 'Desktop catalog sync',
+    items: [
+      'Settings on POSR Desktop shows Catalog sync. Sync now downloads the HQ catalog when the sync service is in full mode.',
+    ],
+  },
+  {
     date: '2026-10-21',
     title: 'Desktop reports and setup',
     items: [

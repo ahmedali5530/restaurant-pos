@@ -35,7 +35,7 @@ async function main() {
   // Settings UI (Vite) calls /stats and /catalog/sync-now from the browser.
   const allowedOrigins = String(
     process.env.SYNC_ALLOWED_ORIGINS
-      || 'http://localhost:5173,http://127.0.0.1:5173'
+      || 'http://localhost:5173,http://127.0.0.1:5173,http://tauri.localhost,https://tauri.localhost'
   )
     .split(',')
     .map((s) => s.trim())
