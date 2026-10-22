@@ -6,6 +6,7 @@ import { ReactSelect } from "@/components/common/input/custom.react.select.tsx";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
 import { Tables } from "@/api/db/tables.ts";
 import { Shift } from "@/api/model/shift.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 export const TipsFilter = () => {
   const { t } = useTranslation('reports');
@@ -14,6 +15,8 @@ export const TipsFilter = () => {
   return (
     <form action={REPORTS_TIPS} className="flex flex-col gap-3 items-start w-full" target="_blank">
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="w-full">
         <label htmlFor="tips-shift" className="form-label">Shift</label>

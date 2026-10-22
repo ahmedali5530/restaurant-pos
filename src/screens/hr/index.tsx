@@ -22,6 +22,7 @@ import {HrAdjustments} from "@/components/hr/adjustments/index.tsx";
 import {HrDocuments} from "@/components/hr/documents/index.tsx";
 import {HrPerformance} from "@/components/hr/performance/index.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {filterPagesByBuildModule, firstPageKey} from "@/lib/build-modules.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 export const HR_TAB_MODULES: Record<string, string> = {
@@ -49,7 +50,7 @@ export const HrScreen = () => {
   const [selected, setSelected] = useState("dashboard");
   const {protectAction} = useSecurity();
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     dashboard: {component: <HrDashboard/>, title: t("tabs.dashboard")},
     attendance: {component: <HrAttendance/>, title: t("tabs.attendance")},
     scheduling: {component: <HrScheduling/>, title: t("tabs.scheduling")},
@@ -66,15 +67,17 @@ export const HrScreen = () => {
     holidays: {component: <HrHolidays/>, title: t("tabs.holidays")},
     documents: {component: <HrDocuments/>, title: t("tabs.documents")},
     performance: {component: <HrPerformance/>, title: t("tabs.performance")},
-  }), [t]);
+  }, HR_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   return (
     <Layout containerClassName="">
-      <DocumentTitle parts={[pages[selected]?.title, tNav("sidebar.hr")]} />
+      <DocumentTitle parts={[pages[selectedKey]?.title, tNav("sidebar.hr")]} />
       <div data-testid="hr-page">
         <Tabs
           className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => {
               setSelected(key);

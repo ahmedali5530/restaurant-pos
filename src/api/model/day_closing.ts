@@ -28,4 +28,6 @@ export interface DayClosing extends ID {
   variance_reason?: string | null
   /** Which shift this closing belongs to — a day can have one per shift. */
   shift?: Shift | null
+  /** Cloud master only — stamped by sync-service from SYNC_CLIENT_ID. */
+  branch_id?: string | null
 }

@@ -68,7 +68,7 @@ follow-up) and `run-prod-migrations.cjs`. Implementation lives in
 
 ### Out of scope (later ADR)
 
-- Cloud → local BOH download (menu, inventory, shared config).
+- ~~Cloud → local BOH download (menu, inventory, shared config).~~ → see [ADR 0003](0003-cloud-to-local-catalog.md)
 - Conflict resolution when the same BOH row is edited in cloud and branch.
 - Third-party CDC (Debezium / Airbyte) — Surreal is not a supported source.
 

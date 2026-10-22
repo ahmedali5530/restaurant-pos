@@ -8,6 +8,7 @@ import {Layout} from "@/screens/partials/layout.tsx";
 import {DeliveryAreas} from "@/screens/delivery/delivery.areas.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {filterPagesByBuildModule, firstPageKey} from "@/lib/build-modules.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const DELIVERY_TAB_MODULES: Record<string, string> = {
@@ -22,19 +23,21 @@ export const Index = () => {
   const [selected, setSelected] = useState('delivery');
   const {protectAction} = useSecurity();
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     'delivery': {component: <Delivery/>, title: t('tabs.delivery')},
     'areas': {component: <DeliveryAreas/>, title: t('tabs.areas')},
     'settings': {component: <DeliverySettings/>, title: t('tabs.settings')},
-  }), [t]);
+  }, DELIVERY_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   return (
     <Layout overflowHidden>
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.delivery')]} />
+      <DocumentTitle parts={[pages[selectedKey]?.title, tNav('sidebar.delivery')]} />
       <div data-testid="delivery-page" className="h-full min-h-0 flex flex-col">
         <Tabs
           className="w-full flex flex-col flex-1 min-h-0 rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => setSelected(key), {
               module: DELIVERY_TAB_MODULES[key],

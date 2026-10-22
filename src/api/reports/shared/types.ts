@@ -6,6 +6,8 @@ export type DbClient = Pick<ReturnType<typeof useDB>, "query">;
 export interface DateRangeFilter {
   startDate?: string;
   endDate?: string;
+  /** Effective cloud-master branch ids; undefined = no branch filter. */
+  branchIds?: string[];
 }
 
 export interface TopSellingDish {
