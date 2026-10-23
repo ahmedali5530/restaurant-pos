@@ -2562,6 +2562,7 @@ DEFINE INDEX pos_code ON position FIELDS code UNIQUE;
 
 DEFINE TABLE printer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
+DEFINE FIELD command_set ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON printer TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD ip_address ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD name ON printer TYPE string PERMISSIONS FULL;

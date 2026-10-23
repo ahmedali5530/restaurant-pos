@@ -21,6 +21,15 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-22',
+    title: 'Refresh catalog without full cache reload',
+    items: [
+      'Settings → Cache has Refresh catalog: re-downloads menu, floors, payments, taxes, and related catalog tables only — open checks, customers, and the order pull stay put (safe at peak time after menu edits).',
+      'Reload cache remains the full wipe for broken/stale operational data; use it when you need customers and recent orders rebuilt too.',
+      'Fixed menu items flashing then disappearing while Reload cache / snapshot was still running — a stale empty catalog project can no longer wipe dishes, categories, or floors that were already loaded.',
+    ],
+  },
+  {
     date: '2026-10-20',
     title: 'Inventory unit converter',
     items: [

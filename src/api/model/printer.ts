@@ -15,4 +15,6 @@ export interface Printer extends ID, Name, Priority{
   print_mode?: string | null
   /** Optional override of paper width in mm (`58` | `80`). Empty/null = inherit. */
   paper_width_mm?: number | null
+  /** Wire protocol. Empty/null = ESC/POS. `star-graphic` for TSP100-class printers. */
+  command_set?: string | null
 }

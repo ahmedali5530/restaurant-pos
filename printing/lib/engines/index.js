@@ -2,11 +2,13 @@
 
 const textEngine = require('./text-engine');
 const rasterEngine = require('./raster-engine');
+const starEngine = require('./star-engine');
 const { resolvePrintMode, DEFAULT_PRINT_MODE } = require('../print-mode');
 
 const engines = {
   text: textEngine,
   raster: rasterEngine,
+  'star-graphic': starEngine,
 };
 
 /**
@@ -15,6 +17,10 @@ const engines = {
  * @returns {{ print: Function, name: string }}
  */
 function getEngine(mode) {
+  const raw = String(mode || '').trim().toLowerCase();
+  if (raw === 'star' || raw === 'star-graphic' || raw === 'star_graphic') {
+    return { ...engines['star-graphic'], name: 'star-graphic' };
+  }
   const resolved = resolvePrintMode(mode);
   const engine = engines[resolved];
   if (!engine) {

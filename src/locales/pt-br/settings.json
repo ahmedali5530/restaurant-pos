@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Dados POS locais neste terminal. Recarregar limpa e baixa uma cópia nova do servidor. Requer conexão.",
+    "description": "Dados POS locais neste terminal. Atualizar catálogo atualiza cardápio, andares, pagamentos e impostos sem mexer em contas abertas. Recarregar cache limpa tudo e baixa de novo do servidor (incluindo clientes e pedidos recentes). Requer conexão.",
+    "refreshCatalog": "Atualizar catálogo",
     "reload": "Recarregar cache",
     "orderTypes": "Tipos de pedido",
     "categories": "Categorias",
@@ -71,11 +72,14 @@
     "kitchens": "Cozinhas",
     "paymentTypes": "Tipos de pagamento",
     "taxes": "Impostos",
+    "catalogReloaded": "Catálogo atualizado do servidor",
+    "catalogReloadFailed": "Falha ao atualizar o catálogo",
+    "confirmCatalog": "Atualizar cardápio, andares, pagamentos e impostos do servidor? Contas abertas e pedidos não sincronizados permanecem neste terminal.",
     "reloaded": "Cache limpo e recarregado do servidor",
     "reloadFailed": "Falha ao recarregar o cache",
     "confirm": "Limpar o cache POS local e baixar uma cópia nova do servidor?",
     "confirmWithPending": "Você tem {{count}} alteração(ões) não sincronizada(s) que serão descartadas. Limpar o cache POS local e baixar uma cópia nova do servidor?",
-    "offline": "Não é possível recarregar o cache offline",
+    "offline": "Não é possível atualizar o cache offline",
     "offlineHint": "Disponível quando conectado ao servidor"
   },
   "serviceCharges": {

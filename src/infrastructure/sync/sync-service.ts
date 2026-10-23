@@ -31,7 +31,7 @@ import {
 const DAY_SCOPED_NUMBER_SERIES = new Set<NumberSeries>(['invoice', 'receipt']);
 
 /** Catalog first (through printers) so the menu can project before orders. */
-const SNAPSHOT_TABLES = [
+const CATALOG_SNAPSHOT_TABLES = [
   Tables.order_types,
   Tables.categories,
   Tables.dishes,
@@ -54,6 +54,10 @@ const SNAPSHOT_TABLES = [
   Tables.discount_reasons,
   Tables.coupons,
   Tables.printers,
+] as const;
+
+const SNAPSHOT_TABLES = [
+  ...CATALOG_SNAPSHOT_TABLES,
   Tables.customers,
   'coupon_redemption',
   Tables.orders,
@@ -103,21 +107,35 @@ let syncAgain = false;
 /** Set by synchronize({ force: true }) — the next push ignores backoff. */
 let forceNextPush = false;
 
-async function hydrateSnapshot(terminalId: string): Promise<void> {
+async function hydrateSnapshot(
+  terminalId: string,
+  options?: { scope?: 'catalog' | 'full' },
+): Promise<void> {
+  const catalogOnly = options?.scope === 'catalog';
   setSyncStatus({ phase: 'hydrating' });
-  let resumeToken: string | null = (await posStore.getSyncCursor()).snapshotResumeToken ?? null;
+  // Catalog refresh always starts clean — never resume a mid-flight full snapshot token.
+  let resumeToken: string | null = catalogOnly
+    ? null
+    : (await posStore.getSyncCursor()).snapshotResumeToken ?? null;
   let complete = false;
   let highWatermark = 0;
   let pages = 0;
   const maxPages = 5_000;
-  let catalogNotified = !!(await posStore.getSyncCursor()).catalogReady;
+  let catalogNotified = catalogOnly
+    ? false
+    : !!(await posStore.getSyncCursor()).catalogReady;
 
   while (!complete) {
     if (pages >= maxPages) {
       throw new Error('Snapshot hydration exceeded page limit');
     }
     const previousToken = resumeToken;
-    const page = await fetchSnapshotPage({ terminalId, resumeToken, limit: 200 });
+    const page = await fetchSnapshotPage({
+      terminalId,
+      resumeToken,
+      limit: 200,
+      scope: catalogOnly ? 'catalog' : 'full',
+    });
     pages += 1;
     highWatermark = page.highWatermark;
     if (page.page.kind === 'records' && page.page.table && page.page.records?.length) {
@@ -143,17 +161,31 @@ async function hydrateSnapshot(terminalId: string): Promise<void> {
       throw new Error('Snapshot pagination stalled (resume token did not advance)');
     }
     const markCatalogReady = !catalogNotified && (page.catalogComplete || complete);
-    await posStore.setSyncCursor({
-      snapshotResumeToken: resumeToken,
-      highWatermark,
-      ...(markCatalogReady ? { catalogReady: true } : {}),
-      ...(complete ? { catalogReady: true, hydrated: true } : { hydrated: false }),
-      cursor: complete ? highWatermark : (await posStore.getSyncCursor()).cursor,
-    });
-    if (markCatalogReady) {
-      catalogNotified = true;
-      notifyCatalogReady();
+    if (catalogOnly) {
+      // Keep pull cursor / hydrated / snapshotResumeToken — orders stay live.
+      if (markCatalogReady) {
+        await posStore.setSyncCursor({ catalogReady: true });
+        catalogNotified = true;
+        notifyCatalogReady();
+      }
+    } else {
+      await posStore.setSyncCursor({
+        snapshotResumeToken: resumeToken,
+        highWatermark,
+        ...(markCatalogReady ? { catalogReady: true } : {}),
+        ...(complete ? { catalogReady: true, hydrated: true } : { hydrated: false }),
+        cursor: complete ? highWatermark : (await posStore.getSyncCursor()).cursor,
+      });
+      if (markCatalogReady) {
+        catalogNotified = true;
+        notifyCatalogReady();
+      }
     }
+  }
+
+  if (catalogOnly && !catalogNotified) {
+    await posStore.setSyncCursor({ catalogReady: true });
+    notifyCatalogReady();
   }
 }
 
@@ -212,7 +244,8 @@ export class TerminalSyncService {
       throw err;
     }
     setSyncStatus({ phase: 'hydrating', lastError: null });
-    await posStore.clearLocalData();
+    // Silent wipe: avoid notifyWrite → debounced sync racing the new snapshot.
+    await posStore.clearLocalData({ silent: true });
     const identity = await posStore.getTerminalIdentity();
     await handshake({ terminalId: identity.terminalId });
     await hydrateSnapshot(identity.terminalId);
@@ -221,6 +254,24 @@ export class TerminalSyncService {
     // leader lock, which left terminals with an empty invoice pool after Reload cache.
     await this.refillNumbers(identity.terminalId, { required: true });
     await this.synchronize({ force: true });
+  }
+
+  /**
+   * Settings → Refresh catalog. Re-downloads menu/floors/payments/taxes/… only.
+   * Does not wipe orders, customers, outbox, or the pull cursor.
+   */
+  async rehydrateCatalogFromServer(): Promise<void> {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const err = new Error('OFFLINE');
+      (err as Error & { code?: string }).code = 'OFFLINE';
+      throw err;
+    }
+    setSyncStatus({ phase: 'hydrating', lastError: null });
+    await posStore.clearCatalogData([...CATALOG_SNAPSHOT_TABLES], { silent: true });
+    const identity = await posStore.getTerminalIdentity();
+    await handshake({ terminalId: identity.terminalId });
+    await hydrateSnapshot(identity.terminalId, { scope: 'catalog' });
+    setSyncStatus({ phase: 'idle', lastError: null });
   }
 
   /**
@@ -536,6 +587,10 @@ export const terminalSyncService = new TerminalSyncService();
 
 export function getSnapshotTableAllowlist(): readonly string[] {
   return SNAPSHOT_TABLES;
+}
+
+export function getCatalogSnapshotTables(): readonly string[] {
+  return CATALOG_SNAPSHOT_TABLES;
 }
 
 export type { SyncPhase };

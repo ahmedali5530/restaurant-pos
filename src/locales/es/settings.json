@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Caché",
-    "description": "Datos POS locales en este terminal. Recargar los borra y descarga una copia nueva del servidor. Requiere conexión.",
+    "description": "Datos POS locales en este terminal. Actualizar catálogo refresca menú, pisos, pagos e impuestos sin tocar cuentas abiertas. Recargar caché borra todo y vuelve a descargar del servidor (incluidos clientes y pedidos recientes). Requiere conexión.",
+    "refreshCatalog": "Actualizar catálogo",
     "reload": "Recargar caché",
     "orderTypes": "Tipos de pedido",
     "categories": "Categorías",
@@ -71,11 +72,14 @@
     "kitchens": "Cocinas",
     "paymentTypes": "Tipos de pago",
     "taxes": "Impuestos",
+    "catalogReloaded": "Catálogo actualizado desde el servidor",
+    "catalogReloadFailed": "Error al actualizar el catálogo",
+    "confirmCatalog": "¿Actualizar menú, pisos, pagos e impuestos desde el servidor? Las cuentas abiertas y los pedidos no sincronizados permanecen en este terminal.",
     "reloaded": "Caché borrada y recargada desde el servidor",
     "reloadFailed": "Error al recargar la caché",
     "confirm": "¿Borrar la caché POS local y descargar una copia nueva del servidor?",
     "confirmWithPending": "Tiene {{count}} cambio(s) sin sincronizar que se descartarán. ¿Borrar la caché POS local y descargar una copia nueva del servidor?",
-    "offline": "No se puede recargar la caché sin conexión",
+    "offline": "No se puede actualizar la caché sin conexión",
     "offlineHint": "Disponible cuando hay conexión con el servidor"
   },
   "serviceCharges": {

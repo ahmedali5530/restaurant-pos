@@ -432,6 +432,10 @@
     "printerPrintModeHint": "Leave empty to use Manage → Print settings for each ticket type.",
     "printerPaperWidth": "تجاوز عرض الورق",
     "printerPaperWidthHint": "Leave empty to use the print-type paper width.",
+    "printerCommandSet": "مجموعة الأوامر",
+    "printerCommandSetHint": "طابعات TSP100 تتجاهل نص ESC/POS. وضع Star الرسومي يرسل الإيصال كصورة.",
+    "commandSetEscpos": "ESC/POS",
+    "commandSetStar": "رسوم Star (TSP100)",
     "usePrintSettings": "استخدم إعدادات الطباعة"
   },
   "dishView": {
