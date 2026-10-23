@@ -7,7 +7,7 @@ import {KitchenReconciliationStatus} from "@/api/model/kitchen_reconciliation.ts
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculations.ts";
 import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {Tables} from "@/api/db/tables.ts";
 
@@ -249,31 +249,31 @@ export const KitchenReconciliationReport = () => {
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t("labels.kitchenReconciliationCount")}</p>
             <p className="text-2xl font-bold text-foreground">
-              {formatNumber(summary.reconciliationCount)}
+              {formatInventoryNumber(summary.reconciliationCount)}
             </p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t("labels.kitchenReconciliationVerified")}</p>
             <p className="text-2xl font-bold text-foreground">
-              {formatNumber(summary.verifiedCount)}
+              {formatInventoryNumber(summary.verifiedCount)}
             </p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t("labels.kitchenReconciliationDraft")}</p>
             <p className="text-2xl font-bold text-foreground">
-              {formatNumber(summary.draftCount)}
+              {formatInventoryNumber(summary.draftCount)}
             </p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t("labels.kitchenReconciliationMissed")}</p>
             <p className="text-2xl font-bold text-foreground">
-              {formatNumber(summary.missedCount)}
+              {formatInventoryNumber(summary.missedCount)}
             </p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t("labels.kitchenReconciliationTotalVariance")}</p>
             <p className="text-2xl font-bold text-foreground">
-              {formatNumber(summary.totalVariance)}
+              {formatInventoryNumber(summary.totalVariance)}
             </p>
           </div>
         </div>
@@ -314,8 +314,8 @@ export const KitchenReconciliationReport = () => {
                       <td className="py-3 px-3 text-sm whitespace-nowrap">{row.window}</td>
                       <td className="py-3 px-3 text-sm">{row.verifiedBy}</td>
                       <td className="py-3 px-3 text-sm">{row.verifiedAt}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.lineCount)}</td>
-                      <td className="py-3 pr-6 text-sm text-right">{formatNumber(row.totalVariance)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.lineCount)}</td>
+                      <td className="py-3 pr-6 text-sm text-right">{formatInventoryNumber(row.totalVariance)}</td>
                     </tr>
                   ))
                 )}
@@ -366,20 +366,20 @@ export const KitchenReconciliationReport = () => {
                       <td className="py-3 px-3 text-sm uppercase">{row.status}</td>
                       <td className="py-3 px-3 text-sm">{row.itemCode}</td>
                       <td className="py-3 px-3 text-sm">{row.itemName}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.opening)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.issued)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.transfersIn)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.transfersOut)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.theoretical)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.expected)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.opening)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.issued)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.transfersIn)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.transfersOut)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.theoretical)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.expected)}</td>
                       <td className="py-3 px-3 text-sm text-right">
-                        {row.physical == null ? "—" : formatNumber(row.physical)}
+                        {row.physical == null ? "—" : formatInventoryNumber(row.physical)}
                       </td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.waste)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.staffMeal)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.complimentary)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.actualConsumption)}</td>
-                      <td className="py-3 pr-6 text-sm text-right">{formatNumber(row.variance)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.waste)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.staffMeal)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.complimentary)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.actualConsumption)}</td>
+                      <td className="py-3 pr-6 text-sm text-right">{formatInventoryNumber(row.variance)}</td>
                     </tr>
                   ))
                 )}

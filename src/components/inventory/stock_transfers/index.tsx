@@ -15,6 +15,7 @@ import {formatDateTime} from "@/lib/datetime.ts";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 
 export const InventoryStockTransfers = () => {
   const {t} = useTranslation(["inventory", 'common']);
@@ -76,7 +77,7 @@ export const InventoryStockTransfers = () => {
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
             <span key={item.id ?? index} className="tag">
-              {item.item?.name}-{item.item?.code} × {item.quantity}
+              {item.item?.name}-{item.item?.code} × {formatInventoryNumber(item.quantity)}
             </span>
           ))}
         </div>

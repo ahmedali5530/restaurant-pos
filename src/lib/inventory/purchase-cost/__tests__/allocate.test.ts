@@ -5,7 +5,7 @@ import {
   normalizePurchaseExtra,
 } from "@/lib/inventory/purchase-cost/normalize.ts";
 import { DEFAULT_INVENTORY_SETTINGS } from "@/api/model/inventory_settings.ts";
-import { roundCurrency } from "@/lib/discount-engine/rounding.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 const settings = { ...DEFAULT_INVENTORY_SETTINGS };
 
@@ -62,7 +62,7 @@ describe("allocatePurchaseCosts", () => {
 
     const a = result.lines.find((l) => l.purchase_item_id === "a")!;
     const b = result.lines.find((l) => l.purchase_item_id === "b")!;
-    expect(roundCurrency(a.allocated_extra_total + b.allocated_extra_total)).toBe(40);
+    expect(roundInventory(a.allocated_extra_total + b.allocated_extra_total)).toBe(40);
     // 100/400 * 40 = 10, 300/400 * 40 = 30
     expect(a.allocated_extra_total).toBe(10);
     expect(b.allocated_extra_total).toBe(30);
@@ -127,7 +127,7 @@ describe("allocatePurchaseCosts", () => {
       settings,
     });
 
-    const sumExtras = roundCurrency(
+    const sumExtras = roundInventory(
       result.lines.reduce((s, l) => s + l.allocated_extra_total, 0)
     );
     expect(sumExtras).toBe(1);

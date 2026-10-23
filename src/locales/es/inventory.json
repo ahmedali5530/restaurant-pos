@@ -94,7 +94,8 @@
     "linkedKitchen": "Cocina vinculada",
     "active": "Activo",
     "previousPrice": "Precio anterior",
-    "reference": "Referencia"
+    "reference": "Referencia",
+    "averageCost": "Costo promedio"
   },
   "buttons": {
     "item": "Artículo",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Importación IA de líneas de devolución de compra",
     "smartImportSuppliersTitle": "Importación IA de proveedores",
     "smartImportItemCategoriesTitle": "Importación IA de categorías de artículos",
-    "smartImportLocationsTitle": "Importación IA de ubicaciones"
+    "smartImportLocationsTitle": "Importación IA de ubicaciones",
+    "lastPrice": "Último",
+    "itemPrice": "Artículo"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -205,7 +208,8 @@
     "voided": "Anulado"
   },
   "upload": {
-    "attachDocuments": "Documentos adjuntos"
+    "attachDocuments": "Documentos adjuntos",
+    "noDocuments": "No hay documentos adjuntos."
   },
   "purchaseMethods": {
     "manual": "Manual",
@@ -301,7 +305,8 @@
       "missed": "Omitido"
     },
     "keyboardHint": "Ctrl/Cmd + flechas para moverse entre celdas editables.",
-    "smartImportTitle": "Importación IA de conciliación de cocina"
+    "smartImportTitle": "Importación IA de conciliación de cocina",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "stockTransfer": {
     "type": "Tipo de transferencia",
@@ -642,7 +647,10 @@
       "hint": "Compruebe cómo convierten las unidades con los factores actuales (galón US por defecto).",
       "from": "De",
       "to": "A",
-      "unavailable": "Elija unidades relacionadas de la misma familia"
+      "unavailable": "Elija unidades relacionadas de la misma familia",
+      "toolbarHint": "Use el botón Conversor de unidades junto al indicador de sincronización en la barra inferior para convertir cantidades entre unidades.",
+      "openButton": "Conversor de unidades",
+      "swap": "Intercambiar unidades"
     },
     "validation": {
       "required": "Obligatorio",

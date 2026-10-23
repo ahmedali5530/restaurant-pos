@@ -94,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Prezzo precedente",
-    "reference": "Riferimento"
+    "reference": "Riferimento",
+    "averageCost": "Costo medio"
   },
   "buttons": {
     "item": "Articolo",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Importazione IA righe reso acquisto",
     "smartImportSuppliersTitle": "Importazione IA fornitori",
     "smartImportItemCategoriesTitle": "Importazione IA categorie articoli",
-    "smartImportLocationsTitle": "Importazione IA ubicazioni"
+    "smartImportLocationsTitle": "Importazione IA ubicazioni",
+    "lastPrice": "Ultimo",
+    "itemPrice": "Articolo"
   },
   "validation": {
     "required": "Campo obbligatorio",
@@ -205,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Documenti allegati"
+    "attachDocuments": "Documenti allegati",
+    "noDocuments": "Nessun documento allegato."
   },
   "purchaseMethods": {
     "manual": "Manuale",
@@ -301,7 +305,8 @@
       "missed": "Mancato"
     },
     "keyboardHint": "Ctrl/Cmd + frecce per spostarsi tra le celle modificabili.",
-    "smartImportTitle": "Importazione IA riconciliazione cucina"
+    "smartImportTitle": "Importazione IA riconciliazione cucina",
+    "stockUomHint": "Scorte: {{uom}}"
   },
   "stockTransfer": {
     "type": "Tipo di trasferimento",
@@ -642,7 +647,10 @@
       "hint": "Controlla le conversioni con i fattori attuali (gallone US predefinito).",
       "from": "Da",
       "to": "A",
-      "unavailable": "Scegli unità correlate della stessa famiglia"
+      "unavailable": "Scegli unità correlate della stessa famiglia",
+      "toolbarHint": "Usa il pulsante Convertitore unità accanto all’indicatore di sincronizzazione nella barra in basso per convertire le quantità tra unità.",
+      "openButton": "Convertitore unità",
+      "swap": "Scambia unità"
     },
     "validation": {
       "required": "Obbligatorio",

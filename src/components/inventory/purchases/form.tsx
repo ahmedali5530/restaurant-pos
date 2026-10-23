@@ -33,7 +33,7 @@ import {DateValue} from "react-aria-components";
 import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {documentCreatedAtFromDateValue, toJsDate} from "@/lib/datetime.ts";
-import {withCurrency} from "@/lib/utils.ts";
+import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
@@ -64,6 +64,7 @@ import {
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
+import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
@@ -168,7 +169,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       requested: yup.number().typeError("This should be a number").nullable().optional(),
       price: yup.number().typeError("This should be a number").required("This is required"),
       entered_uom: yup.string().nullable().optional(),
-      base_quantity: yup.number().typeError("This should be a number").required("This is required"),
+      base_quantity: yup.number().typeError("This should be a number").optional().default(1),
       expiry_date: yup.mixed().nullable().optional(),
       manufacturing_date: yup.mixed().nullable().optional(),
       comments: yup.string().nullable().optional(),
@@ -193,6 +194,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
   const [postingAfterSave, setPostingAfterSave] = useState(false);
   const [showAdditionalCosts, setShowAdditionalCosts] = useState(false);
+  /** Last purchase price per line index (for dual price hint). */
+  const [lastPrices, setLastPrices] = useState<Record<number, number | null>>({});
   const [state,] = useAtom(appPage);
 
   const categoryOptions = useMemo(
@@ -385,7 +388,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       requested: orderItem.quantity ?? undefined,
       price: (orderItem as any).entered_price ?? orderItem.price ?? orderItem.item?.price ?? 0,
       entered_uom: (orderItem as any).entered_uom ?? orderItem.item?.uom ?? "",
-      base_quantity: orderItem.item?.base_quantity ?? 1,
+      base_quantity: 1,
       expiry_date: null,
       manufacturing_date: null,
       comments: "",
@@ -476,7 +479,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           requested: item.requested ?? undefined,
           price: entered.price,
           entered_uom: entered.entered_uom,
-          base_quantity: item.base_quantity ?? 1,
+          base_quantity: 1,
           expiry_date: item.expiry_date ? dateToCalendarDate(item.expiry_date) : null,
           manufacturing_date: item.manufacturing_date ? dateToCalendarDate(item.manufacturing_date) : null,
           comments: item.comments ?? "",
@@ -655,7 +658,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             entered_quantity: stock.entered_quantity,
             entered_uom: stock.entered_uom,
             entered_price: stock.entered_price,
-            base_quantity: Number(item.base_quantity),
+            base_quantity: 1,
             expiry_date: item.expiry_date ? calendarDateToDate(item.expiry_date) : undefined,
             manufacturing_date: item.manufacturing_date ? calendarDateToDate(item.manufacturing_date) : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
@@ -962,8 +965,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
                 return (
                   <div className="flex flex-col gap-3 mb-4 border border-border rounded-lg p-3" key={field.id}>
-                    <div className="flex gap-3">
-                      <div className="flex-1">
+                    <div className="flex gap-3 flex-wrap">
+                      <div className="flex-1 min-w-[180px]">
                         <label>{t('buttons.item')}</label>
                         <Controller
                           name={`items.${index}.item`}
@@ -971,18 +974,45 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           render={({field}) => (
                             <ReactSelect
                               value={field.value}
-                              onChange={(option) => {
+                              onChange={async (option) => {
                                 field.onChange(option);
                                 const catalog = itemsList.find((it) => it.id === option?.value);
                                 setValue(`items.${index}.taxable`, !!catalog?.taxable);
+                                setValue(`items.${index}.base_quantity`, 1);
+                                const itemPrice = catalog?.price != null ? Number(catalog.price) : 0;
                                 if (catalog?.price != null) {
                                   setValue(`items.${index}.price`, catalog.price);
                                 }
-                                if (catalog?.base_quantity != null) {
-                                  setValue(`items.${index}.base_quantity`, catalog.base_quantity);
-                                }
                                 if (catalog?.uom) {
                                   setValue(`items.${index}.entered_uom`, normalizeUom(catalog.uom) ?? catalog.uom);
+                                }
+                                const itemId = option?.value ? String(option.value) : "";
+                                const suppliers = itemId ? itemSuppliersMap[itemId] ?? [] : [];
+                                const locations = itemId ? itemLocationsMap[itemId] ?? [] : [];
+                                if (suppliers.length === 1) {
+                                  setValue(`items.${index}.supplier`, suppliers[0]);
+                                } else {
+                                  setValue(`items.${index}.supplier`, null);
+                                }
+                                if (locations.length === 1) {
+                                  setValue(`items.${index}.location`, locations[0]);
+                                } else if (locations.length === 0 && globalLocationOptions.length === 1) {
+                                  setValue(`items.${index}.location`, globalLocationOptions[0]);
+                                } else {
+                                  setValue(`items.${index}.location`, null);
+                                }
+                                if (itemId) {
+                                  try {
+                                    const last = await getLastPurchasePrice(db, itemId, {
+                                      catalog,
+                                      supplierId: suppliers.length === 1 ? suppliers[0].value : null,
+                                    });
+                                    setLastPrices((prev) => ({...prev, [index]: last}));
+                                  } catch {
+                                    setLastPrices((prev) => ({...prev, [index]: itemPrice || null}));
+                                  }
+                                } else {
+                                  setLastPrices((prev) => ({...prev, [index]: null}));
                                 }
                               }}
                               options={itemOptions}
@@ -993,17 +1023,17 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         />
                         <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 self-end min-w-[100px]">
                         <Controller
-                          name={`items.${index}.base_quantity`}
+                          name={`items.${index}.requested`}
                           control={control}
                           render={({field}) => (
                             <Input
-                              label={t('columns.baseQuantity')}
+                              label={t('forms.requested')}
                               type="number"
-                              value={field.value as number | string}
+                              value={field.value as number | string | undefined}
                               onChange={field.onChange}
-                              error={get(errors, ["items", index, "base_quantity", "message"])}
+                              error={get(errors, ["items", index, "requested", "message"])}
                               disabled={isCsvMethod || isPurchaseOrderMethod}
                             />
                           )}
@@ -1020,23 +1050,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         errors={errors}
                         disabled={isCsvMethod || isPurchaseOrderMethod}
                       />
-                      <div className="flex-1 self-end">
-                        <Controller
-                          name={`items.${index}.requested`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('forms.requested')}
-                              type="number"
-                              value={field.value as number | string | undefined}
-                              onChange={field.onChange}
-                              error={get(errors, ["items", index, "requested", "message"])}
-                              disabled={isCsvMethod || isPurchaseOrderMethod}
-                            />
-                          )}
-                        />
-                      </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-[140px]">
                         <Controller
                           name={`items.${index}.price`}
                           control={control}
@@ -1050,6 +1064,34 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
+                        {(() => {
+                          const catalog = itemsList.find((it) => it.id === selectedItemId);
+                          const itemPrice = catalog?.price != null ? Number(catalog.price) : null;
+                          const last = lastPrices[index];
+                          if (itemPrice == null && last == null) return null;
+                          return (
+                            <div className="mt-1 text-xs text-muted flex flex-wrap gap-x-2 gap-y-0.5">
+                              {last != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, last)}
+                                >
+                                  {t("forms.lastPrice", {defaultValue: "Last"})}: {withInventoryCurrency(last)}
+                                </button>
+                              )}
+                              {itemPrice != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, itemPrice)}
+                                >
+                                  {t("forms.itemPrice", {defaultValue: "Item"})}: {withInventoryCurrency(itemPrice)}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="flex-0 self-end pb-1">
                         <Controller
@@ -1204,28 +1246,28 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               <div className="ml-auto rounded-lg border border-border bg-surface px-4 py-3 text-sm space-y-1 min-w-[220px]">
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.subtotal')}</span>
-                  <span className="font-medium">{withCurrency(purchaseTotals.subtotal)}</span>
+                  <span className="font-medium">{withInventoryCurrency(purchaseTotals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.discount')}</span>
-                  <span className="font-medium">{withCurrency(Number(discountValue) || 0)}</span>
+                  <span className="font-medium">{withInventoryCurrency(Number(discountValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.shipping')}</span>
-                  <span className="font-medium">{withCurrency(Number(shippingValue) || 0)}</span>
+                  <span className="font-medium">{withInventoryCurrency(Number(shippingValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">
                     {t('totals.tax')}
                     {Number(taxRateValue) > 0 ? ` (${taxRateValue}%)` : ""}
                   </span>
-                  <span className="font-medium">{withCurrency(purchaseTotals.taxAmount)}</span>
+                  <span className="font-medium">{withInventoryCurrency(purchaseTotals.taxAmount)}</span>
                 </div>
                 {(extrasValues?.length ?? 0) > 0 && (
                   <div className="flex justify-between gap-4">
                     <span className="text-muted">{t('totals.additionalCosts')}</span>
                     <span className="font-medium">
-                      {withCurrency(
+                      {withInventoryCurrency(
                         purchaseTotals.extrasTotal +
                           (Number(discountValue) || 0) -
                           (Number(shippingValue) || 0)
@@ -1235,7 +1277,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 )}
                 <div className="flex justify-between gap-4 border-t border-border pt-1 font-semibold">
                   <span>{t('totals.grandTotal')}</span>
-                  <span>{withCurrency(purchaseTotals.grandTotal)}</span>
+                  <span>{withInventoryCurrency(purchaseTotals.grandTotal)}</span>
                 </div>
               </div>
             </div>

@@ -1688,6 +1688,11 @@ DEFINE FIELD issued_qty ON kitchen_reconciliation_item TYPE float DEFAULT 0 PERM
 DEFINE FIELD item ON kitchen_reconciliation_item TYPE record<inventory_item> PERMISSIONS FULL;
 DEFINE FIELD opening_stock ON kitchen_reconciliation_item TYPE float DEFAULT 0 PERMISSIONS FULL;
 DEFINE FIELD physical_count ON kitchen_reconciliation_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_uom ON kitchen_reconciliation_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD entered_physical_count ON kitchen_reconciliation_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_waste_qty ON kitchen_reconciliation_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_staff_meal_qty ON kitchen_reconciliation_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD entered_complimentary_qty ON kitchen_reconciliation_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD posted_to_ledger ON kitchen_reconciliation_item TYPE bool DEFAULT false PERMISSIONS FULL;
 DEFINE FIELD reconciliation ON kitchen_reconciliation_item TYPE record<kitchen_reconciliation> PERMISSIONS FULL;
 DEFINE FIELD staff_meal_qty ON kitchen_reconciliation_item TYPE float DEFAULT 0 PERMISSIONS FULL;

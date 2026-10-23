@@ -44,6 +44,7 @@ import { InventoryDocumentStatusBadge } from "@/components/inventory/common/docu
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {
   lineEnteredDefaults,
   QuantityUomFields,
@@ -435,7 +436,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       if (available < desiredInStock) {
         setError(`items.${index}.quantity` as const, {
           type: "manual",
-          message: `Only ${available}${catalog?.uom ? ` ${catalog.uom}` : ""} available`
+          message: `Only ${formatInventoryNumber(available)}${catalog?.uom ? ` ${catalog.uom}` : ""} available`
         });
         isValid = false;
       } else {

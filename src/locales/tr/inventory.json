@@ -94,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Önceki fiyat",
-    "reference": "Referans"
+    "reference": "Referans",
+    "averageCost": "Ortalama maliyet"
   },
   "buttons": {
     "item": "Ürün",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Satın alma iade satırlarını YZ ile içe aktar",
     "smartImportSuppliersTitle": "Tedarikçileri YZ ile içe aktar",
     "smartImportItemCategoriesTitle": "Ürün kategorilerini YZ ile içe aktar",
-    "smartImportLocationsTitle": "Konumları YZ ile içe aktar"
+    "smartImportLocationsTitle": "Konumları YZ ile içe aktar",
+    "lastPrice": "Son",
+    "itemPrice": "Kalem"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -205,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Ekli belgeler"
+    "attachDocuments": "Ekli belgeler",
+    "noDocuments": "Ekli belge yok."
   },
   "purchaseMethods": {
     "manual": "Manuel",
@@ -301,7 +305,8 @@
       "missed": "Kaçırıldı"
     },
     "keyboardHint": "Düzenlenebilir hücreler arasında gezinmek için Ctrl/Cmd + ok tuşları.",
-    "smartImportTitle": "Mutfak mutabakatını YZ ile içe aktar"
+    "smartImportTitle": "Mutfak mutabakatını YZ ile içe aktar",
+    "stockUomHint": "Stok: {{uom}}"
   },
   "stockTransfer": {
     "type": "Transfer türü",
@@ -642,7 +647,10 @@
       "hint": "Geçerli faktörlerle birim dönüşümlerini kontrol edin (varsayılan ABD galonu).",
       "from": "Kaynak",
       "to": "Hedef",
-      "unavailable": "Aynı aileden ilgili birimleri seçin"
+      "unavailable": "Aynı aileden ilgili birimleri seçin",
+      "toolbarHint": "Birimler arasında miktar dönüştürmek için alt çubuktaki senkron durum göstergesinin yanındaki Birim dönüştürücü düğmesini kullanın.",
+      "openButton": "Birim dönüştürücü",
+      "swap": "Birimleri değiştir"
     },
     "validation": {
       "required": "Zorunlu",

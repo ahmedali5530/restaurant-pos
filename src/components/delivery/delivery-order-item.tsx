@@ -115,7 +115,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
           </p>
           {customer.phone && (
             <p className="text-sm text-muted mt-1">
-              <a href={`tel:${customer.phone}`} className="hover:text-primary-600" onClick={(e) => e.stopPropagation()}>
+              <a href={`tel:${customer.phone}`} className="hover:text-primary" onClick={(e) => e.stopPropagation()}>
                 {customer.phone}
               </a>
             </p>
@@ -127,7 +127,7 @@ export const DeliveryOrderItem: React.FC<DeliveryOrderItemProps> = ({
       <div className="mb-3 flex items-start gap-2">
         <FontAwesomeIcon
           icon={faMapMarkerAlt}
-          className="text-primary-600 mt-1 flex-shrink-0"
+          className="text-primary mt-1 flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm text-foreground line-clamp-2">{address}</p>

@@ -112,7 +112,7 @@ export function AlertDetailModal({ alert, onClose }: Props) {
           <div>
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-primary-600 hover:underline"
+              className="text-sm text-primary hover:underline"
               data-testid="security-alert-toggle-details"
             >
               {showDetails

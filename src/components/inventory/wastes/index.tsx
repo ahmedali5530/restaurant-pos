@@ -17,7 +17,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { wasteListTotal } from "@/lib/inventory/document.list.total.ts";
-import { withCurrency } from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 export const InventoryWastes = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -66,7 +66,7 @@ export const InventoryWastes = () => {
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.map((item, index) => (
             <span key={item.id ?? index} className="tag">
-              {item.item?.name ?? "Unknown"} × {item.quantity}
+              {item.item?.name ?? "Unknown"} × {formatInventoryNumber(item.quantity)}
             </span>
           ))}
         </div>
@@ -75,7 +75,7 @@ export const InventoryWastes = () => {
     columnHelper.accessor(row => wasteListTotal(row.items), {
       id: "total",
       header: t('columns.total'),
-      cell: info => withCurrency(info.getValue()),
+      cell: info => withInventoryCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

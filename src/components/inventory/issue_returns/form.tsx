@@ -43,6 +43,7 @@ import {
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -86,8 +87,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordNumber(
-        db,
+      const isUnique = await isUniqueRecordroundInventory(db,
         Tables.inventory_issue_returns,
         "invoice_number",
         value,
@@ -330,7 +330,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
     let isMounted = true;
 
-    fetchNextSequentialNumber(db, Tables.inventory_issue_returns, "invoice_number")
+    fetchNextSequentialroundInventory(db, Tables.inventory_issue_returns, "invoice_number")
       .then((nextNumber) => {
         if (isMounted) {
           setValue("invoice_number", nextNumber);
@@ -608,22 +608,20 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      const inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
-              const issuedId = item.issued_item?.value;
-              if (!issuedId || !issueItem.id) return false;
-              return String(issueItem.id) === String(issuedId);
-            });
-            const price = Number(
-              issuedIssueItem?.price ??
-                (item.price != null && item.price !== "" ? item.price : 0)
-            );
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      const inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
+            const issuedId = item.issued_item?.value;
+            if (!issuedId || !issueItem.id) return false;
+            return String(issueItem.id) === String(issuedId);
+          });
+          const price = Number(
+            issuedIssueItem?.price ??
+              (item.price != null && item.price !== "" ? item.price : 0)
+          );
+          return sum + qty * price;
+        }, 0)
       );
       if (inventoryValue > 0) {
         await publishIssueReturned(integrationManager, {

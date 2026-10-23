@@ -7,6 +7,20 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-22',
+    title: 'Inventory UX polish',
+    items: [
+      'Document and dish views show entered qty/price together and keep line amounts in stock units, so on-screen totals match.',
+      'Unified inventory ledger rows open the related purchase, issue, waste, or transfer document.',
+      'Purchase lines show last and catalog prices, auto-select a single supplier/location, and drop base-quantity from the UI.',
+      'Kitchen reconciliation shows UOM; inventory summary labels average cost; business date appears when it differs from created date.',
+      'Unit converter opens from a button beside the sync status indicator (larger inputs in a modal) and stays usable while another modal is open.',
+      'Inventory quantity and cost calculations use four decimal places by default (set VITE_INVENTORY_DECIMAL_PLACES to change).',
+      'Inventory screens, document views/prints, and inventory reports display quantities and costs with that same inventory precision (independent of POS currency decimals).',
+      'Kitchen reconciliation physical count, waste, staff meal, and complimentary can be entered in a related unit (same family as the item stock UOM), like dish recipes; variance still uses stock units.',
+    ],
+  },
+  {
     date: '2026-10-20',
     title: 'Inventory unit converter',
     items: [

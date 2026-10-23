@@ -94,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Preço anterior",
-    "reference": "Referência"
+    "reference": "Referência",
+    "averageCost": "Custo médio"
   },
   "buttons": {
     "item": "Item",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Importação IA de linhas de devolução de compra",
     "smartImportSuppliersTitle": "Importação IA de fornecedores",
     "smartImportItemCategoriesTitle": "Importação IA de categorias de itens",
-    "smartImportLocationsTitle": "Importação IA de locais"
+    "smartImportLocationsTitle": "Importação IA de locais",
+    "lastPrice": "Último",
+    "itemPrice": "Item"
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -205,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Documentos anexados"
+    "attachDocuments": "Documentos anexados",
+    "noDocuments": "Nenhum documento anexado."
   },
   "purchaseMethods": {
     "manual": "Manual",
@@ -301,7 +305,8 @@
       "missed": "Perdido"
     },
     "keyboardHint": "Ctrl/Cmd + setas para mover entre células editáveis.",
-    "smartImportTitle": "Importação IA da reconciliação de cozinha"
+    "smartImportTitle": "Importação IA da reconciliação de cozinha",
+    "stockUomHint": "Estoque: {{uom}}"
   },
   "stockTransfer": {
     "type": "Tipo de transferência",
@@ -642,7 +647,10 @@
       "hint": "Veja as conversões com os fatores atuais (galão US por padrão).",
       "from": "De",
       "to": "Para",
-      "unavailable": "Escolha unidades relacionadas da mesma família"
+      "unavailable": "Escolha unidades relacionadas da mesma família",
+      "toolbarHint": "Use o botão Conversor de unidades ao lado do indicador de sincronização na barra inferior para converter quantidades entre unidades.",
+      "openButton": "Conversor de unidades",
+      "swap": "Trocar unidades"
     },
     "validation": {
       "required": "Obrigatório",

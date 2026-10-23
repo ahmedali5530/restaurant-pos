@@ -94,7 +94,8 @@
     "linkedStore": "Linked store",
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
-    "previousPrice": "Previous price"
+    "previousPrice": "Previous price",
+    "averageCost": "Average cost"
   },
   "buttons": {
     "item": "Item",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "AI Import purchase return lines",
     "smartImportSuppliersTitle": "AI Import suppliers",
     "smartImportItemCategoriesTitle": "AI Import item categories",
-    "smartImportLocationsTitle": "AI Import locations"
+    "smartImportLocationsTitle": "AI Import locations",
+    "lastPrice": "Last",
+    "itemPrice": "Item"
   },
   "adjustment": {
     "reasons": {
@@ -232,7 +235,8 @@
     "belowReorder": "Below reorder"
   },
   "upload": {
-    "attachDocuments": "Attached documents"
+    "attachDocuments": "Attached documents",
+    "noDocuments": "No documents attached."
   },
   "purchaseMethods": {
     "manual": "Manual",
@@ -328,7 +332,8 @@
       "missed": "Missed"
     },
     "keyboardHint": "Ctrl/Cmd + arrow keys to move between editable cells.",
-    "smartImportTitle": "AI Import kitchen reconciliation"
+    "smartImportTitle": "AI Import kitchen reconciliation",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "stockTransfer": {
     "type": "Transfer type",
@@ -645,7 +650,10 @@
       "hint": "Check how units convert with the current factors (US gallon by default).",
       "from": "From",
       "to": "To",
-      "unavailable": "Choose related units in the same family"
+      "unavailable": "Choose related units in the same family",
+      "toolbarHint": "Use the Unit converter button beside the sync status indicator on the bottom bar to convert quantities between units.",
+      "openButton": "Unit converter",
+      "swap": "Swap units"
     },
     "validation": {
       "required": "This is required",

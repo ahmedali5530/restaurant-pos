@@ -40,6 +40,7 @@ import {
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -522,7 +523,9 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
                     }
                     quantityLabel={
                       rowNetQuantities[index] !== undefined
-                        ? t("stockTransfer.available", {qty: rowNetQuantities[index]})
+                        ? t("stockTransfer.available", {
+                            qty: formatInventoryNumber(rowNetQuantities[index]),
+                          })
                         : t("forms.quantity")
                     }
                     errors={errors}

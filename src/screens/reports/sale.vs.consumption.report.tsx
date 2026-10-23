@@ -4,7 +4,7 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, ORDER_FETCHES} from "@/api/model/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {calculateOrderNetSales} from "@/lib/order.ts";
 import {StringRecordId} from "surrealdb";
 import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
@@ -266,22 +266,22 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{t('labels.consumptionTotal')}</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.consumptionTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.consumptionTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.consumptionProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.consumptionProfit)}
+                    {withInventoryCurrency(data.consumptionProfit)}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Profit Percent</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.consumptionProfitPercent >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {formatNumber(data.consumptionProfitPercent)}%
+                    {formatInventoryNumber(data.consumptionProfitPercent)}%
                   </td>
                 </tr>
               </tbody>
@@ -303,22 +303,22 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{t('labels.issuanceTotal')}</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.issuanceTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.issuanceTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.issuanceProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.issuanceProfit)}
+                    {withInventoryCurrency(data.issuanceProfit)}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Profit Percent</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.issuanceProfitPercent >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {formatNumber(data.issuanceProfitPercent)}%
+                    {formatInventoryNumber(data.issuanceProfitPercent)}%
                   </td>
                 </tr>
               </tbody>
@@ -340,22 +340,22 @@ export const SaleVsConsumptionReport = () => {
               <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Sale Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.saleTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.saleTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Purchase Total</td>
-                  <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(data.purchaseTotal)}</td>
+                  <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(data.purchaseTotal)}</td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{t('labels.estimatedProfit')}</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.purchaseProfit >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {withCurrency(data.purchaseProfit)}
+                    {withInventoryCurrency(data.purchaseProfit)}
                   </td>
                 </tr>
                 <tr>
                   <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">Profit Percent</td>
                   <td className={`py-3 px-3 text-right text-sm font-semibold ${data.purchaseProfitPercent >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
-                    {formatNumber(data.purchaseProfitPercent)}%
+                    {formatInventoryNumber(data.purchaseProfitPercent)}%
                   </td>
                 </tr>
               </tbody>

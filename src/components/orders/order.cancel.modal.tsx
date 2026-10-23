@@ -267,7 +267,7 @@ export const OrderCancelModal = ({
             <label className="block text-sm font-semibold">{t('cancel.items')}</label>
             <button
               type="button"
-              className="text-sm font-medium text-primary-600 hover:text-primary-700"
+              className="text-sm font-medium text-primary hover:text-primary"
               onClick={toggleSelectAll}
             >
               {allSelected ? t('common:actions.deselectAll') : t('common:actions.selectAll')}

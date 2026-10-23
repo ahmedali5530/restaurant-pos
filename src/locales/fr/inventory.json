@@ -94,7 +94,8 @@
     "linkedKitchen": "Cuisine liée",
     "active": "Actif",
     "previousPrice": "Prix précédent",
-    "reference": "Référence"
+    "reference": "Référence",
+    "averageCost": "Coût moyen"
   },
   "buttons": {
     "item": "Article",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Import IA des lignes de retour d'achat",
     "smartImportSuppliersTitle": "Import IA des fournisseurs",
     "smartImportItemCategoriesTitle": "Import IA des catégories d'articles",
-    "smartImportLocationsTitle": "Import IA des emplacements"
+    "smartImportLocationsTitle": "Import IA des emplacements",
+    "lastPrice": "Dernier",
+    "itemPrice": "Article"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -205,7 +208,8 @@
     "voided": "Annulé"
   },
   "upload": {
-    "attachDocuments": "Documents joints"
+    "attachDocuments": "Documents joints",
+    "noDocuments": "Aucun document joint."
   },
   "purchaseMethods": {
     "manual": "Manuel",
@@ -301,7 +305,8 @@
       "missed": "Manqué"
     },
     "keyboardHint": "Ctrl/Cmd + flèches pour passer d’une cellule éditable à l’autre.",
-    "smartImportTitle": "Import IA du rapprochement cuisine"
+    "smartImportTitle": "Import IA du rapprochement cuisine",
+    "stockUomHint": "Stock : {{uom}}"
   },
   "stockTransfer": {
     "type": "Type de transfert",
@@ -642,7 +647,10 @@
       "hint": "Vérifiez les conversions avec les facteurs actuels (gallon US par défaut).",
       "from": "De",
       "to": "Vers",
-      "unavailable": "Choisissez des unités de la même famille"
+      "unavailable": "Choisissez des unités de la même famille",
+      "toolbarHint": "Utilisez le bouton Convertisseur d’unités à côté de l’indicateur de synchronisation en bas pour convertir les quantités entre unités.",
+      "openButton": "Convertisseur d’unités",
+      "swap": "Inverser les unités"
     },
     "validation": {
       "required": "Obligatoire",

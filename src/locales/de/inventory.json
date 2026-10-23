@@ -94,7 +94,8 @@
     "linkedKitchen": "Verknüpfte Küche",
     "active": "Aktiv",
     "previousPrice": "Vorheriger Preis",
-    "reference": "Referenz"
+    "reference": "Referenz",
+    "averageCost": "Durchschnittskosten"
   },
   "buttons": {
     "item": "Artikel",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen KI-Import",
     "smartImportSuppliersTitle": "Lieferanten KI-Import",
     "smartImportItemCategoriesTitle": "Artikelkategorien KI-Import",
-    "smartImportLocationsTitle": "Standorte KI-Import"
+    "smartImportLocationsTitle": "Standorte KI-Import",
+    "lastPrice": "Letzter",
+    "itemPrice": "Artikel"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -205,7 +208,8 @@
     "voided": "Storniert"
   },
   "upload": {
-    "attachDocuments": "Angehängte Dokumente"
+    "attachDocuments": "Angehängte Dokumente",
+    "noDocuments": "Keine Dokumente angehängt."
   },
   "purchaseMethods": {
     "manual": "Manuell",
@@ -301,7 +305,8 @@
       "missed": "Verpasst"
     },
     "keyboardHint": "Strg/Cmd + Pfeiltasten zum Wechseln zwischen editierbaren Zellen.",
-    "smartImportTitle": "Küchenabstimmung KI-Import"
+    "smartImportTitle": "Küchenabstimmung KI-Import",
+    "stockUomHint": "Lager: {{uom}}"
   },
   "stockTransfer": {
     "type": "Transfertyp",
@@ -642,7 +647,10 @@
       "hint": "Prüfen Sie Umrechnungen mit den aktuellen Faktoren (Standard: US-Gallone).",
       "from": "Von",
       "to": "Nach",
-      "unavailable": "Wählen Sie verwandte Einheiten derselben Familie"
+      "unavailable": "Wählen Sie verwandte Einheiten derselben Familie",
+      "toolbarHint": "Nutzen Sie die Schaltfläche Einheitenumrechner neben dem Sync-Status unten, um Mengen zwischen Einheiten umzurechnen.",
+      "openButton": "Einheitenumrechner",
+      "swap": "Einheiten tauschen"
     },
     "validation": {
       "required": "Pflichtfeld",

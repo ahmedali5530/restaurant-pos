@@ -1,17 +1,14 @@
 import {useEffect, useMemo, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
-import {downloadArrayBuffer} from "@/utils/files.ts";
-import {Button} from "@/components/common/input/button.tsx";
-import {formatDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
-import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
-import {lineAmount} from "@/lib/inventory/line.cost.ts";
-import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
+import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import {mapPurchaseToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {InventoryInvoice} from "@/components/inventory/common/inventory.invoice.tsx";
+import {InventoryDocumentAttachments} from "@/components/inventory/common/document.attachments.tsx";
+import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
+import {toAppBusinessDate} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -20,7 +17,7 @@ interface Props {
 }
 
 export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => {
-  const { t } = useTranslation('inventory');
+  const {t} = useTranslation("inventory");
   const db = useDB();
   const [viewPurchase, setViewPurchase] = useState<InventoryPurchase | null>(null);
   const [loading, setLoading] = useState(false);
@@ -49,14 +46,18 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
     fetchDetails();
   }, [open, purchase?.id]);
 
-  const totals = useMemo(() => {
-    if (!viewPurchase) return null;
-    return computePurchaseTotals(
-      viewPurchase.items,
-      viewPurchase.tax_rate,
-      viewPurchase.extras,
+  const invoiceDoc = useMemo(
+    () => (viewPurchase ? mapPurchaseToInvoice(viewPurchase) : null),
+    [viewPurchase]
+  );
+
+  const showBizDate =
+    viewPurchase &&
+    shouldShowBusinessDate(
+      viewPurchase.created_at,
+      (viewPurchase as any).business_date,
+      toAppBusinessDate
     );
-  }, [viewPurchase]);
 
   if (!open) {
     return null;
@@ -71,208 +72,53 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary" />
         </div>
       )}
 
-      {!loading && viewPurchase && (
+      {!loading && viewPurchase && invoiceDoc && (
         <div className="space-y-6">
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">
-                Invoice #{viewPurchase.invoice_number}
-              </div>
-              <div className="text-xs text-muted">
-                {viewPurchase.created_at ? formatDateTime(viewPurchase.created_at) : "—"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
-              <div>
-                <div className="text-muted text-xs uppercase">Purchase order</div>
-                <div>{viewPurchase.purchase_order ? `PO #${viewPurchase.purchase_order.po_number}` : "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.createdBy')}</div>
-                <div>{viewPurchase.created_by?.first_name } {viewPurchase?.created_by?.last_name}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">Method</div>
-                <div>{viewPurchase.method ?? "Manual"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('totals.taxRate')}</div>
-                <div>{viewPurchase.tax_rate ?? 0}%</div>
-              </div>
-              <div className="md:col-span-2">
-                <div className="text-muted text-xs uppercase">{t('forms.comments')}</div>
-                <div>{viewPurchase.comments || "—"}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="text-sm font-semibold text-foreground mb-3">
-              {t('tabs.items')}
-            </div>
-            {viewPurchase.items && viewPurchase.items.length > 0 ? (
-              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-border">
-                <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                  <thead className="bg-surface sticky top-0">
-                    <tr>
-                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-muted">{t('columns.name')}</th>
-                      <th className="py-2 px-2 text-left text-xs font-semibold text-muted">{t('columns.suppliers')}</th>
-                      <th className="py-2 px-2 text-left text-xs font-semibold text-muted">{t('columns.location')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('forms.quantity')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.baseQuantity')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.price')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.amount')}</th>
-                      <th className="py-2 px-2 text-center text-xs font-semibold text-muted">{t('forms.taxable')}</th>
-                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-muted">{t('forms.comments')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-                    {viewPurchase.items.map((item) => {
-                      const amount = lineAmount(item.price, item.quantity);
-                      return (
-                        <tr key={item.id}>
-                          <td className="py-2 pl-3 pr-2 align-top">
-                            <div className="font-medium text-foreground">
-                              {item.item?.name ?? "Item"}
-                            </div>
-                            {item.item?.code && (
-                              <div className="text-xs text-muted">{item.item.code}</div>
-                            )}
-                          </td>
-                          <td className="py-2 px-2 align-top text-foreground">
-                            {item.supplier?.name ?? "—"}
-                          </td>
-                          <td className="py-2 px-2 align-top text-foreground">
-                            {item.location?.name ?? "—"}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                            {(() => {
-                              const qty = formatLineQuantityDisplay(item as any, formatNumber);
-                              return (
-                                <>
-                                  {qty.label}
-                                  {qty.stockHint && (
-                                    <div className="text-xs text-muted">{qty.stockHint}</div>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                            {formatNumber(item.base_quantity)}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                            {withCurrency(item.price)}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-foreground">
-                            {withCurrency(amount)}
-                          </td>
-                          <td className="py-2 px-2 align-top text-center text-foreground">
-                            {item.taxable ? "Yes" : "No"}
-                          </td>
-                          <td className="py-2 pl-2 pr-3 align-top text-muted max-w-[160px] truncate" title={item.comments ?? undefined}>
-                            {item.comments || "—"}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No items found for this purchase.
-              </div>
-            )}
-          </div>
-
-          {viewPurchase.extras && viewPurchase.extras.length > 0 && (
-            <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-              <div className="text-sm font-semibold text-foreground mb-3">{t('totals.extras')}</div>
-              <div className="divide-y divide-neutral-200">
-                {viewPurchase.extras.map((extra, index) => (
-                  <div key={`${extra.name}-${index}`} className="py-2 flex justify-between text-sm gap-3">
-                    <span>
-                      {extra.name}
-                      {extra.category ? (
-                        <span className="text-muted text-xs ml-2">
-                          ({t(`costCategories.${extra.category}`, { defaultValue: extra.category })})
-                        </span>
-                      ) : null}
-                    </span>
-                    <span className="font-medium">{withCurrency(extra.amount)}</span>
-                  </div>
-                ))}
-              </div>
+          {showBizDate && (
+            <div className="text-sm text-muted">
+              {t("columns.businessDate", {defaultValue: "Business date"})}:{" "}
+              {(viewPurchase as any).business_date}
             </div>
           )}
-
-          {totals && (
-            <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 text-sm space-y-1">
-              <div className="flex justify-between">
-                <span className="text-muted">{t('totals.subtotal')}</span>
-                <span className="font-medium">{withCurrency(totals.subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">{t('totals.tax')}</span>
-                <span className="font-medium">
-                  {withCurrency(viewPurchase.tax_amount ?? totals.taxAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">{t('totals.extras')}</span>
-                <span className="font-medium">{withCurrency(totals.extrasTotal)}</span>
-              </div>
-              <div className="flex justify-between border-t border-border pt-1 font-semibold">
-                <span>{t('totals.grandTotal')}</span>
-                <span>
-                  {withCurrency(
-                    totals.subtotal +
-                      (viewPurchase.tax_amount ?? totals.taxAmount) +
-                      totals.extrasTotal
-                  )}
-                </span>
-              </div>
-            </div>
-          )}
+          <InventoryInvoice doc={invoiceDoc} />
 
           {viewPurchase.cost_allocation_snapshot?.summary && (
             <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 text-sm space-y-1">
               <div className="text-sm font-semibold text-foreground mb-2">
-                {t('totals.finalInventoryValue')}
+                {t("totals.finalInventoryValue")}
               </div>
               <div className="flex justify-between">
-                <span className="text-muted">{t('totals.inventoryValueBefore')}</span>
+                <span className="text-muted">{t("totals.inventoryValueBefore")}</span>
                 <span className="font-medium">
-                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.purchase_value)}
+                  {withInventoryCurrency(viewPurchase.cost_allocation_snapshot.summary.purchase_value)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted">{t('totals.landedCost')}</span>
+                <span className="text-muted">{t("totals.landedCost")}</span>
                 <span className="font-medium">
-                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_extras)}
+                  {withInventoryCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_extras)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted">{t('totals.tax')}</span>
+                <span className="text-muted">{t("totals.tax")}</span>
                 <span className="font-medium">
-                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_tax)}
+                  {withInventoryCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_tax)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted">{t('totals.discount')}</span>
+                <span className="text-muted">{t("totals.discount")}</span>
                 <span className="font-medium">
-                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_discount)}
+                  {withInventoryCurrency(viewPurchase.cost_allocation_snapshot.summary.capitalized_discount)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border pt-1 font-semibold">
-                <span>{t('totals.inventoryValueAfter')}</span>
+                <span>{t("totals.inventoryValueAfter")}</span>
                 <span>
-                  {withCurrency(viewPurchase.cost_allocation_snapshot.summary.final_inventory_value)}
+                  {withInventoryCurrency(viewPurchase.cost_allocation_snapshot.summary.final_inventory_value)}
                 </span>
               </div>
             </div>
@@ -281,7 +127,7 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
           {viewPurchase.items?.some((item) => item.final_unit_cost != null) && (
             <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
               <div className="text-sm font-semibold text-foreground mb-3">
-                {t('totals.finalUnitCost')}
+                {t("totals.finalUnitCost")}
               </div>
               <div className="divide-y divide-neutral-200 text-sm">
                 {viewPurchase.items.map((item) =>
@@ -289,8 +135,8 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
                     <div key={item.id} className="py-2 flex justify-between gap-3">
                       <span>{item.item?.name ?? "Item"}</span>
                       <span className="font-medium tabular-nums">
-                        {withCurrency(item.purchase_price ?? item.price)} →{" "}
-                        {withCurrency(item.final_unit_cost)}
+                        {withInventoryCurrency(item.purchase_price ?? item.price)} →{" "}
+                        {withInventoryCurrency(item.final_unit_cost)}
                       </span>
                     </div>
                   )
@@ -299,59 +145,12 @@ export const InventoryPurchaseViewModal = ({open, purchase, onClose}: Props) => 
             </div>
           )}
 
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <FontAwesomeIcon icon={faFile}/>
-                <span>{t('upload.attachDocuments')}</span>
-              </div>
-            </div>
-            {viewPurchase.documents && viewPurchase.documents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {viewPurchase.documents.map((doc, index) => (
-                  <div
-                    key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
-                        <FontAwesomeIcon icon={faFile}/>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {doc.name ?? `Document ${index + 1}`}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {doc.type ?? "File"}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        downloadArrayBuffer(
-                          doc.content,
-                          doc.name ?? `purchase-${viewPurchase.invoice_number}-${index + 1}`,
-                          doc.type ?? "application/octet-stream"
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No documents attached to this purchase.
-              </div>
-            )}
-          </div>
+          <InventoryDocumentAttachments
+            documents={viewPurchase.documents as any}
+            downloadPrefix={`purchase-${viewPurchase.invoice_number}`}
+          />
         </div>
       )}
-
     </Modal>
   );
 };

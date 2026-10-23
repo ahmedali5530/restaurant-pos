@@ -53,7 +53,7 @@ const validationSchema = yup.object({
     label: yup.string(),
     value: yup.string()
   }).required("This is required").nullable(),
-  base_quantity: yup.number().typeError("This should be a number").required("This is required"),
+  base_quantity: yup.number().typeError("This should be a number").optional().default(1),
   suppliers: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
@@ -83,7 +83,7 @@ export const InventoryItemForm = ({
       name: '',
       code: '',
       category: null,
-      base_quantity: 0,
+      base_quantity: 1,
       suppliers: [],
       locations: [],
       price: undefined,
@@ -202,7 +202,7 @@ export const InventoryItemForm = ({
 
       const datum = {
         ...values,
-        base_quantity: parseInt(values.base_quantity),
+        base_quantity: 1,
         suppliers: values?.suppliers?.map(item => toRecordId(item.value)),
         locations: values?.locations?.map(item => toRecordId(item.value)),
         category: values?.category ? toRecordId(values.category.value) : undefined,
@@ -324,21 +324,6 @@ export const InventoryItemForm = ({
                 <FontAwesomeIcon icon={faPlus}/>
               </IconTooltipButton>
             </div>
-          </div>
-          <div className="mb-3">
-            <Controller
-              name="base_quantity"
-              control={control}
-              render={({field}) => (
-                <Input
-                  type="number"
-                  label={t('columns.baseQuantity')}
-                  {...field}
-                  value={field.value ?? ""}
-                  error={errors?.base_quantity?.message}
-                />
-              )}
-            />
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">

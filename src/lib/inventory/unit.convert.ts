@@ -1,15 +1,11 @@
-import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
 import {
   convertQuantity,
   normalizeUom,
   type InventoryUom,
 } from "@/utils/inventoryUom.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
-const QTY_DECIMALS = 6;
-const qtyFactor = 10 ** QTY_DECIMALS;
-
-export const roundStockQuantity = (value: number): number =>
-  Math.round((value + Number.EPSILON) * qtyFactor) / qtyFactor;
+export const roundStockQuantity = (value: number): number => roundInventory(value);
 
 export type StockLineMode = "commercial" | "quantity_only";
 
@@ -118,8 +114,8 @@ export function purchaseReportQuantity(opts: {
 export function stockLineMoneyMatchesEntered(line: StockLine): boolean {
   if (line.entered_price == null) return true;
   return (
-    roundCurrency(line.quantity * line.price) ===
-    roundCurrency(line.entered_quantity * line.entered_price)
+    roundInventory(line.quantity * line.price) ===
+    roundInventory(line.entered_quantity * line.entered_price)
   );
 }
 
@@ -149,4 +145,28 @@ export function convertQuantityOnlyLine(opts: {
     stockUnitPrice: opts.stockUnitPrice ?? 0,
     mode: "quantity_only",
   });
+}
+
+/**
+ * Convert an optional entered quantity to stock units.
+ * Allows 0 / null (unlike toStockLine which rejects zero).
+ */
+export function convertEnteredQtyToStock(
+  entered: number | null | undefined,
+  enteredUom: string | null | undefined,
+  stockUom: string | null | undefined,
+): number | null {
+  if (entered == null || !Number.isFinite(entered)) {
+    return null;
+  }
+  const from = normalizeUom(enteredUom) ?? normalizeUom(stockUom);
+  const to = normalizeUom(stockUom) ?? from;
+  if (!from || !to || from === to) {
+    return roundStockQuantity(entered);
+  }
+  try {
+    return roundStockQuantity(convertQuantity(entered, from, to));
+  } catch {
+    return roundStockQuantity(entered);
+  }
 }

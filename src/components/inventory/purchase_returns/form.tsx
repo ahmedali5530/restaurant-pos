@@ -38,6 +38,7 @@ import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createPurchaseReturnImportConfig} from "@/components/inventory/purchase_returns/purchase-return.import.config.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
@@ -46,6 +47,7 @@ import {
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
@@ -74,8 +76,8 @@ interface Props {
 
 const resolvePurchaseLineUnitCost = (pi?: any): number => {
   if (!pi) return 0;
-  const qty = Math.abs(Number(pi.quantity) || 0);
-  const total = Number(pi.total_inventory_cost);
+  const qty = Math.abs(roundInventory(pi.quantity) || 0);
+  const total = roundInventory(pi.total_inventory_cost);
   if (Number.isFinite(total) && total !== 0 && qty > 0) {
     return Math.abs(total) / qty;
   }
@@ -651,14 +653,12 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      let inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      let inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
+          return sum + qty * price;
+        }, 0)
       );
 
       if (inventoryValue <= 0 && purchaseId) {
@@ -671,17 +671,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           const fetchedItems = row?.items ?? [];
           if (fetchedItems.length > 0) {
             purchaseLineItems = fetchedItems;
-            inventoryValue = Number(
-              values.items
-                .reduce((sum, item) => {
-                  const qty = Number(item.quantity || 0);
-                  const price = resolveReturnLineUnitCost(
-                    item,
-                    matchPurchaseLine(item)
-                  );
-                  return sum + qty * price;
-                }, 0)
-                .toFixed(2)
+            inventoryValue = roundInventory(
+              values.items.reduce((sum, item) => {
+                const qty = Number(item.quantity || 0);
+                const price = resolveReturnLineUnitCost(
+                  item,
+                  matchPurchaseLine(item)
+                );
+                return sum + qty * price;
+              }, 0)
             );
           }
         } catch (error) {
@@ -926,7 +924,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                       quantityLabel={
                         availableQuantity === undefined
                           ? t('forms.quantity')
-                          : t('stockTransfer.available', { qty: availableQuantity })
+                          : t('stockTransfer.available', {
+                              qty: formatInventoryNumber(availableQuantity),
+                            })
                       }
                       errors={errors}
                     />

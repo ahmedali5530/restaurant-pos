@@ -94,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Vorige prijs",
-    "reference": "Referentie"
+    "reference": "Referentie",
+    "averageCost": "Gemiddelde kostprijs"
   },
   "buttons": {
     "item": "Artikel",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Inkoopretourregels AI-importeren",
     "smartImportSuppliersTitle": "Leveranciers AI-importeren",
     "smartImportItemCategoriesTitle": "Artikelcategorieën AI-importeren",
-    "smartImportLocationsTitle": "Locaties AI-importeren"
+    "smartImportLocationsTitle": "Locaties AI-importeren",
+    "lastPrice": "Laatste",
+    "itemPrice": "Artikel"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -205,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Bijgevoegde documenten"
+    "attachDocuments": "Bijgevoegde documenten",
+    "noDocuments": "Geen documenten bijgevoegd."
   },
   "purchaseMethods": {
     "manual": "Handmatig",
@@ -301,7 +305,8 @@
       "missed": "Gemist"
     },
     "keyboardHint": "Ctrl/Cmd + pijltjestoetsen om tussen bewerkbare cellen te bewegen.",
-    "smartImportTitle": "Keukenafstemming AI-importeren"
+    "smartImportTitle": "Keukenafstemming AI-importeren",
+    "stockUomHint": "Voorraad: {{uom}}"
   },
   "stockTransfer": {
     "type": "Overdrachtstype",
@@ -642,7 +647,10 @@
       "hint": "Controleer conversies met de huidige factoren (standaard US gallon).",
       "from": "Van",
       "to": "Naar",
-      "unavailable": "Kies gerelateerde eenheden in dezelfde familie"
+      "unavailable": "Kies gerelateerde eenheden in dezelfde familie",
+      "toolbarHint": "Gebruik de knop Eenhedenconverter naast de sync-statusindicator op de onderste balk om hoeveelheden tussen eenheden om te rekenen.",
+      "openButton": "Eenhedenconverter",
+      "swap": "Eenheden wisselen"
     },
     "validation": {
       "required": "Verplicht",

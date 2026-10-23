@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {
   BuffetReportLine,
   fetchBuffetReportLines,
@@ -75,15 +75,15 @@ export const BuffetReport = () => {
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="bg-surface-elevated rounded-lg p-4 shadow">
           <div className="text-sm text-muted">{t("buffet.totalSales")}</div>
-          <div className="text-xl font-semibold">{formatNumber(totals.sales)}</div>
+          <div className="text-xl font-semibold">{formatInventoryNumber(totals.sales)}</div>
         </div>
         <div className="bg-surface-elevated rounded-lg p-4 shadow">
           <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
-          <div className="text-xl font-semibold">{formatNumber(totals.foodCost)}</div>
+          <div className="text-xl font-semibold">{formatInventoryNumber(totals.foodCost)}</div>
         </div>
         <div className="bg-surface-elevated rounded-lg p-4 shadow">
           <div className="text-sm text-muted">{t("buffet.profit")}</div>
-          <div className="text-xl font-semibold">{formatNumber(totals.profit)}</div>
+          <div className="text-xl font-semibold">{formatInventoryNumber(totals.profit)}</div>
         </div>
         <div className="bg-surface-elevated rounded-lg p-4 shadow">
           <div className="text-sm text-muted">{t("buffet.totalGuests")}</div>
@@ -116,12 +116,12 @@ export const BuffetReport = () => {
               <td>{t(`buffet.sessionTypes.${line.sessionType}`)}</td>
               <td>{line.locationName}</td>
               <td>{line.actualGuests}</td>
-              <td>{formatNumber(line.totalSales)}</td>
-              <td>{formatNumber(line.totalFoodCost)}</td>
-              <td>{formatNumber(line.costPerGuest)}</td>
+              <td>{formatInventoryNumber(line.totalSales)}</td>
+              <td>{formatInventoryNumber(line.totalFoodCost)}</td>
+              <td>{formatInventoryNumber(line.costPerGuest)}</td>
               <td>{line.wastePercent}%</td>
-              <td>{formatNumber(line.totalOverproduction)}</td>
-              <td>{formatNumber(line.profit)}</td>
+              <td>{formatInventoryNumber(line.totalOverproduction)}</td>
+              <td>{formatInventoryNumber(line.profit)}</td>
               <td>{line.profitMargin}%</td>
             </tr>
           ))}

@@ -8,6 +8,7 @@ import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import type {IntegrationManager} from "@/integrations/core/integration-manager.ts";
 import {publishInventoryTransferred} from "@/integrations/accounting/events/publish.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -116,7 +117,7 @@ const createLineItems = async (
       db.create(Tables.stock_transfer_items, {
         transfer: transferRef,
         item: toItemRecordId(line.itemId),
-        quantity: Number(line.quantity),
+        quantity: roundInventory(line.quantity),
         entered_quantity: line.entered_quantity,
         entered_uom: line.entered_uom,
       })
@@ -242,16 +243,14 @@ export const createStockTransfer = async (
     const priceById = new Map(
       items.map((row) => [
         String(row.id),
-        Number(row.average_price ?? row.price ?? 0),
+        roundInventory(row.average_price ?? row.price ?? 0),
       ])
     );
-    inventoryValue = Number(
-      input.items
-        .reduce((sum, line) => {
-          const unit = priceById.get(String(toItemRecordId(line.itemId))) ?? 0;
-          return sum + Number(line.quantity || 0) * unit;
-        }, 0)
-        .toFixed(2)
+    inventoryValue = roundInventory(
+      input.items.reduce((sum, line) => {
+        const unit = priceById.get(String(toItemRecordId(line.itemId))) ?? 0;
+        return sum + Number(line.quantity || 0) * unit;
+      }, 0)
     );
   }
 

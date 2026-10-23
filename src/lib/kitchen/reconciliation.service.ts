@@ -38,10 +38,17 @@ type DatabaseClient = ReturnType<typeof useDB>;
 
 export type ManualLineInput = {
   itemId: string;
+  /** Stock-unit quantities (used for variance / posting). */
   physicalCount?: number | null;
   wasteQty?: number;
   staffMealQty?: number;
   complimentaryQty?: number;
+  /** What the user typed (related UOM), parallel to dish recipes. */
+  enteredUom?: string | null;
+  enteredPhysicalCount?: number | null;
+  enteredWasteQty?: number | null;
+  enteredStaffMealQty?: number | null;
+  enteredComplimentaryQty?: number | null;
 };
 
 type QuantityMap = Map<string, number>;
@@ -563,6 +570,11 @@ const patchDirtyLineItems = async (
     expected_stock: number;
     actual_consumption: number;
     variance: number;
+    entered_uom: string | null;
+    entered_physical_count: number | null;
+    entered_waste_qty: number | null;
+    entered_staff_meal_qty: number | null;
+    entered_complimentary_qty: number | null;
   }>
 ) => {
   if (patches.length === 0) return;
@@ -581,7 +593,12 @@ const patchDirtyLineItems = async (
               complimentary_qty = $complimentary_qty,
               expected_stock = $expected_stock,
               actual_consumption = $actual_consumption,
-              variance = $variance
+              variance = $variance,
+              entered_uom = $entered_uom,
+              entered_physical_count = $entered_physical_count,
+              entered_waste_qty = $entered_waste_qty,
+              entered_staff_meal_qty = $entered_staff_meal_qty,
+              entered_complimentary_qty = $entered_complimentary_qty
             WHERE reconciliation = $reconciliation AND item = $item
             RETURN NONE
           `,
@@ -595,6 +612,11 @@ const patchDirtyLineItems = async (
             expected_stock: patch.expected_stock,
             actual_consumption: patch.actual_consumption,
             variance: patch.variance,
+            entered_uom: patch.entered_uom,
+            entered_physical_count: patch.entered_physical_count,
+            entered_waste_qty: patch.entered_waste_qty,
+            entered_staff_meal_qty: patch.entered_staff_meal_qty,
+            entered_complimentary_qty: patch.entered_complimentary_qty,
           }
         )
       )
@@ -1295,6 +1317,36 @@ export const saveManualInputs = async (
     ) {
       return true;
     }
+    if (
+      line.enteredUom !== undefined &&
+      String(prev.entered_uom ?? "") !== String(line.enteredUom ?? "")
+    ) {
+      return true;
+    }
+    if (
+      line.enteredPhysicalCount !== undefined &&
+      !sameManualValue(prev.entered_physical_count, line.enteredPhysicalCount)
+    ) {
+      return true;
+    }
+    if (
+      line.enteredWasteQty !== undefined &&
+      !sameManualValue(prev.entered_waste_qty, line.enteredWasteQty)
+    ) {
+      return true;
+    }
+    if (
+      line.enteredStaffMealQty !== undefined &&
+      !sameManualValue(prev.entered_staff_meal_qty, line.enteredStaffMealQty)
+    ) {
+      return true;
+    }
+    if (
+      line.enteredComplimentaryQty !== undefined &&
+      !sameManualValue(prev.entered_complimentary_qty, line.enteredComplimentaryQty)
+    ) {
+      return true;
+    }
     return false;
   });
 
@@ -1323,6 +1375,23 @@ export const saveManualInputs = async (
       expected_stock: computed.expectedStock,
       actual_consumption: computed.actualConsumption,
       variance: computed.variance,
+      entered_uom: line.enteredUom ?? null,
+      entered_physical_count:
+        line.enteredPhysicalCount !== undefined
+          ? line.enteredPhysicalCount
+          : existing?.entered_physical_count ?? null,
+      entered_waste_qty:
+        line.enteredWasteQty !== undefined
+          ? line.enteredWasteQty
+          : existing?.entered_waste_qty ?? null,
+      entered_staff_meal_qty:
+        line.enteredStaffMealQty !== undefined
+          ? line.enteredStaffMealQty
+          : existing?.entered_staff_meal_qty ?? null,
+      entered_complimentary_qty:
+        line.enteredComplimentaryQty !== undefined
+          ? line.enteredComplimentaryQty
+          : existing?.entered_complimentary_qty ?? null,
     };
   });
 
@@ -1347,6 +1416,33 @@ export const saveManualInputs = async (
     }
     if (line.complimentaryQty !== undefined) {
       pushIfChanged("complimentary_qty", prev?.complimentary_qty ?? 0, line.complimentaryQty ?? 0);
+    }
+    if (line.enteredUom !== undefined) {
+      pushIfChanged("entered_uom", prev?.entered_uom ?? null, line.enteredUom);
+    }
+    if (line.enteredPhysicalCount !== undefined) {
+      pushIfChanged(
+        "entered_physical_count",
+        prev?.entered_physical_count ?? null,
+        line.enteredPhysicalCount
+      );
+    }
+    if (line.enteredWasteQty !== undefined) {
+      pushIfChanged("entered_waste_qty", prev?.entered_waste_qty ?? null, line.enteredWasteQty);
+    }
+    if (line.enteredStaffMealQty !== undefined) {
+      pushIfChanged(
+        "entered_staff_meal_qty",
+        prev?.entered_staff_meal_qty ?? null,
+        line.enteredStaffMealQty
+      );
+    }
+    if (line.enteredComplimentaryQty !== undefined) {
+      pushIfChanged(
+        "entered_complimentary_qty",
+        prev?.entered_complimentary_qty ?? null,
+        line.enteredComplimentaryQty
+      );
     }
     return changes;
   });

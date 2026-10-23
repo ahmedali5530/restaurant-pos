@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
       },
+      allowedHosts: ['ahmed-pc.tailnet.ahmedali5530.xyz']
     },
     preview: {
       proxy: {

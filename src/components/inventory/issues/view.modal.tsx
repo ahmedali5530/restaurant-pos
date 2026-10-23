@@ -1,16 +1,13 @@
 import {useEffect, useMemo, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 import {InventoryIssue} from "@/api/model/inventory_issue.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
-import {downloadArrayBuffer} from "@/utils/files.ts";
-import {Button} from "@/components/common/input/button.tsx";
-import {formatDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
-import {lineAmount} from "@/lib/inventory/line.cost.ts";
-import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
+import {mapIssueToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {InventoryInvoice} from "@/components/inventory/common/inventory.invoice.tsx";
+import {InventoryDocumentAttachments} from "@/components/inventory/common/document.attachments.tsx";
+import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
+import {toAppBusinessDate} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -19,7 +16,7 @@ interface Props {
 }
 
 export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
-  const { t } = useTranslation('inventory');
+  const {t} = useTranslation("inventory");
   const db = useDB();
   const [viewIssue, setViewIssue] = useState<InventoryIssue | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,16 +45,18 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
     fetchDetails();
   }, [open, issue?.id]);
 
-  const totals = useMemo(() => {
-    if (!viewIssue?.items?.length) return null;
-    const totalItems = viewIssue.items.length;
-    const totalQty = viewIssue.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
-    const totalValue = viewIssue.items.reduce((sum, item) => {
-      const price = Number(item.price) || 0;
-      return sum + lineAmount(price, Number(item.quantity) || 0);
-    }, 0);
-    return {totalItems, totalQty, totalValue};
-  }, [viewIssue]);
+  const invoiceDoc = useMemo(
+    () => (viewIssue ? mapIssueToInvoice(viewIssue) : null),
+    [viewIssue]
+  );
+
+  const showBizDate =
+    viewIssue &&
+    shouldShowBusinessDate(
+      viewIssue.created_at,
+      (viewIssue as any).business_date,
+      toAppBusinessDate
+    );
 
   if (!open) {
     return null;
@@ -72,184 +71,25 @@ export const InventoryIssueViewModal = ({open, issue, onClose}: Props) => {
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary" />
         </div>
       )}
 
-      {!loading && viewIssue && (
+      {!loading && viewIssue && invoiceDoc && (
         <div className="space-y-6">
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">
-                Issue #{viewIssue.invoice_number}
-              </div>
-              <div className="text-xs text-muted">
-                {viewIssue.created_at ? formatDateTime(viewIssue.created_at) : "—"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.createdBy')}</div>
-                <div>{viewIssue.created_by?.first_name} {viewIssue.created_by?.last_name}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.issuedTo')}</div>
-                <div>{viewIssue.issued_to ? `${viewIssue.issued_to.first_name} ${viewIssue.issued_to.last_name}` : "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.location')}</div>
-                <div>{viewIssue.location?.name ?? "—"}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="text-sm font-semibold text-foreground mb-3">
-              {t('tabs.items')}
-            </div>
-            {viewIssue.items && viewIssue.items.length > 0 ? (
-              <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-border">
-                <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                  <thead className="bg-surface sticky top-0">
-                    <tr>
-                      <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-muted">{t('columns.name')}</th>
-                      <th className="py-2 px-2 text-left text-xs font-semibold text-muted">{t('columns.location')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('forms.quantity')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.requested')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.price')}</th>
-                      <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.amount')}</th>
-                      <th className="py-2 pl-2 pr-3 text-left text-xs font-semibold text-muted">{t('forms.comments')}</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-                    {viewIssue.items.map((item) => {
-                      const price = Number(item.price) || 0;
-                      const amount = lineAmount(price, Number(item.quantity) || 0);
-                      return (
-                        <tr key={item.id}>
-                          <td className="py-2 pl-3 pr-2 align-top">
-                            <div className="font-medium text-foreground">
-                              {(item.item as any)?.name ?? "Item"}
-                            </div>
-                            {(item.item as any)?.code && (
-                              <div className="text-xs text-muted">{(item.item as any).code}</div>
-                            )}
-                          </td>
-                          <td className="py-2 px-2 align-top text-foreground">
-                            {item.location?.name ?? "—"}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                            {(() => {
-                              const qty = formatLineQuantityDisplay(item as any, formatNumber);
-                              return (
-                                <>
-                                  {qty.label}
-                                  {qty.stockHint && (
-                                    <div className="text-xs text-muted">{qty.stockHint}</div>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-muted">
-                            {item.requested !== undefined ? formatNumber(item.requested) : "—"}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                            {price > 0 ? withCurrency(price) : "—"}
-                          </td>
-                          <td className="py-2 px-2 align-top text-right tabular-nums font-medium text-foreground">
-                            {amount > 0 ? withCurrency(amount) : "—"}
-                          </td>
-                          <td className="py-2 pl-2 pr-3 align-top text-muted max-w-[160px] truncate" title={item.comments ?? undefined}>
-                            {item.comments || "—"}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No items found for this issue.
-              </div>
-            )}
-          </div>
-
-          {totals && (
-            <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 text-sm space-y-1">
-              <div className="text-sm font-semibold text-foreground mb-2">
-                {t('common:actions.total')}
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">{t('tabs.items')}</span>
-                <span className="font-medium">{totals.totalItems}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">{t('forms.quantity')}</span>
-                <span className="font-medium">{formatNumber(totals.totalQty)}</span>
-              </div>
-              <div className="flex justify-between border-t border-border pt-1 font-semibold">
-                <span>{t('columns.amount')}</span>
-                <span>{withCurrency(totals.totalValue)}</span>
-              </div>
+          {showBizDate && (
+            <div className="text-sm text-muted">
+              {t("columns.businessDate", {defaultValue: "Business date"})}:{" "}
+              {(viewIssue as any).business_date}
             </div>
           )}
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <FontAwesomeIcon icon={faFile}/>
-                <span>{t('upload.attachDocuments')}</span>
-              </div>
-            </div>
-            {viewIssue.documents && viewIssue.documents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {viewIssue.documents.map((doc, index) => (
-                  <div
-                    key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
-                        <FontAwesomeIcon icon={faFile}/>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {doc.name ?? `Document ${index + 1}`}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {doc.type ?? "File"}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        downloadArrayBuffer(
-                          doc.content,
-                          doc.name ?? `issue-${viewIssue.invoice_number}-${index + 1}`,
-                          doc.type ?? "application/octet-stream"
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No documents attached to this issue.
-              </div>
-            )}
-          </div>
+          <InventoryInvoice doc={invoiceDoc} />
+          <InventoryDocumentAttachments
+            documents={viewIssue.documents as any}
+            downloadPrefix={`issue-${viewIssue.invoice_number}`}
+          />
         </div>
       )}
-
     </Modal>
   );
 };
-

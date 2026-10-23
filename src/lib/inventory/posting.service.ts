@@ -36,6 +36,7 @@ import { assertCanVoid } from "@/lib/inventory/dependency-validator.ts";
 import { fetchInventorySettings } from "@/lib/inventory/settings.ts";
 import { allocatePurchaseCosts } from "@/lib/inventory/purchase-cost/allocate.ts";
 import type { LineAllocationResult } from "@/lib/inventory/purchase-cost/types.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 import {
   resolveStockLocationId,
   toLocationRecordId,
@@ -222,7 +223,7 @@ export const reverseDocument = async (
     const itemId = recordIdToString(row.inventory_item) || String(row.inventory_item);
     const locationId =
       recordIdToString(row.inventory_location) || String(row.inventory_location);
-    const qty = Number(row.quantity_change) || 0;
+    const qty = roundInventory(row.quantity_change) || 0;
     if (!itemId || !locationId || qty === 0) continue;
 
     let businessDate = row.business_date;
@@ -582,7 +583,7 @@ export const postDocument = async (
         else {
           const qty = Number(entry.quantity_change ?? 0);
           const unit = Number(entry.unit_cost ?? 0);
-          const line = Number((qty * unit).toFixed(2));
+          const line = roundInventory(qty * unit);
           if (line > 0) increaseValue += line;
           else if (line < 0) decreaseValue += Math.abs(line);
         }
@@ -590,9 +591,9 @@ export const postDocument = async (
       await publishAccountingInventoryAdjusted(input.integrationManager, {
         documentId: String(documentId),
         locationId: doc.location?.id ? String(doc.location.id) : doc.store?.id ? String(doc.store.id) : undefined,
-        netInventoryValue: Number((increaseValue - decreaseValue).toFixed(2)),
-        increaseValue: Number(increaseValue.toFixed(2)),
-        decreaseValue: Number(decreaseValue.toFixed(2)),
+        netInventoryValue: roundInventory(increaseValue - decreaseValue),
+        increaseValue: roundInventory(increaseValue),
+        decreaseValue: roundInventory(decreaseValue),
         reason: doc.reason ? String(doc.reason) : undefined,
       });
     } else if (!isProductionBatch) {
@@ -608,27 +609,23 @@ export const postDocument = async (
       // Prefer authoritative line/allocation costs — not only newly inserted ledger
       // rows (reposts or zero unit_cost on ledger can leave newEntries empty/zero).
       const sumEntryCosts = (rows: typeof entries) =>
-        Number(
-          rows
-            .reduce((sum, entry) => sum + Math.abs(Number(entry.total_cost ?? 0)), 0)
-            .toFixed(2)
+        roundInventory(
+          rows.reduce((sum, entry) => sum + Math.abs(Number(entry.total_cost ?? 0)), 0)
         );
       let inventoryValue = sumEntryCosts(newEntries.length > 0 ? newEntries : entries);
       if (inventoryValue <= 0) {
-        inventoryValue = Number(
-          itemsForPosting
-            .reduce((sum: number, item: any) => {
-              const qty = Math.abs(Number(item.quantity) || 0);
-              const lineTotal = Number(item.total_inventory_cost);
-              if (Number.isFinite(lineTotal) && lineTotal !== 0) {
-                return sum + Math.abs(lineTotal);
-              }
-              const unitRaw =
-                item.final_unit_cost ?? item.price ?? item.unit_cost ?? 0;
-              const unit = Number(unitRaw);
-              return sum + qty * (Number.isFinite(unit) ? Math.abs(unit) : 0);
-            }, 0)
-            .toFixed(2)
+        inventoryValue = roundInventory(
+          itemsForPosting.reduce((sum: number, item: any) => {
+            const qty = Math.abs(Number(item.quantity) || 0);
+            const lineTotal = Number(item.total_inventory_cost);
+            if (Number.isFinite(lineTotal) && lineTotal !== 0) {
+              return sum + Math.abs(lineTotal);
+            }
+            const unitRaw =
+              item.final_unit_cost ?? item.price ?? item.unit_cost ?? 0;
+            const unit = Number(unitRaw);
+            return sum + qty * (Number.isFinite(unit) ? Math.abs(unit) : 0);
+          }, 0)
         );
       }
 

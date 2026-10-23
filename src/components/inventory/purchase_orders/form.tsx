@@ -32,7 +32,7 @@ import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createPurchaseOrderImportConfig} from "@/components/inventory/purchase_orders/purchase-order.import.config.ts";
 import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
-import {withCurrency} from "@/lib/utils.ts";
+import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
 import {
   lineEnteredDefaults,
@@ -592,7 +592,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           </label>
                           <div className="input">
                             {previousPrices[rowField.id] != null
-                              ? withCurrency(previousPrices[rowField.id])
+                              ? withInventoryCurrency(previousPrices[rowField.id])
                               : "—"}
                           </div>
                         </div>

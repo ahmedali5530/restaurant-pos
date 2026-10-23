@@ -3,7 +3,8 @@ import { twMerge } from "tailwind-merge"
 import {RecordId, StringRecordId} from "surrealdb";
 import { getShowCurrencySymbolInUi } from "@/lib/currency-format.ts";
 
-const DECIMAL_PLACES = import.meta.env.VITE_DECIMAL_PLACES;
+const DECIMAL_PLACES = Number(import.meta.env.VITE_DECIMAL_PLACES);
+const UI_DECIMAL_PLACES = Number.isFinite(DECIMAL_PLACES) ? DECIMAL_PLACES : 0;
 
 type RecordIdInput = {
   id: unknown;
@@ -49,7 +50,7 @@ const isValidCurrencyCode = (code: string): boolean => {
 // a pay profile explicitly set to a different currency than the store's.
 export const withCurrency = (
   amount: string | number | undefined,
-  decimalPlaces = DECIMAL_PLACES,
+  decimalPlaces: number = UI_DECIMAL_PLACES,
   currency: string = import.meta.env.VITE_CURRENCY,
 ) => {
   const showSymbol = getShowCurrencySymbolInUi();
@@ -90,7 +91,10 @@ export const withCurrency = (
   }).format(Number(amount));
 };
 
-export const formatNumber = (amount: string | number, decimalPlaces = DECIMAL_PLACES) => {
+export const formatNumber = (
+  amount: string | number,
+  decimalPlaces: number = UI_DECIMAL_PLACES,
+) => {
   return new Intl.NumberFormat(import.meta.env.VITE_LOCALE, {
     maximumFractionDigits: decimalPlaces,
     useGrouping: false

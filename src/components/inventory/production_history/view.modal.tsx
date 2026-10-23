@@ -6,7 +6,10 @@ import {useDB} from "@/api/db/db.ts";
 import {getProductionBatch} from "@/lib/inventory/production.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {
+  formatInventoryNumber,
+  withInventoryCurrency,
+} from "@/lib/inventory/rounding.ts";
 import {formatLineQuantityDisplay} from "@/lib/inventory/quantity.display.ts";
 
 interface Props {
@@ -45,11 +48,26 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
           <div className="grid grid-cols-2 gap-2 text-sm">
             <div><strong>{t("production.recipe")}:</strong> {batch.recipe?.name}</div>
             <div><strong>{t("columns.location")}:</strong> {batch.location?.name}</div>
-            <div><strong>{t("production.producedQty")}:</strong> {batch.produced_qty}</div>
-            <div><strong>{t("production.scaleFactor")}:</strong> {batch.scale_factor}</div>
-            <div><strong>{t("production.yieldLoss")}:</strong> {batch.yield_loss_percent}%</div>
-            <div><strong>{t("production.totalInputCost")}:</strong> {batch.total_input_cost}</div>
-            <div><strong>{t("production.totalOutputCost")}:</strong> {batch.total_output_cost}</div>
+            <div>
+              <strong>{t("production.producedQty")}:</strong>{" "}
+              {formatInventoryNumber(batch.produced_qty)}
+            </div>
+            <div>
+              <strong>{t("production.scaleFactor")}:</strong>{" "}
+              {formatInventoryNumber(batch.scale_factor)}
+            </div>
+            <div>
+              <strong>{t("production.yieldLoss")}:</strong>{" "}
+              {formatInventoryNumber(batch.yield_loss_percent)}%
+            </div>
+            <div>
+              <strong>{t("production.totalInputCost")}:</strong>{" "}
+              {withInventoryCurrency(batch.total_input_cost)}
+            </div>
+            <div>
+              <strong>{t("production.totalOutputCost")}:</strong>{" "}
+              {withInventoryCurrency(batch.total_output_cost)}
+            </div>
             <div>
               <strong>{t("columns.createdAt")}:</strong>{" "}
               {formatDateTime(batch.created_at)}
@@ -74,7 +92,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
                 </thead>
                 <tbody>
                   {(batch.inputs ?? []).map((line) => {
-                    const qty = formatLineQuantityDisplay(line as any, formatNumber);
+                    const qty = formatLineQuantityDisplay(line as any, formatInventoryNumber);
                     return (
                       <tr key={recordToString(line.id)}>
                         <td>{line.item?.name}</td>
@@ -85,7 +103,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
                           )}
                         </td>
                         <td>{(line.item as any)?.uom ?? "—"}</td>
-                        <td>{line.total_cost}</td>
+                        <td>{withInventoryCurrency(line.total_cost)}</td>
                       </tr>
                     );
                   })}
@@ -106,7 +124,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
                 </thead>
                 <tbody>
                   {(batch.outputs ?? []).map((line) => {
-                    const qty = formatLineQuantityDisplay(line as any, formatNumber);
+                    const qty = formatLineQuantityDisplay(line as any, formatInventoryNumber);
                     return (
                       <tr key={recordToString(line.id)}>
                         <td>{line.item?.name}</td>
@@ -118,7 +136,7 @@ export const ProductionBatchViewModal = ({open, batchId, onClose}: Props) => {
                         </td>
                         <td>{(line.item as any)?.uom ?? "—"}</td>
                         <td>{line.disposition}</td>
-                        <td>{line.allocated_cost}</td>
+                        <td>{withInventoryCurrency(line.allocated_cost)}</td>
                       </tr>
                     );
                   })}

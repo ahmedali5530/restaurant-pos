@@ -94,7 +94,8 @@
     "linkedKitchen": "المطبخ المرتبط",
     "active": "نشط",
     "previousPrice": "السعر السابق",
-    "reference": "المرجع"
+    "reference": "المرجع",
+    "averageCost": "متوسط التكلفة"
   },
   "buttons": {
     "item": "صنف",
@@ -155,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "استيراد بالذكاء الاصطناعي لأسطر مرتجع المشتريات",
     "smartImportSuppliersTitle": "استيراد بالذكاء الاصطناعي للموردين",
     "smartImportItemCategoriesTitle": "استيراد بالذكاء الاصطناعي لفئات الأصناف",
-    "smartImportLocationsTitle": "استيراد بالذكاء الاصطناعي للمواقع"
+    "smartImportLocationsTitle": "استيراد بالذكاء الاصطناعي للمواقع",
+    "lastPrice": "آخر",
+    "itemPrice": "الصنف"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",
@@ -205,7 +208,8 @@
     "voided": "ملغى"
   },
   "upload": {
-    "attachDocuments": "المستندات المرفقة"
+    "attachDocuments": "المستندات المرفقة",
+    "noDocuments": "لا توجد مستندات مرفقة."
   },
   "purchaseMethods": {
     "manual": "يدوي",
@@ -301,7 +305,8 @@
       "missed": "فائت"
     },
     "keyboardHint": "Ctrl/Cmd + مفاتيح الأسهم للتنقل بين الخلايا القابلة للتعديل.",
-    "smartImportTitle": "استيراد بالذكاء الاصطناعي لمطابقة المطبخ"
+    "smartImportTitle": "استيراد بالذكاء الاصطناعي لمطابقة المطبخ",
+    "stockUomHint": "المخزون: {{uom}}"
   },
   "stockTransfer": {
     "type": "نوع التحويل",
@@ -642,7 +647,10 @@
       "hint": "تحقق من تحويل الوحدات بالمعاملات الحالية (غالون أمريكي افتراضياً).",
       "from": "من",
       "to": "إلى",
-      "unavailable": "اختر وحدات من نفس العائلة"
+      "unavailable": "اختر وحدات من نفس العائلة",
+      "toolbarHint": "استخدم زر محول الوحدات بجانب مؤشر المزامنة في الشريط السفلي لتحويل الكميات بين الوحدات.",
+      "openButton": "محول الوحدات",
+      "swap": "تبديل الوحدات"
     },
     "validation": {
       "required": "هذا مطلوب",

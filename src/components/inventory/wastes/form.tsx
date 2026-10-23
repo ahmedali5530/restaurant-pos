@@ -38,6 +38,7 @@ import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { useInventorySettings } from "@/hooks/useInventorySettings.ts";
 import { fetchNetQuantity } from "@/utils/inventory.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createWasteImportConfig} from "@/components/inventory/wastes/waste.import.config.ts";
@@ -47,6 +48,7 @@ import {
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
@@ -84,8 +86,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordNumber(
-        db,
+      const isUnique = await isUniqueRecordroundInventory(db,
         Tables.inventory_wastes,
         "invoice_number",
         value,
@@ -218,7 +219,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
             String(wi.purchase_item?.id) === String(line.purchase_item_id)
         );
         const price =
-          Number(expiredLot?.price) ||
+          roundInventory(expiredLot?.price) ||
           Number(existing?.price) ||
           resolveCatalogUnitCost(catalogItem) ||
           Number(catalogItem?.price) ||
@@ -594,22 +595,20 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      const inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
-            const expiredLot = item.purchase_item_id
-              ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
-              : undefined;
-            const price =
-              Number(expiredLot?.price) ||
-              resolveCatalogUnitCost(catalogItem) ||
-              Number(catalogItem?.price) ||
-              0;
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      const inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
+          const expiredLot = item.purchase_item_id
+            ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
+            : undefined;
+          const price =
+            Number(expiredLot?.price) ||
+            resolveCatalogUnitCost(catalogItem) ||
+            Number(catalogItem?.price) ||
+            0;
+          return sum + qty * price;
+        }, 0)
       );
       if (inventoryValue > 0) {
         await publishWasteRecorded(integrationManager, {
@@ -875,7 +874,9 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       quantityLabel={
                         availableQuantity === undefined
                           ? t('forms.quantity')
-                          : t('stockTransfer.available', { qty: availableQuantity })
+                          : t('stockTransfer.available', {
+                              qty: formatInventoryNumber(availableQuantity),
+                            })
                       }
                       errors={errors}
                     />

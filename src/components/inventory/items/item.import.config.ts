@@ -81,7 +81,7 @@ export function createInventoryItemImportConfig({
         return normalizeUom(raw) ?? raw;
       },
     },
-    {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1},
+    {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1, optional: true},
     {name: "price", label: t("inventory:columns.price"), type: "number", defaultValue: 0},
     {name: "average_price", label: t("inventory:columns.avgPrice"), type: "number", defaultValue: 0, optional: true},
     {
@@ -232,7 +232,7 @@ export function createInventoryItemImportConfig({
         code,
         uom,
         category: categoryId,
-        base_quantity: Number(v.base_quantity ?? 1) || 1,
+        base_quantity: 1,
         suppliers,
         locations: locations.map((l) => toRecordId(l.id)),
         price: Number(v.price ?? 0) || 0,

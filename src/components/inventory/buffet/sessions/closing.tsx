@@ -15,7 +15,7 @@ import {
   saveClosingInputs,
 } from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import classNames from "classnames";
 
 interface ClosingRowState {
@@ -159,11 +159,11 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
         <div className="grid grid-cols-4 gap-4">
           <div className="bg-surface rounded-lg p-4">
             <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
-            <div className="text-xl font-semibold">{formatNumber(summary.totalFoodCost)}</div>
+            <div className="text-xl font-semibold">{formatInventoryNumber(summary.totalFoodCost)}</div>
           </div>
           <div className="bg-surface rounded-lg p-4">
             <div className="text-sm text-muted">{t("buffet.costPerGuest")}</div>
-            <div className="text-xl font-semibold">{formatNumber(summary.costPerGuest)}</div>
+            <div className="text-xl font-semibold">{formatInventoryNumber(summary.costPerGuest)}</div>
           </div>
           <div className="bg-surface rounded-lg p-4">
             <div className="text-sm text-muted">{t("buffet.wastePercent")}</div>
@@ -172,7 +172,7 @@ export const BuffetSessionClosing = ({sessionId, onBack, onClosed}: Props) => {
           <div className="bg-surface rounded-lg p-4">
             <div className="text-sm text-muted">{t("buffet.profit")}</div>
             <div className={classNames("text-xl font-semibold", summary.profit >= 0 ? "text-success-700" : "text-danger-700")}>
-              {formatNumber(summary.profit)}
+              {formatInventoryNumber(summary.profit)}
             </div>
           </div>
         </div>

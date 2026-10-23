@@ -1,7 +1,7 @@
 import {describe, expect, it} from "vitest";
 import {allocatePurchaseCosts} from "@/lib/inventory/purchase-cost/allocate.ts";
 import {DEFAULT_INVENTORY_SETTINGS} from "@/api/model/inventory_settings.ts";
-import {roundCurrency} from "@/lib/discount-engine/rounding.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 import {purchasePostingStrategy} from "@/lib/inventory/posting.strategies.ts";
 import {
   purchaseReportQuantity,
@@ -38,7 +38,7 @@ describe("toStockLine commercial", () => {
     });
     expect(line.quantity).toBe(16000);
     expect(line.price).toBe(0.5);
-    expect(roundCurrency(line.quantity * line.price)).toBe(8000);
+    expect(roundInventory(line.quantity * line.price)).toBe(8000);
     expect(stockLineMoneyMatchesEntered(line)).toBe(true);
     expect(line.entered_quantity).toBe(16);
     expect(line.entered_uom).toBe("KG");
@@ -53,7 +53,7 @@ describe("toStockLine commercial", () => {
       enteredPrice: 333,
       mode: "commercial",
     });
-    expect(roundCurrency(line.quantity * line.price)).toBe(5328);
+    expect(roundInventory(line.quantity * line.price)).toBe(5328);
     expect(stockLineMoneyMatchesEntered(line)).toBe(true);
   });
 
@@ -132,7 +132,7 @@ describe("toStockLine quantity_only", () => {
     });
     expect(line.quantity).toBe(1000);
     expect(line.price).toBe(0.5);
-    expect(roundCurrency(line.quantity * line.price)).toBe(500);
+    expect(roundInventory(line.quantity * line.price)).toBe(500);
   });
 
   it("dish recipe 160 g at updated item price 0.5 costs 80", () => {
@@ -231,7 +231,8 @@ describe("imperial US customary conversions", () => {
       enteredPrice: 378.5411784,
       mode: "commercial",
     });
-    expect(line.quantity).toBeCloseTo(3785.411784, 5);
+    // Stock qty is rounded to VITE_INVENTORY_DECIMAL_PLACES (default 4).
+    expect(line.quantity).toBeCloseTo(3785.4118, 4);
     expect(stockLineMoneyMatchesEntered(line)).toBe(true);
   });
 
