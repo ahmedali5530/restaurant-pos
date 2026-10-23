@@ -17,6 +17,7 @@ import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
 import type { SyncConflictRow } from "@/infrastructure/pos-store/types.ts";
 import { cn } from "@/lib/utils.ts";
 import { REPORTS } from "@/routes/posr.ts";
+import { UomConverterToolbar } from "@/components/inventory/common/uom.converter.toolbar.tsx";
 
 /** Must match `html[data-app-toolbar='1'] { --app-toolbar-h }` in app.scss. */
 export const APP_TOOLBAR_HEIGHT = "2.75rem";
@@ -225,12 +226,13 @@ export function AppToolbar() {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-end gap-3 border-t border-border bg-surface-elevated px-4"
+      className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-end gap-3 border-t border-border bg-surface-elevated px-4 pointer-events-auto"
       data-testid="app-toolbar"
+      data-app-toolbar
       style={{ height: APP_TOOLBAR_HEIGHT }}
     >
-      {/* Future toolbar slots go here (left / center). */}
-      <div className="relative flex items-center">
+      <div className="relative flex items-center gap-1 shrink-0">
+        <UomConverterToolbar />
         {showConflicts && (
           <SyncConflictPanel onChanged={() => setSync(getSyncStatus())} />
         )}

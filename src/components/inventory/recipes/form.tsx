@@ -28,12 +28,19 @@ import {
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {Radio} from "@/components/common/input/radio.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
 interface RecipeItemFormValue {
   item: SelectOption;
   quantity: number | string;
+  entered_uom?: string;
 }
 
 interface RecipeOutputFormValue {
@@ -77,6 +84,7 @@ const validationSchema = yup.object({
     yup.object({
       item: selectOptionSchema.required().nullable(),
       quantity: yup.number().typeError("Number required").positive().required(),
+      entered_uom: yup.string().nullable().optional(),
     })
   ).min(1),
   outputs: yup.array().of(
@@ -148,7 +156,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
     isActive: true,
     baseBatchQty: 1,
     costAllocation: costAllocationOptions[0],
-    items: [{item: null, quantity: 1}],
+    items: [{item: null, quantity: 1, entered_uom: ""}],
     outputs: [{
       item: null,
       yieldPercent: 100,
@@ -194,13 +202,17 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
         costAllocation:
           costAllocationOptions.find((o) => o.value === data.cost_allocation) ??
           costAllocationOptions[0],
-        items: (data.items ?? []).map((line) => ({
+        items: (data.items ?? []).map((line) => {
+          const entered = lineEnteredDefaults({...line, item: line.item});
+          return {
           item: {
             label: `${line.item?.name}-${line.item?.code}`,
             value: toRecordIdString(line.item?.id ?? line.item),
           },
-          quantity: line.quantity,
-        })),
+          quantity: entered.quantity || 1,
+          entered_uom: entered.entered_uom,
+        };
+        }),
         outputs: (data.outputs ?? []).map((line) => ({
           item: {
             label: `${line.item?.name}-${line.item?.code}`,
@@ -237,11 +249,23 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
     isActive: values.isActive,
     baseBatchQty: Number(values.baseBatchQty),
     costAllocation: (values.costAllocation?.value as "yield" | "value") ?? "yield",
-    items: values.items.map((line, index) => ({
-      itemId: line.item!.value,
-      quantity: Number(line.quantity),
-      sortOrder: index,
-    })),
+    items: values.items.map((line, index) => {
+      const catalog = items?.data?.find(
+        (it) => toRecordIdString(it.id) === line.item!.value
+      );
+      const stock = convertQuantityOnlyLine({
+        enteredQuantity: Number(line.quantity),
+        enteredUom: line.entered_uom || catalog?.uom,
+        stockUom: catalog?.uom,
+      });
+      return {
+        itemId: line.item!.value,
+        quantity: stock.quantity,
+        entered_quantity: stock.entered_quantity,
+        entered_uom: stock.entered_uom,
+        sortOrder: index,
+      };
+    }),
     outputs: values.outputs.map((line, index) => ({
       itemId: line.item!.value,
       yieldPercent: Number(line.yieldPercent),
@@ -336,14 +360,25 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
           <legend className="px-2">{t("production.inputs")}</legend>
           {itemFields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-12 gap-2 items-end mb-2">
-              <div className="col-span-7">
+              <div className="col-span-5">
                 <Controller
                   control={control}
                   name={`items.${index}.item`}
                   render={({field: f}) => (
                     <ReactSelect
                       value={f.value}
-                      onChange={f.onChange}
+                      onChange={(option) => {
+                        f.onChange(option);
+                        const catalog = items?.data?.find(
+                          (it) => toRecordIdString(it.id) === option?.value
+                        );
+                        if (catalog?.uom) {
+                          setValue(
+                            `items.${index}.entered_uom`,
+                            normalizeUom(catalog.uom) ?? catalog.uom
+                          );
+                        }
+                      }}
                       options={itemOptions}
                       isLoading={loadingItems}
                     />
@@ -351,14 +386,18 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
                 />
                 <InputError error={get(errors, ["items", index, "item", "message"])} />
               </div>
-              <div className="col-span-3">
-                <InputField
-                  name={`items.${index}.quantity`}
+              <div className="col-span-5">
+                <QuantityUomFields
                   control={control}
-                  type="number"
-                  step="any"
-                  label={t("forms.quantity")}
-                  error={get(errors, ["items", index, "quantity", "message"])}
+                  quantityName={`items.${index}.quantity`}
+                  uomName={`items.${index}.entered_uom`}
+                  stockUom={
+                    items?.data?.find(
+                      (it) =>
+                        toRecordIdString(it.id) === watch(`items.${index}.item`)?.value
+                    )?.uom
+                  }
+                  errors={errors}
                 />
               </div>
               <div className="col-span-2">
@@ -378,7 +417,7 @@ export const RecipeForm = ({open, onClose, data}: Props) => {
             type="button"
             variant="secondary"
             icon={faPlus}
-            onClick={() => appendItem({item: null, quantity: 1})}
+            onClick={() => appendItem({item: null, quantity: 1, entered_uom: ""})}
           >
             {t("production.addInput")}
           </Button>

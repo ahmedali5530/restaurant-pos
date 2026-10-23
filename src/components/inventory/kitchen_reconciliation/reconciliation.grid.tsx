@@ -1,27 +1,36 @@
 import {useEffect, useMemo} from "react";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {useTranslation} from "react-i18next";
 import {Controller, useForm, useFieldArray} from "react-hook-form";
 import {faSave} from "@fortawesome/free-solid-svg-icons";
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
 import {computeLine} from "@/lib/kitchen/reconciliation.calculations.ts";
-import {formatNumber} from "@/lib/utils.ts";
 import {normalizeInventoryItemId, ManualLineInput} from "@/lib/kitchen/reconciliation.service.ts";
 import {Input} from "@/components/common/input/input.tsx";
 import {Button} from "@/components/common/input/button.tsx";
+import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {KitchenReconciliationStatus} from "@/api/model/kitchen_reconciliation.ts";
 import {KeyboardGrid, KeyboardGridCell} from "@/components/common/table/keyboard.grid.tsx";
+import {convertEnteredQtyToStock} from "@/lib/inventory/unit.convert.ts";
+import {
+  getConvertibleUomOptions,
+  isNonConvertibleStockUom,
+  normalizeUom,
+} from "@/utils/inventoryUom.ts";
 
 type GridRow = {
   itemId: string;
   itemName: string;
   itemCode?: string;
-  uom?: string;
+  stockUom?: string;
+  enteredUom: string;
   openingStock: number;
   issuedQty: number;
   transfersIn: number;
   transfersOut: number;
   theoreticalConsumption: number;
   expectedStock: number;
+  /** Entered-unit values shown in inputs. */
   physicalCount: string;
   wasteQty: string;
   staffMealQty: string;
@@ -44,6 +53,11 @@ type Props = {
 
 const toGridRow = (line: KitchenReconciliationItem): GridRow => {
   const itemId = normalizeInventoryItemId(line.item?.id ?? line.item);
+  const stockUom = normalizeUom(line.item?.uom) ?? line.item?.uom ?? "";
+  const enteredUom = String(
+    line.entered_uom ?? stockUom ?? ""
+  );
+
   const computed = computeLine({
     openingStock: line.opening_stock,
     issuedQty: line.issued_qty,
@@ -56,21 +70,37 @@ const toGridRow = (line: KitchenReconciliationItem): GridRow => {
     complimentaryQty: line.complimentary_qty,
   });
 
+  const physicalEntered =
+    line.entered_physical_count != null
+      ? line.entered_physical_count
+      : line.physical_count;
+  const wasteEntered =
+    line.entered_waste_qty != null ? line.entered_waste_qty : line.waste_qty;
+  const staffEntered =
+    line.entered_staff_meal_qty != null
+      ? line.entered_staff_meal_qty
+      : line.staff_meal_qty;
+  const complimentaryEntered =
+    line.entered_complimentary_qty != null
+      ? line.entered_complimentary_qty
+      : line.complimentary_qty;
+
   return {
     itemId,
     itemName: line.item?.name ?? itemId,
     itemCode: line.item?.code,
-    uom: line.item?.uom,
+    stockUom,
+    enteredUom,
     openingStock: computed.openingStock,
     issuedQty: computed.issuedQty,
     transfersIn: computed.transfersIn,
     transfersOut: computed.transfersOut,
     theoreticalConsumption: computed.theoreticalConsumption,
     expectedStock: computed.expectedStock,
-    physicalCount: line.physical_count != null ? String(line.physical_count) : "",
-    wasteQty: String(line.waste_qty ?? 0),
-    staffMealQty: String(line.staff_meal_qty ?? 0),
-    complimentaryQty: String(line.complimentary_qty ?? 0),
+    physicalCount: physicalEntered != null ? String(physicalEntered) : "",
+    wasteQty: String(wasteEntered ?? 0),
+    staffMealQty: String(staffEntered ?? 0),
+    complimentaryQty: String(complimentaryEntered ?? 0),
     actualConsumption: computed.actualConsumption,
     variance: computed.variance,
   };
@@ -80,6 +110,29 @@ const parseOptionalNumber = (value: string): number | null => {
   if (value.trim() === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
+};
+
+const stockFromRow = (row: GridRow) => {
+  const enteredUom = row.enteredUom || row.stockUom;
+  const stockUom = row.stockUom || enteredUom;
+  return {
+    physicalCount: convertEnteredQtyToStock(
+      parseOptionalNumber(row.physicalCount),
+      enteredUom,
+      stockUom
+    ),
+    wasteQty:
+      convertEnteredQtyToStock(Number(row.wasteQty) || 0, enteredUom, stockUom) ?? 0,
+    staffMealQty:
+      convertEnteredQtyToStock(Number(row.staffMealQty) || 0, enteredUom, stockUom) ??
+      0,
+    complimentaryQty:
+      convertEnteredQtyToStock(
+        Number(row.complimentaryQty) || 0,
+        enteredUom,
+        stockUom
+      ) ?? 0,
+  };
 };
 
 export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Props) => {
@@ -106,6 +159,11 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
             line.waste_qty,
             line.staff_meal_qty,
             line.complimentary_qty,
+            line.entered_uom,
+            line.entered_physical_count,
+            line.entered_waste_qty,
+            line.entered_staff_meal_qty,
+            line.entered_complimentary_qty,
           ].join(":");
         })
         .join("|"),
@@ -120,16 +178,17 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
     const row = getValues(`rows.${index}`);
     if (!row) return;
 
+    const stock = stockFromRow(row);
     const computed = computeLine({
       openingStock: row.openingStock,
       issuedQty: row.issuedQty,
       transfersIn: row.transfersIn,
       transfersOut: row.transfersOut,
       theoreticalConsumption: row.theoreticalConsumption,
-      physicalCount: parseOptionalNumber(row.physicalCount),
-      wasteQty: Number(row.wasteQty) || 0,
-      staffMealQty: Number(row.staffMealQty) || 0,
-      complimentaryQty: Number(row.complimentaryQty) || 0,
+      physicalCount: stock.physicalCount,
+      wasteQty: stock.wasteQty,
+      staffMealQty: stock.staffMealQty,
+      complimentaryQty: stock.complimentaryQty,
     });
 
     setValue(`rows.${index}.expectedStock`, computed.expectedStock);
@@ -139,20 +198,29 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
 
   const handleSaveDraft = async () => {
     const formRows = getValues("rows");
-    const lines: ManualLineInput[] = formRows.map((row) => ({
-      itemId: row.itemId,
-      physicalCount: parseOptionalNumber(row.physicalCount),
-      wasteQty: Number(row.wasteQty) || 0,
-      staffMealQty: Number(row.staffMealQty) || 0,
-      complimentaryQty: Number(row.complimentaryQty) || 0,
-    }));
+    const lines: ManualLineInput[] = formRows.map((row) => {
+      const stock = stockFromRow(row);
+      const enteredPhysical = parseOptionalNumber(row.physicalCount);
+      return {
+        itemId: row.itemId,
+        physicalCount: stock.physicalCount,
+        wasteQty: stock.wasteQty,
+        staffMealQty: stock.staffMealQty,
+        complimentaryQty: stock.complimentaryQty,
+        enteredUom: row.enteredUom || row.stockUom || null,
+        enteredPhysicalCount: enteredPhysical,
+        enteredWasteQty: Number(row.wasteQty) || 0,
+        enteredStaffMealQty: Number(row.staffMealQty) || 0,
+        enteredComplimentaryQty: Number(row.complimentaryQty) || 0,
+      };
+    });
     await onSave(lines);
   };
 
   const renderEditableField = (
     index: number,
     name: keyof Pick<GridRow, "physicalCount" | "wasteQty" | "staffMealQty" | "complimentaryQty">,
-    disabled: boolean,
+    fieldDisabled: boolean,
   ) => (
     <Controller
       control={control}
@@ -160,7 +228,7 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
       render={({field}) => (
         <Input
           type="number"
-          disabled={disabled}
+          disabled={fieldDisabled}
           name={field.name}
           value={field.value ?? ""}
           onChange={(e) => field.onChange((e?.target as HTMLInputElement | undefined)?.value ?? "")}
@@ -202,6 +270,9 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
           <tr>
             <th className="px-3 py-2">{t("columns.name")}</th>
             <th className="px-3 py-2">{t("columns.code")}</th>
+            <th className="px-3 py-2 min-w-[110px]">
+              {t("forms.uom", {defaultValue: "UOM"})}
+            </th>
             <th className="px-3 py-2">{t("kitchenReconciliation.opening")}</th>
             <th className="px-3 py-2">{t("kitchenReconciliation.issued")}</th>
             <th className="px-3 py-2">{t("kitchenReconciliation.transfersIn")}</th>
@@ -219,16 +290,76 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
         <tbody>
           {fields.map((field, index) => {
             const row = rows?.[index];
+            const stockUom = row?.stockUom;
+            const uomOptions = getConvertibleUomOptions(stockUom);
+            const packagingOnly = isNonConvertibleStockUom(stockUom);
+            const enteredDiffers =
+              Boolean(row?.enteredUom) &&
+              Boolean(stockUom) &&
+              normalizeUom(row?.enteredUom) !== normalizeUom(stockUom);
+
             return (
               <tr key={field.id} className="border-t border-border">
                 <td className="px-3 py-2 whitespace-nowrap">{row?.itemName}</td>
                 <td className="px-3 py-2">{row?.itemCode ?? "—"}</td>
-                <td className="px-3 py-2">{formatNumber(row?.openingStock ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.issuedQty ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.transfersIn ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.transfersOut ?? 0)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.theoreticalConsumption ?? 0, 4)}</td>
-                <td className="px-3 py-2">{formatNumber(row?.expectedStock ?? 0, 4)}</td>
+                <td className="px-3 py-2 min-w-[120px]">
+                  <Controller
+                    control={control}
+                    name={`rows.${index}.enteredUom`}
+                    render={({field: uomField}) => {
+                      const value = uomField.value
+                        ? {label: String(uomField.value), value: String(uomField.value)}
+                        : stockUom
+                          ? {label: stockUom, value: stockUom}
+                          : null;
+                      return (
+                        <div>
+                          <ReactSelect
+                            value={value}
+                            onChange={(option) => {
+                              uomField.onChange(option?.value ?? stockUom ?? "");
+                              recomputeRow(index);
+                            }}
+                            options={uomOptions}
+                            isDisabled={disabled || uomOptions.length <= 1}
+                            isClearable={false}
+                            menuPortalTarget={
+                              typeof document !== "undefined" ? document.body : undefined
+                            }
+                            styles={{
+                              control: (base: any) => ({
+                                ...base,
+                                minHeight: 32,
+                                fontSize: "0.8125rem",
+                              }),
+                            }}
+                          />
+                          {enteredDiffers && stockUom && (
+                            <div className="text-[10px] text-muted mt-0.5">
+                              {t("kitchenReconciliation.stockUomHint", {
+                                defaultValue: "Stock: {{uom}}",
+                                uom: stockUom,
+                              })}
+                            </div>
+                          )}
+                          {packagingOnly && (
+                            <div className="text-[10px] text-muted mt-0.5">
+                              {t("forms.packagingNoConversion", {
+                                defaultValue: "Packaging units are not converted",
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }}
+                  />
+                </td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.openingStock ?? 0)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.issuedQty ?? 0)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.transfersIn ?? 0)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.transfersOut ?? 0)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.theoreticalConsumption ?? 0)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.expectedStock ?? 0)}</td>
                 <KeyboardGridCell
                   row={index}
                   col={0}
@@ -265,9 +396,9 @@ export const ReconciliationGrid = ({items, status, readOnly, saving, onSave}: Pr
                 >
                   {renderEditableField(index, "complimentaryQty", disabled)}
                 </KeyboardGridCell>
-                <td className="px-3 py-2">{formatNumber(row?.actualConsumption ?? 0, 4)}</td>
+                <td className="px-3 py-2">{formatInventoryNumber(row?.actualConsumption ?? 0)}</td>
                 <td className={`px-3 py-2 font-medium ${Math.abs(row?.variance ?? 0) > 0.0001 ? "text-danger-600" : ""}`}>
-                  {formatNumber(row?.variance ?? 0)}
+                  {formatInventoryNumber(row?.variance ?? 0)}
                 </td>
               </tr>
             );

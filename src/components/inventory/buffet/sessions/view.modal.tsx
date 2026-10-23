@@ -1,7 +1,7 @@
 import {useTranslation} from "react-i18next";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useBuffetSession} from "@/hooks/useBuffetSession.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 
 interface Props {
   sessionId: string;
@@ -39,7 +39,7 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
             </div>
             <div>
               <div className="text-sm text-muted">{t("buffet.buffetPrice")}</div>
-              <div className="font-medium">{formatNumber(session.buffet_price)}</div>
+              <div className="font-medium">{formatInventoryNumber(session.buffet_price)}</div>
             </div>
           </div>
 
@@ -47,15 +47,15 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
             <div className="grid grid-cols-5 gap-4 bg-surface rounded-lg p-4">
               <div>
                 <div className="text-sm text-muted">{t("buffet.totalSales")}</div>
-                <div className="text-lg font-semibold">{formatNumber(analytics.totalSales)}</div>
+                <div className="text-lg font-semibold">{formatInventoryNumber(analytics.totalSales)}</div>
               </div>
               <div>
                 <div className="text-sm text-muted">{t("buffet.totalFoodCost")}</div>
-                <div className="text-lg font-semibold">{formatNumber(analytics.totalFoodCost)}</div>
+                <div className="text-lg font-semibold">{formatInventoryNumber(analytics.totalFoodCost)}</div>
               </div>
               <div>
                 <div className="text-sm text-muted">{t("buffet.costPerGuest")}</div>
-                <div className="text-lg font-semibold">{formatNumber(analytics.costPerGuest)}</div>
+                <div className="text-lg font-semibold">{formatInventoryNumber(analytics.costPerGuest)}</div>
               </div>
               <div>
                 <div className="text-sm text-muted">{t("buffet.wastePercent")}</div>
@@ -63,7 +63,7 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
               </div>
               <div>
                 <div className="text-sm text-muted">{t("buffet.profit")}</div>
-                <div className="text-lg font-semibold">{formatNumber(analytics.profit)}</div>
+                <div className="text-lg font-semibold">{formatInventoryNumber(analytics.profit)}</div>
               </div>
             </div>
           )}
@@ -91,7 +91,7 @@ export const BuffetSessionViewModal = ({sessionId, open, onClose}: Props) => {
                   <td>{line.wasteQty}</td>
                   <td>{line.staffMealQty}</td>
                   <td>{line.varianceQty}</td>
-                  <td>{formatNumber(line.totalFoodCost)}</td>
+                  <td>{formatInventoryNumber(line.totalFoodCost)}</td>
                 </tr>
               ))}
             </tbody>

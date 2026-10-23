@@ -1,7 +1,7 @@
 import {TabList, Tabs} from "react-aria-components";
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Tab, TabPanel} from "@/components/common/react-aria/tabs";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import ScrollContainer from "react-indiana-drag-scroll";
 import {InventoryItems} from "@/components/inventory/items/index.tsx";
@@ -24,13 +24,17 @@ import {InventoryProduction} from "@/components/inventory/production/index.tsx";
 import {InventoryProductionHistory} from "@/components/inventory/production_history/index.tsx";
 import {BuffetMenus} from "@/components/inventory/buffet/menus/index.tsx";
 import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
+import {InventoryUnits} from "@/components/inventory/units/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {useDB} from "@/api/db/db.ts";
+import {ensureInventoryUomCatalog} from "@/lib/inventory/uom.catalog.ts";
 
 /** Stable permission codes stored in user roles — not translated labels. */
 const INVENTORY_TAB_MODULES: Record<string, string> = {
   inventory: 'inventory.current_inventory',
   items: 'inventory.items',
+  units: 'inventory.items',
   suppliers: 'inventory.suppliers',
   categories: 'inventory.item_categories',
   locations: 'inventory.locations',
@@ -56,10 +60,16 @@ export const Inventory = () => {
   const { t: tNav } = useTranslation('navigation');
   const [selected, setSelected] = useState('inventory');
   const {protectAction} = useSecurity();
+  const db = useDB();
+
+  useEffect(() => {
+    void ensureInventoryUomCatalog(db).catch(() => undefined);
+  }, []);
 
   const pages = useMemo(() => ({
     'inventory': {component: <InventorySummary/>, title: t('tabs.inventory')},
     'items': {component: <InventoryItems/>, title: t('tabs.items')},
+    'units': {component: <InventoryUnits/>, title: t('tabs.units')},
     'suppliers': {component: <InventorySuppliers/>, title: t('tabs.suppliers')},
     'categories': {component: <InventoryCategories/>, title: t('tabs.categories')},
     'locations': {component: <InventoryLocations/>, title: t('tabs.locations')},

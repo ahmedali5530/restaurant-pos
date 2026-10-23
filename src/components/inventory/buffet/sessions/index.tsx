@@ -11,7 +11,7 @@ import {useBuffetSessionList} from "@/hooks/useBuffetSessionList.ts";
 import {BuffetSessionForm} from "@/components/inventory/buffet/sessions/form.tsx";
 import {BuffetSessionDashboard} from "@/components/inventory/buffet/sessions/dashboard.tsx";
 import {BuffetSessionViewModal} from "@/components/inventory/buffet/sessions/view.modal.tsx";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 
@@ -58,7 +58,7 @@ export const BuffetSessions = () => {
     columnHelper.accessor("actual_guests", {header: t("buffet.actualGuests")}),
     columnHelper.accessor("buffet_price", {
       header: t("buffet.buffetPrice"),
-      cell: (info) => formatNumber(info.getValue()),
+      cell: (info) => formatInventoryNumber(info.getValue()),
     }),
     columnHelper.accessor("status", {
       header: t("columns.status"),

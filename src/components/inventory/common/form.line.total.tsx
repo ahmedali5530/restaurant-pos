@@ -1,7 +1,7 @@
 import {Control, useWatch} from "react-hook-form";
 import {useTranslation} from "react-i18next";
-import {withCurrency} from "@/lib/utils.ts";
 import {itemsSubtotal, PurchaseTotalLine} from "@/lib/inventory/purchase.totals.ts";
+import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 interface DisplayProps {
   total: number;
@@ -19,7 +19,7 @@ const LineTotalDisplay = ({total, className}: DisplayProps) => {
       }
     >
       <span className="text-muted">{t("totals.lineTotal")}</span>
-      <span className="font-semibold text-foreground">{withCurrency(total)}</span>
+      <span className="font-semibold text-foreground">{withInventoryCurrency(total)}</span>
     </div>
   );
 };

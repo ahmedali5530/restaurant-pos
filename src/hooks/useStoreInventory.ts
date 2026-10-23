@@ -16,6 +16,7 @@ import { fetchLedgerMovements, LedgerMovementRow } from "@/lib/inventory/ledger.
 import { toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 interface InventoryTotals {
   purchases: number;
@@ -76,6 +77,9 @@ export type MovementWithReference = {
   invoice_number?: number | string;
   signedQuantity?: number;
   reversal?: boolean;
+  reference_id?: string;
+  reference_type?: string;
+  business_date?: string;
 };
 
 interface InventoryRecords {
@@ -368,7 +372,7 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialLocati
             buffetConsumption: breakdown.buffetConsumption,
             adjustments: breakdown.adjustments ?? 0,
           });
-          setNetQuantity(breakdown.net);
+          setNetQuantity(roundInventory(breakdown.net));
         }
 
         if (ledgerEnabled) {
@@ -411,6 +415,9 @@ export const useStoreInventory = (initialItemId?: IdentifierValue, initialLocati
               created_at,
               item: emptyItemMeta(),
               counterparty,
+              reference_id: refId,
+              reference_type: String(row.reference_type ?? ""),
+              business_date: row.business_date ? String(row.business_date) : undefined,
             };
 
             switch (row.reference_type) {

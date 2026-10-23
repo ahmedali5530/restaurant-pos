@@ -20,7 +20,8 @@
     "buffetMenus": "Buffetmenu's",
     "buffetSessions": "Buffetsessies",
     "adjustments": "Adjustments",
-    "locations": "Locations"
+    "locations": "Locations",
+    "units": "Eenheden"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Naam",
     "code": "Code",
     "category": "Categorie",
-    "uom": "Maateenheid",
+    "uom": "Eenh.",
     "baseQuantity": "Basishoeveelheid",
     "price": "Eenheidsprijs",
     "averagePrice": "Gemiddelde prijs",
@@ -93,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Vorige prijs",
-    "reference": "Referentie"
+    "reference": "Referentie",
+    "averageCost": "Gemiddelde kostprijs"
   },
   "buttons": {
     "item": "Artikel",
@@ -126,6 +128,7 @@
     "date": "Datum",
     "comments": "Opmerkingen",
     "quantity": "Aantal",
+    "packagingNoConversion": "Verpakkingseenheden worden niet omgerekend",
     "requested": "Aangevraagd",
     "issued": "Uitgegeven",
     "returnedQuantity": "Geretourneerd aantal",
@@ -153,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Inkoopretourregels AI-importeren",
     "smartImportSuppliersTitle": "Leveranciers AI-importeren",
     "smartImportItemCategoriesTitle": "Artikelcategorieën AI-importeren",
-    "smartImportLocationsTitle": "Locaties AI-importeren"
+    "smartImportLocationsTitle": "Locaties AI-importeren",
+    "lastPrice": "Laatste",
+    "itemPrice": "Artikel"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -203,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Bijgevoegde documenten"
+    "attachDocuments": "Bijgevoegde documenten",
+    "noDocuments": "Geen documenten bijgevoegd."
   },
   "purchaseMethods": {
     "manual": "Handmatig",
@@ -299,7 +305,8 @@
       "missed": "Gemist"
     },
     "keyboardHint": "Ctrl/Cmd + pijltjestoetsen om tussen bewerkbare cellen te bewegen.",
-    "smartImportTitle": "Keukenafstemming AI-importeren"
+    "smartImportTitle": "Keukenafstemming AI-importeren",
+    "stockUomHint": "Voorraad: {{uom}}"
   },
   "stockTransfer": {
     "type": "Overdrachtstype",
@@ -613,5 +620,53 @@
     "locationRequired": "Locatie is verplicht",
     "supplierNotOnItem": "Leverancier \"{{supplier}}\" is niet gekoppeld aan artikel \"{{item}}\"",
     "locationNotOnItem": "Locatie \"{{location}}\" is niet gekoppeld aan artikel \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Eenheid toevoegen"
+    },
+    "columns": {
+      "family": "Familie",
+      "baseFactor": "Basisfactor",
+      "active": "Actief",
+      "system": "Systeem"
+    },
+    "families": {
+      "weight": "Gewicht",
+      "volume": "Volume",
+      "count": "Aantal",
+      "pack": "Verpakking"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Eenheid toevoegen",
+      "editTitle": "{{code}} bewerken"
+    },
+    "preview": {
+      "title": "Conversievoorbeeld",
+      "hint": "Controleer conversies met de huidige factoren (standaard US gallon).",
+      "from": "Van",
+      "to": "Naar",
+      "unavailable": "Kies gerelateerde eenheden in dezelfde familie",
+      "toolbarHint": "Gebruik de knop Eenhedenconverter naast de sync-statusindicator op de onderste balk om hoeveelheden tussen eenheden om te rekenen.",
+      "openButton": "Eenhedenconverter",
+      "swap": "Eenheden wisselen"
+    },
+    "validation": {
+      "required": "Verplicht",
+      "number": "Moet een getal zijn",
+      "codeFormat": "Letters, cijfers of underscore (begin met een letter)",
+      "factorPositive": "Factor moet groter dan nul zijn"
+    },
+    "warnings": {
+      "factorChange": "Factor bijgewerkt. Bestaande voorraadaantallen worden niet herberekend — alleen toekomstige conversies gebruiken de nieuwe factor."
+    },
+    "errors": {
+      "inUse": "Kan {{code}} niet deactiveren: gebruikt door {{count}} artikel(en)",
+      "duplicateCode": "Eenheidscode {{code}} bestaat al"
+    },
+    "toast": {
+      "saved": "Eenheid {{code}} opgeslagen"
+    }
   }
 }

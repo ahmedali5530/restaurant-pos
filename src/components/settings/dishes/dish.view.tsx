@@ -7,6 +7,7 @@ import {detectMimeType} from "@/utils/files.ts";
 import defaultImage from "@/assets/images/default-image.png";
 import {useTranslation} from 'react-i18next';
 import {withCurrency} from "@/lib/utils.ts";
+import {roundInventory, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 interface Props {
   open: boolean
@@ -40,9 +41,12 @@ interface DishRecipeRow {
   item?: {
     id: string
     name: string
+    uom?: string
   }
   quantity: number
   cost: number
+  entered_quantity?: number | null
+  entered_uom?: string | null
   is_price_locked?: boolean
 }
 
@@ -62,11 +66,13 @@ export const DishView = ({
     return Array.isArray(source) ? source : [];
   }, [data]);
   const totalRecipeCost = useMemo(() => {
-    return recipes.reduce((sum, recipe) => {
-      const quantity = Number(recipe.quantity ?? 0);
-      const cost = Number(recipe.cost ?? 0);
-      return sum + quantity * cost;
-    }, 0);
+    return roundInventory(
+      recipes.reduce((sum, recipe) => {
+        const quantity = Number(recipe.quantity ?? 0);
+        const cost = Number(recipe.cost ?? 0);
+        return sum + quantity * cost;
+      }, 0)
+    );
   }, [recipes]);
 
   useEffect(() => {
@@ -313,6 +319,7 @@ export const DishView = ({
                     <tr className="text-left border-b border-border">
                       <th className="py-2">{t('dishView.item')}</th>
                       <th className="py-2">{t('dishView.quantity')}</th>
+                      <th className="py-2">{t('forms.uom')}</th>
                       <th className="py-2">{t('dishView.cost')}</th>
                       <th className="py-2">{t('dishView.priceLocked')}</th>
                       <th className="py-2">{t('dishView.lineTotal')}</th>
@@ -320,16 +327,41 @@ export const DishView = ({
                     </thead>
                     <tbody>
                     {recipes.map((recipe) => {
-                      const quantity = Number(recipe.quantity ?? 0);
+                      const stockQty = Number(recipe.quantity ?? 0);
+                      const stockUom = recipe.item?.uom || "";
+                      const enteredRaw = recipe.entered_quantity;
+                      const enteredQty =
+                        enteredRaw === null || enteredRaw === undefined
+                          ? NaN
+                          : Number(enteredRaw);
+                      const hasEntered =
+                        Boolean(recipe.entered_uom) && Number.isFinite(enteredQty);
+                      const displayQty = hasEntered ? enteredQty : stockQty;
+                      const displayUom = hasEntered
+                        ? String(recipe.entered_uom)
+                        : stockUom || "-";
                       const cost = Number(recipe.cost ?? 0);
-                      const lineTotal = quantity * cost;
+                      const lineTotal = stockQty * cost;
                       return (
                         <tr key={recipe.id} className="border-b border-border">
                           <td className="py-2">{recipe.item?.name ?? '-'}</td>
-                          <td className="py-2">{quantity}</td>
-                          <td className="py-2">{withCurrency(cost, 4)}</td>
+                          <td className="py-2">
+                            {displayQty}
+                            {hasEntered && (
+                              <div className="text-xs text-muted">
+                                {stockQty}{stockUom ? ` ${stockUom}` : ""}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2">{displayUom}</td>
+                          <td className="py-2">
+                            {withInventoryCurrency(cost)}
+                            {stockUom ? (
+                              <span className="text-xs text-muted"> / {stockUom}</span>
+                            ) : null}
+                          </td>
                           <td className="py-2">{yesNo(recipe.is_price_locked)}</td>
-                          <td className="py-2">{withCurrency(lineTotal, 4)}</td>
+                          <td className="py-2">{withInventoryCurrency(lineTotal)}</td>
                         </tr>
                       );
                     })}
@@ -338,7 +370,7 @@ export const DishView = ({
                 </div>
 
                 <div className="mt-3 flex justify-end">
-                  <span className="tag">{t('dishView.totalRecipeCost', { amount: withCurrency(totalRecipeCost) })}</span>
+                  <span className="tag">{t('dishView.totalRecipeCost', { amount: withInventoryCurrency(totalRecipeCost) })}</span>
                 </div>
               </>
             )}

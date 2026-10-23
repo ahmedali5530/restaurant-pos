@@ -4,16 +4,18 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchase} from "@/api/model/inventory_purchase.ts";
-import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
+import {safeNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildCreatedAtDateConditions,
-  buildLocationInsideCondition,
   buildNestedRecordAnyCondition,
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {extrasTotal} from "@/lib/inventory/purchase.totals.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import {purchaseReportQuantity} from "@/lib/inventory/unit.convert.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -70,13 +72,22 @@ export const PurchaseReport = () => {
           "created_at",
         );
 
-        const supplierFilter = buildRecordInsideCondition('supplier', filters.supplierIds, 'supplierIds');
+        // Supplier/location live on purchase lines (same as the purchase form), not the header.
+        const supplierFilter = buildNestedRecordAnyCondition(
+          'items.supplier',
+          filters.supplierIds,
+          'supplier',
+        );
         if (supplierFilter.condition) {
           conditions.push(supplierFilter.condition);
           Object.assign(params, supplierFilter.params);
         }
 
-        const locationFilter = buildLocationInsideCondition(filters.locationIds, 'locationIds');
+        const locationFilter = buildNestedRecordAnyCondition(
+          'items.location',
+          filters.locationIds,
+          'location',
+        );
         if (locationFilter.condition) {
           conditions.push(locationFilter.condition);
           Object.assign(params, locationFilter.params);
@@ -98,7 +109,7 @@ export const PurchaseReport = () => {
           SELECT * FROM ${Tables.inventory_purchases}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY created_at ASC
-          FETCH items, items.item, items.item.category, created_by, supplier, location, store
+          FETCH items, items.item, items.item.category, items.supplier, items.location, created_by, supplier, location, store
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -127,8 +138,11 @@ export const PurchaseReport = () => {
     purchases.forEach(purchase => {
       purchase.items?.forEach(item => {
         const qty = safeNumber(item.quantity);
-        const base = safeNumber(item.base_quantity) || 1;
-        totalQuantity += qty * base;
+        totalQuantity += purchaseReportQuantity({
+          quantity: qty,
+          base_quantity: item.base_quantity,
+          entered_uom: (item as any).entered_uom,
+        });
         totalSubtotal += safeNumber(item.price) * qty;
         totalItems += 1;
         if (item.total_inventory_cost != null) {
@@ -183,35 +197,35 @@ export const PurchaseReport = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Purchases</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(purchases.length)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(purchases.length)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Items</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(totals.totalItems)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.subtotal')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalSubtotal)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalSubtotal)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.tax')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalTax)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalTax)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.extras')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalExtras)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalExtras)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.landedCost')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalLanded)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalLanded)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.finalInventory')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalFinalInventory)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalFinalInventory)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.grandTotal')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalGrand)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalGrand)}</p>
           </div>
         </div>
 
@@ -248,8 +262,6 @@ export const PurchaseReport = () => {
                   purchases.flatMap(purchase => {
                     const date = toLuxonDateTime(purchase.created_at);
                     const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                    const supplierName = purchase.supplier?.name || 'N/A';
-                    const locationName = purchase.location?.name || 'N/A';
                     const createdByName = purchase.created_by
                       ? `${purchase.created_by.first_name ?? ''} ${purchase.created_by.last_name ?? ''}`.trim() || purchase.created_by.login || 'Unknown'
                       : 'Unknown';
@@ -257,10 +269,20 @@ export const PurchaseReport = () => {
                     const purchaseExtras = extrasTotal(purchase.extras);
 
                     return purchase.items?.map((item, index) => {
-                      const itemName = item.item?.name || 'Unknown';
+                      const itemName = formatInventoryItemLabel(item.item?.name, item.item?.code);
+                      const supplierName =
+                        item.supplier?.name || purchase.supplier?.name || 'N/A';
+                      const locationName =
+                        item.location?.name ||
+                        purchase.location?.name ||
+                        (purchase as any).store?.name ||
+                        'N/A';
                       const quantity = safeNumber(item.quantity);
-                      const base = safeNumber(item.base_quantity) || 1;
-                      const effectiveQty = quantity * base;
+                      const effectiveQty = purchaseReportQuantity({
+                        quantity,
+                        base_quantity: item.base_quantity,
+                        entered_uom: (item as any).entered_uom,
+                      });
                       const price = safeNumber(item.price);
                       const amount = quantity * price;
                       const isFirst = index === 0;
@@ -271,7 +293,7 @@ export const PurchaseReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">
                             {purchase.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-foreground"
+                                className="text-primary underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("purchase", String(purchase.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -286,14 +308,14 @@ export const PurchaseReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">{locationName}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{item.taxable ? 'Yes' : 'No'}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(effectiveQty)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatInventoryNumber(effectiveQty)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withInventoryCurrency(amount)}</td>
                           <td className="py-3 px-3 text-right text-sm text-foreground">
-                            {isFirst ? withCurrency(purchaseTax) : '—'}
+                            {isFirst ? withInventoryCurrency(purchaseTax) : '—'}
                           </td>
                           <td className="py-3 px-3 text-right text-sm text-foreground">
-                            {isFirst ? withCurrency(purchaseExtras) : '—'}
+                            {isFirst ? withInventoryCurrency(purchaseExtras) : '—'}
                           </td>
                           <td className="py-3 px-3 text-sm text-foreground">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-foreground">{item.comments || purchase.comments || '-'}</td>
@@ -308,24 +330,24 @@ export const PurchaseReport = () => {
                   <tr>
                     <td colSpan={6} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {formatNumber(totals.totalQuantity)}
+                      {formatInventoryNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalSubtotal)}
+                      {withInventoryCurrency(totals.totalSubtotal)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalTax)}
+                      {withInventoryCurrency(totals.totalTax)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalExtras)}
+                      {withInventoryCurrency(totals.totalExtras)}
                     </td>
                     <td colSpan={2}></td>
                   </tr>
                   <tr>
                     <td colSpan={8} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.grandTotal')}</td>
                     <td colSpan={3} className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalGrand)}
+                      {withInventoryCurrency(totals.totalGrand)}
                     </td>
                     <td colSpan={2}></td>
                   </tr>

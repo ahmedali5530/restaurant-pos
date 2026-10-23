@@ -7,6 +7,7 @@ import {
   RecipeOutput,
 } from "@/api/model/recipe.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 export type ScaledInputLine = {
   itemId: string;
@@ -48,8 +49,8 @@ export type RecipeForCalculation = Pick<Recipe, "base_batch_qty" | "cost_allocat
   >;
 };
 
-const roundQty = (value: number) => Math.round(value * 10000) / 10000;
-const roundMoney = (value: number) => Math.round(value * 100) / 100;
+const roundQty = roundInventory;
+const roundMoney = roundInventory;
 
 const resolveItemId = (item: unknown): string =>
   recordToString(

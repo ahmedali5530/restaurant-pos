@@ -1,3 +1,5 @@
+import {roundInventory} from "@/lib/inventory/rounding.ts";
+
 /**
  * Pure calculation functions for kitchen inventory reconciliation lines.
  *
@@ -25,23 +27,26 @@ export type ReconciliationLineComputed = ReconciliationLineInput & {
 };
 
 export function computeLine(input: ReconciliationLineInput): ReconciliationLineComputed {
-  const expectedStock =
+  const expectedStock = roundInventory(
     input.openingStock + input.issuedQty + input.transfersIn
-    - input.transfersOut - input.theoreticalConsumption;
+    - input.transfersOut - input.theoreticalConsumption
+  );
 
   const actualConsumption =
     input.physicalCount == null
       ? 0
-      : expectedStock - input.physicalCount;
+      : roundInventory(expectedStock - input.physicalCount);
 
   const variance =
     input.physicalCount == null
       ? 0
-      : actualConsumption
-        - input.theoreticalConsumption
-        - input.wasteQty
-        - input.staffMealQty
-        - input.complimentaryQty;
+      : roundInventory(
+        actualConsumption
+          - input.theoreticalConsumption
+          - input.wasteQty
+          - input.staffMealQty
+          - input.complimentaryQty
+      );
 
   return {...input, expectedStock, actualConsumption, variance};
 }
@@ -55,7 +60,7 @@ export type ReconciliationTotals = {
 };
 
 export function computeTotals(lines: ReconciliationLineComputed[]): ReconciliationTotals {
-  return lines.reduce(
+  const raw = lines.reduce(
     (acc, line) => ({
       totalVariance: acc.totalVariance + line.variance,
       totalActualConsumption: acc.totalActualConsumption + line.actualConsumption,
@@ -71,6 +76,12 @@ export function computeTotals(lines: ReconciliationLineComputed[]): Reconciliati
       linesWithVariance: 0,
     }
   );
+  return {
+    ...raw,
+    totalVariance: roundInventory(raw.totalVariance),
+    totalActualConsumption: roundInventory(raw.totalActualConsumption),
+    totalTheoreticalConsumption: roundInventory(raw.totalTheoreticalConsumption),
+  };
 }
 
 export function getTopVarianceLines(
