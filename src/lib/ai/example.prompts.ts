@@ -46,6 +46,10 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   // Inventory
   {category: "inventory", prompt: "How much inventory do I need this Friday and what should I buy?"},
   {category: "inventory", prompt: "Forecast inventory needed for the next 7 days — cricket final on Saturday, expect 30% busier"},
+  {category: "inventory", prompt: "What ingredients are in dish Margherita Pizza?"},
+  {category: "inventory", prompt: "Show me dishes with their ingredients"},
+  {category: "inventory", prompt: "Show dishes with no ingredients so I can fill them in"},
+  {category: "inventory", prompt: "Compare dishes with ingredients vs dishes missing ingredients"},
   {category: "inventory", prompt: "Which inventory items are below reorder level?"},
   {category: "inventory", prompt: "Summarize waste by item for last week"},
   {category: "inventory", prompt: "Consumption summary for last month"},

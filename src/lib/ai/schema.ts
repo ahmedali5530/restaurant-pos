@@ -49,7 +49,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Tips: use get_tips with phrase. Current session sales: get_current_session_sales (not get_server_sales).
 - Server speed: get_server_ticket_times (ticket time = created to completed). Accountability: get_staff_accountability_metrics.
 - Menu engineering: get_menu_engineering_matrix. MoM trends: get_menu_sales_trends. Price impact: estimate_price_change_impact.
-- Menu catalog: ${Tables.dishes}. Voids: ${Tables.order_voids}.`,
+- Menu catalog: ${Tables.dishes}. Dish recipe / ingredients: get_dish_recipe (not list_menu_items). Voids: ${Tables.order_voids}.`,
   inventory: `- Inventory: ${Tables.inventory_items}, locations: ${Tables.inventory_locations} (stock source of truth for on-hand). Legacy stores table: ${Tables.inventory_stores}.
 - On-hand stock source of truth: ${Tables.inventory_ledger} keyed by inventory_location (SUM quantity_change by item+location). Documents post only when status = 'posted'.
 - inventory_item.reorder_levels: map of inventory_location id to minimum quantity before reorder (per location).
@@ -89,7 +89,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Per-item stock depletion: only use forecast_inventory when you already have that item's currentStock and daily consumptionPoints.
 - Comparisons: use compare_periods with two explicit date ranges. State method and that projections are estimates.`,
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
-  lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.`,
+  lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.
+- Dish ingredients / recipe lines: get_dish_recipe (one dish via name/number/id; omit filters for catalog; onlyMissingIngredients for dishes with no recipe; onlyWithIngredients=false to compare). Never invent ingredients; never use propose_create_dish_ingredients for read-only questions.`,
   manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
 - For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
 - Modifier group option prices (sizes/toppings): use propose_update_modifier_groups with group + modifier + price — never propose_update_dishes (that changes the base menu item).
@@ -135,6 +136,7 @@ const FULL_WORKFLOW = `Workflow:
 7e. For HR employees / employee# / employee number: use get_employee_detail or list_employees — never list_users (POS login accounts). get_employee_detail includes all linked HR data automatically.
 7f. For HR departments/positions/cost centers: list_departments, list_positions, list_cost_centers. For leave requests: list_hr_leave_requests.
 8. For unsold / no-sales products: use get_unsold_products with phrase like "last 60 days" — never infer unsold items from get_top_selling_dishes or get_product_mix alone.
+8a. For dish ingredients / recipe / BOM: use get_dish_recipe (never list_menu_items alone, never propose_create_dish_ingredients for read-only). One dish: dishName/dishNumber/dishId. Catalog: omit dish filters. Dishes with no ingredients: onlyMissingIngredients=true. Cross-compare with vs without recipes: onlyWithIngredients=false (use withIngredients + missingIngredients). Omit modifier category: omitModifierCategories=true. When listing dishes, use name, number, and category from each row (markdown table Name | Number | Category). Never print tool-call markup or DSML — use function calling only.
 9. For current clock-in session sales per order taker: use get_current_session_sales — not get_server_sales (which uses date ranges, not time_entry sessions).
 10. For tips collected / tip distribution shares: use get_tips with phrase (e.g. today). tipsCollected sums order tip_amount on paid orders. projectedShares shows each staff member's weighted share from tip_distribution settings.
 11. For server speed: get_server_ticket_times. For staff accountability (voids/discounts/deleted items): get_staff_accountability_metrics.

@@ -18,7 +18,15 @@ import {
   isPurchaseOrderPrompt,
   resolvePurchaseOrderQueryFromPrompt,
 } from "@/lib/ai/purchase-order-query.ts";
-import {isUnsoldProductsPrompt, resolveUnsoldProductsDateRange} from "@/lib/ai/product-query.ts";
+import {
+  isDishRecipeCatalogPrompt,
+  isDishRecipePrompt,
+  resolveDishRecipeCatalogOptionsFromPrompt,
+  resolveDishRecipeQueryFromPrompt,
+  resolveUnsoldProductsDateRange,
+} from "@/lib/ai/product-query.ts";
+import {formatDishRecipeForPrompt, getDishRecipe} from "@/api/reports/sales/dish-recipe.ts";
+import {sanitizeAssistantAnswer} from "@/lib/ai/answer-sanitize.ts";
 import {isCurrentSessionSalesPrompt} from "@/lib/ai/session-query.ts";
 import {isTipsPrompt, resolveTipsDateRange, wantsTipDistribution} from "@/lib/ai/tip-query.ts";
 import {getCurrentSessionServerSales} from "@/api/reports/operations/sessions.ts";
@@ -219,6 +227,61 @@ export const runAiReportAgent = async (
     });
 
     const answer = messageText(response.choices[0]?.message?.content);
+    if (!answer) {
+      throw new Error("AI returned an empty response.");
+    }
+
+    return finish(answer);
+  }
+
+  if (isDishRecipePrompt(trimmedPrompt)) {
+    options.onToolStart?.("get_dish_recipe");
+    const query = resolveDishRecipeQueryFromPrompt(trimmedPrompt);
+    const dishArgs = {
+      dishName: query.dishName,
+      dishNumber: query.dishNumber,
+      search: query.search,
+    };
+    const useCatalog = isDishRecipeCatalogPrompt(trimmedPrompt)
+      || (!dishArgs.dishName && !dishArgs.dishNumber && !dishArgs.search);
+    const args = useCatalog
+      ? resolveDishRecipeCatalogOptionsFromPrompt(trimmedPrompt)
+      : dishArgs;
+    const data = await getDishRecipe(db, args);
+    toolsUsed.push({name: "get_dish_recipe", args});
+    toolResults.push({name: "get_dish_recipe", result: data});
+
+    const tableHint =
+      "When name/number/category are present, render a markdown table Name | Number | Category "
+      + "(fill Category from each row; never invent or leave blank if provided). ";
+    const catalogHint = data.mode === "catalog"
+      ? data.catalogFocus === "missing"
+        ? `mode=catalog/missing: list dishes with no recipe ingredients so the user can fill them in. ${tableHint}`
+        : data.catalogFocus === "compare"
+          ? `mode=catalog/compare: summarize dishes with ingredients briefly, then list dishes missing ingredients clearly. `
+            + `Mention withIngredientsCount and missingIngredientsCount. ${tableHint}`
+          : `mode=catalog: for each dishes[] row, show dish.name (and number if present) then its ingredients (name, quantity, unit). `
+            + `Mention dishCount${data.truncated ? " and that the list is truncated" : ""}. ${tableHint}`
+      : `List each ingredient name, quantity, unit, and cost from ingredients[] (or dishes[0].ingredients). `
+        + `If matches[] is returned, ask which dish or call again with a more specific name. `;
+
+    const response = await callOpenAIChat({
+      messages: [
+        ...messages,
+        {
+          role: "user",
+          content:
+            `${trimmedPrompt}\n\nget_dish_recipe:\n${formatDishRecipeForPrompt(data)}\n\n`
+            + catalogHint
+            + `If found is false or there are no dishes/ingredients, say so clearly. Do not invent ingredients. `
+            + `Reply in plain language only — never print tool call markup or DSML.`,
+        },
+      ],
+      tools: [],
+      task,
+    });
+
+    const answer = sanitizeAssistantAnswer(messageText(response.choices[0]?.message?.content));
     if (!answer) {
       throw new Error("AI returned an empty response.");
     }
@@ -554,8 +617,19 @@ export const runAiReportAgent = async (
     }
 
     if (!choice.tool_calls?.length) {
-      const answer = messageText(choice.content);
+      const raw = messageText(choice.content);
+      const answer = sanitizeAssistantAnswer(raw);
       if (!answer) {
+        if (raw) {
+          messages.push(choice);
+          messages.push({
+            role: "user",
+            content:
+              "Your previous reply was invalid tool-call markup. "
+              + "Use the function-calling interface (tool_calls), or answer in plain language. Do not print DSML/XML.",
+          });
+          continue;
+        }
         throw new Error("AI returned an empty response.");
       }
 

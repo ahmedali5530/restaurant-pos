@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-23',
+    title: 'AI dish recipe lookup',
+    items: [
+      'Ask AI what ingredients are in a dish (by name or number) to get the recipe lines — quantity, unit, and cost — without looping through unrelated tools.',
+      'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
+      'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
+    ],
+  },
+  {
     date: '2026-10-22',
     title: 'Inventory UX polish',
     items: [

@@ -913,12 +913,49 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_menu_items",
-      description: "List all active menu products/dishes in the catalog.",
+      description: "List all active menu products/dishes in the catalog. Does NOT return recipe ingredients — use get_dish_recipe for that.",
       parameters: {
         type: "object",
         properties: {
           search: {type: "string", description: "Optional name search"},
           limit: {type: "number", default: 500},
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_dish_recipe",
+      description:
+        "Get dish recipe ingredients. With dishName/dishNumber/dishId: one dish. "
+        + "With no dish filter: catalog — default dishes that have ingredients; "
+        + "onlyMissingIngredients=true for dishes with no recipe; "
+        + "onlyWithIngredients=false to compare both groups. "
+        + "NOT list_menu_items and NOT propose_create_dish_ingredients.",
+      parameters: {
+        type: "object",
+        properties: {
+          dishId: {type: "string", description: 'Full record id like "menu_item:…"'},
+          dishNumber: {type: "string", description: "Dish number / PLU"},
+          dishName: {type: "string", description: "Dish name (exact or partial)"},
+          search: {type: "string", description: "Fallback name/number search"},
+          limit: {
+            type: "number",
+            description: "Max dishes in catalog mode (default 100 with recipes, 2000 for missing/compare; max 2000)",
+          },
+          onlyWithIngredients: {
+            type: "boolean",
+            description: "Catalog: true = only dishes with recipes (default). false = include missing (compare).",
+          },
+          onlyMissingIngredients: {
+            type: "boolean",
+            description: "Catalog: true = only dishes with zero recipe lines.",
+          },
+          omitModifierCategories: {
+            type: "boolean",
+            description: 'Catalog: true = exclude dishes in a category named like "Modifier".',
+          },
         },
       },
     },

@@ -1,6 +1,6 @@
 import {normalizeQueryDate, parseDateRangeWithPhrase, resolveNaturalDateRange} from "@/api/reports/shared/filters.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
-import {getProductMix, getSalesSummary, getTopSellingDishes, getUnsoldProducts, listMenuItems} from "@/api/reports/sales";
+import {getDishRecipe, getProductMix, getSalesSummary, getTopSellingDishes, getUnsoldProducts, listMenuItems} from "@/api/reports/sales";
 import {getDiscountSummary} from "@/api/reports/sales/discounts.ts";
 import {
   getHourlyProductSales,
@@ -429,6 +429,24 @@ export const executeAiReportTool = async (
       return listMenuItems(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 500,
+      });
+
+    case "get_dish_recipe":
+      return getDishRecipe(db, {
+        dishId: args.dishId ? String(args.dishId) : undefined,
+        dishNumber: args.dishNumber ? String(args.dishNumber) : undefined,
+        dishName: args.dishName ? String(args.dishName) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit !== undefined ? Number(args.limit) : undefined,
+        onlyWithIngredients: args.onlyWithIngredients !== undefined
+          ? Boolean(args.onlyWithIngredients)
+          : undefined,
+        onlyMissingIngredients: args.onlyMissingIngredients !== undefined
+          ? Boolean(args.onlyMissingIngredients)
+          : undefined,
+        omitModifierCategories: args.omitModifierCategories !== undefined
+          ? Boolean(args.omitModifierCategories)
+          : undefined,
       });
 
     case "list_inventory_items":

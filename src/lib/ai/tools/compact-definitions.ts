@@ -557,8 +557,29 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_menu_items",
-      description: "List active menu products.",
+      description: "List active menu products (not recipes).",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_dish_recipe",
+      description:
+        "Recipe for one dish, or catalog (onlyMissingIngredients / onlyWithIngredients=false for missing/compare).",
+      parameters: {
+        type: "object",
+        properties: {
+          dishId: {type: "string"},
+          dishNumber: {type: "string"},
+          dishName: {type: "string"},
+          search: {type: "string"},
+          limit: {type: "number"},
+          onlyWithIngredients: {type: "boolean"},
+          onlyMissingIngredients: {type: "boolean"},
+          omitModifierCategories: {type: "boolean"},
+        },
+      },
     },
   },
   {

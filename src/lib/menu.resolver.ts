@@ -133,6 +133,11 @@ const sortByPriorityName = <T extends { priority?: number | null; name?: string 
   return String(a?.name ?? '').localeCompare(String(b?.name ?? ''));
 };
 
+/** Categories flagged off for FOH menu must never appear on Menu / Quick Order. */
+export const isCategoryShownOnMenu = (category: Category | null | undefined): boolean => {
+  return category?.show_in_menu !== false;
+};
+
 const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category[] => {
   const categoryIds = new Set<string>();
   dishes.forEach((dish) => {
@@ -142,7 +147,7 @@ const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category
   });
 
   return (categories ?? [])
-    .filter((category) => categoryIds.has(category.id.toString()))
+    .filter((category) => isCategoryShownOnMenu(category) && categoryIds.has(category.id.toString()))
     .sort(sortByPriorityName);
 };
 
@@ -157,7 +162,9 @@ export const resolveMenuAwareData = ({
   menus: MenuCollection
   now?: DateInput
 }): ResolvedMenuData => {
-  const safeCategories = [...(categories ?? [])].sort(sortByPriorityName);
+  const safeCategories = [...(categories ?? [])]
+    .filter(isCategoryShownOnMenu)
+    .sort(sortByPriorityName);
   const safeDishes = [...(dishes ?? [])].sort(sortByPriorityName);
   const normalizedMenus = normalizeMenus(menus);
   const activeMenus = normalizedMenus.filter((menu) => isMenuActiveNow(menu, now));

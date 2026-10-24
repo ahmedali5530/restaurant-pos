@@ -631,6 +631,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     updateToolName: "propose_update_dish_ingredients",
     permissionModules: {create: "admin.dishes.create", update: "admin.dishes.update"},
     keywords: /\b((dish|recipe)\s+ingredient|ingredient\s+(to|for)\s+dish|add\s+ingredient)\b/i,
+    actionKeywords: /\b(add|create|update|change|set|remove|delete|import|new)\b/i,
     domains: ["sales", "inventory"],
     createConfig: createDishIngredientsImportConfig,
     mergeUpdatePatches: mergeDishIngredientUpdatePatches,
