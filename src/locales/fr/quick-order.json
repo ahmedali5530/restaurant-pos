@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Prêt à scanner",
+    "ready": "Scannez un code-barres ou choisissez un article",
+    "last": "Dernier scan : {{code}}",
+    "unknown": "Code inconnu : {{code}}",
+    "added": "{{name}} ajouté",
+    "placeholder": "Scannez le code ou saisissez le PLU, puis Entrée",
+    "inputLabel": "Code-barres / PLU"
+  },
+  "cart": {
+    "title": "Panier",
+    "hint": "Payez quand prêt — pas d'envoi cuisine",
+    "empty": "Scannez ou touchez des articles pour vendre"
+  },
+  "browse": {
+    "title": "Parcourir les articles",
+    "show": "Afficher",
+    "hide": "Masquer"
+  }
+}

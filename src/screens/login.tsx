@@ -3,13 +3,13 @@ import { faBackspace, faCircle, faClock } from "@fortawesome/free-solid-svg-icon
 import {faCircle as circleRegular} from '@fortawesome/free-regular-svg-icons';
 import {useEffect, useLayoutEffect, useState} from "react";
 import { useAtom } from "jotai";
-import { appPage } from "@/store/jotai.ts";
+import { appPage, appState } from "@/store/jotai.ts";
 import { cn, toRecordId } from "@/lib/utils.ts";
 import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {MENU} from "@/routes/posr.ts";
+import {MENU, QUICK} from "@/routes/posr.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -68,6 +68,7 @@ export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useAtom(appPage);
+  const [state] = useAtom(appState);
   const [error, setError] = useState(false);
   const [showClockInModal, setShowClockInModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
@@ -328,8 +329,8 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    // redirect to menu
-    navigation(MENU);
+    const home = state.posMode === 'retail' ? QUICK : MENU;
+    navigation(home);
   }
 
   const handleClockIn = async () => {
@@ -382,7 +383,8 @@ export const Login = () => {
     }
     if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const returnPath = from ? `${from.pathname}${from.search ?? ''}` : MENU;
+      const home = state.posMode === 'retail' ? QUICK : MENU;
+      const returnPath = from ? `${from.pathname}${from.search ?? ''}` : home;
       navigation(returnPath, { replace: true });
     }
   }, [gatewayAuth, page.user, page.locked, location.state, navigation]);

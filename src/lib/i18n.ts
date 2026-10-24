@@ -10,6 +10,7 @@ export const I18N_NAMESPACES = [
   'toast',
   'menu',
   'cart',
+  'quick-order',
   'orders',
   'payment',
   'kitchen',

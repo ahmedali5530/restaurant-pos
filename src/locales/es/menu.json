@@ -30,5 +30,12 @@
   },
   "persons": {
     "chooseCount": "Elija el número de personas"
+  },
+  "availability": {
+    "unavailable": "{{name}} está agotado",
+    "onlyNLeft": "Solo quedan {{count}} de {{name}}",
+    "nLeft": "Quedan {{count}}",
+    "unavailableBadge": "Agotado",
+    "cartExceeds": "{{name}} supera el stock disponible (quedan {{count}})"
   }
 }

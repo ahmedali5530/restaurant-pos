@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Ready to scan",
+    "ready": "Scan a barcode or pick an item below",
+    "last": "Last scan: {{code}}",
+    "unknown": "Unknown code: {{code}}",
+    "added": "Added {{name}}",
+    "placeholder": "Scan barcode or type PLU, then Enter",
+    "inputLabel": "Barcode / PLU"
+  },
+  "cart": {
+    "title": "Cart",
+    "hint": "Pay when ready — no kitchen send",
+    "empty": "Scan or tap items to start a sale"
+  },
+  "browse": {
+    "title": "Browse items",
+    "show": "Show",
+    "hide": "Hide"
+  }
+}

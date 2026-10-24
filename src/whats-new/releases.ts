@@ -7,6 +7,24 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-23',
+    title: 'Item availability & sale limits',
+    items: [
+      'Dishes can be marked available/sold out and given an optional sale limit (units sold since you set the limit, minus the cart).',
+      'Manage → Availability: bulk update by selection or whole category; dish form also has Available + Sale limit.',
+      'Sold-out dishes are always blocked on Menu, Quick Order, and settle. Sale limits (available_qty) are on by default and count units sold since the limit was set (minus cart); Settings can turn limits off.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Quick Order / retail mode',
+    items: [
+      'New Quick Order screen (/quick): scan barcodes with a USB wedge, browse items, and pay — built for liquor stores, bakeries, and counter shops.',
+      'Settings → POS mode switches this device between Restaurant (floors/tables) and Quick Order; retail login opens Quick Order by default.',
+      'Dishes support an optional Barcode field (and CSV import) for scan lookup; PLU/number still works as fallback. Kitchen send is hidden on Quick Order — Pay Now settles tableless checks.',
+    ],
+  },
+  {
     date: '2026-10-22',
     title: 'Refresh catalog without full cache reload',
     items: [

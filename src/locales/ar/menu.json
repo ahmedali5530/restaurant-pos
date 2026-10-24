@@ -30,5 +30,12 @@
   },
   "persons": {
     "chooseCount": "اختر عدد الأشخاص"
+  },
+  "availability": {
+    "unavailable": "{{name}} نافد",
+    "onlyNLeft": "متبقي {{count}} فقط من {{name}}",
+    "nLeft": "متبقي {{count}}",
+    "unavailableBadge": "نافد",
+    "cartExceeds": "{{name}} يتجاوز المخزون المتاح (متبقي {{count}})"
   }
 }

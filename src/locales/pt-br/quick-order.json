@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Pronto para ler",
+    "ready": "Leia um código de barras ou escolha um item abaixo",
+    "last": "Última leitura: {{code}}",
+    "unknown": "Código desconhecido: {{code}}",
+    "added": "{{name}} adicionado",
+    "placeholder": "Leia o código ou digite o PLU e pressione Enter",
+    "inputLabel": "Código / PLU"
+  },
+  "cart": {
+    "title": "Carrinho",
+    "hint": "Pague quando estiver pronto — sem envio à cozinha",
+    "empty": "Leia ou toque nos itens para começar"
+  },
+  "browse": {
+    "title": "Navegar itens",
+    "show": "Mostrar",
+    "hide": "Ocultar"
+  }
+}

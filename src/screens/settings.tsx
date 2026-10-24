@@ -5,6 +5,8 @@ import {ServiceChargesSettings} from "@/components/user_settings/service_charges
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
 import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
+import {PosModeSettings} from "@/components/user_settings/pos_mode.tsx";
+import {ItemAvailabilitySettings} from "@/components/user_settings/item_availability.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
@@ -60,6 +62,8 @@ export const Settings = () => {
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
+        <MasonryItem><PosModeSettings /></MasonryItem>
+        <MasonryItem><ItemAvailabilitySettings /></MasonryItem>
         <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>
         <MasonryItem><ItemsVisibilityConfig /></MasonryItem>

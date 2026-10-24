@@ -16,7 +16,8 @@
     "clock": "Clock",
     "hr": "HR",
     "integrations": "Integrations",
-    "requiresApproval": "Requires manager approval"
+    "requiresApproval": "Requires manager approval",
+    "quickOrder": "Quick Order"
   },
   "modules": {
     "Menu": "Menu",

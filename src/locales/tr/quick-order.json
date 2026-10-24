@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Tarama için hazır",
+    "ready": "Barkod okutun veya aşağıdan ürün seçin",
+    "last": "Son tarama: {{code}}",
+    "unknown": "Bilinmeyen kod: {{code}}",
+    "added": "{{name}} eklendi",
+    "placeholder": "Barkod okutun veya PLU yazıp Enter'a basın",
+    "inputLabel": "Barkod / PLU"
+  },
+  "cart": {
+    "title": "Sepet",
+    "hint": "Hazır olunca ödeyin — mutfağa gönderme yok",
+    "empty": "Satışa başlamak için okutun veya dokunun"
+  },
+  "browse": {
+    "title": "Ürünlere göz at",
+    "show": "Göster",
+    "hide": "Gizle"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Pronto a scansionare",
+    "ready": "Scansiona un barcode o scegli un articolo sotto",
+    "last": "Ultima scansione: {{code}}",
+    "unknown": "Codice sconosciuto: {{code}}",
+    "added": "Aggiunto {{name}}",
+    "placeholder": "Scansiona barcode o digita PLU, poi Invio",
+    "inputLabel": "Barcode / PLU"
+  },
+  "cart": {
+    "title": "Carrello",
+    "hint": "Paga quando sei pronto — senza invio cucina",
+    "empty": "Scansiona o tocca gli articoli per iniziare"
+  },
+  "browse": {
+    "title": "Sfoglia articoli",
+    "show": "Mostra",
+    "hide": "Nascondi"
+  }
+}

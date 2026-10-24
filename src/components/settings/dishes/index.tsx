@@ -108,6 +108,17 @@ export const AdminDishes = () => {
     columnHelper.accessor("number", {
       header: t('columns.number'),
     }),
+    columnHelper.accessor("available", {
+      header: t('columns.available'),
+      cell: (info) => (info.getValue() === false ? t('common:actions.no') : t('common:actions.yes')),
+    }),
+    columnHelper.accessor("available_qty", {
+      header: t('columns.availableQty'),
+      cell: (info) => {
+        const v = info.getValue();
+        return v == null || v === "" ? "—" : String(v);
+      },
+    }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')
     }),

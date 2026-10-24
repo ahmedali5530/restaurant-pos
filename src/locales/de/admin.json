@@ -23,7 +23,8 @@
     "tipsDefinition": "Trinkgeld-Definition",
     "accessTab": "Zugriff auf {{title}}",
     "ariaLabel": "Verwaltungsregisterkarten",
-    "securityAlerts": "Sicherheitswarnungen"
+    "securityAlerts": "Sicherheitswarnungen",
+    "availability": "Verfügbarkeit"
   },
   "columns": {
     "photo": "Foto",
@@ -98,7 +99,10 @@
     "recordType": "Zeilentyp",
     "dishName": "Gericht",
     "parentModifier": "Übergeordnete Größe",
-    "nextGroup": "Nächste Gruppe"
+    "nextGroup": "Nächste Gruppe",
+    "barcode": "Barcode",
+    "available": "Verfügbar",
+    "availableQty": "Verkaufslimit"
   },
   "entities": {
     "dish": "Gericht",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "TSP100-Drucker ignorieren ESC/POS-Text. Star-Grafik sendet den Beleg als Bild.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Star-Grafik (TSP100)",
-    "usePrintSettings": "Druckeinstellungen verwenden"
+    "usePrintSettings": "Druckeinstellungen verwenden",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Im Menü verfügbar",
+    "availableQty": "Verkaufslimit",
+    "availableQtyHint": "Verkäufe werden ab dem Speichern dieses Limits gezählt. Leer = unbegrenzt."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Design der Kundenseite",
     "themeDescription": "Farben der QR-Bestellseite. Hell/Dunkel kann dem Handy jedes Gastes folgen.",
     "themeMode": "Darstellung"
+  },
+  "availability": {
+    "title": "Artikelverfügbarkeit",
+    "description": "Gerichte als verfügbar oder ausverkauft markieren und optionale Verkaufslimits für mehrere Artikel oder ganze Kategorien setzen.",
+    "allCategories": "Alle",
+    "selectAll": "Alle auswählen",
+    "applyToCategory": "Auf ganze Kategorie anwenden",
+    "targetsCategory": "{{count}} Gerichte in Kategorie",
+    "targetsSelected": "{{count}} ausgewählt",
+    "markAvailable": "Verfügbar",
+    "markUnavailable": "Ausverkauft",
+    "saleLimit": "Limit",
+    "setLimit": "Limit setzen",
+    "clearLimit": "Unbegrenzt",
+    "selectDishes": "Gerichte auswählen oder Kategorie anwenden",
+    "enterQty": "Verkaufslimit eingeben",
+    "saved": "{{count}} Gerichte aktualisiert",
+    "empty": "Keine Gerichte in dieser Kategorie",
+    "available": "Verfügbar",
+    "unavailable": "Ausverkauft"
   }
 }

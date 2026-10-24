@@ -14,6 +14,7 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
 
 type TFunc = (key: string, options?: any) => string;
 
@@ -59,6 +60,31 @@ export function createDishImportConfig({
       type: "string",
       aliases: ["Number", "No", "Code", "SKU", "#"],
       description: "Internal item number; leave blank to auto-assign",
+    },
+    {
+      name: "barcode",
+      label: t("admin:columns.barcode", {defaultValue: "Barcode"}),
+      type: "string",
+      optional: true,
+      aliases: ["Barcode", "UPC", "EAN", "GTIN", "Bar Code"],
+      description: "Barcode / UPC / EAN for Quick Order scanning",
+    },
+    {
+      name: "available",
+      label: t("admin:columns.available", {defaultValue: "Available"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: true,
+      aliases: ["Available", "In Stock", "Sellable", "Active"],
+      description: "Whether the dish can be sold (false = sold out)",
+    },
+    {
+      name: "available_qty",
+      label: t("admin:columns.availableQty", {defaultValue: "Sale limit"}),
+      type: "number",
+      optional: true,
+      aliases: ["Sale limit", "Available qty", "Stock count", "Limit"],
+      description: "Optional sale count; leave blank for unlimited",
     },
     {
       name: "priority",
@@ -148,6 +174,10 @@ export function createDishImportConfig({
       }
 
       const number = await ensureNumber(values.number);
+      const barcodeRaw =
+        values.barcode === null || values.barcode === undefined
+          ? ""
+          : String(values.barcode).trim();
       const priority = Number(values.priority ?? 0);
       const price = Number(values.price);
       const cost = Number(values.cost ?? 0);
@@ -177,18 +207,42 @@ export function createDishImportConfig({
         price: String(price),
         cost: String(cost),
       };
+      if (barcodeRaw) {
+        rowData.barcode = barcodeRaw;
+      }
 
       assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
         t("common:csvImport.emptyMatchValue", {field})
       );
 
+      const availableRaw = values.available;
+      const available =
+        availableRaw === false ||
+        availableRaw === "false" ||
+        availableRaw === 0 ||
+        availableRaw === "0"
+          ? false
+          : true;
+      const qtyRaw = values.available_qty;
+      const availableQty =
+        qtyRaw === null || qtyRaw === undefined || qtyRaw === ""
+          ? null
+          : Number(qtyRaw);
+
       const dishData: any = {
         name,
         number,
+        barcode: barcodeRaw || null,
         priority: Number.isFinite(priority) ? priority : 0,
         price,
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
+        available,
+        available_qty: availableQty != null && Number.isFinite(availableQty) ? availableQty : null,
+        available_qty_set_at:
+          availableQty != null && Number.isFinite(availableQty)
+            ? nowSurrealDateTime()
+            : null,
       };
 
       const workflowRef = values.workflow as ResolvedReference | undefined;

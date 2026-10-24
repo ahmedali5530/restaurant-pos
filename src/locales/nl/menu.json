@@ -30,5 +30,12 @@
   },
   "persons": {
     "chooseCount": "Kies aantal personen"
+  },
+  "availability": {
+    "unavailable": "{{name}} is uitverkocht",
+    "onlyNLeft": "Nog maar {{count}} van {{name}}",
+    "nLeft": "{{count}} over",
+    "unavailableBadge": "Uitverkocht",
+    "cartExceeds": "{{name}} overschrijdt de voorraad (nog {{count}})"
   }
 }

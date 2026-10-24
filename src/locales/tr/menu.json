@@ -30,5 +30,12 @@
   },
   "persons": {
     "chooseCount": "Kişi sayısını seçin"
+  },
+  "availability": {
+    "unavailable": "{{name}} tükendi",
+    "onlyNLeft": "{{name}} için yalnızca {{count}} kaldı",
+    "nLeft": "{{count}} kaldı",
+    "unavailableBadge": "Tükendi",
+    "cartExceeds": "{{name}} mevcut stoğu aşıyor ({{count}} kaldı)"
   }
 }

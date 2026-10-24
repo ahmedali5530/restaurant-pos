@@ -23,7 +23,8 @@
     "tipsDefinition": "تعريف الإكراميات",
     "accessTab": "الوصول إلى {{title}}",
     "ariaLabel": "علامات تبويب الإدارة",
-    "securityAlerts": "تنبيهات الأمان"
+    "securityAlerts": "تنبيهات الأمان",
+    "availability": "التوفر"
   },
   "columns": {
     "photo": "صورة",
@@ -98,7 +99,10 @@
     "recordType": "نوع الصف",
     "dishName": "الطبق",
     "parentModifier": "الحجم الأب",
-    "nextGroup": "المجموعة التالية"
+    "nextGroup": "المجموعة التالية",
+    "barcode": "الباركود",
+    "available": "متاح",
+    "availableQty": "حد البيع"
   },
   "entities": {
     "dish": "طبق",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "طابعات TSP100 تتجاهل نص ESC/POS. وضع Star الرسومي يرسل الإيصال كصورة.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "رسوم Star (TSP100)",
-    "usePrintSettings": "استخدم إعدادات الطباعة"
+    "usePrintSettings": "استخدم إعدادات الطباعة",
+    "barcodeOfItem": "الباركود",
+    "availableOnMenu": "متاح في القائمة",
+    "availableQty": "حد البيع",
+    "availableQtyHint": "تُحسب المبيعات من وقت حفظ هذا الحد. فارغ = غير محدود."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -1035,5 +1043,25 @@
     "themeTitle": "سمة صفحة العميل",
     "themeDescription": "ألوان صفحة الطلب عبر QR. يمكن أن يتبع الوضع الفاتح/الداكن هاتف كل عميل.",
     "themeMode": "المظهر"
+  },
+  "availability": {
+    "title": "توفر الأصناف",
+    "description": "علّم الأطباق كمتاحة أو نافدة وحدد حدود بيع لعدة أصناف أو فئة كاملة.",
+    "allCategories": "الكل",
+    "selectAll": "تحديد الكل",
+    "applyToCategory": "تطبيق على الفئة كلها",
+    "targetsCategory": "{{count}} أطباق في الفئة",
+    "targetsSelected": "{{count}} محدد",
+    "markAvailable": "متاح",
+    "markUnavailable": "نافد",
+    "saleLimit": "الحد",
+    "setLimit": "تعيين الحد",
+    "clearLimit": "غير محدود",
+    "selectDishes": "حدد أطباقاً أو طبّق على الفئة",
+    "enterQty": "أدخل حد البيع",
+    "saved": "تم تحديث {{count}} أطباق",
+    "empty": "لا أطباق في هذه الفئة",
+    "available": "متاح",
+    "unavailable": "نافد"
   }
 }

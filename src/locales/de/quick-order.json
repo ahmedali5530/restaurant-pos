@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Bereit zum Scannen",
+    "ready": "Barcode scannen oder Artikel unten wählen",
+    "last": "Letzter Scan: {{code}}",
+    "unknown": "Unbekannter Code: {{code}}",
+    "added": "{{name}} hinzugefügt",
+    "placeholder": "Barcode scannen oder PLU tippen, dann Enter",
+    "inputLabel": "Barcode / PLU"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "hint": "Bei Bereitschaft zahlen — kein Küchensenden",
+    "empty": "Scannen oder tippen Sie Artikel, um zu verkaufen"
+  },
+  "browse": {
+    "title": "Artikel durchsuchen",
+    "show": "Anzeigen",
+    "hide": "Ausblenden"
+  }
+}

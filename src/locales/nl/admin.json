@@ -23,7 +23,8 @@
     "tipsDefinition": "Fooidefinitie",
     "accessTab": "Toegang tot {{title}}",
     "ariaLabel": "Beheertabs",
-    "securityAlerts": "Beveiligingsmeldingen"
+    "securityAlerts": "Beveiligingsmeldingen",
+    "availability": "Beschikbaarheid"
   },
   "columns": {
     "photo": "Foto",
@@ -98,7 +99,10 @@
     "recordType": "Rijtype",
     "dishName": "Gerecht",
     "parentModifier": "Bovenliggende maat",
-    "nextGroup": "Volgende groep"
+    "nextGroup": "Volgende groep",
+    "barcode": "Barcode",
+    "available": "Beschikbaar",
+    "availableQty": "Verkooplimiet"
   },
   "entities": {
     "dish": "Gerecht",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "TSP100-printers negeren ESC/POS-tekst. Star-grafisch stuurt de bon als afbeelding.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Star-grafisch (TSP100)",
-    "usePrintSettings": "Printinstellingen gebruiken"
+    "usePrintSettings": "Printinstellingen gebruiken",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Beschikbaar op menu",
+    "availableQty": "Verkooplimiet",
+    "availableQtyHint": "Verkopen tellen vanaf het moment dat je deze limiet opslaat. Leeg = onbeperkt."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Thema van de klantpagina",
     "themeDescription": "Kleuren van de QR-bestelpagina. Licht/donker kan de telefoon van elke klant volgen.",
     "themeMode": "Weergave"
+  },
+  "availability": {
+    "title": "Artikelbeschikbaarheid",
+    "description": "Markeer gerechten als beschikbaar of uitverkocht en stel optionele verkooplimieten in voor meerdere items of een hele categorie.",
+    "allCategories": "Alles",
+    "selectAll": "Alles selecteren",
+    "applyToCategory": "Toepassen op hele categorie",
+    "targetsCategory": "{{count}} gerechten in categorie",
+    "targetsSelected": "{{count}} geselecteerd",
+    "markAvailable": "Beschikbaar",
+    "markUnavailable": "Uitverkocht",
+    "saleLimit": "Limiet",
+    "setLimit": "Limiet instellen",
+    "clearLimit": "Onbeperkt",
+    "selectDishes": "Selecteer gerechten of pas toe op categorie",
+    "enterQty": "Voer een verkooplimiet in",
+    "saved": "{{count}} gerechten bijgewerkt",
+    "empty": "Geen gerechten in deze categorie",
+    "available": "Beschikbaar",
+    "unavailable": "Uitverkocht"
   }
 }

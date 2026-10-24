@@ -341,5 +341,17 @@
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
       "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
+  },
+  "posMode": {
+    "title": "Mode caisse",
+    "description": "Choisissez restaurant (tables et salles) ou Commande rapide (scan code-barres et paiement) pour cet appareil.",
+    "restaurant": "Restaurant",
+    "retail": "Commande rapide"
+  },
+  "itemAvailability": {
+    "title": "Appliquer les limites de vente",
+    "description": "Les plats épuisés sont toujours bloqués. Les limites de vente sont activées par défaut (ventes depuis la fixation de la limite, moins le panier). Désactiver ignore uniquement les limites de vente.",
+    "enabled": "Activé",
+    "disabled": "Désactivé"
   }
 }

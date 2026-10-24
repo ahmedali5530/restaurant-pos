@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Klaar om te scannen",
+    "ready": "Scan een barcode of kies hieronder een artikel",
+    "last": "Laatste scan: {{code}}",
+    "unknown": "Onbekende code: {{code}}",
+    "added": "{{name}} toegevoegd",
+    "placeholder": "Scan barcode of typ PLU, daarna Enter",
+    "inputLabel": "Barcode / PLU"
+  },
+  "cart": {
+    "title": "Winkelwagen",
+    "hint": "Betaal wanneer klaar — geen keukenverzending",
+    "empty": "Scan of tik artikelen om te verkopen"
+  },
+  "browse": {
+    "title": "Artikelen bladeren",
+    "show": "Tonen",
+    "hide": "Verbergen"
+  }
+}

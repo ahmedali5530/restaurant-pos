@@ -16,7 +16,8 @@
     "clock": "Часы",
     "hr": "HR",
     "integrations": "Интеграции",
-    "requiresApproval": "Требуется одобрение руководителя"
+    "requiresApproval": "Требуется одобрение руководителя",
+    "quickOrder": "Быстрый заказ"
   },
   "modules": {
     "Menu": "Меню",

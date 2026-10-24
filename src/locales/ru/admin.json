@@ -23,7 +23,8 @@
     "tipsDefinition": "Определение чаевых",
     "accessTab": "Доступ к {{title}}",
     "ariaLabel": "Вкладки администрирования",
-    "securityAlerts": "Оповещения безопасности"
+    "securityAlerts": "Оповещения безопасности",
+    "availability": "Доступность"
   },
   "columns": {
     "photo": "Фото",
@@ -98,7 +99,10 @@
     "recordType": "Тип строки",
     "dishName": "Блюдо",
     "parentModifier": "Родительский размер",
-    "nextGroup": "Следующая группа"
+    "nextGroup": "Следующая группа",
+    "barcode": "Штрихкод",
+    "available": "Доступно",
+    "availableQty": "Лимит продаж"
   },
   "entities": {
     "dish": "Блюдо",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "TSP100 игнорируют текст ESC/POS. Графический режим Star отправляет чек как изображение.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Графика Star (TSP100)",
-    "usePrintSettings": "Использовать настройки печати"
+    "usePrintSettings": "Использовать настройки печати",
+    "barcodeOfItem": "Штрихкод",
+    "availableOnMenu": "Доступно в меню",
+    "availableQty": "Лимит продаж",
+    "availableQtyHint": "Продажи считаются с момента сохранения лимита. Пусто = без лимита."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Тема страницы гостя",
     "themeDescription": "Цвета страницы QR-заказа. Светлая/тёмная тема может следовать настройкам телефона гостя.",
     "themeMode": "Оформление"
+  },
+  "availability": {
+    "title": "Доступность блюд",
+    "description": "Отмечайте блюда как доступные или закончившиеся и задавайте лимиты продаж для нескольких позиций или всей категории.",
+    "allCategories": "Все",
+    "selectAll": "Выбрать все",
+    "applyToCategory": "Применить ко всей категории",
+    "targetsCategory": "{{count}} блюд в категории",
+    "targetsSelected": "{{count}} выбрано",
+    "markAvailable": "Доступно",
+    "markUnavailable": "Нет в наличии",
+    "saleLimit": "Лимит",
+    "setLimit": "Задать лимит",
+    "clearLimit": "Без лимита",
+    "selectDishes": "Выберите блюда или примените к категории",
+    "enterQty": "Введите лимит продаж",
+    "saved": "Обновлено блюд: {{count}}",
+    "empty": "В этой категории нет блюд",
+    "available": "Доступно",
+    "unavailable": "Нет в наличии"
   }
 }

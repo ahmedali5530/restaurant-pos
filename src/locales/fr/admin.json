@@ -23,7 +23,8 @@
     "tipsDefinition": "Définition des pourboires",
     "accessTab": "Accéder à {{title}}",
     "ariaLabel": "Onglets d'administration",
-    "securityAlerts": "Alertes de Sécurité"
+    "securityAlerts": "Alertes de Sécurité",
+    "availability": "Disponibilité"
   },
   "columns": {
     "photo": "Photo",
@@ -98,7 +99,10 @@
     "recordType": "Type de ligne",
     "dishName": "Plat",
     "parentModifier": "Taille parente",
-    "nextGroup": "Groupe suivant"
+    "nextGroup": "Groupe suivant",
+    "barcode": "Code-barres",
+    "available": "Disponible",
+    "availableQty": "Limite de vente"
   },
   "entities": {
     "dish": "Plat",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "Les TSP100 ignorent le texte ESC/POS. Le mode graphique Star envoie le ticket en image.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Graphique Star (TSP100)",
-    "usePrintSettings": "Utiliser les paramètres d'impression"
+    "usePrintSettings": "Utiliser les paramètres d'impression",
+    "barcodeOfItem": "Code-barres",
+    "availableOnMenu": "Disponible au menu",
+    "availableQty": "Limite de vente",
+    "availableQtyHint": "Les ventes sont comptées à partir de l’enregistrement de cette limite. Vide = illimité."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Thème de la page client",
     "themeDescription": "Couleurs de la page de commande par QR. Le mode clair/sombre peut suivre le téléphone de chaque client.",
     "themeMode": "Apparence"
+  },
+  "availability": {
+    "title": "Disponibilité des articles",
+    "description": "Marquez les plats comme disponibles ou épuisés et définissez des limites de vente pour plusieurs articles ou toute une catégorie.",
+    "allCategories": "Toutes",
+    "selectAll": "Tout sélectionner",
+    "applyToCategory": "Appliquer à toute la catégorie",
+    "targetsCategory": "{{count}} plats dans la catégorie",
+    "targetsSelected": "{{count}} sélectionnés",
+    "markAvailable": "Disponible",
+    "markUnavailable": "Épuisé",
+    "saleLimit": "Limite",
+    "setLimit": "Définir la limite",
+    "clearLimit": "Illimité",
+    "selectDishes": "Sélectionnez des plats ou appliquez à la catégorie",
+    "enterQty": "Saisissez une limite de vente",
+    "saved": "{{count}} plats mis à jour",
+    "empty": "Aucun plat dans cette catégorie",
+    "available": "Disponible",
+    "unavailable": "Épuisé"
   }
 }

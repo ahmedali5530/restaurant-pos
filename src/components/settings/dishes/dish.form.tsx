@@ -32,6 +32,12 @@ import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 import { withCurrency } from "@/lib/utils.ts";
+import {
+  applyAvailabilityLocally,
+  buildAvailabilityPatch,
+} from "@/lib/dish-availability.ts";
+import {useSetAtom} from "jotai";
+import {appSettings} from "@/store/jotai.ts";
 
 const inventoryItemOptionLabel = (item: InventoryItem) =>
   item.uom ? `${item.name} (${item.uom})` : item.name;
@@ -51,6 +57,16 @@ interface Props {
 const validationSchema = yup.object({
   name: yup.string().required(i18n.t('validation:required')),
   number: yup.string().required(i18n.t('validation:required')),
+  barcode: yup.string().nullable().optional(),
+  available: yup.boolean().optional(),
+  available_qty: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) =>
+      originalValue === "" || originalValue === null || originalValue === undefined ? null : value,
+    )
+    .min(0, i18n.t('forms.greaterThanOrEqualZero'))
+    .optional(),
   priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   // position: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
@@ -96,6 +112,7 @@ export const DishForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const setAppSettings = useSetAtom(appSettings);
 
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -121,6 +138,8 @@ export const DishForm = ({
     if (data) {
       reset({
         ...data,
+        available: data.available !== false,
+        available_qty: data.available_qty ?? null,
         categories: data.categories.map(item => ({
           label: item.name,
           value: item.id
@@ -142,6 +161,12 @@ export const DishForm = ({
       getRecipes(data.id);
       loadWorkflowAssignment(data.id);
     } else {
+      reset({
+        available: true,
+        available_qty: null,
+        recipes: [],
+        modifier_groups: [],
+      });
       setPhotoFile(null);
       setPhotoPreview(null);
       setPhotoData(null);
@@ -339,9 +364,16 @@ export const DishForm = ({
         }
       }
 
+      const barcodeRaw = typeof formData.barcode === 'string' ? formData.barcode.trim() : '';
+      const availability = buildAvailabilityPatch({
+        available: formData.available !== false,
+        available_qty: formData.available_qty,
+        previousQty: data?.available_qty,
+      });
       const dishData: any = {
         name: formData.name,
         number: formData.number,
+        barcode: barcodeRaw || null,
         // position: data.position,
         priority: formData.priority,
         price: formData.price,
@@ -349,6 +381,7 @@ export const DishForm = ({
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
+        ...availability,
       };
 
 
@@ -429,6 +462,14 @@ export const DishForm = ({
         source: 'settings-form',
         label: values.name,
       });
+
+      await applyAvailabilityLocally({
+        patches: [{
+          id: String(menuId),
+          ...availability,
+        }],
+        setAppSettings,
+      }).catch(() => undefined);
 
       closeModal();
       toast.success(t('toast:admin.dishSaved', { name: values.name }));
@@ -523,6 +564,9 @@ export const DishForm = ({
               <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
             </div>
             <div className="flex-1">
+              <InputField name="barcode" control={control} label={t('forms.barcodeOfItem')} error={errors?.barcode?.message}/>
+            </div>
+            <div className="flex-1">
               <Controller
                 name="priority"
                 control={control}
@@ -537,6 +581,43 @@ export const DishForm = ({
                 )}
               />
             </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-3 items-end">
+            <div>
+              <Controller
+                name="available"
+                control={control}
+                defaultValue={true}
+                render={({field}) => (
+                  <Switch
+                    checked={field.value !== false}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                  >
+                    {t('forms.availableOnMenu')}
+                  </Switch>
+                )}
+              />
+            </div>
+            <div className="w-40">
+              <Controller
+                name="available_qty"
+                control={control}
+                render={({field}) => (
+                  <Input
+                    type="number"
+                    label={t('forms.availableQty')}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      field.onChange(v === "" ? null : v);
+                    }}
+                    error={errors?.available_qty?.message as string | undefined}
+                  />
+                )}
+              />
+            </div>
+            <p className="text-sm text-muted max-w-md pb-2">{t('forms.availableQtyHint')}</p>
           </div>
 
           <div className="flex gap-3">

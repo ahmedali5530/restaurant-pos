@@ -22,6 +22,7 @@ import {usePosOpenOrders} from "@/hooks/usePosOpenOrders.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {PosStoreError, type TableLockRecord} from "@/infrastructure/pos-store/types.ts";
 import {getSyncStatus, subscribeSyncStatus} from "@/infrastructure/sync/sync-status.ts";
+import {isCategoryShownOnMenu} from "@/lib/menu.resolver.ts";
 
 
 export const FloorLayout = () => {
@@ -119,7 +120,7 @@ export const FloorLayout = () => {
     && (syncPhase === 'hydrating' || syncPhase === 'initializing');
 
   const categories = useMemo(() => {
-    return (settings.categories ?? []).filter(item => item.show_in_menu !== false);
+    return (settings.categories ?? []).filter(isCategoryShownOnMenu);
   }, [settings.categories]);
 
   const orderTypes = useMemo(() => {

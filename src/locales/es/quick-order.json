@@ -1,0 +1,21 @@
+{
+  "scan": {
+    "title": "Listo para escanear",
+    "ready": "Escanee un código o elija un artículo abajo",
+    "last": "Último escaneo: {{code}}",
+    "unknown": "Código desconocido: {{code}}",
+    "added": "Añadido {{name}}",
+    "placeholder": "Escanee código o escriba PLU y pulse Enter",
+    "inputLabel": "Código / PLU"
+  },
+  "cart": {
+    "title": "Carrito",
+    "hint": "Pague cuando esté listo — sin envío a cocina",
+    "empty": "Escanee o toque artículos para empezar"
+  },
+  "browse": {
+    "title": "Explorar artículos",
+    "show": "Mostrar",
+    "hide": "Ocultar"
+  }
+}

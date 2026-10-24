@@ -23,7 +23,8 @@
     "tipsDefinition": "Bahşiş tanımı",
     "accessTab": "{{title}} modülüne eriş",
     "ariaLabel": "Yönetim sekmeleri",
-    "securityAlerts": "Güvenlik Uyarıları"
+    "securityAlerts": "Güvenlik Uyarıları",
+    "availability": "Uygunluk"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -98,7 +99,10 @@
     "recordType": "Satır tipi",
     "dishName": "Yemek",
     "parentModifier": "Üst boyut",
-    "nextGroup": "Sonraki grup"
+    "nextGroup": "Sonraki grup",
+    "barcode": "Barkod",
+    "available": "Uygun",
+    "availableQty": "Satış limiti"
   },
   "entities": {
     "dish": "Yemek",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "TSP100 yazıcılar ESC/POS metnini yok sayar. Star grafik fişi görüntü olarak gönderir.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Star grafik (TSP100)",
-    "usePrintSettings": "Yazdırma ayarlarını kullan"
+    "usePrintSettings": "Yazdırma ayarlarını kullan",
+    "barcodeOfItem": "Barkod",
+    "availableOnMenu": "Menüde uygun",
+    "availableQty": "Satış limiti",
+    "availableQtyHint": "Satışlar bu limiti kaydettiğiniz andan itibaren sayılır. Boş = sınırsız."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Müşteri sayfası teması",
     "themeDescription": "QR sipariş sayfasının renkleri. Açık/koyu mod her müşterinin telefonunu takip edebilir.",
     "themeMode": "Görünüm"
+  },
+  "availability": {
+    "title": "Ürün uygunluğu",
+    "description": "Yemekleri uygun veya tükendi olarak işaretleyin; birden fazla ürün veya tüm kategori için satış limiti belirleyin.",
+    "allCategories": "Tümü",
+    "selectAll": "Tümünü seç",
+    "applyToCategory": "Tüm kategoriye uygula",
+    "targetsCategory": "Kategoride {{count}} yemek",
+    "targetsSelected": "{{count}} seçili",
+    "markAvailable": "Uygun",
+    "markUnavailable": "Tükendi",
+    "saleLimit": "Limit",
+    "setLimit": "Limit koy",
+    "clearLimit": "Sınırsız",
+    "selectDishes": "Yemek seçin veya kategoriye uygulayın",
+    "enterQty": "Satış limiti girin",
+    "saved": "{{count}} yemek güncellendi",
+    "empty": "Bu kategoride yemek yok",
+    "available": "Uygun",
+    "unavailable": "Tükendi"
   }
 }

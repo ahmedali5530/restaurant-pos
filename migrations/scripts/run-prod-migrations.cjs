@@ -116,6 +116,8 @@ const MIGRATION_PLAN = [
   { id: '2026_10_08_ledger_location_type', file: '2026_10_08_ledger_location_type.surql' },
   { id: '2026_10_11_settings_branding_access', file: '2026_10_11_settings_branding_access.surql' },
   { id: '2026_10_21_printer_command_set', file: '2026_10_21_printer_command_set.surql' },
+  { id: '2026_10_23_menu_item_barcode', file: '2026_10_23_menu_item_barcode.surql' },
+  { id: '2026_10_23_menu_item_availability', file: '2026_10_23_menu_item_availability.surql' },
 ];
 
 const rows = (result) => {

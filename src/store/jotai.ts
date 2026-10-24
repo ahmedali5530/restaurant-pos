@@ -47,6 +47,10 @@ export interface AppStateInterface {
   seat?: string
   switchTable?: boolean
   hideTableSelection?: boolean
+  /** Device POS shell: restaurant (floors/tables) or retail quick-order */
+  posMode?: 'restaurant' | 'retail'
+  /** Sale-limit enforcement on FOH (default on; set false to disable). Sold-out always blocks. */
+  enforceItemAvailability?: boolean
   ordersFilters: {
     users: LabelValue[]
     floors: LabelValue[]

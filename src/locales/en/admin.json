@@ -23,7 +23,8 @@
     "tipsDefinition": "Tips definition",
     "accessTab": "Access {{title}}",
     "ariaLabel": "Administration tabs",
-    "securityAlerts": "Security Alerts"
+    "securityAlerts": "Security Alerts",
+    "availability": "Availability"
   },
   "columns": {
     "photo": "Photo",
@@ -98,7 +99,10 @@
     "recordType": "Row type",
     "dishName": "Dish",
     "parentModifier": "Parent size",
-    "nextGroup": "Next group"
+    "nextGroup": "Next group",
+    "barcode": "Barcode",
+    "available": "Available",
+    "availableQty": "Sale limit"
   },
   "entities": {
     "dish": "Dish",
@@ -436,7 +440,11 @@
     "printerCommandSetHint": "TSP100 printers ignore ESC/POS text. Star graphic sends the ticket as an image.",
     "commandSetEscpos": "ESC/POS",
     "commandSetStar": "Star graphic (TSP100)",
-    "usePrintSettings": "Use print settings"
+    "usePrintSettings": "Use print settings",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Available on menu",
+    "availableQty": "Sale limit",
+    "availableQtyHint": "Sales count from the time you save this limit. Leave empty for unlimited."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -1035,5 +1043,25 @@
     "themeTitle": "Customer page theme",
     "themeDescription": "Colors for the QR ordering page. Light/dark can follow each customer’s phone.",
     "themeMode": "Appearance"
+  },
+  "availability": {
+    "title": "Item availability",
+    "description": "Mark dishes available or sold out, and set optional sale limits for multiple items or a whole category.",
+    "allCategories": "All",
+    "selectAll": "Select all",
+    "applyToCategory": "Apply to whole category",
+    "targetsCategory": "{{count}} dishes in category",
+    "targetsSelected": "{{count}} selected",
+    "markAvailable": "Available",
+    "markUnavailable": "Sold out",
+    "saleLimit": "Limit",
+    "setLimit": "Set limit",
+    "clearLimit": "Unlimited",
+    "selectDishes": "Select dishes or enable apply to category",
+    "enterQty": "Enter a sale limit",
+    "saved": "Updated {{count}} dishes",
+    "empty": "No dishes in this category",
+    "available": "Available",
+    "unavailable": "Sold out"
   }
 }

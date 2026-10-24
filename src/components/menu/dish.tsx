@@ -1,4 +1,4 @@
-import {withCurrency} from "@/lib/utils.ts";
+import {cn, withCurrency} from "@/lib/utils.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
@@ -19,6 +19,15 @@ import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
+import {
+  canAddDishQty,
+  dishSoldMapAtom,
+  getRemainingQty,
+  soldFromMap,
+  withLiveAvailability,
+} from "@/lib/dish-availability.ts";
+import {toast} from "sonner";
+import {useTranslation} from "react-i18next";
 
 const dishImageCache = new Map<string, string>();
 
@@ -45,10 +54,26 @@ export const MenuDish = ({
   menuModifierOverrides,
 }: Props) => {
   const [state] = useAtom(appState);
-  const [{groups_dishes}] = useAtom(appSettings);
+  const [{groups_dishes, dishes: catalogDishes}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
+  const [soldMap] = useAtom(dishSoldMapAtom);
+  const {t} = useTranslation(["menu", "toast"]);
   const db = useDB();
   const showDishNumber = page.menuConfig?.showDishNumber !== false;
+  const enforceLimits = state.enforceItemAvailability !== false;
+  const liveItem = withLiveAvailability(catalogDishes, item) ?? item;
+  const sold = soldFromMap(soldMap, item.id);
+  const addCheck = canAddDishQty({
+    dish: liveItem,
+    sold,
+    cart: state.cart,
+    addQty: 1,
+    enforceLimits,
+  });
+  const blocked = !addCheck.ok;
+  const remaining = enforceLimits
+    ? getRemainingQty({dish: liveItem, sold, cart: state.cart})
+    : null;
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [imageSrc, setImageSrc] = useState(defaultImage);
@@ -176,12 +201,30 @@ export const MenuDish = ({
   return (
     <>
       <div
-        className="flex justify-center p-1 relative select-none"
+        className={cn(
+          "flex justify-center p-1 relative select-none",
+          blocked && "opacity-50",
+        )}
         role="button"
         tabIndex={0}
         data-testid="menu-dish"
         data-dish-name={item.name}
+        data-unavailable={blocked ? "true" : undefined}
+        aria-disabled={blocked || undefined}
         onClick={() => {
+          if (blocked) {
+            if (addCheck.reason === "unavailable") {
+              toast.warning(t("menu:availability.unavailable", {name: item.name}));
+            } else {
+              toast.warning(
+                t("menu:availability.onlyNLeft", {
+                  name: item.name,
+                  count: addCheck.remaining ?? 0,
+                }),
+              );
+            }
+            return;
+          }
           if (modifierGroups.length > 0 && hasAutoOpen) {
             setModifiersModal(true)
           } else {
@@ -203,7 +246,10 @@ export const MenuDish = ({
         }}
       >
         <div
-          className="flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning"
+          className={cn(
+            "flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning",
+            blocked && "cursor-not-allowed",
+          )}
           style={{
             '--padding': '0'
           } as any}
@@ -232,6 +278,16 @@ export const MenuDish = ({
                 title={item.name}>
               {item.name}
             </h6>
+            {blocked && (
+              <span className="text-xs font-bold text-danger mt-1">
+                {t("menu:availability.unavailableBadge")}
+              </span>
+            )}
+            {!blocked && remaining != null && remaining > 0 && (
+              <span className="text-xs font-medium text-muted mt-1">
+                {t("menu:availability.nLeft", {count: remaining})}
+              </span>
+            )}
           </div>
         </div>
         <span className="absolute bottom-2 right-2 text-primary text-xs font-bold">{dishCount(item)}</span>
