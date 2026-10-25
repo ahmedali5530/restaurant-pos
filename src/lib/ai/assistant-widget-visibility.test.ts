@@ -23,6 +23,8 @@ describe("isAssistantWidgetPath", () => {
     expect(isAssistantWidgetPath("/delivery")).toBe(false);
     expect(isAssistantWidgetPath("/closing")).toBe(false);
     expect(isAssistantWidgetPath("/order-display")).toBe(false);
+    expect(isAssistantWidgetPath("/customer-display")).toBe(false);
+    expect(isAssistantWidgetPath("/quick")).toBe(false);
     expect(isAssistantWidgetPath("/settings")).toBe(false);
   });
 

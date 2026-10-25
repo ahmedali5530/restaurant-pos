@@ -102,7 +102,8 @@
     "nextGroup": "Следующая группа",
     "barcode": "Штрихкод",
     "available": "Доступно",
-    "availableQty": "Лимит продаж"
+    "availableQty": "Лимит продаж",
+    "extraBarcodes": "Доп. штрихкоды"
   },
   "entities": {
     "dish": "Блюдо",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Штрихкод",
     "availableOnMenu": "Доступно в меню",
     "availableQty": "Лимит продаж",
-    "availableQtyHint": "Продажи считаются с момента сохранения лимита. Пусто = без лимита."
+    "availableQtyHint": "Продажи считаются с момента сохранения лимита. Пусто = без лимита.",
+    "extraBarcodes": "Дополнительные штрихкоды",
+    "extraBarcodesHint": "Штрихкоды короба, упаковки или альтернативные UPC",
+    "extraBarcodesEmpty": "Дополнительных штрихкодов пока нет",
+    "addBarcode": "Добавить штрихкод",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

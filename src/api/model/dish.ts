@@ -13,8 +13,10 @@ export interface Dish extends ID, Name, Priority {
   categories?: Category[]
   cost?: number
   number: string
-  /** Barcode / UPC / EAN for Quick Order scanning; optional */
+  /** Primary barcode / UPC / EAN for Quick Order scanning; optional */
   barcode?: string | null
+  /** Extra barcodes (case, sleeve, alt UPCs); scanned codes match any of these */
+  barcodes?: string[] | null
   /** When false, dish is sold out (86). Missing/true = sellable. */
   available?: boolean | null
   /** Optional sale limit; null/undefined = unlimited. Counted since available_qty_set_at. */

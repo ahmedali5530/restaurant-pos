@@ -102,7 +102,8 @@
     "nextGroup": "Gruppo successivo",
     "barcode": "Codice a barre",
     "available": "Disponibile",
-    "availableQty": "Limite vendite"
+    "availableQty": "Limite vendite",
+    "extraBarcodes": "Codici aggiuntivi"
   },
   "entities": {
     "dish": "Piatto",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Codice a barre",
     "availableOnMenu": "Disponibile nel menu",
     "availableQty": "Limite vendite",
-    "availableQtyHint": "Le vendite si contano da quando salvi questo limite. Vuoto = illimitato."
+    "availableQtyHint": "Le vendite si contano da quando salvi questo limite. Vuoto = illimitato.",
+    "extraBarcodes": "Codici a barre aggiuntivi",
+    "extraBarcodesHint": "UPC di cassa, pack o alternativi per questo articolo",
+    "extraBarcodesEmpty": "Nessun codice aggiuntivo",
+    "addBarcode": "Aggiungi codice",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

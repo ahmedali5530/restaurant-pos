@@ -102,7 +102,8 @@
     "nextGroup": "Sonraki grup",
     "barcode": "Barkod",
     "available": "Uygun",
-    "availableQty": "Satış limiti"
+    "availableQty": "Satış limiti",
+    "extraBarcodes": "Ek barkodlar"
   },
   "entities": {
     "dish": "Yemek",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Barkod",
     "availableOnMenu": "Menüde uygun",
     "availableQty": "Satış limiti",
-    "availableQtyHint": "Satışlar bu limiti kaydettiğiniz andan itibaren sayılır. Boş = sınırsız."
+    "availableQtyHint": "Satışlar bu limiti kaydettiğiniz andan itibaren sayılır. Boş = sınırsız.",
+    "extraBarcodes": "Ek barkodlar",
+    "extraBarcodesHint": "Koli, paket veya alternatif UPC’ler",
+    "extraBarcodesEmpty": "Henüz ek barkod yok",
+    "addBarcode": "Barkod ekle",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

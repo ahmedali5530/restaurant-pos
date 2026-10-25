@@ -5,8 +5,12 @@
     "last": "Dernier scan : {{code}}",
     "unknown": "Code inconnu : {{code}}",
     "added": "{{name}} ajouté",
-    "placeholder": "Scannez le code ou saisissez le PLU, puis Entrée",
-    "inputLabel": "Code-barres / PLU"
+    "placeholder": "Scanner code/PLU, CODE*6 ou *6 puis Entrée",
+    "inputLabel": "Code-barres / PLU",
+    "qtyHint": "Qté : CODE*6 ajoute six ; *6 ajoute six du dernier article",
+    "invalidQty": "Quantité invalide — entier après *",
+    "noLastItem": "Scannez d’abord un article, puis *qté",
+    "addedQty": "Ajouté {{count}} × {{name}}"
   },
   "cart": {
     "title": "Panier",
@@ -17,5 +21,8 @@
     "title": "Parcourir les articles",
     "show": "Afficher",
     "hide": "Masquer"
+  },
+  "customerDisplay": {
+    "open": "Écran client"
   }
 }

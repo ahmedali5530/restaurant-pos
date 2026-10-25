@@ -21,7 +21,8 @@
     "confirmTitle": "Lütfen onaylayın",
     "confirmCartMessage_one": "Sepette {{count}} ürün var, bir işlem seçin",
     "confirmCartMessage_other": "Sepette {{count}} ürün var, bir işlem seçin",
-    "pax": "{{count}} KİŞİ"
+    "pax": "{{count}} KİŞİ",
+    "customerDisplay": "Müşteri ekranı"
   },
   "modifiers": {
     "modifyTitle": "{{name}} değiştir",

@@ -102,7 +102,8 @@
     "nextGroup": "Próximo grupo",
     "barcode": "Código de barras",
     "available": "Disponível",
-    "availableQty": "Limite de venda"
+    "availableQty": "Limite de venda",
+    "extraBarcodes": "Códigos extras"
   },
   "entities": {
     "dish": "Prato",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Código de barras",
     "availableOnMenu": "Disponível no cardápio",
     "availableQty": "Limite de venda",
-    "availableQtyHint": "As vendas contam a partir do momento em que você salva este limite. Vazio = ilimitado."
+    "availableQtyHint": "As vendas contam a partir do momento em que você salva este limite. Vazio = ilimitado.",
+    "extraBarcodes": "Códigos de barras extras",
+    "extraBarcodesHint": "UPCs de caixa, pack ou alternativos deste item",
+    "extraBarcodesEmpty": "Nenhum código extra ainda",
+    "addBarcode": "Adicionar código",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

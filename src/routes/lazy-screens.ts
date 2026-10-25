@@ -6,6 +6,9 @@ export const Closing = lazy(() =>
 export const OrderDisplayScreen = lazy(() =>
   import('@/screens/order-display.tsx').then(m => ({default: m.OrderDisplayScreen}))
 );
+export const CustomerDisplayScreen = lazy(() =>
+  import('@/screens/customer-display.tsx').then(m => ({default: m.CustomerDisplayScreen}))
+);
 export const Delivery = lazy(() =>
   import('@/screens/delivery/').then(m => ({default: m.Index}))
 );

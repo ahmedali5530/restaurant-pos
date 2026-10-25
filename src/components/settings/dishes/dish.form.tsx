@@ -36,6 +36,7 @@ import {
   applyAvailabilityLocally,
   buildAvailabilityPatch,
 } from "@/lib/dish-availability.ts";
+import {normalizeExtraBarcodes} from "@/lib/quick-order-scan.ts";
 import {useSetAtom} from "jotai";
 import {appSettings} from "@/store/jotai.ts";
 
@@ -58,6 +59,7 @@ const validationSchema = yup.object({
   name: yup.string().required(i18n.t('validation:required')),
   number: yup.string().required(i18n.t('validation:required')),
   barcode: yup.string().nullable().optional(),
+  barcodes: yup.array().of(yup.string().nullable()).optional(),
   available: yup.boolean().optional(),
   available_qty: yup
     .number()
@@ -140,6 +142,7 @@ export const DishForm = ({
         ...data,
         available: data.available !== false,
         available_qty: data.available_qty ?? null,
+        barcodes: Array.isArray(data.barcodes) ? data.barcodes.map(String) : [],
         categories: data.categories.map(item => ({
           label: item.name,
           value: item.id
@@ -164,6 +167,7 @@ export const DishForm = ({
       reset({
         available: true,
         available_qty: null,
+        barcodes: [],
         recipes: [],
         modifier_groups: [],
       });
@@ -365,6 +369,7 @@ export const DishForm = ({
       }
 
       const barcodeRaw = typeof formData.barcode === 'string' ? formData.barcode.trim() : '';
+      const extraBarcodes = normalizeExtraBarcodes(formData.barcodes, barcodeRaw);
       const availability = buildAvailabilityPatch({
         available: formData.available !== false,
         available_qty: formData.available_qty,
@@ -374,6 +379,7 @@ export const DishForm = ({
         name: formData.name,
         number: formData.number,
         barcode: barcodeRaw || null,
+        barcodes: extraBarcodes.length ? extraBarcodes : null,
         // position: data.position,
         priority: formData.priority,
         price: formData.price,
@@ -581,6 +587,68 @@ export const DishForm = ({
                 )}
               />
             </div>
+          </div>
+
+          <div className="mb-3 rounded-xl border border-border p-3 bg-surface-elevated" data-testid="dish-form-extra-barcodes">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div>
+                <div className="font-medium text-foreground">{t('forms.extraBarcodes')}</div>
+                <p className="text-sm text-muted">{t('forms.extraBarcodesHint')}</p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                icon={faPlus}
+                onClick={() => {
+                  const current = (getValues('barcodes') as string[] | undefined) ?? [];
+                  setValue('barcodes', [...current, ''], {shouldDirty: true});
+                }}
+              >
+                {t('forms.addBarcode')}
+              </Button>
+            </div>
+            <Controller
+              name="barcodes"
+              control={control}
+              render={({field}) => {
+                const rows = Array.isArray(field.value) ? field.value : [];
+                if (rows.length === 0) {
+                  return (
+                    <p className="text-sm text-muted">{t('forms.extraBarcodesEmpty')}</p>
+                  );
+                }
+                return (
+                  <div className="flex flex-col gap-2">
+                    {rows.map((code, index) => (
+                      <div key={`barcode-${index}`} className="flex gap-2 items-center">
+                        <div className="flex-1">
+                          <Input
+                            value={code ?? ''}
+                            onChange={(e) => {
+                              const next = [...rows];
+                              next[index] = e.target.value;
+                              field.onChange(next);
+                            }}
+                            placeholder={t('forms.extraBarcodePlaceholder')}
+                            data-testid={`dish-extra-barcode-${index}`}
+                          />
+                        </div>
+                        <IconTooltipButton
+                          type="button"
+                          icon={faTrash}
+                          variant="danger"
+                          label={t('common:remove', {defaultValue: 'Remove'})}
+                          onClick={() => {
+                            field.onChange(rows.filter((_, i) => i !== index));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            />
           </div>
 
           <div className="flex flex-wrap gap-3 mb-3 items-end">

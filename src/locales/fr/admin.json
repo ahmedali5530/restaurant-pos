@@ -102,7 +102,8 @@
     "nextGroup": "Groupe suivant",
     "barcode": "Code-barres",
     "available": "Disponible",
-    "availableQty": "Limite de vente"
+    "availableQty": "Limite de vente",
+    "extraBarcodes": "Codes-barres supplémentaires"
   },
   "entities": {
     "dish": "Plat",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Code-barres",
     "availableOnMenu": "Disponible au menu",
     "availableQty": "Limite de vente",
-    "availableQtyHint": "Les ventes sont comptées à partir de l’enregistrement de cette limite. Vide = illimité."
+    "availableQtyHint": "Les ventes sont comptées à partir de l’enregistrement de cette limite. Vide = illimité.",
+    "extraBarcodes": "Codes-barres supplémentaires",
+    "extraBarcodesHint": "UPC carton, lot ou alternatifs pour cet article",
+    "extraBarcodesEmpty": "Aucun code-barres supplémentaire",
+    "addBarcode": "Ajouter un code",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

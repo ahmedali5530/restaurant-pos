@@ -102,7 +102,8 @@
     "nextGroup": "Nächste Gruppe",
     "barcode": "Barcode",
     "available": "Verfügbar",
-    "availableQty": "Verkaufslimit"
+    "availableQty": "Verkaufslimit",
+    "extraBarcodes": "Weitere Barcodes"
   },
   "entities": {
     "dish": "Gericht",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "Barcode",
     "availableOnMenu": "Im Menü verfügbar",
     "availableQty": "Verkaufslimit",
-    "availableQtyHint": "Verkäufe werden ab dem Speichern dieses Limits gezählt. Leer = unbegrenzt."
+    "availableQtyHint": "Verkäufe werden ab dem Speichern dieses Limits gezählt. Leer = unbegrenzt.",
+    "extraBarcodes": "Weitere Barcodes",
+    "extraBarcodesHint": "Karton-, Multipack- oder Alternativ-UPCs für diesen Artikel",
+    "extraBarcodesEmpty": "Noch keine weiteren Barcodes",
+    "addBarcode": "Barcode hinzufügen",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

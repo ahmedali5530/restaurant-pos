@@ -21,7 +21,8 @@
     "confirmTitle": "Bevestig alstublieft",
     "confirmCartMessage_one": "Er staat {{count}} artikel in de winkelwagen, kies een actie",
     "confirmCartMessage_other": "Er staan {{count}} artikelen in de winkelwagen, kies een actie",
-    "pax": "{{count}} PAX"
+    "pax": "{{count}} PAX",
+    "customerDisplay": "Klantenscherm"
   },
   "modifiers": {
     "modifyTitle": "{{name}} aanpassen",

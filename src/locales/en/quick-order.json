@@ -5,8 +5,12 @@
     "last": "Last scan: {{code}}",
     "unknown": "Unknown code: {{code}}",
     "added": "Added {{name}}",
-    "placeholder": "Scan barcode or type PLU, then Enter",
-    "inputLabel": "Barcode / PLU"
+    "placeholder": "Scan barcode or type PLU, CODE*6, or *6 then Enter",
+    "inputLabel": "Barcode / PLU",
+    "qtyHint": "Qty tip: CODE*6 adds six; *6 adds six of the last item",
+    "invalidQty": "Invalid quantity — use a whole number after *",
+    "noLastItem": "Scan an item first, then use *qty",
+    "addedQty": "Added {{count}} × {{name}}"
   },
   "cart": {
     "title": "Cart",
@@ -17,5 +21,8 @@
     "title": "Browse items",
     "show": "Show",
     "hide": "Hide"
+  },
+  "customerDisplay": {
+    "open": "Customer display"
   }
 }

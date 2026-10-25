@@ -5,8 +5,12 @@
     "last": "آخر مسح: {{code}}",
     "unknown": "رمز غير معروف: {{code}}",
     "added": "تمت إضافة {{name}}",
-    "placeholder": "امسح الباركود أو اكتب PLU ثم Enter",
-    "inputLabel": "باركود / PLU"
+    "placeholder": "امسح الرمز/PLU أو CODE*6 أو *6 ثم Enter",
+    "inputLabel": "باركود / PLU",
+    "qtyHint": "الكمية: CODE*6 يضيف ستة؛ *6 يضيف ستة من آخر عنصر",
+    "invalidQty": "كمية غير صالحة — رقم صحيح بعد *",
+    "noLastItem": "امسح عنصرًا أولًا ثم *الكمية",
+    "addedQty": "أُضيف {{count}} × {{name}}"
   },
   "cart": {
     "title": "السلة",
@@ -17,5 +21,8 @@
     "title": "تصفح العناصر",
     "show": "إظهار",
     "hide": "إخفاء"
+  },
+  "customerDisplay": {
+    "open": "شاشة العميل"
   }
 }

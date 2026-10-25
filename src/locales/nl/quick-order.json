@@ -5,8 +5,12 @@
     "last": "Laatste scan: {{code}}",
     "unknown": "Onbekende code: {{code}}",
     "added": "{{name}} toegevoegd",
-    "placeholder": "Scan barcode of typ PLU, daarna Enter",
-    "inputLabel": "Barcode / PLU"
+    "placeholder": "Scan barcode/PLU, CODE*6 of *6 en Enter",
+    "inputLabel": "Barcode / PLU",
+    "qtyHint": "Aantal: CODE*6 voegt zes toe; *6 voegt zes van het laatste toe",
+    "invalidQty": "Ongeldig aantal — geheel getal na *",
+    "noLastItem": "Scan eerst een artikel, daarna *aantal",
+    "addedQty": "{{count}} × {{name}} toegevoegd"
   },
   "cart": {
     "title": "Winkelwagen",
@@ -17,5 +21,8 @@
     "title": "Artikelen bladeren",
     "show": "Tonen",
     "hide": "Verbergen"
+  },
+  "customerDisplay": {
+    "open": "Klantenscherm"
   }
 }

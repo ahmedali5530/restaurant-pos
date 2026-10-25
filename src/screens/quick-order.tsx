@@ -8,7 +8,7 @@ import {QuickOrderCart} from "@/components/quick-order/cart.tsx";
 import {QuickOrderBrowse} from "@/components/quick-order/browse.tsx";
 import {useBarcodeScan} from "@/hooks/useBarcodeScan.ts";
 import {useQuickOrderScanFocus} from "@/hooks/useQuickOrderScanFocus.ts";
-import {findDishByScanCode} from "@/lib/quick-order-scan.ts";
+import {findDishByScanCode, parseScanQty} from "@/lib/quick-order-scan.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {
   buildCartModifierGroupsForDish,
@@ -21,10 +21,15 @@ import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faBarcode} from "@fortawesome/free-solid-svg-icons";
+import {faBarcode, faDisplay} from "@fortawesome/free-solid-svg-icons";
 import {Input} from "@/components/common/input/input.tsx";
+import {Button} from "@/components/common/input/button.tsx";
 import {useDishAvailabilitySoldMap} from "@/hooks/useDishAvailabilitySoldMap.ts";
 import {canAddDishQty, withLiveAvailability} from "@/lib/dish-availability.ts";
+import {
+  openCustomerDisplayWindow,
+  useCustomerDisplayPublisher,
+} from "@/hooks/useCustomerDisplayPublisher.ts";
 
 export const QuickOrder = () => {
   const {t} = useTranslation(["quick-order", "navigation", "closing", "menu"]);
@@ -33,12 +38,15 @@ export const QuickOrder = () => {
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [pendingDish, setPendingDish] = useState<Dish | null>(null);
   const [pendingGroups, setPendingGroups] = useState<CartModifierGroup[]>([]);
+  const [pendingQty, setPendingQty] = useState(1);
   const [lastScan, setLastScan] = useState<string>("");
   const [scanValue, setScanValue] = useState("");
+  const [lastAddedDishId, setLastAddedDishId] = useState<string | null>(null);
   const scanInputRef = useRef<HTMLInputElement | null>(null);
 
   const scanArmed = !enforcement.orderTakingBlocked;
   const focusScanInput = useQuickOrderScanFocus(scanInputRef, scanArmed);
+  useCustomerDisplayPublisher();
   const {enforce, soldFor} = useDishAvailabilitySoldMap();
 
   const assertCanAdd = useCallback(
@@ -109,8 +117,10 @@ export const QuickOrder = () => {
           selectedGroups: selectedGroups ?? item.selectedGroups,
           categoryName: item.category,
           categoryId: item.category_id,
+          quantity: 1,
         }),
       }));
+      setLastAddedDishId(String(item.dish?.id ?? ""));
       focusScanInput();
     },
     [
@@ -123,13 +133,14 @@ export const QuickOrder = () => {
   );
 
   const addDish = useCallback(
-    (dish: Dish, selectedGroups?: CartModifierGroup[]): boolean => {
+    (dish: Dish, selectedGroups?: CartModifierGroup[], quantity = 1): boolean => {
       if (enforcement.orderTakingBlocked) {
         toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
         return false;
       }
 
-      if (!assertCanAdd(dish, 1)) {
+      const qty = Math.max(1, Math.floor(Number(quantity) || 1));
+      if (!assertCanAdd(dish, qty)) {
         return false;
       }
 
@@ -142,6 +153,7 @@ export const QuickOrder = () => {
         if (groups.length > 0) {
           setPendingDish(dish);
           setPendingGroups(groups);
+          setPendingQty(qty);
           return true;
         }
       }
@@ -152,8 +164,10 @@ export const QuickOrder = () => {
           selectedGroups,
           categoryName: state.category?.name,
           categoryId: state.category?.id?.toString(),
+          quantity: qty,
         }),
       }));
+      setLastAddedDishId(String(dish.id ?? ""));
       focusScanInput();
       return true;
     },
@@ -171,25 +185,55 @@ export const QuickOrder = () => {
 
   const onScan = useCallback(
     (code: string) => {
-      const trimmed = code.trim();
-      if (!trimmed) {
+      const parsed = parseScanQty(code);
+      if (parsed.mode === "empty") {
         return;
       }
-      setLastScan(trimmed);
-      setScanValue("");
-      const dish = findDishByScanCode(sellableDishes, trimmed);
-      if (!dish) {
-        toast.error(t("quick-order:scan.unknown", {code: trimmed}));
+      if (parsed.mode === "invalid_qty") {
+        toast.error(t("quick-order:scan.invalidQty"));
         focusScanInput();
         return;
       }
-      const added = addDish(dish);
+
+      setLastScan(code.trim());
+      setScanValue("");
+
+      let dish: Dish | undefined;
+      if (parsed.mode === "use_last") {
+        if (!lastAddedDishId) {
+          toast.warning(t("quick-order:scan.noLastItem"));
+          focusScanInput();
+          return;
+        }
+        dish = sellableDishes.find(
+          (d) => String(d.id) === lastAddedDishId || String(d.id) === `menu_item:${lastAddedDishId}`,
+        );
+        if (!dish) {
+          toast.warning(t("quick-order:scan.noLastItem"));
+          focusScanInput();
+          return;
+        }
+      } else {
+        dish = findDishByScanCode(sellableDishes, parsed.code ?? "");
+        if (!dish) {
+          toast.error(t("quick-order:scan.unknown", {code: parsed.code}));
+          focusScanInput();
+          return;
+        }
+      }
+
+      const added = addDish(dish, undefined, parsed.qty);
       if (added) {
-        toast.success(t("quick-order:scan.added", {name: dish.name}), {duration: 1200});
+        toast.success(
+          parsed.qty > 1
+            ? t("quick-order:scan.addedQty", {name: dish.name, count: parsed.qty})
+            : t("quick-order:scan.added", {name: dish.name}),
+          {duration: 1200},
+        );
       }
       focusScanInput();
     },
-    [addDish, focusScanInput, sellableDishes, t],
+    [addDish, focusScanInput, lastAddedDishId, sellableDishes, t],
   );
 
   // Ignore wedge while a modifier modal is open (focus is in the dialog).
@@ -199,6 +243,10 @@ export const QuickOrder = () => {
 
   const submitScanValue = () => {
     onScan(scanValue);
+  };
+
+  const openCustomerDisplay = () => {
+    openCustomerDisplayWindow(state.cart);
   };
 
   return (
@@ -223,6 +271,16 @@ export const QuickOrder = () => {
                     : t("quick-order:scan.ready")}
                 </div>
               </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                icon={faDisplay}
+                onClick={openCustomerDisplay}
+                data-testid="quick-order-open-customer-display"
+              >
+                {t("quick-order:customerDisplay.open")}
+              </Button>
             </div>
             <div>
               <Input
@@ -243,8 +301,9 @@ export const QuickOrder = () => {
                 data-testid="quick-order-scan-input"
                 data-quick-order-scan="true"
                 autoComplete="off"
-                inputMode="numeric"
+                inputMode="text"
               />
+              <p className="text-xs text-muted mt-1">{t("quick-order:scan.qtyHint")}</p>
             </div>
           </div>
           <div className="flex-1 min-h-0 rounded-xl bg-surface border border-border p-2">
@@ -263,10 +322,11 @@ export const QuickOrder = () => {
           groups={pendingGroups}
           onClose={(payload) => {
             if (payload.length > 0) {
-              addDish(pendingDish, payload);
+              addDish(pendingDish, payload, pendingQty);
             }
             setPendingDish(null);
             setPendingGroups([]);
+            setPendingQty(1);
             focusScanInput();
           }}
           level={1}

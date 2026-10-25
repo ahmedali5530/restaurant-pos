@@ -21,7 +21,8 @@
     "confirmTitle": "Conferma",
     "confirmCartMessage_one": "C'è {{count}} articolo nel carrello, scegli un'azione",
     "confirmCartMessage_other": "Ci sono {{count}} articoli nel carrello, scegli un'azione",
-    "pax": "{{count}} coperti"
+    "pax": "{{count}} coperti",
+    "customerDisplay": "Display cliente"
   },
   "modifiers": {
     "modifyTitle": "Modifica {{name}}",

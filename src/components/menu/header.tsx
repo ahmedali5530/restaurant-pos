@@ -1,7 +1,8 @@
 import {useAtom} from "jotai";
 import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft, faDisplay, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
+import {openCustomerDisplayWindow} from "@/hooks/useCustomerDisplayPublisher.ts";
 import {cn} from "@/lib/utils.ts";
 import React, {useEffect, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -241,6 +242,17 @@ export const MenuHeader = () => {
                     data-testid="menu-clear-cart"
             >{t('header.clear')}</Button>
           )}
+          <Button
+            type="button"
+            variant="secondary"
+            size="lg"
+            flat
+            icon={faDisplay}
+            onClick={() => openCustomerDisplayWindow(state.cart)}
+            data-testid="menu-open-customer-display"
+          >
+            {t('header.customerDisplay')}
+          </Button>
         </div>
 
         <div className="flex input-group rounded-full" data-testid="menu-order-types">

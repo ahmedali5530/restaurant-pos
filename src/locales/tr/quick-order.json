@@ -5,8 +5,12 @@
     "last": "Son tarama: {{code}}",
     "unknown": "Bilinmeyen kod: {{code}}",
     "added": "{{name}} eklendi",
-    "placeholder": "Barkod okutun veya PLU yazıp Enter'a basın",
-    "inputLabel": "Barkod / PLU"
+    "placeholder": "Barkod/PLU, CODE*6 veya *6 sonra Enter",
+    "inputLabel": "Barkod / PLU",
+    "qtyHint": "Adet: CODE*6 altı ekler; *6 son ürünü ×6 ekler",
+    "invalidQty": "Geçersiz adet — * sonrası tam sayı",
+    "noLastItem": "Önce bir ürün okutun, sonra *adet",
+    "addedQty": "{{count}} × {{name}} eklendi"
   },
   "cart": {
     "title": "Sepet",
@@ -17,5 +21,8 @@
     "title": "Ürünlere göz at",
     "show": "Göster",
     "hide": "Gizle"
+  },
+  "customerDisplay": {
+    "open": "Müşteri ekranı"
   }
 }

@@ -14,6 +14,21 @@ describe("mergeOrAppendCartLine", () => {
     expect(next[0].quantity).toBe(2);
   });
 
+  it("bumps by explicit quantity", () => {
+    const cola = dish("menu_item:1", "Cola");
+    const first = [createQuickCartLine(cola)];
+    const next = mergeOrAppendCartLine(first, cola, {quantity: 6});
+    expect(next).toHaveLength(1);
+    expect(next[0].quantity).toBe(7);
+  });
+
+  it("creates a line with quantity when new", () => {
+    const cola = dish("menu_item:1", "Cola");
+    const next = mergeOrAppendCartLine([], cola, {quantity: 3});
+    expect(next).toHaveLength(1);
+    expect(next[0].quantity).toBe(3);
+  });
+
   it("appends a new line for a different dish", () => {
     const cola = dish("menu_item:1", "Cola");
     const bun = dish("menu_item:2", "Bun");

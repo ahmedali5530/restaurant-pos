@@ -21,7 +21,8 @@
     "confirmTitle": "Veuillez confirmer",
     "confirmCartMessage_one": "Il y a {{count}} article dans le panier, choisissez une action",
     "confirmCartMessage_other": "Il y a {{count}} articles dans le panier, choisissez une action",
-    "pax": "{{count}} couverts"
+    "pax": "{{count}} couverts",
+    "customerDisplay": "Écran client"
   },
   "modifiers": {
     "modifyTitle": "Modifier {{name}}",

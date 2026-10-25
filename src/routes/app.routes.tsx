@@ -19,6 +19,7 @@ import {
   HR,
   KITCHEN,
   ORDER_DISPLAY,
+  CUSTOMER_DISPLAY,
   LOGIN,
   MENU,
   QUICK,
@@ -113,6 +114,7 @@ import {
   KitchenReconciliationReport,
   MergeOrdersReport,
   OrderDisplayScreen,
+  CustomerDisplayScreen,
   OrderFiscalReport,
   OrderLifecycleReport,
   OrderReceiptReport,
@@ -158,6 +160,7 @@ export const AppRoutes = () => (
       <Route element={<SuspenseOutlet/>}>
         <Route path={CLOSING} element={<Closing/>}/>
         <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
+        <Route path={CUSTOMER_DISPLAY} element={<CustomerDisplayScreen/>}/>
         <Route path={DELIVERY} element={<Delivery/>}/>
         <Route path={ADMIN} element={<Admin/>}/>
         <Route path={SETTINGS} element={<Settings/>}/>

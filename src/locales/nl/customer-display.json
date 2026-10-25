@@ -1,0 +1,10 @@
+{
+  "title": "Klantenscherm",
+  "heading": "Uw bestelling",
+  "idle": "Welkom",
+  "idleHint": "Gescande artikelen verschijnen hier",
+  "thankYou": "Dank u!",
+  "thankYouHint": "Tot ziens",
+  "qty": "Aantal {{count}}",
+  "total": "Totaal"
+}

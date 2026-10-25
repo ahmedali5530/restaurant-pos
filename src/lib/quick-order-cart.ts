@@ -40,14 +40,16 @@ export const createQuickCartLine = (
     selectedGroups?: CartModifierGroup[];
     categoryName?: string;
     categoryId?: string;
+    quantity?: number;
   },
 ): MenuItem => {
   const selectedGroups = options?.selectedGroups
     ? cloneCartModifierGroups(options.selectedGroups)
     : [];
+  const quantity = Math.max(1, Math.floor(Number(options?.quantity) || 1));
 
   return {
-    quantity: 1,
+    quantity,
     dish,
     seat: undefined,
     id: nanoid(),
@@ -76,8 +78,10 @@ export const mergeOrAppendCartLine = (
     selectedGroups?: CartModifierGroup[];
     categoryName?: string;
     categoryId?: string;
+    quantity?: number;
   },
 ): MenuItem[] => {
+  const addQty = Math.max(1, Math.floor(Number(options?.quantity) || 1));
   const hasGroups = (options?.selectedGroups?.length ?? 0) > 0;
   if (!hasGroups) {
     const existing = cart.find(
@@ -90,11 +94,11 @@ export const mergeOrAppendCartLine = (
     if (existing) {
       return cart.map((line) =>
         line.id === existing.id
-          ? {...line, quantity: line.quantity + 1}
+          ? {...line, quantity: line.quantity + addQty}
           : line,
       );
     }
   }
 
-  return [createQuickCartLine(dish, options), ...cart];
+  return [createQuickCartLine(dish, {...options, quantity: addQty}), ...cart];
 };

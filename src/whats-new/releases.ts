@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-24',
+    title: 'Retail counter UX',
+    items: [
+      'Dishes support multiple barcodes (primary + aliases) for case/sleeve/alt UPCs; CSV import accepts an Extra barcodes column.',
+      'Quick Order qty after scan: type CODE*6 or *6 (last item) then Enter to add several units in one go.',
+      'Open customer display from Quick Order or Menu for a second-monitor cart and large total that updates live as you order and pay.',
+    ],
+  },
+  {
     date: '2026-10-23',
     title: 'Item availability & sale limits',
     items: [

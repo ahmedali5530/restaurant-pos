@@ -1,0 +1,10 @@
+{
+  "title": "Kundendisplay",
+  "heading": "Ihre Bestellung",
+  "idle": "Willkommen",
+  "idleHint": "Gescannte Artikel erscheinen hier",
+  "thankYou": "Danke!",
+  "thankYouHint": "Bitte kommen Sie wieder",
+  "qty": "Menge {{count}}",
+  "total": "Summe"
+}

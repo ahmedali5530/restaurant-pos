@@ -21,7 +21,8 @@
     "confirmTitle": "يُرجى التأكيد",
     "confirmCartMessage_one": "يوجد {{count}} صنف في السلة، اختر إجراءً",
     "confirmCartMessage_other": "يوجد {{count}} أصناف في السلة، اختر إجراءً",
-    "pax": "{{count}} ضيف"
+    "pax": "{{count}} ضيف",
+    "customerDisplay": "شاشة العميل"
   },
   "modifiers": {
     "modifyTitle": "تعديل {{name}}",

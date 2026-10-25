@@ -15,6 +15,7 @@ import {
 } from "@/utils/csv-import.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {normalizeExtraBarcodes} from "@/lib/quick-order-scan.ts";
 
 type TFunc = (key: string, options?: any) => string;
 
@@ -67,7 +68,15 @@ export function createDishImportConfig({
       type: "string",
       optional: true,
       aliases: ["Barcode", "UPC", "EAN", "GTIN", "Bar Code"],
-      description: "Barcode / UPC / EAN for Quick Order scanning",
+      description: "Primary barcode / UPC / EAN for Quick Order scanning",
+    },
+    {
+      name: "barcodes",
+      label: t("admin:columns.extraBarcodes", {defaultValue: "Extra barcodes"}),
+      type: "string",
+      optional: true,
+      aliases: ["Extra barcodes", "Barcodes", "Alt barcodes", "Case barcode"],
+      description: "Additional barcodes separated by semicolon or comma",
     },
     {
       name: "available",
@@ -178,6 +187,16 @@ export function createDishImportConfig({
         values.barcode === null || values.barcode === undefined
           ? ""
           : String(values.barcode).trim();
+      const barcodesRaw =
+        values.barcodes === null || values.barcodes === undefined
+          ? ""
+          : String(values.barcodes).trim();
+      const extraBarcodes = normalizeExtraBarcodes(
+        barcodesRaw
+          ? barcodesRaw.split(/[;,]/).map((part) => part.trim())
+          : [],
+        barcodeRaw,
+      );
       const priority = Number(values.priority ?? 0);
       const price = Number(values.price);
       const cost = Number(values.cost ?? 0);
@@ -233,6 +252,7 @@ export function createDishImportConfig({
         name,
         number,
         barcode: barcodeRaw || null,
+        barcodes: extraBarcodes.length ? extraBarcodes : null,
         priority: Number.isFinite(priority) ? priority : 0,
         price,
         cost: Number.isFinite(cost) ? cost : 0,

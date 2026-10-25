@@ -102,7 +102,8 @@
     "nextGroup": "المجموعة التالية",
     "barcode": "الباركود",
     "available": "متاح",
-    "availableQty": "حد البيع"
+    "availableQty": "حد البيع",
+    "extraBarcodes": "باركودات إضافية"
   },
   "entities": {
     "dish": "طبق",
@@ -444,7 +445,12 @@
     "barcodeOfItem": "الباركود",
     "availableOnMenu": "متاح في القائمة",
     "availableQty": "حد البيع",
-    "availableQtyHint": "تُحسب المبيعات من وقت حفظ هذا الحد. فارغ = غير محدود."
+    "availableQtyHint": "تُحسب المبيعات من وقت حفظ هذا الحد. فارغ = غير محدود.",
+    "extraBarcodes": "باركودات إضافية",
+    "extraBarcodesHint": "باركودات العلبة أو العبوة أو البديلة لهذا الصنف",
+    "extraBarcodesEmpty": "لا توجد باركودات إضافية بعد",
+    "addBarcode": "إضافة باركود",
+    "extraBarcodePlaceholder": "UPC / EAN"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

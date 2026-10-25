@@ -1,0 +1,10 @@
+{
+  "title": "Müşteri ekranı",
+  "heading": "Siparişiniz",
+  "idle": "Hoş geldiniz",
+  "idleHint": "Okutulan ürünler burada görünür",
+  "thankYou": "Teşekkürler!",
+  "thankYouHint": "Yine bekleriz",
+  "qty": "Adet {{count}}",
+  "total": "Toplam"
+}

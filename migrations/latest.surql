@@ -1906,6 +1906,7 @@ DEFINE FIELD available ON menu_item TYPE none | bool | null DEFAULT true PERMISS
 DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD barcodes ON menu_item TYPE none | array<string> | null PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;

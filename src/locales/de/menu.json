@@ -21,7 +21,8 @@
     "confirmTitle": "Bitte bestätigen",
     "confirmCartMessage_one": "Es ist {{count}} Artikel im Warenkorb, wählen Sie eine Aktion",
     "confirmCartMessage_other": "Es sind {{count}} Artikel im Warenkorb, wählen Sie eine Aktion",
-    "pax": "{{count}} Gäste"
+    "pax": "{{count}} Gäste",
+    "customerDisplay": "Kundendisplay"
   },
   "modifiers": {
     "modifyTitle": "{{name}} ändern",

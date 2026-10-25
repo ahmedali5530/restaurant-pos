@@ -21,7 +21,8 @@
     "confirmTitle": "Подтвердите действие",
     "confirmCartMessage_one": "В корзине {{count}} позиция, выберите действие",
     "confirmCartMessage_other": "В корзине {{count}} позиций, выберите действие",
-    "pax": "{{count}} гостей"
+    "pax": "{{count}} гостей",
+    "customerDisplay": "Экран клиента"
   },
   "modifiers": {
     "modifyTitle": "Изменить {{name}}",

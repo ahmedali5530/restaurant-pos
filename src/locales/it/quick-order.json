@@ -5,8 +5,12 @@
     "last": "Ultima scansione: {{code}}",
     "unknown": "Codice sconosciuto: {{code}}",
     "added": "Aggiunto {{name}}",
-    "placeholder": "Scansiona barcode o digita PLU, poi Invio",
-    "inputLabel": "Barcode / PLU"
+    "placeholder": "Scansiona codice/PLU, CODE*6 o *6 poi Invio",
+    "inputLabel": "Barcode / PLU",
+    "qtyHint": "Qtà: CODE*6 aggiunge sei; *6 aggiunge sei dell’ultimo",
+    "invalidQty": "Quantità non valida — intero dopo *",
+    "noLastItem": "Scansiona prima un articolo, poi *qtà",
+    "addedQty": "Aggiunti {{count}} × {{name}}"
   },
   "cart": {
     "title": "Carrello",
@@ -17,5 +21,8 @@
     "title": "Sfoglia articoli",
     "show": "Mostra",
     "hide": "Nascondi"
+  },
+  "customerDisplay": {
+    "open": "Display cliente"
   }
 }

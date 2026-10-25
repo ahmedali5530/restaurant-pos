@@ -5,8 +5,12 @@
     "last": "Última leitura: {{code}}",
     "unknown": "Código desconhecido: {{code}}",
     "added": "{{name}} adicionado",
-    "placeholder": "Leia o código ou digite o PLU e pressione Enter",
-    "inputLabel": "Código / PLU"
+    "placeholder": "Escaneie código/PLU, CODE*6 ou *6 e Enter",
+    "inputLabel": "Código / PLU",
+    "qtyHint": "Qtd: CODE*6 adiciona seis; *6 adiciona seis do último",
+    "invalidQty": "Quantidade inválida — número inteiro após *",
+    "noLastItem": "Escaneie um item primeiro, depois *qtd",
+    "addedQty": "Adicionado {{count}} × {{name}}"
   },
   "cart": {
     "title": "Carrinho",
@@ -17,5 +21,8 @@
     "title": "Navegar itens",
     "show": "Mostrar",
     "hide": "Ocultar"
+  },
+  "customerDisplay": {
+    "open": "Tela do cliente"
   }
 }
