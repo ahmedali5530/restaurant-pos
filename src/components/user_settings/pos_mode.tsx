@@ -1,4 +1,5 @@
 import {Button} from "@/components/common/input/button.tsx";
+import {Switch} from "@/components/common/input/switch.tsx";
 import {useAtom} from "jotai";
 import {appState} from "@/store/jotai.ts";
 import {useTranslation} from "react-i18next";
@@ -7,6 +8,7 @@ export const PosModeSettings = () => {
   const [state, setState] = useAtom(appState);
   const {t} = useTranslation(["settings", "common"]);
   const mode = state.posMode === "retail" ? "retail" : "restaurant";
+  const askQty = state.askQuantityAfterAdd === true;
 
   const setMode = (next: "restaurant" | "retail") => {
     setState((prev) => ({
@@ -50,6 +52,31 @@ export const PosModeSettings = () => {
           {t("settings:posMode.retail")}
         </Button>
       </div>
+
+      {mode === "retail" && (
+        <div className="mt-5 pt-4 border-t border-border">
+          <div className="mb-2">
+            <h3 className="text-base font-semibold text-foreground">
+              {t("settings:posMode.askQuantityTitle")}
+            </h3>
+            <p className="text-sm text-muted">{t("settings:posMode.askQuantityDescription")}</p>
+          </div>
+          <div>
+            <Switch
+              checked={askQty}
+              onChange={(e) =>
+                setState((prev) => ({
+                  ...prev,
+                  askQuantityAfterAdd: e.target.checked,
+                }))
+              }
+              data-testid="settings-ask-quantity-after-add"
+            >
+              {t("settings:posMode.askQuantityEnabled")}
+            </Switch>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {QuickOrderCart} from "@/components/quick-order/cart.tsx";
 import {QuickOrderBrowse} from "@/components/quick-order/browse.tsx";
+import {QuickOrderQtyPrompt} from "@/components/quick-order/qty-prompt.tsx";
 import {useBarcodeScan} from "@/hooks/useBarcodeScan.ts";
 import {useQuickOrderScanFocus} from "@/hooks/useQuickOrderScanFocus.ts";
 import {findDishByScanCode, parseScanQty} from "@/lib/quick-order-scan.ts";
@@ -36,6 +37,14 @@ import {
   useCustomerDisplayPublisher,
 } from "@/hooks/useCustomerDisplayPublisher.ts";
 
+type AddDishOpts = {
+  fractionalQty?: boolean;
+  priceOverride?: number;
+  availabilityQty?: number;
+  /** Skip the ask-qty modal (qty already known from CODE*N / scale). */
+  skipQtyPrompt?: boolean;
+};
+
 export const QuickOrder = () => {
   const {t} = useTranslation(["quick-order", "navigation", "closing", "menu"]);
   const [state, setState] = useAtom(appState);
@@ -46,10 +55,13 @@ export const QuickOrder = () => {
   const [pendingQty, setPendingQty] = useState(1);
   const [pendingFractional, setPendingFractional] = useState(false);
   const [pendingPriceOverride, setPendingPriceOverride] = useState<number | undefined>(undefined);
+  const [qtyPromptDish, setQtyPromptDish] = useState<Dish | null>(null);
+  const [qtyPromptGroups, setQtyPromptGroups] = useState<CartModifierGroup[] | undefined>(undefined);
   const [lastScan, setLastScan] = useState<string>("");
   const [scanValue, setScanValue] = useState("");
   const [lastAddedDishId, setLastAddedDishId] = useState<string | null>(null);
   const scanInputRef = useRef<HTMLInputElement | null>(null);
+  const askQuantityAfterAdd = state.askQuantityAfterAdd === true;
 
   const scanArmed = !enforcement.orderTakingBlocked;
   const focusScanInput = useQuickOrderScanFocus(scanInputRef, scanArmed);
@@ -109,47 +121,12 @@ export const QuickOrder = () => {
     [settings.categories, settings.dishes, settings.menus],
   );
 
-  const addLine = useCallback(
-    (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
-      if (enforcement.orderTakingBlocked) {
-        toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
-        return;
-      }
-      if (!assertCanAdd(item.dish, 1)) {
-        return;
-      }
-      setState((prev) => ({
-        ...prev,
-        cart: mergeOrAppendCartLine(prev.cart, item.dish, {
-          selectedGroups: selectedGroups ?? item.selectedGroups,
-          categoryName: item.category,
-          categoryId: item.category_id,
-          quantity: 1,
-        }),
-      }));
-      setLastAddedDishId(String(item.dish?.id ?? ""));
-      focusScanInput();
-    },
-    [
-      assertCanAdd,
-      enforcement.message,
-      enforcement.orderTakingBlocked,
-      focusScanInput,
-      setState,
-    ],
-  );
-
-  const addDish = useCallback(
+  const commitDish = useCallback(
     (
       dish: Dish,
       selectedGroups?: CartModifierGroup[],
       quantity = 1,
-      opts?: {
-        fractionalQty?: boolean;
-        priceOverride?: number;
-        /** Units counted toward sale limits (scale packs = 1). */
-        availabilityQty?: number;
-      },
+      opts?: AddDishOpts,
     ): boolean => {
       if (enforcement.orderTakingBlocked) {
         toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
@@ -213,6 +190,106 @@ export const QuickOrder = () => {
     ],
   );
 
+  /** Add dish; optionally prompt for qty when device setting is on. */
+  const addDish = useCallback(
+    (
+      dish: Dish,
+      selectedGroups?: CartModifierGroup[],
+      quantity = 1,
+      opts?: AddDishOpts,
+    ): boolean => {
+      const qtyKnown =
+        opts?.skipQtyPrompt === true ||
+        opts?.fractionalQty === true ||
+        (Number(quantity) || 1) > 1;
+      if (askQuantityAfterAdd && !qtyKnown && !selectedGroups) {
+        if (enforcement.orderTakingBlocked) {
+          toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
+          return false;
+        }
+        if (!assertCanAdd(dish, 1)) {
+          return false;
+        }
+        setQtyPromptDish(dish);
+        return true;
+      }
+      return commitDish(dish, selectedGroups, quantity, opts);
+    },
+    [
+      askQuantityAfterAdd,
+      assertCanAdd,
+      commitDish,
+      enforcement.message,
+      enforcement.orderTakingBlocked,
+    ],
+  );
+
+  const addLine = useCallback(
+    (item: MenuItem, selectedGroups?: CartModifierGroup[]) => {
+      if (enforcement.orderTakingBlocked) {
+        toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
+        return;
+      }
+      if (!assertCanAdd(item.dish, 1)) {
+        return;
+      }
+      const groups = selectedGroups ?? item.selectedGroups;
+      if (askQuantityAfterAdd) {
+        setQtyPromptGroups(groups?.length ? groups : undefined);
+        setQtyPromptDish(item.dish);
+        return;
+      }
+      setState((prev) => ({
+        ...prev,
+        cart: mergeOrAppendCartLine(prev.cart, item.dish, {
+          selectedGroups: groups,
+          categoryName: item.category,
+          categoryId: item.category_id,
+          quantity: 1,
+        }),
+      }));
+      setLastAddedDishId(String(item.dish?.id ?? ""));
+      focusScanInput();
+    },
+    [
+      askQuantityAfterAdd,
+      assertCanAdd,
+      enforcement.message,
+      enforcement.orderTakingBlocked,
+      focusScanInput,
+      setState,
+    ],
+  );
+
+  const onQtyPromptConfirm = useCallback(
+    (qty: number) => {
+      const dish = qtyPromptDish;
+      if (!dish) {
+        return;
+      }
+      const groups = qtyPromptGroups;
+      setQtyPromptDish(null);
+      setQtyPromptGroups(undefined);
+      const added = commitDish(dish, groups, qty);
+      if (added) {
+        toast.success(
+          qty > 1
+            ? t("quick-order:scan.addedQty", {name: dish.name, count: qty})
+            : t("quick-order:scan.added", {name: dish.name}),
+          {duration: 1200},
+        );
+      }
+      focusScanInput();
+    },
+    [commitDish, focusScanInput, qtyPromptDish, qtyPromptGroups, t],
+  );
+
+  const onQtyPromptCancel = useCallback(() => {
+    setQtyPromptDish(null);
+    setQtyPromptGroups(undefined);
+    focusScanInput();
+  }, [focusScanInput]);
+
   const onScan = useCallback(
     (code: string) => {
       const trimmed = String(code ?? "").trim();
@@ -236,6 +313,7 @@ export const QuickOrder = () => {
           fractionalQty: scale.valueMode === "weight_grams",
           priceOverride: scale.priceOverride,
           availabilityQty: 1,
+          skipQtyPrompt: true,
         });
         if (added) {
           toast.success(
@@ -289,8 +367,11 @@ export const QuickOrder = () => {
         }
       }
 
-      const added = addDish(dish, undefined, parsed.qty);
-      if (added) {
+      const qtyExplicit = parsed.mode === "use_last" || parsed.qty > 1;
+      const added = addDish(dish, undefined, parsed.qty, {
+        skipQtyPrompt: qtyExplicit,
+      });
+      if (added && (qtyExplicit || !askQuantityAfterAdd)) {
         toast.success(
           parsed.qty > 1
             ? t("quick-order:scan.addedQty", {name: dish.name, count: parsed.qty})
@@ -300,12 +381,20 @@ export const QuickOrder = () => {
       }
       focusScanInput();
     },
-    [addDish, focusScanInput, lastAddedDishId, sellableDishes, state.scaleBarcode, t],
+    [
+      addDish,
+      askQuantityAfterAdd,
+      focusScanInput,
+      lastAddedDishId,
+      sellableDishes,
+      state.scaleBarcode,
+      t,
+    ],
   );
 
-  // Ignore wedge while a modifier modal is open (focus is in the dialog).
+  // Ignore wedge while a modifier or qty modal is open.
   useBarcodeScan(onScan, {
-    enabled: scanArmed && !pendingDish,
+    enabled: scanArmed && !pendingDish && !qtyPromptDish,
   });
 
   const submitScanValue = () => {
@@ -382,17 +471,27 @@ export const QuickOrder = () => {
         </div>
       </div>
 
-      {pendingDish && pendingGroups.length > 0 && (
+      {qtyPromptDish && (
+        <QuickOrderQtyPrompt
+          dish={qtyPromptDish}
+          open
+          onConfirm={onQtyPromptConfirm}
+          onCancel={onQtyPromptCancel}
+        />
+      )}
+
+      {pendingDish && pendingGroups.length > 0 && !qtyPromptDish && (
         <MenuDishModifiers
           dish={pendingDish}
           isOpen
           groups={pendingGroups}
           onClose={(payload) => {
             if (payload.length > 0) {
-              addDish(pendingDish, payload, pendingQty, {
+              commitDish(pendingDish, payload, pendingQty, {
                 fractionalQty: pendingFractional,
                 priceOverride: pendingPriceOverride,
                 availabilityQty: pendingFractional || pendingPriceOverride != null ? 1 : undefined,
+                skipQtyPrompt: true,
               });
             }
             setPendingDish(null);

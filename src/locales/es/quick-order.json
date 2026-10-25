@@ -26,5 +26,11 @@
   },
   "customerDisplay": {
     "open": "Pantalla cliente"
+  },
+  "qtyPrompt": {
+    "title": "Cantidad — {{name}}",
+    "hint": "Escriba la cantidad o pulse un atajo.",
+    "quantity": "Cantidad",
+    "add": "Añadir"
   }
 }

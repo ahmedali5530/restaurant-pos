@@ -346,7 +346,10 @@
     "title": "Modo de TPV",
     "description": "Elija restaurante (mesas y plantas) o Pedido rápido (escanear código de barras y pagar) en este dispositivo.",
     "restaurant": "Restaurante",
-    "retail": "Pedido rápido"
+    "retail": "Pedido rápido",
+    "askQuantityTitle": "Pedir cantidad al añadir",
+    "askQuantityDescription": "En pedido rápido, tras escanear o tocar, pedir cantidad. Se omite con CODE*N, *N y etiquetas de báscula.",
+    "askQuantityEnabled": "Pedir cantidad"
   },
   "itemAvailability": {
     "title": "Aplicar límites de venta",

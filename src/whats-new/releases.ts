@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-25',
+    title: 'Ask quantity after add',
+    items: [
+      'Settings → POS mode (Quick Order): turn on Ask quantity after add to prompt for qty after each scan or tap. CODE*N, *N, and scale labels still skip the prompt.',
+    ],
+  },
+  {
+    date: '2026-10-25',
     title: 'Unique dish barcodes',
     items: [
       'Dish form and CSV import block saving when a primary or extra barcode is already used by another dish (same-dish duplicates are still cleaned automatically).',

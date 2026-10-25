@@ -346,7 +346,10 @@
     "title": "POS mode",
     "description": "Choose restaurant (tables and floors) or Quick Order (barcode scan and pay) for this device.",
     "restaurant": "Restaurant",
-    "retail": "Quick Order"
+    "retail": "Quick Order",
+    "askQuantityTitle": "Ask quantity after add",
+    "askQuantityDescription": "On Quick Order, after a scan or tap, prompt for quantity. Still skipped for CODE*N, *N, and scale labels.",
+    "askQuantityEnabled": "Prompt for quantity"
   },
   "itemAvailability": {
     "title": "Enforce sale limits",

@@ -26,5 +26,11 @@
   },
   "customerDisplay": {
     "open": "Klantenscherm"
+  },
+  "qtyPrompt": {
+    "title": "Aantal — {{name}}",
+    "hint": "Voer het aantal in of tik een snelkeuze.",
+    "quantity": "Aantal",
+    "add": "Toevoegen"
   }
 }
