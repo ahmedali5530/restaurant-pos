@@ -15,7 +15,10 @@ import {
 } from "@/utils/csv-import.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
-import {normalizeExtraBarcodes} from "@/lib/quick-order-scan.ts";
+import {
+  normalizeExtraBarcodes,
+  queryBarcodeCollisions,
+} from "@/lib/quick-order-scan.ts";
 
 type TFunc = (key: string, options?: any) => string;
 
@@ -321,6 +324,27 @@ export function createDishImportConfig({
         ctx.mode === "create"
           ? []
           : await findCsvImportMatches(db, Tables.dishes, conditions);
+
+      const codesToCheck = [
+        ...(barcodeRaw ? [barcodeRaw] : []),
+        ...extraBarcodes,
+      ];
+      if (codesToCheck.length > 0) {
+        const collisions = await queryBarcodeCollisions(
+          db,
+          codesToCheck,
+          existing.map((row: any) => row?.id),
+        );
+        if (collisions.length > 0) {
+          const hit = collisions[0];
+          throw new Error(
+            t("toast:admin.barcodeInUse", {
+              code: hit.code,
+              name: hit.dishName,
+            }),
+          );
+        }
+      }
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

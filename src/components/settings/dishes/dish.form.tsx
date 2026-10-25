@@ -36,7 +36,10 @@ import {
   applyAvailabilityLocally,
   buildAvailabilityPatch,
 } from "@/lib/dish-availability.ts";
-import {normalizeExtraBarcodes} from "@/lib/quick-order-scan.ts";
+import {
+  normalizeExtraBarcodes,
+  queryBarcodeCollisions,
+} from "@/lib/quick-order-scan.ts";
 import {useSetAtom} from "jotai";
 import {appSettings} from "@/store/jotai.ts";
 
@@ -370,6 +373,23 @@ export const DishForm = ({
 
       const barcodeRaw = typeof formData.barcode === 'string' ? formData.barcode.trim() : '';
       const extraBarcodes = normalizeExtraBarcodes(formData.barcodes, barcodeRaw);
+      const allBarcodes = barcodeRaw ? [barcodeRaw, ...extraBarcodes] : extraBarcodes;
+      if (allBarcodes.length > 0) {
+        const collisions = await queryBarcodeCollisions(
+          db,
+          allBarcodes,
+          data?.id ? [String(data.id)] : [],
+        );
+        if (collisions.length > 0) {
+          const hit = collisions[0];
+          throw new Error(
+            t('toast:admin.barcodeInUse', {
+              code: hit.code,
+              name: hit.dishName,
+            }),
+          );
+        }
+      }
       const availability = buildAvailabilityPatch({
         available: formData.available !== false,
         available_qty: formData.available_qty,

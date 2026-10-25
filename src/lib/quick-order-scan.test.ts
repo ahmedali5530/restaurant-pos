@@ -1,5 +1,6 @@
 import {describe, expect, it} from "vitest";
 import {
+  findBarcodeCollisions,
   findDishByScanCode,
   normalizeExtraBarcodes,
   parseScanQty,
@@ -82,5 +83,33 @@ describe("normalizeExtraBarcodes", () => {
     expect(
       normalizeExtraBarcodes([" a ", "", "a", "b", "PRIMARY"], "PRIMARY"),
     ).toEqual(["a", "b"]);
+  });
+});
+
+describe("findBarcodeCollisions", () => {
+  const catalog = [
+    dish({id: "menu_item:1", name: "Cola", number: "101", barcode: "8901", price: 2}),
+    dish({
+      id: "menu_item:2",
+      name: "Whisky",
+      number: "404",
+      barcode: "7501",
+      barcodes: ["7502", "7503"],
+      price: 40,
+    }),
+  ];
+
+  it("reports cross-dish primary and alias collisions", () => {
+    const hits = findBarcodeCollisions(["8901", "7502"], catalog, "menu_item:99");
+    expect(hits.map((h) => h.code).sort()).toEqual(["7502", "8901"]);
+  });
+
+  it("ignores the dish being edited", () => {
+    expect(findBarcodeCollisions(["7501", "7502"], catalog, "menu_item:2")).toEqual([]);
+  });
+
+  it("returns empty when codes blank", () => {
+    expect(findBarcodeCollisions([], catalog)).toEqual([]);
+    expect(findBarcodeCollisions(["  "], catalog)).toEqual([]);
   });
 });

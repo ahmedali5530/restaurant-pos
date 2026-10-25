@@ -136,7 +136,8 @@
     "invalidPriority": "Prioridade é inválida",
     "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido",
     "loginTaken": "Outro usuário já tem este login/PIN — escolha outro.",
-    "passwordTaken": "Outro usuário já tem esta senha — escolha outra."
+    "passwordTaken": "Outro usuário já tem esta senha — escolha outra.",
+    "barcodeInUse": "O código de barras {{code}} já é usado por {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está em uso e foi desativado.",

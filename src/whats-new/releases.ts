@@ -7,6 +7,22 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-25',
+    title: 'Unique dish barcodes',
+    items: [
+      'Dish form and CSV import block saving when a primary or extra barcode is already used by another dish (same-dish duplicates are still cleaned automatically).',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Scale / weigh-label barcodes',
+    items: [
+      'Settings → Scale barcodes: enable EAN-13 weigh labels (butcher/bakery). Default layout 20 + PLU(5) + grams(5) + check; cart qty is kilograms and uses the dish price per kg.',
+      'Optional price-embedded mode for scales that encode amount instead of weight. PLU matches dish Number (leading zeros ignored) or barcode.',
+      'Quick Order reads scale codes before normal UPC lookup; fractional kg quantities are supported in the cart.',
+    ],
+  },
+  {
     date: '2026-10-24',
     title: 'Retail counter UX',
     items: [

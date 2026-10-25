@@ -136,7 +136,8 @@
     "invalidPriority": "Priorität ist ungültig",
     "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig",
     "loginTaken": "Ein anderer Benutzer hat bereits diese Anmeldung/PIN – wählen Sie eine andere.",
-    "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes."
+    "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes.",
+    "barcodeInUse": "Barcode {{code}} wird bereits von {{name}} verwendet"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",
