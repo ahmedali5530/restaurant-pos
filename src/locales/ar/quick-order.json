@@ -10,7 +10,9 @@
     "qtyHint": "الكمية: CODE*6 يضيف ستة؛ *6 يضيف ستة من آخر عنصر",
     "invalidQty": "كمية غير صالحة — رقم صحيح بعد *",
     "noLastItem": "امسح عنصرًا أولًا ثم *الكمية",
-    "addedQty": "أُضيف {{count}} × {{name}}"
+    "addedQty": "أُضيف {{count}} × {{name}}",
+    "unknownPlu": "PLU ميزان غير معروف {{plu}} ({{code}})",
+    "addedWeight": "أُضيف {{weight}} كغ {{name}}"
   },
   "cart": {
     "title": "السلة",

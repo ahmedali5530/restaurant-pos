@@ -9,6 +9,11 @@ import {QuickOrderBrowse} from "@/components/quick-order/browse.tsx";
 import {useBarcodeScan} from "@/hooks/useBarcodeScan.ts";
 import {useQuickOrderScanFocus} from "@/hooks/useQuickOrderScanFocus.ts";
 import {findDishByScanCode, parseScanQty} from "@/lib/quick-order-scan.ts";
+import {
+  findDishByScalePlu,
+  normalizeScaleBarcodeConfig,
+  parseScaleBarcode,
+} from "@/lib/scale-barcode.ts";
 import {resolveMenuAwareData} from "@/lib/menu.resolver.ts";
 import {
   buildCartModifierGroupsForDish,
@@ -39,6 +44,8 @@ export const QuickOrder = () => {
   const [pendingDish, setPendingDish] = useState<Dish | null>(null);
   const [pendingGroups, setPendingGroups] = useState<CartModifierGroup[]>([]);
   const [pendingQty, setPendingQty] = useState(1);
+  const [pendingFractional, setPendingFractional] = useState(false);
+  const [pendingPriceOverride, setPendingPriceOverride] = useState<number | undefined>(undefined);
   const [lastScan, setLastScan] = useState<string>("");
   const [scanValue, setScanValue] = useState("");
   const [lastAddedDishId, setLastAddedDishId] = useState<string | null>(null);
@@ -133,14 +140,33 @@ export const QuickOrder = () => {
   );
 
   const addDish = useCallback(
-    (dish: Dish, selectedGroups?: CartModifierGroup[], quantity = 1): boolean => {
+    (
+      dish: Dish,
+      selectedGroups?: CartModifierGroup[],
+      quantity = 1,
+      opts?: {
+        fractionalQty?: boolean;
+        priceOverride?: number;
+        /** Units counted toward sale limits (scale packs = 1). */
+        availabilityQty?: number;
+      },
+    ): boolean => {
       if (enforcement.orderTakingBlocked) {
         toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
         return false;
       }
 
-      const qty = Math.max(1, Math.floor(Number(quantity) || 1));
-      if (!assertCanAdd(dish, qty)) {
+      const fractional = opts?.fractionalQty === true;
+      const qty = fractional
+        ? Math.max(0.001, Math.round((Number(quantity) || 0) * 1000) / 1000)
+        : Math.max(1, Math.floor(Number(quantity) || 1));
+      const limitQty =
+        opts?.availabilityQty != null
+          ? Math.max(1, Math.floor(Number(opts.availabilityQty) || 1))
+          : fractional
+            ? 1
+            : qty;
+      if (!assertCanAdd(dish, limitQty)) {
         return false;
       }
 
@@ -154,6 +180,8 @@ export const QuickOrder = () => {
           setPendingDish(dish);
           setPendingGroups(groups);
           setPendingQty(qty);
+          setPendingFractional(fractional);
+          setPendingPriceOverride(opts?.priceOverride);
           return true;
         }
       }
@@ -165,6 +193,8 @@ export const QuickOrder = () => {
           categoryName: state.category?.name,
           categoryId: state.category?.id?.toString(),
           quantity: qty,
+          fractionalQty: fractional,
+          priceOverride: opts?.priceOverride,
         }),
       }));
       setLastAddedDishId(String(dish.id ?? ""));
@@ -185,6 +215,43 @@ export const QuickOrder = () => {
 
   const onScan = useCallback(
     (code: string) => {
+      const trimmed = String(code ?? "").trim();
+      if (!trimmed) {
+        return;
+      }
+
+      // Scale / in-store EAN-13 (butcher weigh-label) before *qty and UPC lookup.
+      const scaleCfg = normalizeScaleBarcodeConfig(state.scaleBarcode);
+      const scale = parseScaleBarcode(trimmed, scaleCfg);
+      if (scale) {
+        setLastScan(trimmed);
+        setScanValue("");
+        const dish = findDishByScalePlu(sellableDishes, scale.pluKey);
+        if (!dish) {
+          toast.error(t("quick-order:scan.unknownPlu", {plu: scale.pluKey, code: trimmed}));
+          focusScanInput();
+          return;
+        }
+        const added = addDish(dish, undefined, scale.quantity, {
+          fractionalQty: scale.valueMode === "weight_grams",
+          priceOverride: scale.priceOverride,
+          availabilityQty: 1,
+        });
+        if (added) {
+          toast.success(
+            scale.valueMode === "weight_grams"
+              ? t("quick-order:scan.addedWeight", {
+                  name: dish.name,
+                  weight: scale.quantity,
+                })
+              : t("quick-order:scan.added", {name: dish.name}),
+            {duration: 1400},
+          );
+        }
+        focusScanInput();
+        return;
+      }
+
       const parsed = parseScanQty(code);
       if (parsed.mode === "empty") {
         return;
@@ -195,7 +262,7 @@ export const QuickOrder = () => {
         return;
       }
 
-      setLastScan(code.trim());
+      setLastScan(trimmed);
       setScanValue("");
 
       let dish: Dish | undefined;
@@ -233,7 +300,7 @@ export const QuickOrder = () => {
       }
       focusScanInput();
     },
-    [addDish, focusScanInput, lastAddedDishId, sellableDishes, t],
+    [addDish, focusScanInput, lastAddedDishId, sellableDishes, state.scaleBarcode, t],
   );
 
   // Ignore wedge while a modifier modal is open (focus is in the dialog).
@@ -322,11 +389,17 @@ export const QuickOrder = () => {
           groups={pendingGroups}
           onClose={(payload) => {
             if (payload.length > 0) {
-              addDish(pendingDish, payload, pendingQty);
+              addDish(pendingDish, payload, pendingQty, {
+                fractionalQty: pendingFractional,
+                priceOverride: pendingPriceOverride,
+                availabilityQty: pendingFractional || pendingPriceOverride != null ? 1 : undefined,
+              });
             }
             setPendingDish(null);
             setPendingGroups([]);
             setPendingQty(1);
+            setPendingFractional(false);
+            setPendingPriceOverride(undefined);
             focusScanInput();
           }}
           level={1}

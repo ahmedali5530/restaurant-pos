@@ -33,7 +33,8 @@ export const CartItem = ({ item, index }: Props) => {
   const enforceLimits = state.enforceItemAvailability !== false;
 
   const trySetQuantity = (nextQty: number) => {
-    if (nextQty < 1) {
+    // Allow fractional qty (scale weight in kg); reject empty/zero/negative.
+    if (!Number.isFinite(nextQty) || nextQty < 0.001) {
       return;
     }
     const liveDish = withLiveAvailability(settings.dishes, item.dish) ?? item.dish;

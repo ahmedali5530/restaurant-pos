@@ -10,7 +10,9 @@
     "qtyHint": "Кол-во: CODE*6 добавляет шесть; *6 — шесть последнего",
     "invalidQty": "Неверное количество — целое после *",
     "noLastItem": "Сначала отсканируйте товар, затем *кол-во",
-    "addedQty": "Добавлено {{count}} × {{name}}"
+    "addedQty": "Добавлено {{count}} × {{name}}",
+    "unknownPlu": "Неизвестный PLU весов {{plu}} ({{code}})",
+    "addedWeight": "Добавлено {{weight}} кг {{name}}"
   },
   "cart": {
     "title": "Корзина",

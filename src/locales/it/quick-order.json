@@ -10,7 +10,9 @@
     "qtyHint": "Qtà: CODE*6 aggiunge sei; *6 aggiunge sei dell’ultimo",
     "invalidQty": "Quantità non valida — intero dopo *",
     "noLastItem": "Scansiona prima un articolo, poi *qtà",
-    "addedQty": "Aggiunti {{count}} × {{name}}"
+    "addedQty": "Aggiunti {{count}} × {{name}}",
+    "unknownPlu": "PLU bilancia sconosciuta {{plu}} ({{code}})",
+    "addedWeight": "Aggiunto {{weight}} kg {{name}}"
   },
   "cart": {
     "title": "Carrello",

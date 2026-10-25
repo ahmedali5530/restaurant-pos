@@ -10,7 +10,9 @@
     "qtyHint": "Menge: CODE*6 fügt sechs hinzu; *6 das letzte Item ×6",
     "invalidQty": "Ungültige Menge — ganze Zahl nach *",
     "noLastItem": "Zuerst ein Item scannen, dann *Menge",
-    "addedQty": "{{count}} × {{name}} hinzugefügt"
+    "addedQty": "{{count}} × {{name}} hinzugefügt",
+    "unknownPlu": "Unbekannte Waagen-PLU {{plu}} ({{code}})",
+    "addedWeight": "{{weight}} kg {{name}} hinzugefügt"
   },
   "cart": {
     "title": "Warenkorb",

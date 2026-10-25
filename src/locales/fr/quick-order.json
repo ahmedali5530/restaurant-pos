@@ -10,7 +10,9 @@
     "qtyHint": "Qté : CODE*6 ajoute six ; *6 ajoute six du dernier article",
     "invalidQty": "Quantité invalide — entier après *",
     "noLastItem": "Scannez d’abord un article, puis *qté",
-    "addedQty": "Ajouté {{count}} × {{name}}"
+    "addedQty": "Ajouté {{count}} × {{name}}",
+    "unknownPlu": "PLU balance inconnue {{plu}} ({{code}})",
+    "addedWeight": "Ajouté {{weight}} kg {{name}}"
   },
   "cart": {
     "title": "Panier",

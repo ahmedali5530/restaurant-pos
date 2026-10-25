@@ -353,5 +353,24 @@
     "description": "Sold-out dishes are always blocked. Sale limits are on by default (units sold since the limit was set, minus the cart). Turn off to ignore sale limits only.",
     "enabled": "Enabled",
     "disabled": "Disabled"
+  },
+  "scaleBarcode": {
+    "title": "Scale barcodes (EAN-13)",
+    "description": "Parse weigh-label barcodes from butcher/bakery scales. Match the 5-digit PLU to the dish Number (or barcode). Default layout: 20 + PLU(5) + value(5) + check digit.",
+    "enabled": "Enable scale barcodes",
+    "modeWeight": "Weight (grams → kg)",
+    "modePrice": "Price embedded",
+    "modeWeightHint": "Value digits are weight in grams. Cart qty becomes kilograms (÷ weight divisor). Dish price × kg.",
+    "modePriceHint": "Value digits are price in minor units (e.g. paisa/cents). Line uses that price at qty 1.",
+    "prefix": "Prefix",
+    "validateCheck": "Validate check digit",
+    "pluStart": "PLU start (0-based)",
+    "pluLength": "PLU length",
+    "valueStart": "Value start (0-based)",
+    "valueLength": "Value length",
+    "weightDivisor": "Weight divisor (grams→kg)",
+    "priceDivisor": "Price divisor (minor→major)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Reset to defaults (keep enabled)"
   }
 }

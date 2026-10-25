@@ -10,7 +10,9 @@
     "qtyHint": "Adet: CODE*6 altı ekler; *6 son ürünü ×6 ekler",
     "invalidQty": "Geçersiz adet — * sonrası tam sayı",
     "noLastItem": "Önce bir ürün okutun, sonra *adet",
-    "addedQty": "{{count}} × {{name}} eklendi"
+    "addedQty": "{{count}} × {{name}} eklendi",
+    "unknownPlu": "Bilinmeyen terazi PLU {{plu}} ({{code}})",
+    "addedWeight": "{{weight}} kg {{name}} eklendi"
   },
   "cart": {
     "title": "Sepet",

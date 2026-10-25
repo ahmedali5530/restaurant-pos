@@ -353,5 +353,24 @@
     "description": "Tükenen yemekler her zaman engellenir. Satış limitleri varsayılan olarak açıktır (limit konulduğundan beri satışlar eksi sepet). Kapatmak yalnızca satış limitlerini yok sayar.",
     "enabled": "Açık",
     "disabled": "Kapalı"
+  },
+  "scaleBarcode": {
+    "title": "Terazi barkodları (EAN-13)",
+    "description": "Kasap/fırın terazi etiketlerini okur. 5 haneli PLU yemek Numarası (veya barkod) ile eşleşmelidir. Varsayılan: 20 + PLU(5) + değer(5) + kontrol basamağı.",
+    "enabled": "Terazi barkodlarını aç",
+    "modeWeight": "Ağırlık (gram → kg)",
+    "modePrice": "Fiyat gömülü",
+    "modeWeightHint": "Değer basamakları gram cinsinden ağırlıktır. Sepet miktarı kg olur (÷ bölen). Fiyat × kg.",
+    "modePriceHint": "Değer basamakları küçük birim fiyattır. Satır bu fiyatla, miktar 1.",
+    "prefix": "Önek",
+    "validateCheck": "Kontrol basamağını doğrula",
+    "pluStart": "PLU başlangıç (0 tabanlı)",
+    "pluLength": "PLU uzunluğu",
+    "valueStart": "Değer başlangıç (0 tabanlı)",
+    "valueLength": "Değer uzunluğu",
+    "weightDivisor": "Ağırlık böleni (g→kg)",
+    "priceDivisor": "Fiyat böleni (küçük→büyük)",
+    "layoutHint": "Düzen: {{example}}",
+    "resetDefaults": "Varsayılana dön (açık kalsın)"
   }
 }

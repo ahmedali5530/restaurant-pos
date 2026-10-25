@@ -34,6 +34,18 @@ export const buildCartModifierGroupsForDish = (
   );
 };
 
+const normalizeAddQty = (quantity: unknown, fractional?: boolean): number => {
+  const n = Number(quantity);
+  if (!Number.isFinite(n) || n <= 0) {
+    return 1;
+  }
+  if (fractional) {
+    // Gram precision for scale weight lines.
+    return Math.max(0.001, Math.round(n * 1000) / 1000);
+  }
+  return Math.max(1, Math.floor(n));
+};
+
 export const createQuickCartLine = (
   dish: Dish,
   options?: {
@@ -41,12 +53,20 @@ export const createQuickCartLine = (
     categoryName?: string;
     categoryId?: string;
     quantity?: number;
+    /** Allow fractional qty (scale weight in kg). */
+    fractionalQty?: boolean;
+    /** Absolute unit price override (scale price-embedded labels). */
+    priceOverride?: number;
   },
 ): MenuItem => {
   const selectedGroups = options?.selectedGroups
     ? cloneCartModifierGroups(options.selectedGroups)
     : [];
-  const quantity = Math.max(1, Math.floor(Number(options?.quantity) || 1));
+  const quantity = normalizeAddQty(options?.quantity, options?.fractionalQty);
+  const price =
+    options?.priceOverride != null && Number.isFinite(Number(options.priceOverride))
+      ? Number(options.priceOverride)
+      : dish.price;
 
   return {
     quantity,
@@ -60,7 +80,7 @@ export const createQuickCartLine = (
       options?.categoryName ||
       (dish.categories?.length === 1 ? dish.categories[0].name : ""),
     category_id: options?.categoryId,
-    price: dish.price,
+    price,
     menu_name: dish.menu_name,
     tax_mode: dish.tax_mode ?? "exclusive",
     taxes: dish.taxes,
@@ -79,11 +99,15 @@ export const mergeOrAppendCartLine = (
     categoryName?: string;
     categoryId?: string;
     quantity?: number;
+    fractionalQty?: boolean;
+    priceOverride?: number;
   },
 ): MenuItem[] => {
-  const addQty = Math.max(1, Math.floor(Number(options?.quantity) || 1));
+  const addQty = normalizeAddQty(options?.quantity, options?.fractionalQty);
   const hasGroups = (options?.selectedGroups?.length ?? 0) > 0;
-  if (!hasGroups) {
+  // Price-embedded scale labels should not merge (each sticker is its own priced pack).
+  const canMerge = !hasGroups && options?.priceOverride == null;
+  if (canMerge) {
     const existing = cart.find(
       (line) =>
         !line.deleted_at &&
@@ -94,7 +118,13 @@ export const mergeOrAppendCartLine = (
     if (existing) {
       return cart.map((line) =>
         line.id === existing.id
-          ? {...line, quantity: line.quantity + addQty}
+          ? {
+              ...line,
+              quantity: normalizeAddQty(
+                Number(line.quantity) + addQty,
+                options?.fractionalQty || !Number.isInteger(Number(line.quantity)),
+              ),
+            }
           : line,
       );
     }

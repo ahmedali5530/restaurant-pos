@@ -51,6 +51,22 @@ export interface AppStateInterface {
   posMode?: 'restaurant' | 'retail'
   /** Sale-limit enforcement on FOH (default on; set false to disable). Sold-out always blocks. */
   enforceItemAvailability?: boolean
+  /**
+   * Device setting: parse in-store / scale EAN-13 (butcher & bakery weigh labels).
+   * Stored as a plain object; see ScaleBarcodeConfig in scale-barcode.ts.
+   */
+  scaleBarcode?: {
+    enabled?: boolean
+    prefix?: string
+    pluStart?: number
+    pluLength?: number
+    valueStart?: number
+    valueLength?: number
+    valueMode?: 'weight_grams' | 'price_minor'
+    weightDivisor?: number
+    priceDivisor?: number
+    validateCheckDigit?: boolean
+  }
   ordersFilters: {
     users: LabelValue[]
     floors: LabelValue[]

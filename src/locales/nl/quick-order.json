@@ -10,7 +10,9 @@
     "qtyHint": "Aantal: CODE*6 voegt zes toe; *6 voegt zes van het laatste toe",
     "invalidQty": "Ongeldig aantal — geheel getal na *",
     "noLastItem": "Scan eerst een artikel, daarna *aantal",
-    "addedQty": "{{count}} × {{name}} toegevoegd"
+    "addedQty": "{{count}} × {{name}} toegevoegd",
+    "unknownPlu": "Onbekende weegschaal-PLU {{plu}} ({{code}})",
+    "addedWeight": "{{weight}} kg {{name}} toegevoegd"
   },
   "cart": {
     "title": "Winkelwagen",

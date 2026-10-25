@@ -10,7 +10,9 @@
     "qtyHint": "Qtd: CODE*6 adiciona seis; *6 adiciona seis do último",
     "invalidQty": "Quantidade inválida — número inteiro após *",
     "noLastItem": "Escaneie um item primeiro, depois *qtd",
-    "addedQty": "Adicionado {{count}} × {{name}}"
+    "addedQty": "Adicionado {{count}} × {{name}}",
+    "unknownPlu": "PLU de balança desconhecida {{plu}} ({{code}})",
+    "addedWeight": "Adicionado {{weight}} kg {{name}}"
   },
   "cart": {
     "title": "Carrinho",
