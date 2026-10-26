@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-26',
+    title: 'Advanced Sales report: taxes filter and faster long ranges',
+    items: [
+      'Advanced Sales filter can narrow by specific taxes (in addition to with/without tax), matching both legacy order tax and order tax lines.',
+      'The Advanced Sales orders table is virtualized so multi-month ranges stay responsive while scrolling; printing still includes every row.',
+    ],
+  },
+  {
+    date: '2026-10-26',
     title: 'Role updates no longer fail on audit log',
     items: [
       'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events no longer read $auth fields inside SurrealDB 3.x event closures.',

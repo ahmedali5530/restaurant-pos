@@ -14,6 +14,7 @@ import {Discount} from "@/api/model/discount.ts";
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Menu} from "@/api/model/menu.ts";
+import {Tax} from "@/api/model/tax.ts";
 import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends { id?: any }>(
@@ -43,6 +44,7 @@ export const SalesAdvancedFilter = () => {
   const {data: floorsData, isLoading: loadingFloors} = useApi<SettingsData<Floor>>(Tables.floors, [], ['name asc'], 0, 9999);
   const {data: tablesData, isLoading: loadingTables} = useApi<SettingsData<Table>>(Tables.tables, [], ['name asc'], 0, 9999, ['floor']);
   const {data: discountsData, isLoading: loadingDiscounts} = useApi<SettingsData<Discount>>(Tables.discounts, [], ['name asc'], 0, 9999);
+  const {data: taxesData, isLoading: loadingTaxes} = useApi<SettingsData<Tax>>(Tables.taxes, [], ['name asc'], 0, 9999);
   const {data: paymentTypesData, isLoading: loadingPaymentTypes} = useApi<SettingsData<PaymentType>>(Tables.payment_types, [], ['name asc'], 0, 9999);
   const {data: menusData, isLoading: loadingMenus} = useApi<SettingsData<Menu>>(Tables.menus, ['deleted_at = none'], ['name asc'], 0, 9999);
   const {data: menuItemsData, isLoading: loadingMenuItems} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999);
@@ -133,11 +135,22 @@ export const SalesAdvancedFilter = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="form-label">Tax Filter</label>
-          <div className="flex flex-col gap-3">
-            <Checkbox name="with_tax" value="1" label="With Tax" />
-            <Checkbox name="without_tax" value="1" label="Without Tax" />
+          <label htmlFor="sales-advanced-taxes" className="form-label">{t('filters.taxFilter')}</label>
+          <div className="flex flex-col gap-3 mb-2">
+            <Checkbox name="with_tax" value="1" label={t('filters.withTax')} />
+            <Checkbox name="without_tax" value="1" label={t('filters.withoutTax')} />
           </div>
+          <ReactSelect
+            id="sales-advanced-taxes"
+            name="taxes[]"
+            isMulti
+            isLoading={loadingTaxes}
+            className="w-full"
+            placeholder={t('filters.selectSpecificTaxes')}
+            options={(taxesData?.data || [])
+              .map(tax => toOption(tax, `${tax.name} (${tax.rate}%)`))
+              .filter(notNull)}
+          />
         </div>
 
         <div className="flex flex-col gap-2">
