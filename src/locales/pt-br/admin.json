@@ -99,7 +99,10 @@
     "recordType": "Tipo de linha",
     "dishName": "Prato",
     "parentModifier": "Tamanho pai",
-    "nextGroup": "Próximo grupo"
+    "nextGroup": "Próximo grupo",
+    "itemStockUom": "UM de estoque do item",
+    "itemStockUomHint": "Apenas referência — unidade de estoque do item. Não aplicada na importação.",
+    "enteredUomHint": "Unidade informada para a quantidade (família convertível da UM de estoque)."
   },
   "entities": {
     "dish": "Prato",

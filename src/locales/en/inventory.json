@@ -666,7 +666,8 @@
     },
     "errors": {
       "inUse": "Cannot deactivate {{code}}: used by {{count}} item(s)",
-      "duplicateCode": "Unit code {{code}} already exists"
+      "duplicateCode": "Unit code {{code}} already exists",
+      "stockUnitLocked": "Stock unit cannot be changed after the item has ledger movements or recipe quantities"
     },
     "toast": {
       "saved": "Unit {{code}} saved"

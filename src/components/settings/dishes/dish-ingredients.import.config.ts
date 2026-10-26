@@ -20,6 +20,7 @@ import {
 } from "@/utils/csv-import.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
+import {toStockLine} from "@/lib/inventory/unit.convert.ts";
 import {StringRecordId} from "surrealdb";
 
 export function createDishIngredientsImportConfig({
@@ -59,7 +60,20 @@ export function createDishIngredientsImportConfig({
       label: t("inventory:columns.uom"),
       type: "string",
       optional: true,
-      aliases: ["UOM", "Unit", "Unit of measure"],
+      aliases: ["UOM", "Unit", "Unit of measure", "Entered UOM"],
+      description: t("admin:columns.enteredUomHint", {
+        defaultValue: "Entered unit for quantity (convertible family of the item stock UOM).",
+      }),
+    },
+    {
+      name: "stock_uom",
+      label: t("admin:columns.itemStockUom", {defaultValue: "Item stock UOM"}),
+      type: "string",
+      optional: true,
+      aliases: ["Stock UOM", "Item UOM", "Inventory UOM", "Stock unit"],
+      description: t("admin:columns.itemStockUomHint", {
+        defaultValue: "Reference only — inventory item stock unit. Not applied on import.",
+      }),
     },
     {
       name: "quantity",
@@ -96,7 +110,7 @@ export function createDishIngredientsImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions: [
-      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code), optional UOM, quantity, optional cost, and price-lock flag.",
+      "Extract dish recipe ingredient rows with dish (name or number), ingredient (name or code), optional entered UOM, optional item stock UOM (reference only), quantity, optional cost, and price-lock flag.",
       "For `ingredient`, copy the name or code EXACTLY as printed on the document — character for character.",
       "Do NOT correct spelling, OCR typos, punctuation, spacing, or casing on ingredient names or codes.",
       "Do NOT substitute a similar-looking inventory name. Unusual or misspelled text may be a real inventory item code/name in the system.",
@@ -147,13 +161,34 @@ export function createDishIngredientsImportConfig({
         throw new Error(t("toast:admin.invalidCost"));
       }
 
-      const recipePayload = {
-        menu_item: dishId,
-        item: new StringRecordId(itemId.toString()),
-        quantity,
-        cost: costValue,
-        is_price_locked: parseImportBool(v.is_price_locked),
-      };
+      const enteredUom =
+        String(v.uom ?? "").trim() || String(inventoryItem.uom ?? "").trim();
+      const stockUom = String(inventoryItem.uom ?? "").trim() || enteredUom;
+      let recipePayload: Record<string, unknown>;
+      try {
+        const stock = toStockLine({
+          enteredQuantity: quantity,
+          enteredUom,
+          stockUom,
+          stockUnitPrice: costValue,
+          mode: "quantity_only",
+        });
+        recipePayload = {
+          menu_item: dishId,
+          item: new StringRecordId(itemId.toString()),
+          quantity: stock.quantity,
+          entered_quantity: stock.entered_quantity,
+          entered_uom: stock.entered_uom,
+          cost: stock.price,
+          is_price_locked: parseImportBool(v.is_price_locked),
+        };
+      } catch (err) {
+        throw new Error(
+          err instanceof Error
+            ? err.message
+            : t("toast:admin.invalidQuantity", {defaultValue: "Invalid quantity or UOM"})
+        );
+      }
 
       const [existingRecipeRows] = await db.query(
         `SELECT id FROM ${Tables.dishes_recipes} WHERE menu_item = $dish AND item = $item LIMIT 2`,
@@ -204,9 +239,11 @@ export function createDishIngredientsImportConfig({
       if (matched.length === 1) {
         if (!db.merge) throw new Error("Database merge is unavailable");
         await db.merge(matched[0].id, {
-          quantity,
-          cost: costValue,
-          is_price_locked: parseImportBool(v.is_price_locked),
+          quantity: recipePayload.quantity,
+          entered_quantity: recipePayload.entered_quantity,
+          entered_uom: recipePayload.entered_uom,
+          cost: recipePayload.cost,
+          is_price_locked: recipePayload.is_price_locked,
         });
         return;
       }

@@ -99,7 +99,10 @@
     "recordType": "Satır tipi",
     "dishName": "Yemek",
     "parentModifier": "Üst boyut",
-    "nextGroup": "Sonraki grup"
+    "nextGroup": "Sonraki grup",
+    "itemStockUom": "Kalem stok birimi",
+    "itemStockUomHint": "Yalnızca referans — envanter kaleminin stok birimi. İçe aktarmada uygulanmaz.",
+    "enteredUomHint": "Miktar için girilen birim (stok biriminin dönüştürülebilir ailesi)."
   },
   "entities": {
     "dish": "Yemek",

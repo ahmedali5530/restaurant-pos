@@ -16,6 +16,14 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-10-26',
+    title: 'Dish recipe export and inventory cost precision',
+    items: [
+      'Dish ingredient export includes entered UOM and the item’s stock UOM for reference, sorted by dish name.',
+      'Recipe line totals and dish cost from recipes use inventory decimal places (VITE_INVENTORY_DECIMAL_PLACES), not POS currency decimals.',
+    ],
+  },
+  {
+    date: '2026-10-26',
     title: 'Role updates no longer fail on audit log',
     items: [
       'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events no longer read $auth fields inside SurrealDB 3.x event closures.',

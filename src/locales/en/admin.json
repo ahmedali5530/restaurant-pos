@@ -162,7 +162,10 @@
     "recordType": "Row type",
     "dishName": "Dish",
     "parentModifier": "Parent size",
-    "nextGroup": "Next group"
+    "nextGroup": "Next group",
+    "itemStockUom": "Item stock UOM",
+    "itemStockUomHint": "Reference only — inventory item stock unit. Not applied on import.",
+    "enteredUomHint": "Entered unit for quantity (convertible family of the item stock UOM)."
   },
   "entities": {
     "dish": "Dish",

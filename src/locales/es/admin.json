@@ -99,7 +99,10 @@
     "recordType": "Tipo de fila",
     "dishName": "Plato",
     "parentModifier": "Tamaño padre",
-    "nextGroup": "Grupo siguiente"
+    "nextGroup": "Grupo siguiente",
+    "itemStockUom": "UdM de stock del artículo",
+    "itemStockUomHint": "Solo referencia — unidad de stock del artículo de inventario. No se aplica en la importación.",
+    "enteredUomHint": "Unidad introducida para la cantidad (familia convertible de la UdM de stock)."
   },
   "entities": {
     "dish": "Plato",

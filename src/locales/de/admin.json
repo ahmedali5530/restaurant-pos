@@ -99,7 +99,10 @@
     "recordType": "Zeilentyp",
     "dishName": "Gericht",
     "parentModifier": "Übergeordnete Größe",
-    "nextGroup": "Nächste Gruppe"
+    "nextGroup": "Nächste Gruppe",
+    "itemStockUom": "Artikel-Bestands-ME",
+    "itemStockUomHint": "Nur Referenz — Bestandseinheit des Inventarartikels. Wird beim Import nicht angewendet.",
+    "enteredUomHint": "Eingegebene Einheit für die Menge (konvertierbare Familie der Bestands-ME)."
   },
   "entities": {
     "dish": "Gericht",
