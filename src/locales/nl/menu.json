@@ -41,7 +41,7 @@
   },
   "qtyPrompt": {
     "title": "Aantal — {{name}}",
-    "hint": "Gebruik +/− of een snel aantal, of typ op het toetsenbord.",
+    "hint": "Gebruik +/− of een snel aantal, of typ. Toevoegen bevestigt; sluiten past ook een geldig aantal toe.",
     "quantity": "Aantal",
     "add": "Toevoegen"
   }

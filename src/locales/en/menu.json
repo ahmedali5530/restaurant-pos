@@ -41,7 +41,7 @@
   },
   "qtyPrompt": {
     "title": "Quantity — {{name}}",
-    "hint": "Use +/− or a quick amount, or type on the keypad.",
+    "hint": "Use +/− or a quick amount, or type on the keypad. Add confirms; closing the dialog also applies a valid qty.",
     "quantity": "Quantity",
     "add": "Add"
   }

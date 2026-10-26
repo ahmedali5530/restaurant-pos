@@ -41,7 +41,7 @@
   },
   "qtyPrompt": {
     "title": "Adet — {{name}}",
-    "hint": "+/− veya hızlı adet kullanın, ya da tuş takımında yazın.",
+    "hint": "+/− veya hızlı adet kullanın ya da yazın. Ekle onaylar; kapatmak da geçerli adedi uygular.",
     "quantity": "Adet",
     "add": "Ekle"
   }
