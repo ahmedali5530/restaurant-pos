@@ -27,6 +27,7 @@ import {BuffetSessions} from "@/components/inventory/buffet/sessions/index.tsx";
 import {InventoryUnits} from "@/components/inventory/units/index.tsx";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {filterPagesByBuildModule, firstPageKey} from "@/lib/build-modules.ts";
 import {useDB} from "@/api/db/db.ts";
 import {ensureInventoryUomCatalog} from "@/lib/inventory/uom.catalog.ts";
 
@@ -66,7 +67,7 @@ export const Inventory = () => {
     void ensureInventoryUomCatalog(db).catch(() => undefined);
   }, []);
 
-  const pages = useMemo(() => ({
+  const pages = useMemo(() => filterPagesByBuildModule({
     'inventory': {component: <InventorySummary/>, title: t('tabs.inventory')},
     'items': {component: <InventoryItems/>, title: t('tabs.items')},
     'units': {component: <InventoryUnits/>, title: t('tabs.units')},
@@ -88,17 +89,19 @@ export const Inventory = () => {
     'production-history': {component: <InventoryProductionHistory/>, title: t('tabs.productionHistory')},
     'buffet-menus': {component: <BuffetMenus/>, title: t('tabs.buffetMenus')},
     'buffet-sessions': {component: <BuffetSessions/>, title: t('tabs.buffetSessions')},
-  }), [t]);
+  }, INVENTORY_TAB_MODULES), [t]);
+
+  const selectedKey = firstPageKey(pages, selected);
 
   return (
     <Layout
       containerClassName=""
     >
-      <DocumentTitle parts={[pages[selected]?.title, tNav('sidebar.inventory')]} />
+      <DocumentTitle parts={[pages[selectedKey]?.title, tNav('sidebar.inventory')]} />
       <div data-testid="inventory-page">
         <Tabs
           className="w-full flex flex-col rounded-xl"
-          selectedKey={selected}
+          selectedKey={selectedKey}
           onSelectionChange={(key: string) => {
             protectAction(() => {
               setSelected(key);

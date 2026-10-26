@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
@@ -12,6 +12,9 @@ import {
   buildCreatedAtDateConditions,
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
+
+import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
+import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
 /** Friendly labels for known fiscal provider record ids. */
 const PROVIDER_LABELS: Record<string, string> = {
@@ -67,6 +70,7 @@ const statusBadgeClass = (status: string): string => {
 export const OrderFiscalReport = () => {
   const {t} = useTranslation('reports');
   const db = useDB();
+  const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [submissions, setSubmissions] = useState<OrderFiscalSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,36 +83,46 @@ export const OrderFiscalReport = () => {
     queryRef.current = db.query;
   }, [db]);
 
-  const fetchData = useCallback(async (opts?: {silent?: boolean}) => {
-    try {
-      if (!opts?.silent) {
+  useEffect(() => {
+    if (!branchScope.ready) return;
+
+    const fetchData = async () => {
+      try {
         setLoading(true);
-      }
-      setError(null);
+        setError(null);
 
-      const conditions: string[] = [];
-      const params: Record<string, any> = {};
+        const conditions: string[] = [];
+        const params: Record<string, any> = {};
 
-      const dateFilter = buildCreatedAtDateConditions(
-        {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
-        'submitted_at',
-      );
-      conditions.push(...dateFilter.conditions);
-      Object.assign(params, dateFilter.params);
+        const dateFilter = buildCreatedAtDateConditions(
+          {startDate: filters.startDate ?? undefined, endDate: filters.endDate ?? undefined},
+          'submitted_at',
+        );
+        conditions.push(...dateFilter.conditions);
+        Object.assign(params, dateFilter.params);
 
-      const providerFilter = buildStringInsideCondition('provider_id', filters.providerIds, 'providerIds');
-      if (providerFilter.condition) {
-        conditions.push(providerFilter.condition);
-        Object.assign(params, providerFilter.params);
-      }
+        const providerFilter = buildStringInsideCondition('provider_id', filters.providerIds, 'providerIds');
+        if (providerFilter.condition) {
+          conditions.push(providerFilter.condition);
+          Object.assign(params, providerFilter.params);
+        }
 
-      const statusFilter = buildStringInsideCondition('status', filters.statuses, 'statuses');
-      if (statusFilter.condition) {
-        conditions.push(statusFilter.condition);
-        Object.assign(params, statusFilter.params);
-      }
+        const statusFilter = buildStringInsideCondition('status', filters.statuses, 'statuses');
+        if (statusFilter.condition) {
+          conditions.push(statusFilter.condition);
+          Object.assign(params, statusFilter.params);
+        }
 
-      const query = `
+        if (branchScope.branchIds !== undefined) {
+          if (branchScope.branchIds.length === 0) {
+            setSubmissions([]);
+            return;
+          }
+          conditions.push('order.branch_id INSIDE $branchIds');
+          params.branchIds = branchScope.branchIds;
+        }
+
+        const query = `
           SELECT * FROM ${Tables.integration_order_fiscals}
           ${conditions.length ? `WHERE ${conditions.join(' AND ')}` : ''}
           ORDER BY submitted_at DESC
@@ -117,22 +131,63 @@ export const OrderFiscalReport = () => {
             order.items, order.items.taxes, order.items.tax_mode, order.items.modifiers
         `;
 
-      const result: any = await queryRef.current(query, params);
-      setSubmissions((result?.[0] ?? []) as OrderFiscalSubmission[]);
-    } catch (err) {
-      console.error('Failed to load order fiscal report:', err);
-      setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
-    } finally {
-      if (!opts?.silent) {
+        const result: any = await queryRef.current(query, params);
+        setSubmissions((result?.[0] ?? []) as OrderFiscalSubmission[]);
+      } catch (err) {
+        console.error('Failed to load order fiscal report:', err);
+        setError(err instanceof Error ? err.message : t('errors.unableToLoad'));
+      } finally {
         setLoading(false);
       }
-    }
-  }, [filters.startDate, filters.endDate, filters.providerIds, filters.statuses, t]);
+    };
 
-  useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+    fetchData();
+  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
 
+
+  const rowsWithBranch = useMemo(
+    () =>
+      submissions.map((sub) => {
+        const order = getOrder(sub);
+        return {
+          ...sub,
+          branch_id: order?.branch_id ?? undefined,
+        };
+      }),
+    [submissions],
+  );
+
+  if (loading || !branchScope.ready) {
+    return (
+      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+        <div className="py-12 text-center text-muted">{t('loading.orderFiscal')}</div>
+      </ReportsLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', {error})}</div>
+      </ReportsLayout>
+    );
+  }
+
+  return (
+    <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
+      <BranchBreakdown
+        enabled={branchScope.isByBranch}
+        rows={rowsWithBranch}
+        labels={branchScope.branchLabels}
+        branchOrder={branchScope.branchOrder}
+        renderSection={({rows, key}) => <OrderFiscalBody key={key} submissions={rows} />}
+      />
+    </ReportsLayout>
+  );
+};
+
+const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) => {
+  const {t} = useTranslation('reports');
 
   const statusLabel = (status: string): string => {
     switch (status) {
@@ -179,6 +234,7 @@ export const OrderFiscalReport = () => {
         const order = getOrder(sub);
         if (!order) return acc;
         const figures = getOrderSettlementFigures(order);
+        // items only so: gross + tax - discount + service + extras (+ tips) = grand
         acc.gross += figures.itemsTotal;
         acc.tax += figures.tax;
         acc.discount += figures.discounts;
@@ -191,26 +247,11 @@ export const OrderFiscalReport = () => {
     );
   }, [submissions]);
 
-  if (loading) {
-    return (
-      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
-        <div className="py-12 text-center text-muted">{t('loading.orderFiscal')}</div>
-      </ReportsLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
-        <div className="py-12 text-center text-red-600">{t('errors.failedToLoad', {error})}</div>
-      </ReportsLayout>
-    );
-  }
-
   return (
-    <ReportsLayout title={t('titles.orderFiscal')} subtitle={subtitle}>
       <div className="space-y-8">
+        {/* Summary sections */}
         <div className="grid grid-cols-2 gap-4">
+          {/* By provider */}
           <div className="overflow-hidden rounded-lg border border-border">
             <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byProvider')}</h3>
             <div className="overflow-x-auto">
@@ -245,6 +286,7 @@ export const OrderFiscalReport = () => {
             </div>
           </div>
 
+          {/* By status */}
           <div className="overflow-hidden rounded-lg border border-border">
             <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byStatus')}</h3>
             <div className="overflow-x-auto">
@@ -278,6 +320,7 @@ export const OrderFiscalReport = () => {
           </div>
         </div>
 
+        {/* Detail table */}
         <div className="overflow-hidden rounded-lg border border-border">
           <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.detail')}</h3>
           <div className="overflow-x-auto">
@@ -374,6 +417,5 @@ export const OrderFiscalReport = () => {
           </div>
         </div>
       </div>
-    </ReportsLayout>
   );
 };

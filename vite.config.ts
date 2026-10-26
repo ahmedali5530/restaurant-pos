@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import path from "path"
 import { visualizer } from 'rollup-plugin-visualizer'
 import { VitePWA } from 'vite-plugin-pwa'
+import { buildModuleDefineMap } from './src/lib/build-modules.resolve.ts'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -10,8 +11,15 @@ export default defineConfig(({ mode }) => {
   // QR self-order page (order.html) calls /self-order/* on its own origin so
   // customers' phones only need to reach this web server.
   const gatewayTarget = env.SELF_ORDER_GATEWAY_URL || env.VITE_GATEWAY_URL || 'http://localhost:3142'
+  const buildModuleDefines = buildModuleDefineMap(
+    env.VITE_APP_MODULES,
+    env.VITE_APP_MODULES_EXCLUDE,
+  )
 
   return {
+    define: {
+      ...buildModuleDefines,
+    },
     server: {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },

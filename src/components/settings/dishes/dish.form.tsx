@@ -32,6 +32,7 @@ import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
 import { withCurrency } from "@/lib/utils.ts";
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
 import {QuantityUomFields} from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
@@ -100,7 +101,8 @@ export const DishForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
-
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.dishes);
+  const structuralLocked = lockStructuralFields(data);
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -122,10 +124,23 @@ export const DishForm = ({
   }
 
   useEffect(() => {
-    if (data) {
+    if (!data) {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setPhotoData(null);
+      setWorkflowOption(null);
+      setWorkflowStages([]);
+      setStageOverrides({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        categories: data.categories.map(item => ({
+        ...src,
+        categories: (src.categories || data.categories || []).map((item: any) => ({
           label: item.name,
           value: item.id
         })),
@@ -135,8 +150,8 @@ export const DishForm = ({
 
       setPhotoFile(null);
       setPhotoData(null);
-      if (data.photo) {
-        const buffer = data.photo;
+      if (src.photo || data.photo) {
+        const buffer = src.photo || data.photo;
         const mimeType = detectMimeType(buffer, "image/png");
         const blob = new Blob([buffer], {type: mimeType});
         setPhotoPreview(URL.createObjectURL(blob));
@@ -145,15 +160,10 @@ export const DishForm = ({
       getModifierGroups(data.id);
       getRecipes(data.id);
       loadWorkflowAssignment(data.id);
-    } else {
-      setPhotoFile(null);
-      setPhotoPreview(null);
-      setPhotoData(null);
-      setWorkflowOption(null);
-      setWorkflowStages([]);
-      setStageOverrides({});
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const {
     data: categories,
@@ -324,6 +334,15 @@ export const DishForm = ({
 
   const onSubmit = async (values: any) => {
     try {
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
+      }
+
       const formData = {
         ...values,
         // position: parseInt(values.position),
@@ -344,6 +363,10 @@ export const DishForm = ({
         }
       }
 
+      const stampBranch =
+        soleBranchId && (!data?.id || isBranchOwnedBy(data))
+          ? { branch_id: soleBranchId }
+          : {};
       const dishData: any = {
         name: formData.name,
         number: formData.number,
@@ -354,99 +377,117 @@ export const DishForm = ({
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
+        ...stampBranch,
       };
 
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          price: formData.price,
+          cost: formData.cost,
+          number: formData.number,
+          priority: formData.priority,
+          workflow: dishData.workflow,
+          stage_overrides: dishData.stage_overrides,
+        },
+        structuralWrite: async () => {
+          let menuId: any;
+          if (data?.id) {
+            menuId = data.id;
+            await db.merge(data.id, dishData);
+          } else {
+            const [record] = await db.create(Tables.dishes, dishData);
+            menuId = record.id;
+          }
 
-      let menuId: any;
-      if (data?.id) {
-        menuId = data.id;
-        await db.merge(data.id, dishData);
-      } else {
-        const [record] = await db.create(Tables.dishes, dishData);
-        menuId = record.id;
-      }
+          if (photoData && photoFile) {
+            const [photoId] = await db.create(Tables.documents, {
+              name: photoFile.name,
+              content: photoData,
+              size: photoFile.size,
+              type: photoFile.type || undefined,
+            });
 
-      if (photoData && photoFile) {
-        const [photoId] = await db.create(Tables.documents, {
-          name: photoFile.name,
-          content: photoData,
-          size: photoFile.size,
-          type: photoFile.type || undefined,
-        });
+            await db.merge(menuId, {
+              dish_photo: photoId.id
+            });
+          }
 
-        await db.merge(menuId, {
-          dish_photo: photoId.id
-        });
-      }
+          if (formData.modifier_groups) {
+            // delete graph edges and create again
+            await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
 
-      if (formData.modifier_groups) {
-        // delete graph edges and create again
-        await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
+            for (const modifierGroup of formData.modifier_groups) {
+              await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority`, {
+                has_required_modifiers: modifierGroup.has_required_modifiers,
+                should_auto_open: modifierGroup.should_auto_open,
+                required_modifiers: modifierGroup.required_modifiers,
+                should_auto_select: modifierGroup.should_auto_select,
+                priority: Number(modifierGroup.priority ?? 0)
+              });
+            }
+          }
 
-        for (const modifierGroup of formData.modifier_groups) {
-          await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority`, {
-            has_required_modifiers: modifierGroup.has_required_modifiers,
-            should_auto_open: modifierGroup.should_auto_open,
-            required_modifiers: modifierGroup.required_modifiers,
-            should_auto_select: modifierGroup.should_auto_select,
-            priority: Number(modifierGroup.priority ?? 0)
+          // Save recipes as separate records in dishes_recipes table
+          if (formData.recipes) {
+            // Delete existing recipe records
+            await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
+
+            // Create new recipe records and collect their IDs
+            const recipeIds: RecordId[] = [];
+            for (const recipe of formData.recipes) {
+              const invItem = findInventoryItem(inventoryItems?.data, recipe.item?.value);
+              const stock = toStockLine({
+                enteredQuantity: parseFloat(String(recipe.quantity)),
+                enteredUom: recipe.entered_uom || invItem?.uom,
+                stockUom: invItem?.uom || recipe.entered_uom,
+                stockUnitPrice: parseFloat(String(recipe.cost)),
+                mode: "quantity_only",
+              });
+              const recipeData = {
+                menu_item: menuId,
+                item: new StringRecordId(recipe.item.value.toString()),
+                quantity: stock.quantity,
+                entered_quantity: stock.entered_quantity,
+                entered_uom: stock.entered_uom,
+                cost: stock.price,
+                is_price_locked: recipe.is_price_locked || false
+              };
+              const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
+              recipeIds.push(recipeRecord.id);
+            }
+
+            // Update dish with recipe IDs in items field
+            await db.merge(menuId, {
+              items: recipeIds
+            });
+          } else {
+            // Clear recipes if none provided
+            await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
+            await db.merge(menuId, {
+              items: []
+            });
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.dishes,
+            entityId: String(menuId),
+            isUpdate: Boolean(data?.id),
+            after: dishData,
+            source: 'settings-form',
+            label: values.name,
           });
-        }
-      }
-
-      // Save recipes as separate records in dishes_recipes table
-      if (formData.recipes) {
-        // Delete existing recipe records
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-
-        // Create new recipe records and collect their IDs
-        const recipeIds: RecordId[] = [];
-        for (const recipe of formData.recipes) {
-          const invItem = findInventoryItem(inventoryItems?.data, recipe.item?.value);
-          const stock = toStockLine({
-            enteredQuantity: parseFloat(String(recipe.quantity)),
-            enteredUom: recipe.entered_uom || invItem?.uom,
-            stockUom: invItem?.uom || recipe.entered_uom,
-            stockUnitPrice: parseFloat(String(recipe.cost)),
-            mode: "quantity_only",
-          });
-          const recipeData = {
-            menu_item: menuId,
-            item: new StringRecordId(recipe.item.value.toString()),
-            quantity: stock.quantity,
-            entered_quantity: stock.entered_quantity,
-            entered_uom: stock.entered_uom,
-            cost: stock.price,
-            is_price_locked: recipe.is_price_locked || false
-          };
-          const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
-          recipeIds.push(recipeRecord.id);
-        }
-
-        // Update dish with recipe IDs in items field
-        await db.merge(menuId, {
-          items: recipeIds
-        });
-      } else {
-        // Clear recipes if none provided
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-        await db.merge(menuId, {
-          items: []
-        });
-      }
-
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.dishes,
-        entityId: String(menuId),
-        isUpdate: Boolean(data?.id),
-        after: dishData,
-        source: 'settings-form',
-        label: values.name,
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.dishSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.dishSaved', { name: values.name })
+      );
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -545,9 +586,12 @@ export const DishForm = ({
         size="full"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div className="flex-1">
               <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
@@ -634,6 +678,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     isLoading={loadingCategories}
+                    isDisabled={structuralLocked}
                   />
                 )}
                 control={control}
@@ -641,7 +686,7 @@ export const DishForm = ({
               {errors?.categories?.message && <InputError error={errors?.categories?.message}/>}
             </div>
             <div className="flex-0">
-              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary"><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={structuralLocked}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 
@@ -716,6 +761,7 @@ export const DishForm = ({
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
+                disabled={structuralLocked}
                 className="block w-full text-sm text-foreground
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
@@ -737,10 +783,10 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('columns.modifierGroups')}</legend>
               <div className="mb-3 flex gap-3">
-                <Button type="button" icon={faPlus} variant="primary" onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   append({
                     modifier_group: null,
                     has_required_modifiers: false,
@@ -750,7 +796,7 @@ export const DishForm = ({
                   {t('entities.modifierGroup')}
                 </Button>
 
-                <Button type="button" icon={faPlus} variant="primary" flat onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" flat disabled={structuralLocked} onClick={() => {
                   setModifierGroupsModal(true)
                 }}>
                   {t('forms.createModifierGroup')}
@@ -769,6 +815,7 @@ export const DishForm = ({
                           value={field.value}
                           onChange={field.onChange}
                           isLoading={loadingModifierGroups}
+                          isDisabled={structuralLocked}
                           options={modifierGroups?.data?.map(item => ({
                             label: item.name,
                             value: item.id,
@@ -840,7 +887,7 @@ export const DishForm = ({
                     />
                   </div>
                   <div className="flex-0 self-end">
-                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                   </div>
                 </div>
               ))}
@@ -848,10 +895,10 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('forms.recipe')}</legend>
               <div className="mb-3">
-                <Button type="button" icon={faPlus} variant="primary" onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   appendRecipe({
                     item: null,
                     quantity: 1,
@@ -925,6 +972,7 @@ export const DishForm = ({
                               }
                             }}
                             isLoading={loadingInventoryItems}
+                            isDisabled={structuralLocked}
                             options={availableOptions}
                           />
                         )}
@@ -974,7 +1022,7 @@ export const DishForm = ({
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                     </div>
                   </div>
                 );

@@ -11,6 +11,7 @@ import {Category} from "@/api/model/category.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {Floor} from "@/api/model/floor.ts";
 import {Table} from "@/api/model/table.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends { id?: any }>(
   item: T | undefined,
@@ -48,6 +49,8 @@ export const SalesServerFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label="Select a range" />
+
+      <BranchScopeFilter />
 
       <div className="w-full flex flex-col gap-4">
         <div className="flex flex-col gap-2">
