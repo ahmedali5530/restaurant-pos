@@ -15,6 +15,9 @@
 -- server-side by the gateway's session-auth middleware (see
 -- gateway/src/audit-log.js) which records 401/403 responses.
 --
+-- SurrealDB 3.x: use type::string() for record ids and null-safe $auth
+-- (see also 2026_10_26_audit_events_type_string.surql OVERWRITE for existing DBs).
+--
 -- See: RBAC-DESIGN.md → "Audit logging" section
 -- See: ACTIVATION-RUNBOOK.md → Phase 4 audit verification
 
@@ -42,26 +45,18 @@ DEFINE INDEX IF NOT EXISTS audit_log_record_id ON audit_log FIELDS record_id;
 
 -- ---------------------------------------------------------------------------
 -- DEFINE EVENT hooks on critical tables.
---
--- Each event fires AFTER the write succeeds, inserting a row into audit_log
--- with the actor's identity (from $auth) and the changed fields.
---
--- The `THEN` block runs with the same privileges as the triggering query,
--- so it can write to audit_log even when PERMISSIONS would deny the actor
--- direct write access to audit_log (we want only events to write, not users).
 -- ---------------------------------------------------------------------------
 
--- event: user table — password changes, role assignments
 DEFINE EVENT IF NOT EXISTS audit_user_create ON TABLE user
   WHEN $event == 'CREATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
       action: 'create',
       table_name: 'user',
-      record_id: <string>$after.id,
+      record_id: type::string($after.id),
       changed_fields: [],
       source: 'surreal-event',
     };
@@ -71,13 +66,13 @@ DEFINE EVENT IF NOT EXISTS audit_user_update ON TABLE user
   WHEN $event == 'UPDATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
       action: 'update',
       table_name: 'user',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
+      record_id: type::string($after.id),
+      changed_fields: object::keys($after) ?? [],
       source: 'surreal-event',
     };
   };
@@ -86,28 +81,27 @@ DEFINE EVENT IF NOT EXISTS audit_user_delete ON TABLE user
   WHEN $event == 'DELETE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
       action: 'delete',
       table_name: 'user',
-      record_id: <string>$before.id,
+      record_id: type::string($before.id),
       changed_fields: [],
       source: 'surreal-event',
     };
   };
 
--- event: user_role table — privilege escalation vector
 DEFINE EVENT IF NOT EXISTS audit_user_role_create ON TABLE user_role
   WHEN $event == 'CREATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
       action: 'create',
       table_name: 'user_role',
-      record_id: <string>$after.id,
+      record_id: type::string($after.id),
       changed_fields: [],
       source: 'surreal-event',
     };
@@ -117,77 +111,73 @@ DEFINE EVENT IF NOT EXISTS audit_user_role_update ON TABLE user_role
   WHEN $event == 'UPDATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
       action: 'update',
       table_name: 'user_role',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
+      record_id: type::string($after.id),
+      changed_fields: object::keys($after) ?? [],
       source: 'surreal-event',
     };
   };
 
--- event: integration_oauth_credential — OAuth token changes
 DEFINE EVENT IF NOT EXISTS audit_oauth_credential_update ON TABLE integration_oauth_credential
   WHEN $event == 'UPDATE' OR $event == 'CREATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
+      action: type::string($event),
       table_name: 'integration_oauth_credential',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
+      record_id: type::string($after.id),
+      changed_fields: object::keys($after) ?? [],
       source: 'surreal-event',
     };
   };
 
--- event: payment_type — gateway config changes (credentials saved/revoked)
 DEFINE EVENT IF NOT EXISTS audit_payment_type_update ON TABLE payment_type
   WHEN $event == 'UPDATE' OR $event == 'CREATE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
+      action: type::string($event),
       table_name: 'payment_type',
-      record_id: <string>$after.id,
-      changed_fields: <array<string>>object::keys($after),
+      record_id: type::string($after.id),
+      changed_fields: object::keys($after) ?? [],
       source: 'surreal-event',
     };
   };
 
--- event: payroll_run — salary data changes
 DEFINE EVENT IF NOT EXISTS audit_payroll_run_update ON TABLE payroll_run
   WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
+      action: type::string($event),
       table_name: 'payroll_run',
-      record_id: <string>(if $event == 'DELETE' { $before.id } else { $after.id }),
-      changed_fields: if $event == 'DELETE' { [] } else { <array<string>>object::keys($after) },
+      record_id: type::string(IF $event == 'DELETE' { $before.id } ELSE { $after.id }),
+      changed_fields: IF $event == 'DELETE' { [] } ELSE { object::keys($after) ?? [] },
       source: 'surreal-event',
     };
   };
 
--- event: account_journal_entry — financial journal changes
 DEFINE EVENT IF NOT EXISTS audit_journal_entry_update ON TABLE account_journal_entry
   WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE'
   THEN {
     CREATE audit_log CONTENT {
-      actor_id: <string>$auth.sub,
-      actor_login: $auth.login,
-      actor_roles: $auth.roles,
-      action: <string>$event,
+      actor_id: IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) },
+      actor_login: IF $auth = NONE { NONE } ELSE { $auth.login },
+      actor_roles: IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles },
+      action: type::string($event),
       table_name: 'account_journal_entry',
-      record_id: <string>(if $event == 'DELETE' { $before.id } else { $after.id }),
-      changed_fields: if $event == 'DELETE' { [] } else { <array<string>>object::keys($after) },
+      record_id: type::string(IF $event == 'DELETE' { $before.id } ELSE { $after.id }),
+      changed_fields: IF $event == 'DELETE' { [] } ELSE { object::keys($after) ?? [] },
       source: 'surreal-event',
     };
   };

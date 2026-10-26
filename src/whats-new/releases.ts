@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-26',
+    title: 'Role updates no longer fail on audit log',
+    items: [
+      'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events use SurrealDB 3.x type::string() and null-safe $auth.',
+    ],
+  },
+  {
     date: '2026-10-23',
     title: 'AI dish recipe lookup',
     items: [

@@ -131,6 +131,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_20_inventory_uom_catalog', file: '2026_10_20_inventory_uom_catalog.surql' },
   { id: '2026_10_21_printer_command_set', file: '2026_10_21_printer_command_set.surql' },
   { id: '2026_10_22_kitchen_recon_entered_uom', file: '2026_10_22_kitchen_recon_entered_uom.surql' },
+  { id: '2026_10_26_audit_events_type_string', file: '2026_10_26_audit_events_type_string.surql' },
 ];
 
 const rows = (result) => {
