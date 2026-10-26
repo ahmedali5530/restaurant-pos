@@ -1,4 +1,6 @@
 import { getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
+import { isTauriDesktop } from '@/lib/desktop.ts';
+import { toLoopbackIp } from '@/lib/loopback-url.ts';
 
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
@@ -27,17 +29,21 @@ export function isGatewayAuthEnabled(): boolean {
   return raw !== 'false' && raw !== '0' && raw !== 'no';
 }
 
+export function desktopLoopback(url: string): string {
+  return isTauriDesktop() ? toLoopbackIp(url) : url;
+}
+
 export function getGatewayBaseUrl(): string {
   const central = getCachedRuntimeConfig()?.gatewayUrl?.trim();
   if (central) {
-    return central.replace(/\/$/, '');
+    return desktopLoopback(central.replace(/\/$/, ''));
   }
   const explicit = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.trim();
   if (explicit) {
-    return explicit.replace(/\/$/, '');
+    return desktopLoopback(explicit.replace(/\/$/, ''));
   }
   if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin;
+    return desktopLoopback(window.location.origin);
   }
   return '';
 }
@@ -108,6 +114,8 @@ export async function gatewayLogin(payload: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    // A stalled localhost lookup used to leave the login screen spinning.
+    signal: AbortSignal.timeout(8_000),
   });
   const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {

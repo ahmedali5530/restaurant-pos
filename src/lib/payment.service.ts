@@ -1,4 +1,4 @@
-import { authHeaders } from "@/lib/session.ts";
+import { authHeaders, desktopLoopback } from "@/lib/session.ts";
 import { runtimePaymentServerUrl } from "@/lib/runtime-config.ts";
 
 export const PAYMENT_SERVER_URL =
@@ -8,11 +8,11 @@ export const PAYMENT_CALLBACK_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_CALLBACK_SERVER_URL as string) || PAYMENT_SERVER_URL;
 
 function paymentBaseUrl(): string {
-  return (runtimePaymentServerUrl() || PAYMENT_SERVER_URL).replace(/\/$/, "");
+  return desktopLoopback(runtimePaymentServerUrl() || PAYMENT_SERVER_URL).replace(/\/$/, "");
 }
 
 function paymentCallbackBaseUrl(): string {
-  return (runtimePaymentServerUrl() || PAYMENT_CALLBACK_SERVER_URL).replace(/\/$/, "");
+  return desktopLoopback(runtimePaymentServerUrl() || PAYMENT_CALLBACK_SERVER_URL).replace(/\/$/, "");
 }
 
 import type { GatewayId } from "@/lib/payment/gateway-catalog.ts";

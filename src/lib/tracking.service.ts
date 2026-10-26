@@ -1,5 +1,5 @@
 import { Tracking } from "@/api/model/tracking.ts";
-import { authHeaders } from "@/lib/session.ts";
+import { authHeaders, desktopLoopback } from "@/lib/session.ts";
 import { runtimeTrackingServerUrl } from "@/lib/runtime-config.ts";
 
 export const TRACKING_SERVER_URL =
@@ -121,7 +121,7 @@ export async function postTracking(payload: TrackingRequest): Promise<void> {
   if (!isTrackingEnabled()) return;
 
   try {
-    const url = `${(runtimeTrackingServerUrl() || TRACKING_SERVER_URL).replace(/\/$/, "")}/tracking`;
+    const url = `${desktopLoopback(runtimeTrackingServerUrl() || TRACKING_SERVER_URL).replace(/\/$/, "")}/tracking`;
     const response = await fetch(url, {
       method: "POST",
       headers: authHeaders(),

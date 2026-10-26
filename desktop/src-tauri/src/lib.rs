@@ -15,8 +15,29 @@ use tauri_plugin_log::{Target, TargetKind};
 use logging::LogHub;
 use sidecars::SidecarSupervisor;
 
+/// Keep loopback traffic off proxy auto-discovery. WebKit otherwise waits on
+/// that lookup when the machine has no network, including for 127.0.0.1.
+fn allow_loopback_without_proxy() {
+  for key in ["no_proxy", "NO_PROXY"] {
+    let current = std::env::var(key).unwrap_or_default();
+    let mut parts: Vec<String> = current
+      .split(',')
+      .map(str::trim)
+      .filter(|part| !part.is_empty())
+      .map(str::to_string)
+      .collect();
+    for host in ["localhost", "127.0.0.1", "::1"] {
+      if !parts.iter().any(|part| part.eq_ignore_ascii_case(host)) {
+        parts.push(host.to_string());
+      }
+    }
+    std::env::set_var(key, parts.join(","));
+  }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+  allow_loopback_without_proxy();
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .setup(|app| {
