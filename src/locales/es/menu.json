@@ -41,7 +41,7 @@
   },
   "qtyPrompt": {
     "title": "Cantidad — {{name}}",
-    "hint": "Escriba la cantidad o pulse un atajo.",
+    "hint": "Use +/− o una cantidad rápida, o escriba en el teclado.",
     "quantity": "Cantidad",
     "add": "Añadir"
   }
