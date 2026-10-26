@@ -663,7 +663,8 @@
     },
     "errors": {
       "inUse": "{{code}} devre dışı bırakılamaz: {{count}} kalemde kullanılıyor",
-      "duplicateCode": "{{code}} kodu zaten var"
+      "duplicateCode": "{{code}} kodu zaten var",
+      "stockUnitLocked": "Kalemin stok hareketleri veya reçete miktarları olduktan sonra stok birimi değiştirilemez"
     },
     "toast": {
       "saved": "{{code}} birimi kaydedildi"

@@ -663,7 +663,8 @@
     },
     "errors": {
       "inUse": "Não é possível desativar {{code}}: usado por {{count}} item(ns)",
-      "duplicateCode": "O código {{code}} já existe"
+      "duplicateCode": "O código {{code}} já existe",
+      "stockUnitLocked": "A unidade de estoque não pode ser alterada depois que o item tiver movimentos no ledger ou quantidades de receita"
     },
     "toast": {
       "saved": "Unidade {{code}} salva"

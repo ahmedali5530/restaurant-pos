@@ -663,7 +663,8 @@
     },
     "errors": {
       "inUse": "No se puede desactivar {{code}}: usado por {{count}} artículo(s)",
-      "duplicateCode": "El código {{code}} ya existe"
+      "duplicateCode": "El código {{code}} ya existe",
+      "stockUnitLocked": "No se puede cambiar la unidad de stock después de que el artículo tenga movimientos de inventario o cantidades de receta"
     },
     "toast": {
       "saved": "Unidad {{code}} guardada"

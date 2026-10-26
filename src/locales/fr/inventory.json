@@ -663,7 +663,8 @@
     },
     "errors": {
       "inUse": "Impossible de désactiver {{code}} : utilisé par {{count}} article(s)",
-      "duplicateCode": "Le code {{code}} existe déjà"
+      "duplicateCode": "Le code {{code}} existe déjà",
+      "stockUnitLocked": "L'unité de stock ne peut pas être modifiée après des mouvements de stock ou des quantités de recette"
     },
     "toast": {
       "saved": "Unité {{code}} enregistrée"

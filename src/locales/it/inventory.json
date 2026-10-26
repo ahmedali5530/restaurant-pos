@@ -663,7 +663,8 @@
     },
     "errors": {
       "inUse": "Impossibile disattivare {{code}}: usato da {{count}} articolo/i",
-      "duplicateCode": "Il codice {{code}} esiste già"
+      "duplicateCode": "Il codice {{code}} esiste già",
+      "stockUnitLocked": "L'unità di magazzino non può essere modificata dopo movimenti di magazzino o quantità di ricetta"
     },
     "toast": {
       "saved": "Unità {{code}} salvata"
