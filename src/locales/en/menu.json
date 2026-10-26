@@ -38,5 +38,11 @@
     "nLeft": "{{count}} left",
     "unavailableBadge": "Sold out",
     "cartExceeds": "{{name}} exceeds available stock ({{count}} left)"
+  },
+  "qtyPrompt": {
+    "title": "Quantity — {{name}}",
+    "hint": "Enter how many to add, or tap a quick amount.",
+    "quantity": "Quantity",
+    "add": "Add"
   }
 }

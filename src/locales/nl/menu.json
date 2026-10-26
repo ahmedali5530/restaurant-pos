@@ -38,5 +38,11 @@
     "nLeft": "{{count}} over",
     "unavailableBadge": "Uitverkocht",
     "cartExceeds": "{{name}} overschrijdt de voorraad (nog {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Aantal — {{name}}",
+    "hint": "Voer het aantal in of tik een snelkeuze.",
+    "quantity": "Aantal",
+    "add": "Toevoegen"
   }
 }

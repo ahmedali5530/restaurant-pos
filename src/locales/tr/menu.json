@@ -38,5 +38,11 @@
     "nLeft": "{{count}} kaldı",
     "unavailableBadge": "Tükendi",
     "cartExceeds": "{{name}} mevcut stoğu aşıyor ({{count}} kaldı)"
+  },
+  "qtyPrompt": {
+    "title": "Adet — {{name}}",
+    "hint": "Adedi girin veya hızlı bir değer seçin.",
+    "quantity": "Adet",
+    "add": "Ekle"
   }
 }

@@ -103,7 +103,8 @@
     "barcode": "Código de barras",
     "available": "Disponível",
     "availableQty": "Limite de venda",
-    "extraBarcodes": "Códigos extras"
+    "extraBarcodes": "Códigos extras",
+    "askQuantity": "Pedir quantidade"
   },
   "entities": {
     "dish": "Prato",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "UPCs de caixa, pack ou alternativos deste item",
     "extraBarcodesEmpty": "Nenhum código extra ainda",
     "addBarcode": "Adicionar código",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Pedir quantidade",
+    "askQuantityHint": "Se ativo, Menu e Pedido rápido pedem quantidade após escanear/tocar (CODE*N / balança ignorados)."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

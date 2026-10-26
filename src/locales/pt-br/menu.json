@@ -38,5 +38,11 @@
     "nLeft": "{{count}} restantes",
     "unavailableBadge": "Esgotado",
     "cartExceeds": "{{name}} excede o estoque disponível (restam {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Quantidade — {{name}}",
+    "hint": "Digite a quantidade ou toque em um atalho.",
+    "quantity": "Quantidade",
+    "add": "Adicionar"
   }
 }

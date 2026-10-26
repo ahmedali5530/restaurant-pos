@@ -103,7 +103,8 @@
     "barcode": "Barcode",
     "available": "Available",
     "availableQty": "Sale limit",
-    "extraBarcodes": "Extra barcodes"
+    "extraBarcodes": "Extra barcodes",
+    "askQuantity": "Ask quantity"
   },
   "entities": {
     "dish": "Dish",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "Case, sleeve, or alternate UPCs that scan to this item",
     "extraBarcodesEmpty": "No extra barcodes yet",
     "addBarcode": "Add barcode",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Ask quantity",
+    "askQuantityHint": "When on, Menu and Quick Order ask for quantity after scan or tap (CODE*N / scale labels still skip)."
   },
   "dishView": {
     "detailsTitle": "Dish details",

@@ -6,7 +6,6 @@ import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {QuickOrderCart} from "@/components/quick-order/cart.tsx";
 import {QuickOrderBrowse} from "@/components/quick-order/browse.tsx";
-import {QuickOrderQtyPrompt} from "@/components/quick-order/qty-prompt.tsx";
 import {useBarcodeScan} from "@/hooks/useBarcodeScan.ts";
 import {useQuickOrderScanFocus} from "@/hooks/useQuickOrderScanFocus.ts";
 import {findDishByScanCode, parseScanQty} from "@/lib/quick-order-scan.ts";
@@ -24,6 +23,7 @@ import {
 import {CartModifierGroup, MenuItem} from "@/api/model/cart_item.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
+import {DishQtyPrompt, dishAsksQuantity} from "@/components/menu/qty-prompt.tsx";
 import {toast} from "sonner";
 import i18n from "@/lib/i18n.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -41,7 +41,7 @@ type AddDishOpts = {
   fractionalQty?: boolean;
   priceOverride?: number;
   availabilityQty?: number;
-  /** Skip the ask-qty modal (qty already known from CODE*N / scale). */
+  /** Skip the ask-qty modal (qty already known from CODE*N / scale / browse). */
   skipQtyPrompt?: boolean;
 };
 
@@ -61,7 +61,6 @@ export const QuickOrder = () => {
   const [scanValue, setScanValue] = useState("");
   const [lastAddedDishId, setLastAddedDishId] = useState<string | null>(null);
   const scanInputRef = useRef<HTMLInputElement | null>(null);
-  const askQuantityAfterAdd = state.askQuantityAfterAdd === true;
 
   const scanArmed = !enforcement.orderTakingBlocked;
   const focusScanInput = useQuickOrderScanFocus(scanInputRef, scanArmed);
@@ -190,7 +189,7 @@ export const QuickOrder = () => {
     ],
   );
 
-  /** Add dish; optionally prompt for qty when device setting is on. */
+  /** Add dish; prompt for qty when this dish has ask_quantity (unless qty already known). */
   const addDish = useCallback(
     (
       dish: Dish,
@@ -202,7 +201,7 @@ export const QuickOrder = () => {
         opts?.skipQtyPrompt === true ||
         opts?.fractionalQty === true ||
         (Number(quantity) || 1) > 1;
-      if (askQuantityAfterAdd && !qtyKnown && !selectedGroups) {
+      if (dishAsksQuantity(dish) && !qtyKnown && !selectedGroups) {
         if (enforcement.orderTakingBlocked) {
           toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
           return false;
@@ -210,13 +209,13 @@ export const QuickOrder = () => {
         if (!assertCanAdd(dish, 1)) {
           return false;
         }
+        setQtyPromptGroups(undefined);
         setQtyPromptDish(dish);
         return true;
       }
       return commitDish(dish, selectedGroups, quantity, opts);
     },
     [
-      askQuantityAfterAdd,
       assertCanAdd,
       commitDish,
       enforcement.message,
@@ -230,29 +229,25 @@ export const QuickOrder = () => {
         toast.warning(enforcement.message ?? i18n.t("closing:orderTakingDisabled"));
         return;
       }
-      if (!assertCanAdd(item.dish, 1)) {
+      const qty = Math.max(1, Math.floor(Number(item.quantity) || 1));
+      if (!assertCanAdd(item.dish, qty)) {
         return;
       }
+      // Browse uses MenuDish which already prompts when ask_quantity is set.
       const groups = selectedGroups ?? item.selectedGroups;
-      if (askQuantityAfterAdd) {
-        setQtyPromptGroups(groups?.length ? groups : undefined);
-        setQtyPromptDish(item.dish);
-        return;
-      }
       setState((prev) => ({
         ...prev,
         cart: mergeOrAppendCartLine(prev.cart, item.dish, {
           selectedGroups: groups,
           categoryName: item.category,
           categoryId: item.category_id,
-          quantity: 1,
+          quantity: qty,
         }),
       }));
       setLastAddedDishId(String(item.dish?.id ?? ""));
       focusScanInput();
     },
     [
-      askQuantityAfterAdd,
       assertCanAdd,
       enforcement.message,
       enforcement.orderTakingBlocked,
@@ -368,10 +363,11 @@ export const QuickOrder = () => {
       }
 
       const qtyExplicit = parsed.mode === "use_last" || parsed.qty > 1;
+      const willPrompt = dishAsksQuantity(dish) && !qtyExplicit;
       const added = addDish(dish, undefined, parsed.qty, {
         skipQtyPrompt: qtyExplicit,
       });
-      if (added && (qtyExplicit || !askQuantityAfterAdd)) {
+      if (added && !willPrompt) {
         toast.success(
           parsed.qty > 1
             ? t("quick-order:scan.addedQty", {name: dish.name, count: parsed.qty})
@@ -383,7 +379,6 @@ export const QuickOrder = () => {
     },
     [
       addDish,
-      askQuantityAfterAdd,
       focusScanInput,
       lastAddedDishId,
       sellableDishes,
@@ -472,7 +467,7 @@ export const QuickOrder = () => {
       </div>
 
       {qtyPromptDish && (
-        <QuickOrderQtyPrompt
+        <DishQtyPrompt
           dish={qtyPromptDish}
           open
           onConfirm={onQtyPromptConfirm}

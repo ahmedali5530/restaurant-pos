@@ -1903,6 +1903,7 @@ DEFINE FIELD dish_photo ON menu_item TYPE none | record<document> | null PERMISS
 DEFINE FIELD items ON menu_item TYPE none | array<record<menu_item_recipe>> | null PERMISSIONS FULL;
 DEFINE FIELD items.* ON menu_item TYPE record<menu_item_recipe> PERMISSIONS FULL;
 DEFINE FIELD available ON menu_item TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD ask_quantity ON menu_item TYPE none | bool | null PERMISSIONS FULL;
 DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;

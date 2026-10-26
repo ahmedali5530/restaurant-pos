@@ -26,11 +26,5 @@
   },
   "customerDisplay": {
     "open": "Müşteri ekranı"
-  },
-  "qtyPrompt": {
-    "title": "Adet — {{name}}",
-    "hint": "Adedi girin veya hızlı bir değer seçin.",
-    "quantity": "Adet",
-    "add": "Ekle"
   }
 }

@@ -26,11 +26,5 @@
   },
   "customerDisplay": {
     "open": "Customer display"
-  },
-  "qtyPrompt": {
-    "title": "Quantity — {{name}}",
-    "hint": "Enter how many to add, or tap a quick amount.",
-    "quantity": "Quantity",
-    "add": "Add"
   }
 }

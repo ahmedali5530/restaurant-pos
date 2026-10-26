@@ -346,10 +346,7 @@
     "title": "POS modu",
     "description": "Bu cihaz için restoran (masalar ve katlar) veya Hızlı sipariş (barkod okut ve öde) seçin.",
     "restaurant": "Restoran",
-    "retail": "Hızlı sipariş",
-    "askQuantityTitle": "Eklemeden sonra adet sor",
-    "askQuantityDescription": "Hızlı siparişte tarama/dokunmadan sonra adet sor. CODE*N, *N ve terazi etiketlerinde atlanır.",
-    "askQuantityEnabled": "Adet sor"
+    "retail": "Hızlı sipariş"
   },
   "itemAvailability": {
     "title": "Satış limitlerini zorunlu kıl",

@@ -346,10 +346,7 @@
     "title": "Modo do PDV",
     "description": "Escolha restaurante (mesas e andares) ou Pedido rápido (ler código de barras e pagar) neste dispositivo.",
     "restaurant": "Restaurante",
-    "retail": "Pedido rápido",
-    "askQuantityTitle": "Pedir quantidade ao adicionar",
-    "askQuantityDescription": "No pedido rápido, após escanear ou tocar, pedir quantidade. Ignorado em CODE*N, *N e etiquetas de balança.",
-    "askQuantityEnabled": "Pedir quantidade"
+    "retail": "Pedido rápido"
   },
   "itemAvailability": {
     "title": "Aplicar limites de venda",

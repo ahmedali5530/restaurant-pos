@@ -103,7 +103,8 @@
     "barcode": "الباركود",
     "available": "متاح",
     "availableQty": "حد البيع",
-    "extraBarcodes": "باركودات إضافية"
+    "extraBarcodes": "باركودات إضافية",
+    "askQuantity": "طلب الكمية"
   },
   "entities": {
     "dish": "طبق",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "باركودات العلبة أو العبوة أو البديلة لهذا الصنف",
     "extraBarcodesEmpty": "لا توجد باركودات إضافية بعد",
     "addBarcode": "إضافة باركود",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "طلب الكمية",
+    "askQuantityHint": "عند التفعيل يطلب القائمة/الطلب السريع الكمية بعد المسح أو النقر (يتخطى CODE*N وملصقات الميزان)."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

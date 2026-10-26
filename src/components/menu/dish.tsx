@@ -4,6 +4,7 @@ import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appSettings, appState, appPage} from "@/store/jotai.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
+import {DishQtyPrompt, dishAsksQuantity} from "@/components/menu/qty-prompt.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {nanoid} from "nanoid";
 import {detectMimeType} from "@/utils/files.ts";
@@ -76,7 +77,10 @@ export const MenuDish = ({
     : null;
 
   const [modifiersModal, setModifiersModal] = useState(false);
+  const [qtyPromptOpen, setQtyPromptOpen] = useState(false);
+  const [pendingQtyGroups, setPendingQtyGroups] = useState<CartModifierGroup[] | undefined>(undefined);
   const [imageSrc, setImageSrc] = useState(defaultImage);
+  const shouldAskQty = !isModifier && dishAsksQuantity(liveItem);
 
   const resolvedMenuOverrides = menuModifierOverrides ?? item.menu_modifier_overrides ?? null;
 
@@ -144,6 +148,71 @@ export const MenuDish = ({
     tax_mode: item.tax_mode ?? 'exclusive',
     taxes: item.taxes,
   }), [item.tax_mode, item.taxes]);
+
+  const emitAdd = useCallback(
+    (quantity: number, groups?: CartModifierGroup[]) => {
+      const qty = Math.max(1, Math.floor(Number(quantity) || 1));
+      const check = canAddDishQty({
+        dish: liveItem,
+        sold,
+        cart: state.cart,
+        addQty: qty,
+        enforceLimits,
+      });
+      if (!check.ok) {
+        if (check.reason === "unavailable") {
+          toast.warning(t("menu:availability.unavailable", {name: item.name}));
+        } else {
+          toast.warning(
+            t("menu:availability.onlyNLeft", {
+              name: item.name,
+              count: check.remaining ?? 0,
+            }),
+          );
+        }
+        return;
+      }
+      const selectedGroups = groups ? cloneCartModifierGroups(groups) : [];
+      onClick(
+        {
+          quantity: qty,
+          dish: item,
+          seat: state.seat,
+          id: nanoid(),
+          level: level,
+          selectedGroups,
+          isModifier,
+          newOrOld: MenuItemType.new,
+          category: state.category
+            ? state.category?.name
+            : item.categories?.length === 1
+              ? item.categories[0].name
+              : "",
+          category_id: state.category?.id?.toString(),
+          price: price,
+          menu_name: item.menu_name,
+          ...menuTaxFields,
+        },
+        selectedGroups.length ? selectedGroups : undefined,
+        price,
+      );
+    },
+    [
+      enforceLimits,
+      isModifier,
+      item,
+      level,
+      liveItem,
+      menuTaxFields,
+      onClick,
+      price,
+      sold,
+      state.cart,
+      state.category,
+      state.seat,
+      t,
+    ],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -226,22 +295,12 @@ export const MenuDish = ({
             return;
           }
           if (modifierGroups.length > 0 && hasAutoOpen) {
-            setModifiersModal(true)
+            setModifiersModal(true);
+          } else if (shouldAskQty) {
+            setPendingQtyGroups(undefined);
+            setQtyPromptOpen(true);
           } else {
-            onClick({
-              quantity: 1,
-              dish: item,
-              seat: state.seat,
-              id: nanoid(),
-              level: level,
-              selectedGroups: [],
-              newOrOld: MenuItemType.new,
-              category: state.category ? state.category?.name : (item.categories?.length === 1 ? item.categories[0].name : ''),
-              category_id: state.category?.id?.toString(),
-              price: price,
-              menu_name: item.menu_name,
-              ...menuTaxFields,
-            }, undefined, price)
+            emitAdd(1);
           }
         }}
       >
@@ -302,27 +361,35 @@ export const MenuDish = ({
           isOpen={modifiersModal}
           groups={cartModifierGroups}
           onClose={(payload) => {
-            if (payload.length > 0) {
-              const clonedGroups = cloneCartModifierGroups(payload);
-              onClick({
-                dish: item,
-                seat: state.seat,
-                quantity: 1,
-                selectedGroups: clonedGroups,
-                id: nanoid(),
-                isModifier,
-                level: level,
-                newOrOld: MenuItemType.new,
-                category: state.category ? state.category?.name : (item.categories?.length === 1 ? item.categories[0].name : ''),
-              category_id: state.category?.id?.toString(),
-                price: price,
-                menu_name: item.menu_name,
-                ...menuTaxFields,
-              }, clonedGroups, price);
-            }
             setModifiersModal(false);
+            if (payload.length === 0) {
+              return;
+            }
+            const clonedGroups = cloneCartModifierGroups(payload);
+            if (shouldAskQty) {
+              setPendingQtyGroups(clonedGroups);
+              setQtyPromptOpen(true);
+              return;
+            }
+            emitAdd(1, clonedGroups);
           }}
           level={level + 1}
+        />
+      )}
+
+      {qtyPromptOpen && (
+        <DishQtyPrompt
+          dish={item}
+          open
+          onConfirm={(qty) => {
+            setQtyPromptOpen(false);
+            emitAdd(qty, pendingQtyGroups);
+            setPendingQtyGroups(undefined);
+          }}
+          onCancel={() => {
+            setQtyPromptOpen(false);
+            setPendingQtyGroups(undefined);
+          }}
         />
       )}
     </>

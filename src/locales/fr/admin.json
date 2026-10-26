@@ -103,7 +103,8 @@
     "barcode": "Code-barres",
     "available": "Disponible",
     "availableQty": "Limite de vente",
-    "extraBarcodes": "Codes-barres supplémentaires"
+    "extraBarcodes": "Codes-barres supplémentaires",
+    "askQuantity": "Demander quantité"
   },
   "entities": {
     "dish": "Plat",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "UPC carton, lot ou alternatifs pour cet article",
     "extraBarcodesEmpty": "Aucun code-barres supplémentaire",
     "addBarcode": "Ajouter un code",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Demander la quantité",
+    "askQuantityHint": "Si activé, le menu et la commande rapide demandent la quantité après scan/touche (CODE*N / balance ignorés)."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",

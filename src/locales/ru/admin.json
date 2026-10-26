@@ -103,7 +103,8 @@
     "barcode": "Штрихкод",
     "available": "Доступно",
     "availableQty": "Лимит продаж",
-    "extraBarcodes": "Доп. штрихкоды"
+    "extraBarcodes": "Доп. штрихкоды",
+    "askQuantity": "Спрашивать кол-во"
   },
   "entities": {
     "dish": "Блюдо",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "Штрихкоды короба, упаковки или альтернативные UPC",
     "extraBarcodesEmpty": "Дополнительных штрихкодов пока нет",
     "addBarcode": "Добавить штрихкод",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Спрашивать количество",
+    "askQuantityHint": "Если включено, меню и быстрый заказ спрашивают количество после скана/нажатия (CODE*N / весы пропускаются)."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

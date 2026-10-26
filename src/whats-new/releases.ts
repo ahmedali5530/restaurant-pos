@@ -7,10 +7,10 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
-    date: '2026-10-25',
-    title: 'Ask quantity after add',
+    date: '2026-10-26',
+    title: 'Per-dish ask quantity',
     items: [
-      'Settings → POS mode (Quick Order): turn on Ask quantity after add to prompt for qty after each scan or tap. CODE*N, *N, and scale labels still skip the prompt.',
+      'Manage → Dishes: Ask quantity switch (and CSV column). When on, Menu and Quick Order prompt for qty after scan or tap for that dish only. CODE*N, *N, and scale labels still skip.',
     ],
   },
   {

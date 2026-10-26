@@ -91,6 +91,15 @@ export function createDishImportConfig({
       description: "Whether the dish can be sold (false = sold out)",
     },
     {
+      name: "ask_quantity",
+      label: t("admin:columns.askQuantity", {defaultValue: "Ask quantity"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: false,
+      aliases: ["Ask quantity", "Ask qty", "Prompt quantity", "Qty prompt"],
+      description: "When true, Menu/Quick Order ask for quantity after scan or tap",
+    },
+    {
       name: "available_qty",
       label: t("admin:columns.availableQty", {defaultValue: "Sale limit"}),
       type: "number",
@@ -245,6 +254,12 @@ export function createDishImportConfig({
         availableRaw === "0"
           ? false
           : true;
+      const askQtyRaw = values.ask_quantity;
+      const askQuantity =
+        askQtyRaw === true ||
+        askQtyRaw === "true" ||
+        askQtyRaw === 1 ||
+        askQtyRaw === "1";
       const qtyRaw = values.available_qty;
       const availableQty =
         qtyRaw === null || qtyRaw === undefined || qtyRaw === ""
@@ -261,6 +276,7 @@ export function createDishImportConfig({
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
         available,
+        ask_quantity: askQuantity,
         available_qty: availableQty != null && Number.isFinite(availableQty) ? availableQty : null,
         available_qty_set_at:
           availableQty != null && Number.isFinite(availableQty)

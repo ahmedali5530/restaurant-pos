@@ -7,6 +7,9 @@ import type {Dish} from "@/api/model/dish.ts";
 
 const QUICK_QTY = [1, 2, 3, 4, 5, 6, 10, 12] as const;
 
+export const dishAsksQuantity = (dish: {ask_quantity?: boolean | null} | null | undefined): boolean =>
+  dish?.ask_quantity === true;
+
 type Props = {
   dish: Dish;
   open: boolean;
@@ -14,15 +17,15 @@ type Props = {
   onCancel: () => void;
 };
 
-export const QuickOrderQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
-  const {t} = useTranslation(["quick-order", "common"]);
+/** Shared qty dialog for Menu and Quick Order when a dish has ask_quantity. */
+export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
+  const {t} = useTranslation(["menu", "common"]);
   const [value, setValue] = useState("1");
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (open) {
       setValue("1");
-      // Focus after modal mounts so Enter confirms immediately.
       const id = window.setTimeout(() => {
         inputRef.current?.focus();
         inputRef.current?.select();
@@ -43,17 +46,17 @@ export const QuickOrderQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) =>
     <Modal
       open={open}
       onClose={onCancel}
-      title={t("quick-order:qtyPrompt.title", {name: dish.name})}
+      title={t("menu:qtyPrompt.title", {name: dish.name})}
       size="sm"
-      testId="quick-order-qty-prompt"
+      testId="dish-qty-prompt"
     >
       <div className="flex flex-col gap-4 p-1">
-        <p className="text-sm text-muted">{t("quick-order:qtyPrompt.hint")}</p>
+        <p className="text-sm text-muted">{t("menu:qtyPrompt.hint")}</p>
         <div>
           <Input
             ref={inputRef}
             type="number"
-            label={t("quick-order:qtyPrompt.quantity")}
+            label={t("menu:qtyPrompt.quantity")}
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => {
@@ -62,7 +65,7 @@ export const QuickOrderQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) =>
                 submit();
               }
             }}
-            data-testid="quick-order-qty-input"
+            data-testid="dish-qty-input"
             autoFocus
           />
         </div>
@@ -77,7 +80,7 @@ export const QuickOrderQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) =>
                 setValue(String(n));
                 onConfirm(n);
               }}
-              data-testid={`quick-order-qty-quick-${n}`}
+              data-testid={`dish-qty-quick-${n}`}
             >
               {n}
             </Button>
@@ -91,9 +94,9 @@ export const QuickOrderQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) =>
             type="button"
             variant="success"
             onClick={submit}
-            data-testid="quick-order-qty-confirm"
+            data-testid="dish-qty-confirm"
           >
-            {t("quick-order:qtyPrompt.add")}
+            {t("menu:qtyPrompt.add")}
           </Button>
         </div>
       </div>

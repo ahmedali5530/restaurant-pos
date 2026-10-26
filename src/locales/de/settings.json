@@ -346,10 +346,7 @@
     "title": "Kassenmodus",
     "description": "Wählen Sie Restaurant (Tische und Etagen) oder Schnellbestellung (Barcode scannen und zahlen) für dieses Gerät.",
     "restaurant": "Restaurant",
-    "retail": "Schnellbestellung",
-    "askQuantityTitle": "Menge nach Hinzufügen abfragen",
-    "askQuantityDescription": "In Quick Order nach Scan/Tipp Menge abfragen. Nicht bei CODE*N, *N und Waagenetiketten.",
-    "askQuantityEnabled": "Menge abfragen"
+    "retail": "Schnellbestellung"
   },
   "itemAvailability": {
     "title": "Verkaufslimits erzwingen",

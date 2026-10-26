@@ -346,10 +346,7 @@
     "title": "Mode caisse",
     "description": "Choisissez restaurant (tables et salles) ou Commande rapide (scan code-barres et paiement) pour cet appareil.",
     "restaurant": "Restaurant",
-    "retail": "Commande rapide",
-    "askQuantityTitle": "Demander la quantité après ajout",
-    "askQuantityDescription": "En commande rapide, après scan/touche, demander la quantité. Ignoré pour CODE*N, *N et étiquettes balance.",
-    "askQuantityEnabled": "Demander la quantité"
+    "retail": "Commande rapide"
   },
   "itemAvailability": {
     "title": "Appliquer les limites de vente",

@@ -103,7 +103,8 @@
     "barcode": "Barcode",
     "available": "Verfügbar",
     "availableQty": "Verkaufslimit",
-    "extraBarcodes": "Weitere Barcodes"
+    "extraBarcodes": "Weitere Barcodes",
+    "askQuantity": "Menge abfragen"
   },
   "entities": {
     "dish": "Gericht",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "Karton-, Multipack- oder Alternativ-UPCs für diesen Artikel",
     "extraBarcodesEmpty": "Noch keine weiteren Barcodes",
     "addBarcode": "Barcode hinzufügen",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Menge abfragen",
+    "askQuantityHint": "Wenn aktiv, fragen Menü und Quick Order nach Scan/Tipp nach der Menge (CODE*N / Waagenetiketten überspringen)."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

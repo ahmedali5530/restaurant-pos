@@ -26,11 +26,5 @@
   },
   "customerDisplay": {
     "open": "Kundendisplay"
-  },
-  "qtyPrompt": {
-    "title": "Menge — {{name}}",
-    "hint": "Menge eingeben oder Schnellwert tippen.",
-    "quantity": "Menge",
-    "add": "Hinzufügen"
   }
 }

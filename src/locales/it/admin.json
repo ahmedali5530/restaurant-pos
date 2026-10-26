@@ -103,7 +103,8 @@
     "barcode": "Codice a barre",
     "available": "Disponibile",
     "availableQty": "Limite vendite",
-    "extraBarcodes": "Codici aggiuntivi"
+    "extraBarcodes": "Codici aggiuntivi",
+    "askQuantity": "Chiedi quantità"
   },
   "entities": {
     "dish": "Piatto",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "UPC di cassa, pack o alternativi per questo articolo",
     "extraBarcodesEmpty": "Nessun codice aggiuntivo",
     "addBarcode": "Aggiungi codice",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Chiedi quantità",
+    "askQuantityHint": "Se attivo, Menu e Quick Order chiedono la quantità dopo scansione/tap (CODE*N / bilancia saltati)."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

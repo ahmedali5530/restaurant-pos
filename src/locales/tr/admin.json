@@ -103,7 +103,8 @@
     "barcode": "Barkod",
     "available": "Uygun",
     "availableQty": "Satış limiti",
-    "extraBarcodes": "Ek barkodlar"
+    "extraBarcodes": "Ek barkodlar",
+    "askQuantity": "Adet sor"
   },
   "entities": {
     "dish": "Yemek",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "Koli, paket veya alternatif UPC’ler",
     "extraBarcodesEmpty": "Henüz ek barkod yok",
     "addBarcode": "Barkod ekle",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Adet sor",
+    "askQuantityHint": "Açıkken Menü ve Hızlı sipariş tarama/dokunmadan sonra adet sorar (CODE*N / terazi atlanır)."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

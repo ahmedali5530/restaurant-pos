@@ -49,11 +49,6 @@ export interface AppStateInterface {
   hideTableSelection?: boolean
   /** Device POS shell: restaurant (floors/tables) or retail quick-order */
   posMode?: 'restaurant' | 'retail'
-  /**
-   * Quick Order: after scan/tap, prompt for quantity before adding.
-   * Skipped when qty is already known (CODE*N, *N, scale labels).
-   */
-  askQuantityAfterAdd?: boolean
   /** Sale-limit enforcement on FOH (default on; set false to disable). Sold-out always blocks. */
   enforceItemAvailability?: boolean
   /**

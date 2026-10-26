@@ -346,10 +346,7 @@
     "title": "Kassamodus",
     "description": "Kies restaurant (tafels en verdiepingen) of Snelle bestelling (barcode scannen en betalen) voor dit apparaat.",
     "restaurant": "Restaurant",
-    "retail": "Snelle bestelling",
-    "askQuantityTitle": "Vraag aantal na toevoegen",
-    "askQuantityDescription": "Op Quick Order na scan/tik om aantal vragen. Overgeslagen bij CODE*N, *N en weegschaallabels.",
-    "askQuantityEnabled": "Vraag om aantal"
+    "retail": "Snelle bestelling"
   },
   "itemAvailability": {
     "title": "Verkooplimieten afdwingen",

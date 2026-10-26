@@ -23,6 +23,11 @@ export interface Dish extends ID, Name, Priority {
   available_qty?: number | null
   /** When available_qty was last set/changed (sale window start). */
   available_qty_set_at?: DateTime | string | null
+  /**
+   * When true, Menu / Quick Order prompt for quantity after scan or tap.
+   * False/null = add qty 1 immediately (default).
+   */
+  ask_quantity?: boolean | null
   position?: number
   price: number
   photo?: ArrayBuffer

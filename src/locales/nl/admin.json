@@ -103,7 +103,8 @@
     "barcode": "Barcode",
     "available": "Beschikbaar",
     "availableQty": "Verkooplimiet",
-    "extraBarcodes": "Extra barcodes"
+    "extraBarcodes": "Extra barcodes",
+    "askQuantity": "Vraag aantal"
   },
   "entities": {
     "dish": "Gerecht",
@@ -450,7 +451,9 @@
     "extraBarcodesHint": "Doos-, multipack- of alternatieve UPC’s voor dit artikel",
     "extraBarcodesEmpty": "Nog geen extra barcodes",
     "addBarcode": "Barcode toevoegen",
-    "extraBarcodePlaceholder": "UPC / EAN"
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Vraag om aantal",
+    "askQuantityHint": "Indien aan, vragen Menu en Quick Order na scan/tik om aantal (CODE*N / weegschaal overgeslagen)."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

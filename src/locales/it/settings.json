@@ -346,10 +346,7 @@
     "title": "Modalità POS",
     "description": "Scegli ristorante (tavoli e piani) o Ordine rapido (scansione barcode e pagamento) per questo dispositivo.",
     "restaurant": "Ristorante",
-    "retail": "Ordine rapido",
-    "askQuantityTitle": "Chiedi quantità dopo aggiunta",
-    "askQuantityDescription": "In Quick Order, dopo scansione/tap, chiedi la quantità. Saltato per CODE*N, *N e etichette bilancia.",
-    "askQuantityEnabled": "Chiedi quantità"
+    "retail": "Ordine rapido"
   },
   "itemAvailability": {
     "title": "Applica limiti di vendita",

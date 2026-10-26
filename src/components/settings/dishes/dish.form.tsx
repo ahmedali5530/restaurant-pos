@@ -64,6 +64,7 @@ const validationSchema = yup.object({
   barcode: yup.string().nullable().optional(),
   barcodes: yup.array().of(yup.string().nullable()).optional(),
   available: yup.boolean().optional(),
+  ask_quantity: yup.boolean().optional(),
   available_qty: yup
     .number()
     .nullable()
@@ -144,6 +145,7 @@ export const DishForm = ({
       reset({
         ...data,
         available: data.available !== false,
+        ask_quantity: data.ask_quantity === true,
         available_qty: data.available_qty ?? null,
         barcodes: Array.isArray(data.barcodes) ? data.barcodes.map(String) : [],
         categories: data.categories.map(item => ({
@@ -169,6 +171,7 @@ export const DishForm = ({
     } else {
       reset({
         available: true,
+        ask_quantity: false,
         available_qty: null,
         barcodes: [],
         recipes: [],
@@ -400,6 +403,7 @@ export const DishForm = ({
         number: formData.number,
         barcode: barcodeRaw || null,
         barcodes: extraBarcodes.length ? extraBarcodes : null,
+        ask_quantity: formData.ask_quantity === true,
         // position: data.position,
         priority: formData.priority,
         price: formData.price,
@@ -687,6 +691,22 @@ export const DishForm = ({
                 )}
               />
             </div>
+            <div>
+              <Controller
+                name="ask_quantity"
+                control={control}
+                defaultValue={false}
+                render={({field}) => (
+                  <Switch
+                    checked={field.value === true}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                    data-testid="dish-form-ask-quantity"
+                  >
+                    {t('forms.askQuantity')}
+                  </Switch>
+                )}
+              />
+            </div>
             <div className="w-40">
               <Controller
                 name="available_qty"
@@ -706,6 +726,7 @@ export const DishForm = ({
               />
             </div>
             <p className="text-sm text-muted max-w-md pb-2">{t('forms.availableQtyHint')}</p>
+            <p className="text-sm text-muted max-w-md pb-2">{t('forms.askQuantityHint')}</p>
           </div>
 
           <div className="flex gap-3">

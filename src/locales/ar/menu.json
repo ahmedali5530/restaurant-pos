@@ -38,5 +38,11 @@
     "nLeft": "متبقي {{count}}",
     "unavailableBadge": "نافد",
     "cartExceeds": "{{name}} يتجاوز المخزون المتاح (متبقي {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "الكمية — {{name}}",
+    "hint": "أدخل الكمية أو اختر رقمًا سريعًا.",
+    "quantity": "الكمية",
+    "add": "إضافة"
   }
 }
