@@ -56,6 +56,7 @@ export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
           <Input
             ref={inputRef}
             type="number"
+            enableKeyboard
             label={t("menu:qtyPrompt.quantity")}
             value={value}
             onChange={(e) => setValue(e.target.value)}

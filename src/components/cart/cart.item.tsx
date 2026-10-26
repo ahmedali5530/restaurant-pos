@@ -105,7 +105,13 @@ export const CartItem = ({ item, index }: Props) => {
         }}
       >
         <div className="flex flex-col items-start gap-3">
-          <div className="flex gap-2 items-center">
+          <div
+            className="flex gap-2 items-center"
+            // Qty controls must not toggle cart-line selection.
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {item.newOrOld === MenuItemType.new && (
               <>
                 <IconTooltipButton label={t('common:actions.add')}
