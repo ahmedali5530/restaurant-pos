@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-26',
+    title: 'Advanced Sales report: taxes filter and faster long ranges',
+    items: [
+      'Advanced Sales filter can narrow by specific taxes (in addition to with/without tax), matching both legacy order tax and order tax lines.',
+      'The Advanced Sales orders table is virtualized so multi-month ranges stay responsive while scrolling; printing still includes every row.',
+    ],
+  },
+  {
+    date: '2026-10-26',
     title: 'Dish recipe export and inventory cost precision',
     items: [
       'Dish ingredient export includes entered UOM and the item’s stock UOM for reference, sorted by dish name.',
