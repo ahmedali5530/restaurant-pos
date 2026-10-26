@@ -10,7 +10,7 @@ export const RELEASES: ReleaseNotes[] = [
     date: '2026-10-26',
     title: 'Role updates no longer fail on audit log',
     items: [
-      'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events use SurrealDB 3.x type::string() and null-safe $auth.',
+      'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events no longer read $auth fields inside SurrealDB 3.x event closures.',
     ],
   },
   {
