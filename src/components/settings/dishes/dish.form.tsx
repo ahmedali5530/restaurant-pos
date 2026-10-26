@@ -31,7 +31,7 @@ import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
-import { withCurrency } from "@/lib/utils.ts";
+import {roundInventory, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
 import {QuantityUomFields} from "@/components/inventory/common/quantity.uom.fields.tsx";
@@ -348,7 +348,7 @@ export const DishForm = ({
         // position: parseInt(values.position),
         priority: parseInt(values.priority),
         price: parseFloat(values.price),
-        cost: parseFloat(values.cost),
+        cost: roundInventory(parseFloat(values.cost)),
         categories: values?.categories?.map(item => new StringRecordId(item.value.toString()))
       };
 
@@ -451,7 +451,7 @@ export const DishForm = ({
                 quantity: stock.quantity,
                 entered_quantity: stock.entered_quantity,
                 entered_uom: stock.entered_uom,
-                cost: stock.price,
+                cost: roundInventory(stock.price),
                 is_price_locked: recipe.is_price_locked || false
               };
               const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
@@ -559,17 +559,17 @@ export const DishForm = ({
                 stockUnitPrice: cost,
                 mode: "quantity_only",
               });
-              return sum + stock.quantity * stock.price;
+              return sum + roundInventory(stock.quantity * stock.price);
             }
           } catch {
             // fall through
           }
-          return sum + (quantity * cost);
+          return sum + roundInventory(quantity * cost);
         }
         return sum;
       }, 0);
 
-      setValue('cost', totalCost, {shouldValidate: false, shouldDirty: false});
+      setValue('cost', roundInventory(totalCost), {shouldValidate: false, shouldDirty: false});
     } else {
       // If no recipes, keep the current cost value (don't reset to 0)
       // User can still manually set the cost
@@ -927,10 +927,11 @@ export const DishForm = ({
                       stockUnitPrice: rowCost,
                       mode: "quantity_only",
                     });
-                    rowTotal = stock.quantity * stock.price;
+                    rowTotal = roundInventory(stock.quantity * stock.price);
                   }
                 } catch {
                   // keep entered × cost while the unit pair is invalid
+                  rowTotal = roundInventory(rowTotal);
                 }
                 const availableOptions = inventoryItems?.data
                   ?.filter(invItem => canUseInDishRecipe(invItem))
@@ -1004,7 +1005,7 @@ export const DishForm = ({
                     <div className="flex-1">
                       <Input
                         type="text"
-                        value={withCurrency(rowTotal)}
+                        value={withInventoryCurrency(rowTotal)}
                         label={t('forms.lineTotal')}
                         readOnly
                         disabled

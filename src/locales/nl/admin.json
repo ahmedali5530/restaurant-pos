@@ -99,7 +99,10 @@
     "recordType": "Rijtype",
     "dishName": "Gerecht",
     "parentModifier": "Bovenliggende maat",
-    "nextGroup": "Volgende groep"
+    "nextGroup": "Volgende groep",
+    "itemStockUom": "Artikel voorraad-eenheid",
+    "itemStockUomHint": "Alleen ter referentie — voorraadeenheid van het voorraadartikel. Niet toegepast bij import.",
+    "enteredUomHint": "Ingevoerde eenheid voor hoeveelheid (converteerbare familie van de voorraad-eenheid)."
   },
   "entities": {
     "dish": "Gerecht",

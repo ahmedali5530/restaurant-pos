@@ -99,7 +99,10 @@
     "recordType": "Tipo riga",
     "dishName": "Piatto",
     "parentModifier": "Taglia padre",
-    "nextGroup": "Gruppo successivo"
+    "nextGroup": "Gruppo successivo",
+    "itemStockUom": "UdM stock articolo",
+    "itemStockUomHint": "Solo riferimento — unità di magazzino dell'articolo. Non applicata all'importazione.",
+    "enteredUomHint": "Unità inserita per la quantità (famiglia convertibile dell'UdM di stock)."
   },
   "entities": {
     "dish": "Piatto",

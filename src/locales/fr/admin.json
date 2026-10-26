@@ -99,7 +99,10 @@
     "recordType": "Type de ligne",
     "dishName": "Plat",
     "parentModifier": "Taille parente",
-    "nextGroup": "Groupe suivant"
+    "nextGroup": "Groupe suivant",
+    "itemStockUom": "UdM stock article",
+    "itemStockUomHint": "Référence uniquement — unité de stock de l'article. Non appliquée à l'import.",
+    "enteredUomHint": "Unité saisie pour la quantité (famille convertible de l'UdM stock)."
   },
   "entities": {
     "dish": "Plat",

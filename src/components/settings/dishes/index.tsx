@@ -363,13 +363,35 @@ export const AdminDishes = () => {
             const [recipes] = await db.query(
               `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
             );
-            return ((recipes as any[]) ?? []).map((rec) => ({
-              dish_number: String(rec.menu_item.name ?? rec.dish_number ?? rec.menu_item?.number ?? ''),
-              ingredient: rec.item.name || rec.item?.code || rec.item?.name || '',
-              quantity: String(rec.quantity ?? ''),
-              cost: String(rec.cost ?? ''),
-              is_price_locked: rec.is_price_locked ? 'true' : 'false',
-            }));
+            const rows = ((recipes as any[]) ?? [])
+              .slice()
+              .sort((a, b) => {
+                const dishCmp = String(a.menu_item?.name ?? "").localeCompare(
+                  String(b.menu_item?.name ?? ""),
+                  undefined,
+                  {sensitivity: "base"}
+                );
+                if (dishCmp !== 0) return dishCmp;
+                return String(a.item?.name ?? "").localeCompare(
+                  String(b.item?.name ?? ""),
+                  undefined,
+                  {sensitivity: "base"}
+                );
+              })
+              .map((rec) => ({
+                dish_number: String(
+                  rec.menu_item?.name ?? rec.dish_number ?? rec.menu_item?.number ?? ""
+                ),
+                ingredient: rec.item?.name || rec.item?.code || "",
+                uom: String(rec.entered_uom ?? rec.item?.uom ?? ""),
+                stock_uom: String(rec.item?.uom ?? ""),
+                quantity: String(
+                  rec.entered_quantity ?? rec.quantity ?? ""
+                ),
+                cost: String(rec.cost ?? ""),
+                is_price_locked: rec.is_price_locked ? "true" : "false",
+              }));
+            return rows;
           }}
           onDone={() => loadHook.fetchData()}
         />
