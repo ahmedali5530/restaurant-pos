@@ -37,6 +37,13 @@ import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createIssueReturnImportConfig} from "@/components/inventory/issue_returns/issue-return.import.config.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -44,6 +51,7 @@ interface InventoryIssueReturnItemFormValue {
   location?: { label: string; value: string } | null;
   issued?: number | string;
   quantity: number | string;
+  entered_uom?: string;
   comments?: string;
 }
 
@@ -79,8 +87,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordNumber(
-        db,
+      const isUnique = await isUniqueRecordroundInventory(db,
         Tables.inventory_issue_returns,
         "invoice_number",
         value,
@@ -127,6 +134,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       }).nullable().optional(),
       issued: yup.number().typeError("This should be a number").nullable().optional(),
       quantity: yup.number().typeError("This should be a number").required("This is required"),
+      entered_uom: yup.string().nullable().optional(),
       comments: yup.string().nullable().optional(),
     })
   ).min(1, "Add at least one item"),
@@ -153,6 +161,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
   } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, [], {
     enabled: false
   });
+  const itemsList = (items?.data ?? []) as InventoryItem[];
 
   const {
     data: users,
@@ -185,6 +194,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         location: null,
         issued: undefined,
         quantity: 1,
+        entered_uom: "",
         comments: ""
       }]
     }
@@ -265,6 +275,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
           documents: undefined,
           items: data.items?.map(item => {
             const loc = item.location || (item.issued_item as any)?.location;
+            const entered = lineEnteredDefaults({...item, item: item.item});
             return {
               item: item.item ? {
                 label: item.item.name,
@@ -279,7 +290,8 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 value: loc?.id
               } : null,
               issued: item.issued ?? undefined,
-              quantity: item.quantity ?? 1,
+              quantity: entered.quantity || 1,
+              entered_uom: entered.entered_uom,
               comments: item.comments ?? "",
             };
           })
@@ -298,6 +310,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             location: null,
             issued: undefined,
             quantity: 1,
+            entered_uom: "",
             comments: "",
           }]
         });
@@ -317,7 +330,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
     let isMounted = true;
 
-    fetchNextSequentialNumber(db, Tables.inventory_issue_returns, "invoice_number")
+    fetchNextSequentialroundInventory(db, Tables.inventory_issue_returns, "invoice_number")
       .then((nextNumber) => {
         if (isMounted) {
           setValue("invoice_number", nextNumber);
@@ -401,6 +414,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     if (selectedIssuance.items && selectedIssuance.items.length > 0) {
       const newItems = selectedIssuance.items.map((issueItem) => {
         const loc = issueItem.location;
+        const entered = lineEnteredDefaults(issueItem as any);
         return {
           item: issueItem.item ? {
             label: `${issueItem.item.name}-${issueItem.item.code}`,
@@ -415,7 +429,8 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             value: loc.id
           } : null,
           issued: issueItem.quantity ?? undefined,
-          quantity: issueItem.quantity ?? 1,
+          quantity: entered.quantity || 1,
+          entered_uom: entered.entered_uom,
           comments: "",
         };
       });
@@ -427,6 +442,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         location: null,
         issued: undefined,
         quantity: 1,
+        entered_uom: "",
         comments: "",
       }]);
     }
@@ -447,6 +463,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         location: null,
         issued: undefined,
         quantity: 1,
+        entered_uom: "",
         comments: "",
       }]
     });
@@ -543,6 +560,20 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             ?? (issuedIssueItem as any)?.location?.id
             ?? (issuedIssueItem as any)?.location;
 
+          const catalog = itemsList.find(
+            (ci) => String(ci.id) === String(item.item?.value)
+          );
+          const stockUnitPrice =
+            issuedIssueItem?.price != null
+              ? Number(issuedIssueItem.price)
+              : (item.price != null && item.price !== "" ? Number(item.price) : undefined);
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || catalog?.uom,
+            stockUom: catalog?.uom,
+            stockUnitPrice,
+          });
+
           const [created] = await db.create(Tables.inventory_issue_return_items, {
             issue_return: toRecordId(issueReturnIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
@@ -551,10 +582,10 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
               ? toLocationRecordId(recordIdToString(locationValue) || String(locationValue))
               : undefined,
             issued: item.issued !== undefined && item.issued !== "" ? Number(item.issued) : undefined,
-            quantity: Number(item.quantity),
-            price: issuedIssueItem?.price != null
-              ? Number(issuedIssueItem.price)
-              : (item.price != null && item.price !== "" ? Number(item.price) : undefined),
+            quantity: stock.quantity,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            price: stock.price > 0 ? stock.price : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 
@@ -577,22 +608,20 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      const inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
-              const issuedId = item.issued_item?.value;
-              if (!issuedId || !issueItem.id) return false;
-              return String(issueItem.id) === String(issuedId);
-            });
-            const price = Number(
-              issuedIssueItem?.price ??
-                (item.price != null && item.price !== "" ? item.price : 0)
-            );
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      const inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
+            const issuedId = item.issued_item?.value;
+            if (!issuedId || !issueItem.id) return false;
+            return String(issueItem.id) === String(issuedId);
+          });
+          const price = Number(
+            issuedIssueItem?.price ??
+              (item.price != null && item.price !== "" ? item.price : 0)
+          );
+          return sum + qty * price;
+        }, 0)
       );
       if (inventoryValue > 0) {
         await publishIssueReturned(integrationManager, {
@@ -814,21 +843,18 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                       )}
                     />
                   </div>
-                  <div className="flex-1">
-                    <Controller
-                      name={`items.${index}.quantity`}
-                      control={control}
-                      render={({field}) => (
-                        <Input
-                          label={t('forms.returnedQuantity')}
-                          type="number"
-                          value={field.value as number | string}
-                          onChange={field.onChange}
-                          error={get(errors, ["items", index, "quantity", "message"])}
-                        />
-                      )}
-                    />
-                  </div>
+                  <QuantityUomFields
+                    control={control}
+                    quantityName={`items.${index}.quantity`}
+                    uomName={`items.${index}.entered_uom`}
+                    stockUom={
+                      itemsList.find(
+                        (ci) => String(ci.id) === String(watchedItems?.[index]?.item?.value)
+                      )?.uom
+                    }
+                    quantityLabel={t('forms.returnedQuantity')}
+                    errors={errors}
+                  />
                   <div className="flex-1">
                     <InputField
                       name={`items.${index}.comments`}

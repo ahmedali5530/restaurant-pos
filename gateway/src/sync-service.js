@@ -186,14 +186,31 @@ async function handshake(db, body) {
   };
 }
 
+/**
+ * @param {unknown} raw
+ * @returns {'catalog' | 'full'}
+ */
+function resolveSnapshotScope(raw) {
+  return String(raw ?? '').trim().toLowerCase() === 'catalog' ? 'catalog' : 'full';
+}
+
 async function snapshotPage(db, body) {
   const terminalId = String(body.terminalId || '');
   const limit = Math.min(Number(body.limit || 200), 500);
+  const scope = resolveSnapshotScope(body.scope ?? body.resumeScope);
   const token = decodeToken(body.resumeToken);
+  // Resume tokens from a catalog-only run must stay catalog-scoped.
+  const effectiveScope =
+    token?.scope === 'catalog' || scope === 'catalog' ? 'catalog' : 'full';
   const hw = token?.highWatermark ?? (await highWatermark(db));
   let tableIndex = Number(token?.tableIndex ?? 0);
   let afterId = token?.afterId ?? null;
   const phase = token?.phase || 'records';
+  const catalogOnly = effectiveScope === 'catalog';
+  // Catalog refresh stops after printer; full snapshot walks every table.
+  const endExclusive = catalogOnly
+    ? LAST_CATALOG_TABLE_INDEX + 1
+    : SNAPSHOT_TABLES.length;
 
   // Legacy resume tokens from the old events phase: records are already truth
   // at snapshot time — jump the cursor to the watermark without replaying.
@@ -209,7 +226,7 @@ async function snapshotPage(db, body) {
     };
   }
 
-  while (tableIndex < SNAPSHOT_TABLES.length) {
+  while (tableIndex < endExclusive) {
     const table = SNAPSHOT_TABLES[tableIndex];
     // Surreal compares record ids only when $after is a RecordId — a
     // "table:id" string makes `id > $after` match the first page forever.
@@ -242,7 +259,7 @@ async function snapshotPage(db, body) {
     const advanceTable = records.length < limit;
     const nextTableIndex = advanceTable ? tableIndex + 1 : tableIndex;
     const nextAfterId = advanceTable ? null : lastId;
-    const finishedTables = advanceTable && nextTableIndex >= SNAPSHOT_TABLES.length;
+    const finishedTables = advanceTable && nextTableIndex >= endExclusive;
     const catalogComplete =
       finishedTables || nextTableIndex > LAST_CATALOG_TABLE_INDEX;
     return {
@@ -256,6 +273,7 @@ async function snapshotPage(db, body) {
         ? null
         : encodeToken({
             phase: 'records',
+            scope: effectiveScope,
             tableIndex: nextTableIndex,
             afterId: nextAfterId,
             highWatermark: hw,
@@ -527,10 +545,12 @@ module.exports = {
   PROTOCOL_VERSION,
   SCHEMA_VERSION,
   SNAPSHOT_TABLES,
+  LAST_CATALOG_TABLE_INDEX,
   SNAPSHOT_DURATIONS,
   SNAPSHOT_FILTERS,
   parseSnapshotDuration,
   resolveSnapshotDurations,
+  resolveSnapshotScope,
   buildSnapshotFilters,
   handshake,
   snapshotPage,

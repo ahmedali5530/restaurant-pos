@@ -20,7 +20,8 @@
     "buffetMenus": "Menús de buffet",
     "buffetSessions": "Sesiones de buffet",
     "adjustments": "Ajustes",
-    "locations": "Ubicaciones"
+    "locations": "Ubicaciones",
+    "units": "Unidades"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Nombre",
     "code": "Código",
     "category": "Categoría",
-    "uom": "Unidad de medida",
+    "uom": "UdM",
     "baseQuantity": "Cantidad base",
     "price": "Precio unitario",
     "averagePrice": "Precio promedio",
@@ -93,7 +94,8 @@
     "linkedKitchen": "Cocina vinculada",
     "active": "Activo",
     "previousPrice": "Precio anterior",
-    "reference": "Referencia"
+    "reference": "Referencia",
+    "averageCost": "Costo promedio"
   },
   "buttons": {
     "item": "Artículo",
@@ -126,6 +128,7 @@
     "date": "Fecha",
     "comments": "Comentarios",
     "quantity": "Cantidad",
+    "packagingNoConversion": "Las unidades de empaque no se convierten",
     "requested": "Solicitado",
     "issued": "Emitido",
     "returnedQuantity": "Cantidad devuelta",
@@ -153,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Importación IA de líneas de devolución de compra",
     "smartImportSuppliersTitle": "Importación IA de proveedores",
     "smartImportItemCategoriesTitle": "Importación IA de categorías de artículos",
-    "smartImportLocationsTitle": "Importación IA de ubicaciones"
+    "smartImportLocationsTitle": "Importación IA de ubicaciones",
+    "lastPrice": "Último",
+    "itemPrice": "Artículo"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -203,7 +208,8 @@
     "voided": "Anulado"
   },
   "upload": {
-    "attachDocuments": "Documentos adjuntos"
+    "attachDocuments": "Documentos adjuntos",
+    "noDocuments": "No hay documentos adjuntos."
   },
   "purchaseMethods": {
     "manual": "Manual",
@@ -299,7 +305,8 @@
       "missed": "Omitido"
     },
     "keyboardHint": "Ctrl/Cmd + flechas para moverse entre celdas editables.",
-    "smartImportTitle": "Importación IA de conciliación de cocina"
+    "smartImportTitle": "Importación IA de conciliación de cocina",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "stockTransfer": {
     "type": "Tipo de transferencia",
@@ -613,5 +620,53 @@
     "locationRequired": "La ubicación es obligatoria",
     "supplierNotOnItem": "El proveedor \"{{supplier}}\" no está vinculado al artículo \"{{item}}\"",
     "locationNotOnItem": "La ubicación \"{{location}}\" no está vinculada al artículo \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Añadir unidad"
+    },
+    "columns": {
+      "family": "Familia",
+      "baseFactor": "Factor base",
+      "active": "Activo",
+      "system": "Sistema"
+    },
+    "families": {
+      "weight": "Peso",
+      "volume": "Volumen",
+      "count": "Cantidad",
+      "pack": "Paquete"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Añadir unidad",
+      "editTitle": "Editar {{code}}"
+    },
+    "preview": {
+      "title": "Vista previa de conversión",
+      "hint": "Compruebe cómo convierten las unidades con los factores actuales (galón US por defecto).",
+      "from": "De",
+      "to": "A",
+      "unavailable": "Elija unidades relacionadas de la misma familia",
+      "toolbarHint": "Use el botón Conversor de unidades junto al indicador de sincronización en la barra inferior para convertir cantidades entre unidades.",
+      "openButton": "Conversor de unidades",
+      "swap": "Intercambiar unidades"
+    },
+    "validation": {
+      "required": "Obligatorio",
+      "number": "Debe ser un número",
+      "codeFormat": "Use letras, números o guion bajo (empieze por letra)",
+      "factorPositive": "El factor debe ser mayor que cero"
+    },
+    "warnings": {
+      "factorChange": "Factor actualizado. Las cantidades de stock existentes no se recalculan: solo las conversiones futuras usan el nuevo factor."
+    },
+    "errors": {
+      "inUse": "No se puede desactivar {{code}}: usado por {{count}} artículo(s)",
+      "duplicateCode": "El código {{code}} ya existe"
+    },
+    "toast": {
+      "saved": "Unidad {{code}} guardada"
+    }
   }
 }

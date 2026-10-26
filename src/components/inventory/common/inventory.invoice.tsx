@@ -1,6 +1,9 @@
 import {DateTime} from "luxon";
 import {InventoryInvoiceDoc} from "@/lib/inventory/invoice.mapper.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {
+  formatInventoryNumber,
+  withInventoryCurrency,
+} from "@/lib/inventory/rounding.ts";
 
 interface Props {
   doc: InventoryInvoiceDoc;
@@ -104,16 +107,21 @@ export const InventoryInvoice = ({doc}: Props) => {
                       )}
                     </td>
                     <td className="py-2.5 pr-2 text-right tabular-nums">
-                      {formatNumber(line.qty)}
+                      <div>{formatInventoryNumber(line.qty)}</div>
+                      {line.stockHint && (
+                        <div className="text-xs text-muted">{line.stockHint}</div>
+                      )}
                     </td>
                     <td className="py-2.5 pr-2 text-muted">{line.unit || "—"}</td>
                     {showCost ? (
                       <>
                         <td className="py-2.5 pr-2 text-right tabular-nums">
-                          {line.unitCost != null ? withCurrency(line.unitCost) : "—"}
+                          {line.unitCost != null
+                            ? `${withInventoryCurrency(line.unitCost)}${line.unitCostSuffix ?? ""}`
+                            : "—"}
                         </td>
                         <td className="py-2.5 text-right tabular-nums font-medium">
-                          {line.total != null ? withCurrency(line.total) : "—"}
+                          {line.total != null ? withInventoryCurrency(line.total) : "—"}
                         </td>
                       </>
                     ) : (

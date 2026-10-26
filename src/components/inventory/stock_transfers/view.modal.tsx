@@ -1,11 +1,13 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {StockTransfer} from "@/api/model/stock_transfer.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {getStockTransfer} from "@/lib/inventory/stock_transfer.service.ts";
-import {toLuxonDateTime} from "@/lib/datetime.ts";
-import classNames from "classnames";
+import {mapStockTransferToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {InventoryInvoice} from "@/components/inventory/common/inventory.invoice.tsx";
+import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
+import {toAppBusinessDate} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -50,6 +52,19 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
     void fetchDetails();
   }, [open, transfer?.id]);
 
+  const invoiceDoc = useMemo(
+    () => (viewTransfer ? mapStockTransferToInvoice(viewTransfer) : null),
+    [viewTransfer]
+  );
+
+  const showBizDate =
+    viewTransfer &&
+    shouldShowBusinessDate(
+      viewTransfer.created_at,
+      (viewTransfer as any).business_date,
+      toAppBusinessDate
+    );
+
   if (!open) {
     return null;
   }
@@ -67,93 +82,17 @@ export const StockTransferViewModal = ({open, transfer, onClose}: Props) => {
         </div>
       )}
 
-      {!loading && viewTransfer && (
+      {!loading && viewTransfer && invoiceDoc && (
         <div className="space-y-6">
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className={classNames("tag", "bg-surface text-foreground")}>
-                  {t("stockTransfer.typeLocation")}
-                </span>
-                <div className="text-lg font-semibold">{t("stockTransfer.viewTitle")}</div>
-              </div>
-              <div className="text-xs text-muted">
-                {viewTransfer.created_at
-                  ? toLuxonDateTime(viewTransfer.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT)
-                  : "—"}
-              </div>
+          {showBizDate && (
+            <div className="text-sm text-muted">
+              {t("columns.businessDate", {defaultValue: "Business date"})}:{" "}
+              {(viewTransfer as any).business_date}
             </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
-              <div>
-                <div className="text-muted text-xs uppercase">
-                  {t("stockTransfer.fromLocation")}
-                </div>
-                <div>
-                  {viewTransfer.from_location?.name ?? "—"}
-                </div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">
-                  {t("stockTransfer.toLocation")}
-                </div>
-                <div>
-                  {viewTransfer.to_location?.name ?? "—"}
-                </div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">
-                  {t("columns.createdBy")}
-                </div>
-                <div>
-                  {viewTransfer.created_by?.first_name} {viewTransfer.created_by?.last_name}
-                </div>
-              </div>
-              {viewTransfer.notes && (
-                <div className="col-span-full">
-                  <div className="text-muted text-xs uppercase">
-                    {t("stockTransfer.notes")}
-                  </div>
-                  <div>{viewTransfer.notes}</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="text-sm font-semibold text-foreground mb-3">
-              {t("tabs.items")}
-            </div>
-            {viewTransfer.items && viewTransfer.items.length > 0 ? (
-              <div className="max-h-64 overflow-auto divide-y divide-neutral-200">
-                {viewTransfer.items.map((line) => (
-                  <div key={line.id} className="py-2 flex flex-wrap gap-2 text-sm">
-                    <div className="flex-1 min-w-[160px]">
-                      <div className="font-medium">
-                        {line.item?.name ?? "Item"}
-                        {line.item?.code ? ` (${line.item.code})` : ""}
-                      </div>
-                      {line.item?.uom && (
-                        <div className="text-xs text-muted">{line.item.uom}</div>
-                      )}
-                    </div>
-                    <div className="w-24 text-right">
-                      <div className="text-foreground">
-                        {t("forms.quantity")}: {line.quantity}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                {t("stockTransfer.noItems")}
-              </div>
-            )}
-          </div>
+          )}
+          <InventoryInvoice doc={invoiceDoc} />
         </div>
       )}
-
     </Modal>
   );
 };

@@ -24,12 +24,16 @@ import {
   publishWasteRecorded,
 } from "@/integrations/accounting/events/publish.ts";
 import {postDocument} from "@/lib/inventory/posting.service.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
 export type RecipeItemInput = {
   itemId: string;
   quantity: number;
+  entered_quantity?: number;
+  entered_uom?: string;
   sortOrder?: number;
 };
 
@@ -106,7 +110,7 @@ const toUserRecordId = (userId: string) => {
 const getTotalFromRows = (rows: unknown): number => {
   if (!rows || !Array.isArray(rows) || rows.length === 0) return 0;
   const first = rows[0] as {total?: number};
-  return Number(first?.total ?? 0);
+  return roundInventory(first?.total ?? 0);
 };
 
 const fetchItemPrices = async (
@@ -214,6 +218,8 @@ const createRecipeChildren = async (
         recipe: recipeRef,
         item: toItemRecordId(line.itemId),
         quantity: Number(line.quantity),
+        entered_quantity: line.entered_quantity,
+        entered_uom: line.entered_uom,
         sort_order: line.sortOrder ?? index,
       })
     )
@@ -542,7 +548,7 @@ export const completeProductionBatch = async (
 
   const inputCost = Number(scaled.totalInputCost ?? 0);
   const outputCost = Number(scaled.totalOutputCost ?? 0);
-  const yieldLoss = Number(Math.max(inputCost - outputCost, 0).toFixed(2));
+  const yieldLoss = roundInventory(Math.max(inputCost - outputCost, 0));
   await publishProductionCompleted(integrationManager, {
     documentId: batchId,
     locationId,
@@ -552,14 +558,12 @@ export const completeProductionBatch = async (
   });
 
   if (wasteHeaderId) {
-    const wasteValue = Number(
-      wasteOutputs
-        .reduce(
-          (sum, line) =>
-            sum + Number(line.quantity || 0) * Number(line.unitCost || 0),
-          0
-        )
-        .toFixed(2)
+    const wasteValue = roundInventory(
+      wasteOutputs.reduce(
+        (sum, line) =>
+          sum + Number(line.quantity || 0) * Number(line.unitCost || 0),
+        0
+      )
     );
     if (wasteValue > 0) {
       await publishWasteRecorded(integrationManager, {
@@ -796,8 +800,11 @@ export const fetchProductionLinesForReport = async (
         : new Date(String(batch.created_at));
 
     for (const input of batch.inputs ?? []) {
-      const itemName =
+      const rawName =
         typeof input.item === "object" ? input.item.name : String(input.item);
+      const itemCode =
+        typeof input.item === "object" ? input.item.code : undefined;
+      const itemName = formatInventoryItemLabel(rawName, itemCode, String(rawName ?? ""));
       const itemId = recordToString(input.item?.id ?? input.item) ?? "";
       lines.push({
         batchId,
@@ -821,8 +828,11 @@ export const fetchProductionLinesForReport = async (
 
     for (const output of batch.outputs ?? []) {
       if (output.disposition === "waste") continue;
-      const itemName =
+      const rawName =
         typeof output.item === "object" ? output.item.name : String(output.item);
+      const itemCode =
+        typeof output.item === "object" ? output.item.code : undefined;
+      const itemName = formatInventoryItemLabel(rawName, itemCode, String(rawName ?? ""));
       const itemId = recordToString(output.item?.id ?? output.item) ?? "";
       lines.push({
         batchId,

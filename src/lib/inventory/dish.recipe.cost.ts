@@ -2,6 +2,7 @@ import type {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {safeNumber, toRecordId} from "@/lib/utils.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -53,9 +54,11 @@ export async function syncDishRecipeCostsForItems(
       {dish: dishRef}
     ) as any[];
 
-    const totalCost = (recipes ?? []).reduce((sum: number, recipe: any) => {
-      return sum + safeNumber(recipe.quantity) * safeNumber(recipe.cost);
-    }, 0);
+    const totalCost = roundInventory(
+      (recipes ?? []).reduce((sum: number, recipe: any) => {
+        return sum + safeNumber(recipe.quantity) * safeNumber(recipe.cost);
+      }, 0)
+    );
 
     await db.merge(dishRef, {cost: totalCost});
   }

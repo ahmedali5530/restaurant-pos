@@ -20,7 +20,8 @@
     "buffetMenus": "Cardápios de Buffet",
     "buffetSessions": "Sessões de Buffet",
     "adjustments": "Adjustments",
-    "locations": "Locations"
+    "locations": "Locations",
+    "units": "Unidades"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Nome",
     "code": "Código",
     "category": "Categoria",
-    "uom": "Unidade de medida",
+    "uom": "UM",
     "baseQuantity": "Quantidade base",
     "price": "Preço unitário",
     "averagePrice": "Preço médio",
@@ -93,7 +94,8 @@
     "linkedKitchen": "Linked kitchen",
     "active": "Active",
     "previousPrice": "Preço anterior",
-    "reference": "Referência"
+    "reference": "Referência",
+    "averageCost": "Custo médio"
   },
   "buttons": {
     "item": "Item",
@@ -126,6 +128,7 @@
     "date": "Data",
     "comments": "Comentários",
     "quantity": "Quantidade",
+    "packagingNoConversion": "Unidades de embalagem não são convertidas",
     "requested": "Solicitado",
     "issued": "Emitido",
     "returnedQuantity": "Quantidade devolvida",
@@ -153,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Importação IA de linhas de devolução de compra",
     "smartImportSuppliersTitle": "Importação IA de fornecedores",
     "smartImportItemCategoriesTitle": "Importação IA de categorias de itens",
-    "smartImportLocationsTitle": "Importação IA de locais"
+    "smartImportLocationsTitle": "Importação IA de locais",
+    "lastPrice": "Último",
+    "itemPrice": "Item"
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -203,7 +208,8 @@
     "voided": "Voided"
   },
   "upload": {
-    "attachDocuments": "Documentos anexados"
+    "attachDocuments": "Documentos anexados",
+    "noDocuments": "Nenhum documento anexado."
   },
   "purchaseMethods": {
     "manual": "Manual",
@@ -299,7 +305,8 @@
       "missed": "Perdido"
     },
     "keyboardHint": "Ctrl/Cmd + setas para mover entre células editáveis.",
-    "smartImportTitle": "Importação IA da reconciliação de cozinha"
+    "smartImportTitle": "Importação IA da reconciliação de cozinha",
+    "stockUomHint": "Estoque: {{uom}}"
   },
   "stockTransfer": {
     "type": "Tipo de transferência",
@@ -613,5 +620,53 @@
     "locationRequired": "Localização é obrigatória",
     "supplierNotOnItem": "Fornecedor \"{{supplier}}\" não está vinculado ao item \"{{item}}\"",
     "locationNotOnItem": "Localização \"{{location}}\" não está vinculada ao item \"{{item}}\""
+  },
+  "uom": {
+    "actions": {
+      "add": "Adicionar unidade"
+    },
+    "columns": {
+      "family": "Família",
+      "baseFactor": "Fator base",
+      "active": "Ativo",
+      "system": "Sistema"
+    },
+    "families": {
+      "weight": "Peso",
+      "volume": "Volume",
+      "count": "Contagem",
+      "pack": "Pacote"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Adicionar unidade",
+      "editTitle": "Editar {{code}}"
+    },
+    "preview": {
+      "title": "Prévia de conversão",
+      "hint": "Veja as conversões com os fatores atuais (galão US por padrão).",
+      "from": "De",
+      "to": "Para",
+      "unavailable": "Escolha unidades relacionadas da mesma família",
+      "toolbarHint": "Use o botão Conversor de unidades ao lado do indicador de sincronização na barra inferior para converter quantidades entre unidades.",
+      "openButton": "Conversor de unidades",
+      "swap": "Trocar unidades"
+    },
+    "validation": {
+      "required": "Obrigatório",
+      "number": "Deve ser um número",
+      "codeFormat": "Use letras, números ou underscore (comece com letra)",
+      "factorPositive": "O fator deve ser maior que zero"
+    },
+    "warnings": {
+      "factorChange": "Fator atualizado. Quantidades de estoque existentes não são recalculadas — apenas conversões futuras usam o novo fator."
+    },
+    "errors": {
+      "inUse": "Não é possível desativar {{code}}: usado por {{count}} item(ns)",
+      "duplicateCode": "O código {{code}} já existe"
+    },
+    "toast": {
+      "saved": "Unidade {{code}} salva"
+    }
   }
 }

@@ -5,7 +5,8 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryItem} from "@/api/model/inventory_item.ts";
 import {InventoryLocation} from "@/api/model/inventory_location.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 import {buildRecordInsideCondition} from "@/api/reports/shared/query.ts";
 import {recordIdToString, recordToString} from "@/api/reports/shared/records.ts";
@@ -239,7 +240,7 @@ export const CurrentInventoryReport = () => {
               sortedBalances.map((balance, index) => (
                 <tr key={`${balance.itemId}-${balance.locationId}-${index}`}>
                   <td className="py-4 pl-6 pr-3 text-sm font-medium text-foreground">
-                    {balance.itemName}{balance.itemCode ? ` (${balance.itemCode})` : ""}
+                    {formatInventoryItemLabel(balance.itemName, balance.itemCode, "")}
                   </td>
                   <td className="py-4 px-3 text-sm text-foreground">
                     {balance.category}
@@ -248,10 +249,10 @@ export const CurrentInventoryReport = () => {
                     {balance.locationName}
                   </td>
                   <td className={`py-4 px-3 text-sm text-right ${balance.belowReorder ? 'text-danger-600 font-medium' : 'text-foreground'}`}>
-                    {formatNumber(balance.quantity)} {balance.unit}
+                    {formatInventoryNumber(balance.quantity)} {balance.unit}
                   </td>
                   <td className="py-4 px-3 text-sm text-right text-foreground">
-                    {balance.reorderLevel > 0 ? formatNumber(balance.reorderLevel) : '-'}
+                    {balance.reorderLevel > 0 ? formatInventoryNumber(balance.reorderLevel) : '-'}
                   </td>
                   <td className="py-4 px-3 text-sm text-center text-foreground">
                     {balance.reorderLevel > 0 ? (balance.belowReorder ? t('common:actions.yes') : t('common:actions.no')) : '-'}

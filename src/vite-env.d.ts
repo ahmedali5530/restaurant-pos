@@ -12,6 +12,9 @@ interface ImportMetaEnv {
   readonly VITE_APP_MODULES?: string;
   /** Comma-separated access-module denylist (applied after allowlist). */
   readonly VITE_APP_MODULES_EXCLUDE?: string;
+  /** Inventory qty/cost rounding precision (default 4). */
+  readonly VITE_INVENTORY_DECIMAL_PLACES?: string;
+  readonly VITE_DECIMAL_PLACES?: string;
 }
 
 interface ImportMeta {

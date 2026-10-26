@@ -1,13 +1,13 @@
-import {useEffect, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useEffect, useMemo, useState} from "react";
+import {useTranslation} from "react-i18next";
 import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
-import {downloadArrayBuffer} from "@/utils/files.ts";
-import {Button} from "@/components/common/input/button.tsx";
-import {formatDateTime} from "@/lib/datetime.ts";
+import {mapIssueReturnToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {InventoryInvoice} from "@/components/inventory/common/inventory.invoice.tsx";
+import {InventoryDocumentAttachments} from "@/components/inventory/common/document.attachments.tsx";
+import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
+import {toAppBusinessDate} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -16,7 +16,7 @@ interface Props {
 }
 
 export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Props) => {
-  const { t } = useTranslation('inventory');
+  const {t} = useTranslation("inventory");
   const db = useDB();
   const [viewReturn, setViewReturn] = useState<InventoryIssueReturn | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,6 +45,19 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
     fetchDetails();
   }, [open, issueReturn?.id]);
 
+  const invoiceDoc = useMemo(
+    () => (viewReturn ? mapIssueReturnToInvoice(viewReturn) : null),
+    [viewReturn]
+  );
+
+  const showBizDate =
+    viewReturn &&
+    shouldShowBusinessDate(
+      viewReturn.created_at,
+      (viewReturn as any).business_date,
+      toAppBusinessDate
+    );
+
   if (!open) {
     return null;
   }
@@ -58,131 +71,25 @@ export const InventoryIssueReturnViewModal = ({open, issueReturn, onClose}: Prop
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary" />
         </div>
       )}
 
-      {!loading && viewReturn && (
+      {!loading && viewReturn && invoiceDoc && (
         <div className="space-y-6">
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">
-                Return #{viewReturn.invoice_number}
-              </div>
-              <div className="text-xs text-muted">
-                {viewReturn.created_at ? formatDateTime(viewReturn.created_at) : "—"}
-              </div>
+          {showBizDate && (
+            <div className="text-sm text-muted">
+              {t("columns.businessDate", {defaultValue: "Business date"})}:{" "}
+              {(viewReturn as any).business_date}
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-foreground">
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.issuance')}</div>
-                <div>{viewReturn.issuance ? `Issue #${viewReturn.issuance.invoice_number}` : "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.issuedTo')}</div>
-                <div>{viewReturn.issued_to ? `${viewReturn.issued_to.first_name} ${viewReturn.issued_to.last_name}` : "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.location')}</div>
-                <div>{viewReturn.location?.name ?? viewReturn.issuance?.location?.name ?? "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.createdBy')}</div>
-                <div>{viewReturn.created_by?.first_name} {viewReturn.created_by?.last_name}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="text-sm font-semibold text-foreground mb-3">
-              Items
-            </div>
-            {viewReturn.items && viewReturn.items.length > 0 ? (
-              <div className="max-h-64 overflow-auto divide-y divide-neutral-200">
-                {viewReturn.items.map((item) => (
-                  <div key={item.id} className="py-2 flex flex-wrap gap-2 text-sm">
-                    <div className="flex-1 min-w-[160px]">
-                      <div className="font-medium">
-                        {item.item?.name ?? "Item"}{item.item?.code ? ` - ${item.item.code}` : ""}
-                      </div>
-                    </div>
-                    <div className="w-24 text-right">
-                      <div className="text-foreground">
-                        Qty: {item.quantity}
-                      </div>
-                      {item.issued !== undefined && (
-                        <div className="text-xs text-muted">
-                          Issued: {item.issued}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-[120px] text-xs text-muted">
-                      {item.comments && <div className="truncate">Note: {item.comments}</div>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No items found for this issue return.
-              </div>
-            )}
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <FontAwesomeIcon icon={faFile}/>
-                <span>{t('upload.attachDocuments')}</span>
-              </div>
-            </div>
-            {viewReturn.documents && viewReturn.documents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {viewReturn.documents.map((doc, index) => (
-                  <div
-                    key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
-                        <FontAwesomeIcon icon={faFile}/>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {doc.name ?? `Document ${index + 1}`}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {doc.type ?? "File"}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        downloadArrayBuffer(
-                          doc.content,
-                          doc.name ?? `issue-return-${viewReturn.invoice_number}-${index + 1}`,
-                          doc.type ?? "application/octet-stream"
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No documents attached to this issue return.
-              </div>
-            )}
-          </div>
+          )}
+          <InventoryInvoice doc={invoiceDoc} />
+          <InventoryDocumentAttachments
+            documents={viewReturn.documents as any}
+            downloadPrefix={`issue-return-${viewReturn.invoice_number}`}
+          />
         </div>
       )}
-
     </Modal>
   );
 };
-

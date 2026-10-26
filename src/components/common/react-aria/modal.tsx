@@ -8,7 +8,9 @@ import { useTranslation } from "react-i18next";
 import { Tooltip } from "@/components/common/react-aria/tooltip.tsx";
 
 const isReactAriaTopLayer = (element: Element) =>
-  !!element.closest('[data-react-aria-top-layer], .rs__menu-portal, .rs__menu, .delete-confirm-overlay');
+  !!element.closest(
+    '[data-react-aria-top-layer], .rs__menu-portal, .rs__menu, .delete-confirm-overlay, [data-app-toolbar], [data-app-toolbar-converter]'
+  );
 
 interface ModalProps extends PropsWithChildren {
   open?: boolean;

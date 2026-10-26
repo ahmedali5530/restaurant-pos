@@ -30,6 +30,9 @@ import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
 import {withCurrency} from "@/lib/utils.ts";
 import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {QuantityUomFields} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 const inventoryItemOptionLabel = (item: InventoryItem) =>
   item.uom ? `${item.name} (${item.uom})` : item.name;
@@ -89,6 +92,7 @@ const validationSchema = yup.object({
       value: yup.string()
     }).required(i18n.t('validation:required')),
     quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
+    entered_uom: yup.string().nullable().optional(),
     cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
     is_price_locked: yup.boolean().optional(),
   })).default([]).test('unique-items', i18n.t('validation:uniqueItems'), function (recipes) {
@@ -310,11 +314,21 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
 
           const recipeIds: RecordId[] = [];
           for (const recipe of values.recipes) {
+            const invItem = findInventoryItem(inventoryItems?.data, recipe.item?.value);
+            const stock = toStockLine({
+              enteredQuantity: parseFloat(String(recipe.quantity)),
+              enteredUom: recipe.entered_uom || invItem?.uom,
+              stockUom: invItem?.uom || recipe.entered_uom,
+              stockUnitPrice: parseFloat(String(recipe.cost)),
+              mode: "quantity_only",
+            });
             const [recipeRecord] = await db.create(Tables.dishes_recipes, {
               menu_item: dish.id,
               item: new StringRecordId(recipe.item.value.toString()),
-              quantity: parseFloat(String(recipe.quantity)),
-              cost: parseFloat(String(recipe.cost)),
+              quantity: stock.quantity,
+              entered_quantity: stock.entered_quantity,
+              entered_uom: stock.entered_uom,
+              cost: stock.price,
               is_price_locked: recipe.is_price_locked || false
             });
             recipeIds.push(recipeRecord.id);
@@ -653,6 +667,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                   onClick={() => appendRecipe({
                     item: null,
                     quantity: 1,
+                    entered_uom: "",
                     cost: 0,
                     is_price_locked: false
                   })}
@@ -667,7 +682,22 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                 const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
                 const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
                 const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
-                const rowTotal = rowQuantity * rowCost;
+                const rowEnteredUom = watch(`recipes.${index}.entered_uom`) || selectedInvItem?.uom;
+                let rowTotal = rowQuantity * rowCost;
+                try {
+                  if (selectedInvItem?.uom && rowEnteredUom) {
+                    const stock = toStockLine({
+                      enteredQuantity: rowQuantity,
+                      enteredUom: rowEnteredUom,
+                      stockUom: selectedInvItem.uom,
+                      stockUnitPrice: rowCost,
+                      mode: "quantity_only",
+                    });
+                    rowTotal = stock.quantity * stock.price;
+                  }
+                } catch {
+                  // keep entered × cost while the unit pair is invalid
+                }
                 const availableOptions = inventoryItems?.data
                   ?.filter((inventoryItem) => canUseInDishRecipe(inventoryItem))
                   ?.map((inventoryItem) => ({
@@ -691,6 +721,10 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                                 const invItem = findInventoryItem(inventoryItems?.data, selected.value);
                                 if (invItem) {
                                   setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
+                                  setValue(
+                                    `recipes.${index}.entered_uom`,
+                                    normalizeUom(invItem.uom) ?? invItem.uom ?? ""
+                                  );
                                 }
                               }
                             }}
@@ -702,31 +736,14 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                       />
                       <InputError error={get(errors, ["recipes", index, "item", "message"])}/>
                     </div>
-                    <div className="w-20">
-                      <Input
-                        type="text"
-                        value={selectedInvItem?.uom ?? ''}
-                        label={t('forms.uom')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.quantity`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.quantity')}
-                            disabled={!replaceRecipes}
-                            error={get(errors, ["recipes", index, "quantity", "message"])}
-                          />
-                        )}
-                      />
-                    </div>
+                    <QuantityUomFields
+                      control={control}
+                      quantityName={`recipes.${index}.quantity`}
+                      uomName={`recipes.${index}.entered_uom`}
+                      stockUom={selectedInvItem?.uom}
+                      errors={errors}
+                      disabled={!replaceRecipes}
+                    />
                     <div className="flex-1">
                       <Controller
                         name={`recipes.${index}.cost`}

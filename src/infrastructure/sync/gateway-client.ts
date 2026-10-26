@@ -108,6 +108,8 @@ export async function fetchSnapshotPage(input: {
   terminalId: string;
   limit?: number;
   resumeToken?: string | null;
+  /** `catalog` stops after printers; default `full` includes customers/orders. */
+  scope?: 'catalog' | 'full';
 }) {
   return syncFetch<{
     ok: boolean;
@@ -125,6 +127,7 @@ export async function fetchSnapshotPage(input: {
       terminalId: input.terminalId,
       limit: input.limit ?? 200,
       resumeToken: input.resumeToken ?? null,
+      scope: input.scope ?? 'full',
     }),
   });
 }

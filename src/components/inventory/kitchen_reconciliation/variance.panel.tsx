@@ -1,4 +1,5 @@
 import {useMemo} from "react";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {useTranslation} from "react-i18next";
 import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
@@ -7,7 +8,6 @@ import {
   computeTotals,
   getTopVarianceLines,
 } from "@/lib/kitchen/reconciliation.calculations.ts";
-import {formatNumber} from "@/lib/utils.ts";
 import {KitchenReconciliationStatus} from "@/api/model/kitchen_reconciliation.ts";
 
 type Props = {
@@ -57,16 +57,16 @@ export const VariancePanel = ({items, status}: Props) => {
         <div>
           <dt className="text-muted">{t("kitchenReconciliation.totalVariance")}</dt>
           <dd className={`font-semibold ${totals.totalVariance !== 0 ? "text-danger-600" : "text-success-600"}`}>
-            {formatNumber(totals.totalVariance, 4)}
+            {formatInventoryNumber(totals.totalVariance)}
           </dd>
         </div>
         <div>
           <dt className="text-muted">{t("kitchenReconciliation.totalActualConsumption")}</dt>
-          <dd className="font-semibold">{formatNumber(totals.totalActualConsumption, 4)}</dd>
+          <dd className="font-semibold">{formatInventoryNumber(totals.totalActualConsumption)}</dd>
         </div>
         <div>
           <dt className="text-muted">{t("kitchenReconciliation.totalTheoretical")}</dt>
-          <dd className="font-semibold">{formatNumber(totals.totalTheoreticalConsumption, 4)}</dd>
+          <dd className="font-semibold">{formatInventoryNumber(totals.totalTheoreticalConsumption)}</dd>
         </div>
         <div>
           <dt className="text-muted">{t("kitchenReconciliation.linesWithVariance")}</dt>
@@ -87,7 +87,7 @@ export const VariancePanel = ({items, status}: Props) => {
               >
                 <span className="truncate pr-2">{line.itemName}</span>
                 <span className={line.variance !== 0 ? "text-danger-600 font-medium" : ""}>
-                  {formatNumber(line.variance)}
+                  {formatInventoryNumber(line.variance)}
                 </span>
               </li>
             ))}

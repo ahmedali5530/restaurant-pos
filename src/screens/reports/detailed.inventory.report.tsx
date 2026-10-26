@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {fetchLedgerMovements} from "@/lib/inventory/ledger.service.ts";
@@ -270,13 +271,13 @@ export const DetailedInventoryReport = () => {
                     {transaction.date ? toLuxonDateTime(transaction.date).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}
                   </td>
                   <td className="py-4 px-3 text-sm font-medium text-foreground">
-                    {transaction.item}{transaction.itemCode ? ` (${transaction.itemCode})` : ""}
+                    {formatInventoryItemLabel(transaction.item, transaction.itemCode, "")}
                   </td>
                   <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.category}
                   </td>
                   <td className="py-4 px-3 text-sm text-right text-foreground">
-                    {formatNumber(transaction.quantity)} {transaction.unit}
+                    {formatInventoryNumber(transaction.quantity)} {transaction.unit}
                   </td>
                   <td className="py-4 px-3 text-sm text-foreground">
                     {transaction.locationName || "—"}
@@ -323,13 +324,13 @@ export const DetailedInventoryReport = () => {
               {itemBalances.map((itemBalance) => (
                 <tr key={itemBalance.itemId}>
                   <td className="py-4 pl-6 pr-3 text-sm font-medium text-foreground">
-                    {itemBalance.itemName}{itemBalance.itemCode ? ` (${itemBalance.itemCode})` : ""}
+                    {formatInventoryItemLabel(itemBalance.itemName, itemBalance.itemCode, "")}
                   </td>
                   <td className="py-4 px-3 text-sm text-foreground">
                     {itemBalance.category}
                   </td>
                   <td className="py-4 px-3 text-sm text-right text-foreground font-medium">
-                    {formatNumber(itemBalance.balance)} {itemBalance.unit}
+                    {formatInventoryNumber(itemBalance.balance)} {itemBalance.unit}
                   </td>
                 </tr>
               ))}

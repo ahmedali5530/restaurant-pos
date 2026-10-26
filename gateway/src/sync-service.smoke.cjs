@@ -63,6 +63,63 @@ assert.deepStrictEqual(bad, { operational: '3d', couponRedemption: '90d' });
   assert.strictEqual(empty.resumeToken, null);
   assert.notStrictEqual(empty.page?.kind, 'events');
 
+  // Catalog scope: empty DB still completes without entering operational tables.
+  assert.strictEqual(syncService.resolveSnapshotScope('catalog'), 'catalog');
+  assert.strictEqual(syncService.resolveSnapshotScope('full'), 'full');
+  assert.strictEqual(syncService.resolveSnapshotScope(undefined), 'full');
+  const catalogEmpty = await syncService.snapshotPage(db, {
+    terminalId: 'terminal-abcdefgh',
+    scope: 'catalog',
+    limit: 200,
+  });
+  assert.strictEqual(catalogEmpty.complete, true);
+  assert.strictEqual(catalogEmpty.catalogComplete, true);
+  assert.strictEqual(catalogEmpty.resumeToken, null);
+
+  // Catalog scope with data: last page is printer (or earlier), never customer/order.
+  const catalogTables = syncService.SNAPSHOT_TABLES.slice(
+    0,
+    syncService.LAST_CATALOG_TABLE_INDEX + 1,
+  );
+  const opsTables = new Set(
+    syncService.SNAPSHOT_TABLES.slice(syncService.LAST_CATALOG_TABLE_INDEX + 1),
+  );
+  const catalogDb = {
+    query: async (sql, params) => {
+      const table = params?.table;
+      if (!table || !catalogTables.includes(table)) return [[]];
+      // One record per catalog table so pagination advances table-by-table.
+      return [[{ id: `${table}:1`, name: table }]];
+    },
+  };
+  let resume = null;
+  const seen = [];
+  for (let i = 0; i < 100; i += 1) {
+    const page = await syncService.snapshotPage(catalogDb, {
+      terminalId: 'terminal-abcdefgh',
+      scope: 'catalog',
+      limit: 200,
+      resumeToken: resume,
+    });
+    if (page.page?.table) {
+      assert.ok(
+        !opsTables.has(page.page.table),
+        `catalog scope must not return ${page.page.table}`,
+      );
+      seen.push(page.page.table);
+    }
+    if (page.complete) {
+      assert.strictEqual(page.catalogComplete, true);
+      assert.strictEqual(page.resumeToken, null);
+      break;
+    }
+    resume = page.resumeToken;
+    assert.ok(resume, 'expected resume token while incomplete');
+  }
+  assert.ok(seen.includes('printer'), `seen=${seen.join(',')}`);
+  assert.ok(!seen.includes('customer'));
+  assert.ok(!seen.includes('order'));
+
   // Legacy events resume token completes immediately without replaying history.
   const legacyToken = Buffer.from(
     JSON.stringify({ phase: 'events', afterEvent: 0, highWatermark: 384000 }),

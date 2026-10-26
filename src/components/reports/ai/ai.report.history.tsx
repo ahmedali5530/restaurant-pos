@@ -54,7 +54,7 @@ export const AiReportHistory = ({onSelect}: AiReportHistoryProps) => {
               <button
                 type="button"
                 onClick={() => onSelect(entry)}
-                className="flex-1 text-left text-sm text-foreground hover:text-primary-600 p-2 rounded-full border border-border"
+                className="flex-1 text-left text-sm text-foreground hover:text-primary p-2 rounded-full border border-border"
               >
                 {entry.prompt}
               </button>

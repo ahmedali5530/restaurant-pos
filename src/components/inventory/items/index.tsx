@@ -46,9 +46,6 @@ export const InventoryItems = () => {
     columnHelper.accessor("uom", {
       header: t('columns.uom')
     }),
-    columnHelper.accessor("base_quantity", {
-      header: t('columns.baseQuantity')
-    }),
     columnHelper.accessor("price", {
       header: t('columns.price')
     }),

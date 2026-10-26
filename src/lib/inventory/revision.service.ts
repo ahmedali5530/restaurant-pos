@@ -105,6 +105,9 @@ export const createPurchaseRevision = async (
       requested: line.requested,
       price: line.price,
       base_quantity: line.base_quantity ?? line.quantity,
+      entered_quantity: (line as any).entered_quantity,
+      entered_uom: (line as any).entered_uom,
+      entered_price: (line as any).entered_price,
       code: line.code,
       comments: line.comments,
       taxable: line.taxable,
@@ -210,6 +213,8 @@ export const createIssueRevision = async (
       quantity: line.quantity,
       requested: line.requested,
       price: line.price,
+      entered_quantity: (line as any).entered_quantity,
+      entered_uom: (line as any).entered_uom,
       code: line.code,
       comments: line.comments,
       location: line.location

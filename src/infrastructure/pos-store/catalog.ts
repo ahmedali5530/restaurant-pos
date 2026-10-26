@@ -32,6 +32,19 @@ export async function getCatalogTable<T = any>(table: string): Promise<T[]> {
   return rows.map((row) => row.payload as T);
 }
 
+/** Delete Dexie catalog rows for the given Surreal table names (Refresh catalog). */
+export async function clearCatalogTables(tables: string[]): Promise<number> {
+  if (tables.length === 0) return 0;
+  const db = getPosStoreDatabase();
+  let deleted = 0;
+  await db.transaction('rw', db.catalog, async () => {
+    for (const table of tables) {
+      deleted += await db.catalog.where('table').equals(table).delete();
+    }
+  });
+  return deleted;
+}
+
 export async function getCatalogById<T = any>(id: string): Promise<T | undefined> {
   const db = getPosStoreDatabase();
   const row = await db.catalog.get(id);

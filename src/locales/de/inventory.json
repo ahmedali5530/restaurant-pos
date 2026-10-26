@@ -20,7 +20,8 @@
     "buffetMenus": "Buffet-Menüs",
     "buffetSessions": "Buffet-Sitzungen",
     "adjustments": "Anpassungen",
-    "locations": "Standorte"
+    "locations": "Standorte",
+    "units": "Einheiten"
   },
   "security": {
     "accessTab": "Access {{module}}",
@@ -50,7 +51,7 @@
     "name": "Name",
     "code": "Code",
     "category": "Kategorie",
-    "uom": "Maßeinheit",
+    "uom": "ME",
     "baseQuantity": "Basismenge",
     "price": "Stückpreis",
     "averagePrice": "Durchschnittspreis",
@@ -93,7 +94,8 @@
     "linkedKitchen": "Verknüpfte Küche",
     "active": "Aktiv",
     "previousPrice": "Vorheriger Preis",
-    "reference": "Referenz"
+    "reference": "Referenz",
+    "averageCost": "Durchschnittskosten"
   },
   "buttons": {
     "item": "Artikel",
@@ -126,6 +128,7 @@
     "date": "Datum",
     "comments": "Kommentare",
     "quantity": "Menge",
+    "packagingNoConversion": "Verpackungseinheiten werden nicht umgerechnet",
     "requested": "Angefordert",
     "issued": "Ausgegeben",
     "returnedQuantity": "Zurückgegebene Menge",
@@ -153,7 +156,9 @@
     "smartImportPurchaseReturnTitle": "Einkaufsrückgabepositionen KI-Import",
     "smartImportSuppliersTitle": "Lieferanten KI-Import",
     "smartImportItemCategoriesTitle": "Artikelkategorien KI-Import",
-    "smartImportLocationsTitle": "Standorte KI-Import"
+    "smartImportLocationsTitle": "Standorte KI-Import",
+    "lastPrice": "Letzter",
+    "itemPrice": "Artikel"
   },
   "validation": {
     "required": "Pflichtfeld",
@@ -203,7 +208,8 @@
     "voided": "Storniert"
   },
   "upload": {
-    "attachDocuments": "Angehängte Dokumente"
+    "attachDocuments": "Angehängte Dokumente",
+    "noDocuments": "Keine Dokumente angehängt."
   },
   "purchaseMethods": {
     "manual": "Manuell",
@@ -299,7 +305,8 @@
       "missed": "Verpasst"
     },
     "keyboardHint": "Strg/Cmd + Pfeiltasten zum Wechseln zwischen editierbaren Zellen.",
-    "smartImportTitle": "Küchenabstimmung KI-Import"
+    "smartImportTitle": "Küchenabstimmung KI-Import",
+    "stockUomHint": "Lager: {{uom}}"
   },
   "stockTransfer": {
     "type": "Transfertyp",
@@ -613,5 +620,53 @@
     "locationRequired": "Standort ist erforderlich",
     "supplierNotOnItem": "Lieferant \"{{supplier}}\" ist nicht mit Artikel \"{{item}}\" verknüpft",
     "locationNotOnItem": "Standort \"{{location}}\" ist nicht mit Artikel \"{{item}}\" verknüpft"
+  },
+  "uom": {
+    "actions": {
+      "add": "Einheit hinzufügen"
+    },
+    "columns": {
+      "family": "Familie",
+      "baseFactor": "Basisfaktor",
+      "active": "Aktiv",
+      "system": "System"
+    },
+    "families": {
+      "weight": "Gewicht",
+      "volume": "Volumen",
+      "count": "Stück",
+      "pack": "Packung"
+    },
+    "factorHint": "1 {{code}} = {{factor}} {{base}}",
+    "form": {
+      "createTitle": "Einheit hinzufügen",
+      "editTitle": "{{code}} bearbeiten"
+    },
+    "preview": {
+      "title": "Umwandlungsvorschau",
+      "hint": "Prüfen Sie Umrechnungen mit den aktuellen Faktoren (Standard: US-Gallone).",
+      "from": "Von",
+      "to": "Nach",
+      "unavailable": "Wählen Sie verwandte Einheiten derselben Familie",
+      "toolbarHint": "Nutzen Sie die Schaltfläche Einheitenumrechner neben dem Sync-Status unten, um Mengen zwischen Einheiten umzurechnen.",
+      "openButton": "Einheitenumrechner",
+      "swap": "Einheiten tauschen"
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "number": "Muss eine Zahl sein",
+      "codeFormat": "Buchstaben, Zahlen oder Unterstrich (mit Buchstabe beginnen)",
+      "factorPositive": "Faktor muss größer als null sein"
+    },
+    "warnings": {
+      "factorChange": "Faktor aktualisiert. Bestehende Bestände werden nicht neu berechnet — nur künftige Umrechnungen nutzen den neuen Faktor."
+    },
+    "errors": {
+      "inUse": "{{code}} kann nicht deaktiviert werden: von {{count}} Artikel(n) verwendet",
+      "duplicateCode": "Einheitscode {{code}} existiert bereits"
+    },
+    "toast": {
+      "saved": "Einheit {{code}} gespeichert"
+    }
   }
 }

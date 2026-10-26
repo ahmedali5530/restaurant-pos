@@ -20,6 +20,35 @@ export function usePosStoreReady(): PosStoreContextValue {
 }
 
 /**
+ * Merge Dexie-hydrated catalog into jotai settings without letting a transient
+ * empty read (Reload cache race) blank floors/dishes/categories that were already good.
+ */
+export function mergeHydratedCatalogIntoSettings(
+  prev: AppSettingsInterface,
+  catalog: Partial<AppSettingsInterface>,
+): AppSettingsInterface {
+  const nextFloors = catalog.floors ?? [];
+  const nextTables = catalog.tables ?? [];
+  const nextDishes = catalog.dishes ?? [];
+  const nextCategories = catalog.categories ?? [];
+
+  const keepFloors = nextFloors.length === 0 && (prev.floors?.length ?? 0) > 0;
+  const keepDishes = nextDishes.length === 0 && (prev.dishes?.length ?? 0) > 0;
+  const keepCategories = nextCategories.length === 0 && (prev.categories?.length ?? 0) > 0;
+
+  return {
+    ...prev,
+    ...catalog,
+    floors: keepFloors ? prev.floors : nextFloors,
+    tables: keepFloors
+      ? (prev.tables?.length ? prev.tables : nextTables)
+      : nextTables,
+    dishes: keepDishes ? prev.dishes : nextDishes,
+    categories: keepCategories ? prev.categories : nextCategories,
+  };
+}
+
+/**
  * Boots Dexie PosStore and projects catalog into jotai when hydrated.
  * Screens must not branch on connectivity — they read/write via posStore.
  */
@@ -40,10 +69,9 @@ export function PosStoreProvider({ children }: { children: ReactNode }) {
         const cursor = await posStore.getSyncCursor();
         if (cursor.catalogReady || cursor.hydrated) {
           const catalog = await posStore.loadHydratedCatalog();
-          setAppSettings((prev: AppSettingsInterface) => ({
-            ...prev,
-            ...catalog,
-          }));
+          setAppSettings((prev: AppSettingsInterface) =>
+            mergeHydratedCatalogIntoSettings(prev, catalog),
+          );
           setHydrated(!!cursor.hydrated);
         }
       } catch (err) {
@@ -67,26 +95,16 @@ export function PosStoreProvider({ children }: { children: ReactNode }) {
 export async function refreshCatalogIntoSettings(
   setAppSettings: (updater: (prev: AppSettingsInterface) => AppSettingsInterface) => void,
 ): Promise<void> {
+  const epoch = posStore.getCatalogEpoch();
   const cursor = await posStore.getSyncCursor();
   // Project once catalog tables are in Dexie — do not wait for operational
   // orders. Never project an empty wipe before catalogReady.
   if (!cursor.catalogReady && !cursor.hydrated) return;
   const catalog = await posStore.loadHydratedCatalog();
-  setAppSettings((prev) => {
-    const nextFloors = catalog.floors ?? [];
-    const nextTables = catalog.tables ?? [];
-    if (
-      nextFloors.length === 0
-      && (prev.floors?.length ?? 0) > 0
-    ) {
-      // Keep prior floors/tables if Dexie returned empty unexpectedly after hydrate.
-      return {
-        ...prev,
-        ...catalog,
-        floors: prev.floors,
-        tables: prev.tables?.length ? prev.tables : nextTables,
-      };
-    }
-    return { ...prev, ...catalog };
-  });
+  // Stale across Reload cache wipe, or wipe still in progress.
+  if (epoch !== posStore.getCatalogEpoch()) return;
+  const after = await posStore.getSyncCursor();
+  if (!after.catalogReady && !after.hydrated) return;
+
+  setAppSettings((prev) => mergeHydratedCatalogIntoSettings(prev, catalog));
 }

@@ -17,7 +17,7 @@ import {
   startBuffetSession,
 } from "@/lib/inventory/buffet.service.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import classNames from "classnames";
 
 interface Props {
@@ -122,12 +122,12 @@ export const BuffetSessionDashboard = ({sessionId, onBack}: Props) => {
         </div>
         <div className="bg-surface rounded-lg p-4">
           <div className="text-sm text-muted">{t("buffet.buffetPrice")}</div>
-          <div className="text-2xl font-semibold">{formatNumber(session.buffet_price)}</div>
+          <div className="text-2xl font-semibold">{formatInventoryNumber(session.buffet_price)}</div>
         </div>
         <div className="bg-surface rounded-lg p-4">
           <div className="text-sm text-muted">{t("buffet.projectedSales")}</div>
           <div className="text-2xl font-semibold">
-            {formatNumber((session.actual_guests || session.expected_guests) * session.buffet_price)}
+            {formatInventoryNumber((session.actual_guests || session.expected_guests) * session.buffet_price)}
           </div>
         </div>
       </div>

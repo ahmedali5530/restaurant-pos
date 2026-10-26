@@ -8,7 +8,7 @@ import {KitchenReconciliationItem} from "@/api/model/kitchen_reconciliation_item
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {normalizeInventoryItemId} from "@/lib/kitchen/reconciliation.service.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {DateTime} from "luxon";
 
 type Props = {
@@ -21,6 +21,11 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
   waste_qty: "kitchenReconciliation.waste",
   staff_meal_qty: "kitchenReconciliation.staffMeal",
   complimentary_qty: "kitchenReconciliation.complimentary",
+  entered_uom: "forms.uom",
+  entered_physical_count: "kitchenReconciliation.physical",
+  entered_waste_qty: "kitchenReconciliation.waste",
+  entered_staff_meal_qty: "kitchenReconciliation.staffMeal",
+  entered_complimentary_qty: "kitchenReconciliation.complimentary",
   expected_stock: "kitchenReconciliation.expected",
   actual_consumption: "kitchenReconciliation.actualConsumption",
   variance: "kitchenReconciliation.variance",
@@ -29,7 +34,7 @@ const FIELD_LABEL_KEYS: Record<string, string> = {
 
 const formatCellValue = (value: unknown): string => {
   if (value == null || value === "") return "—";
-  if (typeof value === "number") return formatNumber(value);
+  if (typeof value === "number") return formatInventoryNumber(value);
   if (typeof value === "boolean") return value ? "true" : "false";
   if (typeof value === "object") {
     try {

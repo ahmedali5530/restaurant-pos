@@ -38,15 +38,24 @@ import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { useInventorySettings } from "@/hooks/useInventorySettings.ts";
 import { fetchNetQuantity } from "@/utils/inventory.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createWasteImportConfig} from "@/components/inventory/wastes/waste.import.config.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
 interface WasteItemFormValue {
   item: SelectOption;
   quantity: number | string;
+  entered_uom?: string;
   comments?: string;
   purchase_item_id?: string | null;
   expiry_date?: string | null;
@@ -77,8 +86,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordNumber(
-        db,
+      const isUnique = await isUniqueRecordroundInventory(db,
         Tables.inventory_wastes,
         "invoice_number",
         value,
@@ -108,6 +116,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         value: yup.string()
       }).required("This is required").nullable(),
       quantity: yup.number().typeError("This should be a number").required("This is required").moreThan(0, "Quantity must be greater than 0"),
+      entered_uom: yup.string().nullable().optional(),
       comments: yup.string().nullable().optional(),
       purchase_item_id: yup.string().nullable().optional(),
       expiry_date: yup.string().nullable().optional(),
@@ -210,7 +219,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
             String(wi.purchase_item?.id) === String(line.purchase_item_id)
         );
         const price =
-          Number(expiredLot?.price) ||
+          roundInventory(expiredLot?.price) ||
           Number(existing?.price) ||
           resolveCatalogUnitCost(catalogItem) ||
           Number(catalogItem?.price) ||
@@ -281,7 +290,9 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data.items?.map(item => ({
+        items: data.items?.map(item => {
+          const entered = lineEnteredDefaults({...item, item: item.item});
+          return {
           item: item.item ? {
             label: item.item.code ? `${item.item.name}-${item.item.code}` : item.item.name,
             value: toIdString(item.item.id),
@@ -290,9 +301,11 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
           expiry_date: (item.purchase_item as any)?.expiry_date
             ? String((item.purchase_item as any).expiry_date)
             : null,
-          quantity: item.quantity ?? 1,
+          quantity: entered.quantity || 1,
+          entered_uom: entered.entered_uom,
           comments: item.comments ?? "",
-        })) ?? [],
+        };
+        }) ?? [],
       });
     } else {
       reset({
@@ -303,6 +316,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         items: [{
           item: null,
           quantity: 1,
+          entered_uom: "",
           comments: "",
           purchase_item_id: null,
           expiry_date: null,
@@ -427,8 +441,19 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
       const itemId = row.item?.value;
       if (!itemId) continue;
 
-      const desiredQuantity = Number(row.quantity) || 0;
+      let desiredQuantity = Number(row.quantity) || 0;
       if (desiredQuantity <= 0) continue;
+
+      const catalog = itemsList.find((ci) => String(ci.id) === String(itemId));
+      try {
+        desiredQuantity = convertQuantityOnlyLine({
+          enteredQuantity: desiredQuantity,
+          enteredUom: row.entered_uom || catalog?.uom,
+          stockUom: catalog?.uom,
+        }).quantity;
+      } catch {
+        // save will reject invalid conversion
+      }
 
       const cacheKey = `${itemId}:${locationId}`;
       let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
@@ -458,7 +483,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     }
 
     return isValid;
-  }, [rowNetQuantities, setError, clearErrors, t]);
+  }, [rowNetQuantities, setError, clearErrors, t, itemsList]);
 
   const onSubmit = async (values: WasteFormValues) => {
     try {
@@ -532,12 +557,21 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
             Number(catalogItem?.price) ||
             0;
 
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || catalogItem?.uom,
+            stockUom: catalogItem?.uom,
+            stockUnitPrice: snapshotPrice,
+          });
+
           const [created] = await db.create(Tables.inventory_waste_items, {
             item: item.item ? toRecordId(item.item.value) : undefined,
             location: toRecordId(locationId),
             purchase_item: item.purchase_item_id ? toRecordId(item.purchase_item_id) : undefined,
-            quantity: Number(item.quantity),
-            price: snapshotPrice > 0 ? snapshotPrice : undefined,
+            quantity: stock.quantity,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            price: stock.price > 0 ? stock.price : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
             waste: toRecordId(wasteId),
           });
@@ -561,22 +595,20 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      const inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
-            const expiredLot = item.purchase_item_id
-              ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
-              : undefined;
-            const price =
-              Number(expiredLot?.price) ||
-              resolveCatalogUnitCost(catalogItem) ||
-              Number(catalogItem?.price) ||
-              0;
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      const inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
+          const expiredLot = item.purchase_item_id
+            ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
+            : undefined;
+          const price =
+            Number(expiredLot?.price) ||
+            resolveCatalogUnitCost(catalogItem) ||
+            Number(catalogItem?.price) ||
+            0;
+          return sum + qty * price;
+        }, 0)
       );
       if (inventoryValue > 0) {
         await publishWasteRecorded(integrationManager, {
@@ -638,6 +670,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
       setValue(`items.${index}.item`, null);
       setValue(`items.${index}.purchase_item_id`, null);
       setValue(`items.${index}.expiry_date`, null);
+      setValue(`items.${index}.entered_uom`, "");
       return;
     }
 
@@ -654,12 +687,25 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
         `items.${index}.expiry_date`,
         lot?.expiry_date ? String(lot.expiry_date) : null
       );
+      if (lot?.item?.uom) {
+        setValue(
+          `items.${index}.entered_uom`,
+          normalizeUom(lot.item.uom) ?? lot.item.uom
+        );
+      }
       return;
     }
 
     setValue(`items.${index}.item`, option);
     setValue(`items.${index}.purchase_item_id`, null);
     setValue(`items.${index}.expiry_date`, null);
+    const catalog = itemsList.find((ci) => String(ci.id) === String(option.value));
+    if (catalog?.uom) {
+      setValue(
+        `items.${index}.entered_uom`,
+        normalizeUom(catalog.uom) ?? catalog.uom
+      );
+    }
   };
 
   const selectedOptionForRow = (index: number): SelectOption => {
@@ -770,6 +816,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 onClick={() => append({
                   item: null,
                   quantity: 1,
+                  entered_uom: "",
                   comments: "",
                   purchase_item_id: null,
                   expiry_date: null,
@@ -815,25 +862,24 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                       />
                       <InputError error={get(errors, ["items", index, "item", "message"])}/>
                     </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`items.${index}.quantity`}
-                        control={control}
-                        render={({field: qtyField}) => (
-                          <Input
-                            label={
-                              availableQuantity === undefined
-                                ? t('forms.quantity')
-                                : t('stockTransfer.available', { qty: availableQuantity })
-                            }
-                            type="number"
-                            value={qtyField.value as number | string}
-                            onChange={qtyField.onChange}
-                            error={get(errors, ["items", index, "quantity", "message"])}
-                          />
-                        )}
-                      />
-                    </div>
+                    <QuantityUomFields
+                      control={control}
+                      quantityName={`items.${index}.quantity`}
+                      uomName={`items.${index}.entered_uom`}
+                      stockUom={
+                        itemsList.find(
+                          (ci) => String(ci.id) === String(watchedItems?.[index]?.item?.value)
+                        )?.uom
+                      }
+                      quantityLabel={
+                        availableQuantity === undefined
+                          ? t('forms.quantity')
+                          : t('stockTransfer.available', {
+                              qty: formatInventoryNumber(availableQuantity),
+                            })
+                      }
+                      errors={errors}
+                    />
                     <div className="flex-1">
                       <InputField
                         name={`items.${index}.comments`}
