@@ -1,4 +1,5 @@
 import {safeNumber} from "@/lib/utils.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 type Priced = {price?: number | null} | null | undefined;
 type CatalogItem = {price?: number | null; average_price?: number | null} | null | undefined;
@@ -42,4 +43,4 @@ export const resolveCatalogUnitCost = (item?: CatalogItem): number => {
 };
 
 export const lineAmount = (unitCost: number, quantity: number) =>
-  safeNumber(unitCost) * safeNumber(quantity);
+  roundInventory(safeNumber(unitCost) * safeNumber(quantity));

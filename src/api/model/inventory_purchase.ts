@@ -81,9 +81,14 @@ export interface InventoryPurchaseItem {
   item: InventoryItem
   quantity: number
   requested?: number
-  /** Supplier unit price (editable on draft) */
+  /** Supplier unit price (editable on draft) — stock unit after conversion */
   price: number
   base_quantity: number
+  /** Quantity as typed on the form (may differ from stock-unit quantity) */
+  entered_quantity?: number
+  entered_uom?: string
+  /** Price per entered_uom when typed commercially */
+  entered_price?: number
   expiry_date?: string
   manufacturing_date?: string
   comments?: string

@@ -15,6 +15,7 @@ import type {InventoryItem} from "@/api/model/inventory_item.ts";
 import {isInventoryLedgerEnabled} from "@/lib/inventory/settings.ts";
 import {computeBreakdownFromLedger, computeStockFromLedger} from "@/lib/inventory/ledger.service.ts";
 import {toLocationRecordId} from "@/lib/inventory/location.service.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -47,7 +48,7 @@ export const getTotalFromResult = (result: any): number => {
 };
 
 export const computeStoreNet = (breakdown: Omit<StoreInventoryBreakdown, "net">): number => {
-  return (
+  return roundInventory(
     breakdown.purchases
     - breakdown.returns
     - breakdown.issues

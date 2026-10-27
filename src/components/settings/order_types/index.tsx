@@ -18,6 +18,8 @@ import {getAccessRuleChildLabel} from "@/lib/access.rules.i18n.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createOrderTypeImportConfig} from "@/components/settings/order_types/order-type.import.config.ts";
+import { HqCatalogBaseOnlyAction } from '@/components/settings/hq_catalog_base_only_action.tsx';
+import { useHqCatalogListScope } from '@/hooks/useHqCatalogListScope.ts';
 
 export const AdminOrderTypes = () => {
   const { t } = useTranslation(['admin', 'common', 'toast']);
@@ -33,6 +35,8 @@ export const AdminOrderTypes = () => {
     () => createOrderTypeImportConfig({db, t}),
     [db, t]
   );
+
+  useHqCatalogListScope(loadHook);
 
   const columnHelper = createColumnHelper<OrderType>();
 
@@ -113,7 +117,7 @@ export const AdminOrderTypes = () => {
               description: getAccessRuleChildLabel('admin.order_types.import'),
             });
           }}><span className="mr-2"><AiSparklesIcon /></span>{t('buttons.smartImport')}</Button>,
-          <Button variant="primary" onClick={() => {
+          <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
               setFormModal(true);
@@ -121,7 +125,7 @@ export const AdminOrderTypes = () => {
               module: 'admin.order_types.create',
               description: getAccessRuleChildLabel('admin.order_types.create'),
             });
-          }} icon={faPlus} data-testid="admin-add-order_types">{t('buttons.orderType')}</Button>
+          }} icon={faPlus} data-testid="admin-add-order_types">{t('buttons.orderType')}</Button></HqCatalogBaseOnlyAction>
         ]}
       />
 

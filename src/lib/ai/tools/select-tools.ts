@@ -1,6 +1,6 @@
 import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {isOrderDetailPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
-import {isUnsoldProductsPrompt} from "@/lib/ai/product-query.ts";
+import {isDishRecipePrompt, isUnsoldProductsPrompt} from "@/lib/ai/product-query.ts";
 import {isCurrentSessionSalesPrompt, isActiveSessionsPrompt} from "@/lib/ai/session-query.ts";
 import {isTipsPrompt} from "@/lib/ai/tip-query.ts";
 import {FRAUD_AUDIT_TOOL_NAMES, isFraudSuspiciousPrompt} from "@/lib/ai/fraud-query.ts";
@@ -51,6 +51,10 @@ const detectDomainsFromPrompt = (prompt: string, format: AiReportFormat): Set<Ai
     domains.add("operations");
   }
   if (isUnsoldProductsPrompt(prompt) || isTipsPrompt(prompt) || isCurrentSessionSalesPrompt(prompt)) {
+    domains.add("sales");
+  }
+  if (isDishRecipePrompt(prompt)) {
+    domains.add("lookup");
     domains.add("sales");
   }
 
@@ -143,6 +147,10 @@ const collectToolNames = (domains: Set<AiReportToolDomain>, prompt: string): str
   if (isStaffNeedPrompt(prompt)) {
     names.add("forecast_staff_need");
   }
+  if (isDishRecipePrompt(prompt)) {
+    names.add("get_dish_recipe");
+    names.add("list_menu_items");
+  }
 
   return Array.from(names);
 };
@@ -177,10 +185,19 @@ const prioritizeInventoryDocumentTool = (toolNames: string[], prompt: string): s
   return ["get_inventory_documents", ...rest];
 };
 
+const prioritizeDishRecipeTool = (toolNames: string[], prompt: string): string[] => {
+  if (!isDishRecipePrompt(prompt)) {
+    return toolNames;
+  }
+  const rest = toolNames.filter(name => name !== "get_dish_recipe");
+  return ["get_dish_recipe", ...rest];
+};
+
 export const applyPromptToolFilters = (toolNames: string[], prompt: string): string[] => {
   let names = filterInventoryToolsForPrompt(toolNames, prompt);
   names = prioritizeInventoryDocumentTool(names, prompt);
   names = prioritizeEmployeeDetailTool(names, prompt);
+  names = prioritizeDishRecipeTool(names, prompt);
   return names;
 };
 

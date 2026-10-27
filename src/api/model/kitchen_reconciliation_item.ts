@@ -15,6 +15,12 @@ export interface KitchenReconciliationItem {
   waste_qty: number;
   staff_meal_qty: number;
   complimentary_qty: number;
+  /** Unit the user counted in (convertible family of item.uom). */
+  entered_uom?: string | null;
+  entered_physical_count?: number | null;
+  entered_waste_qty?: number | null;
+  entered_staff_meal_qty?: number | null;
+  entered_complimentary_qty?: number | null;
   actual_consumption: number;
   variance: number;
   posted_to_ledger: boolean;

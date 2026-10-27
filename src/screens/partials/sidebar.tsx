@@ -42,6 +42,7 @@ import {
 } from "@/routes/posr.ts";
 import { getAccessRuleChildLabel } from "@/lib/access.rules.i18n.ts";
 import { getUserModules, moduleMatchCandidates } from "@/lib/access.rules.ts";
+import { filterByBuildModule, isBuildModuleEnabled } from "@/lib/build-modules.ts";
 import { useSecurity } from "@/hooks/useSecurity.ts";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { useTranslation } from "react-i18next";
@@ -121,7 +122,11 @@ export const Sidebar = () => {
     if (!moduleId) return true;
     return moduleMatchCandidates(moduleId).some((candidate) => userRoles.includes(candidate));
   };
-  const sidebarItems = allSidebarItems;
+  const sidebarItems = useMemo(
+    () => filterByBuildModule(allSidebarItems, (item) => item.role),
+    [allSidebarItems],
+  );
+  const showSettings = isBuildModuleEnabled('settings');
 
   return (
     <div className="flex flex-col justify-between h-[calc(100vh_-_var(--app-toolbar-h))] items-center sidebar border border-y-0 border-border bg-surface-elevated/50 backdrop-blur text-foreground">
@@ -169,21 +174,23 @@ export const Sidebar = () => {
       </div>
       <div className="flex flex-col gap-2 w-full p-2">
         <div className="input-group">
-          <button
-            type="button"
-            data-testid="nav-settings"
-            onClick={() => protectedNavigate(SETTINGS, 'settings')}
-            className={cn(
-              'btn btn-primary lg flex-1',
-              pathInfo === SETTINGS ? 'active' : ''
-            )}
-            key={'settings'}
-            style={{
-              '--padding': '0.5rem'
-            } as CSSProperties}
-          >
-            <FontAwesomeIcon icon={faWrench} />
-          </button>
+          {showSettings ? (
+            <button
+              type="button"
+              data-testid="nav-settings"
+              onClick={() => protectedNavigate(SETTINGS, 'settings')}
+              className={cn(
+                'btn btn-primary lg flex-1',
+                pathInfo === SETTINGS ? 'active' : ''
+              )}
+              key={'settings'}
+              style={{
+                '--padding': '0.5rem'
+              } as CSSProperties}
+            >
+              <FontAwesomeIcon icon={faWrench} />
+            </button>
+          ) : null}
           <NavLink
             to={CLOCK}
             data-testid="nav-clock"

@@ -6,6 +6,7 @@ import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Discount} from "@/api/model/discount.ts";
+import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
 
 const toOption = <T extends {id?: any}>(item: T | undefined, label: string) => {
   if (!item?.id) return null;
@@ -27,6 +28,8 @@ export const DiscountsFilter = () => {
       target="_blank"
     >
       <DateRange isRequired label={t('filters.selectRange')} />
+
+      <BranchScopeFilter />
       <div className="w-full flex flex-col gap-2">
         <label htmlFor="discount-filter-discount" className="form-label">{t('reports.discount')}</label>
         <ReactSelect

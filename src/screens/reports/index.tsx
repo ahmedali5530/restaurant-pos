@@ -55,6 +55,7 @@ import {LaborPayrollSummaryFilter} from "@/components/reports/filters/labor.payr
 import {LaborScheduledVsActualFilter} from "@/components/reports/filters/labor.scheduled.vs.actual.filter.tsx";
 import {LaborScheduleRosterFilter} from "@/components/reports/filters/labor.schedule.roster.filter.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
+import {isBuildModuleEnabled} from "@/lib/build-modules.ts";
 
 type ReportEntry = {
   filter: ReactNode;
@@ -135,7 +136,7 @@ export const Reports = () => {
   const { t } = useTranslation('reports');
   const { t: tNav } = useTranslation('navigation');
   const reportCategories = useMemo((): ReportCategory[] => {
-    return [
+    const categories: ReportCategory[] = [
       {
         id: 'ai',
         title: t('categories.ai'),
@@ -238,6 +239,12 @@ export const Reports = () => {
         ]),
       },
     ];
+    return categories
+      .map((category) => ({
+        ...category,
+        reports: category.reports.filter((entry) => isBuildModuleEnabled(entry.module)),
+      }))
+      .filter((category) => category.reports.length > 0);
   }, [t]);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [subReports, setSubReports] = useState<ReportEntry[]>([]);

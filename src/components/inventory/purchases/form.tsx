@@ -33,7 +33,7 @@ import {DateValue} from "react-aria-components";
 import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
 import {documentCreatedAtFromDateValue, toJsDate} from "@/lib/datetime.ts";
-import {withCurrency} from "@/lib/utils.ts";
+import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
@@ -58,14 +58,24 @@ import type {
   PurchaseInventoryTreatment,
 } from "@/api/model/inventory_purchase.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
+import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
 
 type PurchaseMethod = "manual" | "csv" | "purchase_order";
 
 interface PurchaseItemFormValue {
   item: { label: string; value: string } | null;
+  /** Entered quantity (may be in entered_uom, converted on save) */
   quantity: number | string;
   requested?: number | string;
+  /** Entered price per entered_uom */
   price: number | string;
+  entered_uom?: string;
   base_quantity: number | string;
   expiry_date?: DateValue | null;
   manufacturing_date?: DateValue | null;
@@ -158,7 +168,8 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       quantity: yup.number().typeError("This should be a number").required("This is required"),
       requested: yup.number().typeError("This should be a number").nullable().optional(),
       price: yup.number().typeError("This should be a number").required("This is required"),
-      base_quantity: yup.number().typeError("This should be a number").required("This is required"),
+      entered_uom: yup.string().nullable().optional(),
+      base_quantity: yup.number().typeError("This should be a number").optional().default(1),
       expiry_date: yup.mixed().nullable().optional(),
       manufacturing_date: yup.mixed().nullable().optional(),
       comments: yup.string().nullable().optional(),
@@ -183,6 +194,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   const [purchaseOrderModal, setPurchaseOrderModal] = useState(false);
   const [postingAfterSave, setPostingAfterSave] = useState(false);
   const [showAdditionalCosts, setShowAdditionalCosts] = useState(false);
+  /** Last purchase price per line index (for dual price hint). */
+  const [lastPrices, setLastPrices] = useState<Record<number, number | null>>({});
   const [state,] = useAtom(appPage);
 
   const categoryOptions = useMemo(
@@ -371,10 +384,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           value: orderItem.item.id
         }
         : null,
-      quantity: orderItem.quantity ?? 1,
+      quantity: (orderItem as any).entered_quantity ?? orderItem.quantity ?? 1,
       requested: orderItem.quantity ?? undefined,
-      price: orderItem.price ?? orderItem.item?.price ?? 0,
-      base_quantity: orderItem.item?.base_quantity ?? 1,
+      price: (orderItem as any).entered_price ?? orderItem.price ?? orderItem.item?.price ?? 0,
+      entered_uom: (orderItem as any).entered_uom ?? orderItem.item?.uom ?? "",
+      base_quantity: 1,
       expiry_date: null,
       manufacturing_date: null,
       comments: "",
@@ -454,15 +468,18 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         discount: split.discount,
         shipping: split.shipping,
         extras: split.advanced,
-        items: data.items?.map(item => ({
+        items: data.items?.map(item => {
+          const entered = lineEnteredDefaults(item);
+          return {
           item: item.item ? {
             label: `${item.item.name}-${item.item.code}`,
             value: item.item.id
           } : null,
-          quantity: item.quantity ?? 1,
+          quantity: entered.quantity || 1,
           requested: item.requested ?? undefined,
-          price: item.price ?? 0,
-          base_quantity: item.base_quantity ?? 1,
+          price: entered.price,
+          entered_uom: entered.entered_uom,
+          base_quantity: 1,
           expiry_date: item.expiry_date ? dateToCalendarDate(item.expiry_date) : null,
           manufacturing_date: item.manufacturing_date ? dateToCalendarDate(item.manufacturing_date) : null,
           comments: item.comments ?? "",
@@ -479,7 +496,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           })(),
           code: item.code ?? "",
           taxable: !!item.taxable,
-        }))
+        }})
       });
     } else if (open) {
       setShowAdditionalCosts(false);
@@ -619,15 +636,29 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         throw new Error("Failed to resolve purchase identifier");
       }
 
+      const catalogItems: InventoryItem[] = (items?.data as any) ?? [];
       const itemsRefs = [];
       await Promise.all(
         values.items.map(async (item) => {
+          const catalog = catalogItems.find((it) => String(it.id) === String(item.item?.value));
+          const stockUom = catalog?.uom ?? item.entered_uom;
+          const stock = toStockLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || stockUom,
+            stockUom,
+            enteredPrice: Number(item.price),
+            mode: "commercial",
+          });
+
           const [created] = await db.create(Tables.inventory_purchase_items, {
             item: item.item ? toRecordId(item.item.value) : undefined,
-            quantity: Number(item.quantity),
+            quantity: stock.quantity,
             requested: item.requested !== undefined && item.requested !== "" ? Number(item.requested) : undefined,
-            price: Number(item.price),
-            base_quantity: Number(item.base_quantity),
+            price: stock.price,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            entered_price: stock.entered_price,
+            base_quantity: 1,
             expiry_date: item.expiry_date ? calendarDateToDate(item.expiry_date) : undefined,
             manufacturing_date: item.manufacturing_date ? calendarDateToDate(item.manufacturing_date) : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
@@ -642,10 +673,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             itemsRefs.push(created.id);
           }
 
-          // Update item price if switch is enabled
-          if (values.update_item_cost && item.item?.value && item.price && Number(item.price) > 0) {
+          // Update catalog price in the stock unit (not the typed kg price)
+          if (values.update_item_cost && item.item?.value && stock.price > 0) {
             await db.merge(toRecordId(item.item.value), {
-              price: Number(item.price)
+              price: stock.price
             });
           }
         })
@@ -905,6 +936,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     quantity: 1,
                     requested: undefined,
                     price: 0,
+                    entered_uom: "",
                     base_quantity: 1,
                     expiry_date: null,
                     manufacturing_date: null,
@@ -933,8 +965,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
                 return (
                   <div className="flex flex-col gap-3 mb-4 border border-border rounded-lg p-3" key={field.id}>
-                    <div className="flex gap-3">
-                      <div className="flex-1">
+                    <div className="flex gap-3 flex-wrap">
+                      <div className="flex-1 min-w-[180px]">
                         <label>{t('buttons.item')}</label>
                         <Controller
                           name={`items.${index}.item`}
@@ -942,15 +974,45 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           render={({field}) => (
                             <ReactSelect
                               value={field.value}
-                              onChange={(option) => {
+                              onChange={async (option) => {
                                 field.onChange(option);
                                 const catalog = itemsList.find((it) => it.id === option?.value);
                                 setValue(`items.${index}.taxable`, !!catalog?.taxable);
+                                setValue(`items.${index}.base_quantity`, 1);
+                                const itemPrice = catalog?.price != null ? Number(catalog.price) : 0;
                                 if (catalog?.price != null) {
                                   setValue(`items.${index}.price`, catalog.price);
                                 }
-                                if (catalog?.base_quantity != null) {
-                                  setValue(`items.${index}.base_quantity`, catalog.base_quantity);
+                                if (catalog?.uom) {
+                                  setValue(`items.${index}.entered_uom`, normalizeUom(catalog.uom) ?? catalog.uom);
+                                }
+                                const itemId = option?.value ? String(option.value) : "";
+                                const suppliers = itemId ? itemSuppliersMap[itemId] ?? [] : [];
+                                const locations = itemId ? itemLocationsMap[itemId] ?? [] : [];
+                                if (suppliers.length === 1) {
+                                  setValue(`items.${index}.supplier`, suppliers[0]);
+                                } else {
+                                  setValue(`items.${index}.supplier`, null);
+                                }
+                                if (locations.length === 1) {
+                                  setValue(`items.${index}.location`, locations[0]);
+                                } else if (locations.length === 0 && globalLocationOptions.length === 1) {
+                                  setValue(`items.${index}.location`, globalLocationOptions[0]);
+                                } else {
+                                  setValue(`items.${index}.location`, null);
+                                }
+                                if (itemId) {
+                                  try {
+                                    const last = await getLastPurchasePrice(db, itemId, {
+                                      catalog,
+                                      supplierId: suppliers.length === 1 ? suppliers[0].value : null,
+                                    });
+                                    setLastPrices((prev) => ({...prev, [index]: last}));
+                                  } catch {
+                                    setLastPrices((prev) => ({...prev, [index]: itemPrice || null}));
+                                  }
+                                } else {
+                                  setLastPrices((prev) => ({...prev, [index]: null}));
                                 }
                               }}
                               options={itemOptions}
@@ -961,38 +1023,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         />
                         <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
-                      <div className="flex-1">
-                        <Controller
-                          name={`items.${index}.base_quantity`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('columns.baseQuantity')}
-                              type="number"
-                              value={field.value as number | string}
-                              onChange={field.onChange}
-                              error={get(errors, ["items", index, "base_quantity", "message"])}
-                              disabled={isCsvMethod || isPurchaseOrderMethod}
-                            />
-                          )}
-                        />
-                      </div>
-                      <div className="flex-1 self-end">
-                        <Controller
-                          name={`items.${index}.quantity`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('forms.quantity')}
-                              type="number"
-                              value={field.value as number | string}
-                              onChange={field.onChange}
-                              error={get(errors, ["items", index, "quantity", "message"])}
-                            />
-                          )}
-                        />
-                      </div>
-                      <div className="flex-1 self-end">
+                      <div className="flex-1 self-end min-w-[100px]">
                         <Controller
                           name={`items.${index}.requested`}
                           control={control}
@@ -1008,7 +1039,18 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           )}
                         />
                       </div>
-                      <div className="flex-1">
+                      <QuantityUomFields
+                        control={control}
+                        quantityName={`items.${index}.quantity`}
+                        uomName={`items.${index}.entered_uom`}
+                        stockUom={
+                          itemsList.find((it) => it.id === selectedItemId)?.uom ??
+                          itemsValues?.[index]?.entered_uom
+                        }
+                        errors={errors}
+                        disabled={isCsvMethod || isPurchaseOrderMethod}
+                      />
+                      <div className="flex-1 min-w-[140px]">
                         <Controller
                           name={`items.${index}.price`}
                           control={control}
@@ -1022,6 +1064,34 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                             />
                           )}
                         />
+                        {(() => {
+                          const catalog = itemsList.find((it) => it.id === selectedItemId);
+                          const itemPrice = catalog?.price != null ? Number(catalog.price) : null;
+                          const last = lastPrices[index];
+                          if (itemPrice == null && last == null) return null;
+                          return (
+                            <div className="mt-1 text-xs text-muted flex flex-wrap gap-x-2 gap-y-0.5">
+                              {last != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, last)}
+                                >
+                                  {t("forms.lastPrice", {defaultValue: "Last"})}: {withInventoryCurrency(last)}
+                                </button>
+                              )}
+                              {itemPrice != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, itemPrice)}
+                                >
+                                  {t("forms.itemPrice", {defaultValue: "Item"})}: {withInventoryCurrency(itemPrice)}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                       <div className="flex-0 self-end pb-1">
                         <Controller
@@ -1176,28 +1246,28 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
               <div className="ml-auto rounded-lg border border-border bg-surface px-4 py-3 text-sm space-y-1 min-w-[220px]">
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.subtotal')}</span>
-                  <span className="font-medium">{withCurrency(purchaseTotals.subtotal)}</span>
+                  <span className="font-medium">{withInventoryCurrency(purchaseTotals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.discount')}</span>
-                  <span className="font-medium">{withCurrency(Number(discountValue) || 0)}</span>
+                  <span className="font-medium">{withInventoryCurrency(Number(discountValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">{t('totals.shipping')}</span>
-                  <span className="font-medium">{withCurrency(Number(shippingValue) || 0)}</span>
+                  <span className="font-medium">{withInventoryCurrency(Number(shippingValue) || 0)}</span>
                 </div>
                 <div className="flex justify-between gap-4">
                   <span className="text-muted">
                     {t('totals.tax')}
                     {Number(taxRateValue) > 0 ? ` (${taxRateValue}%)` : ""}
                   </span>
-                  <span className="font-medium">{withCurrency(purchaseTotals.taxAmount)}</span>
+                  <span className="font-medium">{withInventoryCurrency(purchaseTotals.taxAmount)}</span>
                 </div>
                 {(extrasValues?.length ?? 0) > 0 && (
                   <div className="flex justify-between gap-4">
                     <span className="text-muted">{t('totals.additionalCosts')}</span>
                     <span className="font-medium">
-                      {withCurrency(
+                      {withInventoryCurrency(
                         purchaseTotals.extrasTotal +
                           (Number(discountValue) || 0) -
                           (Number(shippingValue) || 0)
@@ -1207,7 +1277,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                 )}
                 <div className="flex justify-between gap-4 border-t border-border pt-1 font-semibold">
                   <span>{t('totals.grandTotal')}</span>
-                  <span>{withCurrency(purchaseTotals.grandTotal)}</span>
+                  <span>{withInventoryCurrency(purchaseTotals.grandTotal)}</span>
                 </div>
               </div>
             </div>

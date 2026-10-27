@@ -1,11 +1,7 @@
+import type {ComponentType, LazyExoticComponent} from "react";
 import {Route, Routes} from "react-router";
 import {Login} from "@/screens/login.tsx";
 import {NotFound} from "@/screens/not-found.tsx";
-import {Menu} from "@/screens/menu";
-import {QuickOrder} from "@/screens/quick-order.tsx";
-import {Orders} from "@/screens/orders.tsx";
-import {Summary} from "@/screens/summary.tsx";
-import {KitchenScreen} from "@/screens/kitchen.tsx";
 import {Clock} from "@/screens/clock.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
 import {SuspenseOutlet} from "@/routes/suspense-outlet.tsx";
@@ -21,8 +17,8 @@ import {
   ORDER_DISPLAY,
   CUSTOMER_DISPLAY,
   LOGIN,
-  MENU,
   QUICK,
+  MENU,
   ORDERS,
   REPORTS,
   REPORTS_ACTIVITY,
@@ -92,6 +88,7 @@ import {
   HrScreen,
   IntegrationsScreen,
   Inventory,
+  KitchenScreen,
   LaborAttendanceReport,
   LaborDailyCostReport,
   LaborDashboardReport,
@@ -112,12 +109,15 @@ import {
   IssueReport,
   IssueReturnReport,
   KitchenReconciliationReport,
+  Menu,
   MergeOrdersReport,
   OrderDisplayScreen,
   CustomerDisplayScreen,
+  QuickOrder,
   OrderFiscalReport,
   OrderLifecycleReport,
   OrderReceiptReport,
+  Orders,
   ProductHourlyReport,
   ProductListReport,
   ProductMixSummaryReport,
@@ -138,6 +138,7 @@ import {
   SalesWeeklyReport,
   Settings,
   SplitOrdersReport,
+  Summary,
   TablesSummaryReport,
   TaxReport,
   TipDistributionScreen,
@@ -146,81 +147,89 @@ import {
   WasteReport,
 } from "@/routes/lazy-screens.ts";
 
+function gated(
+  enabled: boolean,
+  Comp: LazyExoticComponent<ComponentType<any>> | null,
+  path: string,
+) {
+  if (!enabled || !Comp) return null;
+  return <Route path={path} element={<Comp />} />;
+}
+
 export const AppRoutes = () => (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
     <Route element={<ProtectedRoute/>}>
-      <Route path={MENU} element={<Menu/>}/>
-      <Route path={QUICK} element={<QuickOrder/>}/>
-      <Route path={ORDERS} element={<Orders/>}/>
-      <Route path={SUMMARY} element={<Summary/>}/>
-      <Route path={KITCHEN} element={<KitchenScreen/>}/>
-      <Route path={CLOCK} element={<Clock/>}/>
-
       <Route element={<SuspenseOutlet/>}>
-        <Route path={CLOSING} element={<Closing/>}/>
-        <Route path={ORDER_DISPLAY} element={<OrderDisplayScreen/>}/>
-        <Route path={CUSTOMER_DISPLAY} element={<CustomerDisplayScreen/>}/>
-        <Route path={DELIVERY} element={<Delivery/>}/>
-        <Route path={ADMIN} element={<Admin/>}/>
-        <Route path={SETTINGS} element={<Settings/>}/>
-        <Route path={INTEGRATIONS} element={<IntegrationsScreen/>}/>
-        <Route path={INVENTORY} element={<Inventory/>}/>
-        <Route path={HR} element={<HrScreen/>}/>
-        <Route path={TIP_DISTRIBUTION} element={<TipDistributionScreen/>}/>
-        <Route path={ACCOUNTS} element={<AccountsScreen/>}/>
-        <Route path={REPORTS} element={<Reports/>}/>
-        <Route path={INVENTORY_PRINT} element={<InventoryDocumentPrintPage/>}/>
-        <Route path={REPORTS_SALES_DASHBOARD} element={<SalesDashboardReport/>}/>
-        <Route path={REPORTS_INVENTORY_DASHBOARD} element={<InventoryDashboardReport/>}/>
-        <Route path={REPORTS_AUDIT} element={<AuditReport/>}/>
-        <Route path={REPORTS_CASH_CLOSING} element={<CashClosingReport/>}/>
-        <Route path={REPORTS_DISCOUNTS} element={<DiscountsReport/>}/>
-        <Route path={REPORTS_TAX} element={<TaxReport/>}/>
-        <Route path={REPORTS_COUPON} element={<CouponReport/>}/>
-        <Route path={REPORTS_MERGE_ORDERS} element={<MergeOrdersReport/>}/>
-        <Route path={REPORTS_SPLIT_ORDERS} element={<SplitOrdersReport/>}/>
-        <Route path={REPORTS_ORDER_LIFECYCLE} element={<OrderLifecycleReport/>}/>
-        <Route path={REPORTS_ORDER_RECEIPT} element={<OrderReceiptReport/>}/>
-        <Route path={REPORTS_ORDER_FISCAL} element={<OrderFiscalReport/>}/>
-        <Route path={REPORTS_EXPENSE} element={<ExpenseReport/>}/>
-        <Route path={REPORTS_ACTIVITY} element={<ActivityReport/>}/>
-        <Route path={REPORTS_AI} element={<AiReport/>}/>
-        <Route path={REPORTS_PRODUCT_HOURLY} element={<ProductHourlyReport/>}/>
-        <Route path={REPORTS_PRODUCT_LIST} element={<ProductListReport/>}/>
-        <Route path={REPORTS_PRODUCT_MIX_SUMMARY} element={<ProductMixSummaryReport/>}/>
-        <Route path={REPORTS_PRODUCT_MIX_WEEKLY} element={<ProductMixWeeklyReport/>}/>
-        <Route path={REPORTS_SALES_ADVANCED} element={<SalesAdvancedReport/>}/>
-        <Route path={REPORTS_DELIVERY_DENSITY} element={<DeliveryDensityReport/>}/>
-        <Route path={REPORTS_SALES_HOURLY_LABOUR} element={<SalesHourlyLabourReport/>}/>
-        <Route path={REPORTS_SALES_HOURLY_LABOUR_WEEKLY} element={<SalesHourlyLabourWeeklyReport/>}/>
-        <Route path={REPORTS_SALES_SERVER} element={<SalesServerReport/>}/>
-        <Route path={REPORTS_SALES_SUMMARY} element={<SalesSummaryReport/>}/>
-        <Route path={REPORTS_SALES_SUMMARY2} element={<SalesSummary2Report/>}/>
-        <Route path={REPORTS_TIPS} element={<TipsReport/>}/>
-        <Route path={REPORTS_SALES_WEEKLY} element={<SalesWeeklyReport/>}/>
-        <Route path={REPORTS_TABLES_SUMMARY} element={<TablesSummaryReport/>}/>
-        <Route path={REPORTS_VOIDS} element={<VoidsReport/>}/>
-        <Route path={REPORTS_DETAILED_INVENTORY} element={<DetailedInventoryReport/>}/>
-        <Route path={REPORTS_CURRENT_INVENTORY} element={<CurrentInventoryReport/>}/>
-        <Route path={REPORTS_PURCHASE} element={<PurchaseReport/>}/>
-        <Route path={REPORTS_PURCHASE_ORDER} element={<PurchaseOrderReport/>}/>
-        <Route path={REPORTS_PURCHASE_RETURN} element={<PurchaseReturnReport/>}/>
-        <Route path={REPORTS_ISSUE} element={<IssueReport/>}/>
-        <Route path={REPORTS_ISSUE_RETURN} element={<IssueReturnReport/>}/>
-        <Route path={REPORTS_WASTE} element={<WasteReport/>}/>
-        <Route path={REPORTS_CONSUMPTION} element={<ConsumptionReport/>}/>
-        <Route path={REPORTS_SALE_VS_CONSUMPTION} element={<SaleVsConsumptionReport/>}/>
-        <Route path={REPORTS_KITCHEN_RECONCILIATION} element={<KitchenReconciliationReport/>}/>
-        <Route path={REPORTS_PRODUCTION} element={<ProductionReport/>}/>
-        <Route path={REPORTS_BUFFET} element={<BuffetReport/>}/>
-        <Route path={REPORTS_LABOR_DASHBOARD} element={<LaborDashboardReport/>}/>
-        <Route path={REPORTS_LABOR_DAILY_COST} element={<LaborDailyCostReport/>}/>
-        <Route path={REPORTS_LABOR_OVERTIME} element={<LaborOvertimeReport/>}/>
-        <Route path={REPORTS_LABOR_ATTENDANCE} element={<LaborAttendanceReport/>}/>
-        <Route path={REPORTS_LABOR_PAYROLL_SUMMARY} element={<LaborPayrollSummaryReport/>}/>
-        <Route path={REPORTS_LABOR_SCHEDULED_VS_ACTUAL} element={<LaborScheduledVsActualReport/>}/>
-        <Route path={REPORTS_LABOR_SCHEDULE_ROSTER} element={<LaborScheduleRosterReport/>}/>
+        {gated(__BUILD_MODULE_menu__, Menu, MENU)}
+        {gated(__BUILD_MODULE_orders__, Orders, ORDERS)}
+        {gated(__BUILD_MODULE_summary__, Summary, SUMMARY)}
+        {gated(__BUILD_MODULE_kitchen__, KitchenScreen, KITCHEN)}
+        <Route path={CLOCK} element={<Clock/>}/>
+        {gated(__BUILD_MODULE_closing__, Closing, CLOSING)}
+        {gated(__BUILD_MODULE_order_display__, OrderDisplayScreen, ORDER_DISPLAY)}
+        {gated(__BUILD_MODULE_menu__, CustomerDisplayScreen, CUSTOMER_DISPLAY)}
+        {gated(__BUILD_MODULE_menu__, QuickOrder, QUICK)}
+        {gated(__BUILD_MODULE_delivery__, Delivery, DELIVERY)}
+        {gated(__BUILD_MODULE_admin__, Admin, ADMIN)}
+        {gated(__BUILD_MODULE_settings__, Settings, SETTINGS)}
+        {gated(__BUILD_MODULE_integrations__, IntegrationsScreen, INTEGRATIONS)}
+        {gated(__BUILD_MODULE_inventory__, Inventory, INVENTORY)}
+        {gated(__BUILD_MODULE_hr__, HrScreen, HR)}
+        {gated(__BUILD_MODULE_tips__, TipDistributionScreen, TIP_DISTRIBUTION)}
+        {gated(__BUILD_MODULE_accounts__, AccountsScreen, ACCOUNTS)}
+        {gated(__BUILD_MODULE_reports__, Reports, REPORTS)}
+        {gated(__BUILD_MODULE_inventory__, InventoryDocumentPrintPage, INVENTORY_PRINT)}
+        {gated(__BUILD_MODULE_reports__, SalesDashboardReport, REPORTS_SALES_DASHBOARD)}
+        {gated(__BUILD_MODULE_reports__, InventoryDashboardReport, REPORTS_INVENTORY_DASHBOARD)}
+        {gated(__BUILD_MODULE_reports__, AuditReport, REPORTS_AUDIT)}
+        {gated(__BUILD_MODULE_reports__, CashClosingReport, REPORTS_CASH_CLOSING)}
+        {gated(__BUILD_MODULE_reports__, DiscountsReport, REPORTS_DISCOUNTS)}
+        {gated(__BUILD_MODULE_reports__, TaxReport, REPORTS_TAX)}
+        {gated(__BUILD_MODULE_reports__, CouponReport, REPORTS_COUPON)}
+        {gated(__BUILD_MODULE_reports__, MergeOrdersReport, REPORTS_MERGE_ORDERS)}
+        {gated(__BUILD_MODULE_reports__, SplitOrdersReport, REPORTS_SPLIT_ORDERS)}
+        {gated(__BUILD_MODULE_reports__, OrderLifecycleReport, REPORTS_ORDER_LIFECYCLE)}
+        {gated(__BUILD_MODULE_reports__, OrderReceiptReport, REPORTS_ORDER_RECEIPT)}
+        {gated(__BUILD_MODULE_reports__, OrderFiscalReport, REPORTS_ORDER_FISCAL)}
+        {gated(__BUILD_MODULE_reports__, ExpenseReport, REPORTS_EXPENSE)}
+        {gated(__BUILD_MODULE_reports__, ActivityReport, REPORTS_ACTIVITY)}
+        {gated(__BUILD_MODULE_reports__, AiReport, REPORTS_AI)}
+        {gated(__BUILD_MODULE_reports__, ProductHourlyReport, REPORTS_PRODUCT_HOURLY)}
+        {gated(__BUILD_MODULE_reports__, ProductListReport, REPORTS_PRODUCT_LIST)}
+        {gated(__BUILD_MODULE_reports__, ProductMixSummaryReport, REPORTS_PRODUCT_MIX_SUMMARY)}
+        {gated(__BUILD_MODULE_reports__, ProductMixWeeklyReport, REPORTS_PRODUCT_MIX_WEEKLY)}
+        {gated(__BUILD_MODULE_reports__, SalesAdvancedReport, REPORTS_SALES_ADVANCED)}
+        {gated(__BUILD_MODULE_reports__, DeliveryDensityReport, REPORTS_DELIVERY_DENSITY)}
+        {gated(__BUILD_MODULE_reports__, SalesHourlyLabourReport, REPORTS_SALES_HOURLY_LABOUR)}
+        {gated(__BUILD_MODULE_reports__, SalesHourlyLabourWeeklyReport, REPORTS_SALES_HOURLY_LABOUR_WEEKLY)}
+        {gated(__BUILD_MODULE_reports__, SalesServerReport, REPORTS_SALES_SERVER)}
+        {gated(__BUILD_MODULE_reports__, SalesSummaryReport, REPORTS_SALES_SUMMARY)}
+        {gated(__BUILD_MODULE_reports__, SalesSummary2Report, REPORTS_SALES_SUMMARY2)}
+        {gated(__BUILD_MODULE_reports__, TipsReport, REPORTS_TIPS)}
+        {gated(__BUILD_MODULE_reports__, SalesWeeklyReport, REPORTS_SALES_WEEKLY)}
+        {gated(__BUILD_MODULE_reports__, TablesSummaryReport, REPORTS_TABLES_SUMMARY)}
+        {gated(__BUILD_MODULE_reports__, VoidsReport, REPORTS_VOIDS)}
+        {gated(__BUILD_MODULE_reports__, DetailedInventoryReport, REPORTS_DETAILED_INVENTORY)}
+        {gated(__BUILD_MODULE_reports__, CurrentInventoryReport, REPORTS_CURRENT_INVENTORY)}
+        {gated(__BUILD_MODULE_reports__, PurchaseReport, REPORTS_PURCHASE)}
+        {gated(__BUILD_MODULE_reports__, PurchaseOrderReport, REPORTS_PURCHASE_ORDER)}
+        {gated(__BUILD_MODULE_reports__, PurchaseReturnReport, REPORTS_PURCHASE_RETURN)}
+        {gated(__BUILD_MODULE_reports__, IssueReport, REPORTS_ISSUE)}
+        {gated(__BUILD_MODULE_reports__, IssueReturnReport, REPORTS_ISSUE_RETURN)}
+        {gated(__BUILD_MODULE_reports__, WasteReport, REPORTS_WASTE)}
+        {gated(__BUILD_MODULE_reports__, ConsumptionReport, REPORTS_CONSUMPTION)}
+        {gated(__BUILD_MODULE_reports__, SaleVsConsumptionReport, REPORTS_SALE_VS_CONSUMPTION)}
+        {gated(__BUILD_MODULE_reports__, KitchenReconciliationReport, REPORTS_KITCHEN_RECONCILIATION)}
+        {gated(__BUILD_MODULE_reports__, ProductionReport, REPORTS_PRODUCTION)}
+        {gated(__BUILD_MODULE_reports__, BuffetReport, REPORTS_BUFFET)}
+        {gated(__BUILD_MODULE_reports__, LaborDashboardReport, REPORTS_LABOR_DASHBOARD)}
+        {gated(__BUILD_MODULE_reports__, LaborDailyCostReport, REPORTS_LABOR_DAILY_COST)}
+        {gated(__BUILD_MODULE_reports__, LaborOvertimeReport, REPORTS_LABOR_OVERTIME)}
+        {gated(__BUILD_MODULE_reports__, LaborAttendanceReport, REPORTS_LABOR_ATTENDANCE)}
+        {gated(__BUILD_MODULE_reports__, LaborPayrollSummaryReport, REPORTS_LABOR_PAYROLL_SUMMARY)}
+        {gated(__BUILD_MODULE_reports__, LaborScheduledVsActualReport, REPORTS_LABOR_SCHEDULED_VS_ACTUAL)}
+        {gated(__BUILD_MODULE_reports__, LaborScheduleRosterReport, REPORTS_LABOR_SCHEDULE_ROSTER)}
       </Route>
     </Route>
     <Route path="*" element={<NotFound/>}/>

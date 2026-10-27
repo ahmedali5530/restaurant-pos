@@ -1,3 +1,5 @@
+import {roundInventory} from "@/lib/inventory/rounding.ts";
+
 export type BuffetLineInput = {
   itemId: string;
   itemName?: string;
@@ -39,8 +41,8 @@ export type BuffetClosingValidation = {
   errors: string[];
 };
 
-const roundQty = (value: number) => Math.round(value * 10000) / 10000;
-const roundMoney = (value: number) => Math.round(value * 100) / 100;
+const roundQty = roundInventory;
+const roundMoney = roundInventory;
 
 export const computeBuffetLine = (
   input: BuffetLineInput,

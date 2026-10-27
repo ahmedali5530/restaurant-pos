@@ -33,7 +33,12 @@ import { useIntegrationManager } from "@/providers/integration.provider.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { DataImportModal } from "@/components/common/data-import/data-import-modal.tsx";
 import { createAdjustmentImportConfig } from "@/components/inventory/adjustments/adjustment.import.config.ts";
-
+import { convertQuantityOnlyLine } from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import { normalizeUom } from "@/utils/inventoryUom.ts";
 type Option = { label: string; value: string };
 
 interface FormValues {
@@ -44,6 +49,7 @@ interface FormValues {
   items: Array<{
     item: Option | null;
     quantity_change: number | string;
+    entered_uom?: string;
     unit_cost?: number | string;
     comments?: string;
   }>;
@@ -66,6 +72,7 @@ const validationSchema = yup.object({
       yup.object({
         item: yup.object({ label: yup.string(), value: yup.string() }).required().nullable(),
         quantity_change: yup.number().typeError("Required").required(),
+        entered_uom: yup.string().nullable().optional(),
         unit_cost: yup.number().nullable().optional(),
         comments: yup.string().optional(),
       })
@@ -111,14 +118,14 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     reload: reloadLocations,
   } = useInventoryLocations(open);
 
-  const { control, handleSubmit, reset, getValues, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, getValues, setValue, watch, formState: { errors } } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       invoice_number: 1,
       reason: reasonOptions[0],
       notes: "",
       location: null,
-      items: [{ item: null, quantity_change: 0, unit_cost: "", comments: "" }],
+      items: [{ item: null, quantity_change: 0, entered_uom: "", unit_cost: "", comments: "" }],
     },
   });
 
@@ -155,17 +162,26 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
         reasonOptions.find((r) => r.value === data.reason) ?? reasonOptions[0],
       notes: data.notes ?? "",
       location: resolveLocationOption(data),
-      items: (data.items ?? []).map((line) => ({
+      items: (data.items ?? []).map((line) => {
+        const entered = lineEnteredDefaults({
+          quantity: line.quantity_change,
+          entered_quantity: (line as any).entered_quantity,
+          entered_uom: (line as any).entered_uom,
+          item: line.item,
+        });
+        return {
         item: line.item
           ? {
               label: `${line.item.name}-${line.item.code ?? ""}`,
               value: recordIdToString(line.item.id ?? line.item),
             }
           : null,
-        quantity_change: line.quantity_change,
+        quantity_change: entered.quantity,
+        entered_uom: entered.entered_uom,
         unit_cost: line.unit_cost ?? "",
         comments: line.comments ?? "",
-      })),
+      };
+      }),
     });
   }, [data, reset, reasonOptions]);
 
@@ -219,13 +235,42 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
         throw new Error(t("adjustment.saveFailed"));
       }
 
+      const catalogItems = items?.data ?? [];
       const lineIds: string[] = [];
       for (const line of values.items) {
+        const catalog = catalogItems.find(
+          (it) => recordIdToString(it.id) === line.item!.value
+        );
+        const rawChange = Number(line.quantity_change) || 0;
+        const sign = rawChange < 0 ? -1 : rawChange > 0 ? 1 : 0;
+        const absEntered = Math.abs(rawChange);
+        const stockUomNormalized =
+          normalizeUom(line.entered_uom || catalog?.uom) ??
+          line.entered_uom ??
+          catalog?.uom ??
+          "";
+        let quantityChange = 0;
+        let enteredUom = stockUomNormalized || undefined;
+        if (sign !== 0) {
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: absEntered,
+            enteredUom: line.entered_uom || catalog?.uom,
+            stockUom: catalog?.uom,
+            stockUnitPrice:
+              line.unit_cost === "" || line.unit_cost == null
+                ? undefined
+                : Number(line.unit_cost),
+          });
+          quantityChange = sign * stock.quantity;
+          enteredUom = stock.entered_uom;
+        }
         const [created] = await db.create(Tables.inventory_adjustment_items, {
           adjustment: toRecordId(adjustmentId),
           item: toRecordId(line.item!.value),
           location: toRecordId(locationId),
-          quantity_change: Number(line.quantity_change) || 0,
+          quantity_change: quantityChange,
+          entered_quantity: rawChange,
+          entered_uom: enteredUom,
           unit_cost:
             line.unit_cost === "" || line.unit_cost == null
               ? undefined
@@ -343,7 +388,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                   variant="secondary"
                   icon={faPlus}
                   onClick={() =>
-                    append({ item: null, quantity_change: 0, unit_cost: "", comments: "" })
+                    append({ item: null, quantity_change: 0, entered_uom: "", unit_cost: "", comments: "" })
                   }
                 >
                   {t("buttons.line")}
@@ -353,7 +398,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
           </div>
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-              <div className="col-span-5">
+              <div className="col-span-4">
                 <Controller
                   name={`items.${index}.item`}
                   control={control}
@@ -361,20 +406,36 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                     <ReactSelect
                       options={itemOptions}
                       value={f.value}
-                      onChange={f.onChange}
+                      onChange={(option) => {
+                        f.onChange(option);
+                        const catalog = (items?.data ?? []).find(
+                          (it) => recordIdToString(it.id) === option?.value
+                        );
+                        if (catalog?.uom) {
+                          setValue(
+                            `items.${index}.entered_uom`,
+                            normalizeUom(catalog.uom) ?? catalog.uom
+                          );
+                        }
+                      }}
                       isLoading={loadingItems}
                       isDisabled={locked}
                     />
                   )}
                 />
               </div>
-              <div className="col-span-2">
-                <InputField
-                  name={`items.${index}.quantity_change`}
+              <div className="col-span-3">
+                <QuantityUomFields
                   control={control}
-                  type="number"
-                  step="any"
-                  placeholder={t("columns.quantityChange")}
+                  quantityName={`items.${index}.quantity_change`}
+                  uomName={`items.${index}.entered_uom`}
+                  stockUom={
+                    (items?.data ?? []).find(
+                      (it) => recordIdToString(it.id) === watch(`items.${index}.item`)?.value
+                    )?.uom
+                  }
+                  quantityLabel={t("columns.quantityChange")}
+                  errors={errors}
                   disabled={locked}
                 />
               </div>

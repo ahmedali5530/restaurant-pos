@@ -43,6 +43,13 @@ import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { InventoryDocumentStatusBadge } from "@/components/inventory/common/document.status.badge.tsx";
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
@@ -53,6 +60,7 @@ interface InventoryIssueItemFormValue {
   item: { label: string; value: string } | null;
   requested?: number | string;
   quantity: number | string;
+  entered_uom?: string;
   price?: number | string;
   comments?: string;
 }
@@ -126,6 +134,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
       }).required("This is required").nullable(),
       requested: yup.number().typeError("This should be a number").nullable().optional(),
       quantity: yup.number().typeError("This should be a number").required("This is required"),
+      entered_uom: yup.string().nullable().optional(),
       price: yup.number().typeError("This should be a number").nullable().optional(),
       comments: yup.string().nullable().optional(),
     })
@@ -196,6 +205,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     item: null,
     requested: 1,
     quantity: 1,
+    entered_uom: "",
     price: 0,
     comments: ""
   }), []);
@@ -278,6 +288,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
           update_recipe_cost: false,
           items: data.items?.map(item => {
             const loc = item.location;
+            const entered = lineEnteredDefaults(item as any);
             return {
               location: loc ? {
                 label: loc.name,
@@ -288,7 +299,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 value: recordIdToString(item.item.id)
               } : null,
               requested: item.requested ?? 1,
-              quantity: item.quantity ?? 1,
+              quantity: entered.quantity || 1,
+              entered_uom: entered.entered_uom,
               price: item.price ?? 0,
               comments: item.comments ?? "",
             };
@@ -392,8 +404,20 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
       
       if (!itemId || !locationId) continue;
 
-      const desiredQuantity = Number(row.quantity) || 0;
-      if (desiredQuantity <= 0) continue;
+      const catalog = ((items?.data ?? []) as InventoryItem[]).find(
+        (it) => String(it.id) === String(itemId)
+      );
+      let desiredInStock = Number(row.quantity) || 0;
+      if (desiredInStock <= 0) continue;
+      try {
+        desiredInStock = convertQuantityOnlyLine({
+          enteredQuantity: desiredInStock,
+          enteredUom: row.entered_uom || catalog?.uom,
+          stockUom: catalog?.uom,
+        }).quantity;
+      } catch {
+        // leave desired as entered when conversion fails; save will reject
+      }
 
       const cacheKey = `${itemId}-${locationId}`;
       let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
@@ -409,10 +433,10 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         }
       }
 
-      if (available < desiredQuantity) {
+      if (available < desiredInStock) {
         setError(`items.${index}.quantity` as const, {
           type: "manual",
-          message: `Only ${available} available`
+          message: `Only ${formatInventoryNumber(available)}${catalog?.uom ? ` ${catalog.uom}` : ""} available`
         });
         isValid = false;
       } else {
@@ -530,16 +554,27 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
         throw new Error("Failed to resolve issue identifier");
       }
 
+      const catalogItems = (items?.data ?? []) as InventoryItem[];
       const itemRefs = [];
       await Promise.all(
         values.items.map(async (item) => {
+          const catalog = catalogItems.find((it) => String(it.id) === String(item.item?.value));
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || catalog?.uom,
+            stockUom: catalog?.uom,
+            stockUnitPrice:
+              item.price !== undefined && item.price !== "" ? Number(item.price) : catalog?.price,
+          });
           const [created] = await db.create(Tables.inventory_issue_items, {
             issue: toRecordId(issueIdString),
             item: item.item ? toRecordId(item.item.value) : undefined,
             location: item.location ? toRecordId(item.location.value) : undefined,
             requested: item.requested !== undefined && item.requested !== "" ? Number(item.requested) : undefined,
-            quantity: Number(item.quantity),
-            price: item.price !== undefined && item.price !== "" ? Number(item.price) : undefined,
+            quantity: stock.quantity,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            price: stock.price > 0 ? stock.price : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 
@@ -547,10 +582,10 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
             itemRefs.push(created.id);
           }
 
-          // Update item price if switch is enabled
-          if (values.update_item_cost && item.item?.value && item.price !== undefined && item.price !== "" && Number(item.price) > 0) {
+          // Update item price if switch is enabled (stock-unit price)
+          if (values.update_item_cost && item.item?.value && stock.price > 0) {
             await db.merge(toRecordId(item.item.value), {
-              price: Number(item.price)
+              price: stock.price
             });
           }
         }
@@ -790,6 +825,12 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                               if (catalogPrice > 0) {
                                 setValue(`items.${index}.price`, catalogPrice);
                               }
+                              if (catalog.uom) {
+                                setValue(
+                                  `items.${index}.entered_uom`,
+                                  normalizeUom(catalog.uom) ?? catalog.uom
+                                );
+                              }
                             }
                           }}
                           options={rowItemOptions}
@@ -815,39 +856,28 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       )}
                     />
                   </div>
-                  {/*<div className="flex-1">
-                    <Controller
-                      name={`items.${index}.price`}
-                      control={control}
-                      render={({field}) => (
-                        <Input
-                          label={t('columns.price')}
-                          type="number"
-                          value={field.value as number | string | undefined}
-                          onChange={field.onChange}
-                          error={get(errors, ["items", index, "price", "message"])}
-                        />
-                      )}
-                    />
-                  </div>*/}
                   <div className="flex-1">
-                    <Controller
-                      name={`items.${index}.quantity`}
+                    <QuantityUomFields
                       control={control}
-                      render={({field}) => (
-                        <Input
-                          label={t('forms.quantity')}
-                          type="number"
-                          value={field.value as number | string}
-                          onChange={field.onChange}
-                          error={get(errors, ["items", index, "quantity", "message"])}
-                          disabled={!rowLocationId}
-                        />
-                      )}
+                      quantityName={`items.${index}.quantity`}
+                      uomName={`items.${index}.entered_uom`}
+                      stockUom={
+                        itemsList.find(
+                          (it) => String(it.id) === String(watchedItems?.[index]?.item?.value)
+                        )?.uom
+                      }
+                      errors={errors}
+                      disabled={!rowLocationId}
                     />
                     {rowLocationId && (
                       <p className="text-xs text-muted mt-1">
                         Available: {rowNetQuantities[index] ?? "—"}
+                        {(() => {
+                          const uom = itemsList.find(
+                            (it) => String(it.id) === String(watchedItems?.[index]?.item?.value)
+                          )?.uom;
+                          return uom ? ` ${uom}` : "";
+                        })()}
                       </p>
                     )}
                   </div>

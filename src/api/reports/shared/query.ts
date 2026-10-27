@@ -210,6 +210,25 @@ export const buildStringInsideCondition = (
 };
 
 /**
+ * Cloud-master branch stamp filter (`SYNC_CLIENT_ID` string on FOH rows).
+ * - `undefined` → no condition (single-store or unrestricted "all")
+ * - `[]` → force empty result (`emptyResult: true`)
+ * - non-empty → `branch_id INSIDE $param`
+ */
+export const buildBranchInsideCondition = (
+  branchIds: string[] | undefined,
+  paramName = "branchIds",
+): {condition?: string; params: Record<string, any>; emptyResult?: boolean} => {
+  if (branchIds === undefined) {
+    return {params: {}};
+  }
+  if (branchIds.length === 0) {
+    return {condition: "false", params: {}, emptyResult: true};
+  }
+  return buildStringInsideCondition("branch_id", branchIds, paramName);
+};
+
+/**
  * Record id OR/INSIDE filter. Prefer this for user/store/supplier/etc.
  * For plain strings (status enums), use buildStringInsideCondition.
  */

@@ -10,6 +10,8 @@ import {
   resolveInventoryItem,
   type TFunc,
 } from "@/lib/data-import/helpers.ts";
+import {convertEnteredQtyToStock} from "@/lib/inventory/unit.convert.ts";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 export type KitchenReconLine = {
   itemId: string;
@@ -17,6 +19,11 @@ export type KitchenReconLine = {
   wasteQty: number;
   staffMealQty: number;
   complimentaryQty: number;
+  enteredUom?: string | null;
+  enteredPhysicalCount?: number | null;
+  enteredWasteQty?: number | null;
+  enteredStaffMealQty?: number | null;
+  enteredComplimentaryQty?: number | null;
 };
 
 export type KitchenReconExistingItem = {
@@ -74,6 +81,13 @@ export function createKitchenReconImportConfig({
       type: "number",
       defaultValue: 0,
     },
+    {
+      name: "entered_uom",
+      label: t("inventory:forms.uom", {defaultValue: "UOM"}),
+      type: "string",
+      optional: true,
+      aliases: ["UOM", "Unit", "Count UOM"],
+    },
   ];
 
   const notFoundMessage = t("common:csvImport.recordNotFound");
@@ -88,7 +102,7 @@ export function createKitchenReconImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions:
-      "Extract kitchen reconciliation rows with item code, optional name, physical count, waste, staff meal, and complimentary quantities.",
+      "Extract kitchen reconciliation rows with item code, optional name, physical count, waste, staff meal, complimentary quantities, and optional count UOM (convertible family of the item stock unit).",
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const code = String(v.item_code ?? "").trim();
@@ -99,16 +113,33 @@ export function createKitchenReconImportConfig({
         throw new Error(t("inventory:kitchenReconciliation.unknownItemCode", {code}));
       }
 
+      const stockUom = normalizeUom(item.uom) ?? item.uom ?? "";
+      const enteredUomRaw = String(v.entered_uom ?? "").trim();
+      const enteredUom = enteredUomRaw
+        ? normalizeUom(enteredUomRaw) ?? enteredUomRaw
+        : stockUom;
+
       const physicalRaw = v.physical_count;
+      const enteredPhysical =
+        physicalRaw === null || physicalRaw === undefined || String(physicalRaw).trim() === ""
+          ? null
+          : Number(physicalRaw);
+      const enteredWaste = Number(v.waste) || 0;
+      const enteredStaff = Number(v.staff_meal) || 0;
+      const enteredComplimentary = Number(v.complimentary) || 0;
+
       const line: KitchenReconLine = {
         itemId: String(item.id),
-        physicalCount:
-          physicalRaw === null || physicalRaw === undefined || String(physicalRaw).trim() === ""
-            ? null
-            : Number(physicalRaw),
-        wasteQty: Number(v.waste) || 0,
-        staffMealQty: Number(v.staff_meal) || 0,
-        complimentaryQty: Number(v.complimentary) || 0,
+        physicalCount: convertEnteredQtyToStock(enteredPhysical, enteredUom, stockUom),
+        wasteQty: convertEnteredQtyToStock(enteredWaste, enteredUom, stockUom) ?? 0,
+        staffMealQty: convertEnteredQtyToStock(enteredStaff, enteredUom, stockUom) ?? 0,
+        complimentaryQty:
+          convertEnteredQtyToStock(enteredComplimentary, enteredUom, stockUom) ?? 0,
+        enteredUom: enteredUom || null,
+        enteredPhysicalCount: enteredPhysical,
+        enteredWasteQty: enteredWaste,
+        enteredStaffMealQty: enteredStaff,
+        enteredComplimentaryQty: enteredComplimentary,
       };
 
       const normalizedCode = normalizeImportMatchValue(code);

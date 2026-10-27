@@ -146,6 +146,7 @@
     "duplicateDishModifierGroup": "Modifier group is already attached to this dish",
     "invalidPriority": "Priority is invalid",
     "invalidRequiredModifiers": "Required modifiers value is invalid",
+    "dishCostsSynced": "Updated costs for {{dishes}} dish(es) from {{items}} inventory item(s)",
     "barcodeInUse": "Barcode {{code}} is already used by {{name}}"
   },
   "settingsDelete": {

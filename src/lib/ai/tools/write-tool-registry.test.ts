@@ -41,6 +41,16 @@ describe("detectWriteToolsForPrompt", () => {
     expect(names).not.toContain("propose_create_dishes");
   });
 
+  it("does not offer dish-ingredient write tools for read-only recipe questions", () => {
+    const names = toolNames(
+      "What ingredients are in dish Margherita Pizza?",
+      ["admin.dishes.create", "admin.dishes.update"],
+      ["sales", "inventory"],
+    );
+    expect(names).not.toContain("propose_create_dish_ingredients");
+    expect(names).not.toContain("propose_update_dish_ingredients");
+  });
+
   it("routes scheduled shifts for HR scheduling permission", () => {
     const names = toolNames(
       "add a scheduled shift for employee 101 tomorrow 9am-5pm",

@@ -31,6 +31,7 @@ import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+
 import { withCurrency } from "@/lib/utils.ts";
 import {
   applyAvailabilityLocally,
@@ -52,6 +53,11 @@ type ModifierOptionOverrideDraft = {
   previousQty: number | null;
   recordId?: string;
 };
+import {roundInventory, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {QuantityUomFields} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
 
 const inventoryItemOptionLabel = (item: InventoryItem) =>
   item.uom ? `${item.name} (${item.uom})` : item.name;
@@ -114,6 +120,7 @@ const validationSchema = yup.object({
       value: yup.string()
     }).required(i18n.t('validation:required')),
     quantity: yup.number().required(i18n.t('validation:required')).min(0.01, i18n.t('validation:quantityMin')),
+    entered_uom: yup.string().nullable().optional(),
     cost: yup.number().required(i18n.t('validation:required')).min(0, i18n.t('validation:costMin')),
     is_price_locked: yup.boolean().optional(),
     id: yup.string().nullable().optional()
@@ -128,8 +135,9 @@ export const DishForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.dishes);
+  const structuralLocked = lockStructuralFields(data);
   const setAppSettings = useSetAtom(appSettings);
-
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -155,14 +163,28 @@ export const DishForm = ({
   }
 
   useEffect(() => {
-    if (data) {
+    if (!data) {
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      setPhotoData(null);
+      setWorkflowOption(null);
+      setWorkflowStages([]);
+      setStageOverrides({});
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       reset({
-        ...data,
-        available: data.available !== false,
-        ask_quantity: data.ask_quantity === true,
-        available_qty: data.available_qty ?? null,
-        barcodes: Array.isArray(data.barcodes) ? data.barcodes.map(String) : [],
-        categories: data.categories.map(item => ({
+        ...src,
+        available: src.available !== false,
+        ask_quantity: src.ask_quantity === true,
+        available_qty: src.available_qty ?? null,
+        barcodes: Array.isArray(src.barcodes) ? src.barcodes.map(String) : [],
+        barcode: src.barcode ?? '',
+        categories: (src.categories || data.categories || []).map((item: any) => ({
           label: item.name,
           value: item.id
         })),
@@ -172,8 +194,8 @@ export const DishForm = ({
 
       setPhotoFile(null);
       setPhotoData(null);
-      if (data.photo) {
-        const buffer = data.photo;
+      if (src.photo || data.photo) {
+        const buffer = src.photo || data.photo;
         const mimeType = detectMimeType(buffer, "image/png");
         const blob = new Blob([buffer], {type: mimeType});
         setPhotoPreview(URL.createObjectURL(blob));
@@ -183,24 +205,10 @@ export const DishForm = ({
       getModifierAvailability(data.id);
       getRecipes(data.id);
       loadWorkflowAssignment(data.id);
-    } else {
-      reset({
-        available: true,
-        ask_quantity: false,
-        available_qty: null,
-        barcodes: [],
-        recipes: [],
-        modifier_groups: [],
-      });
-      setPhotoFile(null);
-      setPhotoPreview(null);
-      setPhotoData(null);
-      setWorkflowOption(null);
-      setWorkflowStages([]);
-      setStageOverrides({});
-      setModifierOptionOverrides({});
-    }
-  }, [data]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const {
     data: categories,
@@ -329,7 +337,8 @@ export const DishForm = ({
             label: rec.item.name,
             value: rec.item.id
           },
-          quantity: rec.quantity,
+          quantity: rec.entered_quantity ?? rec.quantity,
+          entered_uom: rec.entered_uom ?? rec.item?.uom ?? "",
           cost: rec.cost,
           is_price_locked: rec.is_price_locked || false,
           id: rec.id // Store the recipe ID for updates
@@ -418,12 +427,21 @@ export const DishForm = ({
 
   const onSubmit = async (values: any) => {
     try {
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
+      }
+
       const formData = {
         ...values,
         // position: parseInt(values.position),
         priority: parseInt(values.priority),
         price: parseFloat(values.price),
-        cost: parseFloat(values.cost),
+        cost: roundInventory(parseFloat(values.cost)),
         categories: values?.categories?.map(item => new StringRecordId(item.value.toString()))
       };
 
@@ -462,6 +480,10 @@ export const DishForm = ({
         available_qty: formData.available_qty,
         previousQty: data?.available_qty,
       });
+      const stampBranch =
+        soleBranchId && (!data?.id || isBranchOwnedBy(data))
+          ? { branch_id: soleBranchId }
+          : {};
       const dishData: any = {
         name: formData.name,
         number: formData.number,
@@ -476,159 +498,189 @@ export const DishForm = ({
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
         ...availability,
+        ...stampBranch,
       };
 
-
-      let menuId: any;
-      if (data?.id) {
-        menuId = data.id;
-        await db.merge(data.id, dishData);
-      } else {
-        const [record] = await db.create(Tables.dishes, dishData);
-        menuId = record.id;
-      }
-
-      if (photoData && photoFile) {
-        const [photoId] = await db.create(Tables.documents, {
-          name: photoFile.name,
-          content: photoData,
-          size: photoFile.size,
-          type: photoFile.type || undefined,
-        });
-
-        await db.merge(menuId, {
-          dish_photo: photoId.id
-        });
-      }
-
-      if (formData.modifier_groups) {
-        // delete graph edges and create again
-        await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
-
-        for (const modifierGroup of formData.modifier_groups) {
-          await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority`, {
-            has_required_modifiers: modifierGroup.has_required_modifiers,
-            should_auto_open: modifierGroup.should_auto_open,
-            required_modifiers: modifierGroup.required_modifiers,
-            should_auto_select: modifierGroup.should_auto_select,
-            priority: Number(modifierGroup.priority ?? 0)
-          });
-        }
-      }
-
-      {
-        const parentKey = normalizeAvailabilityDishId(menuId) || String(menuId);
-        const [existingRows]: any = await db.query(
-          `SELECT id FROM ${Tables.dish_modifier_availability} WHERE parent = $parent`,
-          {parent: menuId},
-        );
-        const deletedIds = (existingRows ?? []).map((row: any) => String(row.id)).filter(Boolean);
-        if (deletedIds.length) {
-          await db.query(
-            `DELETE ${Tables.dish_modifier_availability} WHERE parent = $parent`,
-            {parent: menuId},
-          );
-        }
-
-        const localRows: Array<{
-          id?: string;
-          parent: string;
-          option: string;
-          available?: boolean;
-          available_qty?: number | null;
-          available_qty_set_at?: string | null;
-        }> = [];
-
-        for (const [optionId, ov] of Object.entries(modifierOptionOverrides)) {
-          const inherits =
-            ov.available !== false &&
-            (ov.available_qty == null || ov.available_qty === ("" as any));
-          if (inherits) {
-            continue;
+      let savedDishId: any = data?.id;
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          price: formData.price,
+          cost: formData.cost,
+          number: formData.number,
+          priority: formData.priority,
+          workflow: dishData.workflow,
+          stage_overrides: dishData.stage_overrides,
+        },
+        structuralWrite: async () => {
+          let menuId: any;
+          if (data?.id) {
+            menuId = data.id;
+            await db.merge(data.id, dishData);
+          } else {
+            const [record] = await db.create(Tables.dishes, dishData);
+            menuId = record.id;
           }
-          const patch = buildAvailabilityPatch({
-            available: ov.available !== false,
-            available_qty: ov.available_qty,
-            previousQty: ov.previousQty,
+          savedDishId = menuId;
+
+          if (photoData && photoFile) {
+            const [photoId] = await db.create(Tables.documents, {
+              name: photoFile.name,
+              content: photoData,
+              size: photoFile.size,
+              type: photoFile.type || undefined,
+            });
+
+            await db.merge(menuId, {
+              dish_photo: photoId.id
+            });
+          }
+
+          if (formData.modifier_groups) {
+            // delete graph edges and create again
+            await db.query(`DELETE ${menuId}->${Tables.dish_modifier_groups} where in = ${menuId}`);
+
+            for (const modifierGroup of formData.modifier_groups) {
+              await db.query(`RELATE ${menuId}->${Tables.dish_modifier_groups}->${modifierGroup.modifier_group.value} set has_required_modifiers = $has_required_modifiers, should_auto_open = $should_auto_open, required_modifiers = $required_modifiers, should_auto_select = $should_auto_select, priority = $priority`, {
+                has_required_modifiers: modifierGroup.has_required_modifiers,
+                should_auto_open: modifierGroup.should_auto_open,
+                required_modifiers: modifierGroup.required_modifiers,
+                should_auto_select: modifierGroup.should_auto_select,
+                priority: Number(modifierGroup.priority ?? 0)
+              });
+            }
+          }
+
+          // Save recipes as separate records in dishes_recipes table
+          if (formData.recipes) {
+            // Delete existing recipe records
+            await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
+
+            // Create new recipe records and collect their IDs
+            const recipeIds: RecordId[] = [];
+            for (const recipe of formData.recipes) {
+              const invItem = findInventoryItem(inventoryItems?.data, recipe.item?.value);
+              const stock = toStockLine({
+                enteredQuantity: parseFloat(String(recipe.quantity)),
+                enteredUom: recipe.entered_uom || invItem?.uom,
+                stockUom: invItem?.uom || recipe.entered_uom,
+                stockUnitPrice: parseFloat(String(recipe.cost)),
+                mode: "quantity_only",
+              });
+              const recipeData = {
+                menu_item: menuId,
+                item: new StringRecordId(recipe.item.value.toString()),
+                quantity: stock.quantity,
+                entered_quantity: stock.entered_quantity,
+                entered_uom: stock.entered_uom,
+                cost: roundInventory(stock.price),
+                is_price_locked: recipe.is_price_locked || false
+              };
+              const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
+              recipeIds.push(recipeRecord.id);
+            }
+
+            // Update dish with recipe IDs in items field
+            await db.merge(menuId, {
+              items: recipeIds
+            });
+          } else {
+            // Clear recipes if none provided
+            await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
+            await db.merge(menuId, {
+              items: []
+            });
+          }
+
+          {
+            const parentKey = normalizeAvailabilityDishId(menuId) || String(menuId);
+            const [existingRows]: any = await db.query(
+              `SELECT id FROM ${Tables.dish_modifier_availability} WHERE parent = $parent`,
+              {parent: menuId},
+            );
+            const deletedIds = (existingRows ?? []).map((row: any) => String(row.id)).filter(Boolean);
+            if (deletedIds.length) {
+              await db.query(
+                `DELETE ${Tables.dish_modifier_availability} WHERE parent = $parent`,
+                {parent: menuId},
+              );
+            }
+
+            const localRows: Array<{
+              id?: string;
+              parent: string;
+              option: string;
+              available?: boolean;
+              available_qty?: number | null;
+              available_qty_set_at?: string | null;
+            }> = [];
+
+            for (const [optionId, ov] of Object.entries(modifierOptionOverrides)) {
+              const inherits =
+                ov.available !== false &&
+                (ov.available_qty == null || ov.available_qty === ("" as any));
+              if (inherits) {
+                continue;
+              }
+              const patch = buildAvailabilityPatch({
+                available: ov.available !== false,
+                available_qty: ov.available_qty,
+                previousQty: ov.previousQty,
+              });
+              const [created]: any = await db.create(Tables.dish_modifier_availability, {
+                parent: menuId instanceof RecordId || String(menuId).includes(":")
+                  ? (typeof menuId === "string" ? new StringRecordId(menuId) : menuId)
+                  : new StringRecordId(parentKey),
+                option: new StringRecordId(
+                  optionId.includes(":") ? optionId : `menu_item:${optionId}`,
+                ),
+                ...patch,
+              });
+              localRows.push({
+                id: created?.id ? String(created.id) : undefined,
+                parent: parentKey,
+                option: normalizeAvailabilityDishId(optionId) || optionId,
+                available: patch.available,
+                available_qty: patch.available_qty ?? null,
+                available_qty_set_at: toAvailabilityStampIso(patch.available_qty_set_at),
+              });
+            }
+
+            await applyModifierAvailabilityLocally({
+              parentId: parentKey,
+              rows: localRows,
+              deletedIds,
+              setAppSettings,
+            }).catch(() => undefined);
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.dishes,
+            entityId: String(menuId),
+            isUpdate: Boolean(data?.id),
+            after: dishData,
+            source: 'settings-form',
+            label: values.name,
           });
-          const [created]: any = await db.create(Tables.dish_modifier_availability, {
-            parent: menuId instanceof RecordId || String(menuId).includes(":")
-              ? (typeof menuId === "string" ? new StringRecordId(menuId) : menuId)
-              : new StringRecordId(parentKey),
-            option: new StringRecordId(
-              optionId.includes(":") ? optionId : `menu_item:${optionId}`,
-            ),
-            ...patch,
-          });
-          localRows.push({
-            id: created?.id ? String(created.id) : undefined,
-            parent: parentKey,
-            option: normalizeAvailabilityDishId(optionId) || optionId,
-            available: patch.available,
-            available_qty: patch.available_qty ?? null,
-            available_qty_set_at: toAvailabilityStampIso(patch.available_qty_set_at),
-          });
-        }
-
-        await applyModifierAvailabilityLocally({
-          parentId: parentKey,
-          rows: localRows,
-          deletedIds,
-          setAppSettings,
-        }).catch(() => undefined);
-      }
-
-      // Save recipes as separate records in dishes_recipes table
-      if (formData.recipes) {
-        // Delete existing recipe records
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-
-        // Create new recipe records and collect their IDs
-        const recipeIds: RecordId[] = [];
-        for (const recipe of formData.recipes) {
-          const recipeData = {
-            menu_item: menuId,
-            item: new StringRecordId(recipe.item.value.toString()),
-            quantity: parseFloat(recipe.quantity),
-            cost: parseFloat(recipe.cost),
-            is_price_locked: recipe.is_price_locked || false
-          };
-          const [recipeRecord] = await db.create(Tables.dishes_recipes, recipeData);
-          recipeIds.push(recipeRecord.id);
-        }
-
-        // Update dish with recipe IDs in items field
-        await db.merge(menuId, {
-          items: recipeIds
-        });
-      } else {
-        // Clear recipes if none provided
-        await db.query(`DELETE ${Tables.dishes_recipes} WHERE menu_item = $dish`, {dish: menuId});
-        await db.merge(menuId, {
-          items: []
-        });
-      }
-
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.dishes,
-        entityId: String(menuId),
-        isUpdate: Boolean(data?.id),
-        after: dishData,
-        source: 'settings-form',
-        label: values.name,
+        },
       });
 
       await applyAvailabilityLocally({
         patches: [{
-          id: String(menuId),
+          id: String(savedDishId),
           ...availability,
         }],
         setAppSettings,
       }).catch(() => undefined);
 
       closeModal();
-      toast.success(t('toast:admin.dishSaved', { name: values.name }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.dishSaved', { name: values.name })
+      );
     } catch (e) {
       toast.error(e);
       console.log(e)
@@ -690,17 +742,32 @@ export const DishForm = ({
         if (recipe?.quantity !== undefined && recipe?.cost !== undefined) {
           const quantity = parseFloat(String(recipe.quantity)) || 0;
           const cost = parseFloat(String(recipe.cost)) || 0;
-          return sum + (quantity * cost);
+          const invItem = findInventoryItem(inventoryItems?.data, recipe?.item?.value);
+          try {
+            if (invItem?.uom) {
+              const stock = toStockLine({
+                enteredQuantity: quantity,
+                enteredUom: recipe.entered_uom || invItem.uom,
+                stockUom: invItem.uom,
+                stockUnitPrice: cost,
+                mode: "quantity_only",
+              });
+              return sum + roundInventory(stock.quantity * stock.price);
+            }
+          } catch {
+            // fall through
+          }
+          return sum + roundInventory(quantity * cost);
         }
         return sum;
       }, 0);
 
-      setValue('cost', totalCost, {shouldValidate: false, shouldDirty: false});
+      setValue('cost', roundInventory(totalCost), {shouldValidate: false, shouldDirty: false});
     } else {
       // If no recipes, keep the current cost value (don't reset to 0)
       // User can still manually set the cost
     }
-  }, [watchedRecipes, setValue]);
+  }, [watchedRecipes, setValue, inventoryItems?.data]);
 
   return (
     <>
@@ -712,14 +779,33 @@ export const DishForm = ({
         size="full"
       >
         <form onSubmit={handleSubmit(onSubmit)}>
+          {isBranchEditMode && (
+            <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+          )}
           <div className="flex gap-3 mb-3">
             <div className="flex-1">
-              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message}/>
+              <InputField name="name" control={control} label={t('forms.nameOfItem')} autoFocus error={errors?.name?.message} disabled={structuralLocked}/>
             </div>
             <div className="flex-1">
               <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
             </div>
             <div className="flex-1">
+              <Controller
+                name="priority"
+                control={control}
+                render={({field}) => (
+                  <Input
+                    value={field.value}
+                    onChange={field.onChange}
+                    type="number"
+                    label={t('columns.priority')}
+                    error={errors?.priority?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
               <InputField name="barcode" control={control} label={t('forms.barcodeOfItem')} error={errors?.barcode?.message}/>
             </div>
             <div className="flex-1">
@@ -920,6 +1006,7 @@ export const DishForm = ({
                     value={field.value}
                     onChange={field.onChange}
                     isLoading={loadingCategories}
+                    isDisabled={structuralLocked}
                   />
                 )}
                 control={control}
@@ -927,7 +1014,7 @@ export const DishForm = ({
               {errors?.categories?.message && <InputError error={errors?.categories?.message}/>}
             </div>
             <div className="flex-0">
-              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary"><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
+              <IconTooltipButton label={t('common:actions.add')} onClick={() => setCategoriesModal(true)} type="button" variant="primary" disabled={structuralLocked}><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
             </div>
           </div>
 
@@ -1002,6 +1089,7 @@ export const DishForm = ({
                 type="file"
                 accept="image/*"
                 onChange={handlePhotoChange}
+                disabled={structuralLocked}
                 className="block w-full text-sm text-foreground
                            file:mr-4 file:py-2 file:px-4
                            file:rounded-full file:border-0
@@ -1023,10 +1111,10 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('columns.modifierGroups')}</legend>
               <div className="mb-3 flex gap-3">
-                <Button type="button" icon={faPlus} variant="primary" onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   append({
                     modifier_group: null,
                     has_required_modifiers: false,
@@ -1036,7 +1124,7 @@ export const DishForm = ({
                   {t('entities.modifierGroup')}
                 </Button>
 
-                <Button type="button" icon={faPlus} variant="primary" flat onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" flat disabled={structuralLocked} onClick={() => {
                   setModifierGroupsModal(true)
                 }}>
                   {t('forms.createModifierGroup')}
@@ -1195,13 +1283,14 @@ export const DishForm = ({
           </div>
 
           <div className="flex mb-3">
-            <fieldset className="border-2 border-border rounded-lg p-3 flex-1">
+            <fieldset className="border-2 border-border rounded-lg p-3 flex-1" disabled={structuralLocked}>
               <legend>{t('forms.recipe')}</legend>
               <div className="mb-3">
-                <Button type="button" icon={faPlus} variant="primary" onClick={() => {
+                <Button type="button" icon={faPlus} variant="primary" disabled={structuralLocked} onClick={() => {
                   appendRecipe({
                     item: null,
                     quantity: 1,
+                    entered_uom: "",
                     cost: 0,
                     is_price_locked: false
                   })
@@ -1215,7 +1304,23 @@ export const DishForm = ({
                 const selectedInvItem = findInventoryItem(inventoryItems?.data, selectedItemId);
                 const rowQuantity = parseFloat(String(watch(`recipes.${index}.quantity`) ?? 0)) || 0;
                 const rowCost = parseFloat(String(watch(`recipes.${index}.cost`) ?? 0)) || 0;
-                const rowTotal = rowQuantity * rowCost;
+                const rowEnteredUom = watch(`recipes.${index}.entered_uom`) || selectedInvItem?.uom;
+                let rowTotal = rowQuantity * rowCost;
+                try {
+                  if (selectedInvItem?.uom && rowEnteredUom) {
+                    const stock = toStockLine({
+                      enteredQuantity: rowQuantity,
+                      enteredUom: rowEnteredUom,
+                      stockUom: selectedInvItem.uom,
+                      stockUnitPrice: rowCost,
+                      mode: "quantity_only",
+                    });
+                    rowTotal = roundInventory(stock.quantity * stock.price);
+                  }
+                } catch {
+                  // keep entered × cost while the unit pair is invalid
+                  rowTotal = roundInventory(rowTotal);
+                }
                 const availableOptions = inventoryItems?.data
                   ?.filter(invItem => canUseInDishRecipe(invItem))
                   ?.filter(invItem => {
@@ -1248,40 +1353,28 @@ export const DishForm = ({
                                 const invItem = findInventoryItem(inventoryItems?.data, selected.value);
                                 if (invItem) {
                                   setValue(`recipes.${index}.cost`, inventoryItemUnitCost(invItem));
+                                  setValue(
+                                    `recipes.${index}.entered_uom`,
+                                    normalizeUom(invItem.uom) ?? invItem.uom ?? ""
+                                  );
                                 }
                               }
                             }}
                             isLoading={loadingInventoryItems}
+                            isDisabled={structuralLocked}
                             options={availableOptions}
                           />
                         )}
                       />
                       <InputError error={get(errors, ['recipes', index, 'item', 'message'])}/>
                     </div>
-                    <div className="w-20">
-                      <Input
-                        type="text"
-                        value={selectedInvItem?.uom ?? ''}
-                        label={t('forms.uom')}
-                        readOnly
-                        disabled
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`recipes.${index}.quantity`}
-                        control={control}
-                        render={({field}) => (
-                          <Input
-                            type="number"
-                            value={field.value}
-                            onChange={field.onChange}
-                            label={t('forms.quantity')}
-                            error={get(errors, ['recipes', index, 'quantity', 'message'])}
-                          />
-                        )}
-                      />
-                    </div>
+                    <QuantityUomFields
+                      control={control}
+                      quantityName={`recipes.${index}.quantity`}
+                      uomName={`recipes.${index}.entered_uom`}
+                      stockUom={selectedInvItem?.uom}
+                      errors={errors}
+                    />
                     <div className="flex-1">
                       <Controller
                         name={`recipes.${index}.cost`}
@@ -1300,7 +1393,7 @@ export const DishForm = ({
                     <div className="flex-1">
                       <Input
                         type="text"
-                        value={withCurrency(rowTotal)}
+                        value={withInventoryCurrency(rowTotal)}
                         label={t('forms.lineTotal')}
                         readOnly
                         disabled
@@ -1318,7 +1411,7 @@ export const DishForm = ({
                       />
                     </div>
                     <div className="flex-0 self-end">
-                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                      <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => removeRecipe(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
                     </div>
                   </div>
                 );

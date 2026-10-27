@@ -27,7 +27,7 @@ import { appPage } from "@/store/jotai.ts";
 import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { adjustmentListTotal } from "@/lib/inventory/document.list.total.ts";
-import { withCurrency } from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 export const InventoryAdjustments = () => {
   const { t } = useTranslation(["inventory", 'common']);
@@ -79,7 +79,7 @@ export const InventoryAdjustments = () => {
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5).map((item, index) => (
             <span key={item.id ?? index} className="tag">
-              {item.item?.name} × {item.quantity_change}
+              {item.item?.name} × {formatInventoryNumber(item.quantity_change)}
             </span>
           ))}
         </div>
@@ -88,7 +88,7 @@ export const InventoryAdjustments = () => {
     columnHelper.accessor((row) => adjustmentListTotal(row.items), {
       id: "total",
       header: t("columns.total"),
-      cell: (info) => withCurrency(info.getValue()),
+      cell: (info) => withInventoryCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

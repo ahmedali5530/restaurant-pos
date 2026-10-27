@@ -137,6 +137,7 @@
     "invalidRequiredModifiers": "Zorunlu modifikatör değeri geçersiz",
     "loginTaken": "Başka bir kullanıcı bu girişi/PIN'i zaten kullanıyor — başka bir tane seçin.",
     "passwordTaken": "Başka bir kullanıcı bu parolayı zaten kullanıyor — başka bir tane seçin.",
+    "dishCostsSynced": "{{items}} envanter kaleminden {{dishes}} yemek maliyeti güncellendi",
     "barcodeInUse": "Barkod {{code}} zaten {{name}} tarafından kullanılıyor"
   },
   "settingsDelete": {

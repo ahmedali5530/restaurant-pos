@@ -100,6 +100,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "list_staff",
     "list_categories",
     "list_menu_items",
+    "get_dish_recipe",
     "list_inventory_items",
   ],
   manage: [

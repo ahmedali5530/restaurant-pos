@@ -137,6 +137,7 @@
     "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido",
     "loginTaken": "Outro usuário já tem este login/PIN — escolha outro.",
     "passwordTaken": "Outro usuário já tem esta senha — escolha outra.",
+    "dishCostsSynced": "Custos atualizados para {{dishes}} prato(s) a partir de {{items}} item(ns) de inventário",
     "barcodeInUse": "O código de barras {{code}} já é usado por {{name}}"
   },
   "settingsDelete": {

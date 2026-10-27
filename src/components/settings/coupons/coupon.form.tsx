@@ -21,6 +21,8 @@ import {DateTimePicker, jsDateToDayjs} from "@/components/common/antd/datetime.p
 import {dayjsToSurreal} from "@/components/hr/shared/form.utils.ts";
 
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
+
 interface Props {
   open: boolean;
   onClose: () => void;
@@ -89,6 +91,8 @@ const validationSchema = yup.object({
 
 export const CouponForm = ({ open, onClose, data }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.coupons);
+  const structuralLocked = lockStructuralFields(data);
   const db = useDB();
 
   const {
@@ -106,11 +110,25 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
   };
 
   useEffect(() => {
-    if (data) {
+    if (!data) return;
+    let cancelled = false;
+    (async () => {
+      const merged = isBranchEditMode ? await loadMerged(data.id) : null;
+      if (cancelled) return;
+      const src: any = merged || data;
       const startTimeString = data.start_time ? toLuxonDateTime(data.start_time).toFormat("HH:mm") : undefined;
       const endTimeString = data.end_time ? toLuxonDateTime(data.end_time).toFormat("HH:mm") : undefined;
       reset({
         ...data,
+        ...src,
+        code: data.code,
+        description: data.description,
+        discount_value: src.discount_value ?? data.discount_value,
+        min_order_amount: src.min_order_amount ?? data.min_order_amount,
+        max_discount_amount: src.max_discount_amount ?? data.max_discount_amount,
+        usage_limit: src.usage_limit ?? data.usage_limit,
+        usage_limit_per_user: src.usage_limit_per_user ?? data.usage_limit_per_user,
+        is_active: src.is_active ?? data.is_active ?? true,
         start_date: data.start_date ? jsDateToDayjs(toLuxonDateTime(data.start_date).toJSDate()) : null,
         end_date: data.end_date ? jsDateToDayjs(toLuxonDateTime(data.end_date).toJSDate()) : null,
         start_time: startTimeString,
@@ -125,10 +143,12 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
           label: d,
           value: d,
         })),
-        priority: data.priority.toString()
+        priority: String(src.priority ?? data.priority ?? ''),
       });
-    }
-  }, [data, reset]);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isBranchEditMode]);
 
   const onSubmit = async (values: any) => {
     const vals = {...values};
@@ -161,32 +181,63 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
     vals.priority = Number(vals.priority);
 
     try {
-      if (data?.id) {
-        await db.update(data.id, {
-          ...vals,
-          updated_at: nowSurrealDateTime(),
-        });
-      } else {
-        const now = nowSurrealDateTime();
-        await db.create(Tables.coupons, {
-          ...vals,
-          used_count: 0,
-          created_at: now,
-          updated_at: now,
-        });
+      if (!canCreateEntities && !data?.id) {
+        toast.error(
+          isBranchEditMode && !soleBranchId
+            ? t('admin:hqBranchEdit.createMultiBlocked')
+            : t('admin:hqBranchEdit.createBlocked')
+        );
+        return;
       }
 
-      
-      await emitEntityCrudSave({
-        domain: 'manage',
-        table: Tables.coupons,
-        entityId: data?.id ? String(data.id) : Tables.coupons,
-        isUpdate: Boolean(data?.id),
-        source: 'settings-form',
+      await save({
+        id: data?.id,
+        existing: data,
+        nextValues: {
+          discount_value: vals.discount_value,
+          max_discount_amount: vals.max_discount_amount,
+          min_order_amount: vals.min_order_amount,
+          priority: vals.priority,
+          is_active: vals.is_active,
+          usage_limit: vals.usage_limit,
+          usage_limit_per_user: vals.usage_limit_per_user,
+        },
+        structuralWrite: async () => {
+          if (data?.id) {
+            await db.update(data.id, {
+              ...vals,
+              updated_at: nowSurrealDateTime(),
+              ...(soleBranchId && isBranchOwnedBy(data)
+                ? { branch_id: soleBranchId }
+                : {}),
+            });
+          } else {
+            const now = nowSurrealDateTime();
+            await db.create(Tables.coupons, {
+              ...vals,
+              used_count: 0,
+              created_at: now,
+              updated_at: now,
+              ...(soleBranchId ? { branch_id: soleBranchId } : {}),
+            });
+          }
+
+          await emitEntityCrudSave({
+            domain: 'manage',
+            table: Tables.coupons,
+            entityId: data?.id ? String(data.id) : Tables.coupons,
+            isUpdate: Boolean(data?.id),
+            source: 'settings-form',
+          });
+        },
       });
 
       closeModal();
-      toast.success(t('toast:admin.couponSaved', { code: values.code }));
+      toast.success(
+        isBranchEditMode
+          ? t('admin:hqBranchEdit.overrideSaved')
+          : t('toast:admin.couponSaved', { code: values.code })
+      );
     } catch (e) {
       toast.error(e);
       // eslint-disable-next-line no-console
@@ -202,6 +253,9 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
       onClose={closeModal}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
+        {isBranchEditMode && (
+          <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.structuralLocked')}</p>
+        )}
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="flex flex-col gap-3">
             <Controller
@@ -215,6 +269,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.code?.message as string}
+                    disabled={structuralLocked}
                   />
                 </div>
               )}
@@ -229,6 +284,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     value={field.value ?? ""}
                     onChange={field.onChange}
                     error={errors?.description?.message as string}
+                    disabled={structuralLocked}
                   />
                 </div>
               )}
@@ -242,6 +298,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
+                    isDisabled={structuralLocked}
                     options={(["order", "product", "shipping"] as CouponType[]).map(
                       (item) => ({
                         label: item,
@@ -262,6 +319,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                   <ReactSelect
                     value={field.value}
                     onChange={field.onChange}
+                    isDisabled={structuralLocked}
                     options={["fixed", "percent"].map((item) => ({
                       label: item,
                       value: item,
@@ -373,6 +431,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     isMulti
                     value={field.value}
                     onChange={field.onChange}
+                    isDisabled={structuralLocked}
                     options={weekDayOptions}
                   />
                 )}
@@ -395,6 +454,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                         label={t('columns.startTime')}
                         value={value}
                         onChange={field.onChange}
+                        disabled={structuralLocked}
                       />
                       <InputError error={errors?.start_time?.message as string}/>
                     </div>
@@ -416,6 +476,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                         label={t('columns.endTime')}
                         value={value}
                         onChange={field.onChange}
+                        disabled={structuralLocked}
                       />
                       <InputError error={errors?.end_time?.message as string}/>
                     </div>
@@ -434,6 +495,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                       value={field.value as Dayjs | null}
                       onChange={field.onChange}
                       isClearable
+                      disabled={structuralLocked}
                     />
                     {errors?.start_date?.message && (
                       <InputError error={errors.start_date.message as string} />
@@ -451,6 +513,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                       value={field.value as Dayjs | null}
                       onChange={field.onChange}
                       isClearable
+                      disabled={structuralLocked}
                     />
                     {errors?.end_date?.message && (
                       <InputError error={errors.end_date.message as string} />
@@ -469,6 +532,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     <Checkbox
                       label={t('columns.stackable')}
                       checked={!!field.value}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>
@@ -483,6 +547,7 @@ export const CouponForm = ({ open, onClose, data }: Props) => {
                     <Checkbox
                       label={t('columns.firstOrderOnly')}
                       checked={!!field.value}
+                      disabled={structuralLocked}
                       onChange={e => field.onChange((e.target as HTMLInputElement).checked)}
                     />
                   </div>

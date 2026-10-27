@@ -189,9 +189,9 @@ DEFINE FIELD user_role ON user TYPE none | record<user_role> | null PERMISSIONS 
 DEFINE FIELD user_shift ON user TYPE none | record<shift> | null PERMISSIONS FULL;
 
 
-DEFINE EVENT audit_user_create ON user WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_delete ON user WHEN $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'delete', table_name: 'user', record_id: <string> $before.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_update ON user WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_user_create ON user WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'create', table_name: 'user', record_id: type::string($after.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_delete ON user WHEN $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'delete', table_name: 'user', record_id: type::string($before.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_update ON user WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'update', table_name: 'user', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE DATA: user
@@ -211,8 +211,8 @@ DEFINE FIELD roles ON user_role TYPE array<string> PERMISSIONS FULL;
 DEFINE FIELD roles.* ON user_role TYPE string PERMISSIONS FULL;
 
 
-DEFINE EVENT audit_user_role_create ON user_role WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user_role', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_role_update ON user_role WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user_role', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_user_role_create ON user_role WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'create', table_name: 'user_role', record_id: type::string($after.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_role_update ON user_role WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'update', table_name: 'user_role', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE DATA: user_role

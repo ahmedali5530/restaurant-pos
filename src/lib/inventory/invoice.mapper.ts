@@ -13,7 +13,11 @@ import {
   resolveInventoryLineUnitCost,
 } from "@/lib/inventory/line.cost.ts";
 import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
-import {safeNumber, withCurrency} from "@/lib/utils.ts";
+import {safeNumber} from "@/lib/utils.ts";
+import {
+  formatInventoryNumber,
+  withInventoryCurrency,
+} from "@/lib/inventory/rounding.ts";
 
 export type InventoryInvoiceMeta = {
   label: string;
@@ -25,7 +29,11 @@ export type InventoryInvoiceLine = {
   sku?: string;
   qty: number;
   unit?: string;
+  /** Stock qty+uom when qty/unit are entered units. */
+  stockHint?: string;
   unitCost?: number;
+  /** e.g. " / G" or entered-unit price label suffix */
+  unitCostSuffix?: string;
   total?: number;
   location?: string;
   note?: string;
@@ -75,6 +83,73 @@ const restaurantDefaults = () => ({
 const moneyTotal = (lines: InventoryInvoiceLine[]) =>
   lines.reduce((sum, line) => sum + safeNumber(line.total), 0);
 
+/** Prefer entered qty/uom on the printed line; money still uses stock qty. */
+const displayQtyAndUnit = (item: {
+  quantity?: number | null;
+  entered_quantity?: number | string | null;
+  entered_uom?: string | null;
+  entered_price?: number | string | null;
+  price?: number | null;
+  item?: {uom?: string | null} | null;
+}) => {
+  const stockQty = safeNumber(item.quantity);
+  const stockUom = item.item?.uom ? String(item.item.uom) : "";
+  const enteredUom = item.entered_uom ? String(item.entered_uom) : "";
+  const enteredQtyRaw = item.entered_quantity;
+  const enteredQty =
+    enteredQtyRaw === null || enteredQtyRaw === undefined || enteredQtyRaw === ""
+      ? NaN
+      : Number(enteredQtyRaw);
+  const enteredPriceRaw = item.entered_price;
+  const enteredPrice =
+    enteredPriceRaw === null || enteredPriceRaw === undefined || enteredPriceRaw === ""
+      ? NaN
+      : Number(enteredPriceRaw);
+
+  if (enteredUom && Number.isFinite(enteredQty)) {
+    return {
+      qty: enteredQty,
+      unit: enteredUom,
+      stockQty,
+      stockHint: `${formatInventoryNumber(stockQty)}${stockUom ? ` ${stockUom}` : ""}`.trim(),
+      displayUnitCost: Number.isFinite(enteredPrice) ? enteredPrice : undefined,
+      unitCostSuffix: Number.isFinite(enteredPrice)
+        ? ` / ${enteredUom}`
+        : stockUom
+          ? ` / ${stockUom}`
+          : undefined,
+    };
+  }
+  return {
+    qty: stockQty,
+    unit: stockUom || undefined,
+    stockQty,
+    stockHint: undefined as string | undefined,
+    displayUnitCost: undefined as number | undefined,
+    unitCostSuffix: stockUom ? ` / ${stockUom}` : undefined,
+  };
+};
+
+const mapLineMoney = (
+  item: any,
+  unitCost: number,
+  extras: Partial<InventoryInvoiceLine> = {}
+): InventoryInvoiceLine => {
+  const display = displayQtyAndUnit(item);
+  return {
+    name: extras.name ?? item.item?.name ?? "Item",
+    sku: extras.sku,
+    qty: display.qty,
+    unit: display.unit,
+    stockHint: display.stockHint,
+    unitCost: display.displayUnitCost ?? unitCost,
+    unitCostSuffix: display.unitCostSuffix,
+    total: lineAmount(unitCost, display.stockQty),
+    location: extras.location,
+    note: extras.note,
+  };
+};
+
 const withMoneyTotals = (
   doc: Omit<InventoryInvoiceDoc, "totals"> & {totals?: InventoryInvoiceTotal[]},
   totalLabel = "Total",
@@ -83,27 +158,21 @@ const withMoneyTotals = (
   const amount = moneyTotal(doc.lines);
   return {
     ...doc,
-    totals: doc.totals ?? [{label: totalLabel, value: withCurrency(amount)}],
+    totals: doc.totals ?? [{label: totalLabel, value: withInventoryCurrency(amount)}],
   };
 };
 
 export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (issue.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code || item.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
       note: item.comments,
-    };
+    });
   });
 
   return withMoneyTotals({
@@ -124,22 +193,16 @@ export const mapIssueToInvoice = (issue: InventoryIssue): InventoryInvoiceDoc =>
 
 export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: (item as any).price,
       issuedItem: item.issued_item,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
       note: item.comments,
-    };
+    });
   });
 
   return withMoneyTotals({
@@ -166,24 +229,18 @@ export const mapIssueReturnToInvoice = (doc: InventoryIssueReturn): InventoryInv
 
 export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (purchase.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code || item.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
       note: [
         item.taxable ? "Taxable" : null,
         item.comments,
       ].filter(Boolean).join(" · ") || undefined,
-    };
+    });
   });
 
   const totalsCalc = computePurchaseTotals(
@@ -193,13 +250,13 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
   );
   const tax = purchase.tax_amount ?? totalsCalc.taxAmount;
   const totals: InventoryInvoiceTotal[] = [
-    {label: "Subtotal", value: withCurrency(totalsCalc.subtotal)},
+    {label: "Subtotal", value: withInventoryCurrency(totalsCalc.subtotal)},
   ];
   for (const extra of purchase.extras ?? []) {
     if (!extra?.name) continue;
     totals.push({
       label: extra.name,
-      value: withCurrency(safeNumber(extra.amount)),
+      value: withInventoryCurrency(safeNumber(extra.amount)),
     });
   }
   if (safeNumber(purchase.tax_rate) > 0 || tax > 0) {
@@ -207,12 +264,12 @@ export const mapPurchaseToInvoice = (purchase: InventoryPurchase): InventoryInvo
       label: safeNumber(purchase.tax_rate) > 0
         ? `Tax (${safeNumber(purchase.tax_rate)}%)`
         : "Tax",
-      value: withCurrency(tax),
+      value: withInventoryCurrency(tax),
     });
   }
   totals.push({
     label: "Grand total",
-    value: withCurrency(totalsCalc.subtotal + tax + totalsCalc.extrasTotal),
+    value: withInventoryCurrency(totalsCalc.subtotal + tax + totalsCalc.extrasTotal),
   });
 
   return withMoneyTotals({
@@ -244,22 +301,16 @@ export const mapPurchaseReturnToInvoice = (
   doc: InventoryPurchaseReturn,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (doc.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       purchaseItem: item.purchase_item,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
       note: item.comments,
-    };
+    });
   });
 
   return withMoneyTotals({
@@ -288,20 +339,14 @@ export const mapPurchaseOrderToInvoice = (
   order: InventoryPurchaseOrder,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (order.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: item.price,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
-    };
+    });
   });
 
   return withMoneyTotals({
@@ -321,23 +366,17 @@ export const mapPurchaseOrderToInvoice = (
 
 export const mapWasteToInvoice = (waste: InventoryWaste): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (waste.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveInventoryLineUnitCost({
       price: (item as any).price,
       purchaseItem: item.purchase_item,
       issueItem: item.issue_item,
       item: item.item,
     });
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
       location: item.location?.name,
       note: item.comments,
-    };
+    });
   });
 
   return withMoneyTotals({
@@ -370,16 +409,10 @@ export const mapStockTransferToInvoice = (
   transfer: StockTransfer,
 ): InventoryInvoiceDoc => {
   const lines: InventoryInvoiceLine[] = (transfer.items ?? []).map((item) => {
-    const qty = safeNumber(item.quantity);
     const unitCost = resolveCatalogUnitCost(item.item);
-    return {
-      name: item.item?.name ?? "Item",
+    return mapLineMoney(item, unitCost, {
       sku: item.item?.code,
-      qty,
-      unit: item.item?.uom,
-      unitCost,
-      total: lineAmount(unitCost, qty),
-    };
+    });
   });
 
   const idStr = typeof transfer.id === "string"

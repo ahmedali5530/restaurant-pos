@@ -342,6 +342,27 @@
       "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
   },
+  "catalogSync": {
+    "title": "Sincronização de catálogo",
+    "description": "Baixe o cardápio e outros dados de catálogo FOH publicados na nuvem. Use Sincronizar agora para puxar atualizações sob demanda.",
+    "mode": "Modo de distribuição",
+    "localVersion": "Versão do catálogo aplicada",
+    "remoteVersion": "Versão do catálogo publicada",
+    "updateAvailable": "Há um catálogo mais recente. Sincronize para aplicar.",
+    "upToDate": "O catálogo está atualizado.",
+    "lastSynced": "Último download: {{table}} {{record}}",
+    "syncNow": "Sincronizar catálogo agora",
+    "syncing": "Sincronizando…",
+    "refresh": "Atualizar status",
+    "queued": "Sincronização de catálogo na fila",
+    "failed": "Falha na sincronização do catálogo",
+    "unreachable": "Não foi possível alcançar o serviço de sync. Verifique VITE_SYNC_SERVICE_URL e se o sync está em execução.",
+    "modeRequired": "Defina SYNC_DISTRIBUTION_MODE=full no serviço de sync para habilitar o download do catálogo.",
+    "complete": "Sincronização de catálogo concluída",
+    "progressTable": "Baixando {{table}}…",
+    "progressCount": "{{completed}} / {{total}} tabelas ({{percent}}%)",
+    "reloadCacheHint": "Sincronização de catálogo concluída. Recarregue o cache em Configurações para o PDV mostrar o novo cardápio."
+  },
   "posMode": {
     "title": "Modo do PDV",
     "description": "Escolha restaurante (mesas e andares) ou Pedido rápido (ler código de barras e pagar) neste dispositivo.",

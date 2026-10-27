@@ -9,6 +9,8 @@ import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 import {Category} from "@/api/model/category.ts";
 import {Switch} from "@/components/common/input/switch.tsx";
+import {Tables} from "@/api/db/tables.ts";
+import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 
 interface Props {
   open: boolean
@@ -24,6 +26,7 @@ export const CategoryBulkForm = ({
   open, onClose, data
 }: Props) => {
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
+  const { isBranchEditMode } = useHqCatalogBranchEdit(Tables.categories);
 
   const db = useDB();
 
@@ -42,6 +45,10 @@ export const CategoryBulkForm = ({
   });
 
   const onSubmit = async (values: any) => {
+    if (isBranchEditMode) {
+      toast.error(t('admin:hqBranchEdit.bulkBlocked'));
+      return;
+    }
     if (!data?.length) {
       toast.error(t('toast:admin.noCategoriesSelected'));
       return;
@@ -69,6 +76,9 @@ export const CategoryBulkForm = ({
       onClose={closeModal}
     >
       <form onSubmit={handleSubmit(onSubmit)}>
+        {isBranchEditMode && (
+          <p className="text-xs text-muted mb-3">{t('admin:hqBranchEdit.bulkBlocked')}</p>
+        )}
         <div className="mb-3">
           <Controller
             name="show_in_menu"

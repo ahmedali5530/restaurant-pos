@@ -9,7 +9,8 @@ import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {MENU, QUICK} from "@/routes/posr.ts";
+import {QUICK} from "@/routes/posr.ts";
+import {getDefaultAppPath} from "@/lib/build-modules.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -329,7 +330,7 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    const home = state.posMode === 'retail' ? QUICK : MENU;
+    const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
     navigation(home);
   }
 
@@ -383,7 +384,7 @@ export const Login = () => {
     }
     if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const home = state.posMode === 'retail' ? QUICK : MENU;
+      const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
       const returnPath = from ? `${from.pathname}${from.search ?? ''}` : home;
       navigation(returnPath, { replace: true });
     }
