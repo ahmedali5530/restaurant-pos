@@ -21,7 +21,8 @@
     "confirmTitle": "Bevestig alstublieft",
     "confirmCartMessage_one": "Er staat {{count}} artikel in de winkelwagen, kies een actie",
     "confirmCartMessage_other": "Er staan {{count}} artikelen in de winkelwagen, kies een actie",
-    "pax": "{{count}} PAX"
+    "pax": "{{count}} PAX",
+    "customerDisplay": "Klantenscherm"
   },
   "modifiers": {
     "modifyTitle": "{{name}} aanpassen",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Kies aantal personen"
+  },
+  "availability": {
+    "unavailable": "{{name}} is uitverkocht",
+    "onlyNLeft": "Nog maar {{count}} van {{name}}",
+    "nLeft": "{{count}} over",
+    "unavailableBadge": "Uitverkocht",
+    "cartExceeds": "{{name}} overschrijdt de voorraad (nog {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Aantal — {{name}}",
+    "hint": "Gebruik +/− of een snel aantal, of typ. Toevoegen bevestigt; sluiten past ook een geldig aantal toe.",
+    "quantity": "Aantal",
+    "add": "Toevoegen"
   }
 }

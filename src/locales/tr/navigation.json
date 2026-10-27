@@ -16,7 +16,8 @@
     "clock": "Saat",
     "hr": "İK",
     "integrations": "Entegrasyonlar",
-    "requiresApproval": "Yönetici onayı gerektirir"
+    "requiresApproval": "Yönetici onayı gerektirir",
+    "quickOrder": "Hızlı sipariş"
   },
   "modules": {
     "Menu": "Menü",

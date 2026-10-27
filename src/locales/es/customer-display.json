@@ -1,0 +1,12 @@
+{
+  "title": "Pantalla del cliente",
+  "heading": "Su pedido",
+  "idle": "Bienvenido",
+  "idleHint": "Los artículos escaneados aparecerán aquí",
+  "thankYou": "¡Gracias!",
+  "thankYouHint": "Vuelva pronto",
+  "qty": "Cant. {{count}}",
+  "total": "Total",
+  "items": "Artículos ({{count}})",
+  "totalWithTax": "Total con {{name}} {{rate}}%"
+}

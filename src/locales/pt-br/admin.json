@@ -24,7 +24,8 @@
     "accessTab": "Acessar {{title}}",
     "ariaLabel": "Abas de administração",
     "securityAlerts": "Alertas de Segurança",
-    "catalogPublish": "Publicar catálogo"
+    "catalogPublish": "Publicar catálogo",
+    "availability": "Disponibilidade"
   },
   "columns": {
     "photo": "Foto",
@@ -102,7 +103,12 @@
     "nextGroup": "Próximo grupo",
     "itemStockUom": "UM de estoque do item",
     "itemStockUomHint": "Apenas referência — unidade de estoque do item. Não aplicada na importação.",
-    "enteredUomHint": "Unidade informada para a quantidade (família convertível da UM de estoque)."
+    "enteredUomHint": "Unidade informada para a quantidade (família convertível da UM de estoque).",
+    "barcode": "Código de barras",
+    "available": "Disponível",
+    "availableQty": "Limite de venda",
+    "extraBarcodes": "Códigos extras",
+    "askQuantity": "Pedir quantidade"
   },
   "entities": {
     "dish": "Prato",
@@ -444,7 +450,22 @@
     "usePrintSettings": "Usar configurações de impressão",
     "userBranches": "Filiais",
     "userBranchesShared": "Todas as filiais (compartilhado)",
-    "userBranchesHint": "Vazio = funcionário compartilhado em todas as lojas. Selecione filiais para limitar o download."
+    "userBranchesHint": "Vazio = funcionário compartilhado em todas as lojas. Selecione filiais para limitar o download.",
+    "barcodeOfItem": "Código de barras",
+    "availableOnMenu": "Disponível no cardápio",
+    "availableQty": "Limite de venda",
+    "availableQtyHint": "As vendas contam a partir do momento em que você salva este limite. Vazio = ilimitado.",
+    "extraBarcodes": "Códigos de barras extras",
+    "extraBarcodesHint": "UPCs de caixa, pack ou alternativos deste item",
+    "extraBarcodesEmpty": "Nenhum código extra ainda",
+    "addBarcode": "Adicionar código",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Pedir quantidade",
+    "askQuantityHint": "Se ativo, Menu e Pedido rápido pedem quantidade após escanear/tocar (CODE*N / balança ignorados).",
+    "modifierOptionAvailability": "Disponibilidade do modificador (este prato)",
+    "modifierOptionAvailable": "Disponível para este prato",
+    "modifierOptionAvailableHint": "Deixe o padrão para usar a disponibilidade global. Desative ou defina um limite só para este prato.",
+    "modifierOptionSaleLimit": "Limite de venda (este prato)"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -1127,5 +1148,25 @@
   "confirm": {
     "syncDishCostsTitle": "Atualizar custos dos pratos",
     "syncDishCostsMessage": "Atualiza os custos das linhas de receita não bloqueadas com os preços atuais do inventário e recalcula o custo de cada prato. Linhas com preço bloqueado não mudam."
+  },
+  "availability": {
+    "title": "Disponibilidade de itens",
+    "description": "Marque pratos como disponíveis ou esgotados e defina limites de venda para vários itens ou uma categoria inteira.",
+    "allCategories": "Todas",
+    "selectAll": "Selecionar tudo",
+    "applyToCategory": "Aplicar a toda a categoria",
+    "targetsCategory": "{{count}} pratos na categoria",
+    "targetsSelected": "{{count}} selecionados",
+    "markAvailable": "Disponível",
+    "markUnavailable": "Esgotado",
+    "saleLimit": "Limite",
+    "setLimit": "Definir limite",
+    "clearLimit": "Ilimitado",
+    "selectDishes": "Selecione pratos ou aplique à categoria",
+    "enterQty": "Informe um limite de venda",
+    "saved": "{{count}} pratos atualizados",
+    "empty": "Nenhum prato nesta categoria",
+    "available": "Disponível",
+    "unavailable": "Esgotado"
   }
 }

@@ -21,7 +21,8 @@
     "confirmTitle": "Por favor confirme",
     "confirmCartMessage_one": "Hay {{count}} artículo en el carrito, elija una acción",
     "confirmCartMessage_other": "Hay {{count}} artículos en el carrito, elija una acción",
-    "pax": "{{count}} PAX"
+    "pax": "{{count}} PAX",
+    "customerDisplay": "Pantalla cliente"
   },
   "modifiers": {
     "modifyTitle": "Modificar {{name}}",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Elija el número de personas"
+  },
+  "availability": {
+    "unavailable": "{{name}} está agotado",
+    "onlyNLeft": "Solo quedan {{count}} de {{name}}",
+    "nLeft": "Quedan {{count}}",
+    "unavailableBadge": "Agotado",
+    "cartExceeds": "{{name}} supera el stock disponible (quedan {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Cantidad — {{name}}",
+    "hint": "Use +/− o una cantidad rápida, o escriba. Añadir confirma; cerrar también aplica una cantidad válida.",
+    "quantity": "Cantidad",
+    "add": "Añadir"
   }
 }

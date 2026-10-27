@@ -21,7 +21,8 @@
     "confirmTitle": "Por favor, confirme",
     "confirmCartMessage_one": "Há {{count}} item no carrinho, escolha uma ação",
     "confirmCartMessage_other": "Há {{count}} itens no carrinho, escolha uma ação",
-    "pax": "{{count}} PAX"
+    "pax": "{{count}} PAX",
+    "customerDisplay": "Tela do cliente"
   },
   "modifiers": {
     "modifyTitle": "Modificar {{name}}",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Escolha o número de pessoas"
+  },
+  "availability": {
+    "unavailable": "{{name}} está esgotado",
+    "onlyNLeft": "Só restam {{count}} de {{name}}",
+    "nLeft": "{{count}} restantes",
+    "unavailableBadge": "Esgotado",
+    "cartExceeds": "{{name}} excede o estoque disponível (restam {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Quantidade — {{name}}",
+    "hint": "Use +/− ou uma quantidade rápida, ou digite. Adicionar confirma; fechar também aplica uma qtd válida.",
+    "quantity": "Quantidade",
+    "add": "Adicionar"
   }
 }

@@ -118,4 +118,47 @@ describe('resolveMenuAwareData priority', () => {
     expect(result.dishes.map((d) => d.name)).toEqual(['A', 'B']);
     expect(result.categories.map((c) => c.name)).toEqual(['A', 'B']);
   });
+
+  it('prefers catalog dish availability over stale nested menu_item snapshots', () => {
+    const result = resolveMenuAwareData({
+      categories: [{id: 'category:a', name: 'A', priority: 1} as any],
+      dishes: [
+        {
+          id: 'menu_item:a',
+          name: 'A',
+          priority: 1,
+          available: false,
+          available_qty: 0,
+          categories: [{id: 'category:a', name: 'A', priority: 1}],
+        } as any,
+      ],
+      menus: [
+        {
+          id: 'menu:lunch',
+          name: 'Lunch',
+          active: true,
+          items: [
+            {
+              id: 'menu_menu_item:1',
+              active: true,
+              // Stale nested copy still looks sellable until catalog refresh.
+              menu_item: {
+                id: 'menu_item:a',
+                name: 'A',
+                price: 1,
+                priority: 1,
+                available: true,
+                available_qty: 10,
+              },
+            },
+          ],
+        } as any,
+      ],
+      now: new Date('2026-09-18T12:00:00'),
+    });
+
+    expect(result.dishes).toHaveLength(1);
+    expect(result.dishes[0].available).toBe(false);
+    expect(result.dishes[0].available_qty).toBe(0);
+  });
 });

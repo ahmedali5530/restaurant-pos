@@ -137,7 +137,8 @@
     "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig",
     "loginTaken": "Ein anderer Benutzer hat bereits diese Anmeldung/PIN – wählen Sie eine andere.",
     "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes.",
-    "dishCostsSynced": "Kosten für {{dishes}} Gericht(e) aus {{items}} Inventarartikel(n) aktualisiert"
+    "dishCostsSynced": "Kosten für {{dishes}} Gericht(e) aus {{items}} Inventarartikel(n) aktualisiert",
+    "barcodeInUse": "Barcode {{code}} wird bereits von {{name}} verwendet"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",

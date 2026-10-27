@@ -24,7 +24,8 @@
     "accessTab": "Accéder à {{title}}",
     "ariaLabel": "Onglets d'administration",
     "securityAlerts": "Alertes de Sécurité",
-    "catalogPublish": "Publication catalogue"
+    "catalogPublish": "Publication catalogue",
+    "availability": "Disponibilité"
   },
   "columns": {
     "photo": "Photo",
@@ -102,7 +103,12 @@
     "nextGroup": "Groupe suivant",
     "itemStockUom": "UdM stock article",
     "itemStockUomHint": "Référence uniquement — unité de stock de l'article. Non appliquée à l'import.",
-    "enteredUomHint": "Unité saisie pour la quantité (famille convertible de l'UdM stock)."
+    "enteredUomHint": "Unité saisie pour la quantité (famille convertible de l'UdM stock).",
+    "barcode": "Code-barres",
+    "available": "Disponible",
+    "availableQty": "Limite de vente",
+    "extraBarcodes": "Codes-barres supplémentaires",
+    "askQuantity": "Demander quantité"
   },
   "entities": {
     "dish": "Plat",
@@ -444,7 +450,22 @@
     "usePrintSettings": "Utiliser les paramètres d'impression",
     "userBranches": "Succursales",
     "userBranchesShared": "Toutes les succursales (partagé)",
-    "userBranchesHint": "Vide = employé partagé partout. Sélectionnez des succursales pour limiter le téléchargement Sync now."
+    "userBranchesHint": "Vide = employé partagé partout. Sélectionnez des succursales pour limiter le téléchargement Sync now.",
+    "barcodeOfItem": "Code-barres",
+    "availableOnMenu": "Disponible au menu",
+    "availableQty": "Limite de vente",
+    "availableQtyHint": "Les ventes sont comptées à partir de l’enregistrement de cette limite. Vide = illimité.",
+    "extraBarcodes": "Codes-barres supplémentaires",
+    "extraBarcodesHint": "UPC carton, lot ou alternatifs pour cet article",
+    "extraBarcodesEmpty": "Aucun code-barres supplémentaire",
+    "addBarcode": "Ajouter un code",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Demander la quantité",
+    "askQuantityHint": "Si activé, le menu et la commande rapide demandent la quantité après scan/touche (CODE*N / balance ignorés).",
+    "modifierOptionAvailability": "Disponibilité du modificateur (ce plat)",
+    "modifierOptionAvailable": "Disponible pour ce plat",
+    "modifierOptionAvailableHint": "Gardez les valeurs par défaut pour la disponibilité globale. Désactivez ou fixez une limite pour ce plat uniquement.",
+    "modifierOptionSaleLimit": "Limite de vente (ce plat)"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -1127,5 +1148,25 @@
   "confirm": {
     "syncDishCostsTitle": "Mettre à jour les coûts des plats",
     "syncDishCostsMessage": "Met à jour les coûts des lignes de recette non verrouillées à partir des prix d'inventaire actuels, puis recalcule le coût de chaque plat. Les lignes à prix verrouillé restent inchangées."
+  },
+  "availability": {
+    "title": "Disponibilité des articles",
+    "description": "Marquez les plats comme disponibles ou épuisés et définissez des limites de vente pour plusieurs articles ou toute une catégorie.",
+    "allCategories": "Toutes",
+    "selectAll": "Tout sélectionner",
+    "applyToCategory": "Appliquer à toute la catégorie",
+    "targetsCategory": "{{count}} plats dans la catégorie",
+    "targetsSelected": "{{count}} sélectionnés",
+    "markAvailable": "Disponible",
+    "markUnavailable": "Épuisé",
+    "saleLimit": "Limite",
+    "setLimit": "Définir la limite",
+    "clearLimit": "Illimité",
+    "selectDishes": "Sélectionnez des plats ou appliquez à la catégorie",
+    "enterQty": "Saisissez une limite de vente",
+    "saved": "{{count}} plats mis à jour",
+    "empty": "Aucun plat dans cette catégorie",
+    "available": "Disponible",
+    "unavailable": "Épuisé"
   }
 }

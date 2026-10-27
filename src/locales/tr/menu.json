@@ -21,7 +21,8 @@
     "confirmTitle": "Lütfen onaylayın",
     "confirmCartMessage_one": "Sepette {{count}} ürün var, bir işlem seçin",
     "confirmCartMessage_other": "Sepette {{count}} ürün var, bir işlem seçin",
-    "pax": "{{count}} KİŞİ"
+    "pax": "{{count}} KİŞİ",
+    "customerDisplay": "Müşteri ekranı"
   },
   "modifiers": {
     "modifyTitle": "{{name}} değiştir",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Kişi sayısını seçin"
+  },
+  "availability": {
+    "unavailable": "{{name}} tükendi",
+    "onlyNLeft": "{{name}} için yalnızca {{count}} kaldı",
+    "nLeft": "{{count}} kaldı",
+    "unavailableBadge": "Tükendi",
+    "cartExceeds": "{{name}} mevcut stoğu aşıyor ({{count}} kaldı)"
+  },
+  "qtyPrompt": {
+    "title": "Adet — {{name}}",
+    "hint": "+/− veya hızlı adet kullanın ya da yazın. Ekle onaylar; kapatmak da geçerli adedi uygular.",
+    "quantity": "Adet",
+    "add": "Ekle"
   }
 }

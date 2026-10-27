@@ -24,7 +24,8 @@
     "accessTab": "الوصول إلى {{title}}",
     "ariaLabel": "علامات تبويب الإدارة",
     "securityAlerts": "تنبيهات الأمان",
-    "catalogPublish": "نشر الكتالوج"
+    "catalogPublish": "نشر الكتالوج",
+    "availability": "التوفر"
   },
   "columns": {
     "photo": "صورة",
@@ -102,7 +103,12 @@
     "nextGroup": "المجموعة التالية",
     "itemStockUom": "وحدة مخزون الصنف",
     "itemStockUomHint": "للمرجع فقط — وحدة مخزون عنصر المخزون. لا تُطبَّق عند الاستيراد.",
-    "enteredUomHint": "الوحدة المدخلة للكمية (من نفس عائلة وحدة مخزون الصنف)."
+    "enteredUomHint": "الوحدة المدخلة للكمية (من نفس عائلة وحدة مخزون الصنف).",
+    "barcode": "الباركود",
+    "available": "متاح",
+    "availableQty": "حد البيع",
+    "extraBarcodes": "باركودات إضافية",
+    "askQuantity": "طلب الكمية"
   },
   "entities": {
     "dish": "طبق",
@@ -444,7 +450,22 @@
     "usePrintSettings": "استخدم إعدادات الطباعة",
     "userBranches": "الفروع",
     "userBranchesShared": "كل الفروع (مشترك)",
-    "userBranchesHint": "اتركه فارغاً لموظف مشترك في كل المتاجر. حدد الفروع لتقييد التنزيل بتلك المتاجر."
+    "userBranchesHint": "اتركه فارغاً لموظف مشترك في كل المتاجر. حدد الفروع لتقييد التنزيل بتلك المتاجر.",
+    "barcodeOfItem": "الباركود",
+    "availableOnMenu": "متاح في القائمة",
+    "availableQty": "حد البيع",
+    "availableQtyHint": "تُحسب المبيعات من وقت حفظ هذا الحد. فارغ = غير محدود.",
+    "extraBarcodes": "باركودات إضافية",
+    "extraBarcodesHint": "باركودات العلبة أو العبوة أو البديلة لهذا الصنف",
+    "extraBarcodesEmpty": "لا توجد باركودات إضافية بعد",
+    "addBarcode": "إضافة باركود",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "طلب الكمية",
+    "askQuantityHint": "عند التفعيل يطلب القائمة/الطلب السريع الكمية بعد المسح أو النقر (يتخطى CODE*N وملصقات الميزان).",
+    "modifierOptionAvailability": "توفر المعدّل (لهذا الطبق)",
+    "modifierOptionAvailable": "متاح لهذا الطبق",
+    "modifierOptionAvailableHint": "اترك الافتراضي لاستخدام التوفر العام. عطّل أو ضع حد مبيعات لتجاوزه لهذا الطبق فقط.",
+    "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -1127,5 +1148,25 @@
   "confirm": {
     "syncDishCostsTitle": "تحديث تكاليف الأطباق",
     "syncDishCostsMessage": "تحديث تكاليف أسطر الوصفة غير المقفلة من أسعار عناصر المخزون الحالية، ثم إعادة حساب تكلفة كل طبق. أسطر الوصفة المقفلة السعر تبقى كما هي."
+  },
+  "availability": {
+    "title": "توفر الأصناف",
+    "description": "علّم الأطباق كمتاحة أو نافدة وحدد حدود بيع لعدة أصناف أو فئة كاملة.",
+    "allCategories": "الكل",
+    "selectAll": "تحديد الكل",
+    "applyToCategory": "تطبيق على الفئة كلها",
+    "targetsCategory": "{{count}} أطباق في الفئة",
+    "targetsSelected": "{{count}} محدد",
+    "markAvailable": "متاح",
+    "markUnavailable": "نافد",
+    "saleLimit": "الحد",
+    "setLimit": "تعيين الحد",
+    "clearLimit": "غير محدود",
+    "selectDishes": "حدد أطباقاً أو طبّق على الفئة",
+    "enterQty": "أدخل حد البيع",
+    "saved": "تم تحديث {{count}} أطباق",
+    "empty": "لا أطباق في هذه الفئة",
+    "available": "متاح",
+    "unavailable": "نافد"
   }
 }

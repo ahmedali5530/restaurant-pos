@@ -21,7 +21,8 @@
     "confirmTitle": "Подтвердите действие",
     "confirmCartMessage_one": "В корзине {{count}} позиция, выберите действие",
     "confirmCartMessage_other": "В корзине {{count}} позиций, выберите действие",
-    "pax": "{{count}} гостей"
+    "pax": "{{count}} гостей",
+    "customerDisplay": "Экран клиента"
   },
   "modifiers": {
     "modifyTitle": "Изменить {{name}}",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Выберите количество гостей"
+  },
+  "availability": {
+    "unavailable": "{{name}} закончилось",
+    "onlyNLeft": "Осталось только {{count}} — {{name}}",
+    "nLeft": "Осталось {{count}}",
+    "unavailableBadge": "Нет в наличии",
+    "cartExceeds": "{{name}} превышает доступный остаток (осталось {{count}})"
+  },
+  "qtyPrompt": {
+    "title": "Количество — {{name}}",
+    "hint": "Используйте +/− или быстрое количество, либо введите. Добавить подтверждает; закрытие тоже применяет допустимое кол-во.",
+    "quantity": "Количество",
+    "add": "Добавить"
   }
 }

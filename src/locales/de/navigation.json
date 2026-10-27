@@ -16,7 +16,8 @@
     "clock": "Stempeluhr",
     "hr": "Personal",
     "integrations": "Integrationen",
-    "requiresApproval": "Erfordert Genehmigung durch die Leitung"
+    "requiresApproval": "Erfordert Genehmigung durch die Leitung",
+    "quickOrder": "Schnellbestellung"
   },
   "modules": {
     "Menu": "Menü",

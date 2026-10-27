@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from "react";
 import {MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {useAtom} from "jotai";
-import {appState} from "@/store/jotai.ts";
+import {appSettings, appState} from "@/store/jotai.ts";
 import {cn, formatNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faMinus, faPencil, faPlus, faTrash, faComment} from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +12,13 @@ import {VirtualKeyboard} from "@/components/common/input/virtual.keyboard.tsx";
 import {CartItemName} from "@/components/common/cart/cart.item.name.tsx";
 import {useTranslation} from "react-i18next";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {
+  canAddDishQty,
+  dishSoldMapAtom,
+  soldFromMap,
+  withLiveAvailability,
+} from "@/lib/dish-availability.ts";
+import {toast} from "sonner";
 
 interface Props {
   item: MenuItem
@@ -19,8 +26,49 @@ interface Props {
 }
 
 export const CartItem = ({ item, index }: Props) => {
-  const { t } = useTranslation(['cart', 'common']);
+  const { t } = useTranslation(['cart', 'common', 'menu']);
   const [state, setState] = useAtom(appState);
+  const [settings] = useAtom(appSettings);
+  const [soldMap] = useAtom(dishSoldMapAtom);
+  const enforceLimits = state.enforceItemAvailability !== false;
+
+  const trySetQuantity = (nextQty: number) => {
+    // Allow fractional qty (scale weight in kg); reject empty/zero/negative.
+    if (!Number.isFinite(nextQty) || nextQty < 0.001) {
+      return;
+    }
+    const liveDish = withLiveAvailability(settings.dishes, item.dish) ?? item.dish;
+    const check = canAddDishQty({
+      dish: liveDish,
+      sold: soldFromMap(soldMap, item.dish?.id),
+      cart: state.cart,
+      addQty: nextQty,
+      excludeCartLineId: item.id,
+      enforceLimits,
+    });
+    if (!check.ok) {
+      if (check.reason === "unavailable") {
+        toast.warning(t("menu:availability.unavailable", {name: item.dish?.name}));
+      } else {
+        toast.warning(
+          t("menu:availability.onlyNLeft", {
+            name: item.dish?.name,
+            count: check.remaining ?? 0,
+          }),
+        );
+      }
+      return;
+    }
+    setState((prev) => ({
+      ...prev,
+      cart: prev.cart.map((_item) => {
+        if (item.id === _item.id) {
+          _item.quantity = nextQty;
+        }
+        return _item;
+      }),
+    }));
+  };
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
   const [commentText, setCommentText] = useState(item.comments || "");
@@ -57,24 +105,20 @@ export const CartItem = ({ item, index }: Props) => {
         }}
       >
         <div className="flex flex-col items-start gap-3">
-          <div className="flex gap-2 items-center">
+          <div
+            className="flex gap-2 items-center"
+            // Qty controls must not toggle cart-line selection.
+            onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {item.newOrOld === MenuItemType.new && (
               <>
                 <IconTooltipButton label={t('common:actions.add')}
                   flat
                  
                   variant="primary"
-                  onClick={() => {
-                    setState(prev => ({
-                      ...prev,
-                      cart: prev.cart.map((_item) => {
-                        if( item.id === _item.id ) {
-                          _item.quantity++;
-                        }
-                        return _item;
-                      })
-                    }))
-                  }}
+                  onClick={() => trySetQuantity(item.quantity + 1)}
                   className="!rounded-none"
                 ><FontAwesomeIcon icon={faPlus}/></IconTooltipButton>
                 <Input
@@ -82,15 +126,11 @@ export const CartItem = ({ item, index }: Props) => {
                   enableKeyboard
                   value={item.quantity}
                   onChange={(e) => {
-                    setState(prev => ({
-                      ...prev,
-                      cart: prev.cart.map((_item) => {
-                        if( item.id === _item.id ) {
-                          _item.quantity = Number(e.target.value);
-                        }
-                        return _item;
-                      })
-                    }))
+                    const next = Number(e.target.value);
+                    if (!Number.isFinite(next)) {
+                      return;
+                    }
+                    trySetQuantity(next);
                   }}
                   className="!w-[60px] !border-0 !bg-surface-elevated !rounded-none"
                 />

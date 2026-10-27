@@ -178,14 +178,33 @@ export const resolveMenuAwareData = ({
   }
 
   const baseDishMap = new Map<string, Dish>();
+  const rememberDish = (id: unknown, dish: Dish) => {
+    const raw = String(id ?? "");
+    if (!raw) {
+      return;
+    }
+    baseDishMap.set(raw, dish);
+    const prefixed = raw.includes(":") ? raw : `menu_item:${raw}`;
+    baseDishMap.set(prefixed, dish);
+    if (raw.includes(":")) {
+      baseDishMap.set(raw.slice(raw.indexOf(":") + 1), dish);
+    }
+  };
   safeDishes.forEach((dish) => {
-    baseDishMap.set(dish.id.toString(), dish);
+    rememberDish(dish.id, dish);
   });
 
   const menuItemMap = resolveMenuItemMap(activeMenus);
   const resolvedDishes: Dish[] = [];
   menuItemMap.forEach((data, dishId) => {
-    const dish = resolveMenuDish(baseDishMap.get(dishId), data.menuItem, data.menuName);
+    const base =
+      baseDishMap.get(dishId) ??
+      baseDishMap.get(dishId.includes(":") ? dishId : `menu_item:${dishId}`) ??
+      (dishId.includes(":")
+        ? baseDishMap.get(dishId.slice(dishId.indexOf(":") + 1))
+        : undefined);
+    // Prefer catalog dish (has live available / sale limit) over nested menu snapshot.
+    const dish = resolveMenuDish(base, data.menuItem, data.menuName);
     if (!dish) {
       return;
     }

@@ -137,7 +137,8 @@
     "invalidRequiredModifiers": "Il valore dei modificatori obbligatori non è valido",
     "loginTaken": "Un altro utente ha già questo accesso/PIN — scegline un altro.",
     "passwordTaken": "Un altro utente ha già questa password — scegline un'altra.",
-    "dishCostsSynced": "Costi aggiornati per {{dishes}} piatto/i da {{items}} articolo/i di inventario"
+    "dishCostsSynced": "Costi aggiornati per {{dishes}} piatto/i da {{items}} articolo/i di inventario",
+    "barcodeInUse": "Il codice a barre {{code}} è già usato da {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} è in uso ed è stato disattivato.",

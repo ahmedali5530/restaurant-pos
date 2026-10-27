@@ -18,6 +18,7 @@ export enum Tables {
   modifier_groups = 'modifier_group',
   modifiers = 'modifier',
   dish_modifier_groups = 'menu_item_modifier_group',
+  dish_modifier_availability = 'menu_item_modifier_availability',
   menus = 'menu',
   menu_menu_items = 'menu_menu_item',
 

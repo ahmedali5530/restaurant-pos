@@ -137,7 +137,8 @@
     "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
     "loginTaken": "Een andere gebruiker heeft al deze login/PIN — kies een andere.",
     "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander.",
-    "dishCostsSynced": "Kosten bijgewerkt voor {{dishes}} gerecht(en) vanuit {{items}} voorraadartikel(en)"
+    "dishCostsSynced": "Kosten bijgewerkt voor {{dishes}} gerecht(en) vanuit {{items}} voorraadartikel(en)",
+    "barcodeInUse": "Barcode {{code}} wordt al gebruikt door {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",

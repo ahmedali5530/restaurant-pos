@@ -1955,6 +1955,12 @@ DEFINE FIELD discount_type ON menu_item TYPE none | string | null PERMISSIONS FU
 DEFINE FIELD dish_photo ON menu_item TYPE none | record<document> | null PERMISSIONS FULL;
 DEFINE FIELD items ON menu_item TYPE none | array<record<menu_item_recipe>> | null PERMISSIONS FULL;
 DEFINE FIELD items.* ON menu_item TYPE record<menu_item_recipe> PERMISSIONS FULL;
+DEFINE FIELD available ON menu_item TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD ask_quantity ON menu_item TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD barcodes ON menu_item TYPE none | array<string> | null PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;
@@ -1965,6 +1971,7 @@ DEFINE FIELD stage_overrides ON menu_item TYPE none | object | null PERMISSIONS 
 DEFINE FIELD tax ON menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD workflow ON menu_item TYPE none | record<workflow> | null PERMISSIONS FULL;
 
+DEFINE INDEX mi_barcode ON menu_item FIELDS barcode;
 DEFINE INDEX mi_number ON menu_item FIELDS number;
 
 

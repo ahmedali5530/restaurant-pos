@@ -16,7 +16,8 @@
     "clock": "Orologio",
     "hr": "Risorse umane",
     "integrations": "Integrazioni",
-    "requiresApproval": "Richiede l'approvazione del responsabile"
+    "requiresApproval": "Richiede l'approvazione del responsabile",
+    "quickOrder": "Ordine rapido"
   },
   "modules": {
     "Menu": "Menu",

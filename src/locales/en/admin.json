@@ -24,7 +24,8 @@
     "accessTab": "Access {{title}}",
     "ariaLabel": "Administration tabs",
     "securityAlerts": "Security Alerts",
-    "catalogPublish": "Catalog publish"
+    "catalogPublish": "Catalog publish",
+    "availability": "Availability"
   },
   "catalogPublish": {
     "noAccess": "You need Catalog publish permission to use this screen.",
@@ -165,7 +166,12 @@
     "nextGroup": "Next group",
     "itemStockUom": "Item stock UOM",
     "itemStockUomHint": "Reference only — inventory item stock unit. Not applied on import.",
-    "enteredUomHint": "Entered unit for quantity (convertible family of the item stock UOM)."
+    "enteredUomHint": "Entered unit for quantity (convertible family of the item stock UOM).",
+    "barcode": "Barcode",
+    "available": "Available",
+    "availableQty": "Sale limit",
+    "extraBarcodes": "Extra barcodes",
+    "askQuantity": "Ask quantity"
   },
   "entities": {
     "dish": "Dish",
@@ -507,7 +513,22 @@
     "usePrintSettings": "Use print settings",
     "userBranches": "Branches",
     "userBranchesShared": "All branches (shared)",
-    "userBranchesHint": "Leave empty for a shared employee on every store. Select branches to limit Sync now download to those stores."
+    "userBranchesHint": "Leave empty for a shared employee on every store. Select branches to limit Sync now download to those stores.",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Available on menu",
+    "availableQty": "Sale limit",
+    "availableQtyHint": "Sales count from the time you save this limit. Leave empty for unlimited.",
+    "extraBarcodes": "Additional barcodes",
+    "extraBarcodesHint": "Case, sleeve, or alternate UPCs that scan to this item",
+    "extraBarcodesEmpty": "No extra barcodes yet",
+    "addBarcode": "Add barcode",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Ask quantity",
+    "askQuantityHint": "When on, Menu and Quick Order ask for quantity after scan or tap (CODE*N / scale labels still skip).",
+    "modifierOptionAvailability": "Modifier availability (this dish)",
+    "modifierOptionAvailable": "Available for this dish",
+    "modifierOptionAvailableHint": "Leave defaults to use global dish availability. Turn off or set a sale limit to override for this parent dish only.",
+    "modifierOptionSaleLimit": "Sale limit (this dish)"
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -1127,5 +1148,25 @@
   "confirm": {
     "syncDishCostsTitle": "Update dish costs",
     "syncDishCostsMessage": "Update unlocked recipe line costs from current inventory item prices, then recalculate each dish cost. Price-locked recipe lines are left unchanged."
+  },
+  "availability": {
+    "title": "Item availability",
+    "description": "Mark dishes available or sold out, and set optional sale limits for multiple items or a whole category.",
+    "allCategories": "All",
+    "selectAll": "Select all",
+    "applyToCategory": "Apply to whole category",
+    "targetsCategory": "{{count}} dishes in category",
+    "targetsSelected": "{{count}} selected",
+    "markAvailable": "Available",
+    "markUnavailable": "Sold out",
+    "saleLimit": "Limit",
+    "setLimit": "Set limit",
+    "clearLimit": "Unlimited",
+    "selectDishes": "Select dishes or enable apply to category",
+    "enterQty": "Enter a sale limit",
+    "saved": "Updated {{count}} dishes",
+    "empty": "No dishes in this category",
+    "available": "Available",
+    "unavailable": "Sold out"
   }
 }
