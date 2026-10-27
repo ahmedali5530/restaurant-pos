@@ -25,6 +25,7 @@ const SNAPSHOT_TABLES = [
   'modifier_group',
   'modifier',
   'menu_item_modifier_group',
+  'menu_item_modifier_availability',
   'floor',
   'floor_table',
   'kitchen',

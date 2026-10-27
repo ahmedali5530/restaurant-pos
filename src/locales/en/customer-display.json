@@ -6,5 +6,7 @@
   "thankYou": "Thank you!",
   "thankYouHint": "Please come again",
   "qty": "Qty {{count}}",
-  "total": "Total"
+  "total": "Total",
+  "items": "Items ({{count}})",
+  "totalWithTax": "Total with {{name}} {{rate}}%"
 }

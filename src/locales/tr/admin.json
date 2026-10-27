@@ -453,7 +453,11 @@
     "addBarcode": "Barkod ekle",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Adet sor",
-    "askQuantityHint": "Açıkken Menü ve Hızlı sipariş tarama/dokunmadan sonra adet sorar (CODE*N / terazi atlanır)."
+    "askQuantityHint": "Açıkken Menü ve Hızlı sipariş tarama/dokunmadan sonra adet sorar (CODE*N / terazi atlanır).",
+    "modifierOptionAvailability": "Değiştirici müsaitliği (bu yemek)",
+    "modifierOptionAvailable": "Bu yemek için müsait",
+    "modifierOptionAvailableHint": "Küresel müsaitlik için varsayılanı bırakın. Yalnızca bu yemek için kapatın veya satış limiti koyun.",
+    "modifierOptionSaleLimit": "Satış limiti (bu yemek)"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

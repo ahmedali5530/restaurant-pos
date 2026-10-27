@@ -120,6 +120,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_23_menu_item_availability', file: '2026_10_23_menu_item_availability.surql' },
   { id: '2026_10_24_menu_item_barcodes', file: '2026_10_24_menu_item_barcodes.surql' },
   { id: '2026_10_26_menu_item_ask_quantity', file: '2026_10_26_menu_item_ask_quantity.surql' },
+  { id: '2026_10_26_menu_item_modifier_availability', file: '2026_10_26_menu_item_modifier_availability.surql' },
 ];
 
 const rows = (result) => {

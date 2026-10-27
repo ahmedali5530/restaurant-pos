@@ -1,8 +1,9 @@
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
 import {
-  canAddDishQty,
+  findCartAvailabilityViolations,
+  findContextualCartAvailabilityViolations,
+  getContextualSoldQtySince,
   getSoldQtySince,
-  withLiveAvailability,
 } from "@/lib/dish-availability.ts";
 import {toast} from "sonner";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
@@ -177,35 +178,36 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
       {
         const enforceLimits = state.enforceItemAvailability !== false;
         const liveCart = state.cart.filter((line) => !line.deleted_at);
-        for (const line of liveCart) {
-          const liveDish = withLiveAvailability(settings.dishes, line.dish) ?? line.dish;
-          const sold = enforceLimits
-            ? await getSoldQtySince(
-                String(liveDish?.id ?? ""),
-                liveDish?.available_qty_set_at,
-              )
-            : 0;
-          const check = canAddDishQty({
-            dish: liveDish,
-            sold,
-            cart: liveCart,
-            addQty: Number(line.quantity) || 0,
-            excludeCartLineId: line.id,
-            enforceLimits,
-          });
-          if (!check.ok) {
-            const message =
-              check.reason === "unavailable"
-                ? t("menu:availability.unavailable", {name: line.dish?.name})
-                : t("menu:availability.cartExceeds", {
-                    name: line.dish?.name,
-                    count: check.remaining ?? 0,
-                  });
-            toast.error(message);
-            setLoading(false);
-            createInFlightRef.current = false;
-            return undefined;
-          }
+        const violations = await findCartAvailabilityViolations({
+          cart: liveCart,
+          catalogDishes: settings.dishes,
+          enforceLimits,
+          soldByDishId: (dishId, setAt) =>
+            enforceLimits ? getSoldQtySince(dishId, setAt as any) : 0,
+        });
+        const contextualViolations = await findContextualCartAvailabilityViolations({
+          cart: liveCart,
+          overrides: settings.modifier_availability,
+          catalogDishes: settings.dishes,
+          enforceLimits,
+          contextualSoldByKey: (parentId, optionId, setAt) =>
+            enforceLimits
+              ? getContextualSoldQtySince(parentId, optionId, setAt as any)
+              : 0,
+        });
+        const check = violations[0] ?? contextualViolations[0];
+        if (check) {
+          const message =
+            check.reason === "unavailable"
+              ? t("menu:availability.unavailable", {name: check.name})
+              : t("menu:availability.cartExceeds", {
+                  name: check.name,
+                  count: check.remaining ?? 0,
+                });
+          toast.error(message);
+          setLoading(false);
+          createInFlightRef.current = false;
+          return undefined;
         }
       }
 

@@ -248,7 +248,7 @@ export const MenuHeader = () => {
             size="lg"
             flat
             icon={faDisplay}
-            onClick={() => openCustomerDisplayWindow(state.cart)}
+            onClick={() => openCustomerDisplayWindow(state.cart, setting?.taxes)}
             data-testid="menu-open-customer-display"
           >
             {t('header.customerDisplay')}

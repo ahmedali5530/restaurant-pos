@@ -38,6 +38,7 @@ const CATALOG_SNAPSHOT_TABLES = [
   Tables.modifier_groups,
   Tables.modifiers,
   Tables.dish_modifier_groups,
+  Tables.dish_modifier_availability,
   Tables.floors,
   Tables.tables,
   Tables.kitchens,

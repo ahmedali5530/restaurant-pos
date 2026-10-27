@@ -6,5 +6,7 @@
   "thankYou": "شكرًا لك!",
   "thankYouHint": "نراك قريبًا",
   "qty": "الكمية {{count}}",
-  "total": "الإجمالي"
+  "total": "الإجمالي",
+  "items": "العناصر ({{count}})",
+  "totalWithTax": "الإجمالي مع {{name}} {{rate}}%"
 }

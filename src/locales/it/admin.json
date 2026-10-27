@@ -453,7 +453,11 @@
     "addBarcode": "Aggiungi codice",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Chiedi quantità",
-    "askQuantityHint": "Se attivo, Menu e Quick Order chiedono la quantità dopo scansione/tap (CODE*N / bilancia saltati)."
+    "askQuantityHint": "Se attivo, Menu e Quick Order chiedono la quantità dopo scansione/tap (CODE*N / bilancia saltati).",
+    "modifierOptionAvailability": "Disponibilità modificatore (questo piatto)",
+    "modifierOptionAvailable": "Disponibile per questo piatto",
+    "modifierOptionAvailableHint": "Lascia i valori predefiniti per la disponibilità globale. Disattiva o imposta un limite solo per questo piatto.",
+    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

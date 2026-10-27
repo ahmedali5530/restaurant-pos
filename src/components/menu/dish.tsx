@@ -22,8 +22,12 @@ import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
 import {
   canAddDishQty,
+  canAddModifierOptionQty,
   dishSoldMapAtom,
   getRemainingQty,
+  lookupModifierAvailability,
+  modifierContextualSoldMapAtom,
+  soldFromContextualMap,
   soldFromMap,
   withLiveAvailability,
 } from "@/lib/dish-availability.ts";
@@ -42,6 +46,8 @@ interface Props {
   parentModifier?: Modifier
   /** Root dish menu overrides (needed when item is a nested modifier dish) */
   menuModifierOverrides?: MenuModifierOverrides | null
+  /** Immediate parent dish id when rendering a modifier option tile. */
+  parentDishId?: string
 }
 
 export const MenuDish = ({
@@ -53,28 +59,63 @@ export const MenuDish = ({
   allowedNextGroupIds,
   parentModifier,
   menuModifierOverrides,
+  parentDishId,
 }: Props) => {
   const [state] = useAtom(appState);
-  const [{groups_dishes, dishes: catalogDishes}] = useAtom(appSettings);
+  const [{groups_dishes, dishes: catalogDishes, modifier_availability}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const [soldMap] = useAtom(dishSoldMapAtom);
+  const [contextualSoldMap] = useAtom(modifierContextualSoldMapAtom);
   const {t} = useTranslation(["menu", "toast"]);
   const db = useDB();
   const showDishNumber = page.menuConfig?.showDishNumber !== false;
   const enforceLimits = state.enforceItemAvailability !== false;
   const liveItem = withLiveAvailability(catalogDishes, item) ?? item;
   const sold = soldFromMap(soldMap, item.id);
-  const addCheck = canAddDishQty({
-    dish: liveItem,
-    sold,
-    cart: state.cart,
-    addQty: 1,
-    enforceLimits,
-  });
+  const modifierOverride =
+    isModifier && parentDishId
+      ? lookupModifierAvailability(modifier_availability, parentDishId, String(item.id ?? ""))
+      : undefined;
+  const contextualSold =
+    isModifier && parentDishId
+      ? soldFromContextualMap(contextualSoldMap, parentDishId, String(item.id ?? ""))
+      : 0;
+  const addCheck =
+    isModifier && parentDishId
+      ? canAddModifierOptionQty({
+          parentDishId,
+          optionDish: liveItem,
+          globalSold: sold,
+          contextualSold,
+          cart: state.cart,
+          addQty: 1,
+          enforceLimits,
+          override: modifierOverride,
+        })
+      : canAddDishQty({
+          dish: liveItem,
+          sold,
+          cart: state.cart,
+          addQty: 1,
+          enforceLimits,
+        });
   const blocked = !addCheck.ok;
-  const remaining = enforceLimits
+  const globalRemaining = enforceLimits
     ? getRemainingQty({dish: liveItem, sold, cart: state.cart})
     : null;
+  const contextualRemaining =
+    enforceLimits &&
+    isModifier &&
+    parentDishId &&
+    modifierOverride?.available_qty != null
+      ? addCheck.remaining
+      : null;
+  const remaining =
+    contextualRemaining != null
+      ? globalRemaining == null
+        ? contextualRemaining
+        : Math.min(globalRemaining, contextualRemaining)
+      : globalRemaining;
 
   const [modifiersModal, setModifiersModal] = useState(false);
   const [qtyPromptOpen, setQtyPromptOpen] = useState(false);
@@ -152,13 +193,25 @@ export const MenuDish = ({
   const emitAdd = useCallback(
     (quantity: number, groups?: CartModifierGroup[]) => {
       const qty = Math.max(1, Math.floor(Number(quantity) || 1));
-      const check = canAddDishQty({
-        dish: liveItem,
-        sold,
-        cart: state.cart,
-        addQty: qty,
-        enforceLimits,
-      });
+      const check =
+        isModifier && parentDishId
+          ? canAddModifierOptionQty({
+              parentDishId,
+              optionDish: liveItem,
+              globalSold: sold,
+              contextualSold,
+              cart: state.cart,
+              addQty: qty,
+              enforceLimits,
+              override: modifierOverride,
+            })
+          : canAddDishQty({
+              dish: liveItem,
+              sold,
+              cart: state.cart,
+              addQty: qty,
+              enforceLimits,
+            });
       if (!check.ok) {
         if (check.reason === "unavailable") {
           toast.warning(t("menu:availability.unavailable", {name: item.name}));
@@ -198,13 +251,16 @@ export const MenuDish = ({
       );
     },
     [
+      contextualSold,
       enforceLimits,
       isModifier,
       item,
       level,
       liveItem,
       menuTaxFields,
+      modifierOverride,
       onClick,
+      parentDishId,
       price,
       sold,
       state.cart,

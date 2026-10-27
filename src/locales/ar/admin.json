@@ -453,7 +453,11 @@
     "addBarcode": "إضافة باركود",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "طلب الكمية",
-    "askQuantityHint": "عند التفعيل يطلب القائمة/الطلب السريع الكمية بعد المسح أو النقر (يتخطى CODE*N وملصقات الميزان)."
+    "askQuantityHint": "عند التفعيل يطلب القائمة/الطلب السريع الكمية بعد المسح أو النقر (يتخطى CODE*N وملصقات الميزان).",
+    "modifierOptionAvailability": "توفر المعدّل (لهذا الطبق)",
+    "modifierOptionAvailable": "متاح لهذا الطبق",
+    "modifierOptionAvailableHint": "اترك الافتراضي لاستخدام التوفر العام. عطّل أو ضع حد مبيعات لتجاوزه لهذا الطبق فقط.",
+    "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

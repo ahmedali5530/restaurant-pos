@@ -453,7 +453,11 @@
     "addBarcode": "Barcode toevoegen",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Vraag om aantal",
-    "askQuantityHint": "Indien aan, vragen Menu en Quick Order na scan/tik om aantal (CODE*N / weegschaal overgeslagen)."
+    "askQuantityHint": "Indien aan, vragen Menu en Quick Order na scan/tik om aantal (CODE*N / weegschaal overgeslagen).",
+    "modifierOptionAvailability": "Modifierbeschikbaarheid (dit gerecht)",
+    "modifierOptionAvailable": "Beschikbaar voor dit gerecht",
+    "modifierOptionAvailableHint": "Laat standaard staan voor globale beschikbaarheid. Zet uit of stel een verkooplimiet in alleen voor dit gerecht.",
+    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

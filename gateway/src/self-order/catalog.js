@@ -60,7 +60,7 @@ function isMenuActiveNow(menu, timezone, now = new Date()) {
 async function loadRaw(db) {
   const tables = [
     'menu', 'menu_menu_item', 'menu_item', 'category', 'tax', 'kitchen',
-    'workflow', 'workflow_stage', 'menu_item_modifier_group', 'modifier_group', 'modifier',
+    'workflow', 'workflow_stage', 'menu_item_modifier_group', 'menu_item_modifier_availability', 'modifier_group', 'modifier',
   ];
   const result = await db.query(tables.map((t) => `SELECT * FROM ${t};`).join('\n'));
   const out = {};

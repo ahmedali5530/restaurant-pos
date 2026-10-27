@@ -6,5 +6,7 @@
   "thankYou": "Danke!",
   "thankYouHint": "Bitte kommen Sie wieder",
   "qty": "Menge {{count}}",
-  "total": "Summe"
+  "total": "Summe",
+  "items": "Artikel ({{count}})",
+  "totalWithTax": "Summe mit {{name}} {{rate}}%"
 }

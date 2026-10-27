@@ -397,7 +397,7 @@ export const QuickOrder = () => {
   };
 
   const openCustomerDisplay = () => {
-    openCustomerDisplayWindow(state.cart);
+    openCustomerDisplayWindow(state.cart, settings.taxes);
   };
 
   return (

@@ -6,5 +6,7 @@
   "thankYou": "Спасибо!",
   "thankYouHint": "Ждём вас снова",
   "qty": "Кол-во {{count}}",
-  "total": "Итого"
+  "total": "Итого",
+  "items": "Позиции ({{count}})",
+  "totalWithTax": "Итого с {{name}} {{rate}}%"
 }

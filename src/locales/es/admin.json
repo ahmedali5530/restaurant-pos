@@ -453,7 +453,11 @@
     "addBarcode": "Añadir código",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Pedir cantidad",
-    "askQuantityHint": "Si está activo, Menú y Pedido rápido piden cantidad tras escanear o tocar (CODE*N / báscula se omiten)."
+    "askQuantityHint": "Si está activo, Menú y Pedido rápido piden cantidad tras escanear o tocar (CODE*N / báscula se omiten).",
+    "modifierOptionAvailability": "Disponibilidad del modificador (este plato)",
+    "modifierOptionAvailable": "Disponible para este plato",
+    "modifierOptionAvailableHint": "Deje los valores por defecto para usar la disponibilidad global. Desactive o ponga un límite solo para este plato.",
+    "modifierOptionSaleLimit": "Límite de venta (este plato)"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

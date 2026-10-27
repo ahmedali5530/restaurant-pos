@@ -27,7 +27,35 @@ describe("buildCustomerDisplaySnapshot", () => {
     expect(snap.lines).toHaveLength(1);
     expect(snap.lines[0].name).toBe("Cola");
     expect(snap.lines[0].quantity).toBe(2);
-    expect(snap.total).toBeGreaterThan(0);
+    expect(snap.lines[0].lineTotal).toBe(10);
+    expect(snap.itemsBase).toBe(10);
+    expect(snap.total).toBe(10);
+    expect(snap.taxTotals).toEqual([]);
+  });
+
+  it("mirrors CartTotals tax-inclusive total from system taxes", () => {
+    const cart = [
+      {
+        id: "a",
+        quantity: 2,
+        dish: {id: "menu_item:1", name: "Cola", price: 10},
+        price: 10,
+        newOrOld: MenuItemType.new,
+      },
+    ] as unknown as MenuItem[];
+
+    const snap = buildCustomerDisplaySnapshot(cart, {
+      taxes: [{id: "tax:gst", name: "GST", rate: 10} as any],
+    });
+
+    // Base 20 + 10% = 22
+    expect(snap.itemsBase).toBe(20);
+    expect(snap.taxTotals).toHaveLength(1);
+    expect(snap.taxTotals[0].name).toBe("GST");
+    expect(snap.taxTotals[0].rate).toBe(10);
+    expect(snap.taxTotals[0].taxAmount).toBe(2);
+    expect(snap.taxTotals[0].total).toBe(22);
+    expect(snap.total).toBe(22);
   });
 
   it("flags thank you when requested", () => {

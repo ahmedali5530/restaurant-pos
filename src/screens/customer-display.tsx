@@ -12,6 +12,8 @@ import {
 const emptySnapshot = (): CustomerDisplaySnapshot => ({
   updatedAt: 0,
   lines: [],
+  itemsBase: 0,
+  taxTotals: [],
   total: 0,
 });
 
@@ -26,7 +28,11 @@ export const CustomerDisplayScreen = () => {
       if (!next || !Array.isArray(next.lines)) {
         return;
       }
-      setSnapshot(next);
+      setSnapshot({
+        ...next,
+        itemsBase: typeof next.itemsBase === "number" ? next.itemsBase : Number(next.total) || 0,
+        taxTotals: Array.isArray(next.taxTotals) ? next.taxTotals : [],
+      });
     };
 
     apply(readCustomerDisplaySnapshot() ?? emptySnapshot());
@@ -60,6 +66,7 @@ export const CustomerDisplayScreen = () => {
   }, []);
 
   const hasLines = snapshot.lines.length > 0;
+  const taxTotals = snapshot.taxTotals ?? [];
 
   return (
     <Layout showSidebar={false} overflowHidden containerClassName="!overflow-hidden">
@@ -111,14 +118,44 @@ export const CustomerDisplayScreen = () => {
                 ))}
               </ul>
             </div>
-            <div className="mt-4 md:mt-6 flex items-end justify-between gap-4 rounded-2xl bg-surface-elevated border border-border px-4 md:px-8 py-5">
-              <div className="text-xl md:text-3xl text-muted">{t("total")}</div>
-              <div
-                className="text-4xl md:text-7xl font-bold tabular-nums text-foreground"
-                data-testid="customer-display-total"
-              >
-                {withCurrency(snapshot.total)}
+
+            <div className="mt-4 md:mt-6 flex flex-col gap-3 rounded-2xl bg-surface-elevated border border-border px-4 md:px-8 py-5">
+              <div className="flex items-center justify-between gap-4 text-xl md:text-2xl">
+                <div className="text-muted">{t("items", {count: snapshot.lines.length})}</div>
+                <div className="font-semibold tabular-nums" data-testid="customer-display-items-base">
+                  {withCurrency(snapshot.itemsBase)}
+                </div>
               </div>
+
+              {taxTotals.length > 0 ? (
+                taxTotals.map((entry, index) => (
+                  <div
+                    key={`${entry.name}-${entry.rate}-${index}`}
+                    className="flex items-end justify-between gap-4"
+                    data-testid={`customer-display-tax-total-${index}`}
+                  >
+                    <div className="text-xl md:text-3xl text-muted">
+                      {t("totalWithTax", {name: entry.name, rate: entry.rate})}
+                    </div>
+                    <div
+                      className="text-4xl md:text-7xl font-bold tabular-nums text-foreground"
+                      data-testid={index === 0 ? "customer-display-total" : undefined}
+                    >
+                      {withCurrency(entry.total)}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-end justify-between gap-4">
+                  <div className="text-xl md:text-3xl text-muted">{t("total")}</div>
+                  <div
+                    className="text-4xl md:text-7xl font-bold tabular-nums text-foreground"
+                    data-testid="customer-display-total"
+                  >
+                    {withCurrency(snapshot.total)}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

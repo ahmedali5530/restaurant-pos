@@ -2,9 +2,16 @@ import {describe, expect, it} from "vitest";
 import {
   buildAvailabilityPatch,
   canAddDishQty,
+  canAddModifierOptionQty,
+  collectDishUsageInCart,
+  countDishInModifierGroups,
+  countOptionUnderParent,
+  findCartAvailabilityViolations,
+  findContextualCartAvailabilityViolations,
   getRemainingQty,
   isManuallyAvailable,
   qtyInCart,
+  qtyOptionUnderParentInCart,
   toAvailabilityMs,
   toAvailabilityStampIso,
   toLocalAvailabilityPatch,
@@ -25,6 +32,160 @@ describe("dish-availability", () => {
       {id: "c", quantity: 3, dish: {id: "menu_item:1"}, deleted_at: new Date()},
     ] as any;
     expect(qtyInCart(cart, "menu_item:1")).toBe(2);
+  });
+
+  it("counts cream used as a modifier toward cream cart qty", () => {
+    const cream = {id: "menu_item:cream", name: "Cream"};
+    const coffee = {id: "menu_item:coffee", name: "Coffee"};
+    const cart = [
+      {
+        id: "line-1",
+        quantity: 2,
+        dish: coffee,
+        selectedGroups: [
+          {
+            selectedModifiers: [{id: "m1", quantity: 1, dish: cream, level: 1}],
+          },
+        ],
+      },
+      {id: "line-2", quantity: 1, dish: cream},
+    ] as any;
+    // 2 (nested under coffee×2) + 1 standalone
+    expect(qtyInCart(cart, "menu_item:cream")).toBe(3);
+    expect(countDishInModifierGroups(cart[0].selectedGroups, "menu_item:cream", 2)).toBe(2);
+    expect(collectDishUsageInCart(cart).get("menu_item:cream")).toBe(3);
+  });
+
+  it("blocks settle-style cart check when nested modifier exceeds limit", async () => {
+    const cream = {
+      id: "menu_item:cream",
+      name: "Cream",
+      available_qty: 1,
+      available_qty_set_at: "2026-10-01T00:00:00.000Z",
+    };
+    const coffee = {id: "menu_item:coffee", name: "Coffee"};
+    const cart = [
+      {
+        id: "line-1",
+        quantity: 2,
+        dish: coffee,
+        selectedGroups: [
+          {selectedModifiers: [{id: "m1", quantity: 1, dish: cream, level: 1}]},
+        ],
+      },
+    ] as any;
+    const violations = await findCartAvailabilityViolations({
+      cart,
+      catalogDishes: [cream, coffee] as any,
+      soldByDishId: new Map(),
+      enforceLimits: true,
+    });
+    expect(violations).toHaveLength(1);
+    expect(violations[0].dishId).toBe("menu_item:cream");
+    expect(violations[0].reason).toBe("limit");
+  });
+
+  it("counts contextual option only under the matching parent", () => {
+    const large = {id: "menu_item:large"};
+    const tikka = {id: "menu_item:tikka"};
+    const margherita = {id: "menu_item:marg"};
+    const cart = [
+      {
+        id: "a",
+        quantity: 1,
+        dish: tikka,
+        selectedGroups: [
+          {selectedModifiers: [{id: "m1", quantity: 1, dish: large, level: 1}]},
+        ],
+      },
+      {
+        id: "b",
+        quantity: 1,
+        dish: margherita,
+        selectedGroups: [
+          {selectedModifiers: [{id: "m2", quantity: 1, dish: large, level: 1}]},
+        ],
+      },
+    ] as any;
+    expect(qtyOptionUnderParentInCart(cart, "menu_item:tikka", "menu_item:large")).toBe(1);
+    expect(qtyOptionUnderParentInCart(cart, "menu_item:marg", "menu_item:large")).toBe(1);
+    expect(
+      countOptionUnderParent(
+        cart[0].selectedGroups,
+        "menu_item:tikka",
+        "menu_item:large",
+        1,
+        "menu_item:tikka",
+      ),
+    ).toBe(1);
+  });
+
+  it("blocks contextual Large on tikka while global Large remains sellable", async () => {
+    const large = {id: "menu_item:large", name: "Large", available: true};
+    const tikka = {id: "menu_item:tikka", name: "Tikka"};
+    const check = canAddModifierOptionQty({
+      parentDishId: "menu_item:tikka",
+      optionDish: large as any,
+      globalSold: 0,
+      contextualSold: 0,
+      cart: [],
+      addQty: 1,
+      enforceLimits: true,
+      override: {id: "x", parent: "menu_item:tikka", option: "menu_item:large", available: false},
+    });
+    expect(check.ok).toBe(false);
+    expect(check.reason).toBe("unavailable");
+
+    const cart = [
+      {
+        id: "a",
+        quantity: 1,
+        dish: tikka,
+        selectedGroups: [
+          {selectedModifiers: [{id: "m1", quantity: 1, dish: large, level: 1}]},
+        ],
+      },
+    ] as any;
+    const violations = await findContextualCartAvailabilityViolations({
+      cart,
+      overrides: [
+        {
+          id: "ov1",
+          parent: "menu_item:tikka",
+          option: "menu_item:large",
+          available: false,
+        },
+      ],
+      catalogDishes: [large, tikka] as any,
+      contextualSoldByKey: new Map(),
+      enforceLimits: true,
+    });
+    expect(violations).toHaveLength(1);
+    expect(violations[0].reason).toBe("unavailable");
+  });
+
+  it("enforces contextual sale limit under one parent only", () => {
+    const large = {id: "menu_item:large", name: "Large", available: true};
+    const result = canAddModifierOptionQty({
+      parentDishId: "menu_item:tikka",
+      optionDish: large as any,
+      globalSold: 0,
+      contextualSold: 1,
+      cart: [],
+      addQty: 1,
+      enforceLimits: true,
+      override: {
+        id: "x",
+        parent: "menu_item:tikka",
+        option: "menu_item:large",
+        available: true,
+        available_qty: 1,
+        available_qty_set_at: "2026-10-01T00:00:00.000Z",
+      },
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe("limit");
+    expect(result.remaining).toBe(0);
   });
 
   it("computes remaining minus sold and cart", () => {

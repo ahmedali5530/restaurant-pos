@@ -15,6 +15,7 @@ import {Kitchen} from "@/api/model/kitchen.ts";
 import {createStore, del, get, set} from 'idb-keyval'
 import {PaymentType} from "@/api/model/payment_type.ts";
 import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
+import type {MenuItemModifierAvailability} from "@/api/model/menu_item_modifier_availability.ts";
 import {Menu} from "@/api/model/menu.ts";
 import {Tax} from "@/api/model/tax.ts";
 import {Extra} from "@/api/model/extra.ts";
@@ -234,6 +235,8 @@ export interface AppSettingsInterface {
   dishes: Dish[]
   modifier_groups: ModifierGroup[]
   groups_dishes: DishModifierGroup[]
+  /** Per parent-dish modifier option availability overrides. */
+  modifier_availability: MenuItemModifierAvailability[]
   floors: Floor[]
   tables: Table[]
   kitchens: Kitchen[]
@@ -256,6 +259,7 @@ const defaultAppSettings: AppSettingsInterface = {
   categories: [],
   modifier_groups: [],
   groups_dishes: [],
+  modifier_availability: [],
   floors: [],
   tables: [],
   kitchens: [],

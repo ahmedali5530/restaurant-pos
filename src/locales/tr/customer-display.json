@@ -6,5 +6,7 @@
   "thankYou": "Teşekkürler!",
   "thankYouHint": "Yine bekleriz",
   "qty": "Adet {{count}}",
-  "total": "Toplam"
+  "total": "Toplam",
+  "items": "Kalemler ({{count}})",
+  "totalWithTax": "{{name}} {{rate}}% ile toplam"
 }

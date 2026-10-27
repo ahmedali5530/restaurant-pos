@@ -453,7 +453,11 @@
     "addBarcode": "Barcode hinzufügen",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Menge abfragen",
-    "askQuantityHint": "Wenn aktiv, fragen Menü und Quick Order nach Scan/Tipp nach der Menge (CODE*N / Waagenetiketten überspringen)."
+    "askQuantityHint": "Wenn aktiv, fragen Menü und Quick Order nach Scan/Tipp nach der Menge (CODE*N / Waagenetiketten überspringen).",
+    "modifierOptionAvailability": "Modifier-Verfügbarkeit (dieses Gericht)",
+    "modifierOptionAvailable": "Für dieses Gericht verfügbar",
+    "modifierOptionAvailableHint": "Standard belassen = globale Verfügbarkeit. Ausschalten oder Verkaufslimit setzen = nur für dieses Gericht.",
+    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

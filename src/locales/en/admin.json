@@ -453,7 +453,11 @@
     "addBarcode": "Add barcode",
     "extraBarcodePlaceholder": "UPC / EAN",
     "askQuantity": "Ask quantity",
-    "askQuantityHint": "When on, Menu and Quick Order ask for quantity after scan or tap (CODE*N / scale labels still skip)."
+    "askQuantityHint": "When on, Menu and Quick Order ask for quantity after scan or tap (CODE*N / scale labels still skip).",
+    "modifierOptionAvailability": "Modifier availability (this dish)",
+    "modifierOptionAvailable": "Available for this dish",
+    "modifierOptionAvailableHint": "Leave defaults to use global dish availability. Turn off or set a sale limit to override for this parent dish only.",
+    "modifierOptionSaleLimit": "Sale limit (this dish)"
   },
   "dishView": {
     "detailsTitle": "Dish details",
