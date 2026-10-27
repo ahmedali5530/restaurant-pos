@@ -161,7 +161,8 @@
     "smartImport": "Import IA",
     "smartImportIngredients": "Import IA des ingrédients",
     "smartImportModifierGroups": "Import IA des groupes de modificateurs",
-    "smartImportMenuStructure": "Import IA structure du menu"
+    "smartImportMenuStructure": "Import IA structure du menu",
+    "syncDishCosts": "Mettre à jour les coûts depuis les articles"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Thème de la page client",
     "themeDescription": "Couleurs de la page de commande par QR. Le mode clair/sombre peut suivre le téléphone de chaque client.",
     "themeMode": "Apparence"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Mettre à jour les coûts des plats",
+    "syncDishCostsMessage": "Met à jour les coûts des lignes de recette non verrouillées à partir des prix d'inventaire actuels, puis recalcule le coût de chaque plat. Les lignes à prix verrouillé restent inchangées."
   }
 }

@@ -161,7 +161,8 @@
     "smartImport": "Importação IA",
     "smartImportIngredients": "Importação IA de ingredientes",
     "smartImportModifierGroups": "Importação IA de grupos de modificadores",
-    "smartImportMenuStructure": "Importar estrutura do cardápio com IA"
+    "smartImportMenuStructure": "Importar estrutura do cardápio com IA",
+    "syncDishCosts": "Atualizar custos a partir dos itens"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Tema da página do cliente",
     "themeDescription": "Cores da página de pedidos por QR. O modo claro/escuro pode seguir o celular de cada cliente.",
     "themeMode": "Aparência"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Atualizar custos dos pratos",
+    "syncDishCostsMessage": "Atualiza os custos das linhas de receita não bloqueadas com os preços atuais do inventário e recalcula o custo de cada prato. Linhas com preço bloqueado não mudam."
   }
 }

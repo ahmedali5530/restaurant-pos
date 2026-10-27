@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-27',
+    title: 'Update dish costs from inventory prices',
+    items: [
+      'Settings → Dishes has Update costs from items: with confirmation, unlocked recipe lines take the current inventory item price and each dish cost is recalculated (price-locked lines stay as they are).',
+    ],
+  },
+  {
     date: '2026-10-26',
     title: 'Advanced Sales report: taxes filter and faster long ranges',
     items: [

@@ -224,7 +224,8 @@
     "smartImport": "AI Import",
     "smartImportIngredients": "AI Import Ingredients",
     "smartImportModifierGroups": "AI Import Modifier Groups",
-    "smartImportMenuStructure": "AI Import Menu Structure"
+    "smartImportMenuStructure": "AI Import Menu Structure",
+    "syncDishCosts": "Update costs from items"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Customer page theme",
     "themeDescription": "Colors for the QR ordering page. Light/dark can follow each customer’s phone.",
     "themeMode": "Appearance"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Update dish costs",
+    "syncDishCostsMessage": "Update unlocked recipe line costs from current inventory item prices, then recalculate each dish cost. Price-locked recipe lines are left unchanged."
   }
 }

@@ -6,6 +6,11 @@ import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
+export type SyncDishRecipeCostsResult = {
+  itemCount: number;
+  dishCount: number;
+};
+
 /**
  * Sync unlocked dish recipe line costs from inventory_item.price for the given
  * items, then recalculate each affected dish's stored cost as Σ(qty × cost).
@@ -14,23 +19,27 @@ type DatabaseClient = ReturnType<typeof useDB>;
 export async function syncDishRecipeCostsForItems(
   db: DatabaseClient,
   itemIds: string[]
-): Promise<void> {
+): Promise<SyncDishRecipeCostsResult> {
   const uniqueIds = [...new Set(itemIds.filter(Boolean).map((id) => id.toString()))];
   if (uniqueIds.length === 0) {
-    return;
+    return {itemCount: 0, dishCount: 0};
   }
 
   const affectedDishIds = new Set<string>();
 
   for (const itemId of uniqueIds) {
     const itemRef = toRecordId(itemId);
-    const [item] = await db.query(`SELECT price FROM ONLY $item`, {item: itemRef}) as any[];
+    const [item] = await db.query(
+      `SELECT price, average_price FROM ONLY $item`,
+      {item: itemRef}
+    ) as any[];
 
-    if (!item || item.price === undefined || item.price === null) {
+    const rawPrice = item?.price ?? item?.average_price;
+    if (rawPrice === undefined || rawPrice === null) {
       continue;
     }
 
-    const price = safeNumber(item.price);
+    const price = roundInventory(safeNumber(rawPrice));
     const [updatedRecipes] = await db.query(
       `UPDATE ${Tables.dishes_recipes}
        SET cost = $price
@@ -62,4 +71,25 @@ export async function syncDishRecipeCostsForItems(
 
     await db.merge(dishRef, {cost: totalCost});
   }
+
+  return {itemCount: uniqueIds.length, dishCount: affectedDishIds.size};
+}
+
+/** Sync every unlocked recipe line from current inventory prices, then dish costs. */
+export async function syncAllDishRecipeCosts(
+  db: DatabaseClient
+): Promise<SyncDishRecipeCostsResult> {
+  const [rows] = await db.query(
+    `SELECT item FROM ${Tables.dishes_recipes} WHERE is_price_locked != true`
+  ) as any[];
+
+  const itemIds = [
+    ...new Set(
+      (rows ?? [])
+        .map((row: any) => recordIdToString(row.item))
+        .filter(Boolean) as string[]
+    ),
+  ];
+
+  return syncDishRecipeCostsForItems(db, itemIds);
 }

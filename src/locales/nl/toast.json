@@ -136,7 +136,8 @@
     "invalidPriority": "Prioriteit is ongeldig",
     "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
     "loginTaken": "Een andere gebruiker heeft al deze login/PIN — kies een andere.",
-    "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander."
+    "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander.",
+    "dishCostsSynced": "Kosten bijgewerkt voor {{dishes}} gerecht(en) vanuit {{items}} voorraadartikel(en)"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",

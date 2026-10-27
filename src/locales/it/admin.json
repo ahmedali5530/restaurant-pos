@@ -161,7 +161,8 @@
     "smartImport": "Importazione IA",
     "smartImportIngredients": "Importazione IA ingredienti",
     "smartImportModifierGroups": "Importazione IA gruppi modificatori",
-    "smartImportMenuStructure": "Importa struttura menu con IA"
+    "smartImportMenuStructure": "Importa struttura menu con IA",
+    "syncDishCosts": "Aggiorna costi dagli articoli"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Tema della pagina cliente",
     "themeDescription": "Colori della pagina di ordine QR. Chiaro/scuro può seguire il telefono di ogni cliente.",
     "themeMode": "Aspetto"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Aggiorna costi piatti",
+    "syncDishCostsMessage": "Aggiorna i costi delle righe ricetta non bloccate dai prezzi inventario correnti, poi ricalcola il costo di ogni piatto. Le righe con prezzo bloccato non cambiano."
   }
 }

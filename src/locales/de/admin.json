@@ -161,7 +161,8 @@
     "smartImport": "KI-Import",
     "smartImportIngredients": "Zutaten KI-Import",
     "smartImportModifierGroups": "Modifiergruppen KI-Import",
-    "smartImportMenuStructure": "KI-Import Menüstruktur"
+    "smartImportMenuStructure": "KI-Import Menüstruktur",
+    "syncDishCosts": "Kosten aus Artikeln aktualisieren"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Design der Kundenseite",
     "themeDescription": "Farben der QR-Bestellseite. Hell/Dunkel kann dem Handy jedes Gastes folgen.",
     "themeMode": "Darstellung"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Gerichtskosten aktualisieren",
+    "syncDishCostsMessage": "Nicht gesperrte Rezeptzeilenkosten aus aktuellen Inventarpreisen aktualisieren und dann die Gerichtskosten neu berechnen. Preissperren bleiben unverändert."
   }
 }

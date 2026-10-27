@@ -161,7 +161,8 @@
     "smartImport": "YZ içe aktarma",
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
     "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
-    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar"
+    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar",
+    "syncDishCosts": "Maliyetleri kalemlerden güncelle"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Müşteri sayfası teması",
     "themeDescription": "QR sipariş sayfasının renkleri. Açık/koyu mod her müşterinin telefonunu takip edebilir.",
     "themeMode": "Görünüm"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Yemek maliyetlerini güncelle",
+    "syncDishCostsMessage": "Kilitli olmayan reçete satır maliyetlerini güncel envanter fiyatlarından günceller, ardından her yemeğin maliyetini yeniden hesaplar. Fiyatı kilitli satırlar değişmez."
   }
 }

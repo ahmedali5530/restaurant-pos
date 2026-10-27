@@ -4,7 +4,9 @@ import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {toast} from "sonner";
+import {syncAllDishRecipeCosts} from "@/lib/inventory/dish.recipe.cost.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -55,6 +57,7 @@ export const AdminDishes = () => {
     state: false,
     data: [] as Dish[]
   });
+  const [syncingCosts, setSyncingCosts] = useState(false);
 
   const smartImportConfig = useMemo(
     () => createDishImportConfig({db, t}),
@@ -268,6 +271,47 @@ export const AdminDishes = () => {
               {t('buttons.smartImportMenuStructure')}
             </DropdownItem>
           </Dropdown>,
+          <DeleteConfirm
+            key="sync-dish-costs"
+            title={t('confirm.syncDishCostsTitle', {defaultValue: 'Update dish costs'})}
+            message={t('confirm.syncDishCostsMessage', {
+              defaultValue:
+                'Update unlocked recipe line costs from current inventory item prices, then recalculate each dish cost. Price-locked recipe lines are left unchanged.',
+            })}
+            onConfirm={async () => {
+              await protectAction(async () => {
+                setSyncingCosts(true);
+                try {
+                  const result = await syncAllDishRecipeCosts(db);
+                  toast.success(
+                    t('toast:admin.dishCostsSynced', {
+                      dishes: result.dishCount,
+                      items: result.itemCount,
+                      defaultValue:
+                        'Updated costs for {{dishes}} dish(es) from {{items}} inventory item(s)',
+                    })
+                  );
+                  loadHook.fetchData();
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : String(error));
+                } finally {
+                  setSyncingCosts(false);
+                }
+              }, {
+                module: 'admin.dishes.update',
+                description: getAccessRuleChildLabel('admin.dishes.update'),
+              });
+            }}
+          >
+            <Button
+              variant="secondary"
+              icon={faArrowsRotate}
+              isLoading={syncingCosts}
+              data-testid="admin-sync-dish-costs"
+            >
+              {t('buttons.syncDishCosts', {defaultValue: 'Update costs from items'})}
+            </Button>
+          </DeleteConfirm>,
           <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);

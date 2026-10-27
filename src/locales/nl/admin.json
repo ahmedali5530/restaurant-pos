@@ -161,7 +161,8 @@
     "smartImport": "AI-import",
     "smartImportIngredients": "Ingrediënten AI-importeren",
     "smartImportModifierGroups": "Modifiergroepen AI-importeren",
-    "smartImportMenuStructure": "AI-import menustructuur"
+    "smartImportMenuStructure": "AI-import menustructuur",
+    "syncDishCosts": "Kosten bijwerken vanuit artikelen"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -1122,5 +1123,9 @@
     "themeTitle": "Thema van de klantpagina",
     "themeDescription": "Kleuren van de QR-bestelpagina. Licht/donker kan de telefoon van elke klant volgen.",
     "themeMode": "Weergave"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Gerechtkosten bijwerken",
+    "syncDishCostsMessage": "Werk niet-vergrendelde receptregelkosten bij vanuit huidige voorraadprijzen en herbereken daarna de gerechtkosten. Prijsvergrendelde regels blijven ongewijzigd."
   }
 }

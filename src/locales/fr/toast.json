@@ -136,7 +136,8 @@
     "invalidPriority": "La priorité est invalide",
     "invalidRequiredModifiers": "La valeur des modificateurs requis est invalide",
     "loginTaken": "Un autre utilisateur utilise déjà cet identifiant/PIN — choisissez-en un autre.",
-    "passwordTaken": "Un autre utilisateur utilise déjà ce mot de passe — choisissez-en un autre."
+    "passwordTaken": "Un autre utilisateur utilise déjà ce mot de passe — choisissez-en un autre.",
+    "dishCostsSynced": "Coûts mis à jour pour {{dishes}} plat(s) à partir de {{items}} article(s) d'inventaire"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} est utilisé et a été désactivé.",
