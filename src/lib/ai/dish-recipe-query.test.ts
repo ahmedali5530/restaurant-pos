@@ -2,13 +2,14 @@ import {describe, expect, it} from "vitest";
 import {
   isDishRecipeCatalogPrompt,
   isDishRecipeComparePrompt,
+  isDishRecipeCountsPrompt,
   isDishRecipeMissingIngredientsPrompt,
   isDishRecipePrompt,
   resolveDishRecipeCatalogOptionsFromPrompt,
   resolveDishRecipeQueryFromPrompt,
   wantsOmitModifierCategories,
 } from "@/lib/ai/product-query.ts";
-import {isModifierCategoryName} from "@/api/reports/sales/dish-recipe.ts";
+import {formatDishRecipeAsAnswer, isModifierCategoryName} from "@/api/reports/sales/dish-recipe.ts";
 import {selectToolsForPrompt} from "@/lib/ai/tools/select-tools.ts";
 import {detectWriteToolsForPrompt} from "@/lib/ai/tools/write-tool-registry.ts";
 
@@ -51,6 +52,51 @@ describe("isDishRecipeCatalogPrompt", () => {
   it("does not treat a single named dish as catalog", () => {
     expect(isDishRecipeCatalogPrompt("What ingredients are in dish Margherita Pizza?")).toBe(false);
     expect(isDishRecipeCatalogPrompt("Show recipe for dish #12")).toBe(false);
+  });
+});
+
+describe("isDishRecipeCountsPrompt", () => {
+  const countsPrompt =
+    "give me count of number of recipes from every dish, just number of recipes in each dish and no other detail is required, dish name -> number of recipes";
+
+  it("detects recipe count audits", () => {
+    expect(isDishRecipeCountsPrompt(countsPrompt)).toBe(true);
+    expect(isDishRecipePrompt(countsPrompt)).toBe(true);
+    expect(isDishRecipeCatalogPrompt(countsPrompt)).toBe(true);
+    expect(resolveDishRecipeCatalogOptionsFromPrompt(countsPrompt)).toEqual({
+      countsOnly: true,
+      onlyWithIngredients: false,
+      limit: 2000,
+    });
+  });
+
+  it("formats counts as Dish | Recipes markdown", () => {
+    const answer = formatDishRecipeAsAnswer({
+      found: true,
+      mode: "catalog",
+      catalogFocus: "counts",
+      ingredients: [],
+      ingredientCount: 0,
+      totalRecipeCost: 0,
+      dishCount: 2,
+      dishes: [
+        {
+          dish: {id: "1", name: "Burger", categories: [], price: 1},
+          ingredients: [],
+          ingredientCount: 0,
+          totalRecipeCost: 0,
+        },
+        {
+          dish: {id: "2", name: "Pizza", categories: [], price: 1},
+          ingredients: [],
+          ingredientCount: 3,
+          totalRecipeCost: 0,
+        },
+      ],
+    });
+    expect(answer).toContain("| Dish | Recipes |");
+    expect(answer).toContain("| Burger | 0 |");
+    expect(answer).toContain("| Pizza | 3 |");
   });
 });
 

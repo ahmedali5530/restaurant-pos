@@ -25,7 +25,11 @@ import {
   resolveDishRecipeQueryFromPrompt,
   resolveUnsoldProductsDateRange,
 } from "@/lib/ai/product-query.ts";
-import {formatDishRecipeForPrompt, getDishRecipe} from "@/api/reports/sales/dish-recipe.ts";
+import {
+  formatDishRecipeAsAnswer,
+  formatDishRecipeForPrompt,
+  getDishRecipe,
+} from "@/api/reports/sales/dish-recipe.ts";
 import {sanitizeAssistantAnswer} from "@/lib/ai/answer-sanitize.ts";
 import {isCurrentSessionSalesPrompt} from "@/lib/ai/session-query.ts";
 import {isTipsPrompt, resolveTipsDateRange, wantsTipDistribution} from "@/lib/ai/tip-query.ts";
@@ -251,6 +255,11 @@ export const runAiReportAgent = async (
     toolsUsed.push({name: "get_dish_recipe", args});
     toolResults.push({name: "get_dish_recipe", result: data});
 
+    // Counts-only: deterministic table — do not round-trip through the model.
+    if (data.mode === "catalog" && data.catalogFocus === "counts") {
+      return finish(formatDishRecipeAsAnswer(data));
+    }
+
     const tableHint =
       "When name/number/category are present, render a markdown table Name | Number | Category "
       + "(fill Category from each row; never invent or leave blank if provided). ";
@@ -283,6 +292,10 @@ export const runAiReportAgent = async (
 
     const answer = sanitizeAssistantAnswer(messageText(response.choices[0]?.message?.content));
     if (!answer) {
+      const fallback = formatDishRecipeAsAnswer(data);
+      if (fallback.trim()) {
+        return finish(fallback.trim());
+      }
       throw new Error("AI returned an empty response.");
     }
 

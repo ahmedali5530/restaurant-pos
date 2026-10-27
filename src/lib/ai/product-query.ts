@@ -29,6 +29,37 @@ export const isDishRecipeMissingIngredientsPrompt = (prompt: string): boolean =>
   );
 };
 
+/**
+ * "dish name -> number of recipes" / count recipes per dish (no ingredient lines).
+ * Checked before missing/compare so "number of recipes" is not treated as a detail listing.
+ */
+export const isDishRecipeCountsPrompt = (prompt: string): boolean => {
+  const text = prompt.trim();
+  if (!text || !hasDishWord(text)) {
+    return false;
+  }
+  if (/\bdish\s*(?:name\s*)?(?:->|→|:)\s*(?:number|count|#)?\s*(?:of\s+)?recipes?\b/i.test(text)) {
+    return true;
+  }
+  if (/\b(?:recipe|ingredient)\s*counts?\b/i.test(text)) {
+    return true;
+  }
+  if (
+    /\b(?:count|counts|number|how many)\b/i.test(text)
+    && /\brecipes?\b/i.test(text)
+    && /\b(?:each|every|all|per|from)\b/i.test(text)
+  ) {
+    return true;
+  }
+  if (
+    /\bnumber of recipes\b/i.test(text)
+    && /\b(?:dish|each|every|all)\b/i.test(text)
+  ) {
+    return true;
+  }
+  return false;
+};
+
 /** Compare dishes that have recipes vs those that do not. */
 export const isDishRecipeComparePrompt = (prompt: string): boolean => {
   const text = prompt.trim();
@@ -50,10 +81,14 @@ export const isDishRecipePrompt = (prompt: string): boolean => {
   }
   const looksLikeWrite = /\b(add|create|update|change|set|remove|delete|import)\b/i.test(text)
     && hasIngredientOrRecipeWord(text);
-  const looksLikeReadList = /\b(show|list|find|which|compare|cross|without|missing|no\s+ingredients?|display|get)\b/i.test(text)
-    || isDishRecipeMissingIngredientsPrompt(text);
+  const looksLikeReadList = /\b(show|list|find|which|compare|cross|without|missing|no\s+ingredients?|display|get|count|number)\b/i.test(text)
+    || isDishRecipeMissingIngredientsPrompt(text)
+    || isDishRecipeCountsPrompt(text);
   if (looksLikeWrite && !looksLikeReadList) {
     return false;
+  }
+  if (isDishRecipeCountsPrompt(text)) {
+    return true;
   }
   if (hasIngredientOrRecipeWord(text) && hasDishWord(text)) {
     return true;
@@ -73,7 +108,11 @@ export const isDishRecipeCatalogPrompt = (prompt: string): boolean => {
   if (!text || !isDishRecipePrompt(text)) {
     return false;
   }
-  if (isDishRecipeMissingIngredientsPrompt(text) || isDishRecipeComparePrompt(text)) {
+  if (
+    isDishRecipeCountsPrompt(text)
+    || isDishRecipeMissingIngredientsPrompt(text)
+    || isDishRecipeComparePrompt(text)
+  ) {
     return true;
   }
   if (/\b(?:all|every|each)\s+(?:the\s+)?(?:dishes?|dishs|menu\s*items?|products?)\b/i.test(text)) {
@@ -101,13 +140,23 @@ export const wantsOmitModifierCategories = (prompt: string): boolean =>
 export const resolveDishRecipeCatalogOptionsFromPrompt = (prompt: string): {
   onlyWithIngredients?: boolean;
   onlyMissingIngredients?: boolean;
+  /** dish name -> recipe line count only (no ingredient detail). */
+  countsOnly?: boolean;
   omitModifierCategories?: boolean;
-  /** High enough to cover full menus for missing/compare lists. */
+  /** High enough to cover full menus for missing/compare/counts lists. */
   limit?: number;
 } => {
   const omit = wantsOmitModifierCategories(prompt) ? {omitModifierCategories: true as const} : {};
-  // Missing / compare lists should not silently stop at the old 40-row default.
+  // Missing / compare / counts lists should not silently stop at the old 40-row default.
   const fullList = {limit: 2000 as const};
+  if (isDishRecipeCountsPrompt(prompt)) {
+    return {
+      countsOnly: true,
+      onlyWithIngredients: false,
+      ...omit,
+      ...fullList,
+    };
+  }
   if (isDishRecipeComparePrompt(prompt)) {
     return {onlyWithIngredients: false, ...omit, ...fullList};
   }

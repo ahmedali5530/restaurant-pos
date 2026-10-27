@@ -578,6 +578,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
           onlyWithIngredients: {type: "boolean"},
           onlyMissingIngredients: {type: "boolean"},
           omitModifierCategories: {type: "boolean"},
+          countsOnly: {type: "boolean"},
         },
       },
     },

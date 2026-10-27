@@ -447,6 +447,7 @@ export const executeAiReportTool = async (
         omitModifierCategories: args.omitModifierCategories !== undefined
           ? Boolean(args.omitModifierCategories)
           : undefined,
+        countsOnly: args.countsOnly !== undefined ? Boolean(args.countsOnly) : undefined,
       });
 
     case "list_inventory_items":

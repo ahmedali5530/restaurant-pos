@@ -956,6 +956,11 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
             type: "boolean",
             description: 'Catalog: true = exclude dishes in a category named like "Modifier".',
           },
+          countsOnly: {
+            type: "boolean",
+            description:
+              "Catalog: true = dish name → recipe line count only (includes zero). No ingredient detail.",
+          },
         },
       },
     },

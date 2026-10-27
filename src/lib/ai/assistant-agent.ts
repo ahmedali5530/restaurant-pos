@@ -19,6 +19,7 @@ import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-p
 import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 import {tryDishRecipeFastPath} from "@/lib/ai/dish-recipe-fast-path.ts";
 import {sanitizeAssistantAnswer} from "@/lib/ai/answer-sanitize.ts";
+import {formatDishRecipeAsAnswer} from "@/api/reports/sales/dish-recipe.ts";
 import {LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
 import {
   isUserGuideHowToPrompt,
@@ -279,6 +280,9 @@ export async function runAiAssistantAgent(
       onToolStart: options.onToolStart,
     });
     if (dishRecipeFastPath) {
+      if (dishRecipeFastPath.directAnswer?.trim()) {
+        return finishAnswer(dishRecipeFastPath.directAnswer.trim());
+      }
       const response = await callOpenAIChat({
         messages: fastPathMessages(dishRecipeFastPath.instruction),
         tools: [],
@@ -286,6 +290,11 @@ export async function runAiAssistantAgent(
       });
       const answer = sanitizeAssistantAnswer(messageText(response.choices[0]?.message?.content));
       if (!answer) {
+        // Never show a blank bubble — fall back to the structured tool payload.
+        const fallback = formatDishRecipeAsAnswer(dishRecipeFastPath.result as any);
+        if (fallback.trim()) {
+          return finishAnswer(fallback.trim());
+        }
         throw new Error("AI returned an empty response.");
       }
       return finishAnswer(answer);
