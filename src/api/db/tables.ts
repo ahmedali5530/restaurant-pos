@@ -18,6 +18,7 @@ export enum Tables {
   modifier_groups = 'modifier_group',
   modifiers = 'modifier',
   dish_modifier_groups = 'menu_item_modifier_group',
+  dish_modifier_availability = 'menu_item_modifier_availability',
   menus = 'menu',
   menu_menu_items = 'menu_menu_item',
 
@@ -75,6 +76,7 @@ export enum Tables {
   inventory_adjustments = 'inventory_adjustment',
   inventory_adjustment_items = 'inventory_adjustment_item',
   inventory_locations = 'inventory_location',
+  inventory_uoms = 'inventory_uom',
 
   kitchen_reconciliations = 'kitchen_reconciliation',
   kitchen_reconciliation_items = 'kitchen_reconciliation_item',

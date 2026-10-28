@@ -120,7 +120,7 @@ export function createPurchaseImportConfig({
   const fields: ImportField[] = [
     {name: "name", label: t("inventory:itemName"), type: "string", required: true, aliases: ["Item name", "Name"]},
     {name: "code", label: t("inventory:itemCode"), type: "string", required: true, aliases: ["Item code", "Code", "SKU"]},
-    {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1},
+    {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1, optional: true},
     {name: "quantity", label: t("inventory:forms.quantity"), type: "number", required: true},
     {name: "requested", label: t("inventory:forms.requested"), type: "number", optional: true},
     {name: "price", label: t("inventory:columns.price"), type: "number", required: true},
@@ -251,7 +251,7 @@ export function createPurchaseImportConfig({
         quantity: Number(v.quantity) || 0,
         requested: Number(v.requested ?? v.quantity) || 0,
         price: Number(v.price) || 0,
-        base_quantity: Number(v.base_quantity ?? 1) || 1,
+        base_quantity: 1,
         expiry_date: expiryRaw ? dateToCalendarDate(expiryRaw) : null,
         manufacturing_date: mfgRaw ? dateToCalendarDate(mfgRaw) : null,
         comments: v.comments ? String(v.comments) : undefined,

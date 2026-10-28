@@ -9,6 +9,7 @@ import { nowSurrealDateTime } from "@/lib/datetime.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { unwrapQueryResult } from "@/api/reports/shared/query.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -127,7 +128,7 @@ export const computeStockFromLedger = async (
      WHERE inventory_item = $item AND inventory_location = $location GROUP ALL`,
     params
   );
-  return getTotalFromResult(rows);
+  return roundInventory(getTotalFromResult(rows));
 };
 
 /**
@@ -165,10 +166,10 @@ export const computeBreakdownFromLedger = async (
   for (const row of list as Array<{ reference_type?: string; total?: number }>) {
     const key = REFERENCE_TO_BREAKDOWN_KEY[String(row.reference_type ?? "")];
     if (key) {
-      breakdown[key] = Number(row.total ?? 0);
+      breakdown[key] = roundInventory(Number(row.total ?? 0));
     }
   }
-  breakdown.adjustments = getTotalFromResult(adjRows);
+  breakdown.adjustments = roundInventory(getTotalFromResult(adjRows));
 
   // True ledger net (includes adjustments + reversals); bucket math is for display only.
   const net = await computeStockFromLedger(db, itemId, locationId);
@@ -200,7 +201,7 @@ export const fetchLedgerNetsByStore = async (
   return list.map((row: any) => ({
     itemId: recordIdToString(row.inventory_item) || String(row.inventory_item),
     locationId: recordIdToString(row.inventory_location) || String(row.inventory_location),
-    net: Number(row.net ?? 0),
+    net: roundInventory(Number(row.net ?? 0)),
   }));
 };
 
@@ -226,6 +227,8 @@ export type FetchLedgerMovementsOpts = {
   /** @deprecated alias for locationId */
   storeId?: string;
   itemId?: string;
+  /** Prefer for multi-item report filters (uses INSIDE). */
+  itemIds?: string[];
   from?: string;
   to?: string;
   referenceTypes?: string[];
@@ -248,9 +251,16 @@ export const fetchLedgerMovements = async (
     conditions.push("inventory_location = $location");
     params.location = toLocationRecordId(recordIdToString(locId) || locId);
   }
-  if (opts.itemId) {
+  const itemIds = [
+    ...(opts.itemIds ?? []),
+    ...(opts.itemId ? [opts.itemId] : []),
+  ].filter(Boolean);
+  if (itemIds.length === 1) {
     conditions.push("inventory_item = $item");
-    params.item = toItemRecordId(opts.itemId);
+    params.item = toItemRecordId(itemIds[0]);
+  } else if (itemIds.length > 1) {
+    conditions.push("inventory_item INSIDE $items");
+    params.items = itemIds.map((id) => toItemRecordId(id));
   }
   if (opts.from) {
     const from = toBusinessDateBound(opts.from);

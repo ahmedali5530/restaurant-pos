@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Dados POS locais neste terminal. Recarregar limpa e baixa uma cópia nova do servidor. Requer conexão.",
+    "description": "Dados POS locais neste terminal. Atualizar catálogo atualiza cardápio, andares, pagamentos e impostos sem mexer em contas abertas. Recarregar cache limpa tudo e baixa de novo do servidor (incluindo clientes e pedidos recentes). Requer conexão.",
+    "refreshCatalog": "Atualizar catálogo",
     "reload": "Recarregar cache",
     "orderTypes": "Tipos de pedido",
     "categories": "Categorias",
@@ -71,11 +72,14 @@
     "kitchens": "Cozinhas",
     "paymentTypes": "Tipos de pagamento",
     "taxes": "Impostos",
+    "catalogReloaded": "Catálogo atualizado do servidor",
+    "catalogReloadFailed": "Falha ao atualizar o catálogo",
+    "confirmCatalog": "Atualizar cardápio, andares, pagamentos e impostos do servidor? Contas abertas e pedidos não sincronizados permanecem neste terminal.",
     "reloaded": "Cache limpo e recarregado do servidor",
     "reloadFailed": "Falha ao recarregar o cache",
     "confirm": "Limpar o cache POS local e baixar uma cópia nova do servidor?",
     "confirmWithPending": "Você tem {{count}} alteração(ões) não sincronizada(s) que serão descartadas. Limpar o cache POS local e baixar uma cópia nova do servidor?",
-    "offline": "Não é possível recarregar o cache offline",
+    "offline": "Não é possível atualizar o cache offline",
     "offlineHint": "Disponível quando conectado ao servidor"
   },
   "serviceCharges": {
@@ -358,5 +362,36 @@
     "progressTable": "Baixando {{table}}…",
     "progressCount": "{{completed}} / {{total}} tabelas ({{percent}}%)",
     "reloadCacheHint": "Sincronização de catálogo concluída. Recarregue o cache em Configurações para o PDV mostrar o novo cardápio."
+  },
+  "posMode": {
+    "title": "Modo do PDV",
+    "description": "Escolha restaurante (mesas e andares) ou Pedido rápido (ler código de barras e pagar) neste dispositivo.",
+    "restaurant": "Restaurante",
+    "retail": "Pedido rápido"
+  },
+  "itemAvailability": {
+    "title": "Aplicar limites de venda",
+    "description": "Pratos esgotados são sempre bloqueados. Limites de venda ficam ativos por padrão (vendas desde o limite, menos o carrinho). Desligar ignora só os limites de venda.",
+    "enabled": "Ativado",
+    "disabled": "Desativado"
+  },
+  "scaleBarcode": {
+    "title": "Códigos de balança (EAN-13)",
+    "description": "Lê etiquetas de peso de açougue/padaria. A PLU de 5 dígitos deve coincidir com o Número do prato (ou código de barras). Layout padrão: 20 + PLU(5) + valor(5) + dígito verificador.",
+    "enabled": "Ativar códigos de balança",
+    "modeWeight": "Peso (gramas → kg)",
+    "modePrice": "Preço embutido",
+    "modeWeightHint": "Os dígitos de valor são o peso em gramas. Qtd do carrinho em kg (÷ divisor). Preço × kg.",
+    "modePriceHint": "Os dígitos de valor são o preço em unidades menores. Linha com esse preço na qtd 1.",
+    "prefix": "Prefixo",
+    "validateCheck": "Validar dígito verificador",
+    "pluStart": "Início PLU (base 0)",
+    "pluLength": "Comprimento PLU",
+    "valueStart": "Início valor (base 0)",
+    "valueLength": "Comprimento valor",
+    "weightDivisor": "Divisor de peso (g→kg)",
+    "priceDivisor": "Divisor de preço (menor→maior)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Restaurar padrões (manter ativo)"
   }
 }

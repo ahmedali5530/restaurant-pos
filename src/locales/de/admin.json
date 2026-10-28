@@ -24,7 +24,8 @@
     "accessTab": "Zugriff auf {{title}}",
     "ariaLabel": "Verwaltungsregisterkarten",
     "securityAlerts": "Sicherheitswarnungen",
-    "catalogPublish": "Katalog veröffentlichen"
+    "catalogPublish": "Katalog veröffentlichen",
+    "availability": "Verfügbarkeit"
   },
   "columns": {
     "photo": "Foto",
@@ -99,7 +100,15 @@
     "recordType": "Zeilentyp",
     "dishName": "Gericht",
     "parentModifier": "Übergeordnete Größe",
-    "nextGroup": "Nächste Gruppe"
+    "nextGroup": "Nächste Gruppe",
+    "itemStockUom": "Artikel-Bestands-ME",
+    "itemStockUomHint": "Nur Referenz — Bestandseinheit des Inventarartikels. Wird beim Import nicht angewendet.",
+    "enteredUomHint": "Eingegebene Einheit für die Menge (konvertierbare Familie der Bestands-ME).",
+    "barcode": "Barcode",
+    "available": "Verfügbar",
+    "availableQty": "Verkaufslimit",
+    "extraBarcodes": "Weitere Barcodes",
+    "askQuantity": "Menge abfragen"
   },
   "entities": {
     "dish": "Gericht",
@@ -158,7 +167,8 @@
     "smartImport": "KI-Import",
     "smartImportIngredients": "Zutaten KI-Import",
     "smartImportModifierGroups": "Modifiergruppen KI-Import",
-    "smartImportMenuStructure": "KI-Import Menüstruktur"
+    "smartImportMenuStructure": "KI-Import Menüstruktur",
+    "syncDishCosts": "Kosten aus Artikeln aktualisieren"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -440,7 +450,22 @@
     "usePrintSettings": "Druckeinstellungen verwenden",
     "userBranches": "Filialen",
     "userBranchesShared": "Alle Filialen (geteilt)",
-    "userBranchesHint": "Leer = gemeinsamer Mitarbeiter in allen Stores. Filialen wählen, um den Sync-Download einzuschränken."
+    "userBranchesHint": "Leer = gemeinsamer Mitarbeiter in allen Stores. Filialen wählen, um den Sync-Download einzuschränken.",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Im Menü verfügbar",
+    "availableQty": "Verkaufslimit",
+    "availableQtyHint": "Verkäufe werden ab dem Speichern dieses Limits gezählt. Leer = unbegrenzt.",
+    "extraBarcodes": "Weitere Barcodes",
+    "extraBarcodesHint": "Karton-, Multipack- oder Alternativ-UPCs für diesen Artikel",
+    "extraBarcodesEmpty": "Noch keine weiteren Barcodes",
+    "addBarcode": "Barcode hinzufügen",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Menge abfragen",
+    "askQuantityHint": "Wenn aktiv, fragen Menü und Quick Order nach Scan/Tipp nach der Menge (CODE*N / Waagenetiketten überspringen).",
+    "modifierOptionAvailability": "Modifier-Verfügbarkeit (dieses Gericht)",
+    "modifierOptionAvailable": "Für dieses Gericht verfügbar",
+    "modifierOptionAvailableHint": "Standard belassen = globale Verfügbarkeit. Ausschalten oder Verkaufslimit setzen = nur für dieses Gericht.",
+    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -1119,5 +1144,29 @@
     "themeTitle": "Design der Kundenseite",
     "themeDescription": "Farben der QR-Bestellseite. Hell/Dunkel kann dem Handy jedes Gastes folgen.",
     "themeMode": "Darstellung"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Gerichtskosten aktualisieren",
+    "syncDishCostsMessage": "Nicht gesperrte Rezeptzeilenkosten aus aktuellen Inventarpreisen aktualisieren und dann die Gerichtskosten neu berechnen. Preissperren bleiben unverändert."
+  },
+  "availability": {
+    "title": "Artikelverfügbarkeit",
+    "description": "Gerichte als verfügbar oder ausverkauft markieren und optionale Verkaufslimits für mehrere Artikel oder ganze Kategorien setzen.",
+    "allCategories": "Alle",
+    "selectAll": "Alle auswählen",
+    "applyToCategory": "Auf ganze Kategorie anwenden",
+    "targetsCategory": "{{count}} Gerichte in Kategorie",
+    "targetsSelected": "{{count}} ausgewählt",
+    "markAvailable": "Verfügbar",
+    "markUnavailable": "Ausverkauft",
+    "saleLimit": "Limit",
+    "setLimit": "Limit setzen",
+    "clearLimit": "Unbegrenzt",
+    "selectDishes": "Gerichte auswählen oder Kategorie anwenden",
+    "enterQty": "Verkaufslimit eingeben",
+    "saved": "{{count}} Gerichte aktualisiert",
+    "empty": "Keine Gerichte in dieser Kategorie",
+    "available": "Verfügbar",
+    "unavailable": "Ausverkauft"
   }
 }

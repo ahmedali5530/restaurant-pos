@@ -16,7 +16,8 @@
     "clock": "Ponto",
     "hr": "RH",
     "integrations": "Integrações",
-    "requiresApproval": "Requer aprovação do gerente"
+    "requiresApproval": "Requer aprovação do gerente",
+    "quickOrder": "Pedido rápido"
   },
   "modules": {
     "Menu": "Cardápio",

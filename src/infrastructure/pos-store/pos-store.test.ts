@@ -675,6 +675,50 @@ describe('PosStore outbox retry / backoff / conflicts (Phase 8)', () => {
   });
 });
 
+describe('PosStore clearCatalogData (Refresh catalog)', () => {
+  beforeEach(async () => {
+    resetPosStoreDatabaseForTests();
+    await posStore.initialize();
+  });
+
+  it('clears catalog rows and bumps epoch but keeps orders, outbox, and sync cursor', async () => {
+    await posStore.upsertCatalogRecords('tax', [{ id: 'tax:vat', name: 'VAT', rate: 10 }]);
+    await posStore.upsertCatalogRecords('menu_item', [{ id: 'menu_item:d1', name: 'Soup', price: 5 }]);
+    await posStore.upsertCatalogRecords('customer', [{ id: 'customer:c1', name: 'Ada' }]);
+    await posStore.setSyncCursor({
+      catalogReady: true,
+      hydrated: true,
+      cursor: 42,
+      snapshotResumeToken: null,
+    });
+    await posStore.createOrderWithItems({
+      invoiceNumber: 99,
+      items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
+    });
+    const outboxBefore = (await posStore.getPendingOutbox()).length;
+    expect(outboxBefore).toBeGreaterThan(0);
+    expect((await posStore.getOpenOrders()).length).toBe(1);
+
+    const epochBefore = posStore.getCatalogEpoch();
+    await posStore.clearCatalogData(['tax', 'menu_item'], { silent: true });
+    expect(posStore.getCatalogEpoch()).toBe(epochBefore + 1);
+
+    const db = (await import('@/infrastructure/pos-store/db.ts')).getPosStoreDatabase();
+    expect(await db.catalog.where('table').equals('tax').count()).toBe(0);
+    expect(await db.catalog.where('table').equals('menu_item').count()).toBe(0);
+    expect(await db.catalog.where('table').equals('customer').count()).toBe(1);
+    expect(await db.orders.count()).toBe(1);
+    expect((await posStore.getPendingOutbox()).length).toBe(outboxBefore);
+
+    const cursor = await posStore.getSyncCursor();
+    expect(cursor).toMatchObject({
+      catalogReady: true,
+      hydrated: true,
+      cursor: 42,
+    });
+  });
+});
+
 describe('PosStore clearLocalData (Reload cache)', () => {
   beforeEach(async () => {
     resetPosStoreDatabaseForTests();
@@ -696,7 +740,9 @@ describe('PosStore clearLocalData (Reload cache)', () => {
     expect((await posStore.getPendingOutbox()).length).toBeGreaterThan(0);
     expect((await posStore.getOpenOrders()).length).toBe(1);
 
+    const epochBefore = posStore.getCatalogEpoch();
     await posStore.clearLocalData();
+    expect(posStore.getCatalogEpoch()).toBe(epochBefore + 1);
 
     const afterIdentity = await posStore.getTerminalIdentity();
     expect(afterIdentity.terminalId).toBe(identity.terminalId);

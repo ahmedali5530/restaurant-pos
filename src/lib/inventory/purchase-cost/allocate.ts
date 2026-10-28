@@ -1,5 +1,5 @@
-import { roundCurrency } from "@/lib/discount-engine/rounding.ts";
 import { safeNumber } from "@/lib/utils.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 import { taxAmount as computeTaxAmount, taxableSubtotal } from "@/lib/inventory/purchase.totals.ts";
 import { getAllocator } from "@/lib/inventory/purchase-cost/allocators/index.ts";
 import { normalizePurchaseExtras } from "@/lib/inventory/purchase-cost/normalize.ts";
@@ -62,7 +62,7 @@ const buildSyntheticTaxExtra = (
 
   return {
     name: "Purchase Tax",
-    amount: roundCurrency(amount),
+    amount: roundInventory(amount),
     category: "Tax",
     allocation_method: "by_value",
     inventory_treatment: capitalize ? "capitalize" : "ignore",
@@ -110,7 +110,7 @@ export const allocatePurchaseCosts = (
   const allocatorLines: AllocatorLine[] = lines.map((l) => ({
     id: l.id,
     quantity: safeNumber(l.quantity),
-    value: roundCurrency(safeNumber(l.price) * safeNumber(l.quantity)),
+    value: roundInventory(safeNumber(l.price) * safeNumber(l.quantity)),
     weight: l.weight != null ? Number(l.weight) : undefined,
     volume: l.volume != null ? Number(l.volume) : undefined,
   }));
@@ -133,9 +133,9 @@ export const allocatePurchaseCosts = (
     let lineAmounts: { purchase_item_id: string; amount: number }[] = [];
 
     if (extra.inventory_treatment === "expense") {
-      expenseTotal = roundCurrency(expenseTotal + extra.amount);
+      expenseTotal = roundInventory(expenseTotal + extra.amount);
     } else if (extra.inventory_treatment === "ignore" || !capitalize) {
-      ignoredTotal = roundCurrency(ignoredTotal + extra.amount);
+      ignoredTotal = roundInventory(ignoredTotal + extra.amount);
     } else {
       const allocator = getAllocator(extra.allocation_method);
       const allocated = allocator(extra.amount, allocatorLines, extra);
@@ -146,11 +146,11 @@ export const allocatePurchaseCosts = (
 
       for (const a of allocated) {
         if (isDiscountCategory(extra.category)) {
-          discountTotals.set(a.id, roundCurrency((discountTotals.get(a.id) ?? 0) + a.amount));
+          discountTotals.set(a.id, roundInventory((discountTotals.get(a.id) ?? 0) + a.amount));
         } else if (isTaxCategory(extra.category)) {
-          taxTotals.set(a.id, roundCurrency((taxTotals.get(a.id) ?? 0) + a.amount));
+          taxTotals.set(a.id, roundInventory((taxTotals.get(a.id) ?? 0) + a.amount));
         } else {
-          extraTotals.set(a.id, roundCurrency((extraTotals.get(a.id) ?? 0) + a.amount));
+          extraTotals.set(a.id, roundInventory((extraTotals.get(a.id) ?? 0) + a.amount));
         }
       }
     }
@@ -176,21 +176,21 @@ export const allocatePurchaseCosts = (
   for (const line of lines) {
     const qty = safeNumber(line.quantity);
     const purchasePrice = safeNumber(line.price);
-    const lineValue = roundCurrency(purchasePrice * qty);
+    const lineValue = roundInventory(purchasePrice * qty);
     const allocatedExtraTotal = extraTotals.get(line.id) ?? 0;
     const allocatedTaxTotal = taxTotals.get(line.id) ?? 0;
     const allocatedDiscountTotal = discountTotals.get(line.id) ?? 0;
 
-    const totalInventoryCost = roundCurrency(
+    const totalInventoryCost = roundInventory(
       lineValue + allocatedExtraTotal + allocatedTaxTotal + allocatedDiscountTotal
     );
     const finalUnitCost =
-      qty !== 0 ? roundCurrency(totalInventoryCost / qty) : 0;
+      qty !== 0 ? roundInventory(totalInventoryCost / qty) : 0;
 
     // Per-unit bucket fields (as specified)
-    const allocated_extra_cost = qty !== 0 ? roundCurrency(allocatedExtraTotal / qty) : 0;
-    const allocated_tax = qty !== 0 ? roundCurrency(allocatedTaxTotal / qty) : 0;
-    const allocated_discount = qty !== 0 ? roundCurrency(allocatedDiscountTotal / qty) : 0;
+    const allocated_extra_cost = qty !== 0 ? roundInventory(allocatedExtraTotal / qty) : 0;
+    const allocated_tax = qty !== 0 ? roundInventory(allocatedTaxTotal / qty) : 0;
+    const allocated_discount = qty !== 0 ? roundInventory(allocatedDiscountTotal / qty) : 0;
 
     results.push({
       purchase_item_id: line.id,
@@ -206,23 +206,23 @@ export const allocatePurchaseCosts = (
       total_inventory_cost: totalInventoryCost,
     });
 
-    purchaseValue = roundCurrency(purchaseValue + lineValue);
-    capitalizedExtras = roundCurrency(capitalizedExtras + allocatedExtraTotal);
-    capitalizedTax = roundCurrency(capitalizedTax + allocatedTaxTotal);
-    capitalizedDiscount = roundCurrency(capitalizedDiscount + allocatedDiscountTotal);
-    finalInventoryValue = roundCurrency(finalInventoryValue + totalInventoryCost);
+    purchaseValue = roundInventory(purchaseValue + lineValue);
+    capitalizedExtras = roundInventory(capitalizedExtras + allocatedExtraTotal);
+    capitalizedTax = roundInventory(capitalizedTax + allocatedTaxTotal);
+    capitalizedDiscount = roundInventory(capitalizedDiscount + allocatedDiscountTotal);
+    finalInventoryValue = roundInventory(finalInventoryValue + totalInventoryCost);
   }
 
   // Absorb rounding drift on the last non-zero line so totals match capitalized pool
-  const expectedFinal = roundCurrency(
+  const expectedFinal = roundInventory(
     purchaseValue + capitalizedExtras + capitalizedTax + capitalizedDiscount
   );
-  const drift = roundCurrency(expectedFinal - finalInventoryValue);
+  const drift = roundInventory(expectedFinal - finalInventoryValue);
   if (drift !== 0 && results.length > 0) {
     const last = results[results.length - 1];
-    last.total_inventory_cost = roundCurrency(last.total_inventory_cost + drift);
+    last.total_inventory_cost = roundInventory(last.total_inventory_cost + drift);
     if (last.quantity !== 0) {
-      last.final_unit_cost = roundCurrency(last.total_inventory_cost / last.quantity);
+      last.final_unit_cost = roundInventory(last.total_inventory_cost / last.quantity);
     }
     finalInventoryValue = expectedFinal;
   }

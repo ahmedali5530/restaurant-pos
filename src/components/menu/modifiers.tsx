@@ -364,6 +364,7 @@ export const MenuDishModifiers = (props: Props) => {
                         allowedNextGroupIds={catalog.allowedNextGroupIds}
                         parentModifier={catalog.sourceModifier}
                         menuModifierOverrides={props.dish?.menu_modifier_overrides}
+                        parentDishId={props.dish?.id ? String(props.dish.id) : undefined}
                       />
                     ))}
                   </SwiperSlide>

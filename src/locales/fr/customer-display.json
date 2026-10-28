@@ -1,0 +1,12 @@
+{
+  "title": "Écran client",
+  "heading": "Votre commande",
+  "idle": "Bienvenue",
+  "idleHint": "Les articles scannés apparaîtront ici",
+  "thankYou": "Merci !",
+  "thankYouHint": "À bientôt",
+  "qty": "Qté {{count}}",
+  "total": "Total",
+  "items": "Articles ({{count}})",
+  "totalWithTax": "Total avec {{name}} {{rate}}%"
+}

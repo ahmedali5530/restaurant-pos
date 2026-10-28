@@ -227,7 +227,11 @@
         "nested_override": "Вложенная цена"
       }
     },
-    "ingredientMustExist": "Должно точно совпадать с именем или кодом существующей складской позиции (без учёта регистра). Выберите из списка, если не найдено."
+    "ingredientMustExist": "Должно точно совпадать с именем или кодом существующей складской позиции (без учёта регистра). Выберите из списка, если не найдено.",
+    "unknownUom": "Неизвестная единица \"{{uom}}\"",
+    "incompatibleUom": "Единицу \"{{entered}}\" нельзя перевести в складскую единицу \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "У ингредиента нет складской ЕИ; нельзя проверить \"{{uom}}\"",
+    "recipeCostExceedsPrice": "Себестоимость рецепта {{recipeCost}} превышает цену блюда {{price}} для \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "Открыть {{name}}",
@@ -255,10 +259,47 @@
       "addDish": "Добавить новое блюдо Маргарита за x",
       "listUsers": "Список всех пользователей POS",
       "inventoryStock": "Показать товары ниже уровня перезаказа",
-      "howToPurchase": "Как провести закупку на склад?"
+      "howToPurchase": "Как провести закупку на склад?",
+      "cleanseCsv": "Прикрепите неаккуратный CSV для очистки под AI Import"
     },
     "unknownConfig": "Неизвестная конфигурация импорта для предпросмотра.",
-    "passwordWillBeSet": "Пароль будет установлен при подтверждении"
+    "passwordWillBeSet": "Пароль будет установлен при подтверждении",
+    "cleanseTitle": "Очистить файл импорта",
+    "attachFile": "Прикрепить CSV/Excel",
+    "cleanseDomain": "Домен импорта",
+    "cleanseRun": "Очистить и подготовить CSV",
+    "cleanseDownload": "Скачать исправленный CSV",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    }
   },
   "desktopSetup": {
     "title": "Настройка базы данных для ПК",

@@ -15,7 +15,8 @@ import {
   faPowerOff,
   faReceipt,
   faUser,
-  faPlug
+  faPlug,
+  faBarcode,
 } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils.ts";
 import { Button } from "@/components/common/input/button.tsx";
@@ -37,7 +38,7 @@ import {
   SETTINGS,
   INTEGRATIONS,
   SUMMARY,
-  TIP_DISTRIBUTION, ACCOUNTS
+  TIP_DISTRIBUTION, ACCOUNTS, QUICK
 } from "@/routes/posr.ts";
 import { getAccessRuleChildLabel } from "@/lib/access.rules.i18n.ts";
 import { getUserModules, moduleMatchCandidates } from "@/lib/access.rules.ts";
@@ -50,6 +51,7 @@ import { SecurityAlertsBadge } from "@/components/admin/security-alerts/alert-ba
 
 const SIDEBAR_NAV_TEST_IDS: Partial<Record<string, string>> = {
   [MENU]: 'nav-menu',
+  [QUICK]: 'nav-quick',
   [ORDERS]: 'nav-orders',
   [SUMMARY]: 'nav-summary',
   [KITCHEN]: 'nav-kitchen',
@@ -94,6 +96,7 @@ export const Sidebar = () => {
 
   const allSidebarItems = useMemo(() => [
     { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'menu' },
+    { title: t('sidebar.quickOrder'), icon: <FontAwesomeIcon icon={faBarcode} size="lg"/>, link: QUICK, role: 'menu' },
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },

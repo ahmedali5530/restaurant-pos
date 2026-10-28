@@ -19,7 +19,9 @@ import {
   ORDER_DISPLAY,
   DESKTOP_SETUP,
   DESKTOP_LOGS,
+  CUSTOMER_DISPLAY,
   LOGIN,
+  QUICK,
   MENU,
   ORDERS,
   REPORTS,
@@ -114,6 +116,8 @@ import {
   Menu,
   MergeOrdersReport,
   OrderDisplayScreen,
+  CustomerDisplayScreen,
+  QuickOrder,
   OrderFiscalReport,
   OrderLifecycleReport,
   OrderReceiptReport,
@@ -170,6 +174,8 @@ export const AppRoutes = () => (
         <Route path={CLOCK} element={<Clock/>}/>
         {gated(__BUILD_MODULE_closing__, Closing, CLOSING)}
         {gated(__BUILD_MODULE_order_display__, OrderDisplayScreen, ORDER_DISPLAY)}
+        {gated(__BUILD_MODULE_menu__, CustomerDisplayScreen, CUSTOMER_DISPLAY)}
+        {gated(__BUILD_MODULE_menu__, QuickOrder, QUICK)}
         {gated(__BUILD_MODULE_delivery__, Delivery, DELIVERY)}
         {gated(__BUILD_MODULE_admin__, Admin, ADMIN)}
         {gated(__BUILD_MODULE_settings__, Settings, SETTINGS)}

@@ -1,0 +1,30 @@
+{
+  "scan": {
+    "title": "جاهز للمسح",
+    "ready": "امسح باركودًا أو اختر عنصرًا أدناه",
+    "last": "آخر مسح: {{code}}",
+    "unknown": "رمز غير معروف: {{code}}",
+    "added": "تمت إضافة {{name}}",
+    "placeholder": "امسح الرمز/PLU أو CODE*6 أو *6 ثم Enter",
+    "inputLabel": "باركود / PLU",
+    "qtyHint": "الكمية: CODE*6 يضيف ستة؛ *6 يضيف ستة من آخر عنصر",
+    "invalidQty": "كمية غير صالحة — رقم صحيح بعد *",
+    "noLastItem": "امسح عنصرًا أولًا ثم *الكمية",
+    "addedQty": "أُضيف {{count}} × {{name}}",
+    "unknownPlu": "PLU ميزان غير معروف {{plu}} ({{code}})",
+    "addedWeight": "أُضيف {{weight}} كغ {{name}}"
+  },
+  "cart": {
+    "title": "السلة",
+    "hint": "ادفع عند الجاهزية — بدون إرسال للمطبخ",
+    "empty": "امسح أو اضغط على العناصر لبدء البيع"
+  },
+  "browse": {
+    "title": "تصفح العناصر",
+    "show": "إظهار",
+    "hide": "إخفاء"
+  },
+  "customerDisplay": {
+    "open": "شاشة العميل"
+  }
+}

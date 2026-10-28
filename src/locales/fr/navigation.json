@@ -16,7 +16,8 @@
     "clock": "Pointage",
     "hr": "RH",
     "integrations": "Intégrations",
-    "requiresApproval": "Nécessite l'approbation du responsable"
+    "requiresApproval": "Nécessite l'approbation du responsable",
+    "quickOrder": "Commande rapide"
   },
   "modules": {
     "Menu": "Menu",

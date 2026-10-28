@@ -4,7 +4,9 @@ import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {toast} from "sonner";
+import {syncAllDishRecipeCosts} from "@/lib/inventory/dish.recipe.cost.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
@@ -55,6 +57,7 @@ export const AdminDishes = () => {
     state: false,
     data: [] as Dish[]
   });
+  const [syncingCosts, setSyncingCosts] = useState(false);
 
   const smartImportConfig = useMemo(
     () => createDishImportConfig({db, t}),
@@ -111,6 +114,17 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor("number", {
       header: t('columns.number'),
+    }),
+    columnHelper.accessor("available", {
+      header: t('columns.available'),
+      cell: (info) => (info.getValue() === false ? t('common:actions.no') : t('common:actions.yes')),
+    }),
+    columnHelper.accessor("available_qty", {
+      header: t('columns.availableQty'),
+      cell: (info) => {
+        const v = info.getValue();
+        return v == null || v === "" ? "—" : String(v);
+      },
     }),
     columnHelper.accessor("priority", {
       header: t('columns.priority')
@@ -268,6 +282,47 @@ export const AdminDishes = () => {
               {t('buttons.smartImportMenuStructure')}
             </DropdownItem>
           </Dropdown>,
+          <DeleteConfirm
+            key="sync-dish-costs"
+            title={t('confirm.syncDishCostsTitle', {defaultValue: 'Update dish costs'})}
+            message={t('confirm.syncDishCostsMessage', {
+              defaultValue:
+                'Update unlocked recipe line costs from current inventory item prices, then recalculate each dish cost. Price-locked recipe lines are left unchanged.',
+            })}
+            onConfirm={async () => {
+              await protectAction(async () => {
+                setSyncingCosts(true);
+                try {
+                  const result = await syncAllDishRecipeCosts(db);
+                  toast.success(
+                    t('toast:admin.dishCostsSynced', {
+                      dishes: result.dishCount,
+                      items: result.itemCount,
+                      defaultValue:
+                        'Updated costs for {{dishes}} dish(es) from {{items}} inventory item(s)',
+                    })
+                  );
+                  loadHook.fetchData();
+                } catch (error) {
+                  toast.error(error instanceof Error ? error.message : String(error));
+                } finally {
+                  setSyncingCosts(false);
+                }
+              }, {
+                module: 'admin.dishes.update',
+                description: getAccessRuleChildLabel('admin.dishes.update'),
+              });
+            }}
+          >
+            <Button
+              variant="secondary"
+              icon={faArrowsRotate}
+              isLoading={syncingCosts}
+              data-testid="admin-sync-dish-costs"
+            >
+              {t('buttons.syncDishCosts', {defaultValue: 'Update costs from items'})}
+            </Button>
+          </DeleteConfirm>,
           <HqCatalogBaseOnlyAction><Button variant="primary" onClick={() => {
             protectAction(() => {
               setData(undefined);
@@ -363,13 +418,35 @@ export const AdminDishes = () => {
             const [recipes] = await db.query(
               `SELECT *, menu_item.number AS dish_number FROM ${Tables.dishes_recipes} FETCH item, menu_item`
             );
-            return ((recipes as any[]) ?? []).map((rec) => ({
-              dish_number: String(rec.menu_item.name ?? rec.dish_number ?? rec.menu_item?.number ?? ''),
-              ingredient: rec.item.name || rec.item?.code || rec.item?.name || '',
-              quantity: String(rec.quantity ?? ''),
-              cost: String(rec.cost ?? ''),
-              is_price_locked: rec.is_price_locked ? 'true' : 'false',
-            }));
+            const rows = ((recipes as any[]) ?? [])
+              .slice()
+              .sort((a, b) => {
+                const dishCmp = String(a.menu_item?.name ?? "").localeCompare(
+                  String(b.menu_item?.name ?? ""),
+                  undefined,
+                  {sensitivity: "base"}
+                );
+                if (dishCmp !== 0) return dishCmp;
+                return String(a.item?.name ?? "").localeCompare(
+                  String(b.item?.name ?? ""),
+                  undefined,
+                  {sensitivity: "base"}
+                );
+              })
+              .map((rec) => ({
+                dish_number: String(
+                  rec.menu_item?.name ?? rec.dish_number ?? rec.menu_item?.number ?? ""
+                ),
+                ingredient: rec.item?.name || rec.item?.code || "",
+                uom: String(rec.entered_uom ?? rec.item?.uom ?? ""),
+                stock_uom: String(rec.item?.uom ?? ""),
+                quantity: String(
+                  rec.entered_quantity ?? rec.quantity ?? ""
+                ),
+                cost: String(rec.cost ?? ""),
+                is_price_locked: rec.is_price_locked ? "true" : "false",
+              }));
+            return rows;
           }}
           onDone={() => loadHook.fetchData()}
         />

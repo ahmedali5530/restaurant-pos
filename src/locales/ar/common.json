@@ -227,7 +227,11 @@
         "nested_override": "تجاوز سعر متداخل"
       }
     },
-    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل."
+    "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل.",
+    "unknownUom": "وحدة غير معروفة \"{{uom}}\"",
+    "incompatibleUom": "لا يمكن تحويل الوحدة \"{{entered}}\" إلى وحدة المخزون \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "لا توجد وحدة مخزون للصنف؛ تعذر التحقق من \"{{uom}}\"",
+    "recipeCostExceedsPrice": "تكلفة الوصفة {{recipeCost}} تتجاوز سعر الطبق {{price}} لـ \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "فتح {{name}}",
@@ -255,10 +259,47 @@
       "addDish": "أضف طبقًا جديدًا مارغريتا بـ x",
       "listUsers": "اعرض جميع مستخدمي نقطة البيع",
       "inventoryStock": "اعرض أصناف المخزون تحت حد إعادة الطلب",
-      "howToPurchase": "كيف أنشر عملية شراء مخزون؟"
+      "howToPurchase": "كيف أنشر عملية شراء مخزون؟",
+      "cleanseCsv": "أرفق CSV فوضوي لتنظيفه للاستيراد بالذكاء الاصطناعي"
     },
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
-    "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد"
+    "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد",
+    "cleanseTitle": "تنظيف ملف الاستيراد",
+    "attachFile": "إرفاق CSV/Excel",
+    "cleanseDomain": "مجال الاستيراد",
+    "cleanseRun": "تنظيف وتجهيز CSV",
+    "cleanseDownload": "تنزيل CSV المصحح",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    }
   },
   "desktopSetup": {
     "title": "إعداد قاعدة بيانات سطح المكتب",

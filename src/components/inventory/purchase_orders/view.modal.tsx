@@ -1,16 +1,13 @@
 import {useEffect, useMemo, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faDownload, faFile} from "@fortawesome/free-solid-svg-icons";
-import {downloadArrayBuffer} from "@/utils/files.ts";
-import {Button} from "@/components/common/input/button.tsx";
-import {formatDateTime} from "@/lib/datetime.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
-import {itemsSubtotal} from "@/lib/inventory/purchase.totals.ts";
-import {lineAmount} from "@/lib/inventory/line.cost.ts";
+import {mapPurchaseOrderToInvoice} from "@/lib/inventory/invoice.mapper.ts";
+import {InventoryInvoice} from "@/components/inventory/common/inventory.invoice.tsx";
+import {InventoryDocumentAttachments} from "@/components/inventory/common/document.attachments.tsx";
+import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
+import {toAppBusinessDate} from "@/lib/datetime.ts";
 
 interface Props {
   open: boolean;
@@ -19,7 +16,7 @@ interface Props {
 }
 
 export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) => {
-  const { t } = useTranslation('inventory');
+  const {t} = useTranslation("inventory");
   const db = useDB();
   const [viewOrder, setViewOrder] = useState<InventoryPurchaseOrder | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,7 +33,6 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
         const [result] = await db.query<[InventoryPurchaseOrder]>(
           `SELECT * FROM only ${order.id} FETCH supplier, items, items.item, items.supplier, documents`
         );
-        // @ts-ignore
         const record = (result as any)?.result?.[0] ?? result;
         setViewOrder(record as InventoryPurchaseOrder);
       } catch (e) {
@@ -50,10 +46,18 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
     fetchDetails();
   }, [open, order?.id]);
 
-  const itemsTotal = useMemo(
-    () => itemsSubtotal(viewOrder?.items),
-    [viewOrder?.items],
+  const invoiceDoc = useMemo(
+    () => (viewOrder ? mapPurchaseOrderToInvoice(viewOrder) : null),
+    [viewOrder]
   );
+
+  const showBizDate =
+    viewOrder &&
+    shouldShowBusinessDate(
+      viewOrder.created_at,
+      (viewOrder as any).business_date,
+      toAppBusinessDate
+    );
 
   if (!open) {
     return null;
@@ -68,165 +72,25 @@ export const InventoryPurchaseOrderViewModal = ({open, order, onClose}: Props) =
     >
       {loading && (
         <div className="flex items-center justify-center py-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary" />
         </div>
       )}
 
-      {!loading && viewOrder && (
+      {!loading && viewOrder && invoiceDoc && (
         <div className="space-y-6">
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4 flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-semibold">
-                PO #{viewOrder.po_number}
-              </div>
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-surface text-foreground">
-                {viewOrder.status}
-              </span>
+          {showBizDate && (
+            <div className="text-sm text-muted">
+              {t("columns.businessDate", {defaultValue: "Business date"})}:{" "}
+              {(viewOrder as any).business_date}
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm text-foreground">
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.suppliers')}</div>
-                <div>{viewOrder.supplier?.name ?? "—"}</div>
-              </div>
-              <div>
-                <div className="text-muted text-xs uppercase">{t('columns.createdAt')}</div>
-                <div>{viewOrder.created_at ? formatDateTime(viewOrder.created_at) : "—"}</div>
-              </div>
-              {viewOrder.submitted_at && (
-                <div>
-                  <div className="text-muted text-xs uppercase">{t('purchaseOrder.submittedAt')}</div>
-                  <div>{formatDateTime(viewOrder.submitted_at)}</div>
-                </div>
-              )}
-              {viewOrder.approved_at && (
-                <div>
-                  <div className="text-muted text-xs uppercase">{t('purchaseOrder.approvedAt')}</div>
-                  <div>{formatDateTime(viewOrder.approved_at)}</div>
-                </div>
-              )}
-              {viewOrder.rejected_at && (
-                <div>
-                  <div className="text-muted text-xs uppercase">{t('purchaseOrder.rejectedAt')}</div>
-                  <div>{formatDateTime(viewOrder.rejected_at)}</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="text-sm font-semibold text-foreground mb-3">
-              {t('tabs.items')}
-            </div>
-            {viewOrder.items && viewOrder.items.length > 0 ? (
-              <>
-                <div className="overflow-x-auto max-h-80 overflow-y-auto rounded-lg border border-border">
-                  <table className="min-w-full divide-y divide-neutral-200 text-sm">
-                    <thead className="bg-surface sticky top-0">
-                      <tr>
-                        <th className="py-2 pl-3 pr-2 text-left text-xs font-semibold text-muted">{t('columns.name')}</th>
-                        <th className="py-2 px-2 text-left text-xs font-semibold text-muted">{t('columns.suppliers')}</th>
-                        <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('forms.quantity')}</th>
-                        <th className="py-2 px-2 text-right text-xs font-semibold text-muted">{t('columns.price')}</th>
-                        <th className="py-2 pl-2 pr-3 text-right text-xs font-semibold text-muted">{t('columns.amount')}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-                      {viewOrder.items.map((item) => {
-                        const price = item.price ?? 0;
-                        const amount = lineAmount(price, item.quantity);
-                        return (
-                          <tr key={item.id}>
-                            <td className="py-2 pl-3 pr-2 align-top">
-                              <div className="font-medium text-foreground">
-                                {item.item?.name ?? "Item"}
-                              </div>
-                              {item.item?.code && (
-                                <div className="text-xs text-muted">{item.item.code}</div>
-                              )}
-                            </td>
-                            <td className="py-2 px-2 align-top text-foreground">
-                              {item.supplier?.name ?? viewOrder.supplier?.name ?? "—"}
-                            </td>
-                            <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                              {formatNumber(item.quantity)}
-                            </td>
-                            <td className="py-2 px-2 align-top text-right tabular-nums text-foreground">
-                              {withCurrency(price)}
-                            </td>
-                            <td className="py-2 pl-2 pr-3 align-top text-right tabular-nums font-medium text-foreground">
-                              {withCurrency(amount)}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="mt-3 flex justify-end text-sm">
-                  <span className="text-muted mr-2">{t('totals.lineTotal')}</span>
-                  <span className="font-semibold text-foreground">{withCurrency(itemsTotal)}</span>
-                </div>
-              </>
-            ) : (
-              <div className="text-sm text-muted">
-                No items found for this purchase order.
-              </div>
-            )}
-          </div>
-
-          <div className="bg-surface-elevated rounded-xl shadow border border-border p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <FontAwesomeIcon icon={faFile}/>
-                <span>{t('upload.attachDocuments')}</span>
-              </div>
-            </div>
-            {viewOrder.documents && viewOrder.documents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {viewOrder.documents.map((doc, index) => (
-                  <div
-                    key={doc.id ?? index}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-surface"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="h-8 w-8 rounded-md bg-primary/10 text-primary-600 flex items-center justify-center">
-                        <FontAwesomeIcon icon={faFile}/>
-                      </div>
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {doc.name ?? `Document ${index + 1}`}
-                        </span>
-                        <span className="text-xs text-muted">
-                          {doc.type ?? "File"}
-                        </span>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      onClick={() =>
-                        downloadArrayBuffer(
-                          doc.content,
-                          doc.name ?? `purchase-order-${viewOrder.po_number}-${index + 1}`,
-                          doc.type ?? "application/octet-stream"
-                        )
-                      }
-                    >
-                      <FontAwesomeIcon icon={faDownload} className="mr-1"/>
-                      Download
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-muted">
-                No documents attached to this purchase order.
-              </div>
-            )}
-          </div>
+          )}
+          <InventoryInvoice doc={invoiceDoc} />
+          <InventoryDocumentAttachments
+            documents={viewOrder.documents as any}
+            downloadPrefix={`purchase-order-${viewOrder.po_number}`}
+          />
         </div>
       )}
-
     </Modal>
   );
 };

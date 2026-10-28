@@ -59,7 +59,8 @@
   },
   "cache": {
     "title": "Cache",
-    "description": "Dati POS locali su questo terminale. Ricaricare li cancella e scarica una copia aggiornata dal server. Richiede connessione.",
+    "description": "Dati POS locali su questo terminale. Aggiorna catalogo aggiorna menu, piani, pagamenti e tasse senza toccare i conti aperti. Ricarica cache cancella tutto e riscarica dal server (clienti e ordini recenti inclusi). Richiede connessione.",
+    "refreshCatalog": "Aggiorna catalogo",
     "reload": "Ricarica cache",
     "orderTypes": "Tipi ordine",
     "categories": "Categorie",
@@ -71,11 +72,14 @@
     "kitchens": "Cucine",
     "paymentTypes": "Tipi di pagamento",
     "taxes": "Tasse",
+    "catalogReloaded": "Catalogo aggiornato dal server",
+    "catalogReloadFailed": "Aggiornamento catalogo non riuscito",
+    "confirmCatalog": "Aggiornare menu, piani, pagamenti e tasse dal server? I conti aperti e gli ordini non sincronizzati restano su questo terminale.",
     "reloaded": "Cache cancellata e ricaricata dal server",
     "reloadFailed": "Ricaricamento cache non riuscito",
     "confirm": "Cancellare la cache POS locale e scaricare una copia aggiornata dal server?",
     "confirmWithPending": "Hai {{count}} modifica/e non sincronizzata/e che verranno scartate. Cancellare la cache POS locale e scaricare una copia aggiornata dal server?",
-    "offline": "Impossibile ricaricare la cache offline",
+    "offline": "Impossibile aggiornare la cache offline",
     "offlineHint": "Disponibile quando connesso al server"
   },
   "serviceCharges": {
@@ -358,5 +362,36 @@
     "progressTable": "Download di {{table}}…",
     "progressCount": "{{completed}} / {{total}} tabelle ({{percent}}%)",
     "reloadCacheHint": "Sincronizzazione catalogo completata. Ricarica la cache in Impostazioni così il POS mostra il nuovo menu."
+  },
+  "posMode": {
+    "title": "Modalità POS",
+    "description": "Scegli ristorante (tavoli e piani) o Ordine rapido (scansione barcode e pagamento) per questo dispositivo.",
+    "restaurant": "Ristorante",
+    "retail": "Ordine rapido"
+  },
+  "itemAvailability": {
+    "title": "Applica limiti di vendita",
+    "description": "I piatti esauriti sono sempre bloccati. I limiti di vendita sono attivi di default (vendite da quando è stato impostato il limite, meno il carrello). Disattiva per ignorare solo i limiti di vendita.",
+    "enabled": "Attivo",
+    "disabled": "Disattivo"
+  },
+  "scaleBarcode": {
+    "title": "Codici bilancia (EAN-13)",
+    "description": "Legge etichette peso da bilance macelleria/panificio. La PLU a 5 cifre deve corrispondere al Numero del piatto (o barcode). Layout predefinito: 20 + PLU(5) + valore(5) + check digit.",
+    "enabled": "Abilita codici bilancia",
+    "modeWeight": "Peso (grammi → kg)",
+    "modePrice": "Prezzo incorporato",
+    "modeWeightHint": "Le cifre valore sono il peso in grammi. Qtà carrello in kg (÷ divisore). Prezzo × kg.",
+    "modePriceHint": "Le cifre valore sono il prezzo in unità minori. Riga a quel prezzo con qtà 1.",
+    "prefix": "Prefisso",
+    "validateCheck": "Valida cifra di controllo",
+    "pluStart": "Inizio PLU (base 0)",
+    "pluLength": "Lunghezza PLU",
+    "valueStart": "Inizio valore (base 0)",
+    "valueLength": "Lunghezza valore",
+    "weightDivisor": "Divisore peso (g→kg)",
+    "priceDivisor": "Divisore prezzo (minore→maggiore)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Ripristina predefiniti (resta attivo)"
   }
 }

@@ -18,10 +18,22 @@ import {
 } from './types.ts';
 
 /**
+ * Bumped on Reload cache wipe so in-flight catalog projections that started
+ * before clearLocalData cannot commit empty dishes/floors after a good mid-snapshot
+ * project (appear → disappear on FOH).
+ */
+let catalogEpoch = 0;
+
+/**
  * Application-facing local store. Screens talk only to this facade —
  * never branch on online/offline or on-prem vs cloud.
  */
 export class PosStore {
+  /** Monotonic generation for catalog projection freshness (see clearLocalData). */
+  getCatalogEpoch(): number {
+    return catalogEpoch;
+  }
+
   async initialize(): Promise<TerminalIdentity> {
     const identity = await ensureTerminalIdentity();
     const db = getPosStoreDatabase();
@@ -56,8 +68,25 @@ export class PosStore {
    * then marks the sync cursor unhydrated so the next snapshot rebuilds from
    * the gateway. Never call this while offline — there is no warm path without
    * the server.
+   *
+   * @param options.silent  Skip posr-posstore-write — Reload cache uses this so
+   *   the wipe does not schedule a concurrent sync/refresh that can race the
+   *   new snapshot (empty dishes flashing over a good catalog project).
    */
-  async clearLocalData(): Promise<void> {
+  /**
+   * Settings → Refresh catalog. Clears only catalog Dexie rows (menu/floors/…),
+   * bumps the projection epoch, leaves orders/outbox/cursor intact.
+   */
+  async clearCatalogData(tables: string[], options?: { silent?: boolean }): Promise<void> {
+    catalogEpoch += 1;
+    await catalog.clearCatalogTables(tables);
+    if (!options?.silent) {
+      notifyWrite();
+    }
+  }
+
+  async clearLocalData(options?: { silent?: boolean }): Promise<void> {
+    catalogEpoch += 1;
     const db = getPosStoreDatabase();
     const identity = await db.identity.get('singleton');
     // Keep reserved invoice/auto_id pools — clearing them while the gateway
@@ -103,7 +132,9 @@ export class PosStore {
           : {}),
       });
     });
-    notifyWrite();
+    if (!options?.silent) {
+      notifyWrite();
+    }
   }
 
   createOrderWithItems(input: CreateOrderInput) {

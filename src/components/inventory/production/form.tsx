@@ -23,6 +23,10 @@ import {ScaledRecipeResult} from "@/lib/inventory/production.calculations.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {
+  formatInventoryNumber,
+  withInventoryCurrency,
+} from "@/lib/inventory/rounding.ts";
 
 type SelectOption = {label: string; value: string} | null;
 
@@ -228,9 +232,9 @@ export const ProductionForm = ({open, onClose}: Props) => {
           {!previewLoading && preview && (
             <>
               <p className="text-sm mb-2">
-                {t("production.scaleFactor")}: {preview.scaleFactor} |{" "}
-                {t("production.yieldLoss")}: {preview.yieldLossPercent}% |{" "}
-                {t("production.totalInputCost")}: {preview.totalInputCost}
+                {t("production.scaleFactor")}: {formatInventoryNumber(preview.scaleFactor)} |{" "}
+                {t("production.yieldLoss")}: {formatInventoryNumber(preview.yieldLossPercent)}% |{" "}
+                {t("production.totalInputCost")}: {withInventoryCurrency(preview.totalInputCost)}
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -238,7 +242,8 @@ export const ProductionForm = ({open, onClose}: Props) => {
                   <ul className="text-sm list-disc pl-4">
                     {preview.inputs.map((line) => (
                       <li key={line.itemId}>
-                        {line.itemName ?? line.itemId}: {line.quantity} ({line.totalCost})
+                        {line.itemName ?? line.itemId}: {formatInventoryNumber(line.quantity)} (
+                        {withInventoryCurrency(line.totalCost)})
                       </li>
                     ))}
                   </ul>
@@ -248,8 +253,8 @@ export const ProductionForm = ({open, onClose}: Props) => {
                   <ul className="text-sm list-disc pl-4">
                     {preview.outputs.map((line) => (
                       <li key={line.itemId}>
-                        {line.itemName ?? line.itemId}: {line.quantity}{" "}
-                        [{line.disposition}] cost: {line.allocatedCost}
+                        {line.itemName ?? line.itemId}: {formatInventoryNumber(line.quantity)}{" "}
+                        [{line.disposition}] cost: {withInventoryCurrency(line.allocatedCost)}
                       </li>
                     ))}
                   </ul>

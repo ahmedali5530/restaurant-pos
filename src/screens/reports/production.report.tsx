@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {formatNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {
   fetchProductionLinesForReport,
@@ -125,10 +125,10 @@ export const ProductionReport = () => {
               </td>
               <td>{batch.recipeName}</td>
               <td>{batch.locationName}</td>
-              <td>{formatNumber(batch.producedQty)}</td>
-              <td>{formatNumber(batch.yieldLossPercent)}%</td>
-              <td>{formatNumber(batch.totalInputCost)}</td>
-              <td>{formatNumber(batch.totalOutputCost)}</td>
+              <td>{formatInventoryNumber(batch.producedQty)}</td>
+              <td>{formatInventoryNumber(batch.yieldLossPercent)}%</td>
+              <td>{formatInventoryNumber(batch.totalInputCost)}</td>
+              <td>{formatInventoryNumber(batch.totalOutputCost)}</td>
             </tr>
           ))}
         </tbody>
@@ -153,8 +153,8 @@ export const ProductionReport = () => {
                 <tr key={`${line.batchId}-${line.itemId}-${index}`}>
                   <td>{line.itemName}</td>
                   <td>{line.direction === "in" ? t("production.in") : t("production.out")}</td>
-                  <td>{formatNumber(line.quantity)}</td>
-                  <td>{formatNumber(line.totalCost)}</td>
+                  <td>{formatInventoryNumber(line.quantity)}</td>
+                  <td>{formatInventoryNumber(line.totalCost)}</td>
                 </tr>
               ))}
             </tbody>

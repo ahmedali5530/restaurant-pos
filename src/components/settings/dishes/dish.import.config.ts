@@ -14,6 +14,11 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {
+  normalizeExtraBarcodes,
+  queryBarcodeCollisions,
+} from "@/lib/quick-order-scan.ts";
 
 type TFunc = (key: string, options?: any) => string;
 
@@ -59,6 +64,48 @@ export function createDishImportConfig({
       type: "string",
       aliases: ["Number", "No", "Code", "SKU", "#"],
       description: "Internal item number; leave blank to auto-assign",
+    },
+    {
+      name: "barcode",
+      label: t("admin:columns.barcode", {defaultValue: "Barcode"}),
+      type: "string",
+      optional: true,
+      aliases: ["Barcode", "UPC", "EAN", "GTIN", "Bar Code"],
+      description: "Primary barcode / UPC / EAN for Quick Order scanning",
+    },
+    {
+      name: "barcodes",
+      label: t("admin:columns.extraBarcodes", {defaultValue: "Extra barcodes"}),
+      type: "string",
+      optional: true,
+      aliases: ["Extra barcodes", "Barcodes", "Alt barcodes", "Case barcode"],
+      description: "Additional barcodes separated by semicolon or comma",
+    },
+    {
+      name: "available",
+      label: t("admin:columns.available", {defaultValue: "Available"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: true,
+      aliases: ["Available", "In Stock", "Sellable", "Active"],
+      description: "Whether the dish can be sold (false = sold out)",
+    },
+    {
+      name: "ask_quantity",
+      label: t("admin:columns.askQuantity", {defaultValue: "Ask quantity"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: false,
+      aliases: ["Ask quantity", "Ask qty", "Prompt quantity", "Qty prompt"],
+      description: "When true, Menu/Quick Order ask for quantity after scan or tap",
+    },
+    {
+      name: "available_qty",
+      label: t("admin:columns.availableQty", {defaultValue: "Sale limit"}),
+      type: "number",
+      optional: true,
+      aliases: ["Sale limit", "Available qty", "Stock count", "Limit"],
+      description: "Optional sale count; leave blank for unlimited",
     },
     {
       name: "priority",
@@ -148,6 +195,20 @@ export function createDishImportConfig({
       }
 
       const number = await ensureNumber(values.number);
+      const barcodeRaw =
+        values.barcode === null || values.barcode === undefined
+          ? ""
+          : String(values.barcode).trim();
+      const barcodesRaw =
+        values.barcodes === null || values.barcodes === undefined
+          ? ""
+          : String(values.barcodes).trim();
+      const extraBarcodes = normalizeExtraBarcodes(
+        barcodesRaw
+          ? barcodesRaw.split(/[;,]/).map((part) => part.trim())
+          : [],
+        barcodeRaw,
+      );
       const priority = Number(values.priority ?? 0);
       const price = Number(values.price);
       const cost = Number(values.cost ?? 0);
@@ -177,18 +238,50 @@ export function createDishImportConfig({
         price: String(price),
         cost: String(cost),
       };
+      if (barcodeRaw) {
+        rowData.barcode = barcodeRaw;
+      }
 
       assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
         t("common:csvImport.emptyMatchValue", {field})
       );
 
+      const availableRaw = values.available;
+      const available =
+        availableRaw === false ||
+        availableRaw === "false" ||
+        availableRaw === 0 ||
+        availableRaw === "0"
+          ? false
+          : true;
+      const askQtyRaw = values.ask_quantity;
+      const askQuantity =
+        askQtyRaw === true ||
+        askQtyRaw === "true" ||
+        askQtyRaw === 1 ||
+        askQtyRaw === "1";
+      const qtyRaw = values.available_qty;
+      const availableQty =
+        qtyRaw === null || qtyRaw === undefined || qtyRaw === ""
+          ? null
+          : Number(qtyRaw);
+
       const dishData: any = {
         name,
         number,
+        barcode: barcodeRaw || null,
+        barcodes: extraBarcodes.length ? extraBarcodes : null,
         priority: Number.isFinite(priority) ? priority : 0,
         price,
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
+        available,
+        ask_quantity: askQuantity,
+        available_qty: availableQty != null && Number.isFinite(availableQty) ? availableQty : null,
+        available_qty_set_at:
+          availableQty != null && Number.isFinite(availableQty)
+            ? nowSurrealDateTime()
+            : null,
       };
 
       const workflowRef = values.workflow as ResolvedReference | undefined;
@@ -247,6 +340,27 @@ export function createDishImportConfig({
         ctx.mode === "create"
           ? []
           : await findCsvImportMatches(db, Tables.dishes, conditions);
+
+      const codesToCheck = [
+        ...(barcodeRaw ? [barcodeRaw] : []),
+        ...extraBarcodes,
+      ];
+      if (codesToCheck.length > 0) {
+        const collisions = await queryBarcodeCollisions(
+          db,
+          codesToCheck,
+          existing.map((row: any) => row?.id),
+        );
+        if (collisions.length > 0) {
+          const hit = collisions[0];
+          throw new Error(
+            t("toast:admin.barcodeInUse", {
+              code: hit.code,
+              name: hit.dishName,
+            }),
+          );
+        }
+      }
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

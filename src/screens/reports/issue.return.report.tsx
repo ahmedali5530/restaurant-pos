@@ -4,7 +4,8 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryIssueReturn} from "@/api/model/inventory_issue_return.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
@@ -161,15 +162,15 @@ export const IssueReturnReport = () => {
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Returns</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(issueReturns.length)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(issueReturns.length)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Items</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(totals.totalItems)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Amount</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalAmount)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -212,7 +213,7 @@ export const IssueReturnReport = () => {
                       : 'Unknown';
 
                     return issueReturn.items?.map((item, index) => {
-                      const itemName = item.item?.name || 'Unknown';
+                      const itemName = formatInventoryItemLabel(item.item?.name, item.item?.code);
                       const quantity = safeNumber(item.quantity);
                       const price = resolveInventoryLineUnitCost({
                         price: item.price,
@@ -227,7 +228,7 @@ export const IssueReturnReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">
                             {issueReturn.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-foreground"
+                                className="text-primary underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("issue-return", String(issueReturn.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -240,9 +241,9 @@ export const IssueReturnReport = () => {
                           </td>
                           <td className="py-3 px-3 text-sm text-foreground">{locationName}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatInventoryNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withInventoryCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{issuedToName}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-foreground">{item.comments || '-'}</td>
@@ -257,11 +258,11 @@ export const IssueReturnReport = () => {
                   <tr>
                     <td colSpan={4} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {formatNumber(totals.totalQuantity)}
+                      {formatInventoryNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalAmount)}
+                      {withInventoryCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={3}></td>
                   </tr>

@@ -4,7 +4,8 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryWaste} from "@/api/model/inventory_waste.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import {lineAmount, resolveInventoryLineUnitCost} from "@/lib/inventory/line.cost.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
@@ -153,15 +154,15 @@ export const WasteReport = () => {
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Waste Records</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(wastes.length)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(wastes.length)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Items</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(totals.totalItems)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Amount</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalAmount)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -200,7 +201,7 @@ export const WasteReport = () => {
                     const source = waste.purchase ? `Purchase #${waste.purchase.invoice_number}` : waste.issue ? `Issue #${waste.issue.invoice_number || waste.issue.id}` : 'N/A';
 
                     return waste.items?.map((item, index) => {
-                      const itemName = item.item?.name || 'Unknown';
+                      const itemName = formatInventoryItemLabel(item.item?.name, item.item?.code);
                       const quantity = safeNumber(item.quantity);
                       const price = resolveInventoryLineUnitCost({
                         price: item.price,
@@ -216,7 +217,7 @@ export const WasteReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">
                             {waste.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-foreground"
+                                className="text-primary underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("waste", String(waste.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -228,9 +229,9 @@ export const WasteReport = () => {
                             )}
                           </td>
                           <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatInventoryNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withInventoryCurrency(amount)}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{source}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{createdByName}</td>
                           <td className="py-3 pr-6 text-sm text-foreground">{item.comments || '-'}</td>
@@ -245,11 +246,11 @@ export const WasteReport = () => {
                   <tr>
                     <td colSpan={3} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {formatNumber(totals.totalQuantity)}
+                      {formatInventoryNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalAmount)}
+                      {withInventoryCurrency(totals.totalAmount)}
                     </td>
                     <td colSpan={3}></td>
                   </tr>

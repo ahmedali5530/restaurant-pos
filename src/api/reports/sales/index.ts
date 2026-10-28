@@ -5,7 +5,6 @@ import {
   aggregateTopSellingDishes,
 } from "@/api/reports/sales/aggregate.ts";
 import {
-  fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,
   fetchPaidOrders,
@@ -24,6 +23,7 @@ export {
 } from "@/api/reports/sales/aggregate.ts";
 
 export {
+  fetchDashboardDeliveryOrders,
   fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,
@@ -95,3 +95,15 @@ export {
 } from "@/api/reports/sales/menu-engineering.ts";
 export {getUnsoldProducts, listMenuItems} from "@/api/reports/sales/products.ts";
 export type {GetUnsoldProductsOptions, ListMenuItemsOptions, MenuItemSummary} from "@/api/reports/sales/products.ts";
+export {
+  formatDishRecipeAsAnswer,
+  formatDishRecipeForPrompt,
+  getDishRecipe,
+  listDishRecipes,
+} from "@/api/reports/sales/dish-recipe.ts";
+export type {
+  DishRecipeDishRow,
+  DishRecipeIngredient,
+  DishRecipeResult,
+  GetDishRecipeOptions,
+} from "@/api/reports/sales/dish-recipe.ts";

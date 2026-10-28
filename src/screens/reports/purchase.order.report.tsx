@@ -4,7 +4,9 @@ import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {InventoryPurchaseOrder} from "@/api/model/inventory_purchase_order.ts";
-import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
+import {safeNumber} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import { toLuxonDateTime } from "@/lib/datetime.ts";
 import {
   buildCreatedAtDateConditions,
@@ -161,19 +163,19 @@ export const PurchaseOrderReport = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('reports.purchaseOrder')}</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(orders.length)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(orders.length)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.items')}</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalItems)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(totals.totalItems)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.quantity')}</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(totals.totalQuantity)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(totals.totalQuantity)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">{t('columns.total')}</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalAmount)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalAmount)}</p>
           </div>
         </div>
 
@@ -216,7 +218,7 @@ export const PurchaseOrderReport = () => {
                       : [null];
 
                     return lines.map((item, index) => {
-                      const itemName = item?.item?.name || '—';
+                      const itemName = formatInventoryItemLabel(item?.item?.name, item?.item?.code, '—');
                       const quantity = item ? safeNumber(item.quantity) : 0;
                       const price = item
                         ? resolveInventoryLineUnitCost({
@@ -232,7 +234,7 @@ export const PurchaseOrderReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">
                             {order.id ? (
                               <a
-                                className="text-primary-600 underline print:no-underline print:text-foreground"
+                                className="text-primary underline print:no-underline print:text-foreground"
                                 href={inventoryPrintUrl("purchase-order", String(order.id))}
                                 target="_blank"
                                 rel="noreferrer"
@@ -246,9 +248,9 @@ export const PurchaseOrderReport = () => {
                           <td className="py-3 px-3 text-sm text-foreground">{order.status}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{supplierName}</td>
                           <td className="py-3 px-3 text-sm text-foreground">{itemName}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(price)}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(amount)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{formatInventoryNumber(quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(price)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withInventoryCurrency(amount)}</td>
                           <td className="py-3 pr-6 text-sm text-foreground">{createdByName}</td>
                         </tr>
                       );
@@ -261,11 +263,11 @@ export const PurchaseOrderReport = () => {
                   <tr>
                     <td colSpan={5} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {formatNumber(totals.totalQuantity)}
+                      {formatInventoryNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalAmount)}
+                      {withInventoryCurrency(totals.totalAmount)}
                     </td>
                     <td></td>
                   </tr>

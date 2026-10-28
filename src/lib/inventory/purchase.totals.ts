@@ -1,5 +1,6 @@
 import {safeNumber} from "@/lib/utils.ts";
 import {lineAmount} from "@/lib/inventory/line.cost.ts";
+import {roundInventory} from "@/lib/inventory/rounding.ts";
 
 export type PurchaseTotalLine = {
   quantity?: number | string | null;
@@ -25,24 +26,24 @@ export const taxableSubtotal = (lines: PurchaseTotalLine[] | null | undefined): 
   }, 0);
 
 export const taxAmount = (taxableSub: number, rate: number | string | null | undefined): number =>
-  taxableSub * (safeNumber(rate) / 100);
+  roundInventory(taxableSub * (safeNumber(rate) / 100));
 
 export const extrasTotal = (extras: PurchaseExtraLine[] | null | undefined): number =>
-  (extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.amount), 0);
+  roundInventory((extras ?? []).reduce((sum, extra) => sum + safeNumber(extra.amount), 0));
 
 export const grandTotal = (
   subtotal: number,
   tax: number,
   extras: number,
-): number => subtotal + tax + extras;
+): number => roundInventory(subtotal + tax + extras);
 
 export const computePurchaseTotals = (
   lines: PurchaseTotalLine[] | null | undefined,
   taxRate: number | string | null | undefined,
   extras: PurchaseExtraLine[] | null | undefined,
 ) => {
-  const subtotal = itemsSubtotal(lines);
-  const taxable = taxableSubtotal(lines);
+  const subtotal = roundInventory(itemsSubtotal(lines));
+  const taxable = roundInventory(taxableSubtotal(lines));
   const tax = taxAmount(taxable, taxRate);
   const extrasSum = extrasTotal(extras);
   return {

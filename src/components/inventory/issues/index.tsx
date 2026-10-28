@@ -30,7 +30,7 @@ import { toast } from "sonner";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { issueListTotal } from "@/lib/inventory/document.list.total.ts";
-import { withCurrency } from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 export const InventoryIssues = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -133,7 +133,7 @@ export const InventoryIssues = () => {
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
             <span key={item.id ?? index} className="tag">
-              {item.item?.name}-{item.item?.code} × {item.quantity}
+              {item.item?.name}-{item.item?.code} × {formatInventoryNumber(item.quantity)}
             </span>
           ))}
         </div>
@@ -142,7 +142,7 @@ export const InventoryIssues = () => {
     columnHelper.accessor(row => issueListTotal(row.items), {
       id: "total",
       header: t('columns.total'),
-      cell: info => withCurrency(info.getValue()),
+      cell: info => withInventoryCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

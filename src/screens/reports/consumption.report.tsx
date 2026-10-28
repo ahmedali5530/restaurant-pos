@@ -2,7 +2,7 @@ import {useEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {useShowInclusivePrices} from "@/hooks/useShowInclusivePrices.ts";
 import {
   getRecipeConsumptionSummary,
@@ -144,15 +144,15 @@ export const ConsumptionReport = () => {
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Items</p>
-            <p className="text-2xl font-bold text-foreground">{formatNumber(consumptionData.length)}</p>
+            <p className="text-2xl font-bold text-foreground">{formatInventoryNumber(consumptionData.length)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Sale Price</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalSalePrice)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalSalePrice)}</p>
           </div>
           <div className="bg-surface p-4 rounded-lg">
             <p className="text-sm text-muted">Total Cost (Average)</p>
-            <p className="text-2xl font-bold text-foreground">{withCurrency(totals.totalCostAverage)}</p>
+            <p className="text-2xl font-bold text-foreground">{withInventoryCurrency(totals.totalCostAverage)}</p>
           </div>
         </div>
 
@@ -185,16 +185,16 @@ export const ConsumptionReport = () => {
                     <tr key={item.itemId}>
                       <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.itemName}</td>
                       <td className="py-3 px-3 text-sm text-foreground">{item.itemCode || "-"}</td>
-                      <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.totalQuantity, 4)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{formatInventoryNumber(item.totalQuantity)}</td>
                       <td className="py-3 px-3 text-sm text-foreground">{item.uom || "-"}</td>
-                      <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(item.totalSalePrice)}</td>
-                      <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(item.totalCostAverage)}</td>
-                      <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(item.totalCostCurrent)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(item.totalSalePrice)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(item.totalCostAverage)}</td>
+                      <td className="py-3 px-3 text-right text-sm text-foreground">{withInventoryCurrency(item.totalCostCurrent)}</td>
                       <td className={`py-3 px-3 text-right text-sm font-semibold ${item.differenceAverage >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                        {withCurrency(item.differenceAverage)}
+                        {withInventoryCurrency(item.differenceAverage)}
                       </td>
                       <td className={`py-3 pr-6 text-right text-sm font-semibold ${item.differenceCurrent >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                        {withCurrency(item.differenceCurrent)}
+                        {withInventoryCurrency(item.differenceCurrent)}
                       </td>
                     </tr>
                   ))
@@ -205,23 +205,23 @@ export const ConsumptionReport = () => {
                   <tr>
                     <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t("columns.total")}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {formatNumber(totals.totalQuantity, 4)}
+                      {formatInventoryNumber(totals.totalQuantity)}
                     </td>
                     <td colSpan={1}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalSalePrice)}
+                      {withInventoryCurrency(totals.totalSalePrice)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalCostAverage)}
+                      {withInventoryCurrency(totals.totalCostAverage)}
                     </td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">
-                      {withCurrency(totals.totalCostCurrent)}
+                      {withInventoryCurrency(totals.totalCostCurrent)}
                     </td>
                     <td className={`py-3 px-3 text-right text-sm font-bold ${totals.differenceAverage >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                      {withCurrency(totals.differenceAverage)}
+                      {withInventoryCurrency(totals.differenceAverage)}
                     </td>
                     <td className={`py-3 pr-6 text-right text-sm font-bold ${totals.differenceCurrent >= 0 ? "text-success-600" : "text-danger-600"}`}>
-                      {withCurrency(totals.differenceCurrent)}
+                      {withInventoryCurrency(totals.differenceCurrent)}
                     </td>
                   </tr>
                 </tfoot>

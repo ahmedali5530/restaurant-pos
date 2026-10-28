@@ -32,6 +32,19 @@ export async function getCatalogTable<T = any>(table: string): Promise<T[]> {
   return rows.map((row) => row.payload as T);
 }
 
+/** Delete Dexie catalog rows for the given Surreal table names (Refresh catalog). */
+export async function clearCatalogTables(tables: string[]): Promise<number> {
+  if (tables.length === 0) return 0;
+  const db = getPosStoreDatabase();
+  let deleted = 0;
+  await db.transaction('rw', db.catalog, async () => {
+    for (const table of tables) {
+      deleted += await db.catalog.where('table').equals(table).delete();
+    }
+  });
+  return deleted;
+}
+
 export async function getCatalogById<T = any>(id: string): Promise<T | undefined> {
   const db = getPosStoreDatabase();
   const row = await db.catalog.get(id);
@@ -106,6 +119,7 @@ export async function loadHydratedCatalog(): Promise<{
   menus: any[];
   modifier_groups: any[];
   groups_dishes: any[];
+  modifier_availability: any[];
   workflows: any[];
   workflow_stages: any[];
   extras: any[];
@@ -129,6 +143,7 @@ export async function loadHydratedCatalog(): Promise<{
     modifier_groups,
     modifiers,
     groups_dishes,
+    modifier_availabilityRaw,
     workflows,
     workflow_stages,
     extrasRaw,
@@ -151,6 +166,7 @@ export async function loadHydratedCatalog(): Promise<{
     getCatalogTable('modifier_group'),
     getCatalogTable('modifier'),
     getCatalogTable('menu_item_modifier_group'),
+    getCatalogTable('menu_item_modifier_availability'),
     getCatalogTable('workflow'),
     getCatalogTable('workflow_stage'),
     getCatalogTable('extra'),
@@ -275,6 +291,12 @@ export async function loadHydratedCatalog(): Promise<{
     }))
     .sort((a, b) => Number(a.priority ?? 0) - Number(b.priority ?? 0));
 
+  const hydratedModifierAvailability = (modifier_availabilityRaw ?? []).map((row) => ({
+    ...row,
+    parent: resolveOne(row.parent, dishHydratedMap) ?? row.parent,
+    option: resolveOne(row.option, dishHydratedMap) ?? row.option,
+  }));
+
   const hydratedTables = tables
     .map((table) => ({
       ...table,
@@ -307,6 +329,7 @@ export async function loadHydratedCatalog(): Promise<{
     menus: menusForSettings,
     modifier_groups: hydratedGroups,
     groups_dishes: hydratedGroupsDishes,
+    modifier_availability: hydratedModifierAvailability,
     workflows: [...workflowMap.values()],
     workflow_stages,
     extras: hydratedExtras,

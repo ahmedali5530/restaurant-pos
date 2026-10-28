@@ -15,11 +15,35 @@ import {refreshCatalogIntoSettings} from "@/providers/pos-store.provider.tsx";
 export const CacheSettings = () => {
   const db = useDB();
   const setSettings = useSetAtom(appSettings);
-  const [isReloading, setIsReloading] = useState(false);
+  const [busy, setBusy] = useState<'catalog' | 'full' | null>(null);
   const { t } = useTranslation('settings');
   const { isEffectivelyConnected } = useDatabase();
 
-  const canReload = isEffectivelyConnected && !isReloading;
+  const canAct = isEffectivelyConnected && busy === null;
+
+  const refreshCatalog = async () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+
+    try {
+      const confirmed = window.confirm(t('cache.confirmCatalog'));
+      if (!confirmed) return;
+
+      setBusy('catalog');
+      await terminalSyncService.rehydrateCatalogFromServer();
+      await refreshCatalogIntoSettings(setSettings);
+      toast.success(t('cache.catalogReloaded'));
+    } catch (error) {
+      console.error("Failed to refresh catalog:", error);
+      const code = (error as Error & { code?: string })?.code
+        ?? ((error as Error)?.message === 'OFFLINE' ? 'OFFLINE' : undefined);
+      toast.error(code === 'OFFLINE' ? t('cache.offline') : t('cache.catalogReloadFailed'));
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const reloadCache = async () => {
     if (!isEffectivelyConnected) {
@@ -37,7 +61,7 @@ export const CacheSettings = () => {
       );
       if (!confirmed) return;
 
-      setIsReloading(true);
+      setBusy('full');
       await terminalSyncService.rehydrateFromServer();
       await refreshCatalogIntoSettings(setSettings);
 
@@ -60,7 +84,7 @@ export const CacheSettings = () => {
         ?? ((error as Error)?.message === 'OFFLINE' ? 'OFFLINE' : undefined);
       toast.error(code === 'OFFLINE' ? t('cache.offline') : t('cache.reloadFailed'));
     } finally {
-      setIsReloading(false);
+      setBusy(null);
     }
   };
 
@@ -70,22 +94,36 @@ export const CacheSettings = () => {
         <div>
           <h2 className="text-xl font-semibold mb-1">{t('cache.title')}</h2>
           <p className="text-sm text-muted">{t('cache.description')}</p>
+          <div className="flex flex-shrink-0 flex-col gap-2 sm:flex-row mt-5">
+            <Button
+              variant="primary"
+              size="lg"
+              filled
+              onClick={refreshCatalog}
+              isLoading={busy === 'catalog'}
+              disabled={!canAct}
+              data-testid="cache-refresh-catalog"
+            >
+              {t('cache.refreshCatalog')}
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              filled
+              onClick={reloadCache}
+              isLoading={busy === 'full'}
+              disabled={!canAct}
+              data-testid="cache-reload-full"
+            >
+              {t('cache.reload')}
+            </Button>
+          </div>
           {!isEffectivelyConnected && (
             <p className="text-sm text-warning-700 mt-2" data-testid="cache-offline-hint">
               {t('cache.offlineHint')}
             </p>
           )}
         </div>
-        <Button
-          variant="danger"
-          size="lg"
-          filled
-          onClick={reloadCache}
-          isLoading={isReloading}
-          disabled={!canReload}
-        >
-          {t('cache.reload')}
-        </Button>
       </div>
     </div>
   );

@@ -34,6 +34,7 @@ import {Switch} from "@/components/common/input/switch.tsx";
 import {useInventoryLocations} from "@/hooks/useInventoryLocations.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {assertItemUomChangeAllowed} from "@/lib/inventory/item.uom.lock.ts";
 
 interface Props {
   open: boolean
@@ -52,7 +53,7 @@ const validationSchema = yup.object({
     label: yup.string(),
     value: yup.string()
   }).required("This is required").nullable(),
-  base_quantity: yup.number().typeError("This should be a number").required("This is required"),
+  base_quantity: yup.number().typeError("This should be a number").optional().default(1),
   suppliers: yup.array(yup.object({
     label: yup.string(),
     value: yup.string()
@@ -82,7 +83,7 @@ export const InventoryItemForm = ({
       name: '',
       code: '',
       category: null,
-      base_quantity: 0,
+      base_quantity: 1,
       suppliers: [],
       locations: [],
       price: undefined,
@@ -201,7 +202,7 @@ export const InventoryItemForm = ({
 
       const datum = {
         ...values,
-        base_quantity: parseInt(values.base_quantity),
+        base_quantity: 1,
         suppliers: values?.suppliers?.map(item => toRecordId(item.value)),
         locations: values?.locations?.map(item => toRecordId(item.value)),
         category: values?.category ? toRecordId(values.category.value) : undefined,
@@ -238,6 +239,11 @@ export const InventoryItemForm = ({
       };
 
       if( data?.id ) {
+        await assertItemUomChangeAllowed(db, {
+          itemId: String(data.id),
+          previousUom: data.uom,
+          nextUom: datum.uom,
+        });
         await db.merge(data.id, itemsData);
       } else {
         await db.create(Tables.inventory_items, itemsData);
@@ -254,9 +260,17 @@ export const InventoryItemForm = ({
 
       closeModal();
       toast.success(t('toast:inventory.itemSaved', { name: values.name }));
-    } catch ( e ) {
-      console.log(e)
-      toast.error(e);
+    } catch (e) {
+      console.error(e);
+      const message = e instanceof Error ? e.message : String(e);
+      toast.error(
+        message.includes("Stock unit cannot be changed")
+          ? t("uom.errors.stockUnitLocked", {
+              defaultValue:
+                "Stock unit cannot be changed after the item has ledger movements or recipe quantities",
+            })
+          : message
+      );
     }
   }
 
@@ -318,21 +332,6 @@ export const InventoryItemForm = ({
                 <FontAwesomeIcon icon={faPlus}/>
               </IconTooltipButton>
             </div>
-          </div>
-          <div className="mb-3">
-            <Controller
-              name="base_quantity"
-              control={control}
-              render={({field}) => (
-                <Input
-                  type="number"
-                  label={t('columns.baseQuantity')}
-                  {...field}
-                  value={field.value ?? ""}
-                  error={errors?.base_quantity?.message}
-                />
-              )}
-            />
           </div>
           <div className="flex gap-3 mb-3">
             <div className="flex-1">

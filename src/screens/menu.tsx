@@ -17,11 +17,12 @@ import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {useSearchParams} from "react-router";
 import {useDatabase} from "@/hooks/useDatabase.ts";
+import {useCustomerDisplayPublisher} from "@/hooks/useCustomerDisplayPublisher.ts";
 
 export const Menu = () => {
   const {t: tNav} = useTranslation('navigation');
   const [state, setState] = useAtom(appState);
-  const [settings, setSettings] = useAtom(appSettings);
+  const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const [, setAlert] = useAtom(appAlert);
   const db = useDB();
@@ -31,6 +32,9 @@ export const Menu = () => {
   const docsTableless = searchParams.get('docs_tableless') === '1';
   /** User preference (Settings → table selection). */
   const hideTableSelectionSetting = state.hideTableSelection === true;
+
+  // Mirror cart to customer display (same channel as Quick Order).
+  useCustomerDisplayPublisher();
 
   // One-time recovery: earlier docs capture wrote hideTableSelection into app-state.
   useEffect(() => {
@@ -74,15 +78,11 @@ export const Menu = () => {
       floor: prev.floor ?? settings.floors[0],
       orderType: prev.orderType ?? settings.order_types[0],
     }));
-
-    setSettings(prev => ({
-      ...prev,
-      categories: (prev.categories ?? []).filter(item => item.show_in_menu !== false),
-    }));
+    // Category visibility (show_in_menu) is enforced in resolveMenuAwareData —
+    // never mutate appSettings.categories here (it raced with catalog refresh).
   }, [
     enforcement.orderTakingBlocked,
     hideTableSelectionSetting,
-    setSettings,
     setState,
     settings.floors,
     settings.order_types,

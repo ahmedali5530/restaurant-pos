@@ -4,6 +4,7 @@ import { fetchInventorySettings } from "@/lib/inventory/settings.ts";
 import { toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type DatabaseClient = ReturnType<typeof useDB>;
 
@@ -38,7 +39,7 @@ export const resolveAverageUnitCost = async (
   const totalCost = Number(row?.total_cost ?? 0);
   const totalQty = Number(row?.total_qty ?? 0);
   if (!totalQty || !Number.isFinite(totalCost)) return 0;
-  return totalCost / totalQty;
+  return roundInventory(totalCost / totalQty);
 };
 
 /**
@@ -55,7 +56,7 @@ export const resolvePostingUnitCost = async (
 ): Promise<number> => {
   const line = Number(params.lineUnitCost);
   if (Number.isFinite(line) && line > 0) {
-    return line;
+    return roundInventory(line);
   }
 
   const settings = await fetchInventorySettings(db);

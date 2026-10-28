@@ -1,0 +1,30 @@
+{
+  "scan": {
+    "title": "Pronto a scansionare",
+    "ready": "Scansiona un barcode o scegli un articolo sotto",
+    "last": "Ultima scansione: {{code}}",
+    "unknown": "Codice sconosciuto: {{code}}",
+    "added": "Aggiunto {{name}}",
+    "placeholder": "Scansiona codice/PLU, CODE*6 o *6 poi Invio",
+    "inputLabel": "Barcode / PLU",
+    "qtyHint": "Qtà: CODE*6 aggiunge sei; *6 aggiunge sei dell’ultimo",
+    "invalidQty": "Quantità non valida — intero dopo *",
+    "noLastItem": "Scansiona prima un articolo, poi *qtà",
+    "addedQty": "Aggiunti {{count}} × {{name}}",
+    "unknownPlu": "PLU bilancia sconosciuta {{plu}} ({{code}})",
+    "addedWeight": "Aggiunto {{weight}} kg {{name}}"
+  },
+  "cart": {
+    "title": "Carrello",
+    "hint": "Paga quando sei pronto — senza invio cucina",
+    "empty": "Scansiona o tocca gli articoli per iniziare"
+  },
+  "browse": {
+    "title": "Sfoglia articoli",
+    "show": "Mostra",
+    "hide": "Nascondi"
+  },
+  "customerDisplay": {
+    "open": "Display cliente"
+  }
+}

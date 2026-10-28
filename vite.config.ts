@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
       },
+      allowedHosts: ['ahmed-pc.tailnet.ahmedali5530.xyz']
     },
     preview: {
       proxy: {
@@ -99,6 +100,22 @@ export default defineConfig(({ mode }) => {
     ],
     resolve: {
       alias: { "@": path.resolve(__dirname, "./src") }
+    },
+    // Keep lodash CJS + @nivo on one optimized graph so named-export rewrites
+    // (e.g. `import { r } from 'lodash/get'`) do not break after a partial cache refresh.
+    optimizeDeps: {
+      include: [
+        "lodash",
+        "lodash/get",
+        "lodash/uniqueId",
+        "@nivo/core",
+        "@nivo/line",
+        "@nivo/bar",
+        "@nivo/pie",
+        "@nivo/legends",
+        "@nivo/theming",
+        "@nivo/colors",
+      ],
     },
     build: {
       rollupOptions: {

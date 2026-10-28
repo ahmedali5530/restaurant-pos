@@ -3,13 +3,13 @@ import { faBackspace, faCircle, faClock } from "@fortawesome/free-solid-svg-icon
 import {faCircle as circleRegular} from '@fortawesome/free-regular-svg-icons';
 import {useEffect, useLayoutEffect, useState} from "react";
 import { useAtom } from "jotai";
-import { appPage } from "@/store/jotai.ts";
+import { appPage, appState } from "@/store/jotai.ts";
 import { cn, toRecordId } from "@/lib/utils.ts";
 import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {DESKTOP_SETUP, DESKTOP_LOGS} from "@/routes/posr.ts";
+import {DESKTOP_SETUP, DESKTOP_LOGS, QUICK} from "@/routes/posr.ts";
 import {getDesktopStatus, isTauriDesktop, type DesktopStatus} from "@/lib/desktop.ts";
 import {getDefaultAppPath} from "@/lib/build-modules.ts";
 import {getCachedRuntimeConfig} from "@/lib/runtime-config.ts";
@@ -72,6 +72,7 @@ export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [page, setPage] = useAtom(appPage);
+  const [state] = useAtom(appState);
   const [error, setError] = useState(false);
   const [showClockInModal, setShowClockInModal] = useState(false);
   const [pendingUser, setPendingUser] = useState<User | null>(null);
@@ -376,7 +377,8 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    navigation(getDefaultAppPath());
+    const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
+    navigation(home);
   }
 
   const handleClockIn = async () => {
@@ -429,9 +431,8 @@ export const Login = () => {
     }
     if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const returnPath = from
-        ? `${from.pathname}${from.search ?? ''}`
-        : getDefaultAppPath();
+      const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
+      const returnPath = from ? `${from.pathname}${from.search ?? ''}` : home;
       navigation(returnPath, { replace: true });
     }
   }, [gatewayAuth, page.user, page.locked, location.state, navigation]);

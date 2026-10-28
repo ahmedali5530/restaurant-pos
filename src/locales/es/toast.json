@@ -136,7 +136,9 @@
     "invalidPriority": "La prioridad no es válida",
     "invalidRequiredModifiers": "El valor de modificadores requeridos no es válido",
     "loginTaken": "Otro usuario ya tiene este inicio de sesión/PIN; elige otro.",
-    "passwordTaken": "Otro usuario ya tiene esta contraseña; elige otra."
+    "passwordTaken": "Otro usuario ya tiene esta contraseña; elige otra.",
+    "dishCostsSynced": "Costos actualizados para {{dishes}} plato(s) desde {{items}} artículo(s) de inventario",
+    "barcodeInUse": "El código de barras {{code}} ya lo usa {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está en uso y fue desactivado.",

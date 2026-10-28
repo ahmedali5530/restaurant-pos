@@ -16,7 +16,8 @@
     "clock": "Klok",
     "hr": "HR",
     "integrations": "Integraties",
-    "requiresApproval": "Vereist goedkeuring van de manager"
+    "requiresApproval": "Vereist goedkeuring van de manager",
+    "quickOrder": "Snelle bestelling"
   },
   "modules": {
     "Menu": "Menu",

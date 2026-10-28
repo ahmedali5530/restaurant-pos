@@ -38,14 +38,23 @@ import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
+import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createPurchaseReturnImportConfig} from "@/components/inventory/purchase_returns/purchase-return.import.config.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  lineEnteredDefaults,
+  QuantityUomFields,
+} from "@/components/inventory/common/quantity.uom.fields.tsx";
+import {normalizeUom} from "@/utils/inventoryUom.ts";
+import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
 interface PurchaseReturnItemFormValue {
   item: SelectOption;
   quantity: number | string;
+  entered_uom?: string;
   comments?: string;
   purchase_item_id?: string | null;
 }
@@ -67,8 +76,8 @@ interface Props {
 
 const resolvePurchaseLineUnitCost = (pi?: any): number => {
   if (!pi) return 0;
-  const qty = Math.abs(Number(pi.quantity) || 0);
-  const total = Number(pi.total_inventory_cost);
+  const qty = Math.abs(roundInventory(pi.quantity) || 0);
+  const total = roundInventory(pi.total_inventory_cost);
   if (Number.isFinite(total) && total !== 0 && qty > 0) {
     return Math.abs(total) / qty;
   }
@@ -127,6 +136,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         value: yup.string()
       }).required("This is required").nullable(),
       quantity: yup.number().typeError("This should be a number").required("This is required").min(1, "Quantity must be at least 1"),
+      entered_uom: yup.string().nullable().optional(),
       comments: yup.string().nullable().optional(),
       purchase_item_id: yup.string().nullable().optional(),
     })
@@ -285,15 +295,19 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         } : null,
         date: data.created_at ? dateToCalendarDate(toJsDate(data.created_at)) : getToday(),
         documents: undefined,
-        items: data.items?.map(item => ({
+        items: data.items?.map(item => {
+          const entered = lineEnteredDefaults({...item, item: item.item});
+          return {
           item: item.item ? {
             label: `${item.item.name}-${item.item.code}`,
             value: toIdString(item.item.id),
           } : null,
           purchase_item_id: item.purchase_item?.id ? toIdString(item.purchase_item.id) : null,
-          quantity: item.quantity ?? 1,
+          quantity: entered.quantity || 1,
+          entered_uom: entered.entered_uom,
           comments: item.comments ?? "",
-        })) ?? [],
+        };
+        }) ?? [],
       });
     } else {
       reset({
@@ -305,6 +319,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         items: [{
           item: null,
           quantity: 1,
+          entered_uom: "",
           comments: "",
           purchase_item_id: null,
         }],
@@ -433,8 +448,19 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
 
       if (!itemId) continue;
 
-      const desiredQuantity = Number(row.quantity) || 0;
+      let desiredQuantity = Number(row.quantity) || 0;
       if (desiredQuantity <= 0) continue;
+
+      const catalog = itemsList.find((ci) => String(ci.id) === String(itemId));
+      try {
+        desiredQuantity = convertQuantityOnlyLine({
+          enteredQuantity: desiredQuantity,
+          enteredUom: row.entered_uom || catalog?.uom,
+          stockUom: catalog?.uom,
+        }).quantity;
+      } catch {
+        // save will reject invalid conversion
+      }
 
       const cacheKey = `${itemId}-${locationId}`;
       let available = rowNetQuantities[index] ?? netQuantityCacheRef.current[cacheKey];
@@ -465,7 +491,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     }
 
     return isValid;
-  }, [rowNetQuantities, setError, clearErrors, t]);
+  }, [rowNetQuantities, setError, clearErrors, t, itemsList]);
 
   const onSubmit = async (values: PurchaseReturnFormValues) => {
     try {
@@ -579,14 +605,26 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             || (matchedPurchaseItem?.id ? toIdString(matchedPurchaseItem.id) : undefined);
           const supplierId = resolveLineSupplier(item, matchedPurchaseItem);
 
+          const catalog = itemsList.find(
+            (ci) => String(ci.id) === String(item.item?.value)
+          );
+          const stock = convertQuantityOnlyLine({
+            enteredQuantity: Number(item.quantity),
+            enteredUom: item.entered_uom || catalog?.uom,
+            stockUom: catalog?.uom,
+            stockUnitPrice: snapshotPrice,
+          });
+
           const [created] = await db.create(Tables.inventory_purchase_return_items, {
             purchase_return: toRecordId(purchaseReturnId),
             item: item.item ? toRecordId(item.item.value) : undefined,
             location: toRecordId(locationId),
             supplier: supplierId ? toRecordId(supplierId) : undefined,
             purchase_item: purchaseItemId ? toRecordId(purchaseItemId) : undefined,
-            quantity: Number(item.quantity),
-            price: snapshotPrice > 0 ? snapshotPrice : undefined,
+            quantity: stock.quantity,
+            entered_quantity: stock.entered_quantity,
+            entered_uom: stock.entered_uom,
+            price: stock.price > 0 ? stock.price : undefined,
             comments: item.comments?.trim() ? item.comments.trim() : undefined,
           });
 
@@ -615,14 +653,12 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
-      let inventoryValue = Number(
-        values.items
-          .reduce((sum, item) => {
-            const qty = Number(item.quantity || 0);
-            const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
-            return sum + qty * price;
-          }, 0)
-          .toFixed(2)
+      let inventoryValue = roundInventory(
+        values.items.reduce((sum, item) => {
+          const qty = Number(item.quantity || 0);
+          const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
+          return sum + qty * price;
+        }, 0)
       );
 
       if (inventoryValue <= 0 && purchaseId) {
@@ -635,17 +671,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           const fetchedItems = row?.items ?? [];
           if (fetchedItems.length > 0) {
             purchaseLineItems = fetchedItems;
-            inventoryValue = Number(
-              values.items
-                .reduce((sum, item) => {
-                  const qty = Number(item.quantity || 0);
-                  const price = resolveReturnLineUnitCost(
-                    item,
-                    matchPurchaseLine(item)
-                  );
-                  return sum + qty * price;
-                }, 0)
-                .toFixed(2)
+            inventoryValue = roundInventory(
+              values.items.reduce((sum, item) => {
+                const qty = Number(item.quantity || 0);
+                const price = resolveReturnLineUnitCost(
+                  item,
+                  matchPurchaseLine(item)
+                );
+                return sum + qty * price;
+              }, 0)
             );
           }
         } catch (error) {
@@ -817,6 +851,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 onClick={() => append({
                   item: null,
                   quantity: 1,
+                  entered_uom: "",
                   comments: "",
                   purchase_item_id: null,
                 })}
@@ -852,6 +887,15 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                             value={itemField.value}
                             onChange={(value) => {
                               itemField.onChange(value);
+                              const catalog = itemsList.find(
+                                (ci) => String(ci.id) === String(value?.value)
+                              );
+                              if (catalog?.uom) {
+                                setValue(
+                                  `items.${index}.entered_uom`,
+                                  normalizeUom(catalog.uom) ?? catalog.uom
+                                );
+                              }
                               const matched = selectedPurchase?.items?.find(
                                 (pi) => String(pi.item?.id) === String(value?.value)
                               );
@@ -868,21 +912,24 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                       />
                       <InputError error={get(errors, ["items", index, "item", "message"])}/>
                     </div>
-                    <div className="flex-1">
-                      <Controller
-                        name={`items.${index}.quantity`}
-                        control={control}
-                        render={({field: qtyField}) => (
-                          <Input
-                            label={t('stockTransfer.available', { qty: availableQuantity })}
-                            type="number"
-                            value={qtyField.value as number | string}
-                            onChange={qtyField.onChange}
-                            error={get(errors, ["items", index, "quantity", "message"])}
-                          />
-                        )}
-                      />
-                    </div>
+                    <QuantityUomFields
+                      control={control}
+                      quantityName={`items.${index}.quantity`}
+                      uomName={`items.${index}.entered_uom`}
+                      stockUom={
+                        itemsList.find(
+                          (ci) => String(ci.id) === String(watchedItems?.[index]?.item?.value)
+                        )?.uom
+                      }
+                      quantityLabel={
+                        availableQuantity === undefined
+                          ? t('forms.quantity')
+                          : t('stockTransfer.available', {
+                              qty: formatInventoryNumber(availableQuantity),
+                            })
+                      }
+                      errors={errors}
+                    />
                     <div className="flex-1">
                       <InputField
                         name={`items.${index}.comments`}

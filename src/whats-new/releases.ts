@@ -14,6 +14,126 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-28',
+    title: 'Assistant CSV cleanse and chat context',
+    items: [
+      'Attach a messy CSV/Excel in the AI assistant, pick an import domain (dishes, inventory, HR, accounts, and other AI Import screens), then download a corrected CSV to import on that screen.',
+      'Inventory item import no longer includes base quantity (unused after UOM conversion); UOM cleanse still maps synonyms and rejects pack-size numbers as units.',
+      'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
+      'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
+      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
+      'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Faster reports for long date ranges',
+    items: [
+      'Report filters (taxes, discounts, categories, menu items, payments, shifts, locations, and more) are applied in the database instead of after loading every matching order.',
+      'Sales Dashboard loads paid KPIs and open delivery orders in separate queries so multi-month ranges no longer pull every order status into the browser.',
+      'Product Mix Summary, detailed inventory, kitchen reconciliation, and AI/ops helpers (discounts, cash audit, tips, dine-in analytics) follow the same push-down pattern.',
+    ],
+  },
+  {
+    date: '2026-10-27',
+    title: 'Update dish costs from inventory prices',
+    items: [
+      'Settings → Dishes has Update costs from items: with confirmation, unlocked recipe lines take the current inventory item price and each dish cost is recalculated (price-locked lines stay as they are).',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Modifier availability',
+    items: [
+      'Sale limits and sold-out now count modifier picks as well as top-level dishes (cart, sold map, and settle).',
+      'Manage → Dishes: under each modifier group, set Available / Sale limit for an option on this parent dish only (e.g. Large sold out on Chicken Tikka but still available on Margherita). Global dish availability still applies as a ceiling.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Advanced Sales report: taxes filter and faster long ranges',
+    items: [
+      'Advanced Sales filter can narrow by specific taxes (in addition to with/without tax), matching both legacy order tax and order tax lines.',
+      'The Advanced Sales orders table is virtualized so multi-month ranges stay responsive while scrolling; printing still includes every row.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Dish recipe export and inventory cost precision',
+    items: [
+      'Dish ingredient export includes entered UOM and the item’s stock UOM for reference, sorted by dish name.',
+      'Recipe line totals and dish cost from recipes use inventory decimal places (VITE_INVENTORY_DECIMAL_PLACES), not POS currency decimals.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Role updates no longer fail on audit log',
+    items: [
+      'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events no longer read $auth fields inside SurrealDB 3.x event closures.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Per-dish ask quantity',
+    items: [
+      'Manage → Dishes: Ask quantity switch (and CSV column). When on, Menu and Quick Order prompt for qty after scan or tap for that dish only. CODE*N, *N, and scale labels still skip.',
+    ],
+  },
+  {
+    date: '2026-10-25',
+    title: 'Unique dish barcodes',
+    items: [
+      'Dish form and CSV import block saving when a primary or extra barcode is already used by another dish (same-dish duplicates are still cleaned automatically).',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Scale / weigh-label barcodes',
+    items: [
+      'Settings → Scale barcodes: enable EAN-13 weigh labels (butcher/bakery). Default layout 20 + PLU(5) + grams(5) + check; cart qty is kilograms and uses the dish price per kg.',
+      'Optional price-embedded mode for scales that encode amount instead of weight. PLU matches dish Number (leading zeros ignored) or barcode.',
+      'Quick Order reads scale codes before normal UPC lookup; fractional kg quantities are supported in the cart.',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Retail counter UX',
+    items: [
+      'Dishes support multiple barcodes (primary + aliases) for case/sleeve/alt UPCs; CSV import accepts an Extra barcodes column.',
+      'Quick Order qty after scan: type CODE*6 or *6 (last item) then Enter to add several units in one go.',
+      'Open customer display from Quick Order or Menu for a second-monitor cart and large total that updates live as you order and pay.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Item availability & sale limits',
+    items: [
+      'Dishes can be marked available/sold out and given an optional sale limit (units sold since you set the limit, minus the cart).',
+      'Manage → Availability: bulk update by selection or whole category; dish form also has Available + Sale limit.',
+      'Sold-out dishes are always blocked on Menu, Quick Order, and settle. Sale limits (available_qty) are on by default and count units sold since the limit was set (minus cart); Settings can turn limits off.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Quick Order / retail mode',
+    items: [
+      'New Quick Order screen (/quick): scan barcodes with a USB wedge, browse items, and pay — built for liquor stores, bakeries, and counter shops.',
+      'Settings → POS mode switches this device between Restaurant (floors/tables) and Quick Order; retail login opens Quick Order by default.',
+      'Dishes support an optional Barcode field (and CSV import) for scan lookup; PLU/number still works as fallback. Kitchen send is hidden on Quick Order — Pay Now settles tableless checks.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'AI dish recipe lookup',
+    items: [
+      'Ask AI what ingredients are in a dish (by name or number) to get the recipe lines — quantity, unit, and cost — without looping through unrelated tools.',
+      'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
+      'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
+      'Ask for dish → recipe counts (e.g. “dish name -> number of recipes”) to audit every dish’s recipe line count without ingredient detail.',
+    ],
+  },
+  {
+  {
     date: '2026-10-22',
     title: 'Desktop terminal can follow a central POS',
     items: [
@@ -28,6 +148,29 @@ export const RELEASES: ReleaseNotes[] = [
       'Settings on POSR Desktop shows Catalog sync. Sync now downloads the HQ catalog when the sync service is in full mode.',
     ],
   },
+    date: '2026-10-22',
+    title: 'Inventory UX polish',
+    items: [
+      'Document and dish views show entered qty/price together and keep line amounts in stock units, so on-screen totals match.',
+      'Unified inventory ledger rows open the related purchase, issue, waste, or transfer document.',
+      'Purchase lines show last and catalog prices, auto-select a single supplier/location, and drop base-quantity from the UI.',
+      'Kitchen reconciliation shows UOM; inventory summary labels average cost; business date appears when it differs from created date.',
+      'Unit converter opens from a button beside the sync status indicator (larger inputs in a modal) and stays usable while another modal is open.',
+      'Inventory quantity and cost calculations use four decimal places by default (set VITE_INVENTORY_DECIMAL_PLACES to change).',
+      'Inventory screens, document views/prints, and inventory reports display quantities and costs with that same inventory precision (independent of POS currency decimals).',
+      'Kitchen reconciliation physical count, waste, staff meal, and complimentary can be entered in a related unit (same family as the item stock UOM), like dish recipes; variance still uses stock units.',
+    ],
+  },
+  {
+    date: '2026-10-22',
+    title: 'Refresh catalog without full cache reload',
+    items: [
+      'Settings → Cache has Refresh catalog: re-downloads menu, floors, payments, taxes, and related catalog tables only — open checks, customers, and the order pull stay put (safe at peak time after menu edits).',
+      'Reload cache remains the full wipe for broken/stale operational data; use it when you need customers and recent orders rebuilt too.',
+      'Fixed menu items flashing then disappearing while Reload cache / snapshot was still running — a stale empty catalog project can no longer wipe dishes, categories, or floors that were already loaded.',
+    ],
+  },
+  {
   {
     date: '2026-10-21',
     title: 'Desktop reports and setup',
@@ -36,6 +179,16 @@ export const RELEASES: ReleaseNotes[] = [
       'The Windows installer shows the store setup window after it creates the app data folder, instead of stopping there.',
     ],
   },
+    date: '2026-10-20',
+    title: 'Inventory unit converter',
+    items: [
+      'Purchases, issues, returns, waste, adjustments, transfers, and recipes can enter quantities in a related unit (for example kg when stock is in grams). Stock and costs stay in the item’s stock unit.',
+      'Inventory → Units manages conversion factors in the database (view GAL↔L, edit factors, or add custom global units). Defaults use US customary; changing a factor does not rewrite past stock.',
+      'Standard families: weight (MG, G, KG, LB, OZ), volume (ML, L, GAL, QT, PT, FLOZ), and count (PC, DZN). Pack units are not converted.',
+      'The item stock unit cannot be changed after ledger movements or recipe lines exist, so existing balances are not relabeled.',
+    ],
+  },
+  {
   {
     date: '2026-10-17',
     title: 'Desktop gateway on the LAN',
@@ -47,7 +200,6 @@ export const RELEASES: ReleaseNotes[] = [
       'The Windows setup wizard script no longer fails to parse after the installer finishes.',
     ],
   },
-  {
     date: '2026-10-15',
     title: 'Build-time app module include/exclude',
     items: [
@@ -269,25 +421,6 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Schema catch-up for terminal sync',
     items: [
       'Fresh installs and production migrations now include PosStore sync tables, order ownership/version fields, the delivery menu function, and related security/accounting schema that was missing from the latest dump.',
-    ],
-  },
-  {
-    date: '2026-09-21',
-    title: 'Desktop logs, tray, and installer setup',
-    items: [
-      'POSR Desktop hides sidecar console windows on Windows and writes unified logs under app data (view them at Desktop logs or from the tray).',
-      'The system tray shows live status for Surreal, gateway, print, payment, tracking, API, and sync.',
-      'Windows/Linux/macOS installers can collect store, locale, currency, AI profiles, and integration secrets into installer-settings.json; the app applies them at runtime without rebuilding Vite URLs.',
-      'Login failures show gateway error details and a link to Desktop logs; sidecar env injection no longer gets overwritten by packaged .env.local files.',
-    ],
-  },
-  {
-    date: '2026-09-20',
-    title: 'Desktop offline shell (Tauri)',
-    items: [
-      'POSR Desktop can run without Docker: SurrealDB, gateway, print, payment, tracking, API, and sync start as local sidecars inside the Tauri app.',
-      'First-run setup lets you import any .surql file (full schema, demo data, or patches). Settings → Import SurrealQL can apply updates later.',
-      'Linux and Windows installers can package Node + Surreal binaries and service trees (see desktop/README.md).',
     ],
   },
   {

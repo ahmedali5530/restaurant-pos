@@ -2,7 +2,8 @@ import {useEffect, useMemo, useRef, useState, type ReactNode} from "react";
 import {useTranslation} from "react-i18next";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
-import {withCurrency, formatNumber} from "@/lib/utils.ts";
+import {withInventoryCurrency, formatInventoryNumber} from "@/lib/inventory/rounding.ts";
+import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import {ResponsiveLine} from "@nivo/line";
 import {useNivoTheme, useNivoColors} from "@/lib/nivo-theme.ts";
 import {cssVarRgb} from "@/lib/theme.ts";
@@ -530,7 +531,7 @@ export const InventoryDashboardReport = () => {
         location: p.location?.name || "-",
         createdBy: personName(p.created_by),
         items: p.items?.length || 0,
-        total: withCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
+        total: withInventoryCurrency(itemsTotal + safeNumber(p.tax_amount) + extras),
       };
     });
   }, [docs]);
@@ -543,7 +544,7 @@ export const InventoryDashboardReport = () => {
       location: pr.location?.name || "-",
       createdBy: personName(pr.created_by),
       items: pr.items?.length || 0,
-      total: withCurrency(
+      total: withInventoryCurrency(
         (pr.items ?? []).reduce(
           (sum: number, item: any) => sum + safeNumber(item.quantity) * safeNumber(item.price),
           0,
@@ -560,7 +561,7 @@ export const InventoryDashboardReport = () => {
       location: i.location?.name || "-",
       createdBy: personName(i.created_by),
       items: i.items?.length || 0,
-      total: formatNumber((i.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
+      total: formatInventoryNumber((i.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
     }));
   }, [docs]);
 
@@ -572,7 +573,7 @@ export const InventoryDashboardReport = () => {
       location: ir.location?.name || "-",
       createdBy: personName(ir.created_by),
       items: ir.items?.length || 0,
-      total: formatNumber((ir.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
+      total: formatInventoryNumber((ir.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
     }));
   }, [docs]);
 
@@ -584,7 +585,7 @@ export const InventoryDashboardReport = () => {
       issue: w.issue?.invoice_number ? `#${w.issue.invoice_number}` : "-",
       createdBy: personName(w.created_by),
       items: w.items?.length || 0,
-      total: formatNumber((w.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
+      total: formatInventoryNumber((w.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
     }));
   }, [docs]);
 
@@ -595,7 +596,7 @@ export const InventoryDashboardReport = () => {
       to: tr.to_location?.name || "-",
       createdBy: personName(tr.created_by),
       items: tr.items?.length || 0,
-      total: formatNumber((tr.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
+      total: formatInventoryNumber((tr.items ?? []).reduce((sum: number, item: any) => sum + safeNumber(item.quantity), 0)),
     }));
   }, [docs]);
 
@@ -606,7 +607,7 @@ export const InventoryDashboardReport = () => {
       recipe: b.recipe?.name || "-",
       location: b.location?.name || "-",
       createdBy: personName(b.created_by),
-      output: formatNumber((b.outputs ?? []).reduce((sum: number, out: any) => sum + safeNumber(out.quantity), 0)),
+      output: formatInventoryNumber((b.outputs ?? []).reduce((sum: number, out: any) => sum + safeNumber(out.quantity), 0)),
     }));
   }, [docs]);
 
@@ -617,7 +618,7 @@ export const InventoryDashboardReport = () => {
       menu: s.menu?.name || "-",
       location: s.location?.name || "-",
       status: s.status || "-",
-      consumption: formatNumber(
+      consumption: formatInventoryNumber(
         (s.consumption_logs ?? []).reduce(
           (sum: number, log: any) => sum + Math.abs(safeNumber(log.total_consumed ?? log.quantity)),
           0,
@@ -634,7 +635,7 @@ export const InventoryDashboardReport = () => {
       location: a.location?.name || "-",
       createdBy: personName(a.created_by),
       items: a.items?.length || 0,
-      total: formatNumber(
+      total: formatInventoryNumber(
         (a.items ?? []).reduce((sum: number, item: any) => sum + Math.abs(safeNumber(item.quantity_change)), 0),
       ),
     }));
@@ -652,7 +653,7 @@ export const InventoryDashboardReport = () => {
           status: reconciliation.status,
           revision: reconciliation.revision,
           lineCount: totals.lineCount,
-          totalVariance: formatNumber(totals.totalVariance),
+          totalVariance: formatInventoryNumber(totals.totalVariance),
           verifiedBy: personName(reconciliation.verified_by),
         };
       });
@@ -681,7 +682,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <KPIMetricWidget
               title={t("labels.totalPurchases")}
-              value={withCurrency(totals?.purchaseValue ?? 0)}
+              value={withInventoryCurrency(totals?.purchaseValue ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -689,7 +690,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.purchaseReturns")}
-              value={withCurrency(totals?.purchaseReturnValue ?? 0)}
+              value={withInventoryCurrency(totals?.purchaseReturnValue ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -697,7 +698,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.totalIssues")}
-              value={withCurrency(totals?.issueValue ?? 0)}
+              value={withInventoryCurrency(totals?.issueValue ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -705,7 +706,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.issueReturns")}
-              value={formatNumber(totals?.issueReturnQty ?? 0)}
+              value={formatInventoryNumber(totals?.issueReturnQty ?? 0)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -713,7 +714,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.wastes")}
-              value={formatNumber(totals?.wasteQty ?? 0)}
+              value={formatInventoryNumber(totals?.wasteQty ?? 0)}
               gradientClass="from-danger-100 to-danger-200"
               borderColor="border-danger-300"
               textColor="text-danger-900"
@@ -721,7 +722,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.transfers")}
-              value={formatNumber(totals?.transferQty ?? 0)}
+              value={formatInventoryNumber(totals?.transferQty ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -729,7 +730,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.production")}
-              value={formatNumber(totals?.productionOutputQty ?? 0)}
+              value={formatInventoryNumber(totals?.productionOutputQty ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -737,7 +738,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.buffetConsumption")}
-              value={formatNumber(totals?.buffetConsumptionQty ?? 0)}
+              value={formatInventoryNumber(totals?.buffetConsumptionQty ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -745,7 +746,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.adjustments")}
-              value={formatNumber(totals?.adjustmentQty ?? 0)}
+              value={formatInventoryNumber(totals?.adjustmentQty ?? 0)}
               gradientClass="from-neutral-100 to-neutral-200"
               borderColor="border-border"
               textColor="text-foreground"
@@ -753,7 +754,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.stockValue")}
-              value={withCurrency(stock?.totalStockValue ?? 0)}
+              value={withInventoryCurrency(stock?.totalStockValue ?? 0)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -761,7 +762,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.belowReorder")}
-              value={formatNumber(stock?.belowReorderCount ?? 0)}
+              value={formatInventoryNumber(stock?.belowReorderCount ?? 0)}
               gradientClass="from-danger-100 to-danger-200"
               borderColor="border-danger-300"
               textColor="text-danger-900"
@@ -774,7 +775,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <KPIMetricWidget
               title={t("labels.kitchenReconciliationCount")}
-              value={formatNumber(reconciliationKpis.reconciliationCount)}
+              value={formatInventoryNumber(reconciliationKpis.reconciliationCount)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -782,7 +783,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.kitchenReconciliationVerified")}
-              value={formatNumber(reconciliationKpis.verifiedReconciliationCount)}
+              value={formatInventoryNumber(reconciliationKpis.verifiedReconciliationCount)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -790,7 +791,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.kitchenReconciliationMissed")}
-              value={formatNumber(reconciliationKpis.missedReconciliationCount)}
+              value={formatInventoryNumber(reconciliationKpis.missedReconciliationCount)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -798,7 +799,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.kitchenReconciliationTotalVariance")}
-              value={formatNumber(reconciliationKpis.totalKitchenVariance)}
+              value={formatInventoryNumber(reconciliationKpis.totalKitchenVariance)}
               gradientClass="from-danger-100 to-danger-200"
               borderColor="border-danger-300"
               textColor="text-danger-900"
@@ -814,7 +815,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
             <KPIMetricWidget
               title={t("labels.totalIssued")}
-              value={formatNumber(compare?.totals.issuedQty ?? 0)}
+              value={formatInventoryNumber(compare?.totals.issuedQty ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -822,7 +823,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.totalConsumed")}
-              value={formatNumber(compare?.totals.consumedQty ?? 0)}
+              value={formatInventoryNumber(compare?.totals.consumedQty ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -830,7 +831,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.netVarianceIssuedConsumed")}
-              value={formatNumber(compare?.totals.variance ?? 0)}
+              value={formatInventoryNumber(compare?.totals.variance ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -865,11 +866,13 @@ export const InventoryDashboardReport = () => {
                             : ""
                       }
                     >
-                      <td className="py-3 px-3 text-sm font-medium text-foreground">{row.name}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.issuedQty)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.consumedQty)}</td>
+                      <td className="py-3 px-3 text-sm font-medium text-foreground">
+                        {formatInventoryItemLabel(row.name, row.code)}
+                      </td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.issuedQty)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.consumedQty)}</td>
                       <td className={`py-3 px-3 text-sm text-right font-semibold ${row.variance > 0 ? "text-warning-700" : row.variance < 0 ? "text-danger-700" : "text-foreground"}`}>
-                        {formatNumber(row.variance)}
+                        {formatInventoryNumber(row.variance)}
                       </td>
                       <td className="py-3 px-3 text-sm text-muted">{row.uom || "-"}</td>
                     </tr>
@@ -891,7 +894,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
             <KPIMetricWidget
               title={t("labels.todayNetSales")}
-              value={withCurrency(today?.netSales ?? 0)}
+              value={withInventoryCurrency(today?.netSales ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -899,7 +902,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayOrders")}
-              value={formatNumber(today?.orderCount ?? 0)}
+              value={formatInventoryNumber(today?.orderCount ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -907,7 +910,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayConsumption")}
-              value={formatNumber(today?.consumptionQty ?? 0)}
+              value={formatInventoryNumber(today?.consumptionQty ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -915,7 +918,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayIssuance")}
-              value={formatNumber(today?.issuedQty ?? 0)}
+              value={formatInventoryNumber(today?.issuedQty ?? 0)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -923,7 +926,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayPurchases")}
-              value={withCurrency(today?.purchaseValue ?? 0)}
+              value={withInventoryCurrency(today?.purchaseValue ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -931,7 +934,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayWaste")}
-              value={formatNumber(today?.wasteQty ?? 0)}
+              value={formatInventoryNumber(today?.wasteQty ?? 0)}
               gradientClass="from-danger-100 to-danger-200"
               borderColor="border-danger-300"
               textColor="text-danger-900"
@@ -939,7 +942,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayTransfers")}
-              value={formatNumber(today?.transferQty ?? 0)}
+              value={formatInventoryNumber(today?.transferQty ?? 0)}
               gradientClass="from-info-100 to-info-200"
               borderColor="border-info-300"
               textColor="text-info-900"
@@ -947,7 +950,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.todayConsumptionCost")}
-              value={withCurrency(today?.consumptionCost ?? 0)}
+              value={withInventoryCurrency(today?.consumptionCost ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -957,8 +960,8 @@ export const InventoryDashboardReport = () => {
           {(today?.salesTrendPercent != null || today?.consumptionTrendPercent != null) && (
             <p className="mt-4 text-sm text-muted">
               {t("labels.todayTrendDetail", {
-                salesPct: today?.salesTrendPercent != null ? formatNumber(today.salesTrendPercent) : "—",
-                consumptionPct: today?.consumptionTrendPercent != null ? formatNumber(today.consumptionTrendPercent) : "—",
+                salesPct: today?.salesTrendPercent != null ? formatInventoryNumber(today.salesTrendPercent) : "—",
+                consumptionPct: today?.consumptionTrendPercent != null ? formatInventoryNumber(today.consumptionTrendPercent) : "—",
               })}
             </p>
           )}
@@ -969,7 +972,7 @@ export const InventoryDashboardReport = () => {
           subtitle={
             dateRange.isLiveToday
               ? t("labels.inventoryNeededForTodayHelp", {
-                  percent: formatNumber((needed?.dayFraction ?? 0) * 100),
+                  percent: formatInventoryNumber((needed?.dayFraction ?? 0) * 100),
                 })
               : t("labels.inventoryNeededForPeriodHelp", {range: dateRangeLabel})
           }
@@ -977,7 +980,7 @@ export const InventoryDashboardReport = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <KPIMetricWidget
               title={t("labels.coveredItems")}
-              value={formatNumber(needed?.coveredCount ?? 0)}
+              value={formatInventoryNumber(needed?.coveredCount ?? 0)}
               gradientClass="from-success-100 to-success-200"
               borderColor="border-success-300"
               textColor="text-success-900"
@@ -985,7 +988,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.shortItems")}
-              value={formatNumber(needed?.shortCount ?? 0)}
+              value={formatInventoryNumber(needed?.shortCount ?? 0)}
               gradientClass="from-danger-100 to-danger-200"
               borderColor="border-danger-300"
               textColor="text-danger-900"
@@ -993,7 +996,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.projectedNeedCost")}
-              value={withCurrency(needed?.totalProjectedNeedCost ?? 0)}
+              value={withInventoryCurrency(needed?.totalProjectedNeedCost ?? 0)}
               gradientClass="from-primary-100 to-primary-200"
               borderColor="border-primary-300"
               textColor="text-primary-900"
@@ -1001,7 +1004,7 @@ export const InventoryDashboardReport = () => {
             />
             <KPIMetricWidget
               title={t("labels.shortfallCost")}
-              value={withCurrency(needed?.totalShortfallCost ?? 0)}
+              value={withInventoryCurrency(needed?.totalShortfallCost ?? 0)}
               gradientClass="from-warning-100 to-warning-200"
               borderColor="border-warning-300"
               textColor="text-warning-900"
@@ -1024,12 +1027,14 @@ export const InventoryDashboardReport = () => {
                 {(needed?.rows.length ?? 0) > 0 ? (
                   needed!.rows.map((row) => (
                     <tr key={row.itemId} className={row.shortfall > 0.001 ? "bg-danger/10/50" : ""}>
-                      <td className="py-3 px-3 text-sm font-medium">{row.name}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.onHand)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.todayConsumed)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.projectedNeed)}</td>
+                      <td className="py-3 px-3 text-sm font-medium">
+                        {formatInventoryItemLabel(row.name, row.code)}
+                      </td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.onHand)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.todayConsumed)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.projectedNeed)}</td>
                       <td className="py-3 px-3 text-sm text-right font-semibold text-danger-700">
-                        {formatNumber(row.shortfall)}
+                        {formatInventoryNumber(row.shortfall)}
                       </td>
                       <td className="py-3 px-3 text-sm">{row.uom || "-"}</td>
                     </tr>
@@ -1108,21 +1113,21 @@ export const InventoryDashboardReport = () => {
                       }
                     >
                       <td className="py-3 px-3 text-sm font-medium">
-                        {row.name}
+                        {formatInventoryItemLabel(row.name, row.code)}
                         {row.insufficientData ? (
                           <span className="ml-2 text-xs text-muted">({t("labels.insufficientData")})</span>
                         ) : null}
                       </td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.onHand)}</td>
-                      <td className="py-3 px-3 text-sm text-right">{formatNumber(row.avgDailyConsumption)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.onHand)}</td>
+                      <td className="py-3 px-3 text-sm text-right">{formatInventoryNumber(row.avgDailyConsumption)}</td>
                       <td className="py-3 px-3 text-sm text-right">
-                        {row.daysOfCover != null ? formatNumber(row.daysOfCover) : "—"}
+                        {row.daysOfCover != null ? formatInventoryNumber(row.daysOfCover) : "—"}
                       </td>
                       <td className="py-3 px-3 text-sm text-right">
-                        {row.estimatedStockoutDays != null ? formatNumber(row.estimatedStockoutDays) : "—"}
+                        {row.estimatedStockoutDays != null ? formatInventoryNumber(row.estimatedStockoutDays) : "—"}
                       </td>
                       <td className="py-3 px-3 text-sm text-right">
-                        {row.suggestedReorderQty != null ? formatNumber(row.suggestedReorderQty) : "—"}
+                        {row.suggestedReorderQty != null ? formatInventoryNumber(row.suggestedReorderQty) : "—"}
                       </td>
                     </tr>
                   ))
@@ -1182,14 +1187,14 @@ export const InventoryDashboardReport = () => {
                         <tr key={item.id} className={item.belowReorder ? "bg-danger/10/40" : "hover:bg-surface"}>
                           <td className="py-3 pl-4 pr-3 text-sm font-medium text-foreground">{item.name}</td>
                           <td className="py-3 px-3 text-sm text-muted font-mono">{item.code}</td>
-                          <td className="py-3 px-3 text-right text-sm font-semibold">{formatNumber(item.quantity)}</td>
-                          <td className="py-3 px-3 text-right text-sm">{withCurrency(item.value)}</td>
+                          <td className="py-3 px-3 text-right text-sm font-semibold">{formatInventoryNumber(item.quantity)}</td>
+                          <td className="py-3 px-3 text-right text-sm">{withInventoryCurrency(item.value)}</td>
                           <td className="py-3 px-3 text-sm text-muted">{item.uom || "-"}</td>
                           <td className="py-3 pr-4 text-sm">
                             {item.belowReorder ? (
                               <span className="text-danger-600 font-semibold">{t("labels.belowReorder")}</span>
                             ) : item.reorderLevel ? (
-                              formatNumber(item.reorderLevel)
+                              formatInventoryNumber(item.reorderLevel)
                             ) : (
                               "-"
                             )}

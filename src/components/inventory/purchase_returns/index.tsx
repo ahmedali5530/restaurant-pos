@@ -17,7 +17,7 @@ import {useSecurity} from "@/hooks/useSecurity.ts";
 import {formatDateTime} from "@/lib/datetime.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import { purchaseReturnListTotal } from "@/lib/inventory/document.list.total.ts";
-import { withCurrency } from "@/lib/utils.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 export const InventoryPurchaseReturns = () => {
   const { t } = useTranslation(['inventory', 'common']);
@@ -57,7 +57,7 @@ export const InventoryPurchaseReturns = () => {
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.slice(0, 5)?.map((item, index) => (
             <span key={item.id ?? index} className="tag">
-              {item.item?.name}-{item.item?.code} × {item.quantity}
+              {item.item?.name}-{item.item?.code} × {formatInventoryNumber(item.quantity)}
             </span>
           ))}
         </div>
@@ -66,7 +66,7 @@ export const InventoryPurchaseReturns = () => {
     columnHelper.accessor(row => purchaseReturnListTotal(row.items), {
       id: "total",
       header: t('columns.total'),
-      cell: info => withCurrency(info.getValue()),
+      cell: info => withInventoryCurrency(info.getValue()),
     }),
     columnHelper.accessor("id", {
       id: "actions",

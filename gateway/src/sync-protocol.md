@@ -87,8 +87,17 @@ Coupon redemptions use `POS_SNAPSHOT_COUPON_REDEMPTION_DURATION` (default
 `order` rows are returned with `FETCH payments, order_taxes, order_discounts,
 extras, coupon`; the client expands them into child stores.
 
+`POST /sync/snapshot` accepts optional `scope`:
+- `"full"` (default) — catalog + operational tables.
+- `"catalog"` — stop after `printer` with `complete: true` and
+  `catalogComplete: true` (Settings → Refresh catalog). Resume tokens for a
+  catalog run carry `scope: "catalog"` so pagination cannot spill into
+  customers/orders.
+
 When the last record page finishes, the snapshot returns `complete: true`
 with no events phase. Records are the truth at snapshot time; the client
 sets its pull cursor to `highWatermark` and `/sync/pull` only fetches events
 created after that watermark. Legacy resume tokens with `phase: 'events'`
-complete immediately without replaying history.
+complete immediately without replaying history. Catalog-only refresh does
+**not** advance the terminal’s pull cursor past its prior value (client keeps
+order sync intact).

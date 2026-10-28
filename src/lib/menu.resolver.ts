@@ -133,6 +133,11 @@ const sortByPriorityName = <T extends { priority?: number | null; name?: string 
   return String(a?.name ?? '').localeCompare(String(b?.name ?? ''));
 };
 
+/** Categories flagged off for FOH menu must never appear on Menu / Quick Order. */
+export const isCategoryShownOnMenu = (category: Category | null | undefined): boolean => {
+  return category?.show_in_menu !== false;
+};
+
 const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category[] => {
   const categoryIds = new Set<string>();
   dishes.forEach((dish) => {
@@ -142,7 +147,7 @@ const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category
   });
 
   return (categories ?? [])
-    .filter((category) => categoryIds.has(category.id.toString()))
+    .filter((category) => isCategoryShownOnMenu(category) && categoryIds.has(category.id.toString()))
     .sort(sortByPriorityName);
 };
 
@@ -157,7 +162,9 @@ export const resolveMenuAwareData = ({
   menus: MenuCollection
   now?: DateInput
 }): ResolvedMenuData => {
-  const safeCategories = [...(categories ?? [])].sort(sortByPriorityName);
+  const safeCategories = [...(categories ?? [])]
+    .filter(isCategoryShownOnMenu)
+    .sort(sortByPriorityName);
   const safeDishes = [...(dishes ?? [])].sort(sortByPriorityName);
   const normalizedMenus = normalizeMenus(menus);
   const activeMenus = normalizedMenus.filter((menu) => isMenuActiveNow(menu, now));
@@ -171,14 +178,33 @@ export const resolveMenuAwareData = ({
   }
 
   const baseDishMap = new Map<string, Dish>();
+  const rememberDish = (id: unknown, dish: Dish) => {
+    const raw = String(id ?? "");
+    if (!raw) {
+      return;
+    }
+    baseDishMap.set(raw, dish);
+    const prefixed = raw.includes(":") ? raw : `menu_item:${raw}`;
+    baseDishMap.set(prefixed, dish);
+    if (raw.includes(":")) {
+      baseDishMap.set(raw.slice(raw.indexOf(":") + 1), dish);
+    }
+  };
   safeDishes.forEach((dish) => {
-    baseDishMap.set(dish.id.toString(), dish);
+    rememberDish(dish.id, dish);
   });
 
   const menuItemMap = resolveMenuItemMap(activeMenus);
   const resolvedDishes: Dish[] = [];
   menuItemMap.forEach((data, dishId) => {
-    const dish = resolveMenuDish(baseDishMap.get(dishId), data.menuItem, data.menuName);
+    const base =
+      baseDishMap.get(dishId) ??
+      baseDishMap.get(dishId.includes(":") ? dishId : `menu_item:${dishId}`) ??
+      (dishId.includes(":")
+        ? baseDishMap.get(dishId.slice(dishId.indexOf(":") + 1))
+        : undefined);
+    // Prefer catalog dish (has live available / sale limit) over nested menu snapshot.
+    const dish = resolveMenuDish(base, data.menuItem, data.menuName);
     if (!dish) {
       return;
     }

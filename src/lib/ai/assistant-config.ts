@@ -12,6 +12,7 @@ export const ASSISTANT_EXAMPLE_PROMPT_IDS = [
   "listUsers",
   "inventoryStock",
   "howToPurchase",
+  "cleanseCsv",
 ] as const;
 
 export type AssistantExamplePromptId = (typeof ASSISTANT_EXAMPLE_PROMPT_IDS)[number];

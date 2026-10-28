@@ -4,6 +4,7 @@
   left: 0;
   right: 0;
   bottom: var(--app-toolbar-h);
+  /* Keep below app toolbar (z-9990) so UOM converter stays interactive */
   z-index: 1000;
 
   display: flex;
