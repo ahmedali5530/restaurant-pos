@@ -31,6 +31,28 @@ import {Workflow} from "@/api/model/workflow.ts";
 import {Kitchen} from "@/api/model/kitchen.ts";
 import {WorkflowForm} from "@/components/settings/workflows/workflow.form.tsx";
 import { emitEntityCrudSave } from '@/integrations/events/entity-write.ts';
+
+import { withCurrency } from "@/lib/utils.ts";
+import {
+  applyAvailabilityLocally,
+  applyModifierAvailabilityLocally,
+  buildAvailabilityPatch,
+  normalizeAvailabilityDishId,
+  toAvailabilityStampIso,
+} from "@/lib/dish-availability.ts";
+import {
+  normalizeExtraBarcodes,
+  queryBarcodeCollisions,
+} from "@/lib/quick-order-scan.ts";
+import {useSetAtom} from "jotai";
+import {appSettings} from "@/store/jotai.ts";
+
+type ModifierOptionOverrideDraft = {
+  available: boolean;
+  available_qty: number | null;
+  previousQty: number | null;
+  recordId?: string;
+};
 import {roundInventory, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
@@ -55,6 +77,18 @@ interface Props {
 const validationSchema = yup.object({
   name: yup.string().required(i18n.t('validation:required')),
   number: yup.string().required(i18n.t('validation:required')),
+  barcode: yup.string().nullable().optional(),
+  barcodes: yup.array().of(yup.string().nullable()).optional(),
+  available: yup.boolean().optional(),
+  ask_quantity: yup.boolean().optional(),
+  available_qty: yup
+    .number()
+    .nullable()
+    .transform((value, originalValue) =>
+      originalValue === "" || originalValue === null || originalValue === undefined ? null : value,
+    )
+    .min(0, i18n.t('forms.greaterThanOrEqualZero'))
+    .optional(),
   priority: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   // position: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
   price: yup.number().required(i18n.t('validation:required')).typeError(i18n.t('validation:mustBeNumber')),
@@ -103,6 +137,7 @@ export const DishForm = ({
   const { t } = useTranslation(['admin', 'common', 'validation', 'toast']);
   const { isBranchEditMode, loadMerged, save, soleBranchId, lockStructuralFields, canCreateEntities, isBranchOwnedBy } = useHqCatalogBranchEdit(Tables.dishes);
   const structuralLocked = lockStructuralFields(data);
+  const setAppSettings = useSetAtom(appSettings);
 
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -111,6 +146,9 @@ export const DishForm = ({
   const [workflowOption, setWorkflowOption] = useState<{ label: string; value: string } | null>(null);
   const [workflowStages, setWorkflowStages] = useState<any[]>([]);
   const [stageOverrides, setStageOverrides] = useState<Record<string, string>>({});
+  const [modifierOptionOverrides, setModifierOptionOverrides] = useState<
+    Record<string, ModifierOptionOverrideDraft>
+  >({});
 
   const closeModal = () => {
     onClose();
@@ -121,6 +159,7 @@ export const DishForm = ({
     setWorkflowOption(null);
     setWorkflowStages([]);
     setStageOverrides({});
+    setModifierOptionOverrides({});
   }
 
   useEffect(() => {
@@ -140,6 +179,11 @@ export const DishForm = ({
       const src: any = merged || data;
       reset({
         ...src,
+        available: src.available !== false,
+        ask_quantity: src.ask_quantity === true,
+        available_qty: src.available_qty ?? null,
+        barcodes: Array.isArray(src.barcodes) ? src.barcodes.map(String) : [],
+        barcode: src.barcode ?? '',
         categories: (src.categories || data.categories || []).map((item: any) => ({
           label: item.name,
           value: item.id
@@ -158,6 +202,7 @@ export const DishForm = ({
       }
 
       getModifierGroups(data.id);
+      getModifierAvailability(data.id);
       getRecipes(data.id);
       loadWorkflowAssignment(data.id);
     })();
@@ -231,6 +276,54 @@ export const DishForm = ({
       priority: item.priority
     })));
   }
+
+  const getModifierAvailability = async (id) => {
+    try {
+      const [rows]: any = await db.query(
+        `SELECT * FROM ${Tables.dish_modifier_availability} WHERE parent = $parent`,
+        {parent: id},
+      );
+      const next: Record<string, ModifierOptionOverrideDraft> = {};
+      for (const row of rows ?? []) {
+        const optionId = normalizeAvailabilityDishId(
+          row.option?.id ?? row.option,
+        );
+        if (!optionId) {
+          continue;
+        }
+        next[optionId] = {
+          available: row.available !== false,
+          available_qty: row.available_qty ?? null,
+          previousQty: row.available_qty ?? null,
+          recordId: row.id ? String(row.id) : undefined,
+        };
+      }
+      setModifierOptionOverrides(next);
+    } catch {
+      setModifierOptionOverrides({});
+    }
+  };
+
+  const updateModifierOptionOverride = (
+    optionId: string,
+    patch: Partial<ModifierOptionOverrideDraft>,
+  ) => {
+    const key = normalizeAvailabilityDishId(optionId);
+    if (!key) {
+      return;
+    }
+    setModifierOptionOverrides((prev) => {
+      const current = prev[key] ?? {
+        available: true,
+        available_qty: null,
+        previousQty: null,
+      };
+      return {
+        ...prev,
+        [key]: {...current, ...patch},
+      };
+    });
+  };
 
   const getRecipes = async (id) => {
     try {
@@ -363,6 +456,30 @@ export const DishForm = ({
         }
       }
 
+      const barcodeRaw = typeof formData.barcode === 'string' ? formData.barcode.trim() : '';
+      const extraBarcodes = normalizeExtraBarcodes(formData.barcodes, barcodeRaw);
+      const allBarcodes = barcodeRaw ? [barcodeRaw, ...extraBarcodes] : extraBarcodes;
+      if (allBarcodes.length > 0) {
+        const collisions = await queryBarcodeCollisions(
+          db,
+          allBarcodes,
+          data?.id ? [String(data.id)] : [],
+        );
+        if (collisions.length > 0) {
+          const hit = collisions[0];
+          throw new Error(
+            t('toast:admin.barcodeInUse', {
+              code: hit.code,
+              name: hit.dishName,
+            }),
+          );
+        }
+      }
+      const availability = buildAvailabilityPatch({
+        available: formData.available !== false,
+        available_qty: formData.available_qty,
+        previousQty: data?.available_qty,
+      });
       const stampBranch =
         soleBranchId && (!data?.id || isBranchOwnedBy(data))
           ? { branch_id: soleBranchId }
@@ -370,6 +487,9 @@ export const DishForm = ({
       const dishData: any = {
         name: formData.name,
         number: formData.number,
+        barcode: barcodeRaw || null,
+        barcodes: extraBarcodes.length ? extraBarcodes : null,
+        ask_quantity: formData.ask_quantity === true,
         // position: data.position,
         priority: formData.priority,
         price: formData.price,
@@ -377,9 +497,11 @@ export const DishForm = ({
         categories: formData.categories,
         workflow: workflowOption?.value ? new StringRecordId(workflowOption.value) : null,
         stage_overrides: workflowOption?.value ? overridesPayload : null,
+        ...availability,
         ...stampBranch,
       };
 
+      let savedDishId: any = data?.id;
       await save({
         id: data?.id,
         existing: data,
@@ -400,6 +522,7 @@ export const DishForm = ({
             const [record] = await db.create(Tables.dishes, dishData);
             menuId = record.id;
           }
+          savedDishId = menuId;
 
           if (photoData && photoFile) {
             const [photoId] = await db.create(Tables.documents, {
@@ -470,6 +593,68 @@ export const DishForm = ({
             });
           }
 
+          {
+            const parentKey = normalizeAvailabilityDishId(menuId) || String(menuId);
+            const [existingRows]: any = await db.query(
+              `SELECT id FROM ${Tables.dish_modifier_availability} WHERE parent = $parent`,
+              {parent: menuId},
+            );
+            const deletedIds = (existingRows ?? []).map((row: any) => String(row.id)).filter(Boolean);
+            if (deletedIds.length) {
+              await db.query(
+                `DELETE ${Tables.dish_modifier_availability} WHERE parent = $parent`,
+                {parent: menuId},
+              );
+            }
+
+            const localRows: Array<{
+              id?: string;
+              parent: string;
+              option: string;
+              available?: boolean;
+              available_qty?: number | null;
+              available_qty_set_at?: string | null;
+            }> = [];
+
+            for (const [optionId, ov] of Object.entries(modifierOptionOverrides)) {
+              const inherits =
+                ov.available !== false &&
+                (ov.available_qty == null || ov.available_qty === ("" as any));
+              if (inherits) {
+                continue;
+              }
+              const patch = buildAvailabilityPatch({
+                available: ov.available !== false,
+                available_qty: ov.available_qty,
+                previousQty: ov.previousQty,
+              });
+              const [created]: any = await db.create(Tables.dish_modifier_availability, {
+                parent: menuId instanceof RecordId || String(menuId).includes(":")
+                  ? (typeof menuId === "string" ? new StringRecordId(menuId) : menuId)
+                  : new StringRecordId(parentKey),
+                option: new StringRecordId(
+                  optionId.includes(":") ? optionId : `menu_item:${optionId}`,
+                ),
+                ...patch,
+              });
+              localRows.push({
+                id: created?.id ? String(created.id) : undefined,
+                parent: parentKey,
+                option: normalizeAvailabilityDishId(optionId) || optionId,
+                available: patch.available,
+                available_qty: patch.available_qty ?? null,
+                available_qty_set_at: toAvailabilityStampIso(patch.available_qty_set_at),
+              });
+            }
+
+            await applyModifierAvailabilityLocally({
+              parentId: parentKey,
+              rows: localRows,
+              deletedIds,
+              setAppSettings,
+            }).catch(() => undefined);
+          }
+
           await emitEntityCrudSave({
             domain: 'manage',
             table: Tables.dishes,
@@ -481,6 +666,14 @@ export const DishForm = ({
           });
         },
       });
+
+      await applyAvailabilityLocally({
+        patches: [{
+          id: String(savedDishId),
+          ...availability,
+        }],
+        setAppSettings,
+      }).catch(() => undefined);
 
       closeModal();
       toast.success(
@@ -611,6 +804,141 @@ export const DishForm = ({
                 )}
               />
             </div>
+          </div>
+
+              <InputField name="barcode" control={control} label={t('forms.barcodeOfItem')} error={errors?.barcode?.message}/>
+            </div>
+            <div className="flex-1">
+              <Controller
+                name="priority"
+                control={control}
+                render={({field}) => (
+                  <Input
+                    value={field.value}
+                    onChange={field.onChange}
+                    type="number"
+                    label={t('columns.priority')}
+                    error={errors?.priority?.message}
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="mb-3 rounded-xl border border-border p-3 bg-surface-elevated" data-testid="dish-form-extra-barcodes">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div>
+                <div className="font-medium text-foreground">{t('forms.extraBarcodes')}</div>
+                <p className="text-sm text-muted">{t('forms.extraBarcodesHint')}</p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                icon={faPlus}
+                onClick={() => {
+                  const current = (getValues('barcodes') as string[] | undefined) ?? [];
+                  setValue('barcodes', [...current, ''], {shouldDirty: true});
+                }}
+              >
+                {t('forms.addBarcode')}
+              </Button>
+            </div>
+            <Controller
+              name="barcodes"
+              control={control}
+              render={({field}) => {
+                const rows = Array.isArray(field.value) ? field.value : [];
+                if (rows.length === 0) {
+                  return (
+                    <p className="text-sm text-muted">{t('forms.extraBarcodesEmpty')}</p>
+                  );
+                }
+                return (
+                  <div className="flex flex-col gap-2">
+                    {rows.map((code, index) => (
+                      <div key={`barcode-${index}`} className="flex gap-2 items-center">
+                        <div className="flex-1">
+                          <Input
+                            value={code ?? ''}
+                            onChange={(e) => {
+                              const next = [...rows];
+                              next[index] = e.target.value;
+                              field.onChange(next);
+                            }}
+                            placeholder={t('forms.extraBarcodePlaceholder')}
+                            data-testid={`dish-extra-barcode-${index}`}
+                          />
+                        </div>
+                        <IconTooltipButton
+                          type="button"
+                          icon={faTrash}
+                          variant="danger"
+                          label={t('common:remove', {defaultValue: 'Remove'})}
+                          onClick={() => {
+                            field.onChange(rows.filter((_, i) => i !== index));
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              }}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-3 items-end">
+            <div>
+              <Controller
+                name="available"
+                control={control}
+                defaultValue={true}
+                render={({field}) => (
+                  <Switch
+                    checked={field.value !== false}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                  >
+                    {t('forms.availableOnMenu')}
+                  </Switch>
+                )}
+              />
+            </div>
+            <div>
+              <Controller
+                name="ask_quantity"
+                control={control}
+                defaultValue={false}
+                render={({field}) => (
+                  <Switch
+                    checked={field.value === true}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                    data-testid="dish-form-ask-quantity"
+                  >
+                    {t('forms.askQuantity')}
+                  </Switch>
+                )}
+              />
+            </div>
+            <div className="w-40">
+              <Controller
+                name="available_qty"
+                control={control}
+                render={({field}) => (
+                  <Input
+                    type="number"
+                    label={t('forms.availableQty')}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      field.onChange(v === "" ? null : v);
+                    }}
+                    error={errors?.available_qty?.message as string | undefined}
+                  />
+                )}
+              />
+            </div>
+            <p className="text-sm text-muted max-w-md pb-2">{t('forms.availableQtyHint')}</p>
+            <p className="text-sm text-muted max-w-md pb-2">{t('forms.askQuantityHint')}</p>
           </div>
 
           <div className="flex gap-3">
@@ -803,94 +1131,154 @@ export const DishForm = ({
                 </Button>
               </div>
 
-              {modifierGroupFields.map((item, index) => (
-                <div className="flex gap-3 mb-3" key={item.id}>
-                  <div className="flex-1">
-                    <label htmlFor="group">{t('entities.modifierGroup')}</label>
-                    <Controller
-                      name={`modifier_groups.${index}.modifier_group`}
-                      control={control}
-                      render={({field}) => (
-                        <ReactSelect
-                          value={field.value}
-                          onChange={field.onChange}
-                          isLoading={loadingModifierGroups}
-                          isDisabled={structuralLocked}
-                          options={modifierGroups?.data?.map(item => ({
-                            label: item.name,
-                            value: item.id,
-                            modifiers: item.modifiers
-                          }))}
+              {modifierGroupFields.map((item, index) => {
+                const selected = watch(`modifier_groups.${index}.modifier_group`);
+                const group = modifierGroups?.data?.find(
+                  (g) => String(g.id) === String(selected?.value ?? ""),
+                );
+                const options = (group?.modifiers ?? []).filter((m: any) => m?.modifier?.id);
+                return (
+                  <div className="mb-3" key={item.id}>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <label htmlFor="group">{t('entities.modifierGroup')}</label>
+                        <Controller
+                          name={`modifier_groups.${index}.modifier_group`}
+                          control={control}
+                          render={({field}) => (
+                            <ReactSelect
+                              value={field.value}
+                              onChange={field.onChange}
+                              isLoading={loadingModifierGroups}
+                              options={modifierGroups?.data?.map(item => ({
+                                label: item.name,
+                                value: item.id,
+                                modifiers: item.modifiers
+                              }))}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                    <InputError error={get(errors, ['modifier_groups', index, 'modifier_group', 'message'])}/>
-                  </div>
-                  <div className="flex-1 self-end">
-                    <Controller
-                      name={`modifier_groups.${index}.should_auto_select`}
-                      control={control}
-                      render={({field}) => (
-                        <Switch checked={field.value} onChange={field.onChange}>
-                          Auto select modifiers?
-                        </Switch>
-                      )}
-                    />
-                  </div>
-                  <div className="flex-1 self-end">
-                    <Controller
-                      name={`modifier_groups.${index}.should_auto_open`}
-                      control={control}
-                      render={({field}) => (
-                        <Switch checked={field.value} onChange={field.onChange}>
-                          Auto open modifiers?
-                        </Switch>
-                      )}
-                    />
-                  </div>
-                  <div className="flex-1 self-end">
-                    <Controller
-                      name={`modifier_groups.${index}.has_required_modifiers`}
-                      control={control}
-                      render={({field}) => (
-                        <Switch checked={field.value} onChange={field.onChange}>
-                          Has required modifiers
-                        </Switch>
-                      )}
-                    />
-                  </div>
-                  <div className="flex-1 self-end">
-                    <Controller
-                      name={`modifier_groups.${index}.required_modifiers`}
-                      control={control}
-                      render={({field}) => (
-                        <Input
-                          type="number" value={field.value} onChange={field.onChange}
-                          label={t('forms.requiredModifiers')}
-                          disabled={!toggleRequiredField(index)}
-                          error={get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
+                        <InputError error={get(errors, ['modifier_groups', index, 'modifier_group', 'message'])}/>
+                      </div>
+                      <div className="flex-1 self-end">
+                        <Controller
+                          name={`modifier_groups.${index}.should_auto_select`}
+                          control={control}
+                          render={({field}) => (
+                            <Switch checked={field.value} onChange={field.onChange}>
+                              Auto select modifiers?
+                            </Switch>
+                          )}
                         />
-                      )}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Controller
-                      name={`modifier_groups.${index}.priority`}
-                      control={control}
-                      render={({field}) => (
-                        <Input
-                          type="number" value={field.value} onChange={field.onChange}
-                          label={t('columns.priority')}
-                          error={get(errors, ['modifier_groups', index, 'priority', 'message'])}
+                      </div>
+                      <div className="flex-1 self-end">
+                        <Controller
+                          name={`modifier_groups.${index}.should_auto_open`}
+                          control={control}
+                          render={({field}) => (
+                            <Switch checked={field.value} onChange={field.onChange}>
+                              Auto open modifiers?
+                            </Switch>
+                          )}
                         />
-                      )}
-                    />
+                      </div>
+                      <div className="flex-1 self-end">
+                        <Controller
+                          name={`modifier_groups.${index}.has_required_modifiers`}
+                          control={control}
+                          render={({field}) => (
+                            <Switch checked={field.value} onChange={field.onChange}>
+                              Has required modifiers
+                            </Switch>
+                          )}
+                        />
+                      </div>
+                      <div className="flex-1 self-end">
+                        <Controller
+                          name={`modifier_groups.${index}.required_modifiers`}
+                          control={control}
+                          render={({field}) => (
+                            <Input
+                              type="number" value={field.value} onChange={field.onChange}
+                              label={t('forms.requiredModifiers')}
+                              disabled={!toggleRequiredField(index)}
+                              error={get(errors, ['modifier_groups', index, 'required_modifiers', 'message'])}
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <Controller
+                          name={`modifier_groups.${index}.priority`}
+                          control={control}
+                          render={({field}) => (
+                            <Input
+                              type="number" value={field.value} onChange={field.onChange}
+                              label={t('columns.priority')}
+                              error={get(errors, ['modifier_groups', index, 'priority', 'message'])}
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="flex-0 self-end">
+                        <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
+                      </div>
+                    </div>
+                    {options.length > 0 && (
+                      <div className="mt-3 rounded-lg border border-border p-3">
+                        <div className="mb-2 text-sm font-semibold">
+                          {t('forms.modifierOptionAvailability')}
+                        </div>
+                        <p className="mb-3 text-sm text-muted">{t('forms.modifierOptionAvailableHint')}</p>
+                        <div className="flex flex-col gap-3">
+                          {options.map((mod: any) => {
+                            const optionId = normalizeAvailabilityDishId(mod.modifier.id);
+                            const ov = modifierOptionOverrides[optionId] ?? {
+                              available: true,
+                              available_qty: null,
+                              previousQty: null,
+                            };
+                            return (
+                              <div key={optionId} className="flex flex-wrap items-end gap-3">
+                                <div className="min-w-[10rem] flex-1 font-medium">
+                                  {mod.modifier?.name ?? optionId}
+                                </div>
+                                <div>
+                                  <Switch
+                                    checked={ov.available !== false}
+                                    onChange={(e) =>
+                                      updateModifierOptionOverride(optionId, {
+                                        available: e.target.checked,
+                                      })
+                                    }
+                                  >
+                                    {t('forms.modifierOptionAvailable')}
+                                  </Switch>
+                                </div>
+                                <div className="w-40">
+                                  <Input
+                                    type="number"
+                                    value={ov.available_qty ?? ""}
+                                    onChange={(e) => {
+                                      const raw = e.target.value;
+                                      updateModifierOptionOverride(optionId, {
+                                        available_qty:
+                                          raw === "" || raw == null ? null : Number(raw),
+                                      });
+                                    }}
+                                    label={t('forms.modifierOptionSaleLimit')}
+                                    disabled={ov.available === false}
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-0 self-end">
-                    <IconTooltipButton label={t('common:actions.remove')} variant="danger" onClick={() => remove(index)} disabled={structuralLocked}><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </fieldset>
           </div>
 

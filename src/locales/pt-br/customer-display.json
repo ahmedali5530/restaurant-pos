@@ -1,0 +1,12 @@
+{
+  "title": "Tela do cliente",
+  "heading": "Seu pedido",
+  "idle": "Bem-vindo",
+  "idleHint": "Itens escaneados aparecerão aqui",
+  "thankYou": "Obrigado!",
+  "thankYouHint": "Volte sempre",
+  "qty": "Qtd {{count}}",
+  "total": "Total",
+  "items": "Itens ({{count}})",
+  "totalWithTax": "Total com {{name}} {{rate}}%"
+}

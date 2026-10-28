@@ -1,5 +1,9 @@
 import type {DbClient} from "@/api/reports/shared/types.ts";
-import {formatDishRecipeForPrompt, getDishRecipe} from "@/api/reports/sales/dish-recipe.ts";
+import {
+  formatDishRecipeAsAnswer,
+  formatDishRecipeForPrompt,
+  getDishRecipe,
+} from "@/api/reports/sales/dish-recipe.ts";
 import {
   isDishRecipeCatalogPrompt,
   isDishRecipePrompt,
@@ -12,12 +16,18 @@ export type DishRecipeFastPathResult = {
   args: Record<string, unknown>;
   result: unknown;
   instruction: string;
+  /** When set, return this to the user without calling the LLM (avoids blank/tool dumps). */
+  directAnswer?: string;
 };
 
 const catalogHintFor = (focus: string | undefined): string => {
   const tableHint =
     "When name/number/category fields are present, render a markdown table with columns "
     + "Name | Number | Category (use each row's category value; never leave Category blank if data has it). ";
+  if (focus === "counts") {
+    return "mode=catalog/counts: output ONLY a markdown table Dish | Recipes (recipe line count). "
+      + "No ingredient names, costs, or other detail. Sort is already lowest counts first. ";
+  }
   if (focus === "missing") {
     return "mode=catalog/missing: list missingIngredients (dishes with no recipe). "
       + tableHint
@@ -60,6 +70,17 @@ export const tryDishRecipeFastPath = async (
 
   options.onToolStart?.("get_dish_recipe");
   const result = await getDishRecipe(db, args);
+
+  // Counts (and other deterministic catalogs): never depend on the model to restate data.
+  if (result.mode === "catalog" && result.catalogFocus === "counts") {
+    return {
+      toolName: "get_dish_recipe",
+      args,
+      result,
+      instruction: "",
+      directAnswer: formatDishRecipeAsAnswer(result),
+    };
+  }
 
   const catalogHint = result.mode === "catalog"
     ? catalogHintFor(result.catalogFocus)

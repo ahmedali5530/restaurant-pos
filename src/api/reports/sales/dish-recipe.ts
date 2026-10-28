@@ -18,6 +18,8 @@ export interface GetDishRecipeOptions {
   onlyMissingIngredients?: boolean;
   /** Exclude dishes whose category name looks like a modifier category. */
   omitModifierCategories?: boolean;
+  /** Catalog: dish name -> recipe line count only (includes dishes with 0). */
+  countsOnly?: boolean;
 }
 
 export interface DishRecipeIngredient {
@@ -50,8 +52,8 @@ export interface DishRecipeDishRow {
 export interface DishRecipeResult {
   found: boolean;
   mode: "single" | "catalog";
-  /** with = only recipes; missing = only empty; compare = both groups. */
-  catalogFocus?: "with" | "missing" | "compare";
+  /** with = only recipes; missing = only empty; compare = both; counts = name→count. */
+  catalogFocus?: "with" | "missing" | "compare" | "counts";
   dish?: DishRecipeDishRow["dish"];
   ingredients: DishRecipeIngredient[];
   ingredientCount: number;
@@ -364,16 +366,22 @@ export const listDishRecipes = async (
     onlyWithIngredients?: boolean;
     onlyMissingIngredients?: boolean;
     omitModifierCategories?: boolean;
+    countsOnly?: boolean;
   } = {},
 ): Promise<DishRecipeResult> => {
+  const countsOnly = options.countsOnly === true;
   const onlyMissingIngredients = options.onlyMissingIngredients === true;
-  const includeMissing = onlyMissingIngredients || options.onlyWithIngredients === false;
+  const includeMissing = countsOnly
+    || onlyMissingIngredients
+    || options.onlyWithIngredients === false;
   const omitModifierCategories = options.omitModifierCategories === true;
-  const catalogFocus: "with" | "missing" | "compare" = onlyMissingIngredients
-    ? "missing"
-    : includeMissing
-      ? "compare"
-      : "with";
+  const catalogFocus: "with" | "missing" | "compare" | "counts" = countsOnly
+    ? "counts"
+    : onlyMissingIngredients
+      ? "missing"
+      : includeMissing
+        ? "compare"
+        : "with";
   const defaultLimit = catalogFocus === "with"
     ? CATALOG_LIMIT_DEFAULT_WITH
     : CATALOG_LIMIT_DEFAULT_MISSING;
@@ -382,8 +390,11 @@ export const listDishRecipes = async (
   const [recipes, allDishes, categoryNameById] = await Promise.all([
     unwrapQueryResult<RecipeRow>(
       await db.query(
-        `SELECT * FROM ${Tables.dishes_recipes}
-         FETCH menu_item, item`,
+        countsOnly
+          // Counts must include broken recipe rows (missing/unfetched item).
+          ? `SELECT menu_item FROM ${Tables.dishes_recipes} FETCH menu_item`
+          : `SELECT * FROM ${Tables.dishes_recipes}
+             FETCH menu_item, item`,
       ),
     ),
     loadActiveDishesWithCategories(db),
@@ -398,31 +409,48 @@ export const listDishRecipes = async (
     }
   }
 
-  const byDish = new Map<string, {dish: Dish; ingredients: DishRecipeIngredient[]}>();
+  const resolveRecipeDish = (menuItem: RecipeRow["menu_item"]): {dishId: string; dish: Dish} | null => {
+    if (!menuItem) {
+      return null;
+    }
+    if (typeof menuItem === "object") {
+      if (menuItem.deleted_at) {
+        return null;
+      }
+      const dishId = recordToString(menuItem.id);
+      if (!dishId) {
+        return null;
+      }
+      return {dishId, dish: dishById.get(dishId) ?? menuItem};
+    }
+    const dishId = recordToString(menuItem);
+    if (!dishId) {
+      return null;
+    }
+    const dish = dishById.get(dishId);
+    return dish ? {dishId, dish} : null;
+  };
+
+  const byDish = new Map<string, {dish: Dish; ingredients: DishRecipeIngredient[]; rawCount: number}>();
 
   for (const row of recipes) {
-    const menuItem = row.menu_item;
-    if (!menuItem || typeof menuItem !== "object") {
+    const resolved = resolveRecipeDish(row.menu_item);
+    if (!resolved) {
       continue;
     }
-    if (menuItem.deleted_at) {
-      continue;
-    }
-    const dishId = recordToString(menuItem.id);
-    if (!dishId) {
-      continue;
-    }
-    const ingredient = mapIngredient(row);
-    if (!ingredient) {
-      continue;
-    }
+    const {dishId, dish} = resolved;
     let entry = byDish.get(dishId);
     if (!entry) {
-      // Prefer the categories-fetched dish record when available.
-      entry = {dish: dishById.get(dishId) ?? menuItem, ingredients: []};
+      entry = {dish, ingredients: [], rawCount: 0};
       byDish.set(dishId, entry);
     }
-    entry.ingredients.push(ingredient);
+    entry.rawCount += 1;
+    if (!countsOnly) {
+      const ingredient = mapIngredient(row);
+      if (ingredient) {
+        entry.ingredients.push(ingredient);
+      }
+    }
   }
 
   const applyModifierFilter = <T extends DishRecipeDishRow>(rows: T[]): T[] =>
@@ -430,21 +458,63 @@ export const listDishRecipes = async (
       ? rows.filter(row => !dishBelongsToModifierCategory(row.dish, categoryNameById))
       : rows;
 
+  if (catalogFocus === "counts") {
+    const countRows = applyModifierFilter(
+      allDishes.map(dish => {
+        const id = recordToString(dish.id);
+        const rawCount = byDish.get(id)?.rawCount ?? 0;
+        const row = buildDishRow(dish, [], categoryNameById);
+        return {...row, ingredientCount: rawCount};
+      }).sort((a, b) => {
+        if (a.ingredientCount !== b.ingredientCount) {
+          return a.ingredientCount - b.ingredientCount;
+        }
+        return a.dish.name.localeCompare(b.dish.name);
+      }),
+    );
+    const truncated = countRows.length > limit;
+    const dishes = countRows.slice(0, limit);
+    const withCount = dishes.filter(row => row.ingredientCount > 0).length;
+    const missingCount = dishes.filter(row => row.ingredientCount === 0).length;
+    return {
+      found: dishes.length > 0,
+      mode: "catalog",
+      catalogFocus: "counts",
+      ingredients: [],
+      ingredientCount: 0,
+      totalRecipeCost: 0,
+      dishes,
+      dishCount: dishes.length,
+      withIngredientsCount: withCount,
+      missingIngredientsCount: missingCount,
+      truncated,
+      message: truncated
+        ? `Showing first ${limit} of ${countRows.length} dishes (recipe line counts).`
+        : `Recipe line counts for ${dishes.length} dishes (${missingCount} with zero).`,
+    };
+  }
+
   const withRows = applyModifierFilter(
     Array.from(byDish.values())
       .map(({dish, ingredients}) => {
         ingredients.sort((a, b) => a.ingredientName.localeCompare(b.ingredientName));
         return buildDishRow(dish, ingredients, categoryNameById);
       })
+      .filter(row => row.ingredientCount > 0)
       .sort((a, b) => a.dish.name.localeCompare(b.dish.name)),
   );
 
   let missingRows: DishRecipeDishRow[] = [];
   if (includeMissing) {
-    const withRecipeIds = new Set(byDish.keys());
+    // "Has recipe" = at least one mapped ingredient (orphan recipe rows don't count).
+    const withMappedIds = new Set(
+      Array.from(byDish.entries())
+        .filter(([, entry]) => entry.ingredients.length > 0)
+        .map(([id]) => id),
+    );
     missingRows = applyModifierFilter(
       allDishes
-        .filter(dish => !withRecipeIds.has(recordToString(dish.id)))
+        .filter(dish => !withMappedIds.has(recordToString(dish.id)))
         .map(dish => buildDishRow(dish, [], categoryNameById))
         .sort((a, b) => a.dish.name.localeCompare(b.dish.name)),
     );
@@ -572,6 +642,24 @@ export const formatDishRecipeForPrompt = (result: DishRecipeResult): string => {
     });
   }
 
+  if (result.catalogFocus === "counts") {
+    return JSON.stringify({
+      found: true,
+      mode: "catalog",
+      catalogFocus: "counts",
+      dishCount: result.dishCount,
+      withIngredientsCount: result.withIngredientsCount,
+      missingIngredientsCount: result.missingIngredientsCount,
+      truncated: result.truncated || undefined,
+      message: result.message,
+      columns: ["dish", "recipes"],
+      dishes: result.dishes.map(row => ({
+        dish: row.dish.name,
+        recipes: row.ingredientCount,
+      })),
+    });
+  }
+
   return JSON.stringify({
     found: true,
     mode: "catalog",
@@ -581,6 +669,52 @@ export const formatDishRecipeForPrompt = (result: DishRecipeResult): string => {
     message: result.message,
     dishes: result.dishes.map(compactDishRow),
   });
+};
+
+/**
+ * Deterministic markdown answer (no LLM). Used for counts-only and as a blank-answer fallback.
+ */
+export const formatDishRecipeAsAnswer = (result: DishRecipeResult): string => {
+  if (result.mode === "catalog" && result.catalogFocus === "counts") {
+    if (!result.dishes.length) {
+      return result.message || "No dishes found.";
+    }
+    const lines = [
+      "| Dish | Recipes |",
+      "| --- | ---: |",
+      ...result.dishes.map(row => `| ${row.dish.name.replace(/\|/g, "/")} | ${row.ingredientCount} |`),
+    ];
+    if (result.message) {
+      lines.push("", result.message);
+    }
+    if (result.truncated) {
+      lines.push("", "_List truncated._");
+    }
+    return lines.join("\n");
+  }
+
+  if (result.mode === "catalog" && result.catalogFocus === "missing") {
+    if (!result.dishes.length) {
+      return result.message || "No dishes with missing recipes.";
+    }
+    const lines = [
+      "| Name | Number | Category |",
+      "| --- | --- | --- |",
+      ...result.dishes.map(row => {
+        const name = row.dish.name.replace(/\|/g, "/");
+        const number = String(row.dish.number ?? "").replace(/\|/g, "/");
+        const category = String(row.dish.category ?? row.dish.categories.join(", ")).replace(/\|/g, "/");
+        return `| ${name} | ${number} | ${category} |`;
+      }),
+    ];
+    if (result.message) {
+      lines.push("", result.message);
+    }
+    return lines.join("\n");
+  }
+
+  // Generic fallback: compact JSON is better than a blank chat bubble.
+  return formatDishRecipeForPrompt(result);
 };
 
 /**
@@ -598,6 +732,7 @@ export const getDishRecipe = async (
       onlyWithIngredients: options.onlyWithIngredients,
       onlyMissingIngredients: options.onlyMissingIngredients,
       omitModifierCategories: options.omitModifierCategories,
+      countsOnly: options.countsOnly,
     });
   }
 

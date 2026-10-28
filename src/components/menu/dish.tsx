@@ -1,9 +1,10 @@
-import {withCurrency} from "@/lib/utils.ts";
+import {cn, withCurrency} from "@/lib/utils.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
 import {appSettings, appState, appPage} from "@/store/jotai.ts";
 import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
+import {DishQtyPrompt, dishAsksQuantity} from "@/components/menu/qty-prompt.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {nanoid} from "nanoid";
 import {detectMimeType} from "@/utils/files.ts";
@@ -19,6 +20,19 @@ import {DishModifierGroup} from "@/api/model/dish_modifier_group.ts";
 import {MenuModifierOverrides} from "@/api/model/menu.ts";
 import {get} from 'idb-keyval'
 import {Tables} from "@/api/db/tables.ts";
+import {
+  canAddDishQty,
+  canAddModifierOptionQty,
+  dishSoldMapAtom,
+  getRemainingQty,
+  lookupModifierAvailability,
+  modifierContextualSoldMapAtom,
+  soldFromContextualMap,
+  soldFromMap,
+  withLiveAvailability,
+} from "@/lib/dish-availability.ts";
+import {toast} from "sonner";
+import {useTranslation} from "react-i18next";
 
 const dishImageCache = new Map<string, string>();
 
@@ -32,6 +46,8 @@ interface Props {
   parentModifier?: Modifier
   /** Root dish menu overrides (needed when item is a nested modifier dish) */
   menuModifierOverrides?: MenuModifierOverrides | null
+  /** Immediate parent dish id when rendering a modifier option tile. */
+  parentDishId?: string
 }
 
 export const MenuDish = ({
@@ -43,15 +59,69 @@ export const MenuDish = ({
   allowedNextGroupIds,
   parentModifier,
   menuModifierOverrides,
+  parentDishId,
 }: Props) => {
   const [state] = useAtom(appState);
-  const [{groups_dishes}] = useAtom(appSettings);
+  const [{groups_dishes, dishes: catalogDishes, modifier_availability}] = useAtom(appSettings);
   const [page] = useAtom(appPage);
+  const [soldMap] = useAtom(dishSoldMapAtom);
+  const [contextualSoldMap] = useAtom(modifierContextualSoldMapAtom);
+  const {t} = useTranslation(["menu", "toast"]);
   const db = useDB();
   const showDishNumber = page.menuConfig?.showDishNumber !== false;
+  const enforceLimits = state.enforceItemAvailability !== false;
+  const liveItem = withLiveAvailability(catalogDishes, item) ?? item;
+  const sold = soldFromMap(soldMap, item.id);
+  const modifierOverride =
+    isModifier && parentDishId
+      ? lookupModifierAvailability(modifier_availability, parentDishId, String(item.id ?? ""))
+      : undefined;
+  const contextualSold =
+    isModifier && parentDishId
+      ? soldFromContextualMap(contextualSoldMap, parentDishId, String(item.id ?? ""))
+      : 0;
+  const addCheck =
+    isModifier && parentDishId
+      ? canAddModifierOptionQty({
+          parentDishId,
+          optionDish: liveItem,
+          globalSold: sold,
+          contextualSold,
+          cart: state.cart,
+          addQty: 1,
+          enforceLimits,
+          override: modifierOverride,
+        })
+      : canAddDishQty({
+          dish: liveItem,
+          sold,
+          cart: state.cart,
+          addQty: 1,
+          enforceLimits,
+        });
+  const blocked = !addCheck.ok;
+  const globalRemaining = enforceLimits
+    ? getRemainingQty({dish: liveItem, sold, cart: state.cart})
+    : null;
+  const contextualRemaining =
+    enforceLimits &&
+    isModifier &&
+    parentDishId &&
+    modifierOverride?.available_qty != null
+      ? addCheck.remaining
+      : null;
+  const remaining =
+    contextualRemaining != null
+      ? globalRemaining == null
+        ? contextualRemaining
+        : Math.min(globalRemaining, contextualRemaining)
+      : globalRemaining;
 
   const [modifiersModal, setModifiersModal] = useState(false);
+  const [qtyPromptOpen, setQtyPromptOpen] = useState(false);
+  const [pendingQtyGroups, setPendingQtyGroups] = useState<CartModifierGroup[] | undefined>(undefined);
   const [imageSrc, setImageSrc] = useState(defaultImage);
+  const shouldAskQty = !isModifier && dishAsksQuantity(liveItem);
 
   const resolvedMenuOverrides = menuModifierOverrides ?? item.menu_modifier_overrides ?? null;
 
@@ -120,6 +190,86 @@ export const MenuDish = ({
     taxes: item.taxes,
   }), [item.tax_mode, item.taxes]);
 
+  const emitAdd = useCallback(
+    (quantity: number, groups?: CartModifierGroup[]) => {
+      const qty = Math.max(1, Math.floor(Number(quantity) || 1));
+      const check =
+        isModifier && parentDishId
+          ? canAddModifierOptionQty({
+              parentDishId,
+              optionDish: liveItem,
+              globalSold: sold,
+              contextualSold,
+              cart: state.cart,
+              addQty: qty,
+              enforceLimits,
+              override: modifierOverride,
+            })
+          : canAddDishQty({
+              dish: liveItem,
+              sold,
+              cart: state.cart,
+              addQty: qty,
+              enforceLimits,
+            });
+      if (!check.ok) {
+        if (check.reason === "unavailable") {
+          toast.warning(t("menu:availability.unavailable", {name: item.name}));
+        } else {
+          toast.warning(
+            t("menu:availability.onlyNLeft", {
+              name: item.name,
+              count: check.remaining ?? 0,
+            }),
+          );
+        }
+        return;
+      }
+      const selectedGroups = groups ? cloneCartModifierGroups(groups) : [];
+      onClick(
+        {
+          quantity: qty,
+          dish: item,
+          seat: state.seat,
+          id: nanoid(),
+          level: level,
+          selectedGroups,
+          isModifier,
+          newOrOld: MenuItemType.new,
+          category: state.category
+            ? state.category?.name
+            : item.categories?.length === 1
+              ? item.categories[0].name
+              : "",
+          category_id: state.category?.id?.toString(),
+          price: price,
+          menu_name: item.menu_name,
+          ...menuTaxFields,
+        },
+        selectedGroups.length ? selectedGroups : undefined,
+        price,
+      );
+    },
+    [
+      contextualSold,
+      enforceLimits,
+      isModifier,
+      item,
+      level,
+      liveItem,
+      menuTaxFields,
+      modifierOverride,
+      onClick,
+      parentDishId,
+      price,
+      sold,
+      state.cart,
+      state.category,
+      state.seat,
+      t,
+    ],
+  );
+
   useEffect(() => {
     let cancelled = false;
     const dishPhotoId = item?.dish_photo?.toString();
@@ -176,34 +326,45 @@ export const MenuDish = ({
   return (
     <>
       <div
-        className="flex justify-center p-1 relative select-none"
+        className={cn(
+          "flex justify-center p-1 relative select-none",
+          blocked && "opacity-50",
+        )}
         role="button"
         tabIndex={0}
         data-testid="menu-dish"
         data-dish-name={item.name}
+        data-unavailable={blocked ? "true" : undefined}
+        aria-disabled={blocked || undefined}
         onClick={() => {
+          if (blocked) {
+            if (addCheck.reason === "unavailable") {
+              toast.warning(t("menu:availability.unavailable", {name: item.name}));
+            } else {
+              toast.warning(
+                t("menu:availability.onlyNLeft", {
+                  name: item.name,
+                  count: addCheck.remaining ?? 0,
+                }),
+              );
+            }
+            return;
+          }
           if (modifierGroups.length > 0 && hasAutoOpen) {
-            setModifiersModal(true)
+            setModifiersModal(true);
+          } else if (shouldAskQty) {
+            setPendingQtyGroups(undefined);
+            setQtyPromptOpen(true);
           } else {
-            onClick({
-              quantity: 1,
-              dish: item,
-              seat: state.seat,
-              id: nanoid(),
-              level: level,
-              selectedGroups: [],
-              newOrOld: MenuItemType.new,
-              category: state.category ? state.category?.name : (item.categories?.length === 1 ? item.categories[0].name : ''),
-              category_id: state.category?.id?.toString(),
-              price: price,
-              menu_name: item.menu_name,
-              ...menuTaxFields,
-            }, undefined, price)
+            emitAdd(1);
           }
         }}
       >
         <div
-          className="flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning"
+          className={cn(
+            "flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning",
+            blocked && "cursor-not-allowed",
+          )}
           style={{
             '--padding': '0'
           } as any}
@@ -232,6 +393,16 @@ export const MenuDish = ({
                 title={item.name}>
               {item.name}
             </h6>
+            {blocked && (
+              <span className="text-xs font-bold text-danger mt-1">
+                {t("menu:availability.unavailableBadge")}
+              </span>
+            )}
+            {!blocked && remaining != null && remaining > 0 && (
+              <span className="text-xs font-medium text-muted mt-1">
+                {t("menu:availability.nLeft", {count: remaining})}
+              </span>
+            )}
           </div>
         </div>
         <span className="absolute bottom-2 right-2 text-primary text-xs font-bold">{dishCount(item)}</span>
@@ -246,27 +417,35 @@ export const MenuDish = ({
           isOpen={modifiersModal}
           groups={cartModifierGroups}
           onClose={(payload) => {
-            if (payload.length > 0) {
-              const clonedGroups = cloneCartModifierGroups(payload);
-              onClick({
-                dish: item,
-                seat: state.seat,
-                quantity: 1,
-                selectedGroups: clonedGroups,
-                id: nanoid(),
-                isModifier,
-                level: level,
-                newOrOld: MenuItemType.new,
-                category: state.category ? state.category?.name : (item.categories?.length === 1 ? item.categories[0].name : ''),
-              category_id: state.category?.id?.toString(),
-                price: price,
-                menu_name: item.menu_name,
-                ...menuTaxFields,
-              }, clonedGroups, price);
-            }
             setModifiersModal(false);
+            if (payload.length === 0) {
+              return;
+            }
+            const clonedGroups = cloneCartModifierGroups(payload);
+            if (shouldAskQty) {
+              setPendingQtyGroups(clonedGroups);
+              setQtyPromptOpen(true);
+              return;
+            }
+            emitAdd(1, clonedGroups);
           }}
           level={level + 1}
+        />
+      )}
+
+      {qtyPromptOpen && (
+        <DishQtyPrompt
+          dish={item}
+          open
+          onConfirm={(qty) => {
+            setQtyPromptOpen(false);
+            emitAdd(qty, pendingQtyGroups);
+            setPendingQtyGroups(undefined);
+          }}
+          onCancel={() => {
+            setQtyPromptOpen(false);
+            setPendingQtyGroups(undefined);
+          }}
         />
       )}
     </>

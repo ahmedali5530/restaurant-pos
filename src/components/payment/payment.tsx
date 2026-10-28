@@ -1,4 +1,10 @@
 import {assertOrderTakingAllowed} from "@/lib/closing.guard.ts";
+import {
+  findCartAvailabilityViolations,
+  findContextualCartAvailabilityViolations,
+  getContextualSoldQtySince,
+  getSoldQtySince,
+} from "@/lib/dish-availability.ts";
 import {toast} from "sonner";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {nowSurrealDateTime} from "@/lib/datetime.ts";
@@ -32,8 +38,14 @@ import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
 import React, {useEffect, useMemo, useRef, useState} from "react";
 
-export const Payment = () => {
-  const {t} = useTranslation(["payment", "toast"]);
+type PaymentVariant = 'restaurant' | 'quick';
+
+interface PaymentProps {
+  variant?: PaymentVariant
+}
+
+export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
+  const {t} = useTranslation(["payment", "toast", "menu"]);
   const db = useDB();
   const { isEffectivelyConnected } = useDatabase();
   const [state, setState] = useAtom(appState);
@@ -41,6 +53,7 @@ export const Payment = () => {
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
+  const isQuick = variant === 'quick';
 
   const [isLoading, setLoading] = useState(false);
   /** Sync re-entry guard: React isLoading alone cannot stop double-click before re-render. */
@@ -160,6 +173,42 @@ export const Payment = () => {
       // Closing gate comes from local enforcement atom; optional remote assert when online.
       if (isEffectivelyConnected) {
         await assertOrderTakingAllowed(db).catch(() => undefined);
+      }
+
+      {
+        const enforceLimits = state.enforceItemAvailability !== false;
+        const liveCart = state.cart.filter((line) => !line.deleted_at);
+        const violations = await findCartAvailabilityViolations({
+          cart: liveCart,
+          catalogDishes: settings.dishes,
+          enforceLimits,
+          soldByDishId: (dishId, setAt) =>
+            enforceLimits ? getSoldQtySince(dishId, setAt as any) : 0,
+        });
+        const contextualViolations = await findContextualCartAvailabilityViolations({
+          cart: liveCart,
+          overrides: settings.modifier_availability,
+          catalogDishes: settings.dishes,
+          enforceLimits,
+          contextualSoldByKey: (parentId, optionId, setAt) =>
+            enforceLimits
+              ? getContextualSoldQtySince(parentId, optionId, setAt as any)
+              : 0,
+        });
+        const check = violations[0] ?? contextualViolations[0];
+        if (check) {
+          const message =
+            check.reason === "unavailable"
+              ? t("menu:availability.unavailable", {name: check.name})
+              : t("menu:availability.cartExceeds", {
+                  name: check.name,
+                  count: check.remaining ?? 0,
+                });
+          toast.error(message);
+          setLoading(false);
+          createInFlightRef.current = false;
+          return undefined;
+        }
       }
 
       const date = DateTime.now().toJSDate();
@@ -415,20 +464,37 @@ export const Payment = () => {
     const orderId =
       state?.order?.id && state.order.id !== 'new' ? String(state.order.id) : undefined;
 
-    // clear cart and go back to floor screen
-    setState(prev => ({
-      ...prev,
-      cart: [],
-      customer: undefined,
-      showFloor: true,
-      table: undefined,
-      persons: '1',
-      orderType: undefined,
-      order: {
-        id: 'new',
-        order: undefined
-      }
-    }));
+    if (isQuick) {
+      // Stay on /quick: clear cart and ready the next sale without floor UI.
+      setState(prev => ({
+        ...prev,
+        cart: [],
+        customer: undefined,
+        persons: '1',
+        showFloor: false,
+        showPersons: false,
+        table: undefined,
+        order: {
+          id: 'new',
+          order: undefined,
+        },
+      }));
+    } else {
+      // clear cart and go back to floor screen
+      setState(prev => ({
+        ...prev,
+        cart: [],
+        customer: undefined,
+        showFloor: true,
+        table: undefined,
+        persons: '1',
+        orderType: undefined,
+        order: {
+          id: 'new',
+          order: undefined
+        }
+      }));
+    }
 
     if (orderId) {
       void posStore.releaseOrder(orderId).catch(() => undefined);
@@ -520,9 +586,11 @@ export const Payment = () => {
 
         <div className="p-3" data-testid="cart-payment-actions">
           <div className="flex gap-3 mt-3">
-            <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
-                    data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
+            {!isQuick && (
+              <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
+                      disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                      data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
+            )}
             <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
                     disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
                     data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>

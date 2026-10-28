@@ -1,0 +1,12 @@
+{
+  "title": "شاشة العميل",
+  "heading": "طلبك",
+  "idle": "مرحبًا",
+  "idleHint": "ستظهر العناصر الممسوحة هنا",
+  "thankYou": "شكرًا لك!",
+  "thankYouHint": "نراك قريبًا",
+  "qty": "الكمية {{count}}",
+  "total": "الإجمالي",
+  "items": "العناصر ({{count}})",
+  "totalWithTax": "الإجمالي مع {{name}} {{rate}}%"
+}

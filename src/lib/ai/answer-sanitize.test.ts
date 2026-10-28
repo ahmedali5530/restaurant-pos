@@ -21,4 +21,9 @@ describe("answer-sanitize", () => {
     const answer = "Here are dishes with no ingredients: Burger, Salad.";
     expect(sanitizeAssistantAnswer(answer)).toBe(answer);
   });
+
+  it("treats short tool-name dumps as leaked markup", () => {
+    expect(sanitizeAssistantAnswer('invoke name="get_dish_recipe"')).toBe("");
+    expect(sanitizeAssistantAnswer("get_dish_recipe\nlist_menu_items")).toBe("");
+  });
 });

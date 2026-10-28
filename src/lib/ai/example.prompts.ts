@@ -50,6 +50,7 @@ export const AI_EXAMPLE_PROMPTS: AiExamplePrompt[] = [
   {category: "inventory", prompt: "Show me dishes with their ingredients"},
   {category: "inventory", prompt: "Show dishes with no ingredients so I can fill them in"},
   {category: "inventory", prompt: "Compare dishes with ingredients vs dishes missing ingredients"},
+  {category: "inventory", prompt: "Give me dish name -> number of recipes for every dish"},
   {category: "inventory", prompt: "Which inventory items are below reorder level?"},
   {category: "inventory", prompt: "Summarize waste by item for last week"},
   {category: "inventory", prompt: "Consumption summary for last month"},

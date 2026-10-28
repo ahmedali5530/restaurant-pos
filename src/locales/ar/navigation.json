@@ -16,7 +16,8 @@
     "clock": "الساعة",
     "hr": "الموارد البشرية",
     "integrations": "التكاملات",
-    "requiresApproval": "يتطلب موافقة المدير"
+    "requiresApproval": "يتطلب موافقة المدير",
+    "quickOrder": "طلب سريع"
   },
   "modules": {
     "Menu": "القائمة",

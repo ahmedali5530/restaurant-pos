@@ -362,5 +362,36 @@
     "progressTable": "Téléchargement de {{table}}…",
     "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)",
     "reloadCacheHint": "Synchronisation catalogue terminée. Rechargez le cache dans Paramètres pour que le POS affiche le nouveau menu."
+  },
+  "posMode": {
+    "title": "Mode caisse",
+    "description": "Choisissez restaurant (tables et salles) ou Commande rapide (scan code-barres et paiement) pour cet appareil.",
+    "restaurant": "Restaurant",
+    "retail": "Commande rapide"
+  },
+  "itemAvailability": {
+    "title": "Appliquer les limites de vente",
+    "description": "Les plats épuisés sont toujours bloqués. Les limites de vente sont activées par défaut (ventes depuis la fixation de la limite, moins le panier). Désactiver ignore uniquement les limites de vente.",
+    "enabled": "Activé",
+    "disabled": "Désactivé"
+  },
+  "scaleBarcode": {
+    "title": "Codes-barres balance (EAN-13)",
+    "description": "Lit les étiquettes de poids (boucherie/boulangerie). La PLU à 5 chiffres doit correspondre au Numéro du plat (ou code-barres). Disposition par défaut : 20 + PLU(5) + valeur(5) + clé de contrôle.",
+    "enabled": "Activer les codes balance",
+    "modeWeight": "Poids (grammes → kg)",
+    "modePrice": "Prix intégré",
+    "modeWeightHint": "Les chiffres de valeur sont le poids en grammes. Quantité panier en kg (÷ diviseur). Prix du plat × kg.",
+    "modePriceHint": "Les chiffres de valeur sont le prix en unités mineures. Ligne à ce prix, qté 1.",
+    "prefix": "Préfixe",
+    "validateCheck": "Valider la clé de contrôle",
+    "pluStart": "Début PLU (base 0)",
+    "pluLength": "Longueur PLU",
+    "valueStart": "Début valeur (base 0)",
+    "valueLength": "Longueur valeur",
+    "weightDivisor": "Diviseur poids (g→kg)",
+    "priceDivisor": "Diviseur prix (mineur→majeur)",
+    "layoutHint": "Disposition : {{example}}",
+    "resetDefaults": "Réinitialiser (garder activé)"
   }
 }

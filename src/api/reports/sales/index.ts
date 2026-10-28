@@ -95,7 +95,12 @@ export {
 } from "@/api/reports/sales/menu-engineering.ts";
 export {getUnsoldProducts, listMenuItems} from "@/api/reports/sales/products.ts";
 export type {GetUnsoldProductsOptions, ListMenuItemsOptions, MenuItemSummary} from "@/api/reports/sales/products.ts";
-export {formatDishRecipeForPrompt, getDishRecipe, listDishRecipes} from "@/api/reports/sales/dish-recipe.ts";
+export {
+  formatDishRecipeAsAnswer,
+  formatDishRecipeForPrompt,
+  getDishRecipe,
+  listDishRecipes,
+} from "@/api/reports/sales/dish-recipe.ts";
 export type {
   DishRecipeDishRow,
   DishRecipeIngredient,

@@ -16,6 +16,21 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-27',
+    title: 'Update dish costs from inventory prices',
+    items: [
+      'Settings → Dishes has Update costs from items: with confirmation, unlocked recipe lines take the current inventory item price and each dish cost is recalculated (price-locked lines stay as they are).',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Modifier availability',
+    items: [
+      'Sale limits and sold-out now count modifier picks as well as top-level dishes (cart, sold map, and settle).',
+      'Manage → Dishes: under each modifier group, set Available / Sale limit for an option on this parent dish only (e.g. Large sold out on Chicken Tikka but still available on Margherita). Global dish availability still applies as a ceiling.',
+    ],
+  },
+  {
     date: '2026-10-26',
     title: 'Advanced Sales report: taxes filter and faster long ranges',
     items: [
@@ -39,12 +54,63 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-26',
+    title: 'Per-dish ask quantity',
+    items: [
+      'Manage → Dishes: Ask quantity switch (and CSV column). When on, Menu and Quick Order prompt for qty after scan or tap for that dish only. CODE*N, *N, and scale labels still skip.',
+    ],
+  },
+  {
+    date: '2026-10-25',
+    title: 'Unique dish barcodes',
+    items: [
+      'Dish form and CSV import block saving when a primary or extra barcode is already used by another dish (same-dish duplicates are still cleaned automatically).',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Scale / weigh-label barcodes',
+    items: [
+      'Settings → Scale barcodes: enable EAN-13 weigh labels (butcher/bakery). Default layout 20 + PLU(5) + grams(5) + check; cart qty is kilograms and uses the dish price per kg.',
+      'Optional price-embedded mode for scales that encode amount instead of weight. PLU matches dish Number (leading zeros ignored) or barcode.',
+      'Quick Order reads scale codes before normal UPC lookup; fractional kg quantities are supported in the cart.',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Retail counter UX',
+    items: [
+      'Dishes support multiple barcodes (primary + aliases) for case/sleeve/alt UPCs; CSV import accepts an Extra barcodes column.',
+      'Quick Order qty after scan: type CODE*6 or *6 (last item) then Enter to add several units in one go.',
+      'Open customer display from Quick Order or Menu for a second-monitor cart and large total that updates live as you order and pay.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Item availability & sale limits',
+    items: [
+      'Dishes can be marked available/sold out and given an optional sale limit (units sold since you set the limit, minus the cart).',
+      'Manage → Availability: bulk update by selection or whole category; dish form also has Available + Sale limit.',
+      'Sold-out dishes are always blocked on Menu, Quick Order, and settle. Sale limits (available_qty) are on by default and count units sold since the limit was set (minus cart); Settings can turn limits off.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Quick Order / retail mode',
+    items: [
+      'New Quick Order screen (/quick): scan barcodes with a USB wedge, browse items, and pay — built for liquor stores, bakeries, and counter shops.',
+      'Settings → POS mode switches this device between Restaurant (floors/tables) and Quick Order; retail login opens Quick Order by default.',
+      'Dishes support an optional Barcode field (and CSV import) for scan lookup; PLU/number still works as fallback. Kitchen send is hidden on Quick Order — Pay Now settles tableless checks.',
+    ],
+  },
+  {
     date: '2026-10-23',
     title: 'AI dish recipe lookup',
     items: [
       'Ask AI what ingredients are in a dish (by name or number) to get the recipe lines — quantity, unit, and cost — without looping through unrelated tools.',
       'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
       'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
+      'Ask for dish → recipe counts (e.g. “dish name -> number of recipes”) to audit every dish’s recipe line count without ingredient detail.',
     ],
   },
   {

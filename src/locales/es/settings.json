@@ -362,5 +362,36 @@
     "progressTable": "Descargando {{table}}…",
     "progressCount": "{{completed}} / {{total}} tablas ({{percent}}%)",
     "reloadCacheHint": "Sincronización de catálogo finalizada. Recargue la caché en Ajustes para que el TPV muestre el menú nuevo."
+  },
+  "posMode": {
+    "title": "Modo de TPV",
+    "description": "Elija restaurante (mesas y plantas) o Pedido rápido (escanear código de barras y pagar) en este dispositivo.",
+    "restaurant": "Restaurante",
+    "retail": "Pedido rápido"
+  },
+  "itemAvailability": {
+    "title": "Aplicar límites de venta",
+    "description": "Los platos agotados siempre se bloquean. Los límites de venta están activos por defecto (ventas desde que se fijó el límite, menos el carrito). Desactivar solo ignora los límites de venta.",
+    "enabled": "Activado",
+    "disabled": "Desactivado"
+  },
+  "scaleBarcode": {
+    "title": "Códigos de báscula (EAN-13)",
+    "description": "Lee etiquetas de peso de carnicería/panadería. La PLU de 5 dígitos debe coincidir con el Número del plato (o código de barras). Diseño por defecto: 20 + PLU(5) + valor(5) + dígito de control.",
+    "enabled": "Activar códigos de báscula",
+    "modeWeight": "Peso (gramos → kg)",
+    "modePrice": "Precio embebido",
+    "modeWeightHint": "Los dígitos de valor son el peso en gramos. La cantidad del carrito pasa a kg (÷ divisor de peso). Precio × kg.",
+    "modePriceHint": "Los dígitos de valor son el precio en unidades menores. La línea usa ese precio con cantidad 1.",
+    "prefix": "Prefijo",
+    "validateCheck": "Validar dígito de control",
+    "pluStart": "Inicio PLU (base 0)",
+    "pluLength": "Longitud PLU",
+    "valueStart": "Inicio valor (base 0)",
+    "valueLength": "Longitud valor",
+    "weightDivisor": "Divisor de peso (g→kg)",
+    "priceDivisor": "Divisor de precio (menor→mayor)",
+    "layoutHint": "Diseño: {{example}}",
+    "resetDefaults": "Restablecer valores (mantener activo)"
   }
 }

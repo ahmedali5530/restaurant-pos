@@ -24,7 +24,8 @@
     "accessTab": "Accedi a {{title}}",
     "ariaLabel": "Schede amministrazione",
     "securityAlerts": "Avvisi di Sicurezza",
-    "catalogPublish": "Pubblica catalogo"
+    "catalogPublish": "Pubblica catalogo",
+    "availability": "Disponibilità"
   },
   "columns": {
     "photo": "Foto",
@@ -102,7 +103,12 @@
     "nextGroup": "Gruppo successivo",
     "itemStockUom": "UdM stock articolo",
     "itemStockUomHint": "Solo riferimento — unità di magazzino dell'articolo. Non applicata all'importazione.",
-    "enteredUomHint": "Unità inserita per la quantità (famiglia convertibile dell'UdM di stock)."
+    "enteredUomHint": "Unità inserita per la quantità (famiglia convertibile dell'UdM di stock).",
+    "barcode": "Codice a barre",
+    "available": "Disponibile",
+    "availableQty": "Limite vendite",
+    "extraBarcodes": "Codici aggiuntivi",
+    "askQuantity": "Chiedi quantità"
   },
   "entities": {
     "dish": "Piatto",
@@ -161,7 +167,8 @@
     "smartImport": "Importazione IA",
     "smartImportIngredients": "Importazione IA ingredienti",
     "smartImportModifierGroups": "Importazione IA gruppi modificatori",
-    "smartImportMenuStructure": "Importa struttura menu con IA"
+    "smartImportMenuStructure": "Importa struttura menu con IA",
+    "syncDishCosts": "Aggiorna costi dagli articoli"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -443,7 +450,22 @@
     "usePrintSettings": "Usa impostazioni di stampa",
     "userBranches": "Filiali",
     "userBranchesShared": "Tutte le filiali (condiviso)",
-    "userBranchesHint": "Vuoto = dipendente condiviso in tutti i negozi. Seleziona filiali per limitare il download."
+    "userBranchesHint": "Vuoto = dipendente condiviso in tutti i negozi. Seleziona filiali per limitare il download.",
+    "barcodeOfItem": "Codice a barre",
+    "availableOnMenu": "Disponibile nel menu",
+    "availableQty": "Limite vendite",
+    "availableQtyHint": "Le vendite si contano da quando salvi questo limite. Vuoto = illimitato.",
+    "extraBarcodes": "Codici a barre aggiuntivi",
+    "extraBarcodesHint": "UPC di cassa, pack o alternativi per questo articolo",
+    "extraBarcodesEmpty": "Nessun codice aggiuntivo",
+    "addBarcode": "Aggiungi codice",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Chiedi quantità",
+    "askQuantityHint": "Se attivo, Menu e Quick Order chiedono la quantità dopo scansione/tap (CODE*N / bilancia saltati).",
+    "modifierOptionAvailability": "Disponibilità modificatore (questo piatto)",
+    "modifierOptionAvailable": "Disponibile per questo piatto",
+    "modifierOptionAvailableHint": "Lascia i valori predefiniti per la disponibilità globale. Disattiva o imposta un limite solo per questo piatto.",
+    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -1122,5 +1144,29 @@
     "themeTitle": "Tema della pagina cliente",
     "themeDescription": "Colori della pagina di ordine QR. Chiaro/scuro può seguire il telefono di ogni cliente.",
     "themeMode": "Aspetto"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Aggiorna costi piatti",
+    "syncDishCostsMessage": "Aggiorna i costi delle righe ricetta non bloccate dai prezzi inventario correnti, poi ricalcola il costo di ogni piatto. Le righe con prezzo bloccato non cambiano."
+  },
+  "availability": {
+    "title": "Disponibilità articoli",
+    "description": "Segna i piatti come disponibili o esauriti e imposta limiti di vendita per più articoli o un’intera categoria.",
+    "allCategories": "Tutte",
+    "selectAll": "Seleziona tutto",
+    "applyToCategory": "Applica a tutta la categoria",
+    "targetsCategory": "{{count}} piatti nella categoria",
+    "targetsSelected": "{{count}} selezionati",
+    "markAvailable": "Disponibile",
+    "markUnavailable": "Esaurito",
+    "saleLimit": "Limite",
+    "setLimit": "Imposta limite",
+    "clearLimit": "Illimitato",
+    "selectDishes": "Seleziona piatti o applica alla categoria",
+    "enterQty": "Inserisci un limite di vendita",
+    "saved": "Aggiornati {{count}} piatti",
+    "empty": "Nessun piatto in questa categoria",
+    "available": "Disponibile",
+    "unavailable": "Esaurito"
   }
 }
