@@ -5,7 +5,6 @@ import {
   aggregateTopSellingDishes,
 } from "@/api/reports/sales/aggregate.ts";
 import {
-  fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,
   fetchPaidOrders,
@@ -24,6 +23,7 @@ export {
 } from "@/api/reports/sales/aggregate.ts";
 
 export {
+  fetchDashboardDeliveryOrders,
   fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,

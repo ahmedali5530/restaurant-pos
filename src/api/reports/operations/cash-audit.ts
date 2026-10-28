@@ -7,12 +7,6 @@ import {toJsDate} from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 
-const isCashPayment = (type?: string, name?: string): boolean => {
-  const normalizedType = type?.toLowerCase()?.trim() ?? "";
-  const normalizedName = name?.toLowerCase()?.trim() ?? "";
-  return normalizedType === "cash" || normalizedName === "cash";
-};
-
 export const getCashSettlementAudit = async (
   db: DbClient,
   options: DateRangeFilter & {minutesBeforeClose?: number; limit?: number} = {},
@@ -20,9 +14,13 @@ export const getCashSettlementAudit = async (
   const windowMinutes = options.minutesBeforeClose ?? 30;
   const limit = options.limit ?? 50;
   const {conditions, params} = buildCreatedAtDateConditions(options);
-  const orderConditions = ["status = 'Paid'", ...conditions];
+  const orderConditions = [
+    "status = 'Paid'",
+    ...conditions,
+    "(array::any(payments.payment_type.type, 'cash') OR array::any(payments.payment_type.type, 'Cash') OR array::any(payments.payment_type.name, 'cash') OR array::any(payments.payment_type.name, 'Cash'))",
+  ];
 
-  const orders = unwrapQueryResult<Order>(
+  const cashOrders = unwrapQueryResult<Order>(
     await db.query(
       `
         SELECT * FROM ${Tables.orders}
@@ -30,12 +28,6 @@ export const getCashSettlementAudit = async (
         FETCH payments, payments.payment_type, cashier, user, items, items.item
       `,
       params,
-    ),
-  );
-
-  const cashOrders = orders.filter(order =>
-    (order.payments ?? []).some(payment =>
-      isCashPayment(payment.payment_type?.type, payment.payment_type?.name),
     ),
   );
 

@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-28',
+    title: 'Faster reports for long date ranges',
+    items: [
+      'Report filters (taxes, discounts, categories, menu items, payments, shifts, locations, and more) are applied in the database instead of after loading every matching order.',
+      'Sales Dashboard loads paid KPIs and open delivery orders in separate queries so multi-month ranges no longer pull every order status into the browser.',
+      'Product Mix Summary, detailed inventory, kitchen reconciliation, and AI/ops helpers (discounts, cash audit, tips, dine-in analytics) follow the same push-down pattern.',
+    ],
+  },
+  {
     date: '2026-10-26',
     title: 'Advanced Sales report: taxes filter and faster long ranges',
     items: [
