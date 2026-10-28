@@ -790,22 +790,6 @@ export const DishForm = ({
               <InputField name="number" control={control} label={t('forms.numberOfItem')} error={errors?.number?.message}/>
             </div>
             <div className="flex-1">
-              <Controller
-                name="priority"
-                control={control}
-                render={({field}) => (
-                  <Input
-                    value={field.value}
-                    onChange={field.onChange}
-                    type="number"
-                    label={t('columns.priority')}
-                    error={errors?.priority?.message}
-                  />
-                )}
-              />
-            </div>
-          </div>
-
               <InputField name="barcode" control={control} label={t('forms.barcodeOfItem')} error={errors?.barcode?.message}/>
             </div>
             <div className="flex-1">
@@ -887,22 +871,7 @@ export const DishForm = ({
             />
           </div>
 
-          <div className="flex flex-wrap gap-3 mb-3 items-end">
-            <div>
-              <Controller
-                name="available"
-                control={control}
-                defaultValue={true}
-                render={({field}) => (
-                  <Switch
-                    checked={field.value !== false}
-                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
-                  >
-                    {t('forms.availableOnMenu')}
-                  </Switch>
-                )}
-              />
-            </div>
+          <div className="flex gap-3 mb-3">
             <div>
               <Controller
                 name="ask_quantity"
@@ -919,6 +888,26 @@ export const DishForm = ({
                 )}
               />
             </div>
+            <p className="text-sm text-muted max-w-md">{t('forms.askQuantityHint')}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-3 items-end">
+            <div>
+              <Controller
+                name="available"
+                control={control}
+                defaultValue={true}
+                render={({field}) => (
+                  <Switch
+                    checked={field.value !== false}
+                    onChange={(e) => field.onChange((e.target as HTMLInputElement).checked)}
+                  >
+                    {t('forms.availableOnMenu')}
+                  </Switch>
+                )}
+              />
+            </div>
+            
             <div className="w-40">
               <Controller
                 name="available_qty"
@@ -938,7 +927,7 @@ export const DishForm = ({
               />
             </div>
             <p className="text-sm text-muted max-w-md pb-2">{t('forms.availableQtyHint')}</p>
-            <p className="text-sm text-muted max-w-md pb-2">{t('forms.askQuantityHint')}</p>
+            
           </div>
 
           <div className="flex gap-3">
