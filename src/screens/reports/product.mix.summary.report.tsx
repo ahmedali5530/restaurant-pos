@@ -137,8 +137,11 @@ export const ProductMixSummaryReport = () => {
         endDate: filters.endDate,
         branchIds: branchScope.branchIds,
         fetches: PRODUCT_MIX_FETCHES,
+        paidOnly: true,
         orderTakerIds: filters.orderTakerIds,
         orderTypeIds: filters.orderTypeIds,
+        categoryIds: filters.categoryIds,
+        menuItemIds: filters.menuItemIds,
       });
       setOrders(fetched);
     } catch (err) {

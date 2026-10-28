@@ -5,7 +5,7 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
 import {parseDateRangeFromParams} from "@/api/reports/shared/filters.ts";
-import {aggregateTopSellingDishes, fetchDashboardOrders, getOrderFigures} from "@/api/reports/sales";
+import {aggregateTopSellingDishes, fetchDashboardDeliveryOrders, fetchDashboardOrders, getOrderFigures} from "@/api/reports/sales";
 import {Tracking} from "@/api/model/tracking.ts";
 import {withCurrency, formatNumber} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -39,6 +39,7 @@ import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.
 
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
+import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
 import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
 
 const faIcon = (icon: IconDefinition) =>
@@ -1205,6 +1206,7 @@ export const SalesDashboardReport = () => {
   const branchScope = useReportBranchScope();
   const queryRef = useRef(db.query);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [deliveryOrders, setDeliveryOrders] = useState<Order[]>([]);
   const [periodSales, setPeriodSales] = useState<PeriodSalesItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1226,12 +1228,17 @@ export const SalesDashboardReport = () => {
         setLoading(true);
         setError(null);
 
-        const fetchedOrders = await fetchDashboardOrders(db, {
+        const dateOpts = {
           startDate: filters.startDate ?? undefined,
           endDate: filters.endDate ?? undefined,
           branchIds: branchScope.branchIds,
-        });
+        };
+        const [fetchedOrders, fetchedDeliveryOrders] = await Promise.all([
+          fetchDashboardOrders(db, dateOpts),
+          fetchDashboardDeliveryOrders(db, dateOpts),
+        ]);
         setOrders(fetchedOrders);
+        setDeliveryOrders(fetchedDeliveryOrders);
 
         const parseFilterDate = (value: string | null, fallback: DateTime) => {
           if (!value) return fallback.startOf('day');
@@ -1372,14 +1379,21 @@ export const SalesDashboardReport = () => {
         rows={orders}
         labels={branchScope.branchLabels}
         branchOrder={branchScope.branchOrder}
-        renderSection={({rows, key}) => (
-          <SalesDashboardBody
-            key={key}
-            orders={rows}
-            periodSales={periodSales}
-            showGlobalWidgets={!branchScope.isByBranch || key === "total" || key === "combined"}
-          />
-        )}
+        renderSection={({rows, key}) => {
+          const deliveryForSection =
+            !branchScope.isByBranch || key === "total" || key === "combined"
+              ? deliveryOrders
+              : deliveryOrders.filter((order) => getRowBranchId(order) === key);
+          return (
+            <SalesDashboardBody
+              key={key}
+              orders={rows}
+              openDeliveryOrders={deliveryForSection}
+              periodSales={periodSales}
+              showGlobalWidgets={!branchScope.isByBranch || key === "total" || key === "combined"}
+            />
+          );
+        }}
       />
     </ReportsLayout>
   );
@@ -1387,16 +1401,21 @@ export const SalesDashboardReport = () => {
 
 const SalesDashboardBody = ({
   orders,
+  openDeliveryOrders = [],
   periodSales,
   showGlobalWidgets,
 }: {
   orders: Order[];
+  openDeliveryOrders?: Order[];
   periodSales: PeriodSalesItem[];
   showGlobalWidgets: boolean;
 }) => {
   const { t } = useTranslation('reports');
-  // ==================== Data Processing ====================
-  const paidOrders = useMemo(() => orders.filter(order => order.status === OrderStatus.Paid), [orders]);
+  // Paid KPIs come from a paid-only DB query; keep a defensive filter for safety.
+  const paidOrders = useMemo(
+    () => orders.filter(order => order.status === OrderStatus.Paid),
+    [orders],
+  );
 
   const kpis = useMemo(() => {
     const aggregates = paidOrders.reduce((acc, order) => {
@@ -1623,18 +1642,16 @@ const SalesDashboardBody = ({
   ), [paymentTypes]);
 
   const deliveryOrders = useMemo(() => {
-    return orders.filter(o =>
-      o.delivery && o.status !== 'Paid' && o.status !== 'Cancelled'
-    ).sort((a, b) =>
+    return [...openDeliveryOrders].sort((a, b) =>
       toJsDate(b.created_at).getTime() - toJsDate(a.created_at).getTime()
     );
-  }, [orders]);
+  }, [openDeliveryOrders]);
 
   const latestOrders = useMemo(() => {
-    return [...orders].sort((a, b) =>
+    return [...paidOrders].sort((a, b) =>
       toJsDate(b.created_at).getTime() - toJsDate(a.created_at).getTime()
     );
-  }, [orders]);
+  }, [paidOrders]);
 
 
   return (
