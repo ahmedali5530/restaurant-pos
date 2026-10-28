@@ -6,6 +6,7 @@ import { terminalSyncService } from '@/infrastructure/sync/sync-service.ts';
 import { setSyncStatus } from '@/infrastructure/sync/sync-status.ts';
 import { appSettings } from '@/store/jotai.ts';
 import { posStore } from '@/infrastructure/pos-store/pos-store.ts';
+import { desktopKeepsLocalSession } from '@/lib/desktop-connectivity.ts';
 
 const PERIODIC_SYNC_MS = 30_000;
 const LOCAL_WRITE_SYNC_DEBOUNCE_MS = 400;
@@ -108,7 +109,10 @@ export function TerminalSyncProvider({ children }: { children: ReactNode }) {
   }, [isReady, hasSession, isEffectivelyConnected, setAppSettings]);
 
   useEffect(() => {
-    const onOffline = () => setSyncStatus({ phase: 'offline' });
+    const onOffline = () => {
+      if (desktopKeepsLocalSession()) return;
+      setSyncStatus({ phase: 'offline' });
+    };
     const onOnline = () => {
       void terminalSyncService
         .initialize(true)

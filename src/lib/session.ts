@@ -1,6 +1,7 @@
 import { getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
 import { isTauriDesktop } from '@/lib/desktop.ts';
 import { toLoopbackIp } from '@/lib/loopback-url.ts';
+import { browserReportsOnline } from '@/lib/desktop-connectivity.ts';
 
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
@@ -147,7 +148,7 @@ export async function gatewayLogout(): Promise<void> {
 }
 
 export async function refreshSurrealToken(): Promise<string | null> {
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+  if (!browserReportsOnline()) {
     return null;
   }
   try {

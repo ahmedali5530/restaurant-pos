@@ -17,6 +17,25 @@ use sidecars::SidecarSupervisor;
 
 /// Keep loopback traffic off proxy auto-discovery. WebKit otherwise waits on
 /// that lookup when the machine has no network, including for 127.0.0.1.
+/// WebView2 otherwise sends loopback through proxy discovery and can freeze
+/// the window when Windows reports no network.
+fn allow_webview_loopback_offline() {
+  #[cfg(target_os = "windows")]
+  {
+    const bypass: &str = "--proxy-bypass-list=<-loopback>;127.0.0.1;localhost;<local>";
+    let current = std::env::var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").unwrap_or_default();
+    if current.contains("proxy-bypass-list") {
+      return;
+    }
+    let next = if current.trim().is_empty() {
+      bypass.to_string()
+    } else {
+      format!("{current} {bypass}")
+    };
+    std::env::set_var("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", next);
+  }
+}
+
 fn allow_loopback_without_proxy() {
   for key in ["no_proxy", "NO_PROXY"] {
     let current = std::env::var(key).unwrap_or_default();
@@ -38,6 +57,7 @@ fn allow_loopback_without_proxy() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   allow_loopback_without_proxy();
+  allow_webview_loopback_offline();
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .setup(|app| {

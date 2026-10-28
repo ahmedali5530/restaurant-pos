@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-28',
+    title: 'Desktop stays up without internet',
+    items: [
+      'POSR Desktop no longer switches to offline mode or closes the local database when Windows or Linux reports no network. The register keeps using the database on this PC.',
+    ],
+  },
+  {
     date: '2026-10-22',
     title: 'Desktop terminal can follow a central POS',
     items: [
