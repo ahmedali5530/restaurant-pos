@@ -230,7 +230,8 @@
     "ingredientMustExist": "يجب أن يطابق اسم أو رمز صنف مخزون موجود تماماً (بدون حساسية لحالة الأحرف). اختر من القائمة إن لم يُحل.",
     "unknownUom": "وحدة غير معروفة \"{{uom}}\"",
     "incompatibleUom": "لا يمكن تحويل الوحدة \"{{entered}}\" إلى وحدة المخزون \"{{stock}}\"{{item}}",
-    "missingItemStockUom": "لا توجد وحدة مخزون للصنف؛ تعذر التحقق من \"{{uom}}\""
+    "missingItemStockUom": "لا توجد وحدة مخزون للصنف؛ تعذر التحقق من \"{{uom}}\"",
+    "recipeCostExceedsPrice": "تكلفة الوصفة {{recipeCost}} تتجاوز سعر الطبق {{price}} لـ \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "فتح {{name}}",

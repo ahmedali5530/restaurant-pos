@@ -230,7 +230,8 @@
     "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu.",
     "unknownUom": "Unité inconnue \"{{uom}}\"",
     "incompatibleUom": "L’unité \"{{entered}}\" ne peut pas être convertie en unité de stock \"{{stock}}\"{{item}}",
-    "missingItemStockUom": "L’ingrédient n’a pas d’UOM de stock ; impossible de vérifier \"{{uom}}\""
+    "missingItemStockUom": "L’ingrédient n’a pas d’UOM de stock ; impossible de vérifier \"{{uom}}\"",
+    "recipeCostExceedsPrice": "Le coût de la recette {{recipeCost}} dépasse le prix du plat {{price}} pour \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "Ouvrir {{name}}",

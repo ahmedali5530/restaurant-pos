@@ -14,7 +14,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Inventory item import no longer includes base quantity (unused after UOM conversion); UOM cleanse still maps synonyms and rejects pack-size numbers as units.',
       'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
       'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
-      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, and entered UOMs that cannot convert to the item stock unit (e.g. L vs KG).',
+      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
       'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
     ],
   },

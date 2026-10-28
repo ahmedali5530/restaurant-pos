@@ -125,6 +125,7 @@ export function createDishIngredientsImportConfig({
       "Do NOT substitute a similar-looking inventory name. Unusual or misspelled text may be a real inventory item code/name in the system.",
       "If an ingredient is unreadable, use null rather than guessing a cleaned-up name.",
       `Entered UOM must be convertible to the inventory item stock unit (e.g. G↔KG ok; L vs KG is invalid). Prefer codes: ${formatUomList()}.`,
+      "Recipe line food cost (qty × unit cost) is checked against the dish selling price; totals above price are flagged.",
     ].join(" "),
     onValidateRecords: async (_config, records, options) => {
       await validateDishIngredientRecords(db, t, records, options);

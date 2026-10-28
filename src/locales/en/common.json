@@ -229,7 +229,8 @@
     "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved.",
     "unknownUom": "Unknown unit \"{{uom}}\"",
     "incompatibleUom": "Unit \"{{entered}}\" cannot convert to item stock unit \"{{stock}}\"{{item}}",
-    "missingItemStockUom": "Ingredient has no stock UOM; cannot verify \"{{uom}}\""
+    "missingItemStockUom": "Ingredient has no stock UOM; cannot verify \"{{uom}}\"",
+    "recipeCostExceedsPrice": "Recipe food cost {{recipeCost}} exceeds dish price {{price}} for \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "Open {{name}}",

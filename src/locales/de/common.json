@@ -230,7 +230,8 @@
     "ingredientMustExist": "Muss exakt mit einem vorhandenen Inventargegenstandsnamen oder -code übereinstimmen (Groß-/Kleinschreibung egal). Bei Bedarf aus der Liste wählen.",
     "unknownUom": "Unbekannte Einheit \"{{uom}}\"",
     "incompatibleUom": "Einheit \"{{entered}}\" kann nicht in Lager-Einheit \"{{stock}}\" umgerechnet werden{{item}}",
-    "missingItemStockUom": "Zutat hat keine Lager-Einheit; \"{{uom}}\" kann nicht geprüft werden"
+    "missingItemStockUom": "Zutat hat keine Lager-Einheit; \"{{uom}}\" kann nicht geprüft werden",
+    "recipeCostExceedsPrice": "Rezeptkosten {{recipeCost}} übersteigen den Gerichtpreis {{price}} für \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "{{name}} öffnen",

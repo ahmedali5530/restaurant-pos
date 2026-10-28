@@ -230,7 +230,8 @@
     "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost.",
     "unknownUom": "Onbekende eenheid \"{{uom}}\"",
     "incompatibleUom": "Eenheid \"{{entered}}\" kan niet worden omgerekend naar voorraadeenheid \"{{stock}}\"{{item}}",
-    "missingItemStockUom": "Ingrediënt heeft geen voorraad-UOM; kan \"{{uom}}\" niet controleren"
+    "missingItemStockUom": "Ingrediënt heeft geen voorraad-UOM; kan \"{{uom}}\" niet controleren",
+    "recipeCostExceedsPrice": "Receptkosten {{recipeCost}} overschrijden de gerechtprijs {{price}} voor \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "{{name}} openen",
