@@ -21,6 +21,8 @@ import {
 import {toRecordId} from "@/lib/utils.ts";
 import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {formatUomList, normalizeUom} from "@/utils/inventoryUom.ts";
+import {validateDishIngredientRecords} from "@/components/settings/dishes/dish-ingredients.validate.ts";
 import {StringRecordId} from "surrealdb";
 
 export function createDishIngredientsImportConfig({
@@ -60,10 +62,17 @@ export function createDishIngredientsImportConfig({
       label: t("inventory:columns.uom"),
       type: "string",
       optional: true,
-      aliases: ["UOM", "Unit", "Unit of measure", "Entered UOM"],
+      aliases: ["UOM", "Unit", "Unit of measure", "Entered UOM", "Unit of measurement"],
       description: t("admin:columns.enteredUomHint", {
-        defaultValue: "Entered unit for quantity (convertible family of the item stock UOM).",
+        defaultValue:
+          `Entered unit for quantity (must convert to the item stock UOM). Known units: ${formatUomList()}.`,
       }),
+      transform: (value) => {
+        if (value === null || value === undefined || value === "") return value;
+        const raw = String(value).trim();
+        if (!raw) return raw;
+        return normalizeUom(raw) ?? raw;
+      },
     },
     {
       name: "stock_uom",
@@ -115,7 +124,11 @@ export function createDishIngredientsImportConfig({
       "Do NOT correct spelling, OCR typos, punctuation, spacing, or casing on ingredient names or codes.",
       "Do NOT substitute a similar-looking inventory name. Unusual or misspelled text may be a real inventory item code/name in the system.",
       "If an ingredient is unreadable, use null rather than guessing a cleaned-up name.",
+      `Entered UOM must be convertible to the inventory item stock unit (e.g. G↔KG ok; L vs KG is invalid). Prefer codes: ${formatUomList()}.`,
     ].join(" "),
+    onValidateRecords: async (_config, records, options) => {
+      await validateDishIngredientRecords(db, t, records, options);
+    },
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
       const dishKey = String(v.dish_number ?? "").trim();

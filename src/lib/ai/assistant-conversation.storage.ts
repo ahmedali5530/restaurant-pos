@@ -6,6 +6,11 @@ const assistantConversationStore = createStore("posr-react-ai-assistant", "keyva
 export type AssistantDisplayEntry = {
   role: "user" | "assistant" | "system";
   content: string;
+  /** In-memory only: corrected CSV from cleanse (not persisted to IndexedDB). */
+  cleanseDownload?: {
+    fileName: string;
+    csv: string;
+  };
 };
 
 export type AssistantConversationSnapshot = {
@@ -19,10 +24,17 @@ const storageKey = (userId: string) => `conversation:${userId}`;
 /** Cap local history so IndexedDB stays lightweight until server persistence lands. */
 export const MAX_ASSISTANT_CONVERSATION_ENTRIES = 200;
 
+const stripEphemeralEntryFields = (entry: AssistantDisplayEntry): AssistantDisplayEntry => ({
+  role: entry.role,
+  content: entry.content,
+});
+
 export const trimConversationSnapshot = (
   snapshot: Pick<AssistantConversationSnapshot, "entries" | "history">,
 ): Pick<AssistantConversationSnapshot, "entries" | "history"> => ({
-  entries: snapshot.entries.slice(-MAX_ASSISTANT_CONVERSATION_ENTRIES),
+  entries: snapshot.entries
+    .slice(-MAX_ASSISTANT_CONVERSATION_ENTRIES)
+    .map(stripEphemeralEntryFields),
   history: snapshot.history.slice(-MAX_ASSISTANT_CONVERSATION_ENTRIES),
 });
 

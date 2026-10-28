@@ -226,7 +226,10 @@
         "nested_override": "Nested price override"
       }
     },
-    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved."
+    "ingredientMustExist": "Must match an existing inventory item name or code exactly (case-insensitive). Pick from the list if unresolved.",
+    "unknownUom": "Unknown unit \"{{uom}}\"",
+    "incompatibleUom": "Unit \"{{entered}}\" cannot convert to item stock unit \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "Ingredient has no stock UOM; cannot verify \"{{uom}}\""
   },
   "aiAssistant": {
     "open": "Open {{name}}",
@@ -254,7 +257,44 @@
       "addDish": "Add a new dish Margherita for x price",
       "listUsers": "List all POS users",
       "inventoryStock": "Show inventory items below reorder level",
-      "howToPurchase": "How do I post an inventory purchase?"
+      "howToPurchase": "How do I post an inventory purchase?",
+      "cleanseCsv": "Attach a messy CSV to cleanse for AI Import"
+    },
+    "cleanseTitle": "Cleanse import file",
+    "attachFile": "Attach CSV/Excel",
+    "cleanseDomain": "Import domain",
+    "cleanseRun": "Cleanse & prepare CSV",
+    "cleanseDownload": "Download corrected CSV",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
     },
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm"

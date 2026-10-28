@@ -220,11 +220,21 @@ export const getAiReportSystemPrompt = (
  * Write-tool rules appended to the report system prompt for the floating assistant.
  * Kept short so compact mode stays lightweight.
  */
+export const AI_ASSISTANT_CONTEXT_RULES = [
+  "Earlier user/assistant messages (if any) are conversation CONTEXT only.",
+  "Answer and call tools for the LATEST user message only.",
+  "Do not re-run, re-list, re-import, or re-propose work already completed in prior turns unless the user explicitly asks to repeat it.",
+  "You may use prior answers as background (names, filters, domains) when the latest message is a follow-up.",
+].join(" ");
+
 export const AI_ASSISTANT_WRITE_RULES = [
-  "Each user message is a standalone question — you only see that message (not earlier chat). Answer only what they just asked; never combine, recap, or apologize for prior topics.",
+  AI_ASSISTANT_CONTEXT_RULES,
   "You can also propose create/update changes using the propose_* tools.",
   "The propose_* tools NEVER save anything — they only prepare a change for the user to review.",
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
+  "Call at most one propose_* tool per assistant turn (you may include many rows in that one call). After the user confirms or cancels, continue with the next propose_* if needed (e.g. category, then dishes, then modifier groups).",
+  "Creating dishes with modifier groups: (1) propose_create_dishes for the menu items and prices, (2) propose_create_modifier_groups with one row per option (group + modifier + price), (3) propose_create_dish_modifiers to attach each group to each dish (required vs optional flags). Do not use propose_import_smart_menu unless the user asks to import a full menu structure / smart menu.",
+  "propose_import_smart_menu record_type values are only: dish, size_option, addon_option, dish_link, nested_override — never modifier_group.",
   "For bulk changes, call propose_* with every affected row — the user reviews each row before confirming.",
   "Do not summarize or skip rows in a write proposal.",
   "For list/show/configure questions about Manage data, use list_* read tools. For create/update, use propose_* tools.",
@@ -281,14 +291,20 @@ export const getAiAssistantSystemPrompt = (
   }
   const guideSection = guideHints.join(" ");
 
+  const importCleanseHint =
+    "To fix a messy import CSV/Excel, the user attaches a file in the assistant and picks an import domain; "
+    + "they download a corrected CSV and import it on the matching AI Import screen. "
+    + "You do not invent CSV contents — summarize issues when a cleanse result is provided.";
+
   if (compact) {
     return [
       `${AI_ASSISTANT_PERSONA} You help managers using real data from their point-of-sale system.`,
       reportPrompt,
       writeSection,
       guideSection,
+      importCleanseHint,
     ].join("\n\n");
   }
 
-  return `${reportPrompt}\n\n${writeSection}\n\n${guideSection}`;
+  return `${reportPrompt}\n\n${writeSection}\n\n${guideSection}\n\n${importCleanseHint}`;
 };

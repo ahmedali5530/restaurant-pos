@@ -10,6 +10,7 @@ import {
   faExpand,
   faCompress,
   faCircleQuestion,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
@@ -31,8 +32,14 @@ import {commitWriteProposal} from "@/lib/ai/write-executor.ts";
 import type {WriteProposal} from "@/lib/ai/tools/write-tools.ts";
 import {WriteProposalPreview} from "@/components/ai-assistant/write-proposal-preview.tsx";
 import {AssistantExamplesPanel} from "@/components/ai-assistant/assistant-examples-panel.tsx";
+import {
+  AssistantCleansePanel,
+  downloadCleanseCsv,
+  type CleanseResultPayload,
+} from "@/components/ai-assistant/assistant-cleanse-panel.tsx";
 import {AI_ASSISTANT_NAME} from "@/lib/ai/assistant-config.ts";
 import {isAssistantWidgetPath} from "@/lib/ai/assistant-widget-visibility.ts";
+import {buildAssistantContextHistory} from "@/lib/ai/assistant-conversation-context.ts";
 import {LOGIN} from "@/routes/posr.ts";
 import {AiQuotaError} from "@/lib/openai.service.ts";
 import {
@@ -247,6 +254,11 @@ export function AiAssistantWidget() {
     const trimmed = prompt.trim();
     if (!trimmed || loading) return;
 
+    const conversationHistory = buildAssistantContextHistory([
+      ...entries,
+      {role: "user", content: trimmed},
+    ]);
+
     setEntries(prev => [...prev, {role: "user", content: trimmed}]);
     setPrompt("");
     setLoading(true);
@@ -258,6 +270,7 @@ export function AiAssistantWidget() {
         writeContext,
         language: i18n.language,
         pathname: location.pathname,
+        conversationHistory,
       });
       applyResult(result);
     } catch (err) {
@@ -272,6 +285,22 @@ export function AiAssistantWidget() {
       setLoading(false);
     }
   };
+
+  const handleCleansed = useCallback((result: CleanseResultPayload) => {
+    setError(null);
+    setExpanded(true);
+    setEntries(prev => [
+      ...prev,
+      {
+        role: "assistant",
+        content: result.summaryMarkdown,
+        cleanseDownload: {
+          fileName: result.downloadName,
+          csv: result.csv,
+        },
+      },
+    ]);
+  }, []);
 
   const handleConfirm = async () => {
     if (!pending || loading) return;
@@ -468,7 +497,29 @@ export function AiAssistantWidget() {
               ) : entry.role === "system" ? (
                 entry.content
               ) : (
-                <AiMarkdown compact>{entry.content}</AiMarkdown>
+                <div className="space-y-2">
+                  <AiMarkdown compact>{entry.content}</AiMarkdown>
+                  {entry.cleanseDownload?.csv && (
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        flat
+                        icon={faDownload}
+                        onClick={() =>
+                          downloadCleanseCsv(
+                            entry.cleanseDownload!.csv,
+                            entry.cleanseDownload!.fileName,
+                          )
+                        }
+                      >
+                        {t("common:aiAssistant.cleanseDownload", {
+                          defaultValue: "Download corrected CSV",
+                        })}
+                      </Button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -513,22 +564,33 @@ export function AiAssistantWidget() {
         <div ref={messagesEndRef} className="h-1 shrink-0" aria-hidden="true" />
       </div>
 
+      <AssistantCleansePanel
+        db={db}
+        allowedModules={allowedModules}
+        pathname={location.pathname}
+        disabled={loading || !!pending}
+        onCleansed={handleCleansed}
+        onError={message => setError(message || null)}
+      />
+
       <div className="flex items-end gap-2 border-t border-border p-2">
-        <Textarea
-          value={prompt}
-          onChange={(e: any) => setPrompt(e.target.value)}
-          onKeyDown={(e: any) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleSubmit();
-            }
-          }}
-          placeholder={t("common:aiAssistant.placeholder")}
-          rows={2}
-          disabled={loading || !!pending}
-          className="flex-1"
-          enableKeyboard={false}
-        />
+        <div className="flex-1">
+          <Textarea
+            value={prompt}
+            onChange={(e: any) => setPrompt(e.target.value)}
+            onKeyDown={(e: any) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+            placeholder={t("common:aiAssistant.placeholder")}
+            rows={2}
+            disabled={loading || !!pending}
+            className="w-full"
+            enableKeyboard={false}
+          />
+        </div>
         <Button
           variant="primary"
           filled

@@ -26,6 +26,10 @@ import {
   lookupUserGuide,
   suggestUserGuideChapterForPath,
 } from "@/lib/ai/user-guide.ts";
+import {
+  appendDeferredToolResults,
+  ensureToolCallResultsComplete,
+} from "@/lib/ai/assistant-tool-messages.ts";
 
 const MAX_ITERATIONS = 10;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
@@ -63,6 +67,11 @@ export type AssistantAgentOptions = {
   language?: string;
   /** Current route for suggested guide chapter. */
   pathname?: string;
+  /**
+   * Prior user/assistant prose only (no tool traces). Context for follow-ups;
+   * the model must act on the latest prompt alone.
+   */
+  conversationHistory?: {role: "user" | "assistant"; content: string}[];
 };
 
 export type AssistantAgentResult =
@@ -87,9 +96,6 @@ const resolveToolset = (prompt: string, allowedModules: string[]): ResolvedTools
   return {tools, domains, compact};
 };
 
-const stripSystemMessages = (messages: OpenAIChatMessage[]): OpenAIChatMessage[] =>
-  messages.filter(message => message.role !== "system");
-
 const extractLastUserPrompt = (messages: OpenAIChatMessage[]): string => {
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];
@@ -110,6 +116,12 @@ async function runLoop(
   const context: ExecuteToolContext = {charts: []};
 
   for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+    const safeMessages = ensureToolCallResultsComplete(messages);
+    if (safeMessages !== messages) {
+      messages.length = 0;
+      messages.push(...safeMessages);
+    }
+
     const response = await callOpenAIChat({messages, tools, task: options.task ?? "reporting"});
     const choice = response.choices[0]?.message;
 
@@ -160,7 +172,10 @@ async function runLoop(
         // Build the proposal, then STOP — do not resolve this tool_call and
         // do not continue the loop. The caller must show the preview and
         // call resumeAiAssistantAgent() once the user confirms or cancels.
+        // Sibling tool_calls in this same assistant message still need results
+        // or confirm/resume fails with insufficient tool messages.
         const proposal = await buildWriteProposal(name, args, {db, t, context: options.writeContext});
+        appendDeferredToolResults(messages, choice.tool_calls, toolCall.id);
         return {type: "write_proposal", proposal, toolCallId: toolCall.id, charts: dedupeCharts(context.charts), messages};
       }
 
@@ -200,7 +215,7 @@ async function runLoop(
   throw new Error("Assistant exceeded maximum tool iterations. Try a simpler request.");
 }
 
-/** Start a new turn from a user prompt (single-turn — no prior chat sent to the model). */
+/** Start a new turn from a user prompt; optional capped prose history as context only. */
 export async function runAiAssistantAgent(
   db: AssistantDbClient,
   t: TFunc,
@@ -225,8 +240,13 @@ export async function runAiAssistantAgent(
     suggestedChapter,
   });
 
+  const priorContext: OpenAIChatMessage[] = (options.conversationHistory ?? [])
+    .filter(entry => entry.content?.trim())
+    .map(entry => ({role: entry.role, content: entry.content.trim()}));
+
   const turnMessages = (extra?: OpenAIChatMessage[]): OpenAIChatMessage[] => [
     {role: "system", content: systemContent},
+    ...priorContext,
     {role: "user", content: trimmed},
     ...(extra ?? []),
   ];
@@ -325,10 +345,15 @@ export async function resumeAiAssistantAgent(
     ? JSON.stringify({applied: true, summary: outcome.summary ?? null})
     : JSON.stringify({applied: false, reason: outcome.error ?? "User cancelled this change."});
 
-  const next: OpenAIChatMessage[] = [
-    ...messages,
-    {role: "tool", tool_call_id: pendingToolCallId, content},
-  ];
+  const alreadyAnswered = messages.some(
+    (message) => message.role === "tool" && message.tool_call_id === pendingToolCallId,
+  );
+  const next: OpenAIChatMessage[] = alreadyAnswered
+    ? [...messages]
+    : [...messages, {role: "tool", tool_call_id: pendingToolCallId, content}];
 
-  return runLoop(db, t, next, {...options, prompt, tools});
+  // Sibling tool_calls may still be missing if history came from an older buggy pause.
+  const repaired = ensureToolCallResultsComplete(next);
+
+  return runLoop(db, t, repaired, {...options, prompt, tools});
 }

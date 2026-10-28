@@ -2571,13 +2571,13 @@ DEFINE TABLE printer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD command_set ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON printer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD ip_address ON printer TYPE string PERMISSIONS FULL;
+DEFINE FIELD ip_address ON printer TYPE string | null | none PERMISSIONS FULL;
 DEFINE FIELD name ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD paper_width_mm ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD pid ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD port ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD print_mode ON printer TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD prints ON printer TYPE int PERMISSIONS FULL;
+DEFINE FIELD prints ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD priority ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD type ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD vid ON printer TYPE none | string | null PERMISSIONS FULL;

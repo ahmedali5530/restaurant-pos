@@ -227,7 +227,10 @@
         "nested_override": "Override prezzo annidato"
       }
     },
-    "ingredientMustExist": "Deve corrispondere esattamente al nome o codice di un articolo di inventario esistente (senza distinzione maiuscole/minuscole). Seleziona dall’elenco se non risolto."
+    "ingredientMustExist": "Deve corrispondere esattamente al nome o codice di un articolo di inventario esistente (senza distinzione maiuscole/minuscole). Seleziona dall’elenco se non risolto.",
+    "unknownUom": "Unità sconosciuta \"{{uom}}\"",
+    "incompatibleUom": "L’unità \"{{entered}}\" non può essere convertita nell’unità di stock \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "L’ingrediente non ha UOM di stock; impossibile verificare \"{{uom}}\""
   },
   "aiAssistant": {
     "open": "Apri {{name}}",
@@ -255,9 +258,46 @@
       "addDish": "Aggiungi un nuovo piatto Margherita a x €",
       "listUsers": "Elenca tutti gli utenti POS",
       "inventoryStock": "Mostra articoli di magazzino sotto il livello di riordino",
-      "howToPurchase": "Come pubblico un acquisto di magazzino?"
+      "howToPurchase": "Come pubblico un acquisto di magazzino?",
+      "cleanseCsv": "Allega un CSV disordinato da pulire per AI Import"
     },
     "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
-    "passwordWillBeSet": "La password verrà impostata alla conferma"
+    "passwordWillBeSet": "La password verrà impostata alla conferma",
+    "cleanseTitle": "Pulisci file di importazione",
+    "attachFile": "Allega CSV/Excel",
+    "cleanseDomain": "Dominio di importazione",
+    "cleanseRun": "Pulisci e prepara CSV",
+    "cleanseDownload": "Scarica CSV corretto",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    }
   }
 }

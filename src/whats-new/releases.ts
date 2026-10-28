@@ -8,6 +8,18 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-28',
+    title: 'Assistant CSV cleanse and chat context',
+    items: [
+      'Attach a messy CSV/Excel in the AI assistant, pick an import domain (dishes, inventory, HR, accounts, and other AI Import screens), then download a corrected CSV to import on that screen.',
+      'Inventory item import no longer includes base quantity (unused after UOM conversion); UOM cleanse still maps synonyms and rejects pack-size numbers as units.',
+      'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
+      'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
+      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, and entered UOMs that cannot convert to the item stock unit (e.g. L vs KG).',
+      'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
+    ],
+  },
+  {
+    date: '2026-10-28',
     title: 'Faster reports for long date ranges',
     items: [
       'Report filters (taxes, discounts, categories, menu items, payments, shifts, locations, and more) are applied in the database instead of after loading every matching order.',

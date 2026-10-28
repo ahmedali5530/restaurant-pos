@@ -172,7 +172,6 @@ export const InventoryItems = () => {
                 code: item.code ?? '',
                 category: item.category?.name ?? '',
                 uom: item.uom ?? '',
-                base_quantity: String(item.base_quantity ?? ''),
                 price: String(item.price ?? ''),
                 average_price: String(item.average_price ?? ''),
                 locations: locs.map((l) => l.name).join(','),
