@@ -1,6 +1,6 @@
 import { getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
 import { isTauriDesktop } from '@/lib/desktop.ts';
-import { toLoopbackIp } from '@/lib/loopback-url.ts';
+import { rewriteLoopbackHost, toLoopbackIp } from '@/lib/loopback-url.ts';
 import { browserReportsOnline } from '@/lib/desktop-connectivity.ts';
 
 const SESSION_TOKEN_KEY = 'posr_session_token';
@@ -30,8 +30,27 @@ export function isGatewayAuthEnabled(): boolean {
   return raw !== 'false' && raw !== '0' && raw !== 'no';
 }
 
+function browserLanHost(): string | null {
+  if (typeof window === 'undefined' || isTauriDesktop()) return null;
+  const host = window.location.hostname?.trim();
+  if (!host) return null;
+  const lower = host.toLowerCase();
+  if (
+    lower === 'localhost' ||
+    lower === '127.0.0.1' ||
+    lower === '::1' ||
+    lower === '0.0.0.0' ||
+    lower === 'tauri.localhost'
+  ) {
+    return null;
+  }
+  return host;
+}
+
 export function desktopLoopback(url: string): string {
-  return isTauriDesktop() ? toLoopbackIp(url) : url;
+  if (isTauriDesktop()) return toLoopbackIp(url);
+  const host = browserLanHost();
+  return host ? rewriteLoopbackHost(url, host) : url;
 }
 
 export function getGatewayBaseUrl(): string {
@@ -42,6 +61,10 @@ export function getGatewayBaseUrl(): string {
   const explicit = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.trim();
   if (explicit) {
     return desktopLoopback(explicit.replace(/\/$/, ''));
+  }
+  const lanHost = browserLanHost();
+  if (lanHost) {
+    return `http://${lanHost}:3142`;
   }
   if (typeof window !== 'undefined' && window.location?.origin) {
     return desktopLoopback(window.location.origin);

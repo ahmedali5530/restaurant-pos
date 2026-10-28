@@ -16,6 +16,7 @@ use tauri::{AppHandle, Manager};
 use std::os::windows::process::CommandExt;
 
 use crate::config::{self, DesktopConfig, InstallerSettings};
+use crate::lan_ui;
 use crate::logging::LogHub;
 use crate::paths;
 
@@ -504,14 +505,18 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
   };
 
   let remote_host = installer.as_ref().and_then(config::central_host);
-  if use_external_services() || remote_host.is_some() {
-    if let Some(host) = remote_host {
-      log_hub.shell(&format!(
-        "central terminal {host} — not spawning bundled sidecars"
-      ));
-    } else {
-      log_hub.shell("POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
-    }
+  if let Some(host) = remote_host {
+    log_hub.shell(&format!(
+      "central terminal {host} — not spawning bundled sidecars"
+    ));
+    return Ok(supervisor);
+  }
+
+  // This PC owns the database, so other computers can open the screens here.
+  lan_ui::start(app, &log_hub);
+
+  if use_external_services() {
+    log_hub.shell("POSR_USE_EXTERNAL_SERVICES=1 — not spawning bundled sidecars");
     return Ok(supervisor);
   }
 

@@ -36,3 +36,9 @@ export VITE_DEFAULT_LANGUAGE="${VITE_DEFAULT_LANGUAGE:-en}"
 export VITE_DEFAULT_LOGIN_METHOD="${VITE_DEFAULT_LOGIN_METHOD:-pin}"
 
 bunx vite build
+
+# Packaged desktop serves these files on port 5173 for other PCs on the LAN.
+WEB_DIR="$ROOT/desktop/src-tauri/resources/web"
+rm -rf "$WEB_DIR"
+mkdir -p "$WEB_DIR"
+cp -R "$ROOT/dist/." "$WEB_DIR/"

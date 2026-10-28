@@ -43,7 +43,8 @@ async function main() {
 
   app.use((req, res, next) => {
     const origin = req.get('origin');
-    if (origin && allowedOrigins.includes(origin)) {
+    const lanUi = origin && (() => { try { return new URL(origin).port === '5173'; } catch { return false; } })();
+    if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*') || lanUi)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Sync-Stats-Secret');

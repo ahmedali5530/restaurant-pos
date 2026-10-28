@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-28',
+    title: 'Desktop screens on the local network',
+    items: [
+      'POSR Desktop serves the app on port 5173. Another computer on the same network opens http://<this-pc-ip>:5173 in a browser — Kitchen is /kitchen, the order display is /order-display, and the customer display is /customer-display.',
+      'Allow inbound TCP 5173 and 3142 on the PC that runs POSR. The database stays on that PC.',
+    ],
+  },
+  {
+    date: '2026-10-28',
     title: 'Desktop stays up without internet',
     items: [
       'POSR Desktop no longer switches to offline mode or closes the local database when Windows or Linux reports no network. The register keeps using the database on this PC.',

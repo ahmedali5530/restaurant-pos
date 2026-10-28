@@ -78,7 +78,15 @@ app.use(
     // cross-origin request). Same-origin / non-browser callers (no Origin
     // header) are still accepted.
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      let lanUi = false;
+      if (origin) {
+        try {
+          lanUi = new URL(origin).port === '5173';
+        } catch {
+          lanUi = false;
+        }
+      }
+      if (!origin || allowedOrigins.includes(origin) || lanUi) {
         return callback(null, true);
       }
       return callback(new Error(`Origin ${origin} is not allowed by API_ALLOWED_ORIGINS`));

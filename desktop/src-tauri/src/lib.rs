@@ -1,5 +1,6 @@
 mod config;
 mod import;
+mod lan_ui;
 mod logging;
 mod paths;
 mod sidecars;

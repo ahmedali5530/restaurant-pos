@@ -52,6 +52,8 @@ function originAllowed(origin, allowed) {
         : u.hostname === '127.0.0.1'
           ? 'localhost'
           : null;
+    // Screens served by the desktop app on :5173 call this gateway from any LAN address.
+    if (u.port === '5173') return true;
     if (!altHost) return false;
     return allowed.includes(`${u.protocol}//${altHost}${port}`);
   } catch {

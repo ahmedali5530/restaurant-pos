@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "POSR",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "identifier": "com.posr.desktop",
   "build": {
     "frontendDist": "../../dist",
@@ -50,7 +50,8 @@
       "windows/installer-settings.template.json",
       "linux/posr-desktop-configure.sh",
       "linux/installer-settings.template.json",
-      "macos/configure-posr.sh"
+      "macos/configure-posr.sh",
+      "resources/web/**/*"
     ],
     "windows": {
       "webviewInstallMode": {
