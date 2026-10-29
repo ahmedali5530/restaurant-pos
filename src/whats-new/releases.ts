@@ -141,7 +141,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-  {
     date: '2026-10-22',
     title: 'Desktop terminal can follow a central POS',
     items: [
@@ -156,6 +155,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Settings on POSR Desktop shows Catalog sync. Sync now downloads the HQ catalog when the sync service is in full mode.',
     ],
   },
+  {
     date: '2026-10-22',
     title: 'Inventory UX polish',
     items: [
@@ -179,7 +179,6 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
-  {
     date: '2026-10-21',
     title: 'Desktop reports and setup',
     items: [
@@ -187,6 +186,7 @@ export const RELEASES: ReleaseNotes[] = [
       'The Windows installer shows the store setup window after it creates the app data folder, instead of stopping there.',
     ],
   },
+  {
     date: '2026-10-20',
     title: 'Inventory unit converter',
     items: [
@@ -196,7 +196,6 @@ export const RELEASES: ReleaseNotes[] = [
       'The item stock unit cannot be changed after ledger movements or recipe lines exist, so existing balances are not relabeled.',
     ],
   },
-  {
   {
     date: '2026-10-17',
     title: 'Desktop gateway on the LAN',
@@ -208,6 +207,7 @@ export const RELEASES: ReleaseNotes[] = [
       'The Windows setup wizard script no longer fails to parse after the installer finishes.',
     ],
   },
+  {
     date: '2026-10-15',
     title: 'Build-time app module include/exclude',
     items: [
