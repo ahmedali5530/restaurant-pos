@@ -346,5 +346,13 @@
     "loginHint": "Desktop-Protokolle (Gateway) für Details öffnen.",
     "openLink": "Desktop-Protokolle öffnen",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Anzeigegröße",
+    "help": "Verkleinert oder vergrößert das ganze Fenster. Hilfreich auf einem Bildschirm mit niedriger Auflösung. Strg und Minus, Strg und Plus oder Strg und 0 funktionieren ebenfalls.",
+    "smaller": "Kleiner",
+    "larger": "Größer",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

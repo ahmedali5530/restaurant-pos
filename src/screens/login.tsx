@@ -11,6 +11,7 @@ import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
 import {DESKTOP_SETUP, DESKTOP_LOGS, QUICK} from "@/routes/posr.ts";
 import {getDesktopStatus, isTauriDesktop, type DesktopStatus} from "@/lib/desktop.ts";
+import {DesktopZoomControls} from "@/components/desktop/desktop-zoom.tsx";
 import {getDefaultAppPath} from "@/lib/build-modules.ts";
 import {getCachedRuntimeConfig} from "@/lib/runtime-config.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
@@ -87,15 +88,20 @@ export const Login = () => {
     if (!isTauriDesktop()) return;
     let cancelled = false;
     (async () => {
-      try {
-        const status = await getDesktopStatus();
-        if (cancelled) return;
-        setDesktopStatus(status);
-        if (status?.needsSetup) {
-          navigation(DESKTOP_SETUP, { replace: true });
+      // Sidecars and schema migrations finish before this command can succeed.
+      // Keep asking so a slow first start still opens the import screen.
+      for (let attempt = 0; attempt < 180 && !cancelled; attempt++) {
+        try {
+          const status = await getDesktopStatus();
+          if (cancelled) return;
+          setDesktopStatus(status);
+          if (status?.needsSetup) {
+            navigation(DESKTOP_SETUP, { replace: true });
+          }
+          return;
+        } catch {
+          await sleep(1000);
         }
-      } catch {
-        // Gateway may still be starting; stay on login.
       }
     })();
     return () => {
@@ -479,6 +485,7 @@ export const Login = () => {
         <div className="relative isolate flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
           <LoginAurora />
           <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
+          <DesktopZoomControls className="text-neutral-100" />
           {isTauriDesktop() && desktopStatus && (
             <div className="text-sm text-neutral-300 flex flex-col items-center gap-1">
               <span>

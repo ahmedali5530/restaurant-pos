@@ -346,5 +346,13 @@
     "loginHint": "Ayrıntılar için masaüstü günlüklerini (gateway) açın.",
     "openLink": "Masaüstü günlüklerini aç",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Görüntü boyutu",
+    "help": "Tüm pencereyi küçültür veya büyütür. Düşük çözünürlüklü ekranlarda işe yarar. Ctrl ve eksi, Ctrl ve artı veya Ctrl ve 0 da çalışır.",
+    "smaller": "Daha küçük",
+    "larger": "Daha büyük",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

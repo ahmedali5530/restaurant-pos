@@ -346,5 +346,13 @@
     "loginHint": "Abra os logs do desktop (gateway) para detalhes.",
     "openLink": "Abrir logs do desktop",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Tamanho da tela",
+    "help": "Diminui ou aumenta a janela inteira. Útil em uma tela de baixa resolução. Ctrl e menos, Ctrl e mais, ou Ctrl e 0 também funcionam.",
+    "smaller": "Menor",
+    "larger": "Maior",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

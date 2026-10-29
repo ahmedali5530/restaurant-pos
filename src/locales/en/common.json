@@ -346,5 +346,13 @@
     "loginHint": "Open Desktop logs (gateway) for details.",
     "openLink": "Open desktop logs",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Display size",
+    "help": "Shrink or enlarge the whole window. Useful on a low-resolution screen. Ctrl and minus, Ctrl and plus, or Ctrl and 0 also work.",
+    "smaller": "Smaller",
+    "larger": "Larger",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

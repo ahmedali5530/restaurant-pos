@@ -346,5 +346,13 @@
     "loginHint": "Откройте журналы рабочего стола (gateway) для подробностей.",
     "openLink": "Открыть журналы",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Размер окна",
+    "help": "Уменьшает или увеличивает всё окно. Удобно на экране с низким разрешением. Также работают Ctrl и минус, Ctrl и плюс или Ctrl и 0.",
+    "smaller": "Меньше",
+    "larger": "Больше",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

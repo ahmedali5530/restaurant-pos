@@ -25,6 +25,7 @@ import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
 import {DesktopSurqlImportCard} from "@/components/user_settings/desktop_surql_import.tsx";
+import {DesktopZoomCard} from "@/components/desktop/desktop-zoom.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -49,6 +50,7 @@ export const Settings = () => {
       >
         <MasonryItem><WhatsNewSettingsCard /></MasonryItem>
         <MasonryItem><DesktopSurqlImportCard /></MasonryItem>
+        <MasonryItem><DesktopZoomCard /></MasonryItem>
         <MasonryItem><CacheSettings /></MasonryItem>
         <MasonryItem><CatalogSyncSettingsCard /></MasonryItem>
         <MasonryItem><LanguageSettings /></MasonryItem>

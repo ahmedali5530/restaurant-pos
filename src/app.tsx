@@ -31,6 +31,7 @@ import {TerminalSyncProvider} from "@/providers/terminal-sync.provider.tsx";
 import {SessionExpiryBridge} from "@/providers/session-expiry.bridge.tsx";
 import {InlineReportNavigation} from "@/components/reports/inline-report-navigation.tsx";
 import {isTauriDesktop} from "@/lib/desktop.ts";
+import {DesktopZoomController} from "@/components/desktop/desktop-zoom.tsx";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,8 @@ function App() {
     if (configReady) return;
     void (async () => {
       try {
+        const { applySavedDesktopZoom } = await import('@/lib/desktop-zoom.ts');
+        void applySavedDesktopZoom();
         const { hydrateRuntimeConfig, runtimeDefaultLanguage } = await import('@/lib/runtime-config.ts');
         const cfg = await hydrateRuntimeConfig();
         if (cfg?.defaultLanguage) {
@@ -120,6 +123,7 @@ function App() {
                             <SecurityProvider>
                               <BrowserRouter>
                                 <InlineReportNavigation />
+                                <DesktopZoomController />
                                 <SessionExpiryBridge />
                                 <AppToolbar />
                                 <I18nProvider>

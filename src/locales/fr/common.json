@@ -346,5 +346,13 @@
     "loginHint": "Ouvrez les journaux bureau (gateway) pour les détails.",
     "openLink": "Ouvrir les journaux",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Taille d'affichage",
+    "help": "Réduit ou agrandit toute la fenêtre. Utile sur un écran à faible résolution. Ctrl et moins, Ctrl et plus, ou Ctrl et 0 fonctionnent aussi.",
+    "smaller": "Plus petit",
+    "larger": "Plus grand",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

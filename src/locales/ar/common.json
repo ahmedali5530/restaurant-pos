@@ -346,5 +346,13 @@
     "loginHint": "افتح سجلات سطح المكتب (gateway) للتفاصيل.",
     "openLink": "فتح سجلات سطح المكتب",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "حجم العرض",
+    "help": "يصغّر النافذة كلها أو يكبّرها. مفيد على شاشة منخفضة الدقة. يعمل أيضًا Ctrl مع الناقص أو الزائد أو 0.",
+    "smaller": "أصغر",
+    "larger": "أكبر",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

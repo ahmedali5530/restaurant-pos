@@ -405,7 +405,7 @@ fn log_bytes(hub: &LogHub, source: &str, bytes: &[u8]) {
 
 /// Same runner as Docker Compose `migrate`: baseline `latest.surql` on an empty
 /// database, then pending files tracked in `_schema_migration`.
-fn run_schema_migrations(app: &AppHandle, cfg: &DesktopConfig, app_data: &Path, hub: &LogHub) {
+fn run_schema_migrations(app: &AppHandle, cfg: &DesktopConfig, _app_data: &Path, hub: &LogHub) {
   if skip_migrations() {
     hub.shell("POSR_SKIP_MIGRATIONS set — not applying schema");
     return;
@@ -468,10 +468,9 @@ fn run_schema_migrations(app: &AppHandle, cfg: &DesktopConfig, app_data: &Path, 
       log_bytes(hub, "migrate", &output.stdout);
       log_bytes(hub, "migrate", &output.stderr);
       if output.status.success() {
-        match config::mark_setup_complete(app_data) {
-          Ok(()) => hub.shell("schema migrations finished"),
-          Err(err) => hub.shell(&format!("schema migrations finished; setup marker failed: {err}")),
-        }
+        // Leave the first-run import screen up. The operator marks setup
+        // complete from that screen after importing demo data, or skipping it.
+        hub.shell("schema migrations finished — import screen stays available");
       } else {
         let code = output
           .status

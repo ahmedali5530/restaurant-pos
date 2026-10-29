@@ -346,5 +346,13 @@
     "loginHint": "Apri i log desktop (gateway) per i dettagli.",
     "openLink": "Apri log desktop",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Dimensione schermo",
+    "help": "Riduce o ingrandisce l'intera finestra. Utile su uno schermo a bassa risoluzione. Funzionano anche Ctrl e meno, Ctrl e più, o Ctrl e 0.",
+    "smaller": "Più piccolo",
+    "larger": "Più grande",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

@@ -8,10 +8,18 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-29',
+    title: 'Desktop display size',
+    items: [
+      'POSR Desktop can shrink or enlarge the whole window. Change it on the login screen or in Settings, or use Ctrl and minus, Ctrl and plus, and Ctrl and 0. This PC remembers the size.',
+    ],
+  },
+  {
+    date: '2026-10-29',
     title: 'Desktop updates without clearing app data',
     items: [
       'Reinstalling POSR Desktop drops the window cache automatically. The database and store settings stay, and you do not need to delete a WebView folder by hand.',
       'Installing or updating POSR Desktop skips the setup questions when this PC already has store settings.',
+      'A new database still opens the screen where you import a demo .surql file. Schema updates no longer skip that step.',
     ],
   },
   {

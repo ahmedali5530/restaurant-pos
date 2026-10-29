@@ -346,5 +346,13 @@
     "loginHint": "Abra los registros de escritorio (gateway) para más detalles.",
     "openLink": "Abrir registros de escritorio",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Tamaño de pantalla",
+    "help": "Reduce o amplía toda la ventana. Útil en una pantalla de baja resolución. Ctrl y menos, Ctrl y más, o Ctrl y 0 también funcionan.",
+    "smaller": "Más pequeño",
+    "larger": "Más grande",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }

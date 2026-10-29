@@ -346,5 +346,13 @@
     "loginHint": "Open desktoplogboeken (gateway) voor details.",
     "openLink": "Desktoplogboeken openen",
     "installerSummary": "Installer settings"
+  },
+  "desktopZoom": {
+    "title": "Weergavegrootte",
+    "help": "Maakt het hele venster kleiner of groter. Handig op een scherm met lage resolutie. Ctrl en min, Ctrl en plus, of Ctrl en 0 werken ook.",
+    "smaller": "Kleiner",
+    "larger": "Groter",
+    "reset": "100%",
+    "current": "{{percent}}%"
   }
 }
