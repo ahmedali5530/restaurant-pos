@@ -4,6 +4,14 @@
   StrCpy $0 "$LOCALAPPDATA\com.posr.desktop"
   CreateDirectory "$0"
 
+  ; Quit a running tray copy so the UI cache is not locked, then drop only
+  ; the WebView2 cache. The database and installer-settings.json stay.
+  nsExec::ExecToLog 'taskkill /F /IM POSR.exe'
+  Pop $4
+  RMDir /r "$0\EBWebView"
+  FileOpen $3 "$0\refresh-ui" w
+  FileClose $3
+
   ; Locate configure script (bundled as a resource)
   StrCpy $1 ""
   IfFileExists "$INSTDIR\configure-posr.ps1" 0 +2
@@ -20,6 +28,16 @@
     StrCpy $2 "$INSTDIR\windows\installer-settings.template.json"
   IfFileExists "$INSTDIR\resources\windows\installer-settings.template.json" 0 +2
     StrCpy $2 "$INSTDIR\resources\windows\installer-settings.template.json"
+
+  ; An update already has store settings. Do not ask again.
+  IfFileExists "$0\installer-settings.json" have_cfg 0
+  IfFileExists "$APPDATA\com.posr.desktop\installer-settings.json" have_cfg 0
+  IfFileExists "$APPDATA\com.posr.desktop\.posr_setup_done" have_cfg 0
+  Goto ask_cfg
+  have_cfg:
+    DetailPrint "POSR settings already exist, skipping setup."
+    Goto skip_cfg
+  ask_cfg:
 
   StrCmp $1 "" skip_cfg 0
   ${IfNot} ${Silent}

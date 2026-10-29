@@ -8,6 +8,12 @@ param(
 $ErrorActionPreference = "Stop"
 New-Item -ItemType Directory -Force -Path $AppDataDir | Out-Null
 $outPath = Join-Path $AppDataDir "installer-settings.json"
+$roamingSettings = Join-Path $env:APPDATA "com.posr.desktop\installer-settings.json"
+$roamingDone = Join-Path $env:APPDATA "com.posr.desktop\.posr_setup_done"
+if ((Test-Path $outPath) -or (Test-Path $roamingSettings) -or (Test-Path $roamingDone)) {
+  Write-Host "POSR settings already exist, skipping setup."
+  exit 0
+}
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing

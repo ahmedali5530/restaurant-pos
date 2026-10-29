@@ -4,6 +4,7 @@ mod lan_ui;
 mod logging;
 mod paths;
 mod sidecars;
+mod webview_cache;
 #[cfg(feature = "tray")]
 mod tray;
 
@@ -59,6 +60,8 @@ fn allow_loopback_without_proxy() {
 pub fn run() {
   allow_loopback_without_proxy();
   allow_webview_loopback_offline();
+  // Before any window exists, so a new install cannot open a cached UI.
+  webview_cache::clear_if_stale();
   tauri::Builder::default()
     .plugin(tauri_plugin_dialog::init())
     .setup(|app| {

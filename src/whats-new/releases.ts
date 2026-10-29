@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-29',
+    title: 'Desktop updates without clearing app data',
+    items: [
+      'Reinstalling POSR Desktop drops the window cache automatically. The database and store settings stay, and you do not need to delete a WebView folder by hand.',
+      'Installing or updating POSR Desktop skips the setup questions when this PC already has store settings.',
+    ],
+  },
+  {
     date: '2026-10-28',
     title: 'Desktop screens on the local network',
     items: [
