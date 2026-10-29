@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Не удалось сгенерировать следующий номер накладной",
     "unableGenerateReturnNumber": "Не удалось сгенерировать следующий номер возврата",
     "unableGeneratePoNumber": "Не удалось сгенерировать следующий номер заказа на закупку",
-    "itemsExceedQuantity": "Один или несколько товаров превышают доступное количество"
+    "itemsExceedQuantity": "Один или несколько товаров превышают доступное количество",
+    "itemDeactivated": "{{name}} используется и был деактивирован.",
+    "itemDeleted": "{{name}} успешно удалён.",
+    "itemDeleteFailed": "Не удалось удалить {{name}}."
   },
   "delivery": {
     "settingsSaved": "Настройки доставки успешно сохранены",

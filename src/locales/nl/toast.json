@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Kan volgend factuurnummer niet genereren",
     "unableGenerateReturnNumber": "Kan volgend retournummer niet genereren",
     "unableGeneratePoNumber": "Kan volgend PO-nummer niet genereren",
-    "itemsExceedQuantity": "Een of meer artikelen overschrijden de beschikbare hoeveelheid"
+    "itemsExceedQuantity": "Een of meer artikelen overschrijden de beschikbare hoeveelheid",
+    "itemDeactivated": "{{name}} is in gebruik en is gedeactiveerd.",
+    "itemDeleted": "{{name}} succesvol verwijderd.",
+    "itemDeleteFailed": "{{name}} kon niet worden verwijderd."
   },
   "delivery": {
     "settingsSaved": "Bezorginstellingen succesvol opgeslagen",

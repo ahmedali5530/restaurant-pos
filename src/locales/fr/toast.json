@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Impossible de générer le prochain numéro de facture",
     "unableGenerateReturnNumber": "Impossible de générer le prochain numéro de retour",
     "unableGeneratePoNumber": "Impossible de générer le prochain numéro de bon de commande",
-    "itemsExceedQuantity": "Un ou plusieurs articles dépassent la quantité disponible"
+    "itemsExceedQuantity": "Un ou plusieurs articles dépassent la quantité disponible",
+    "itemDeactivated": "{{name}} est utilisé et a été désactivé.",
+    "itemDeleted": "{{name}} supprimé avec succès.",
+    "itemDeleteFailed": "Échec de la suppression de {{name}}."
   },
   "delivery": {
     "settingsSaved": "Paramètres de livraison enregistrés avec succès",

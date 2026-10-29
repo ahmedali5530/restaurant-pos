@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-29',
+    title: 'Inventory item soft delete',
+    items: [
+      'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',
+    ],
+  },
+  {
     date: '2026-10-28',
     title: 'Assistant CSV cleanse and chat context',
     items: [

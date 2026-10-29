@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Não foi possível gerar o próximo número de nota fiscal",
     "unableGenerateReturnNumber": "Não foi possível gerar o próximo número de devolução",
     "unableGeneratePoNumber": "Não foi possível gerar o próximo número de pedido de compra",
-    "itemsExceedQuantity": "Um ou mais itens excedem a quantidade disponível"
+    "itemsExceedQuantity": "Um ou mais itens excedem a quantidade disponível",
+    "itemDeactivated": "{{name}} está em uso e foi desativado.",
+    "itemDeleted": "{{name}} excluído com sucesso.",
+    "itemDeleteFailed": "Falha ao excluir {{name}}."
   },
   "delivery": {
     "settingsSaved": "Configurações de delivery salvas com sucesso",

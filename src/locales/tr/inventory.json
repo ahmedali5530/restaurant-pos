@@ -669,5 +669,9 @@
     "toast": {
       "saved": "{{code}} birimi kaydedildi"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} sil",
+    "itemMessage": "Kullanılmayan kalem silinir. Yalnızca yemek reçetelerindeyse o satırlar da kaldırılır. Stok geçmişi veya belgeler varsa kalem pasifleştirilir."
   }
 }

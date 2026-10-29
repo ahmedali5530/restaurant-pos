@@ -1225,6 +1225,7 @@ DEFINE FIELD average_price ON inventory_item TYPE none | float | null PERMISSION
 DEFINE FIELD base_quantity ON inventory_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD category ON inventory_item TYPE none | record<inventory_category> | null PERMISSIONS FULL;
 DEFINE FIELD code ON inventory_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON inventory_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD item_types ON inventory_item TYPE array<string> DEFAULT ['raw'] ASSERT array::len($value) > 0 PERMISSIONS FULL;
 DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> PERMISSIONS FULL;
 DEFINE FIELD locations.* ON inventory_item TYPE record<inventory_location> PERMISSIONS FULL;

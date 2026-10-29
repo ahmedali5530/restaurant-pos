@@ -177,8 +177,10 @@ export async function fetchExistingDishIngredientRaw(
 
   const [items] = await db.query(
     `SELECT id, name, code, uom, price FROM ${Tables.inventory_items}
-     WHERE string::lowercase(name) = string::lowercase($key)
-        OR string::lowercase(code) = string::lowercase($key)
+     WHERE deleted_at = none AND (
+       string::lowercase(name) = string::lowercase($key)
+       OR string::lowercase(code) = string::lowercase($key)
+     )
      LIMIT 1`,
     {key: ingredientKey},
   );
@@ -242,7 +244,7 @@ export async function fetchExistingInventoryItemRaw(
   code: string,
 ): Promise<Record<string, unknown> | null> {
   const [rows] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE code = $code LIMIT 1 FETCH category, suppliers, locations, stores`,
+    `SELECT * FROM ${Tables.inventory_items} WHERE code = $code AND deleted_at = none LIMIT 1 FETCH category, suppliers, locations, stores`,
     {code},
   );
   const item = rows?.[0];

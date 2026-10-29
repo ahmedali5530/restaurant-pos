@@ -1,7 +1,7 @@
 import useApi, {SettingsData} from "@/api/db/use.api.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {useMemo, useState} from "react";
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 import {createColumnHelper} from "@tanstack/react-table";
 import {Button} from "@/components/common/input/button.tsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -14,11 +14,20 @@ import {AiSparklesIcon} from "@/components/common/icons/ai-sparkles.tsx";
 import {createInventoryItemImportConfig} from "@/components/inventory/items/item.import.config.ts";
 import {useDB} from "@/api/db/db.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
-import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
+import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
+import {deleteInventoryItem} from "@/lib/inventory/item.delete.ts";
 
 export const InventoryItems = () => {
-  const { t } = useTranslation(['inventory', 'common']);
-  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
+  const {t} = useTranslation(["inventory", "common", "toast"]);
+  const loadHook = useApi<SettingsData<InventoryItem>>(
+    Tables.inventory_items,
+    ["deleted_at = none"],
+    [],
+    0,
+    10,
+    ["category", "suppliers", "locations", "stores"]
+  );
   const db = useDB();
 
   const [data, setData] = useState<InventoryItem>();
@@ -34,31 +43,31 @@ export const InventoryItems = () => {
 
   const columns: any = [
     columnHelper.accessor("name", {
-      header: t('columns.name')
+      header: t("columns.name"),
     }),
     columnHelper.accessor("code", {
-      header: t('columns.code'),
+      header: t("columns.code"),
     }),
-    columnHelper.accessor(row => row.category?.name ?? "", {
+    columnHelper.accessor((row) => row.category?.name ?? "", {
       id: "category",
-      header: t('columns.category')
+      header: t("columns.category"),
     }),
     columnHelper.accessor("uom", {
-      header: t('columns.uom')
+      header: t("columns.uom"),
     }),
     columnHelper.accessor("price", {
-      header: t('columns.price')
+      header: t("columns.price"),
     }),
     columnHelper.accessor("average_price", {
-      header: t('columns.averagePrice')
+      header: t("columns.averagePrice"),
     }),
     columnHelper.accessor("reorder_levels", {
-      header: t('columns.reorderLevels'),
-      cell: info => {
+      header: t("columns.reorderLevels"),
+      cell: (info) => {
         const item = info.row.original;
         const locs = item.locations ?? item.stores ?? [];
         const tags = locs
-          .map(loc => {
+          .map((loc) => {
             const level = getReorderLevelForStore(item, loc.id);
             return level > 0 ? `${loc.name}: ${level}` : null;
           })
@@ -71,52 +80,81 @@ export const InventoryItems = () => {
         return (
           <div className="flex flex-wrap gap-2">
             {tags.map((tag, index) => (
-              <span className="tag" key={index}>{tag}</span>
+              <span className="tag" key={index}>
+                {tag}
+              </span>
             ))}
           </div>
         );
       },
     }),
     columnHelper.accessor("item_types", {
-      header: t('itemType.label')
+      header: t("itemType.label"),
     }),
     columnHelper.accessor((row) => row.locations ?? row.stores ?? [], {
       id: "locations",
-      header: t('tabs.locations'),
-      cell: info => (
+      header: t("tabs.locations"),
+      cell: (info) => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.map((loc, index) => (
-            <span className="tag" key={loc.id ?? index}>{loc.name}</span>
+            <span className="tag" key={loc.id ?? index}>
+              {loc.name}
+            </span>
           ))}
         </div>
-      )
+      ),
     }),
     columnHelper.accessor("suppliers", {
-      header: t('tabs.suppliers'),
-      cell: info => (
+      header: t("tabs.suppliers"),
+      cell: (info) => (
         <div className="flex flex-wrap gap-2">
           {info.getValue()?.map((item, index) => (
-            <span className="tag" key={item.id ?? index}>{item.name}</span>
+            <span className="tag" key={item.id ?? index}>
+              {item.name}
+            </span>
           ))}
         </div>
-      )
+      ),
     }),
     columnHelper.accessor("id", {
       id: "actions",
-      header: t('columns.actions'),
+      header: t("columns.actions"),
       enableSorting: false,
       enableColumnFilter: false,
       cell: (info) => {
         return (
-          <>
-            <IconTooltipButton label={t('common:actions.edit')}
+          <div className="flex gap-3 items-center">
+            <IconTooltipButton
+              label={t("common:actions.edit")}
               variant="primary"
               onClick={() => {
                 setData(info.row.original);
                 setFormModal(true);
               }}
-            ><FontAwesomeIcon icon={faPencil}/></IconTooltipButton>
-          </>
+            >
+              <FontAwesomeIcon icon={faPencil} />
+            </IconTooltipButton>
+            <div className="separator"></div>
+            <DeleteConfirm
+              title={t("delete.itemTitle", {
+                name: info.row.original.name,
+                defaultValue: "Delete {{name}}",
+              })}
+              message={t("delete.itemMessage", {
+                name: info.row.original.name,
+                defaultValue:
+                  "If this item is unused it will be removed. If it is only on dish recipes, those recipe lines are removed too. If it has stock history or documents, it will be deactivated instead.",
+              })}
+              onConfirm={() =>
+                deleteInventoryItem({
+                  db,
+                  id: String(info.row.original.id),
+                  entityLabel: info.row.original.name,
+                  onAfter: () => loadHook.fetchData(),
+                })
+              }
+            />
+          </div>
         );
       },
     }),
@@ -129,12 +167,29 @@ export const InventoryItems = () => {
         loaderHook={loadHook}
         loaderLineItems={columns.length}
         buttons={[
-          <Button variant="primary" onClick={() => {
-            setFormModal(true);
-          }} icon={faPlus}> Item</Button>,
-          <Button variant="primary" onClick={() => {
-            setImportModal(true);
-          }}><span className="mr-2"><AiSparklesIcon /></span>{t('common:actions.smartImport', {defaultValue: 'AI Import'})}</Button>
+          <Button
+            key="add"
+            variant="primary"
+            onClick={() => {
+              setFormModal(true);
+            }}
+            icon={faPlus}
+          >
+            {" "}
+            Item
+          </Button>,
+          <Button
+            key="import"
+            variant="primary"
+            onClick={() => {
+              setImportModal(true);
+            }}
+          >
+            <span className="mr-2">
+              <AiSparklesIcon />
+            </span>
+            {t("common:actions.smartImport", {defaultValue: "AI Import"})}
+          </Button>,
         ]}
       />
 
@@ -158,32 +213,32 @@ export const InventoryItems = () => {
             loadHook.fetchData();
           }}
           config={smartImportConfig}
-          title={t('forms.smartImportItemsTitle', {defaultValue: 'AI Import items'})}
+          title={t("forms.smartImportItemsTitle", {defaultValue: "AI Import items"})}
           enableImportModes
-          defaultMatchFields={['code']}
+          defaultMatchFields={["code"]}
           onExport={async () => {
             const [items] = await db.query(
-              `SELECT * FROM ${Tables.inventory_items} FETCH category, suppliers, locations, stores`
+              `SELECT * FROM ${Tables.inventory_items} WHERE deleted_at = none FETCH category, suppliers, locations, stores`
             );
             return (items as InventoryItem[]).map((item) => {
               const locs = item.locations ?? item.stores ?? [];
               return {
-                name: item.name ?? '',
-                code: item.code ?? '',
-                category: item.category?.name ?? '',
-                uom: item.uom ?? '',
-                price: String(item.price ?? ''),
-                average_price: String(item.average_price ?? ''),
-                locations: locs.map((l) => l.name).join(','),
-                suppliers: (item.suppliers ?? []).map((s) => s.name).join(','),
-                item_types: (item.item_types ?? []).join(','),
+                name: item.name ?? "",
+                code: item.code ?? "",
+                category: item.category?.name ?? "",
+                uom: item.uom ?? "",
+                price: String(item.price ?? ""),
+                average_price: String(item.average_price ?? ""),
+                locations: locs.map((l) => l.name).join(","),
+                suppliers: (item.suppliers ?? []).map((s) => s.name).join(","),
+                item_types: (item.item_types ?? []).join(","),
                 reorder_levels: locs
                   .map((loc) => {
                     const level = getReorderLevelForStore(item, loc.id);
                     return level > 0 ? `${loc.name}:${level}` : null;
                   })
                   .filter(Boolean)
-                  .join(','),
+                  .join(","),
               };
             });
           }}
@@ -191,5 +246,5 @@ export const InventoryItems = () => {
         />
       )}
     </>
-  )
-}
+  );
+};

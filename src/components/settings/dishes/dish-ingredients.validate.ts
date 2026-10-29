@@ -124,7 +124,7 @@ export async function validateDishIngredientRecords(
     const [itemRows] = await db.query(
       `SELECT id, name, code, uom, price, average_price, item_types, item_type
        FROM ${Tables.inventory_items}
-       WHERE id IN $ids`,
+       WHERE deleted_at = none AND id IN $ids`,
       {ids},
     );
     for (const item of itemRows ?? []) {
