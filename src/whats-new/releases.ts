@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-29',
+    title: 'Sale vs Consumption by item',
+    items: [
+      'Sale vs Consumption now lists each inventory item’s purchased, issued, and recipe-implied consumed qty/cost for the selected dates, with qty and cost variance (issued − consumed).',
+    ],
+  },
+  {
+    date: '2026-10-29',
     title: 'Inventory item soft delete',
     items: [
       'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',

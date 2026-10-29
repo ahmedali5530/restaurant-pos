@@ -394,7 +394,16 @@
     "menu": "Cardápio",
     "issue": "Saída",
     "employee": "Funcionário",
-    "turnTime": "Tempo de rotação (min)"
+    "turnTime": "Tempo de rotação (min)",
+    "metric": "Métrica",
+    "purchasedQty": "Qtd comprada",
+    "purchasedCost": "Custo comprado",
+    "issuedQty": "Qtd emitida",
+    "issuedCost": "Custo emitido",
+    "consumedQty": "Qtd consumida",
+    "consumedCost": "Custo consumido",
+    "qtyVariance": "Variação qtd",
+    "costVariance": "Variação custo"
   },
   "labels": {
     "modifiers": "Modificadores",
@@ -603,7 +612,15 @@
     "selfOrdersHint": "Pagos online pelos clientes na mesa — não entram na gaveta de dinheiro nem no lote de cartões acima.",
     "selfOrdersTotal": "Pago online",
     "selfOrdersTestWarning": "{{count}} pedido(s) de teste ({{amount}}) — nenhum dinheiro foi recebido.",
-    "testPayment": "Teste"
+    "testPayment": "Teste",
+    "saleVsConsumption": "Venda vs consumo",
+    "saleVsIssuance": "Venda vs estoque (emissão)",
+    "saleVsPurchase": "Venda vs compra",
+    "saleTotal": "Total de vendas",
+    "purchaseTotal": "Total de compras",
+    "profitPercent": "Percentual de lucro",
+    "byItem": "Por item",
+    "qtyVarianceHelp": "Variação de qtd = emitido − consumo da receita (positivo = mais emitido que a receita). O custo consumido usa o custo unitário de compra do período quando há compras; senão, o preço médio do catálogo."
   },
   "metrics": {
     "gross": "Bruto",
@@ -710,6 +727,8 @@
     "noDiscountsByUsers": "Nenhum desconto por usuários para o intervalo selecionado.",
     "noDiscountRows": "Nenhuma linha de desconto encontrada para o intervalo selecionado.",
     "noEmployeeSales": "Nenhum dado de vendas por funcionário disponível",
-    "noScheduleRoster": "Nenhum turno agendado para o período selecionado"
+    "noScheduleRoster": "Nenhum turno agendado para o período selecionado",
+    "noData": "Nenhum dado disponível",
+    "noItemActivity": "Nenhuma atividade de compra, emissão ou consumo de receita no intervalo selecionado."
   }
 }
