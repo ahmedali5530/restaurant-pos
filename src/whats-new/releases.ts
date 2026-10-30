@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-30',
+    title: 'Kenya KRA eTIMS fiscalization',
+    items: [
+      'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
+      'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
+      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+    ],
+  },
+  {
     date: '2026-10-29',
     title: 'Sale vs Consumption by item',
     items: [

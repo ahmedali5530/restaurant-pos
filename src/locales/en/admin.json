@@ -528,7 +528,10 @@
     "modifierOptionAvailability": "Modifier availability (this dish)",
     "modifierOptionAvailable": "Available for this dish",
     "modifierOptionAvailableHint": "Leave defaults to use global dish availability. Turn off or set a sale limit to override for this parent dish only.",
-    "modifierOptionSaleLimit": "Sale limit (this dish)"
+    "modifierOptionSaleLimit": "Sale limit (this dish)",
+    "kraItemClsCd": "KRA item class code",
+    "kraTaxTyCd": "KRA tax type (A–E)",
+    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults."
   },
   "dishView": {
     "detailsTitle": "Dish details",

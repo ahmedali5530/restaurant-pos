@@ -82,5 +82,18 @@
     "retryInvoicePending": "Rechnungsnummer noch nicht bereit — nach Sync erneut versuchen.",
     "retryOrderNotFound": "Bestellung für Fiskal-Retry nicht gefunden.",
     "retryProviderDisabled": "Anbieter ist deaktiviert."
-  }
+  },
+  "initializeDevice": "Gerät initialisieren",
+  "reinitializeDevice": "Gerät erneut initialisieren",
+  "initializingDevice": "Initialisierung…",
+  "registerItems": "Artikel registrieren",
+  "registeringItems": "Artikel werden registriert…",
+  "resetDevice": "Geräteschlüssel zurücksetzen",
+  "deviceReady": "Gerät initialisiert",
+  "deviceNotInitialized": "Gerät nicht initialisiert",
+  "deviceInitHint": "Speichern Sie zuerst die Zugangsdaten und initialisieren Sie dann, um den Kommunikationsschlüssel von KRA zu erhalten.",
+  "deviceReadyHint": "Kommunikationsschlüssel gespeichert. Registrieren Sie Gerichte und Lagerartikel bei eTIMS, wenn bereit.",
+  "deviceInitialized": "KRA-Gerät initialisiert",
+  "deviceReset": "KRA-Geräteschlüssel gelöscht",
+  "itemsRegistered": "Artikel bei KRA eTIMS registriert"
 }

@@ -416,7 +416,7 @@ export class IntegrationManager {
     payload: Record<string, unknown>,
     response: IntegrationExecutionResponse
   ) {
-    if (action !== 'invoiceSubmission') return;
+    if (action !== 'invoiceSubmission' && action !== 'creditNote') return;
 
     const provider = this.registry.get(providerId);
     if (!provider || provider.getManifest().category !== 'fiscal') return;
@@ -432,14 +432,17 @@ export class IntegrationManager {
       persistFiscalSubmissionsForOrder,
     } = await import('@/integrations/storage/order-fiscal-repository.ts');
 
-    const existing = await listOrderFiscalSubmissions(db, order.id);
-    const alreadyCompleted = existing.some(
-      (row) =>
-        row.provider_id === providerId &&
-        row.status === 'completed' &&
-        Boolean(row.qrcode || row.invoice_number)
-    );
-    if (alreadyCompleted) return;
+    // Sales: skip if a completed QR already exists. Credit notes always append a new row.
+    if (action === 'invoiceSubmission') {
+      const existing = await listOrderFiscalSubmissions(db, order.id);
+      const alreadyCompleted = existing.some(
+        (row) =>
+          row.provider_id === providerId &&
+          row.status === 'completed' &&
+          Boolean(row.qrcode || row.invoice_number)
+      );
+      if (alreadyCompleted) return;
+    }
 
     const config = await this.configLoader(providerId);
     const runtime = parseFiscalRuntimeConfig(config);

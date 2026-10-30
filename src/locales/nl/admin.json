@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Modifierbeschikbaarheid (dit gerecht)",
     "modifierOptionAvailable": "Beschikbaar voor dit gerecht",
     "modifierOptionAvailableHint": "Laat standaard staan voor globale beschikbaarheid. Zet uit of stel een verkooplimiet in alleen voor dit gerecht.",
-    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)"
+    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)",
+    "kraItemClsCd": "KRA-artikelklassecode",
+    "kraTaxTyCd": "KRA-belastingtype (A–E)",
+    "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
