@@ -168,7 +168,8 @@
     "smartImportIngredients": "Zutaten KI-Import",
     "smartImportModifierGroups": "Modifiergruppen KI-Import",
     "smartImportMenuStructure": "KI-Import Menüstruktur",
-    "syncDishCosts": "Kosten aus Artikeln aktualisieren"
+    "syncDishCosts": "Kosten aus Artikeln aktualisieren",
+    "menuTree": "Menübaum"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -1171,5 +1172,31 @@
     "empty": "Keine Gerichte in dieser Kategorie",
     "available": "Verfügbar",
     "unavailable": "Ausverkauft"
+  },
+  "menuTree": {
+    "title": "Menübaum",
+    "search": "Suchen",
+    "searchPlaceholder": "Nach Name filtern…",
+    "expandAll": "Alle erweitern",
+    "collapseAll": "Alle einklappen",
+    "expand": "Erweitern",
+    "collapse": "Einklappen",
+    "loading": "Menübaum wird geladen…",
+    "empty": "Keine Menüeinträge zum Anzeigen.",
+    "uncategorized": "Ohne Kategorie",
+    "required": "Erforderlich",
+    "hidden": "Ausgeblendet",
+    "hiddenFromMenu": "Im Menü ausgeblendet",
+    "kind": {
+      "category": "Kategorie",
+      "dish": "Gericht",
+      "modifierGroup": "Modifikatorgruppe",
+      "modifier": "Modifikator",
+      "uncategorized": "Ohne Kategorie"
+    },
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "fit": "An Bildschirm anpassen",
+    "panHint": "Ziehen zum Verschieben · Mausrad zum Zoomen"
   }
 }

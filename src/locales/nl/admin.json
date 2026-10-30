@@ -168,7 +168,8 @@
     "smartImportIngredients": "Ingrediënten AI-importeren",
     "smartImportModifierGroups": "Modifiergroepen AI-importeren",
     "smartImportMenuStructure": "AI-import menustructuur",
-    "syncDishCosts": "Kosten bijwerken vanuit artikelen"
+    "syncDishCosts": "Kosten bijwerken vanuit artikelen",
+    "menuTree": "Menuboom"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -1171,5 +1172,31 @@
     "empty": "Geen gerechten in deze categorie",
     "available": "Beschikbaar",
     "unavailable": "Uitverkocht"
+  },
+  "menuTree": {
+    "title": "Menuboom",
+    "search": "Zoeken",
+    "searchPlaceholder": "Filteren op naam…",
+    "expandAll": "Alles uitklappen",
+    "collapseAll": "Alles inklappen",
+    "expand": "Uitklappen",
+    "collapse": "Inklappen",
+    "loading": "Menuboom laden…",
+    "empty": "Geen menu-items om te tonen.",
+    "uncategorized": "Zonder categorie",
+    "required": "Verplicht",
+    "hidden": "Verborgen",
+    "hiddenFromMenu": "Verborgen in menu",
+    "kind": {
+      "category": "Categorie",
+      "dish": "Gerecht",
+      "modifierGroup": "Modifiergroep",
+      "modifier": "Modifier",
+      "uncategorized": "Zonder categorie"
+    },
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "fit": "Passend maken",
+    "panHint": "Slepen om te verschuiven · scrollen om te zoomen"
   }
 }

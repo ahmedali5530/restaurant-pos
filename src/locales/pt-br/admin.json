@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importação IA de ingredientes",
     "smartImportModifierGroups": "Importação IA de grupos de modificadores",
     "smartImportMenuStructure": "Importar estrutura do cardápio com IA",
-    "syncDishCosts": "Atualizar custos a partir dos itens"
+    "syncDishCosts": "Atualizar custos a partir dos itens",
+    "menuTree": "Árvore do cardápio"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -1171,5 +1172,31 @@
     "empty": "Nenhum prato nesta categoria",
     "available": "Disponível",
     "unavailable": "Esgotado"
+  },
+  "menuTree": {
+    "title": "Árvore do cardápio",
+    "search": "Pesquisar",
+    "searchPlaceholder": "Filtrar por nome…",
+    "expandAll": "Expandir tudo",
+    "collapseAll": "Recolher tudo",
+    "expand": "Expandir",
+    "collapse": "Recolher",
+    "loading": "Carregando árvore do cardápio…",
+    "empty": "Nenhum item de cardápio para mostrar.",
+    "uncategorized": "Sem categoria",
+    "required": "Obrigatório",
+    "hidden": "Oculto",
+    "hiddenFromMenu": "Oculto no cardápio",
+    "kind": {
+      "category": "Categoria",
+      "dish": "Prato",
+      "modifierGroup": "Grupo de modificadores",
+      "modifier": "Modificador",
+      "uncategorized": "Sem categoria"
+    },
+    "zoomIn": "Aproximar",
+    "zoomOut": "Afastar",
+    "fit": "Ajustar à tela",
+    "panHint": "Arraste para mover · role para zoom"
   }
 }

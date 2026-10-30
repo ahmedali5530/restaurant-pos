@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-30',
+    title: 'Menu tree on Dishes',
+    items: [
+      'Manage → Dishes includes a Menu tree button that opens a full-width SVG map: categories branch into dishes, then modifier groups and modifiers (including nested groups), with zoom, pan, and fit-to-screen.',
+    ],
+  },
+  {
+    date: '2026-10-30',
     title: 'Kenya KRA eTIMS fiscalization',
     items: [
       'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',

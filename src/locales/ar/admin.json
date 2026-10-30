@@ -168,7 +168,8 @@
     "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
     "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
     "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي",
-    "syncDishCosts": "تحديث التكاليف من الأصناف"
+    "syncDishCosts": "تحديث التكاليف من الأصناف",
+    "menuTree": "شجرة القائمة"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -1171,5 +1172,31 @@
     "empty": "لا أطباق في هذه الفئة",
     "available": "متاح",
     "unavailable": "نافد"
+  },
+  "menuTree": {
+    "title": "شجرة القائمة",
+    "search": "بحث",
+    "searchPlaceholder": "تصفية حسب الاسم…",
+    "expandAll": "توسيع الكل",
+    "collapseAll": "طي الكل",
+    "expand": "توسيع",
+    "collapse": "طي",
+    "loading": "جاري تحميل شجرة القائمة…",
+    "empty": "لا توجد عناصر قائمة للعرض.",
+    "uncategorized": "بدون فئة",
+    "required": "مطلوب",
+    "hidden": "مخفي",
+    "hiddenFromMenu": "مخفي من القائمة",
+    "kind": {
+      "category": "فئة",
+      "dish": "طبق",
+      "modifierGroup": "مجموعة المعدّلات",
+      "modifier": "معدّل",
+      "uncategorized": "بدون فئة"
+    },
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "fit": "ملاءمة الشاشة",
+    "panHint": "اسحب للتحريك · مرّر للتكبير"
   }
 }

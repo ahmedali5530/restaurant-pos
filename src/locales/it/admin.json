@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importazione IA ingredienti",
     "smartImportModifierGroups": "Importazione IA gruppi modificatori",
     "smartImportMenuStructure": "Importa struttura menu con IA",
-    "syncDishCosts": "Aggiorna costi dagli articoli"
+    "syncDishCosts": "Aggiorna costi dagli articoli",
+    "menuTree": "Albero del menu"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -1171,5 +1172,31 @@
     "empty": "Nessun piatto in questa categoria",
     "available": "Disponibile",
     "unavailable": "Esaurito"
+  },
+  "menuTree": {
+    "title": "Albero del menu",
+    "search": "Cerca",
+    "searchPlaceholder": "Filtra per nome…",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "expand": "Espandi",
+    "collapse": "Comprimi",
+    "loading": "Caricamento albero del menu…",
+    "empty": "Nessuna voce di menu da mostrare.",
+    "uncategorized": "Senza categoria",
+    "required": "Obbligatorio",
+    "hidden": "Nascosto",
+    "hiddenFromMenu": "Nascosto nel menu",
+    "kind": {
+      "category": "Categoria",
+      "dish": "Piatto",
+      "modifierGroup": "Gruppo modificatori",
+      "modifier": "Modificatore",
+      "uncategorized": "Senza categoria"
+    },
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "fit": "Adatta allo schermo",
+    "panHint": "Trascina per spostare · rotella per zoom"
   }
 }
