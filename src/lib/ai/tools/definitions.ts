@@ -303,7 +303,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare sales vs recipe consumption vs issuance vs purchases (same as Sale vs Consumption report).",
+      description: "Compare sales vs recipe consumption vs issuance vs purchases, with per-item purchased/issued/consumed qty and cost variances (same as Sale vs Consumption report).",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },

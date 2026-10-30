@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Disponibilidade do modificador (este prato)",
     "modifierOptionAvailable": "Disponível para este prato",
     "modifierOptionAvailableHint": "Deixe o padrão para usar a disponibilidade global. Desative ou defina um limite só para este prato.",
-    "modifierOptionSaleLimit": "Limite de venda (este prato)"
+    "modifierOptionSaleLimit": "Limite de venda (este prato)",
+    "kraItemClsCd": "Código de classificação do item KRA",
+    "kraTaxTyCd": "Tipo de imposto KRA (A–E)",
+    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

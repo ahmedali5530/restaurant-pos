@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Доступность модификатора (это блюдо)",
     "modifierOptionAvailable": "Доступно для этого блюда",
     "modifierOptionAvailableHint": "Оставьте по умолчанию для глобальной доступности. Отключите или задайте лимит только для этого блюда.",
-    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)"
+    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
+    "kraItemClsCd": "Код классификации товара KRA",
+    "kraTaxTyCd": "Тип налога KRA (A–E)",
+    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Disponibilità modificatore (questo piatto)",
     "modifierOptionAvailable": "Disponibile per questo piatto",
     "modifierOptionAvailableHint": "Lascia i valori predefiniti per la disponibilità globale. Disattiva o imposta un limite solo per questo piatto.",
-    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)"
+    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)",
+    "kraItemClsCd": "Codice classificazione articolo KRA",
+    "kraTaxTyCd": "Tipo imposta KRA (A–E)",
+    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

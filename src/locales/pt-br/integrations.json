@@ -79,5 +79,18 @@
     "retryInvoicePending": "Número da fatura ainda não está pronto — tente novamente após a sincronização.",
     "retryOrderNotFound": "Pedido não encontrado para nova tentativa fiscal.",
     "retryProviderDisabled": "Provedor está desativado."
-  }
+  },
+  "initializeDevice": "Inicializar dispositivo",
+  "reinitializeDevice": "Reinicializar dispositivo",
+  "initializingDevice": "Inicializando…",
+  "registerItems": "Registrar itens",
+  "registeringItems": "Registrando itens…",
+  "resetDevice": "Redefinir chaves do dispositivo",
+  "deviceReady": "Dispositivo inicializado",
+  "deviceNotInitialized": "Dispositivo não inicializado",
+  "deviceInitHint": "Salve as credenciais primeiro e depois inicialize para receber a chave de comunicação da KRA.",
+  "deviceReadyHint": "Chave de comunicação armazenada. Registre pratos e itens de estoque no eTIMS quando estiver pronto.",
+  "deviceInitialized": "Dispositivo KRA inicializado",
+  "deviceReset": "Chaves do dispositivo KRA limpas",
+  "itemsRegistered": "Itens registrados no KRA eTIMS"
 }

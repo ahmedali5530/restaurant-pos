@@ -339,7 +339,7 @@
       "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
       "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
-      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+      "provider_defined": "Vorteile: POSR speichert, was FBR/PRA/KRA zurückgeben. Nachteile: kein POSR-Nummerngeber — mit Fiskalintegrationen verwenden."
     }
   },
   "catalogSync": {

@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Disponibilidad del modificador (este plato)",
     "modifierOptionAvailable": "Disponible para este plato",
     "modifierOptionAvailableHint": "Deje los valores por defecto para usar la disponibilidad global. Desactive o ponga un límite solo para este plato.",
-    "modifierOptionSaleLimit": "Límite de venta (este plato)"
+    "modifierOptionSaleLimit": "Límite de venta (este plato)",
+    "kraItemClsCd": "Código de clase de artículo KRA",
+    "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
+    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

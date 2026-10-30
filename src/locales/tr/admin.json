@@ -465,7 +465,10 @@
     "modifierOptionAvailability": "Değiştirici müsaitliği (bu yemek)",
     "modifierOptionAvailable": "Bu yemek için müsait",
     "modifierOptionAvailableHint": "Küresel müsaitlik için varsayılanı bırakın. Yalnızca bu yemek için kapatın veya satış limiti koyun.",
-    "modifierOptionSaleLimit": "Satış limiti (bu yemek)"
+    "modifierOptionSaleLimit": "Satış limiti (bu yemek)",
+    "kraItemClsCd": "KRA ürün sınıf kodu",
+    "kraTaxTyCd": "KRA vergi türü (A–E)",
+    "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

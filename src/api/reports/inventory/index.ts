@@ -290,7 +290,7 @@ export const listInventoryItems = async (
     .filter(item => !search || item.name.toLowerCase().includes(search));
 };
 
-/** Same metrics as the Sale vs Consumption report UI. */
+/** Same metrics as the Sale vs Consumption report UI (top items for AI brevity). */
 export const getSaleVsConsumption = async (db: DbClient, options: DateRangeFilter) => {
   return getSaleVsConsumptionReport(db, {...options, limit: 30});
 };

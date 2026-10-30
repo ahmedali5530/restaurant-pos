@@ -398,7 +398,16 @@
     "menu": "Menu",
     "issue": "Issue",
     "employee": "Employee",
-    "turnTime": "Turn Time (min)"
+    "turnTime": "Turn Time (min)",
+    "metric": "Metric",
+    "purchasedQty": "Purchased Qty",
+    "purchasedCost": "Purchased Cost",
+    "issuedQty": "Issued Qty",
+    "issuedCost": "Issued Cost",
+    "consumedQty": "Consumed Qty",
+    "consumedCost": "Consumed Cost",
+    "qtyVariance": "Qty Variance",
+    "costVariance": "Cost Variance"
   },
   "labels": {
     "modifiers": "Modifiers",
@@ -607,7 +616,15 @@
     "selfOrdersHint": "Paid online by guests at their table — not in the cash drawer or card batch above.",
     "selfOrdersTotal": "Paid online",
     "selfOrdersTestWarning": "{{count}} test order(s) ({{amount}}) — no money was collected for these.",
-    "testPayment": "Test"
+    "testPayment": "Test",
+    "saleVsConsumption": "Sale vs Consumption",
+    "saleVsIssuance": "Sale vs Inventory (Issuance)",
+    "saleVsPurchase": "Sale vs Purchase",
+    "saleTotal": "Sale Total",
+    "purchaseTotal": "Purchase Total",
+    "profitPercent": "Profit Percent",
+    "byItem": "By item",
+    "qtyVarianceHelp": "Qty variance = issued − recipe consumption (positive means over-issued vs recipe). Consumed cost uses period purchase unit cost when purchases exist, otherwise catalog average price."
   },
   "metrics": {
     "gross": "Gross",
@@ -714,6 +731,8 @@
     "noDiscountsByUsers": "No discounts by users for selected range.",
     "noDiscountRows": "No discount rows found for selected range.",
     "noEmployeeSales": "No employee sales data available",
-    "noScheduleRoster": "No scheduled shifts for the selected range"
+    "noScheduleRoster": "No scheduled shifts for the selected range",
+    "noData": "No data available",
+    "noItemActivity": "No purchase, issue, or recipe consumption activity for the selected range."
   }
 }

@@ -82,5 +82,18 @@
     "retryInvoicePending": "رقم الفاتورة غير جاهز بعد — حاول مرة أخرى بعد المزامنة.",
     "retryOrderNotFound": "لم يتم العثور على الطلب لإعادة المحاولة الضريبية.",
     "retryProviderDisabled": "المزود معطل."
-  }
+  },
+  "initializeDevice": "تهيئة الجهاز",
+  "reinitializeDevice": "إعادة تهيئة الجهاز",
+  "initializingDevice": "جارٍ التهيئة…",
+  "registerItems": "تسجيل الأصناف",
+  "registeringItems": "جارٍ تسجيل الأصناف…",
+  "resetDevice": "إعادة تعيين مفاتيح الجهاز",
+  "deviceReady": "تم تهيئة الجهاز",
+  "deviceNotInitialized": "الجهاز غير مهيأ",
+  "deviceInitHint": "احفظ بيانات الاعتماد أولاً، ثم هيئ الجهاز لاستلام مفتاح الاتصال من KRA.",
+  "deviceReadyHint": "تم تخزين مفتاح الاتصال. سجّل الأطباق وأصناف المخزون في eTIMS عند الجاهزية.",
+  "deviceInitialized": "تمت تهيئة جهاز KRA",
+  "deviceReset": "تم مسح مفاتيح جهاز KRA",
+  "itemsRegistered": "تم تسجيل الأصناف في KRA eTIMS"
 }

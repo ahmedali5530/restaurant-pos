@@ -773,6 +773,23 @@ DEFINE INDEX idx_entity_mapping_posr ON integration_entity_mapping FIELDS provid
 
 
 -- ------------------------------
+-- TABLE: integration_kra_counter
+-- ------------------------------
+
+DEFINE TABLE integration_kra_counter TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD tin ON integration_kra_counter TYPE string PERMISSIONS FULL;
+DEFINE FIELD bhf_id ON integration_kra_counter TYPE string PERMISSIONS FULL;
+DEFINE FIELD next_invc_no ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD next_sar_no ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD next_item_seq ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_kra_counter TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_kra_counter TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX idx_kra_counter_tin_bhf ON integration_kra_counter FIELDS tin, bhf_id UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: integration_execution_history
 -- ------------------------------
 
@@ -1962,6 +1979,8 @@ DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FUL
 DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD barcodes ON menu_item TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD kra_item_cls_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD kra_tax_ty_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;
