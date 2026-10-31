@@ -275,8 +275,22 @@ const categoryFields: WriteFieldSpec[] = [
 ];
 
 const tableFields: WriteFieldSpec[] = [
-  {name: "name", type: "string", requiredOnCreate: true},
-  {name: "number", type: "string", requiredOnCreate: true, description: "Table number (match key for updates)"},
+  {
+    name: "name",
+    type: "string",
+    requiredOnCreate: true,
+    description:
+      'Table name PREFIX only (e.g. "F"). The POS shows name+number, so "F"+"1"="F1". '
+      + 'Do not set name to "F1" when number is also "F1" or "1".',
+  },
+  {
+    name: "number",
+    type: "string",
+    requiredOnCreate: true,
+    description:
+      'Table number DIGITS only (e.g. "1".."10"), used as the match key for updates. '
+      + 'Do not include the name prefix (use "1", not "F1").',
+  },
   {name: "floor", type: "string", requiredOnCreate: true, description: "Floor name"},
   {name: "ask_for_covers", type: "boolean"},
   {name: "background", type: "string"},
@@ -619,9 +633,11 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       matchFields: ["number"],
       fields: tableFields,
       createDescription:
-        "Propose creating restaurant tables. Use floor name and category/order/payment type names as strings.",
+        "Propose creating restaurant tables. "
+        + 'name = prefix only (e.g. "F"), number = digits only (e.g. "1".."10"); UI shows F1..F10. '
+        + 'Never set both name and number to "F1". Use floor name and category/order/payment type names as strings.',
       updateDescription:
-        "Propose updating tables matched by table number. Only include fields that should change.",
+        "Propose updating tables matched by table number (digits). Only include fields that should change.",
     }),
   },
   {
