@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-31',
+    title: 'HQ user catalog download',
+    items: [
+      'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
+      'Creating a user with Branches left on “All branches (shared)” no longer fails — empty selection omits branch_ids (Surreal NONE) instead of writing null.',
+    ],
+  },
+  {
+    date: '2026-10-31',
     title: 'Quick Order as its own build module',
     items: [
       'Quick Order is no longer tied to the floor Menu build flag. Use VITE_APP_MODULES_EXCLUDE=quick to omit the /quick screen, sidebar entry, POS mode card, and scale barcode settings while keeping the restaurant menu.',
@@ -170,6 +178,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
       'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
       'Ask for dish → recipe counts (e.g. “dish name -> number of recipes”) to audit every dish’s recipe line count without ingredient detail.',
+
     ],
   },
   {

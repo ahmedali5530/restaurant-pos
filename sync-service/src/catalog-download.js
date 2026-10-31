@@ -663,13 +663,14 @@ class CatalogDownloadManager {
     // Shared tables (user_role, setting, …) must not use a branch_id filter —
     // ensureMasterCatalogFeeds used to DEFINE branch_id on them and empty
     // SELECT pages left branches with users but no permission modules.
+    //
+    // `user` is also unfiltered in SQL: a WHERE on branch_id / type::is_array(branch_ids)
+    // fails or returns 0 rows on masters missing those fields (or Surreal 3 path
+    // quirks), so HQ-published users never landed on branches. Scope is applied
+    // in shouldApplyCatalogRow after the page load (Phase 7 branch_ids).
     let where = '';
     const vars = { limit, start };
-    if (tableName === 'user') {
-      where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId
-            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)`;
-      vars.branchId = branchId;
-    } else if (BRANCH_SCOPED_CATALOG_TABLES.has(tableName)) {
+    if (BRANCH_SCOPED_CATALOG_TABLES.has(tableName) && tableName !== 'user') {
       where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId`;
       vars.branchId = branchId;
     }
