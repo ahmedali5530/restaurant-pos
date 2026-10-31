@@ -86,7 +86,7 @@ const OPERATIONAL_TABLES = new Set<string>([
  * `auto_id` always uses a local reserved block. When the restaurant chooses
  * pool/hybrid mint, invoice rejoins this refill loop.
  */
-const NUMBER_BLOCK_SIZE = 200;
+const NUMBER_BLOCK_SIZE = 50;
 const NUMBER_REFILL_THRESHOLD = NUMBER_BLOCK_SIZE / 2;
 
 async function numberSeriesForPolicy(): Promise<NumberSeries[]> {
