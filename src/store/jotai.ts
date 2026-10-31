@@ -200,6 +200,14 @@ export const systemPrinterSettings = atomWithStorage<SystemPrinterSettings>(
   {getOnInit: true}
 );
 
+/** Terminal-scoped: skip final receipt after payment (this browser). */
+export const skipFinalPrintOnPayment = atomWithStorage<boolean>(
+  'skip-final-print-on-payment',
+  false,
+  createJSONStorage<boolean>(),
+  {getOnInit: true}
+);
+
 const appStorageStore = createStore('posr-react', 'jotai-storage')
 
 export const indexedDBStorage = {

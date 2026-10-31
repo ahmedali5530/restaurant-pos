@@ -93,7 +93,8 @@
     "cannotAddCard": "Cannot add more payment for card",
     "exactCardAmount": "Added exact amount for card based payment",
     "alreadyClosed": "This order is already closed.",
-    "notOwner": "This order is being handled by another terminal."
+    "notOwner": "This order is being handled by another terminal.",
+    "skipFinalPrint": "Skip final receipt"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",

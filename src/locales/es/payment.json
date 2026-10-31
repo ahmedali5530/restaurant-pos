@@ -93,7 +93,8 @@
     "exactCardAmount": "Se agregó el importe exacto para pago con tarjeta",
     "tempAlreadyPrinted": "Factura temporal ya impresa",
     "alreadyClosed": "Este pedido ya está cerrado.",
-    "notOwner": "Este pedido está siendo gestionado por otro terminal."
+    "notOwner": "Este pedido está siendo gestionado por otro terminal.",
+    "skipFinalPrint": "Omitir recibo final"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

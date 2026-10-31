@@ -93,7 +93,8 @@
     "exactCardAmount": "Montant exact ajouté pour le paiement par carte",
     "tempAlreadyPrinted": "Note provisoire déjà imprimée",
     "alreadyClosed": "Cette commande est déjà clôturée.",
-    "notOwner": "Cette commande est traitée par un autre terminal."
+    "notOwner": "Cette commande est traitée par un autre terminal.",
+    "skipFinalPrint": "Ignorer le reçu final"
   },
   "remote": {
     "remoteLabel": "{{name}} (À distance)",
