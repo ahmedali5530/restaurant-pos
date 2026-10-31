@@ -1198,5 +1198,19 @@
     "zoomOut": "Verkleinern",
     "fit": "An Bildschirm anpassen",
     "panHint": "Ziehen zum Verschieben · Mausrad zum Zoomen"
+  },
+  "printers": {
+    "testPrint": "Testdruck",
+    "testPrintAccess": "Testdruck {{name}}",
+    "testPrintOk": "Gedruckt. Der Server hat den Testbeleg an {{name}}{{address}} gesendet.",
+    "testPrintError": "Druckserver-Fehler für {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Unbekannter Druckserver-Fehler",
+    "slip": {
+      "title": "TESTDRUCK",
+      "name": "Name",
+      "type": "Typ",
+      "address": "Adresse",
+      "ok": "Wenn Sie das lesen können, ist der Drucker verbunden."
+    }
   }
 }

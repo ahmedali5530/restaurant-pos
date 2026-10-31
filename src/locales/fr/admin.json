@@ -1198,5 +1198,19 @@
     "zoomOut": "Zoom arrière",
     "fit": "Ajuster à l’écran",
     "panHint": "Glisser pour déplacer · molette pour zoomer"
+  },
+  "printers": {
+    "testPrint": "Impression test",
+    "testPrintAccess": "Impression test {{name}}",
+    "testPrintOk": "Imprimé. Le serveur a envoyé le ticket test à {{name}}{{address}}.",
+    "testPrintError": "Erreur du serveur d'impression pour {{name}}{{address}} : {{error}}",
+    "testPrintUnknownError": "Erreur inconnue du serveur d'impression",
+    "slip": {
+      "title": "IMPRESSION TEST",
+      "name": "Nom",
+      "type": "Type",
+      "address": "Adresse",
+      "ok": "Si vous pouvez lire ceci, l'imprimante est connectée."
+    }
   }
 }

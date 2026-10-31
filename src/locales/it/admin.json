@@ -1198,5 +1198,19 @@
     "zoomOut": "Riduci",
     "fit": "Adatta allo schermo",
     "panHint": "Trascina per spostare · rotella per zoom"
+  },
+  "printers": {
+    "testPrint": "Stampa di prova",
+    "testPrintAccess": "Stampa di prova {{name}}",
+    "testPrintOk": "Stampato. Il server ha inviato lo scontrino di prova a {{name}}{{address}}.",
+    "testPrintError": "Errore del server di stampa per {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Errore sconosciuto del server di stampa",
+    "slip": {
+      "title": "STAMPA DI PROVA",
+      "name": "Nome",
+      "type": "Tipo",
+      "address": "Indirizzo",
+      "ok": "Se riesci a leggere questo, la stampante è connessa."
+    }
   }
 }

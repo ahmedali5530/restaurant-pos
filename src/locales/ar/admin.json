@@ -1198,5 +1198,19 @@
     "zoomOut": "تصغير",
     "fit": "ملاءمة الشاشة",
     "panHint": "اسحب للتحريك · مرّر للتكبير"
+  },
+  "printers": {
+    "testPrint": "طباعة اختبار",
+    "testPrintAccess": "طباعة اختبار {{name}}",
+    "testPrintOk": "تمت الطباعة. أرسل الخادم إيصال الاختبار إلى {{name}}{{address}}.",
+    "testPrintError": "خطأ خادم الطباعة لـ {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "خطأ غير معروف من خادم الطباعة",
+    "slip": {
+      "title": "طباعة اختبار",
+      "name": "الاسم",
+      "type": "النوع",
+      "address": "العنوان",
+      "ok": "إذا كنت تستطيع قراءة هذا، فالطابعة متصلة."
+    }
   }
 }

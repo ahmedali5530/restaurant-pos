@@ -1198,5 +1198,19 @@
     "zoomOut": "Zoom out",
     "fit": "Fit to screen",
     "panHint": "Drag to pan · scroll to zoom"
+  },
+  "printers": {
+    "testPrint": "Test print",
+    "testPrintAccess": "Test print {{name}}",
+    "testPrintOk": "Printed. The server sent the test slip to {{name}}{{address}}.",
+    "testPrintError": "Print server error for {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Unknown print server error",
+    "slip": {
+      "title": "TEST PRINT",
+      "name": "Name",
+      "type": "Type",
+      "address": "Address",
+      "ok": "If you can read this, the printer is connected."
+    }
   }
 }

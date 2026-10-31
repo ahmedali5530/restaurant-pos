@@ -1198,5 +1198,19 @@
     "zoomOut": "Uzaklaştır",
     "fit": "Ekrana sığdır",
     "panHint": "Sürükleyerek kaydır · tekerlek ile yakınlaştır"
+  },
+  "printers": {
+    "testPrint": "Test yazdır",
+    "testPrintAccess": "Test yazdır {{name}}",
+    "testPrintOk": "Yazdırıldı. Sunucu test fişini {{name}}{{address}} yazıcısına gönderdi.",
+    "testPrintError": "{{name}}{{address}} için yazdırma sunucusu hatası: {{error}}",
+    "testPrintUnknownError": "Bilinmeyen yazdırma sunucusu hatası",
+    "slip": {
+      "title": "TEST YAZDIRMA",
+      "name": "Ad",
+      "type": "Tür",
+      "address": "Adres",
+      "ok": "Bunu okuyabiliyorsanız yazıcı bağlıdır."
+    }
   }
 }
