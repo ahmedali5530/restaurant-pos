@@ -9,10 +9,12 @@ interface Props {
 
   tipType: DiscountType;
   setTipType: (type: DiscountType) => void;
+  /** When set, OK commits through this (PIN-protected) instead of setTip/setTipType directly. */
+  onCommit?: (tip: number, tipType: DiscountType) => void;
 }
 
 export const OrderPaymentTip = ({
-  setTip, tipType, tip, setTipType
+  setTip, tipType, tip, setTipType, onCommit
 }: Props) => {
   const {t} = useTranslation('payment');
   const [draftTip, setDraftTip] = useState<number>(tip);
@@ -109,6 +111,10 @@ export const OrderPaymentTip = ({
         size="lg"
         data-testid="payment-ok"
         onClick={() => {
+          if (onCommit) {
+            onCommit(draftTip, draftTipType);
+            return;
+          }
           setTipType(draftTipType);
           setTip(draftTip);
         }}

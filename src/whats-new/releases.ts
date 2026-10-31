@@ -8,6 +8,15 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-01',
+    title: 'Payment print, apply PIN, closing cash',
+    items: [
+      'Payment has a Skip final receipt switch that this terminal remembers. When on, completing payment does not print the final bill; a cash tender still opens the drawer.',
+      'Applying tax, discount, service charge, or tip on the payment screen asks for a manager PIN when the signed-in user does not have that module (opening the panel no longer asks).',
+      'Day closing no longer shows cash sales (system), expected in drawer, cash system payment cards, or over/short on screen or on the closing print.',
+    ],
+  },
+  {
+    date: '2026-11-01',
     title: 'Assistant table name/number split',
     items: [
       'Creating tables via the assistant no longer doubles labels like F1F1: name is the prefix (F) and number is digits (1); identical full labels are split automatically.',

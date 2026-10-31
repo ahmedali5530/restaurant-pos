@@ -30,9 +30,9 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
+import {getInvoiceNumber, getOrderFilteredItems, isCashPaymentType} from "@/lib/order.ts";
 import {useAtom} from "jotai";
-import {appPage, appSettings} from "@/store/jotai.ts";
+import {appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
 import {isExtraApplicable as extraMatchesContext} from "@/infrastructure/pos-store/catalog.ts";
@@ -71,6 +71,7 @@ export const OrderPayment = ({
 
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
+  const [skipFinalPrint] = useAtom(skipFinalPrintOnPayment);
 
   // Parent often passes a snapshot taken before gateway mint; keep invoice fields live.
   const [order, setOrder] = useState(orderProp);
@@ -542,6 +543,13 @@ export const OrderPayment = ({
     }
 
     setTimeout(() => {
+      if (skipFinalPrint) {
+        const hasCashTender = paymentTypes.some((p) => isCashPaymentType(p.payment_type));
+        if (hasCashTender) {
+          void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: page?.user?.id});
+        }
+        return;
+      }
       void print();
     }, 300)
   }
@@ -746,15 +754,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Tax), {
-                module: 'orders.apply_tax',
-                description: 'Apply tax',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Tax)}>
               <div>
                 {tax
                   ? t('tabs.taxWithRate', {name: tax.name, rate: tax.rate})
@@ -771,15 +771,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Discount), {
-                module: 'orders.apply_discount',
-                description: 'Apply discount',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Discount)}>
               <div>
                 {t('tabs.discount')}{' '}
                 {cartTotals.discountLines.length > 0 && `(${cartTotals.discountLines.length})`}{' '}
@@ -815,15 +807,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions['Service Charges']), {
-                module: 'orders.apply_service_charges',
-                description: 'Apply service charges',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions['Service Charges'])}>
               <div>{t('tabs.serviceCharges', {
                 value: serviceCharge,
                 unit: serviceChargeType === DiscountType.Percent ? '%' : ''
@@ -839,15 +823,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Tip), {
-                module: 'orders.apply_tips',
-                description: 'Apply tips',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Tip)}>
               <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon
                 icon={faPencil}/></div>
               <div className="text-right">{withCurrency(tipAmount)}</div>
@@ -900,7 +876,16 @@ export const OrderPayment = ({
         </div>
         <div className="bg-surface-elevated rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
-            <OrderPaymentTax tax={tax} setTax={setTax}/>
+            <OrderPaymentTax
+              tax={tax}
+              setTax={(next) => {
+                protectAction(() => setTax(next), {
+                  module: 'orders.apply_tax',
+                  description: 'Apply tax',
+                  payload: {order: order.id.toString()},
+                });
+              }}
+            />
           )}
           {mode === PaymentOptions.Discount && (
             <OrderPaymentDiscountEngine
@@ -908,8 +893,14 @@ export const OrderPayment = ({
               discountLines={discountLines.filter(l => l.applicationType === 'manual')}
               automaticLines={cartTotals.discountLines.filter(l => l.applicationType === 'automatic')}
               onApply={(manualLines) => {
-                const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
-                setDiscountLines([...autoLines, ...manualLines]);
+                protectAction(() => {
+                  const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
+                  setDiscountLines([...autoLines, ...manualLines]);
+                }, {
+                  module: 'orders.apply_discount',
+                  description: 'Apply discount',
+                  payload: {order: order.id.toString()},
+                });
               }}
             />
           )}
@@ -929,10 +920,35 @@ export const OrderPayment = ({
               setServiceChargeType={setServiceChargeType}
               serviceChargeType={serviceChargeType}
               order={order}
+              onCommit={(nextCharge, nextType) => {
+                protectAction(() => {
+                  setServiceCharge(nextCharge);
+                  setServiceChargeType(nextType);
+                }, {
+                  module: 'orders.apply_service_charges',
+                  description: 'Apply service charges',
+                  payload: {order: order.id.toString()},
+                });
+              }}
             />
           )}
           {mode === PaymentOptions.Tip && (
-            <OrderPaymentTip tip={tip} setTip={setTip} tipType={tipType} setTipType={setTipType}/>
+            <OrderPaymentTip
+              tip={tip}
+              setTip={setTip}
+              tipType={tipType}
+              setTipType={setTipType}
+              onCommit={(nextTip, nextType) => {
+                protectAction(() => {
+                  setTipType(nextType);
+                  setTip(nextTip);
+                }, {
+                  module: 'orders.apply_tips',
+                  description: 'Apply tips',
+                  payload: {order: order.id.toString()},
+                });
+              }}
+            />
           )}
           {mode === PaymentOptions.Notes && (
             <OrderPaymentNotes setNotes={setNotes} notes={notes}/>
