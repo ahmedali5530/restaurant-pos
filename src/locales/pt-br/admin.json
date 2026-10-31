@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importação IA de ingredientes",
     "smartImportModifierGroups": "Importação IA de grupos de modificadores",
     "smartImportMenuStructure": "Importar estrutura do cardápio com IA",
-    "syncDishCosts": "Atualizar custos a partir dos itens"
+    "syncDishCosts": "Atualizar custos a partir dos itens",
+    "menuTree": "Árvore do cardápio"
   },
   "delete": {
     "dish": "Excluir item {{name}}",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Disponibilidade do modificador (este prato)",
     "modifierOptionAvailable": "Disponível para este prato",
     "modifierOptionAvailableHint": "Deixe o padrão para usar a disponibilidade global. Desative ou defina um limite só para este prato.",
-    "modifierOptionSaleLimit": "Limite de venda (este prato)"
+    "modifierOptionSaleLimit": "Limite de venda (este prato)",
+    "kraItemClsCd": "Código de classificação do item KRA",
+    "kraTaxTyCd": "Tipo de imposto KRA (A–E)",
+    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -1168,5 +1172,45 @@
     "empty": "Nenhum prato nesta categoria",
     "available": "Disponível",
     "unavailable": "Esgotado"
+  },
+  "menuTree": {
+    "title": "Árvore do cardápio",
+    "search": "Pesquisar",
+    "searchPlaceholder": "Filtrar por nome…",
+    "expandAll": "Expandir tudo",
+    "collapseAll": "Recolher tudo",
+    "expand": "Expandir",
+    "collapse": "Recolher",
+    "loading": "Carregando árvore do cardápio…",
+    "empty": "Nenhum item de cardápio para mostrar.",
+    "uncategorized": "Sem categoria",
+    "required": "Obrigatório",
+    "hidden": "Oculto",
+    "hiddenFromMenu": "Oculto no cardápio",
+    "kind": {
+      "category": "Categoria",
+      "dish": "Prato",
+      "modifierGroup": "Grupo de modificadores",
+      "modifier": "Modificador",
+      "uncategorized": "Sem categoria"
+    },
+    "zoomIn": "Aproximar",
+    "zoomOut": "Afastar",
+    "fit": "Ajustar à tela",
+    "panHint": "Arraste para mover · role para zoom"
+  },
+  "printers": {
+    "testPrint": "Impressão de teste",
+    "testPrintAccess": "Impressão de teste {{name}}",
+    "testPrintOk": "Impresso. O servidor enviou o cupom de teste para {{name}}{{address}}.",
+    "testPrintError": "Erro do servidor de impressão para {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Erro desconhecido do servidor de impressão",
+    "slip": {
+      "title": "IMPRESSAO DE TESTE",
+      "name": "Nome",
+      "type": "Tipo",
+      "address": "Endereço",
+      "ok": "Se você consegue ler isto, a impressora está conectada."
+    }
   }
 }

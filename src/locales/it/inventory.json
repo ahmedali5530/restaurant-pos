@@ -669,5 +669,9 @@
     "toast": {
       "saved": "Unità {{code}} salvata"
     }
+  },
+  "delete": {
+    "itemTitle": "Elimina {{name}}",
+    "itemMessage": "Se non è usato, l'articolo viene eliminato. Se compare solo nelle ricette dei piatti, anche quelle righe vengono rimosse. Con storico di magazzino o documenti viene disattivato."
   }
 }

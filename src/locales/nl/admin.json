@@ -168,7 +168,8 @@
     "smartImportIngredients": "Ingrediënten AI-importeren",
     "smartImportModifierGroups": "Modifiergroepen AI-importeren",
     "smartImportMenuStructure": "AI-import menustructuur",
-    "syncDishCosts": "Kosten bijwerken vanuit artikelen"
+    "syncDishCosts": "Kosten bijwerken vanuit artikelen",
+    "menuTree": "Menuboom"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Modifierbeschikbaarheid (dit gerecht)",
     "modifierOptionAvailable": "Beschikbaar voor dit gerecht",
     "modifierOptionAvailableHint": "Laat standaard staan voor globale beschikbaarheid. Zet uit of stel een verkooplimiet in alleen voor dit gerecht.",
-    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)"
+    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)",
+    "kraItemClsCd": "KRA-artikelklassecode",
+    "kraTaxTyCd": "KRA-belastingtype (A–E)",
+    "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -1168,5 +1172,45 @@
     "empty": "Geen gerechten in deze categorie",
     "available": "Beschikbaar",
     "unavailable": "Uitverkocht"
+  },
+  "menuTree": {
+    "title": "Menuboom",
+    "search": "Zoeken",
+    "searchPlaceholder": "Filteren op naam…",
+    "expandAll": "Alles uitklappen",
+    "collapseAll": "Alles inklappen",
+    "expand": "Uitklappen",
+    "collapse": "Inklappen",
+    "loading": "Menuboom laden…",
+    "empty": "Geen menu-items om te tonen.",
+    "uncategorized": "Zonder categorie",
+    "required": "Verplicht",
+    "hidden": "Verborgen",
+    "hiddenFromMenu": "Verborgen in menu",
+    "kind": {
+      "category": "Categorie",
+      "dish": "Gerecht",
+      "modifierGroup": "Modifiergroep",
+      "modifier": "Modifier",
+      "uncategorized": "Zonder categorie"
+    },
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "fit": "Passend maken",
+    "panHint": "Slepen om te verschuiven · scrollen om te zoomen"
+  },
+  "printers": {
+    "testPrint": "Testafdruk",
+    "testPrintAccess": "Testafdruk {{name}}",
+    "testPrintOk": "Afgedrukt. De server heeft de testbon naar {{name}}{{address}} gestuurd.",
+    "testPrintError": "Printserverfout voor {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Onbekende printserverfout",
+    "slip": {
+      "title": "TESTAFDRUK",
+      "name": "Naam",
+      "type": "Type",
+      "address": "Adres",
+      "ok": "Als u dit kunt lezen, is de printer verbonden."
+    }
   }
 }

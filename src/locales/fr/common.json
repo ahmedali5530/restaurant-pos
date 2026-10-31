@@ -164,7 +164,8 @@
     "recordNotFound": "Aucun enregistrement correspondant trouvé pour la mise à jour.",
     "multipleMatches": "Plusieurs enregistrements correspondent aux colonnes sélectionnées.",
     "unsupportedMatchField": "Impossible de correspondre sur la colonne \"{{field}}\".",
-    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est {{max}}."
+    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est {{max}}.",
+    "ambiguousDishNumber": "Plusieurs plats partagent le numéro \"{{number}}\". Passez l’id (menu_item:…) ou un nom unique."
   },
   "loading": "Chargement...",
   "dataImport": {

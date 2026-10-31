@@ -303,7 +303,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "get_sale_vs_consumption",
-      description: "Compare sales vs recipe consumption vs issuance vs purchases (same as Sale vs Consumption report).",
+      description: "Compare sales vs recipe consumption vs issuance vs purchases, with per-item purchased/issued/consumed qty and cost variances (same as Sale vs Consumption report).",
       parameters: {type: "object", properties: dateRangeProps},
     },
   },
@@ -913,7 +913,10 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_menu_items",
-      description: "List all active menu products/dishes in the catalog. Does NOT return recipe ingredients — use get_dish_recipe for that.",
+      description:
+        "List all active menu products/dishes in the catalog (includes id, number, name, price). "
+        + "Use the returned id with propose_update_dishes — dish numbers can be duplicated. "
+        + "Does NOT return recipe ingredients — use get_dish_recipe for that.",
       parameters: {
         type: "object",
         properties: {

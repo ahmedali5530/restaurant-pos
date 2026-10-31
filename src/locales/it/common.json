@@ -164,7 +164,8 @@
     "recordNotFound": "Nessun record corrispondente trovato da aggiornare.",
     "multipleMatches": "Più record corrispondono alle colonne selezionate.",
     "unsupportedMatchField": "Impossibile corrispondere sulla colonna \"{{field}}\".",
-    "fileTooLarge": "Il file è troppo grande. La dimensione massima è {{max}}."
+    "fileTooLarge": "Il file è troppo grande. La dimensione massima è {{max}}.",
+    "ambiguousDishNumber": "Più piatti condividono il numero \"{{number}}\". Passa id (menu_item:…) o un nome univoco."
   },
   "loading": "Caricamento...",
   "dataImport": {

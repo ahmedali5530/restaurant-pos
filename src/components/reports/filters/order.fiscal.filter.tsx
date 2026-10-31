@@ -11,6 +11,7 @@ export const OrderFiscalFilter = () => {
   const providerOptions = [
     {label: 'FBR', value: 'provider:fbr'},
     {label: 'PRA', value: 'provider:pra'},
+    {label: 'KRA', value: 'provider:kra'},
   ];
 
   const statusOptions = [

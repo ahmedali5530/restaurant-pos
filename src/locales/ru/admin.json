@@ -168,7 +168,8 @@
     "smartImportIngredients": "ИИ-импорт ингредиентов",
     "smartImportModifierGroups": "ИИ-импорт групп модификаторов",
     "smartImportMenuStructure": "ИИ-импорт структуры меню",
-    "syncDishCosts": "Обновить себестоимость из товаров"
+    "syncDishCosts": "Обновить себестоимость из товаров",
+    "menuTree": "Дерево меню"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Доступность модификатора (это блюдо)",
     "modifierOptionAvailable": "Доступно для этого блюда",
     "modifierOptionAvailableHint": "Оставьте по умолчанию для глобальной доступности. Отключите или задайте лимит только для этого блюда.",
-    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)"
+    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
+    "kraItemClsCd": "Код классификации товара KRA",
+    "kraTaxTyCd": "Тип налога KRA (A–E)",
+    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -1168,5 +1172,45 @@
     "empty": "В этой категории нет блюд",
     "available": "Доступно",
     "unavailable": "Нет в наличии"
+  },
+  "menuTree": {
+    "title": "Дерево меню",
+    "search": "Поиск",
+    "searchPlaceholder": "Фильтр по названию…",
+    "expandAll": "Развернуть всё",
+    "collapseAll": "Свернуть всё",
+    "expand": "Развернуть",
+    "collapse": "Свернуть",
+    "loading": "Загрузка дерева меню…",
+    "empty": "Нет элементов меню для отображения.",
+    "uncategorized": "Без категории",
+    "required": "Обязательно",
+    "hidden": "Скрыто",
+    "hiddenFromMenu": "Скрыто в меню",
+    "kind": {
+      "category": "Категория",
+      "dish": "Блюдо",
+      "modifierGroup": "Группа модификаторов",
+      "modifier": "Модификатор",
+      "uncategorized": "Без категории"
+    },
+    "zoomIn": "Увеличить",
+    "zoomOut": "Уменьшить",
+    "fit": "По размеру экрана",
+    "panHint": "Перетаскивайте · колесо для масштаба"
+  },
+  "printers": {
+    "testPrint": "Тестовая печать",
+    "testPrintAccess": "Тестовая печать {{name}}",
+    "testPrintOk": "Напечатано. Сервер отправил тестовый чек на {{name}}{{address}}.",
+    "testPrintError": "Ошибка сервера печати для {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Неизвестная ошибка сервера печати",
+    "slip": {
+      "title": "ТЕСТОВАЯ ПЕЧАТЬ",
+      "name": "Имя",
+      "type": "Тип",
+      "address": "Адрес",
+      "ok": "Если вы можете это прочитать, принтер подключен."
+    }
   }
 }

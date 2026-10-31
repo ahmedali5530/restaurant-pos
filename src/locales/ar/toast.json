@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "تعذّر إنشاء رقم الفاتورة التالي",
     "unableGenerateReturnNumber": "تعذّر إنشاء رقم الإرجاع التالي",
     "unableGeneratePoNumber": "تعذّر إنشاء رقم أمر الشراء التالي",
-    "itemsExceedQuantity": "صنف واحد أو أكثر يتجاوز الكمية المتاحة"
+    "itemsExceedQuantity": "صنف واحد أو أكثر يتجاوز الكمية المتاحة",
+    "itemDeactivated": "{{name}} قيد الاستخدام وتم تعطيله.",
+    "itemDeleted": "تم حذف {{name}} بنجاح.",
+    "itemDeleteFailed": "فشل حذف {{name}}."
   },
   "delivery": {
     "settingsSaved": "تم حفظ إعدادات التوصيل بنجاح",

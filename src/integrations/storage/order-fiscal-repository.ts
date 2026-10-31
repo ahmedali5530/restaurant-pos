@@ -47,15 +47,27 @@ export const getFiscalProviderLabel = (providerId: string): string => {
 /**
  * Receipt caption under a fiscal QR:
  * `{invoiceNumber}\nQR Code generated for {provider} verification`
+ * KRA adds CU internal data and receipt signature when present on the response.
  */
 export const getFiscalProviderPrintDescription = (
   providerId: string,
-  invoiceNumber?: string
+  invoiceNumber?: string,
+  responsePayload?: unknown
 ): string => {
   const provider = getFiscalProviderLabel(providerId);
   const verificationLine = `QR Code generated for ${provider} verification`;
   const invoice = String(invoiceNumber ?? '').trim();
-  return invoice ? `${invoice}\n${verificationLine}` : verificationLine;
+  const lines = [invoice, verificationLine].filter(Boolean);
+
+  if (providerId === 'provider:kra' && responsePayload && typeof responsePayload === 'object') {
+    const data = (responsePayload as { data?: Record<string, unknown> }).data ?? {};
+    const intrlData = String(data.intrlData ?? '').trim();
+    const rcptSign = String(data.rcptSign ?? '').trim();
+    if (intrlData) lines.push(`Internal: ${intrlData}`);
+    if (rcptSign) lines.push(`Sign: ${rcptSign}`);
+  }
+
+  return lines.join('\n');
 };
 
 export const listOrderFiscalSubmissions = async (
@@ -68,7 +80,7 @@ export const listOrderFiscalSubmissions = async (
      ORDER BY submitted_at DESC`,
     { orderId: toRecordId(orderId) }
   );
-  return rows ?? [];
+  return Array.isArray(rows) ? rows : [];
 };
 
 export const createOrderFiscalSubmission = async (
@@ -167,7 +179,8 @@ export const buildFiscalQrcodesForPrint = (
           qrPriority: row.qr_priority ?? 0,
           description: getFiscalProviderPrintDescription(
             providerId,
-            row.invoice_number ?? row.qrcode ?? undefined
+            row.invoice_number ?? row.qrcode ?? undefined,
+            row.response_payload
           ),
         },
       ])

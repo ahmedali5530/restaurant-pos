@@ -557,7 +557,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_menu_items",
-      description: "List active menu products (not recipes).",
+      description: "List active menu products with id/number/name (not recipes). Prefer id for propose_update_dishes.",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
     },
   },

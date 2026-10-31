@@ -60,7 +60,7 @@ async function autofillCodesFromItemName(
 
     const [matches] = await database.query(
       `SELECT code, name FROM ${Tables.inventory_items}
-       WHERE string::lowercase(name) = string::lowercase($name)
+       WHERE deleted_at = none AND string::lowercase(name) = string::lowercase($name)
        LIMIT 5`,
       {name}
     );

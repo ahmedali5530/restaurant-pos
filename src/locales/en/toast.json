@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Unable to generate next invoice number",
     "unableGenerateReturnNumber": "Unable to generate next return number",
     "unableGeneratePoNumber": "Unable to generate next PO number",
-    "itemsExceedQuantity": "One or more items exceed available quantity"
+    "itemsExceedQuantity": "One or more items exceed available quantity",
+    "itemDeactivated": "{{name}} is in use and was deactivated.",
+    "itemDeleted": "{{name}} deleted successfully.",
+    "itemDeleteFailed": "Failed to delete {{name}}."
   },
   "delivery": {
     "settingsSaved": "Delivery settings saved successfully",

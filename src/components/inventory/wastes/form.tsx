@@ -143,7 +143,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ["locations"], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 9999, ["locations"], {
     enabled: false
   });
 

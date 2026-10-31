@@ -240,7 +240,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
     isFetching: loadingItems,
   } = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items,
-    [],
+    ["deleted_at = none"],
     [],
     0,
     9999,

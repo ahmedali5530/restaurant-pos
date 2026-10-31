@@ -82,5 +82,18 @@
     "retryInvoicePending": "Invoice number is not ready yet — try again after sync.",
     "retryOrderNotFound": "Order not found for fiscal retry.",
     "retryProviderDisabled": "Provider is disabled."
-  }
+  },
+  "initializeDevice": "Initialize Device",
+  "reinitializeDevice": "Re-initialize Device",
+  "initializingDevice": "Initializing…",
+  "registerItems": "Register Items",
+  "registeringItems": "Registering items…",
+  "resetDevice": "Reset Device Keys",
+  "deviceReady": "Device initialized",
+  "deviceNotInitialized": "Device not initialized",
+  "deviceInitHint": "Save credentials first, then initialize to receive the communication key from KRA.",
+  "deviceReadyHint": "Communication key is stored. Register dishes and inventory items with eTIMS when ready.",
+  "deviceInitialized": "KRA device initialized",
+  "deviceReset": "KRA device keys cleared",
+  "itemsRegistered": "Items registered with KRA eTIMS"
 }

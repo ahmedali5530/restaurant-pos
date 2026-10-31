@@ -7,6 +7,30 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-31',
+    title: 'Printer connectivity test',
+    items: [
+      'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',
+      'The printer row keeps the result: Printed when the server finished sending the slip, or the print server error (HTTP status and message) when it did not.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Menu tree on Dishes',
+    items: [
+      'Manage → Dishes includes a Menu tree button that opens a full-width SVG map: categories branch into dishes, then modifier groups and modifiers (including nested groups), with zoom, pan, and fit-to-screen.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Kenya KRA eTIMS fiscalization',
+    items: [
+      'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
+      'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
+      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+    ],
+  },
+  {
     date: '2026-10-29',
     title: 'Desktop display size',
     items: [
@@ -21,6 +45,20 @@ export const RELEASES: ReleaseNotes[] = [
       'Installing or updating POSR Desktop skips the setup questions when this PC already has store settings.',
       'A new database still opens the screen where you import a demo .surql file. Schema updates no longer skip that step.',
       'The timezone from the desktop setup (for example Asia/Karachi) is used for times on screen. A second settings file no longer leaves the app on UTC.',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Sale vs Consumption by item',
+    items: [
+      'Sale vs Consumption now lists each inventory item’s purchased, issued, and recipe-implied consumed qty/cost for the selected dates, with qty and cost variance (issued − consumed).',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Inventory item soft delete',
+    items: [
+      'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',
     ],
   },
   {
@@ -47,6 +85,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
       'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
       'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
+      'Assistant dish updates prefer matching by dish id from list_menu_items (numbers can be duplicated); duplicate numbers require id or a unique name.',
       'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
     ],
   },

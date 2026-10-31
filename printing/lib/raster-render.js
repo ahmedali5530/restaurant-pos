@@ -27,6 +27,7 @@ const { ensureRasterFonts } = require('./raster-fonts');
 const { getRasterMetrics, calibrateMetrics, buildCtxFont } = require('./raster-metrics');
 const { paintBillLayoutRaster } = require('./raster-bill-layout');
 const { paintKotHeaderRaster } = require('./raster-kot-layout');
+const { testSlipContent } = require('./test-print-content');
 
 function lineHeightForSize(metrics, size) {
   if (size === 'large') return metrics.lineHeightLarge;
@@ -573,6 +574,34 @@ async function renderRefundRaster(data, config) {
   return rc.toPng();
 }
 
+async function renderTestRaster(data, config) {
+  const cfg = normalizeConfig(config || {});
+  const width = resolvePaperWidthPx(cfg);
+  const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
+  const slip = testSlipContent(data);
+  const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
+  if (topFeed) rc.feed(topFeed);
+
+  slip.titleLines.forEach((line) => {
+    rc.centered(line, { size: 'normal', style: 'bold' });
+  });
+  rc.divider();
+  slip.rowLines.forEach((line) => {
+    rc.fixedLine(line, { align: 'left' });
+  });
+  if (slip.rowLines.length) rc.feed(1);
+  slip.okLines.forEach((line) => {
+    rc.centered(line, { size: 'normal' });
+  });
+
+  const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
+  if (bottomFeed) rc.feed(bottomFeed);
+  rc.feed(1);
+  rc.centered(formatPrintingTimestamp(cfg), { size: 'normal' });
+  rc.feed(3);
+  return rc.toPng();
+}
+
 async function renderKitchenRaster(data, config) {
   const cfg = normalizeConfig(config || {});
   const order = data && data.order;
@@ -750,6 +779,7 @@ async function renderRasterPngs(printType, data, config) {
   else if (t === 'refund') png = await renderRefundRaster(data, cfg);
   else if (t === 'kitchen') png = await renderKitchenRaster(data, cfg);
   else if (t === 'summary') png = await renderSummaryRaster(data, cfg);
+  else if (t === 'test') png = await renderTestRaster(data, cfg);
   else {
     const err = new Error(`Raster not supported for print type: ${t}`);
     err.code = 'RASTER_UNSUPPORTED';
@@ -784,4 +814,5 @@ module.exports = {
   renderRefundRaster,
   renderKitchenRaster,
   renderSummaryRaster,
+  renderTestRaster,
 };

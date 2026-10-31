@@ -394,7 +394,16 @@
     "menu": "Menu",
     "issue": "Uscita",
     "employee": "Dipendente",
-    "turnTime": "Tempo di rotazione (min)"
+    "turnTime": "Tempo di rotazione (min)",
+    "metric": "Metrica",
+    "purchasedQty": "Qtà acquistata",
+    "purchasedCost": "Costo acquisto",
+    "issuedQty": "Qtà emessa",
+    "issuedCost": "Costo emesso",
+    "consumedQty": "Qtà consumata",
+    "consumedCost": "Costo consumato",
+    "qtyVariance": "Varianza qtà",
+    "costVariance": "Varianza costo"
   },
   "labels": {
     "modifiers": "Modificatori",
@@ -603,7 +612,15 @@
     "selfOrdersHint": "Pagati online dagli ospiti al tavolo — non inclusi nel cassetto contanti né nel batch carte sopra.",
     "selfOrdersTotal": "Pagato online",
     "selfOrdersTestWarning": "{{count}} ordine/i di prova ({{amount}}) — nessun denaro incassato.",
-    "testPayment": "Test"
+    "testPayment": "Test",
+    "saleVsConsumption": "Vendite vs consumo",
+    "saleVsIssuance": "Vendite vs magazzino (emissione)",
+    "saleVsPurchase": "Vendite vs acquisti",
+    "saleTotal": "Totale vendite",
+    "purchaseTotal": "Totale acquisti",
+    "profitPercent": "Percentuale di profitto",
+    "byItem": "Per articolo",
+    "qtyVarianceHelp": "Varianza qtà = emesso − consumo ricetta (positivo = più emesso della ricetta). Il costo consumato usa il costo unitario di acquisto del periodo se ci sono acquisti, altrimenti il prezzo medio di catalogo."
   },
   "metrics": {
     "gross": "Lordo",
@@ -710,6 +727,8 @@
     "noDiscountsByUsers": "Nessuno sconto per utente per l'intervallo selezionato.",
     "noDiscountRows": "Nessuna riga sconto trovata per l'intervallo selezionato.",
     "noEmployeeSales": "Nessun dato di vendita per dipendente disponibile",
-    "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato"
+    "noScheduleRoster": "Nessun turno programmato per l'intervallo selezionato",
+    "noData": "Nessun dato disponibile",
+    "noItemActivity": "Nessuna attività di acquisto, emissione o consumo ricetta per l’intervallo selezionato."
   }
 }

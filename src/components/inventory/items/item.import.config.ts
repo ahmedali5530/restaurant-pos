@@ -289,7 +289,7 @@ export function createInventoryItemImportConfig({
         ctx.mode === "create"
           ? []
           : await findCsvImportMatches(db, Tables.inventory_items, conditions, {
-              softDelete: false,
+              softDelete: true,
             });
 
       if (existing.length === 1) {

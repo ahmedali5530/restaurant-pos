@@ -669,5 +669,9 @@
     "toast": {
       "saved": "Einheit {{code}} gespeichert"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} löschen",
+    "itemMessage": "Ungenutzte Artikel werden entfernt. Steht der Artikel nur in Gerichte-Rezepten, werden diese Zeilen ebenfalls entfernt. Bei Lagerhistorie oder Belegen wird er deaktiviert."
   }
 }

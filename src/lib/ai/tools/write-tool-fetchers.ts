@@ -1,6 +1,7 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 export async function fetchExistingKitchenRaw(
   db: ImportDbLike,
@@ -34,15 +35,60 @@ export async function fetchExistingKitchenRaw(
   };
 }
 
+/**
+ * Resolve an existing dish for update merges.
+ * Prefer `id` (unique). Fall back to `number`, disambiguated by `name` when
+ * numbers are duplicated. Returns null when not found or still ambiguous.
+ */
 export async function fetchExistingDishRaw(
   db: ImportDbLike,
-  number: string,
+  patchOrNumber: Record<string, unknown> | string,
 ): Promise<Record<string, unknown> | null> {
-  const [rows] = await db.query(
-    `SELECT * FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none LIMIT 1 FETCH categories, tax, workflow`,
-    {number},
-  );
-  const dish = rows?.[0];
+  const patch =
+    typeof patchOrNumber === "string"
+      ? {number: patchOrNumber}
+      : patchOrNumber ?? {};
+  const id = String(patch.id ?? "").trim();
+  const number = String(patch.number ?? "").trim();
+  const name = String(patch.name ?? "").trim();
+
+  let rows: any[] = [];
+  if (id) {
+    const [found] = await db.query(
+      `SELECT * FROM ${Tables.dishes} WHERE id = $id AND deleted_at = none LIMIT 1 FETCH categories, tax, workflow`,
+      {id: toRecordId(id)},
+    );
+    rows = found ?? [];
+  } else if (number) {
+    const [found] = await db.query(
+      `SELECT * FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none FETCH categories, tax, workflow`,
+      {number},
+    );
+    rows = found ?? [];
+    if (rows.length > 1 && name) {
+      rows = rows.filter(
+        (d) => String(d?.name ?? "").trim().toLowerCase() === name.toLowerCase(),
+      );
+    }
+    if (rows.length > 1) {
+      return null;
+    }
+  } else if (name) {
+    const [found] = await db.query(
+      `SELECT * FROM ${Tables.dishes}
+       WHERE string::lowercase(name) = string::lowercase($name) AND deleted_at = none
+       FETCH categories, tax, workflow`,
+      {name},
+    );
+    rows = found ?? [];
+    if (rows.length > 1) {
+      return null;
+    }
+  } else {
+    return null;
+  }
+
+  const dish = rows[0];
   if (!dish) return null;
 
   const categories = Array.isArray(dish.categories)
@@ -78,6 +124,7 @@ export async function fetchExistingDishRaw(
   }
 
   return {
+    id: String(dish.id),
     name: dish.name,
     number: dish.number,
     priority: dish.priority,
@@ -177,8 +224,10 @@ export async function fetchExistingDishIngredientRaw(
 
   const [items] = await db.query(
     `SELECT id, name, code, uom, price FROM ${Tables.inventory_items}
-     WHERE string::lowercase(name) = string::lowercase($key)
-        OR string::lowercase(code) = string::lowercase($key)
+     WHERE deleted_at = none AND (
+       string::lowercase(name) = string::lowercase($key)
+       OR string::lowercase(code) = string::lowercase($key)
+     )
      LIMIT 1`,
     {key: ingredientKey},
   );
@@ -242,7 +291,7 @@ export async function fetchExistingInventoryItemRaw(
   code: string,
 ): Promise<Record<string, unknown> | null> {
   const [rows] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE code = $code LIMIT 1 FETCH category, suppliers, locations, stores`,
+    `SELECT * FROM ${Tables.inventory_items} WHERE code = $code AND deleted_at = none LIMIT 1 FETCH category, suppliers, locations, stores`,
     {code},
   );
   const item = rows?.[0];

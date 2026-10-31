@@ -669,5 +669,9 @@
     "toast": {
       "saved": "Eenheid {{code}} opgeslagen"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} verwijderen",
+    "itemMessage": "Ongebruikte artikelen worden verwijderd. Staat het alleen in gerechtrecepten, dan worden die regels ook verwijderd. Bij voorraadhistorie of documenten wordt het gedeactiveerd."
   }
 }

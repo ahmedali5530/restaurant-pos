@@ -4,7 +4,8 @@ import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye, faSitemap} from "@fortawesome/free-solid-svg-icons";
+import {MenuTreeModal} from "@/components/settings/menu_tree/menu-tree.modal.tsx";
 import {toast} from "sonner";
 import {syncAllDishRecipeCosts} from "@/lib/inventory/dish.recipe.cost.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
@@ -58,6 +59,7 @@ export const AdminDishes = () => {
     data: [] as Dish[]
   });
   const [syncingCosts, setSyncingCosts] = useState(false);
+  const [menuTreeModal, setMenuTreeModal] = useState(false);
 
   const smartImportConfig = useMemo(
     () => createDishImportConfig({db, t}),
@@ -282,6 +284,15 @@ export const AdminDishes = () => {
               {t('buttons.smartImportMenuStructure')}
             </DropdownItem>
           </Dropdown>,
+          <Button
+            key="menu-tree"
+            variant="secondary"
+            icon={faSitemap}
+            onClick={() => setMenuTreeModal(true)}
+            data-testid="admin-menu-tree"
+          >
+            {t('buttons.menuTree', {defaultValue: 'Menu tree'})}
+          </Button>,
           <DeleteConfirm
             key="sync-dish-costs"
             title={t('confirm.syncDishCostsTitle', {defaultValue: 'Update dish costs'})}
@@ -508,6 +519,13 @@ export const AdminDishes = () => {
           open={true}
           onClose={() => setViewModal(false)}
           data={data}
+        />
+      )}
+
+      {menuTreeModal && (
+        <MenuTreeModal
+          open={menuTreeModal}
+          onClose={() => setMenuTreeModal(false)}
         />
       )}
 

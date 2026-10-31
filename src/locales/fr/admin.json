@@ -168,7 +168,8 @@
     "smartImportIngredients": "Import IA des ingrédients",
     "smartImportModifierGroups": "Import IA des groupes de modificateurs",
     "smartImportMenuStructure": "Import IA structure du menu",
-    "syncDishCosts": "Mettre à jour les coûts depuis les articles"
+    "syncDishCosts": "Mettre à jour les coûts depuis les articles",
+    "menuTree": "Arborescence du menu"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Disponibilité du modificateur (ce plat)",
     "modifierOptionAvailable": "Disponible pour ce plat",
     "modifierOptionAvailableHint": "Gardez les valeurs par défaut pour la disponibilité globale. Désactivez ou fixez une limite pour ce plat uniquement.",
-    "modifierOptionSaleLimit": "Limite de vente (ce plat)"
+    "modifierOptionSaleLimit": "Limite de vente (ce plat)",
+    "kraItemClsCd": "Code de classification article KRA",
+    "kraTaxTyCd": "Type de taxe KRA (A–E)",
+    "kraFiscalHint": "Remplacements eTIMS Kenya facultatifs. Laissez vide pour utiliser les valeurs par défaut du fournisseur KRA."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -1168,5 +1172,45 @@
     "empty": "Aucun plat dans cette catégorie",
     "available": "Disponible",
     "unavailable": "Épuisé"
+  },
+  "menuTree": {
+    "title": "Arborescence du menu",
+    "search": "Rechercher",
+    "searchPlaceholder": "Filtrer par nom…",
+    "expandAll": "Tout développer",
+    "collapseAll": "Tout réduire",
+    "expand": "Développer",
+    "collapse": "Réduire",
+    "loading": "Chargement de l’arborescence du menu…",
+    "empty": "Aucun élément de menu à afficher.",
+    "uncategorized": "Sans catégorie",
+    "required": "Obligatoire",
+    "hidden": "Masqué",
+    "hiddenFromMenu": "Masqué dans le menu",
+    "kind": {
+      "category": "Catégorie",
+      "dish": "Plat",
+      "modifierGroup": "Groupe de modificateurs",
+      "modifier": "Modificateur",
+      "uncategorized": "Sans catégorie"
+    },
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "fit": "Ajuster à l’écran",
+    "panHint": "Glisser pour déplacer · molette pour zoomer"
+  },
+  "printers": {
+    "testPrint": "Impression test",
+    "testPrintAccess": "Impression test {{name}}",
+    "testPrintOk": "Imprimé. Le serveur a envoyé le ticket test à {{name}}{{address}}.",
+    "testPrintError": "Erreur du serveur d'impression pour {{name}}{{address}} : {{error}}",
+    "testPrintUnknownError": "Erreur inconnue du serveur d'impression",
+    "slip": {
+      "title": "IMPRESSION TEST",
+      "name": "Nom",
+      "type": "Type",
+      "address": "Adresse",
+      "ok": "Si vous pouvez lire ceci, l'imprimante est connectée."
+    }
   }
 }

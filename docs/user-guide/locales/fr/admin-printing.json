@@ -9,6 +9,7 @@
       "steps": [
         "Open the Printers tab.",
         "Add printers with name, type, and connection settings.",
+        "Use Test print on a printer row to send a short slip. The row stays on Printed when the server finished sending it, or shows the print server error.",
         "Link printers to kitchens and device Settings so tickets reach the right hardware."
       ],
       "image": "admin-printers.png",

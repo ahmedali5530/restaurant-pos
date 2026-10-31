@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importazione IA ingredienti",
     "smartImportModifierGroups": "Importazione IA gruppi modificatori",
     "smartImportMenuStructure": "Importa struttura menu con IA",
-    "syncDishCosts": "Aggiorna costi dagli articoli"
+    "syncDishCosts": "Aggiorna costi dagli articoli",
+    "menuTree": "Albero del menu"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Disponibilità modificatore (questo piatto)",
     "modifierOptionAvailable": "Disponibile per questo piatto",
     "modifierOptionAvailableHint": "Lascia i valori predefiniti per la disponibilità globale. Disattiva o imposta un limite solo per questo piatto.",
-    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)"
+    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)",
+    "kraItemClsCd": "Codice classificazione articolo KRA",
+    "kraTaxTyCd": "Tipo imposta KRA (A–E)",
+    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -1168,5 +1172,45 @@
     "empty": "Nessun piatto in questa categoria",
     "available": "Disponibile",
     "unavailable": "Esaurito"
+  },
+  "menuTree": {
+    "title": "Albero del menu",
+    "search": "Cerca",
+    "searchPlaceholder": "Filtra per nome…",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "expand": "Espandi",
+    "collapse": "Comprimi",
+    "loading": "Caricamento albero del menu…",
+    "empty": "Nessuna voce di menu da mostrare.",
+    "uncategorized": "Senza categoria",
+    "required": "Obbligatorio",
+    "hidden": "Nascosto",
+    "hiddenFromMenu": "Nascosto nel menu",
+    "kind": {
+      "category": "Categoria",
+      "dish": "Piatto",
+      "modifierGroup": "Gruppo modificatori",
+      "modifier": "Modificatore",
+      "uncategorized": "Senza categoria"
+    },
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "fit": "Adatta allo schermo",
+    "panHint": "Trascina per spostare · rotella per zoom"
+  },
+  "printers": {
+    "testPrint": "Stampa di prova",
+    "testPrintAccess": "Stampa di prova {{name}}",
+    "testPrintOk": "Stampato. Il server ha inviato lo scontrino di prova a {{name}}{{address}}.",
+    "testPrintError": "Errore del server di stampa per {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Errore sconosciuto del server di stampa",
+    "slip": {
+      "title": "STAMPA DI PROVA",
+      "name": "Nome",
+      "type": "Tipo",
+      "address": "Indirizzo",
+      "ok": "Se riesci a leggere questo, la stampante è connessa."
+    }
   }
 }

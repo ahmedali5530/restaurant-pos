@@ -366,7 +366,7 @@ export const getDashboardStockByLocation = async (
       average_price?: number;
       price?: number;
       reorder_levels?: Record<string, number>;
-    }>(await db.query(`SELECT id, name, code, uom, average_price, price, reorder_levels FROM ${Tables.inventory_items}`)),
+    }>(await db.query(`SELECT id, name, code, uom, average_price, price, reorder_levels FROM ${Tables.inventory_items} WHERE deleted_at = none`)),
     unwrapQueryResult<{id: unknown; name?: string}>(
       await db.query(`SELECT id, name FROM ${Tables.inventory_locations}`),
     ),

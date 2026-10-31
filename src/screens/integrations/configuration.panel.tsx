@@ -51,7 +51,12 @@ export const ConfigurationPanel = ({
   const fields = (selectedProvider?.configurationSchema.sections ?? []).flatMap((section) => section.fields);
 
   const isOAuth = selectedProvider?.authenticationType === 'oauth';
-  const isConnected = Boolean(formValues.tenantId || formValues.realmId);
+  const features = selectedProvider?.supportedFeatures ?? [];
+  const supportsDeviceInit = features.includes('deviceInit');
+  const supportsItemSync = features.includes('itemSync');
+  const showDeviceActions = !isOAuth && (supportsDeviceInit || supportsItemSync);
+  const isOAuthConnected = Boolean(formValues.tenantId || formValues.realmId);
+  const isDeviceInitialized = Boolean(String(formValues.cmcKey ?? '').trim());
 
   useEffect(() => {
     if (!selectedProviderId) return;
@@ -60,7 +65,7 @@ export const ConfigurationPanel = ({
       setFormValues(values);
     };
     void load();
-  }, [ selectedProviderId]);
+  }, [selectedProviderId]);
 
   // Auto-save tenantId from OAuth callback redirect URL params
   useEffect(() => {
@@ -74,7 +79,7 @@ export const ConfigurationPanel = ({
       const current = await getConfiguration(selectedProviderId);
       // Only save if not already connected (avoid overwriting)
       if (current.tenantId === tenantId) return;
-      const updated = { ...current, tenantId };
+      const updated: Record<string, unknown> = { ...current, tenantId };
       if (companyName) updated.companyName = companyName;
       await saveConfiguration(selectedProviderId, updated);
       setFormValues(updated);
@@ -96,12 +101,20 @@ export const ConfigurationPanel = ({
     toast.success(t('configurationSaved'));
   };
 
+  const reloadConfig = async () => {
+    if (!selectedProviderId) return;
+    const values = await getConfiguration(selectedProviderId);
+    setFormValues(values);
+  };
+
   const handleConnect = () => {
     if (!onConnect || !selectedProviderId) return;
     void protectAction(async () => {
       setConnecting(true);
       try {
         await onConnect(selectedProviderId);
+        await reloadConfig();
+        toast.success(t('deviceInitialized'));
       } catch (err: any) {
         toast.error(err?.message || t('syncFailed'));
       } finally {
@@ -119,8 +132,16 @@ export const ConfigurationPanel = ({
       setDisconnecting(true);
       try {
         await onDisconnect(selectedProviderId);
-        setFormValues((prev) => ({ ...prev, tenantId: '', realmId: '' }));
-        toast.success(t('oauth.disconnected'));
+        setFormValues((prev) => ({
+          ...prev,
+          tenantId: '',
+          realmId: '',
+          cmcKey: '',
+          sdcId: '',
+          mrcNo: '',
+          dvcId: '',
+        }));
+        toast.success(isOAuth ? t('oauth.disconnected') : t('deviceReset'));
       } catch (err: any) {
         toast.error(err?.message || 'Disconnect failed');
       } finally {
@@ -138,10 +159,10 @@ export const ConfigurationPanel = ({
       setSyncing(true);
       try {
         await onInitialSync(selectedProviderId);
-        toast.success(t('syncComplete', { count: 0 }));
-        // Reload config to pick up any new values
-        const values = await getConfiguration(selectedProviderId);
-        setFormValues(values);
+        toast.success(
+          supportsItemSync ? t('itemsRegistered') : t('syncComplete', { count: 0 })
+        );
+        await reloadConfig();
       } catch (err: any) {
         toast.error(err?.message || t('syncFailed'));
       } finally {
@@ -164,12 +185,20 @@ export const ConfigurationPanel = ({
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm">
-                {isConnected ? t('connectedTo', { company: String(formValues.companyName || formValues.tenantId || formValues.realmId || '') }) : t('notConnected')}
+                {isOAuthConnected
+                  ? t('connectedTo', {
+                      company: String(
+                        formValues.companyName || formValues.tenantId || formValues.realmId || ''
+                      ),
+                    })
+                  : t('notConnected')}
               </p>
-              {isConnected && <p className="text-xs text-muted mt-0.5">{t('connectionRequired')}</p>}
+              {isOAuthConnected && (
+                <p className="text-xs text-muted mt-0.5">{t('connectionRequired')}</p>
+              )}
             </div>
             <div className="flex items-center gap-2">
-              {!isConnected ? (
+              {!isOAuthConnected ? (
                 <Button variant="primary" onClick={handleConnect} disabled={connecting}>
                   {connecting ? t('connecting') : t('connect')}
                 </Button>
@@ -182,6 +211,46 @@ export const ConfigurationPanel = ({
                     {disconnecting ? t('disconnecting') : t('disconnect')}
                   </Button>
                 </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDeviceActions && (
+        <div className="mb-6 p-4 border border-border rounded-lg bg-surface">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm">
+                {isDeviceInitialized ? t('deviceReady') : t('deviceNotInitialized')}
+              </p>
+              <p className="text-xs text-muted mt-0.5">
+                {isDeviceInitialized ? t('deviceReadyHint') : t('deviceInitHint')}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {supportsDeviceInit && (
+                <Button variant="primary" onClick={handleConnect} disabled={connecting}>
+                  {connecting
+                    ? t('initializingDevice')
+                    : isDeviceInitialized
+                      ? t('reinitializeDevice')
+                      : t('initializeDevice')}
+                </Button>
+              )}
+              {supportsItemSync && (
+                <Button
+                  variant="primary"
+                  onClick={handleInitialSync}
+                  disabled={syncing || (supportsDeviceInit && !isDeviceInitialized)}
+                >
+                  {syncing ? t('registeringItems') : t('registerItems')}
+                </Button>
+              )}
+              {supportsDeviceInit && isDeviceInitialized && (
+                <Button variant="danger" onClick={handleDisconnect} disabled={disconnecting}>
+                  {disconnecting ? t('disconnecting') : t('resetDevice')}
+                </Button>
               )}
             </div>
           </div>
@@ -213,21 +282,21 @@ export const ConfigurationPanel = ({
               return current === field.dependsOn.equals;
             })
             .map((field) => (
-            <div key={field.key}>
-              {field.type !== 'switch' && field.type !== 'checkbox' && (
-                <label className="block text-sm font-medium mb-1">{field.label}</label>
-              )}
-              <DynamicField
-                field={field}
-                value={formValues[field.key]}
-                providerId={selectedProviderId}
-                onChange={(next) => {
-                  setFormValues((previous) => ({ ...previous, [field.key]: next }));
-                }}
-              />
-              {field.helpText && <p className="text-xs text-muted mt-1">{field.helpText}</p>}
-            </div>
-          ))}
+              <div key={field.key}>
+                {field.type !== 'switch' && field.type !== 'checkbox' && (
+                  <label className="block text-sm font-medium mb-1">{field.label}</label>
+                )}
+                <DynamicField
+                  field={field}
+                  value={formValues[field.key]}
+                  providerId={selectedProviderId}
+                  onChange={(next) => {
+                    setFormValues((previous) => ({ ...previous, [field.key]: next }));
+                  }}
+                />
+                {field.helpText && <p className="text-xs text-muted mt-1">{field.helpText}</p>}
+              </div>
+            ))}
         </div>
 
         <Button type="submit" variant="primary">

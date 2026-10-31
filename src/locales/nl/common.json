@@ -164,7 +164,8 @@
     "recordNotFound": "Geen overeenkomend record gevonden om bij te werken.",
     "multipleMatches": "Meerdere records komen overeen met de geselecteerde kolommen.",
     "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\".",
-    "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}."
+    "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}.",
+    "ambiguousDishNumber": "Meerdere gerechten delen nummer \"{{number}}\". Geef id (menu_item:…) of een unieke naam."
   },
   "loading": "Laden...",
   "dataImport": {

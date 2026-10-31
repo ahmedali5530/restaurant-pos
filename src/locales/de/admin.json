@@ -168,7 +168,8 @@
     "smartImportIngredients": "Zutaten KI-Import",
     "smartImportModifierGroups": "Modifiergruppen KI-Import",
     "smartImportMenuStructure": "KI-Import Menüstruktur",
-    "syncDishCosts": "Kosten aus Artikeln aktualisieren"
+    "syncDishCosts": "Kosten aus Artikeln aktualisieren",
+    "menuTree": "Menübaum"
   },
   "delete": {
     "dish": "Artikel {{name}} löschen",
@@ -465,7 +466,10 @@
     "modifierOptionAvailability": "Modifier-Verfügbarkeit (dieses Gericht)",
     "modifierOptionAvailable": "Für dieses Gericht verfügbar",
     "modifierOptionAvailableHint": "Standard belassen = globale Verfügbarkeit. Ausschalten oder Verkaufslimit setzen = nur für dieses Gericht.",
-    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)"
+    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)",
+    "kraItemClsCd": "KRA-Artikelklassencode",
+    "kraTaxTyCd": "KRA-Steuertyp (A–E)",
+    "kraFiscalHint": "Optionale Kenia-eTIMS-Überschreibungen. Leer lassen, um die KRA-Provider-Standards zu verwenden."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -1168,5 +1172,45 @@
     "empty": "Keine Gerichte in dieser Kategorie",
     "available": "Verfügbar",
     "unavailable": "Ausverkauft"
+  },
+  "menuTree": {
+    "title": "Menübaum",
+    "search": "Suchen",
+    "searchPlaceholder": "Nach Name filtern…",
+    "expandAll": "Alle erweitern",
+    "collapseAll": "Alle einklappen",
+    "expand": "Erweitern",
+    "collapse": "Einklappen",
+    "loading": "Menübaum wird geladen…",
+    "empty": "Keine Menüeinträge zum Anzeigen.",
+    "uncategorized": "Ohne Kategorie",
+    "required": "Erforderlich",
+    "hidden": "Ausgeblendet",
+    "hiddenFromMenu": "Im Menü ausgeblendet",
+    "kind": {
+      "category": "Kategorie",
+      "dish": "Gericht",
+      "modifierGroup": "Modifikatorgruppe",
+      "modifier": "Modifikator",
+      "uncategorized": "Ohne Kategorie"
+    },
+    "zoomIn": "Vergrößern",
+    "zoomOut": "Verkleinern",
+    "fit": "An Bildschirm anpassen",
+    "panHint": "Ziehen zum Verschieben · Mausrad zum Zoomen"
+  },
+  "printers": {
+    "testPrint": "Testdruck",
+    "testPrintAccess": "Testdruck {{name}}",
+    "testPrintOk": "Gedruckt. Der Server hat den Testbeleg an {{name}}{{address}} gesendet.",
+    "testPrintError": "Druckserver-Fehler für {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Unbekannter Druckserver-Fehler",
+    "slip": {
+      "title": "TESTDRUCK",
+      "name": "Name",
+      "type": "Typ",
+      "address": "Adresse",
+      "ok": "Wenn Sie das lesen können, ist der Drucker verbunden."
+    }
   }
 }

@@ -30,7 +30,7 @@ export const CurrentInventoryFilter = () => {
   const { t } = useTranslation('reports');
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items, 
-    [], 
+    ['deleted_at = none'], 
     ['name asc'], 
     0, 
     9999, 
