@@ -14,7 +14,8 @@ import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useAtom} from "jotai";
-import {appAlert, appPage, appSettings} from "@/store/jotai.ts";
+import {appAlert, appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
+import {Switch} from "@/components/common/input/switch.tsx";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {calculateChangeDue} from "@/lib/cart.ts";
@@ -137,6 +138,7 @@ const OrderPaymentReceivingContent = ({
   const {protectAction} = useSecurity();
   const { manager: integrationManager } = useIntegrationManager();
   const [page] = useAtom(appPage);
+  const [skipFinalPrint, setSkipFinalPrint] = useAtom(skipFinalPrintOnPayment);
   const [tempPrinted, setTempPrinted] = useState(false);
 
   useEffect(() => {
@@ -618,6 +620,16 @@ const OrderPaymentReceivingContent = ({
               }}>
                 C
               </Button>
+            </div>
+            <div className="mb-3" data-testid="payment-skip-final-print">
+              <div>
+                <Switch
+                  checked={skipFinalPrint}
+                  onChange={(e) => setSkipFinalPrint(e.target.checked)}
+                >
+                  {t('receiving.skipFinalPrint')}
+                </Switch>
+              </div>
             </div>
             <div className="flex gap-5" data-testid="payment-finish-actions">
               <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">

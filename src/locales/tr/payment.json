@@ -93,7 +93,8 @@
     "exactCardAmount": "Kart tabanlı ödeme için tam tutar eklendi",
     "tempAlreadyPrinted": "Geçici fatura zaten yazdırıldı",
     "alreadyClosed": "Bu sipariş zaten kapatıldı.",
-    "notOwner": "Bu sipariş başka bir terminal tarafından işleniyor."
+    "notOwner": "Bu sipariş başka bir terminal tarafından işleniyor.",
+    "skipFinalPrint": "Son fişi yazdırma"
   },
   "remote": {
     "remoteLabel": "{{name}} (Uzaktan)",
