@@ -2340,7 +2340,7 @@ dependencies = [
 
 [[package]]
 name = "posr-desktop"
-version = "0.1.7"
+version = "0.1.8"
 dependencies = [
  "hex",
  "log",
