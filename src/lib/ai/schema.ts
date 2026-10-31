@@ -234,6 +234,7 @@ export const AI_ASSISTANT_WRITE_RULES = [
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
   "Call at most one propose_* tool per assistant turn (you may include many rows in that one call). After the user confirms or cancels, continue with the next propose_* if needed (e.g. category, then dishes, then modifier groups).",
   "Creating dishes with modifier groups: (1) propose_create_dishes for the menu items and prices, (2) propose_create_modifier_groups with one row per option (group + modifier + price), (3) propose_create_dish_modifiers to attach each group to each dish (required vs optional flags). Do not use propose_import_smart_menu unless the user asks to import a full menu structure / smart menu.",
+  "When updating dishes, call list_menu_items (or get_dish_recipe) first and pass id into propose_update_dishes. Dish numbers are not always unique — do not match updates by number alone when id is available.",
   "propose_import_smart_menu record_type values are only: dish, size_option, addon_option, dish_link, nested_override — never modifier_group.",
   "For bulk changes, call propose_* with every affected row — the user reviews each row before confirming.",
   "Do not summarize or skip rows in a write proposal.",

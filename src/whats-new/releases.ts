@@ -53,6 +53,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
       'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
       'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
+      'Assistant dish updates prefer matching by dish id from list_menu_items (numbers can be duplicated); duplicate numbers require id or a unique name.',
       'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
     ],
   },

@@ -164,7 +164,8 @@
     "recordNotFound": "No matching record found to update.",
     "multipleMatches": "Multiple records matched the selected columns.",
     "unsupportedMatchField": "Cannot match on column \"{{field}}\".",
-    "fileTooLarge": "File is too large. Maximum size is {{max}}."
+    "fileTooLarge": "File is too large. Maximum size is {{max}}.",
+    "ambiguousDishNumber": "Multiple dishes share number \"{{number}}\". Pass id (menu_item:…) or a unique name to update the correct dish."
   },
   "dataImport": {
     "title": "Import {{entity}}",

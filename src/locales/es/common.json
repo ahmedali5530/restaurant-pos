@@ -164,7 +164,8 @@
     "recordNotFound": "No se encontró ningún registro coincidente para actualizar.",
     "multipleMatches": "Varios registros coinciden con las columnas seleccionadas.",
     "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\".",
-    "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}."
+    "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}.",
+    "ambiguousDishNumber": "Varios platos comparten el número \"{{number}}\". Indique id (menu_item:…) o un nombre único."
   },
   "loading": "Cargando...",
   "dataImport": {

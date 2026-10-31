@@ -93,7 +93,7 @@ export type WriteToolRegistryEntry = {
 };
 
 const mergeDishUpdatePatches = createMergeUpdatePatchesByFetcher(
-  async (db, patch) => fetchExistingDishRaw(db, String(patch.number ?? "").trim()),
+  async (db, patch) => fetchExistingDishRaw(db, patch),
 );
 const mergeTableUpdatePatches = createMergeUpdatePatchesByFetcher(
   async (db, patch) => fetchExistingTableRaw(db, String(patch.number ?? "").trim()),
@@ -228,7 +228,9 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
   function: {
     name: "propose_update_dishes",
     description:
-      "Propose updating existing dishes matched by item number. Only include fields that should change.",
+      "Propose updating existing dishes. Prefer matching by id from list_menu_items "
+      + "(dish numbers can be duplicated). If matching by number, also pass name when "
+      + "numbers may collide. Only include fields that should change.",
     parameters: {
       type: "object",
       properties: {
@@ -237,8 +239,18 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
           items: {
             type: "object",
             properties: {
-              number: {type: "string"},
-              name: {type: "string"},
+              id: {
+                type: "string",
+                description: 'Dish record id from list_menu_items / get_dish_recipe (e.g. "menu_item:…"). Prefer over number.',
+              },
+              number: {
+                type: "string",
+                description: "Dish number/PLU. Prefer id when available; numbers may not be unique.",
+              },
+              name: {
+                type: "string",
+                description: "Dish name — use with number to disambiguate duplicate numbers, or alone if unique.",
+              },
               priority: {type: "number"},
               price: {type: "number"},
               cost: {type: "number"},
@@ -247,7 +259,7 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
               workflow: {type: "string", description: "Workflow name for multi-stage kitchen routing"},
               stage_overrides: {type: "string", description: "JSON map of stage name to kitchen name"},
             },
-            required: ["number"],
+            required: [],
           },
         },
       },
