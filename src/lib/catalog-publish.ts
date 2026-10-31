@@ -119,16 +119,24 @@ export async function listSyncBranches(db: DbLike): Promise<SyncBranch[]> {
   } catch {
     // Listing must still work if repair cannot run (permissions / older schema).
   }
-  const rows = asRows<any>(
-    await db.query(`SELECT * FROM sync_branch ORDER BY name ASC`)
-  );
-  return rows.map((row) => ({
-    ...row,
-    id: recordKey(row.id),
-    client_id: String(row.client_id || ''),
-    name: String(row.name || row.client_id || ''),
-    active: row.active !== false,
-  }));
+  try {
+    const rows = asRows<any>(
+      await db.query(`SELECT * FROM sync_branch ORDER BY name ASC`)
+    );
+    return rows
+      .map((row) => ({
+        id: recordKey(row.id),
+        client_id: String(row.client_id || ''),
+        name: String(row.name || row.client_id || ''),
+        active: row.active !== false,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+      }))
+      .filter((row) => row.client_id);
+  } catch {
+    // Table missing until HQ catalog-publish migration — empty dropdown, not a form crash.
+    return [];
+  }
 }
 
 export async function listRecentCatalogReleases(

@@ -14,7 +14,7 @@ on:
         type: string
         default: desktop-windows-test
       app_modules:
-        description: Modules to include, comma-separated. Leave empty for every module. menu, orders, summary, kitchen, order_display, delivery, closing, inventory, admin, reports, tips, accounts, hr, integrations, settings. A child such as admin.dishes keeps that tab.
+        description: Modules to include, comma-separated. Leave empty for every module. menu, quick, orders, summary, kitchen, order_display, delivery, closing, inventory, admin, reports, tips, accounts, hr, integrations, settings. A child such as admin.dishes keeps that tab.
         type: string
         default: ""
       app_modules_exclude:

@@ -5,6 +5,7 @@
 
 export const TOP_LEVEL_BUILD_MODULES = [
   'menu',
+  'quick',
   'orders',
   'summary',
   'kitchen',

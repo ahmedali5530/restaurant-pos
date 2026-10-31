@@ -139,6 +139,7 @@ const MIGRATION_PLAN = [
   { id: '2026_10_26_menu_item_modifier_availability', file: '2026_10_26_menu_item_modifier_availability.surql' },
   { id: '2026_10_29_inventory_item_deleted_at', file: '2026_10_29_inventory_item_deleted_at.surql' },
   { id: '2026_10_30_kra_etims', file: '2026_10_30_kra_etims.surql' },
+  { id: '2026_10_31_optional_null', file: '2026_10_31_optional_null.surql' },
 ];
 
 const rows = (result) => {
@@ -223,13 +224,13 @@ async function applySurql(db, filePath, transform) {
 /**
  * SurrealDB 3.x rejects an array-element wildcard field (e.g. `foo.*`) when its
  * parent is declared with the explicit `none | array<T> | null` union that the
- * schema dumps use. `option<array<T>>` is equivalent and accepted, so rewrite
- * the baseline before import. No-op once the generated schema is fixed.
+ * schema dumps use. `option<array<T>|null>` is equivalent, accepted with `.*`
+ * children, and still allows JSON null — rewrite the baseline before import.
  */
 const normalizeOptionalArrayTypes = (sql) =>
   sql.replace(
     /\bnone\s*\|\s*(array<(?:[^<>]|<[^<>]*>)*>)\s*\|\s*null\b/gi,
-    'option<$1>'
+    'option<$1|null>'
   );
 
 /**

@@ -383,7 +383,8 @@ export const Login = () => {
     setShowClockInModal(false);
     setPendingUser(null);
 
-    const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
+    const home =
+      state.posMode === 'retail' && __BUILD_MODULE_quick__ ? QUICK : getDefaultAppPath();
     navigation(home);
   }
 
@@ -437,7 +438,8 @@ export const Login = () => {
     }
     if (page.user && !page.locked) {
       const from = (location.state as { from?: { pathname: string; search?: string } })?.from;
-      const home = state.posMode === 'retail' ? QUICK : getDefaultAppPath();
+      const home =
+        state.posMode === 'retail' && __BUILD_MODULE_quick__ ? QUICK : getDefaultAppPath();
       const returnPath = from ? `${from.pathname}${from.search ?? ''}` : home;
       navigation(returnPath, { replace: true });
     }
