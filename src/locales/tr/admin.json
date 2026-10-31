@@ -168,7 +168,8 @@
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
     "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
     "smartImportMenuStructure": "YZ ile menü yapısı içe aktar",
-    "syncDishCosts": "Maliyetleri kalemlerden güncelle"
+    "syncDishCosts": "Maliyetleri kalemlerden güncelle",
+    "menuTree": "Menü ağacı"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -1171,5 +1172,45 @@
     "empty": "Bu kategoride yemek yok",
     "available": "Uygun",
     "unavailable": "Tükendi"
+  },
+  "menuTree": {
+    "title": "Menü ağacı",
+    "search": "Ara",
+    "searchPlaceholder": "Ada göre filtrele…",
+    "expandAll": "Tümünü genişlet",
+    "collapseAll": "Tümünü daralt",
+    "expand": "Genişlet",
+    "collapse": "Daralt",
+    "loading": "Menü ağacı yükleniyor…",
+    "empty": "Gösterilecek menü öğesi yok.",
+    "uncategorized": "Kategorisiz",
+    "required": "Zorunlu",
+    "hidden": "Gizli",
+    "hiddenFromMenu": "Menüde gizli",
+    "kind": {
+      "category": "Kategori",
+      "dish": "Yemek",
+      "modifierGroup": "Modifikatör grubu",
+      "modifier": "Modifikatör",
+      "uncategorized": "Kategorisiz"
+    },
+    "zoomIn": "Yakınlaştır",
+    "zoomOut": "Uzaklaştır",
+    "fit": "Ekrana sığdır",
+    "panHint": "Sürükleyerek kaydır · tekerlek ile yakınlaştır"
+  },
+  "printers": {
+    "testPrint": "Test yazdır",
+    "testPrintAccess": "Test yazdır {{name}}",
+    "testPrintOk": "Yazdırıldı. Sunucu test fişini {{name}}{{address}} yazıcısına gönderdi.",
+    "testPrintError": "{{name}}{{address}} için yazdırma sunucusu hatası: {{error}}",
+    "testPrintUnknownError": "Bilinmeyen yazdırma sunucusu hatası",
+    "slip": {
+      "title": "TEST YAZDIRMA",
+      "name": "Ad",
+      "type": "Tür",
+      "address": "Adres",
+      "ok": "Bunu okuyabiliyorsanız yazıcı bağlıdır."
+    }
   }
 }

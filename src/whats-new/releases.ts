@@ -7,6 +7,21 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-31',
+    title: 'Printer connectivity test',
+    items: [
+      'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',
+      'The printer row keeps the result: Printed when the server finished sending the slip, or the print server error (HTTP status and message) when it did not.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Menu tree on Dishes',
+    items: [
+      'Manage → Dishes includes a Menu tree button that opens a full-width SVG map: categories branch into dishes, then modifier groups and modifiers (including nested groups), with zoom, pan, and fit-to-screen.',
+    ],
+  },
+  {
     date: '2026-10-30',
     title: 'Kenya KRA eTIMS fiscalization',
     items: [
