@@ -1,3 +1,8 @@
+import { getCachedRuntimeConfig } from '@/lib/runtime-config.ts';
+import { isTauriDesktop } from '@/lib/desktop.ts';
+import { rewriteLoopbackHost, toLoopbackIp } from '@/lib/loopback-url.ts';
+import { browserReportsOnline } from '@/lib/desktop-connectivity.ts';
+
 const SESSION_TOKEN_KEY = 'posr_session_token';
 const SURREAL_TOKEN_KEY = 'posr_surreal_token';
 
@@ -25,13 +30,44 @@ export function isGatewayAuthEnabled(): boolean {
   return raw !== 'false' && raw !== '0' && raw !== 'no';
 }
 
+function browserLanHost(): string | null {
+  if (typeof window === 'undefined' || isTauriDesktop()) return null;
+  const host = window.location.hostname?.trim();
+  if (!host) return null;
+  const lower = host.toLowerCase();
+  if (
+    lower === 'localhost' ||
+    lower === '127.0.0.1' ||
+    lower === '::1' ||
+    lower === '0.0.0.0' ||
+    lower === 'tauri.localhost'
+  ) {
+    return null;
+  }
+  return host;
+}
+
+export function desktopLoopback(url: string): string {
+  if (isTauriDesktop()) return toLoopbackIp(url);
+  const host = browserLanHost();
+  return host ? rewriteLoopbackHost(url, host) : url;
+}
+
 export function getGatewayBaseUrl(): string {
+  const central = getCachedRuntimeConfig()?.gatewayUrl?.trim();
+  if (central) {
+    return desktopLoopback(central.replace(/\/$/, ''));
+  }
   const explicit = (import.meta.env.VITE_GATEWAY_URL as string | undefined)?.trim();
   if (explicit) {
-    return explicit.replace(/\/$/, '');
+    return desktopLoopback(explicit.replace(/\/$/, ''));
+  }
+  const lanHost = browserLanHost();
+  if (lanHost) {
+    return `http://${lanHost}:3142`;
   }
   if (typeof window !== 'undefined' && window.location?.origin) {
-    return window.location.origin;
+    return desktopLoopback(window.location.origin);
   }
   return '';
 }
@@ -102,6 +138,8 @@ export async function gatewayLogin(payload: {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
+    // A stalled localhost lookup used to leave the login screen spinning.
+    signal: AbortSignal.timeout(8_000),
   });
   const data = (await res.json().catch(() => ({}))) as GatewayLoginResponse & Record<string, unknown>;
   if (!res.ok) {
@@ -133,7 +171,7 @@ export async function gatewayLogout(): Promise<void> {
 }
 
 export async function refreshSurrealToken(): Promise<string | null> {
-  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+  if (!browserReportsOnline()) {
     return null;
   }
   try {

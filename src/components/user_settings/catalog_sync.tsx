@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/input/button.tsx';
+import { isTauriDesktop } from '@/lib/desktop.ts';
+import { runtimeSyncServiceUrl } from '@/lib/runtime-config.ts';
+
+/** Packaged POSR Desktop always runs sync-service on this address. */
+const DESKTOP_SYNC_SERVICE_URL = 'http://127.0.0.1:3136';
 
 type CatalogProgress = {
   running?: boolean;
@@ -39,8 +44,12 @@ type SyncStatsResponse = {
 };
 
 function syncServiceBaseUrl(): string {
+  const central = runtimeSyncServiceUrl();
+  if (central) return central;
   const raw = (import.meta.env.VITE_SYNC_SERVICE_URL as string | undefined)?.trim();
-  return raw ? raw.replace(/\/$/, '') : '';
+  if (raw) return raw.replace(/\/$/, '');
+  if (isTauriDesktop()) return DESKTOP_SYNC_SERVICE_URL;
+  return '';
 }
 
 function syncSecretHeaders(): HeadersInit {
@@ -49,8 +58,9 @@ function syncSecretHeaders(): HeadersInit {
 }
 
 /**
- * Shown whenever VITE_SYNC_SERVICE_URL is set. Sync now is enabled only when
- * the sync service reports distribution mode `full`.
+ * Shown when VITE_SYNC_SERVICE_URL is set, and on POSR Desktop where sync
+ * always listens on 127.0.0.1:3136. Sync now is enabled only when the sync
+ * service reports distribution mode `full`.
  */
 export const CatalogSyncSettingsCard = () => {
   const { t } = useTranslation('settings');

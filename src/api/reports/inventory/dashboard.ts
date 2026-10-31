@@ -20,6 +20,7 @@ import {
 import {calculateOrderNetSales} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getReorderLevelForStore} from "@/utils/inventory.ts";
+import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const normalizeKey = (id: unknown): string => {
   const str = recordIdToString(id) || String(id ?? "");
@@ -39,8 +40,8 @@ export const toBusinessDate = (value?: string | null): string | undefined => {
   const trimmed = value.trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
   const zone = getAppTimezone();
-  const queryFmt = import.meta.env.VITE_DATE_TIME_FORMAT as string;
-  const dateFmt = import.meta.env.VITE_DATE_FORMAT as string;
+  const queryFmt = runtimeDateTimeFormat();
+  const dateFmt = runtimeDateFormat();
   for (const fmt of [queryFmt, dateFmt]) {
     const parsed = DateTime.fromFormat(trimmed, fmt, {zone});
     if (parsed.isValid) return parsed.toISODate() ?? undefined;
@@ -65,8 +66,8 @@ const parseFilterWallTime = (
   if (!value?.trim()) return undefined;
   const zone = getAppTimezone();
   const trimmed = value.trim();
-  const queryFmt = import.meta.env.VITE_DATE_TIME_FORMAT as string;
-  const dateFmt = import.meta.env.VITE_DATE_FORMAT as string;
+  const queryFmt = runtimeDateTimeFormat();
+  const dateFmt = runtimeDateFormat();
   for (const fmt of [queryFmt, dateFmt]) {
     const parsed = DateTime.fromFormat(trimmed, fmt, {zone});
     if (parsed.isValid) {

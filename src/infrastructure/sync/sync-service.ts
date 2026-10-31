@@ -22,6 +22,7 @@ import {
   reserveNumbers,
 } from './gateway-client.ts';
 import { setSyncStatus } from './sync-status.ts';
+import { browserReportsOnline } from '@/lib/desktop-connectivity.ts';
 import {
   clearConflictAutoRetry,
   conflictAutoRetryEligible,
@@ -239,7 +240,7 @@ export class TerminalSyncService {
    * offline wipe cannot leave the terminal empty with no warm path.
    */
   async rehydrateFromServer(): Promise<void> {
-    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    if (!browserReportsOnline()) {
       const err = new Error('OFFLINE');
       (err as Error & { code?: string }).code = 'OFFLINE';
       throw err;
@@ -458,8 +459,7 @@ export class TerminalSyncService {
       await this.refreshStatus({ lastSyncedAt: new Date().toISOString() });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      const offline =
-        typeof navigator !== 'undefined' && navigator.onLine === false;
+      const offline = !browserReportsOnline();
       const pending = await posStore.getPendingOutbox().catch(() => []);
       setSyncStatus({
         phase: offline ? 'offline' : 'error',

@@ -10,6 +10,7 @@ import {APIProvider, Map as GoogleMap, useMap} from "@vis.gl/react-google-maps";
 import {MarkerClusterer, type Cluster, type ClusterStats, type Renderer} from "@googlemaps/markerclusterer";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {buildCreatedAtDateConditions} from "@/api/reports/shared/query.ts";
+import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
 
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
@@ -426,8 +427,8 @@ const DeliveryDensityBody = ({
                 return (
                   <tr key={String(order.id)}>
                     <td className="py-3 pl-6 pr-3 text-sm text-foreground">
-                      <div>{orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT)}</div>
-                      <div className="text-muted">{orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT)}</div>
+                      <div>{orderDate.toFormat(runtimeDateFormat())}</div>
+                      <div className="text-muted">{orderDate.toFormat(runtimeTimeFormat())}</div>
                     </td>
                     <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
                     <td className="py-3 px-3 text-sm text-foreground">{order.status}</td>

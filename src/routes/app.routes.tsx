@@ -1,6 +1,8 @@
 import type {ComponentType, LazyExoticComponent} from "react";
 import {Route, Routes} from "react-router";
 import {Login} from "@/screens/login.tsx";
+import {DesktopSetup} from "@/screens/desktop-setup.tsx";
+import {DesktopLogs} from "@/screens/desktop-logs.tsx";
 import {NotFound} from "@/screens/not-found.tsx";
 import {Clock} from "@/screens/clock.tsx";
 import {ProtectedRoute} from "@/routes/protected-route.tsx";
@@ -15,6 +17,8 @@ import {
   HR,
   KITCHEN,
   ORDER_DISPLAY,
+  DESKTOP_SETUP,
+  DESKTOP_LOGS,
   CUSTOMER_DISPLAY,
   LOGIN,
   QUICK,
@@ -159,6 +163,8 @@ function gated(
 export const AppRoutes = () => (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
+    <Route path={DESKTOP_SETUP} element={<DesktopSetup/>}/>
+    <Route path={DESKTOP_LOGS} element={<DesktopLogs/>}/>
     <Route element={<ProtectedRoute/>}>
       <Route element={<SuspenseOutlet/>}>
         {gated(__BUILD_MODULE_menu__, Menu, MENU)}

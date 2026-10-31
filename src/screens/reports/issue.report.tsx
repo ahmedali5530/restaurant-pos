@@ -14,6 +14,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -195,7 +196,7 @@ export const IssueReport = () => {
                 ) : (
                   issues.flatMap(issue => {
                     const date = toLuxonDateTime(issue.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
                     const locationName = issue.location?.name || 'N/A';
                     const issuedToName = issue.issued_to
                       ? `${issue.issued_to.first_name ?? ''} ${issue.issued_to.last_name ?? ''}`.trim() || issue.issued_to.login || 'Unknown'

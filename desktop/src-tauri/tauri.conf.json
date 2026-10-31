@@ -1,0 +1,74 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "POSR",
+  "version": "0.1.8",
+  "identifier": "com.posr.desktop",
+  "build": {
+    "frontendDist": "../../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": {
+      "script": "bun run dev",
+      "cwd": "../.."
+    },
+    "beforeBuildCommand": {
+      "script": "bash desktop/scripts/build-frontend.sh",
+      "cwd": "../.."
+    }
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "POSR",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/posr-node",
+      "binaries/posr-surreal"
+    ],
+    "resources": [
+      "resources/sidecars/**/*",
+      "resources/migrations/**/*",
+      "windows/configure-posr.ps1",
+      "windows/installer-settings.template.json",
+      "linux/posr-desktop-configure.sh",
+      "linux/installer-settings.template.json",
+      "macos/configure-posr.sh",
+      "resources/web/**/*"
+    ],
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "displayLanguageSelector": false,
+        "installerHooks": "./windows/hooks.nsh"
+      }
+    },
+    "linux": {
+      "deb": {
+        "postInstallScript": "linux/postinst.sh"
+      }
+    }
+  },
+  "plugins": {}
+}

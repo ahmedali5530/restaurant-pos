@@ -8,6 +8,7 @@ import {toJsDate} from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 export interface ActiveSessionSummary {
   sessionId: string;
@@ -48,7 +49,7 @@ const formatDuration = (seconds: number): string => {
 
 const formatClockIn = (clockIn: TimeEntry["clock_in"]): string => {
   const jsDate = toJsDate(clockIn as Parameters<typeof toJsDate>[0]);
-  return DateTime.fromJSDate(jsDate).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string);
+  return DateTime.fromJSDate(jsDate).toFormat(runtimeDateTimeFormat());
 };
 
 const resolveUserRef = (user: TimeEntry["user"]) => {

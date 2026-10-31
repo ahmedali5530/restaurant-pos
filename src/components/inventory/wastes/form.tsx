@@ -42,6 +42,7 @@ import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createWasteImportConfig} from "@/components/inventory/wastes/waste.import.config.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
 import {
   lineEnteredDefaults,
@@ -651,7 +652,7 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
       .filter((lot) => lot.item?.id)
       .map((lot) => {
         const expiryLabel = lot.expiry_date
-          ? toLuxonDateTime(lot.expiry_date as any).toFormat(import.meta.env.VITE_DATE_FORMAT)
+          ? toLuxonDateTime(lot.expiry_date as any).toFormat(runtimeDateFormat())
           : "";
         const name = lot.item?.code
           ? `${lot.item.name}-${lot.item.code}`
