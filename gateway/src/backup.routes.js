@@ -23,6 +23,8 @@ function surrealCliConfig() {
     err.status = 500;
     throw err;
   }
+  // Remote WS export against SurrealKV returns "Backups are not supported".
+  // Always use HTTP for CLI export/import.
   return {
     bin: process.env.SURREAL_BIN || '/surreal',
     endpoint: surrealHttpEndpoint(),
@@ -55,8 +57,8 @@ async function requireDatabaseBackupAccess(req, res, next) {
   }
 }
 
-/** @param {'export'|'import'} command @param {string} fileOrDash */
-function spawnSurreal(command, fileOrDash) {
+/** @param {'export'|'import'} command @param {string} filePath */
+function spawnSurreal(command, filePath) {
   const cfg = surrealCliConfig();
   const child = spawn(
     cfg.bin,
@@ -74,70 +76,85 @@ function spawnSurreal(command, fileOrDash) {
       cfg.namespace,
       '--database',
       cfg.database,
-      fileOrDash,
+      filePath,
     ],
     { stdio: ['ignore', 'pipe', 'pipe'] },
   );
   return child;
 }
 
-/**
- * GET /backup/database — stream a full Surreal export (.surql).
- */
-router.get('/database', requireDatabaseBackupAccess, async (req, res) => {
-  let child;
-  try {
-    const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filename = `posr-database-${stamp}.surql`;
-    child = spawnSurreal('export', '-');
-
+function runSurrealToFile(command, filePath) {
+  return new Promise((resolve, reject) => {
+    const child = spawnSurreal(command, filePath);
     let stderr = '';
     child.stderr.on('data', (chunk) => {
       stderr += chunk.toString();
       if (stderr.length > 8000) stderr = stderr.slice(-8000);
     });
+    child.on('error', (err) => {
+      reject(err);
+    });
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve({ stderr });
+        return;
+      }
+      const err = new Error(
+        stderr.trim() || `surreal ${command} exited with code ${code}`,
+      );
+      err.status = 500;
+      reject(err);
+    });
+  });
+}
+
+/**
+ * GET /backup/database — export to a temp file, then stream download.
+ * Exporting to a file first avoids empty 200 responses when the CLI fails
+ * after headers would already have been sent on a stdout pipe.
+ */
+router.get('/database', requireDatabaseBackupAccess, async (req, res) => {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const filename = `posr-database-${stamp}.surql`;
+  const tmp = path.join(
+    os.tmpdir(),
+    `posr-export-${Date.now()}-${Math.random().toString(36).slice(2)}.surql`,
+  );
+
+  try {
+    await runSurrealToFile('export', tmp);
+
+    const stat = await fs.promises.stat(tmp);
+    if (!stat.size) {
+      const err = new Error(
+        'Database export produced an empty file. Ensure the gateway image includes CA certificates and SURREAL_HTTP_ENDPOINT points at the Surreal HTTP port.',
+      );
+      err.status = 500;
+      throw err;
+    }
 
     res.status(200);
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
     res.setHeader('Cache-Control', 'no-store');
 
-    child.stdout.pipe(res);
-
-    child.on('error', (err) => {
-      console.error('surreal export spawn error:', err.message);
-      if (!res.headersSent) {
-        res.status(500).json({ ok: false, error: 'Failed to start surreal export' });
-      } else {
-        res.destroy(err);
-      }
-    });
-
-    child.on('close', (code) => {
-      if (code !== 0) {
-        console.error('surreal export failed:', code, stderr);
-        if (!res.headersSent) {
-          res.status(500).json({
-            ok: false,
-            error: stderr.trim() || `surreal export exited with code ${code}`,
-          });
-        } else if (!res.writableEnded) {
-          res.destroy(new Error(stderr.trim() || `export exit ${code}`));
-        }
-      }
+    await new Promise((resolve, reject) => {
+      const stream = fs.createReadStream(tmp);
+      stream.on('error', reject);
+      res.on('error', reject);
+      res.on('finish', resolve);
+      stream.pipe(res);
     });
   } catch (err) {
-    console.error(err);
-    if (child) {
-      try {
-        child.kill('SIGTERM');
-      } catch {
-        // ignore
-      }
-    }
+    console.error('database export failed:', err.message);
     if (!res.headersSent) {
       res.status(err.status || 500).json({ ok: false, error: err.message });
+    } else if (!res.writableEnded) {
+      res.destroy(err);
     }
+  } finally {
+    fs.promises.unlink(tmp).catch(() => {});
   }
 });
 
@@ -181,24 +198,7 @@ router.post('/database', requireDatabaseBackupAccess, async (req, res) => {
       throw err;
     }
 
-    const child = spawnSurreal('import', tmp);
-    let stderr = '';
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-      if (stderr.length > 8000) stderr = stderr.slice(-8000);
-    });
-
-    const code = await new Promise((resolve, reject) => {
-      child.on('error', reject);
-      child.on('close', resolve);
-    });
-
-    if (code !== 0) {
-      const err = new Error(stderr.trim() || `surreal import exited with code ${code}`);
-      err.status = 500;
-      throw err;
-    }
-
+    await runSurrealToFile('import', tmp);
     return res.json({ ok: true, bytes: size });
   } catch (err) {
     console.error('database restore failed:', err.message);
