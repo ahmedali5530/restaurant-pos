@@ -268,22 +268,28 @@ describe('catalog row filter and secrets', () => {
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b1'), true);
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b2'), false);
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: [] }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: null }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1 '] }, 'b1'), true);
   });
 
-  it('strips user secrets', () => {
+  it('strips user secrets and drops non-SCHEMAFULL user fields', () => {
     const cleaned = prepareCatalogPayload('user', {
-      name: 'Sam',
+      first_name: 'Sam',
       password: 'secret',
       pin: '1234',
       password_hash: 'x',
+      branch_id: 'store-a',
+      extra_cloud_field: 'nope',
     });
-    assert.equal(cleaned.name, 'Sam');
+    assert.equal(cleaned.first_name, 'Sam');
     assert.equal(cleaned.password, undefined);
     assert.equal(cleaned.pin, undefined);
+    assert.equal(cleaned.branch_id, undefined);
+    assert.equal(cleaned.extra_cloud_field, undefined);
     assert.equal(stripUserSecrets({ pin: '1' }).pin, undefined);
     const dish = prepareCatalogPayload('menu_item', { name: 'Wings', price: 1 });
     assert.deepEqual(dish.categories, []);
-    const user = prepareCatalogPayload('user', { name: 'A', password: 'x' });
+    const user = prepareCatalogPayload('user', { first_name: 'A', password: 'x' });
     assert.deepEqual(user.roles, []);
     assert.equal(user.password, undefined);
 

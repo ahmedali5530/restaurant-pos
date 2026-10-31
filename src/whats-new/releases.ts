@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-10-31',
+    title: 'HQ user catalog download',
+    items: [
+      'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
+    ],
+  },
+  {
     date: '2026-10-22',
     title: 'Inventory UX polish',
     items: [

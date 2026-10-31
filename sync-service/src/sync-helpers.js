@@ -217,15 +217,38 @@ function versionstampForStorage(value) {
 const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_code'];
 
 /**
+ * Normalize branch_ids from Surreal (array, or array-like) to string[].
+ * Empty / missing → shared (all branches).
+ */
+function normalizeBranchIdsList(raw) {
+  if (raw == null || raw === '') return [];
+  if (Array.isArray(raw)) {
+    return raw.map((id) => String(id || '').trim()).filter(Boolean);
+  }
+  // Surreal occasionally surfaces arrays as array-like objects.
+  if (typeof raw === 'object' && typeof raw.length === 'number') {
+    try {
+      return Array.from(raw)
+        .map((id) => String(id || '').trim())
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
+/**
  * Shared catalog rows (no branch_id) or rows for this branch apply.
  * Rows stamped for another branch are skipped.
+ * Phase 7: non-empty user.branch_ids[] must include SYNC_CLIENT_ID.
  */
 function shouldApplyCatalogRow(row, branchId) {
   if (!row || typeof row !== 'object') return false;
-  // Phase 7: users (and similar) may list multiple store client ids.
-  if (Array.isArray(row.branch_ids) && row.branch_ids.length > 0) {
-    const want = String(branchId);
-    return row.branch_ids.some((id) => String(id) === want);
+  const ids = normalizeBranchIdsList(row.branch_ids);
+  if (ids.length > 0) {
+    const want = String(branchId || '').trim();
+    return ids.some((id) => id === want);
   }
   const scoped = row.branch_id;
   if (scoped == null || scoped === '') return true;
@@ -281,6 +304,23 @@ const RELATION_CATALOG_TABLES = Object.freeze([
   'menu_item_modifier_group',
 ]);
 
+/**
+ * Local SCHEMAFULL `user` fields (see migrations/latest.surql). Extra cloud
+ * fields (e.g. accidental branch_id) must not be MERGEd or upsert fails and
+ * the whole user backfill aborts.
+ */
+const USER_LOCAL_FIELDS = new Set([
+  'deleted_at',
+  'first_name',
+  'last_name',
+  'login',
+  'login_method',
+  'password',
+  'roles',
+  'user_role',
+  'user_shift',
+]);
+
 function prepareCatalogPayload(tableName, value) {
   const raw = { ...(value || {}) };
   delete raw.id;
@@ -289,6 +329,7 @@ function prepareCatalogPayload(tableName, value) {
   for (const [key, fieldValue] of Object.entries(raw)) {
     // Explicit null/undefined become NONE under CONTENT and defeat schema DEFAULTs.
     if (fieldValue === null || fieldValue === undefined) continue;
+    if (tableName === 'user' && !USER_LOCAL_FIELDS.has(key)) continue;
     payload[key] = fieldValue;
   }
 
