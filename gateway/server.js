@@ -14,6 +14,7 @@ const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
 const syncRoutes = require('./src/sync.routes');
 const selfOrderRoutes = require('./src/self-order/routes');
+const { router: backupRoutes } = require('./src/backup.routes');
 const { getUserRoleModules, hasSecurityAlertsAccess } = require('./src/auth.service');
 const { attachRpcRelay } = require('./src/ws-relay');
 const { getClient, initSurrealClient } = require('./src/surreal-client');
@@ -88,6 +89,7 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRoutes);
 app.use('/sync', syncRoutes);
 app.use('/self-order', selfOrderRoutes);
+app.use('/backup', backupRoutes);
 
 /** Shared verify endpoint for other services (optional). */
 app.post('/auth/verify', async (req, res) => {
@@ -207,6 +209,8 @@ server.listen(PORT, HOST, () => {
   console.log('POST /auth/db-token');
   console.log('GET  /alerts              (admin-only — security alerts)');
   console.log('POST /alerts/:id/acknowledge (admin-only)');
+  console.log('GET  /backup/database     (settings.database — surreal export)');
+  console.log('POST /backup/database     (settings.database — surreal import)');
   console.log('WS   /rpc (session JWT required)');
 });
 

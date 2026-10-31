@@ -393,5 +393,41 @@
     "priceDivisor": "Divisore prezzo (minore→maggiore)",
     "layoutHint": "Layout: {{example}}",
     "resetDefaults": "Ripristina predefiniti (resta attivo)"
+  },
+  "backup": {
+    "title": "Backup e ripristino",
+    "description": "Esporta o ripristina le impostazioni dell’app e le preferenze di questo browser, oppure l’intero database.",
+    "offline": "Impossibile eseguire backup o ripristino offline",
+    "offlineHint": "Disponibile quando c’è connessione al server",
+    "settings": {
+      "title": "Impostazioni",
+      "description": "Impostazioni dell’app dal database più lingua, aspetto, tastiera touch e modalità POS di questo browser. Ordini aperti e carrello restano invariati.",
+      "export": "Esporta impostazioni",
+      "restore": "Ripristina impostazioni",
+      "exportDescription": "Esporta backup impostazioni",
+      "restoreDescription": "Ripristina impostazioni da backup",
+      "exported": "Backup impostazioni scaricato",
+      "exportFailed": "Esportazione impostazioni non riuscita",
+      "restored": "Impostazioni ripristinate",
+      "restoreFailed": "Ripristino impostazioni non riuscito",
+      "invalidFile": "Questo file non è un backup impostazioni valido",
+      "confirmTitle": "Ripristinare le impostazioni?",
+      "confirmMessage": "Sostituire tutte le impostazioni dell’app con questo file e applicare lingua, aspetto, touch e modalità POS su questo browser? Ordini aperti e carrello restano invariati."
+    },
+    "database": {
+      "title": "Database completo",
+      "description": "Scarica o ripristina l’intero database Surreal (.surql), inclusi ordini, inventario, catalogo e impostazioni. I record nel file sovrascrivono le righe corrispondenti; quelle solo sul database live restano.",
+      "export": "Esporta database",
+      "restore": "Ripristina database",
+      "exportDescription": "Esporta backup completo del database",
+      "restoreDescription": "Ripristina database completo da backup",
+      "exported": "Backup database scaricato",
+      "exportFailed": "Esportazione database non riuscita",
+      "restored": "Database ripristinato",
+      "restoreFailed": "Ripristino database non riuscito",
+      "forbidden": "Non hai il permesso per il backup del database",
+      "confirmTitle": "Ripristinare l’intero database?",
+      "confirmMessage": "Importa questo file .surql nel database live. I record nel file sovrascrivono le righe corrispondenti; quelli presenti solo sul live restano. La cache catalogo di questo terminale verrà aggiornata dopo."
+    }
   }
 }

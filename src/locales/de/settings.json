@@ -393,5 +393,41 @@
     "priceDivisor": "Preisdivisor (Klein→Groß)",
     "layoutHint": "Layout: {{example}}",
     "resetDefaults": "Standard wiederherstellen (aktiviert lassen)"
+  },
+  "backup": {
+    "title": "Sichern und Wiederherstellen",
+    "description": "App-Einstellungen und die Einstellungen dieses Browsers oder die gesamte Datenbank exportieren oder wiederherstellen.",
+    "offline": "Sichern oder Wiederherstellen ist offline nicht möglich",
+    "offlineHint": "Verfügbar, wenn die Verbindung zum Server besteht",
+    "settings": {
+      "title": "Einstellungen",
+      "description": "App-Einstellungen aus der Datenbank sowie Sprache, Erscheinungsbild, Bildschirmtastatur und POS-Modus dieses Browsers. Offene Bestellungen und der Warenkorb bleiben unverändert.",
+      "export": "Einstellungen exportieren",
+      "restore": "Einstellungen wiederherstellen",
+      "exportDescription": "Einstellungssicherung exportieren",
+      "restoreDescription": "Einstellungen aus Sicherung wiederherstellen",
+      "exported": "Einstellungssicherung heruntergeladen",
+      "exportFailed": "Einstellungen konnten nicht exportiert werden",
+      "restored": "Einstellungen wiederhergestellt",
+      "restoreFailed": "Einstellungen konnten nicht wiederhergestellt werden",
+      "invalidFile": "Diese Datei ist keine gültige Einstellungssicherung",
+      "confirmTitle": "Einstellungen wiederherstellen?",
+      "confirmMessage": "Alle App-Einstellungen durch diese Datei ersetzen und Sprache, Erscheinungsbild, Touch und POS-Modus in diesem Browser anwenden? Offene Bestellungen und Warenkorb bleiben unverändert."
+    },
+    "database": {
+      "title": "Gesamte Datenbank",
+      "description": "Die gesamte Surreal-Datenbank (.surql) herunterladen oder wiederherstellen, einschließlich Bestellungen, Inventar, Katalog und Einstellungen. Datensätze in der Datei überschreiben passende Zeilen; nur in der Live-Datenbank vorhandene Zeilen bleiben erhalten.",
+      "export": "Datenbank exportieren",
+      "restore": "Datenbank wiederherstellen",
+      "exportDescription": "Vollständige Datenbanksicherung exportieren",
+      "restoreDescription": "Vollständige Datenbank aus Sicherung wiederherstellen",
+      "exported": "Datenbanksicherung heruntergeladen",
+      "exportFailed": "Datenbank konnte nicht exportiert werden",
+      "restored": "Datenbank wiederhergestellt",
+      "restoreFailed": "Datenbank konnte nicht wiederhergestellt werden",
+      "forbidden": "Keine Berechtigung für die Datenbanksicherung",
+      "confirmTitle": "Gesamte Datenbank wiederherstellen?",
+      "confirmMessage": "Diese .surql-Datei in die Live-Datenbank importieren. Datensätze in der Datei überschreiben passende Zeilen; nur in der Live-Datenbank vorhandene Datensätze bleiben erhalten. Der Katalog-Cache dieses Terminals wird danach aktualisiert."
+    }
   }
 }

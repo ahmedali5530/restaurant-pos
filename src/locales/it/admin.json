@@ -835,7 +835,10 @@
       "reports": "Report",
       "inventory": "Inventario",
       "settings": "Impostazioni",
-      "admin.catalog_publish": "Pubblica catalogo"
+      "admin.catalog_publish": "Pubblica catalogo",
+      "settings.backup": "Backup impostazioni",
+      "settings.restore": "Ripristino impostazioni",
+      "settings.database": "Backup database"
     }
   },
   "discountEngine": {

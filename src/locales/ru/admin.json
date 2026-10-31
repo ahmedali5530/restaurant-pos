@@ -835,7 +835,10 @@
       "reports": "Отчёты",
       "inventory": "Склад",
       "settings": "Настройки",
-      "admin.catalog_publish": "Публикация каталога"
+      "admin.catalog_publish": "Публикация каталога",
+      "settings.backup": "Резервная копия настроек",
+      "settings.restore": "Восстановление настроек",
+      "settings.database": "Резервная копия базы"
     }
   },
   "discountEngine": {

@@ -393,5 +393,41 @@
     "priceDivisor": "Diviseur prix (mineur→majeur)",
     "layoutHint": "Disposition : {{example}}",
     "resetDefaults": "Réinitialiser (garder activé)"
+  },
+  "backup": {
+    "title": "Sauvegarde et restauration",
+    "description": "Exportez ou restaurez les paramètres de l’application et les préférences de ce navigateur, ou toute la base de données.",
+    "offline": "Impossible de sauvegarder ou restaurer hors ligne",
+    "offlineHint": "Disponible lorsque la connexion au serveur est établie",
+    "settings": {
+      "title": "Paramètres",
+      "description": "Paramètres de l’application depuis la base plus langue, apparence, clavier tactile et mode POS de ce navigateur. Les commandes ouvertes et le panier restent inchangés.",
+      "export": "Exporter les paramètres",
+      "restore": "Restaurer les paramètres",
+      "exportDescription": "Exporter la sauvegarde des paramètres",
+      "restoreDescription": "Restaurer les paramètres depuis une sauvegarde",
+      "exported": "Sauvegarde des paramètres téléchargée",
+      "exportFailed": "Échec de l’export des paramètres",
+      "restored": "Paramètres restaurés",
+      "restoreFailed": "Échec de la restauration des paramètres",
+      "invalidFile": "Ce fichier n’est pas une sauvegarde de paramètres valide",
+      "confirmTitle": "Restaurer les paramètres ?",
+      "confirmMessage": "Remplacer tous les paramètres de l’app par ce fichier et appliquer langue, apparence, tactile et mode POS sur ce navigateur ? Les commandes ouvertes et le panier restent inchangés."
+    },
+    "database": {
+      "title": "Base de données complète",
+      "description": "Téléchargez ou restaurez toute la base Surreal (.surql), y compris commandes, inventaire, catalogue et paramètres. Les enregistrements du fichier écrasent les lignes correspondantes ; celles présentes uniquement en direct sont conservées.",
+      "export": "Exporter la base",
+      "restore": "Restaurer la base",
+      "exportDescription": "Exporter la sauvegarde complète de la base",
+      "restoreDescription": "Restaurer la base complète depuis une sauvegarde",
+      "exported": "Sauvegarde de la base téléchargée",
+      "exportFailed": "Échec de l’export de la base",
+      "restored": "Base restaurée",
+      "restoreFailed": "Échec de la restauration de la base",
+      "forbidden": "Vous n’avez pas la permission pour la sauvegarde de la base",
+      "confirmTitle": "Restaurer toute la base ?",
+      "confirmMessage": "Importer ce fichier .surql dans la base en direct. Les enregistrements du fichier écrasent les lignes correspondantes ; ceux présents uniquement en direct sont conservés. Le cache catalogue de ce terminal sera ensuite actualisé."
+    }
   }
 }

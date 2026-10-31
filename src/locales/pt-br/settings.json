@@ -393,5 +393,41 @@
     "priceDivisor": "Divisor de preço (menor→maior)",
     "layoutHint": "Layout: {{example}}",
     "resetDefaults": "Restaurar padrões (manter ativo)"
+  },
+  "backup": {
+    "title": "Backup e restauração",
+    "description": "Exporte ou restaure as configurações do app e as preferências deste navegador, ou o banco de dados completo.",
+    "offline": "Não é possível fazer backup ou restaurar offline",
+    "offlineHint": "Disponível quando houver conexão com o servidor",
+    "settings": {
+      "title": "Configurações",
+      "description": "Configurações do app no banco mais idioma, aparência, teclado touch e modo POS deste navegador. Pedidos abertos e carrinho permanecem iguais.",
+      "export": "Exportar configurações",
+      "restore": "Restaurar configurações",
+      "exportDescription": "Exportar backup de configurações",
+      "restoreDescription": "Restaurar configurações a partir do backup",
+      "exported": "Backup de configurações baixado",
+      "exportFailed": "Falha ao exportar configurações",
+      "restored": "Configurações restauradas",
+      "restoreFailed": "Falha ao restaurar configurações",
+      "invalidFile": "Este arquivo não é um backup de configurações válido",
+      "confirmTitle": "Restaurar configurações?",
+      "confirmMessage": "Substituir todas as configurações do app por este arquivo e aplicar idioma, aparência, touch e modo POS neste navegador? Pedidos abertos e carrinho permanecem iguais."
+    },
+    "database": {
+      "title": "Banco de dados completo",
+      "description": "Baixe ou restaure todo o banco Surreal (.surql), incluindo pedidos, estoque, catálogo e configurações. Registros no arquivo sobrescrevem linhas correspondentes; linhas só no banco ao vivo são mantidas.",
+      "export": "Exportar banco",
+      "restore": "Restaurar banco",
+      "exportDescription": "Exportar backup completo do banco",
+      "restoreDescription": "Restaurar banco completo a partir do backup",
+      "exported": "Backup do banco baixado",
+      "exportFailed": "Falha ao exportar o banco",
+      "restored": "Banco restaurado",
+      "restoreFailed": "Falha ao restaurar o banco",
+      "forbidden": "Você não tem permissão para backup do banco",
+      "confirmTitle": "Restaurar o banco completo?",
+      "confirmMessage": "Importe este arquivo .surql no banco ao vivo. Registros no arquivo sobrescrevem linhas correspondentes; os que existem só ao vivo são mantidos. O cache do catálogo deste terminal será atualizado em seguida."
+    }
   }
 }

@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-01',
+    title: 'Backup and restore',
+    items: [
+      'Settings includes Backup and restore: export or restore app settings (plus this browser’s language, appearance, touch keyboard, and POS mode) as a JSON file.',
+      'With the Database backup permission, you can download or import a full Surreal .surql dump (same format as the nightly backups). Rows in the file overwrite matches; rows only on the live database are kept.',
+    ],
+  },
+  {
     date: '2026-10-31',
     title: 'HQ user catalog download',
     items: [
