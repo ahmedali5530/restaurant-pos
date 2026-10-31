@@ -36,7 +36,7 @@ export const CustomerDisplayScreen = maybeLazy(
   () => import('@/screens/customer-display.tsx').then((m) => ({ default: m.CustomerDisplayScreen })),
 );
 export const QuickOrder = maybeLazy(
-  __BUILD_MODULE_menu__,
+  __BUILD_MODULE_quick__,
   () => import('@/screens/quick-order.tsx').then((m) => ({ default: m.QuickOrder })),
 );
 export const Delivery = maybeLazy(

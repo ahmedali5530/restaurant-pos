@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-31',
+    title: 'Quick Order as its own build module',
+    items: [
+      'Quick Order is no longer tied to the floor Menu build flag. Use VITE_APP_MODULES_EXCLUDE=quick to omit the /quick screen, sidebar entry, POS mode card, and scale barcode settings while keeping the restaurant menu.',
+      'HQ exclude lists that previously dropped menu must also list quick, because excluding menu alone no longer removes Quick Order.',
+    ],
+  },
+  {
+    date: '2026-10-31',
     title: 'Printer connectivity test',
     items: [
       'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',

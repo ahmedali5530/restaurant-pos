@@ -65,9 +65,13 @@ export const Settings = () => {
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
-        <MasonryItem><PosModeSettings /></MasonryItem>
+        {__BUILD_MODULE_quick__ && (
+          <MasonryItem><PosModeSettings /></MasonryItem>
+        )}
         <MasonryItem><ItemAvailabilitySettings /></MasonryItem>
-        <MasonryItem><ScaleBarcodeSettings /></MasonryItem>
+        {__BUILD_MODULE_quick__ && (
+          <MasonryItem><ScaleBarcodeSettings /></MasonryItem>
+        )}
         <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>
         <MasonryItem><ItemsVisibilityConfig /></MasonryItem>
