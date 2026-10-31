@@ -835,7 +835,10 @@
       "reports": "Berichte",
       "inventory": "Inventar",
       "settings": "Einstellungen",
-      "admin.catalog_publish": "Katalog veröffentlichen"
+      "admin.catalog_publish": "Katalog veröffentlichen",
+      "settings.backup": "Einstellungssicherung",
+      "settings.restore": "Einstellungen wiederherstellen",
+      "settings.database": "Datenbanksicherung"
     }
   },
   "discountEngine": {

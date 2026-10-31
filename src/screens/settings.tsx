@@ -24,6 +24,7 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
+import {BackupRestoreSettings} from "@/components/user_settings/backup_restore.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -38,6 +39,9 @@ export const Settings = () => {
   return (
     <Layout containerClassName="p-5 [overflow-anchor:none]">
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
+      <div className="mb-5" data-testid="settings-backup-restore">
+        <BackupRestoreSettings />
+      </div>
       {/*
         CSS columns packs uneven card heights (masonry). Grid left large gaps in each row.
         overflow-anchor + break-inside-avoid keep focus/clicks from reshuffling scroll.

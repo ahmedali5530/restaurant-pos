@@ -1052,7 +1052,10 @@
       "integrations.queue": "Integration queue",
       "integrations.toggle_provider": "Toggle integration provider",
       "integrations.open_configuration": "Open integration configuration",
-      "integrations.save_configuration": "Save integration configuration"
+      "integrations.save_configuration": "Save integration configuration",
+      "settings.backup": "Settings backup",
+      "settings.restore": "Settings restore",
+      "settings.database": "Database backup"
     }
   },
   "securityAlerts": {

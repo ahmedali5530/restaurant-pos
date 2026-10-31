@@ -835,7 +835,10 @@
       "reports": "Raporlar",
       "inventory": "Envanter",
       "settings": "Ayarlar",
-      "admin.catalog_publish": "Katalog yayınla"
+      "admin.catalog_publish": "Katalog yayınla",
+      "settings.backup": "Ayar yedeği",
+      "settings.restore": "Ayarları geri yükle",
+      "settings.database": "Veritabanı yedeği"
     }
   },
   "discountEngine": {

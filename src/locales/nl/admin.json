@@ -835,7 +835,10 @@
       "reports": "Rapporten",
       "inventory": "Voorraad",
       "settings": "Instellingen",
-      "admin.catalog_publish": "Catalogus publiceren"
+      "admin.catalog_publish": "Catalogus publiceren",
+      "settings.backup": "Instellingenback-up",
+      "settings.restore": "Instellingen herstellen",
+      "settings.database": "Databaseback-up"
     }
   },
   "discountEngine": {
