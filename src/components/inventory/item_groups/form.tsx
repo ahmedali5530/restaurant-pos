@@ -57,7 +57,7 @@ export const InventoryItemGroupForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 99999, [], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 99999, [], {
     enabled: false
   });
 

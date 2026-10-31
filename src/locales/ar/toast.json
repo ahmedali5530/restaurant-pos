@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "تعذّر إنشاء رقم الفاتورة التالي",
     "unableGenerateReturnNumber": "تعذّر إنشاء رقم الإرجاع التالي",
     "unableGeneratePoNumber": "تعذّر إنشاء رقم أمر الشراء التالي",
-    "itemsExceedQuantity": "صنف واحد أو أكثر يتجاوز الكمية المتاحة"
+    "itemsExceedQuantity": "صنف واحد أو أكثر يتجاوز الكمية المتاحة",
+    "itemDeactivated": "{{name}} قيد الاستخدام وتم تعطيله.",
+    "itemDeleted": "تم حذف {{name}} بنجاح.",
+    "itemDeleteFailed": "فشل حذف {{name}}."
   },
   "delivery": {
     "settingsSaved": "تم حفظ إعدادات التوصيل بنجاح",
@@ -136,7 +139,9 @@
     "invalidPriority": "الأولوية غير صالحة",
     "invalidRequiredModifiers": "قيمة المعدّلات المطلوبة غير صالحة",
     "loginTaken": "يوجد مستخدم آخر يستخدم هذا الاسم/PIN بالفعل — اختر غيره.",
-    "passwordTaken": "يوجد مستخدم آخر يستخدم كلمة المرور هذه بالفعل — اختر غيرها."
+    "passwordTaken": "يوجد مستخدم آخر يستخدم كلمة المرور هذه بالفعل — اختر غيرها.",
+    "dishCostsSynced": "تم تحديث تكاليف {{dishes}} طبق/أطباق من {{items}} صنف/أصناف مخزون",
+    "barcodeInUse": "الباركود {{code}} مستخدم بالفعل في {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} قيد الاستخدام وتم تعطيله.",

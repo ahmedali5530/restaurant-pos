@@ -16,7 +16,11 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {parseItemTypesInput} from "@/utils/inventoryItemTypes.ts";
-import {formatUomList, normalizeUom} from "@/utils/inventoryUom.ts";
+import {
+  formatUomList,
+  looksLikeNumericPackSize,
+  normalizeUom,
+} from "@/utils/inventoryUom.ts";
 import {getActiveInventoryUoms} from "@/lib/inventory/uom.catalog.ts";
 import {assertItemUomChangeAllowed} from "@/lib/inventory/item.uom.lock.ts";
 
@@ -71,19 +75,42 @@ export function createInventoryItemImportConfig({
       label: t("inventory:columns.uom"),
       type: "string",
       required: true,
-      aliases: ["UOM", "Unit"],
+      aliases: [
+        "UOM",
+        "Unit",
+        "Units",
+        "Unit of measurement",
+        "Unit of measure",
+        "UoM",
+        "Measurement",
+        "Measure",
+      ],
       description: `Must be one of: ${formatUomList()}`,
       allowedValues: getActiveInventoryUoms().map((u) => u.code),
       transform: (value) => {
         if (value === null || value === undefined || value === "") return value;
         const raw = String(value).trim();
         if (!raw) return raw;
+        // Pack/case sizes (e.g. "24") are not UOMs.
+        if (looksLikeNumericPackSize(raw)) return "";
         return normalizeUom(raw) ?? raw;
       },
     },
-    {name: "base_quantity", label: t("inventory:columns.baseQuantity"), type: "number", defaultValue: 1, optional: true},
-    {name: "price", label: t("inventory:columns.price"), type: "number", defaultValue: 0},
-    {name: "average_price", label: t("inventory:columns.avgPrice"), type: "number", defaultValue: 0, optional: true},
+    {
+      name: "price",
+      label: t("inventory:columns.price"),
+      type: "number",
+      defaultValue: 0,
+      aliases: ["Unit price", "Price", "Sale price"],
+    },
+    {
+      name: "average_price",
+      label: t("inventory:columns.avgPrice"),
+      type: "number",
+      defaultValue: 0,
+      optional: true,
+      aliases: ["Avg Price", "Average price", "Avg price"],
+    },
     {
       name: "locations",
       label: t("inventory:tabs.locations"),
@@ -139,9 +166,10 @@ export function createInventoryItemImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions: [
-      "Extract inventory items with name, code, category, UOM, quantities, prices, locations, and suppliers.",
+      "Extract inventory items with name, code, category, UOM, prices, locations, and suppliers.",
       "Do not invent codes.",
-      `UOM must be one of: ${formatUomList()}. Map synonyms (kg, kilogram, pcs, litre, etc.) to these codes.`,
+      `UOM must be one of: ${formatUomList()}. Map synonyms (kg, kilogram, pcs, litre, pac, pack, etc.) to these codes.`,
+      "Do not extract base quantity — it is unused.",
       "For category, locations, and suppliers, prefer exact names from the Known values list when the document text is a close or extended variant (e.g. \"Main store\" → \"Main\").",
       "item_types must be raw, semi_finished, and/or finished.",
     ].join(" "),
@@ -251,7 +279,7 @@ export function createInventoryItemImportConfig({
         if (unsupported.includes(field)) {
           throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
         }
-        if (field === "base_quantity" || field === "price" || field === "average_price") {
+        if (field === "price" || field === "average_price") {
           return {column: field, value: Number(value)};
         }
         return {column: field, value};
@@ -261,7 +289,7 @@ export function createInventoryItemImportConfig({
         ctx.mode === "create"
           ? []
           : await findCsvImportMatches(db, Tables.inventory_items, conditions, {
-              softDelete: false,
+              softDelete: true,
             });
 
       if (existing.length === 1) {

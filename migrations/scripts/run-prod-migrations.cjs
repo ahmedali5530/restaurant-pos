@@ -131,6 +131,14 @@ const MIGRATION_PLAN = [
   { id: '2026_10_20_inventory_uom_catalog', file: '2026_10_20_inventory_uom_catalog.surql' },
   { id: '2026_10_21_printer_command_set', file: '2026_10_21_printer_command_set.surql' },
   { id: '2026_10_22_kitchen_recon_entered_uom', file: '2026_10_22_kitchen_recon_entered_uom.surql' },
+  { id: '2026_10_23_menu_item_barcode', file: '2026_10_23_menu_item_barcode.surql' },
+  { id: '2026_10_23_menu_item_availability', file: '2026_10_23_menu_item_availability.surql' },
+  { id: '2026_10_24_menu_item_barcodes', file: '2026_10_24_menu_item_barcodes.surql' },
+  { id: '2026_10_26_audit_events_type_string', file: '2026_10_26_audit_events_type_string.surql' },
+  { id: '2026_10_26_menu_item_ask_quantity', file: '2026_10_26_menu_item_ask_quantity.surql' },
+  { id: '2026_10_26_menu_item_modifier_availability', file: '2026_10_26_menu_item_modifier_availability.surql' },
+  { id: '2026_10_29_inventory_item_deleted_at', file: '2026_10_29_inventory_item_deleted_at.surql' },
+  { id: '2026_10_30_kra_etims', file: '2026_10_30_kra_etims.surql' },
 ];
 
 const rows = (result) => {

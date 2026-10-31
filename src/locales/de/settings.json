@@ -339,7 +339,7 @@
       "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
       "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
-      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+      "provider_defined": "Vorteile: POSR speichert, was FBR/PRA/KRA zurückgeben. Nachteile: kein POSR-Nummerngeber — mit Fiskalintegrationen verwenden."
     }
   },
   "catalogSync": {
@@ -362,5 +362,36 @@
     "progressTable": "Lade {{table}} herunter…",
     "progressCount": "{{completed}} / {{total}} Tabellen ({{percent}}%)",
     "reloadCacheHint": "Katalog-Sync abgeschlossen. Cache in den Einstellungen neu laden, damit die Kasse das neue Menü übernimmt."
+  },
+  "posMode": {
+    "title": "Kassenmodus",
+    "description": "Wählen Sie Restaurant (Tische und Etagen) oder Schnellbestellung (Barcode scannen und zahlen) für dieses Gerät.",
+    "restaurant": "Restaurant",
+    "retail": "Schnellbestellung"
+  },
+  "itemAvailability": {
+    "title": "Verkaufslimits erzwingen",
+    "description": "Ausverkaufte Gerichte werden immer blockiert. Verkaufslimits sind standardmäßig aktiv (Verkäufe seit Setzen des Limits abzüglich Warenkorb). Ausschalten ignoriert nur Verkaufslimits.",
+    "enabled": "Aktiv",
+    "disabled": "Inaktiv"
+  },
+  "scaleBarcode": {
+    "title": "Waagen-Barcodes (EAN-13)",
+    "description": "Wiegeetiketten von Metzger-/Bäckereiwagen auslesen. Die 5-stellige PLU muss der Gerichtenummer (oder dem Barcode) entsprechen. Standard: 20 + PLU(5) + Wert(5) + Prüfziffer.",
+    "enabled": "Waagen-Barcodes aktivieren",
+    "modeWeight": "Gewicht (Gramm → kg)",
+    "modePrice": "Preis eingebettet",
+    "modeWeightHint": "Wertziffern = Gewicht in Gramm. Warenkorbmenge in Kilogramm (÷ Gewichtsdivisor). Gerichtspreis × kg.",
+    "modePriceHint": "Wertziffern = Preis in KleinstEinheiten. Zeile mit diesem Preis bei Menge 1.",
+    "prefix": "Präfix",
+    "validateCheck": "Prüfziffer prüfen",
+    "pluStart": "PLU-Start (0-basiert)",
+    "pluLength": "PLU-Länge",
+    "valueStart": "Wert-Start (0-basiert)",
+    "valueLength": "Wert-Länge",
+    "weightDivisor": "Gewichtsdivisor (g→kg)",
+    "priceDivisor": "Preisdivisor (Klein→Groß)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Standard wiederherstellen (aktiviert lassen)"
   }
 }

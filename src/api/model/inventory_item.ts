@@ -21,4 +21,5 @@ export interface InventoryItem{
   average_price: number
   reorder_levels?: Record<string, number>
   taxable?: boolean
+  deleted_at?: Date | null
 }

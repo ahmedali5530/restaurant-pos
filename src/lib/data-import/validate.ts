@@ -34,6 +34,7 @@ export function validateRecord(
       i.code === "custom" ||
       i.code === "auto_corrected" ||
       i.code === "invalid_type"
+    // cross_field is rebuilt by onValidateRecords
   );
   const issues: ImportIssue[] = [...preserved];
 
@@ -199,7 +200,12 @@ export async function validateRecords(
 
   for (const record of records) {
     throwIfAborted(options?.signal);
-    record.issues = validateRecord(config, record);
+    // Drop previous cross_field issues; onValidateRecords rebuilds them.
+    record.issues = validateRecord(config, record).filter((i) => i.code !== "cross_field");
+  }
+
+  if (config.onValidateRecords) {
+    await config.onValidateRecords(config, records, {signal: options?.signal});
   }
 
   flagBatchDuplicates(config, records);

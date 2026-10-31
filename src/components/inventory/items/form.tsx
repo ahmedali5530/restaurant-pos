@@ -260,9 +260,17 @@ export const InventoryItemForm = ({
 
       closeModal();
       toast.success(t('toast:inventory.itemSaved', { name: values.name }));
-    } catch ( e ) {
-      console.log(e)
-      toast.error(e);
+    } catch (e) {
+      console.error(e);
+      const message = e instanceof Error ? e.message : String(e);
+      toast.error(
+        message.includes("Stock unit cannot be changed")
+          ? t("uom.errors.stockUnitLocked", {
+              defaultValue:
+                "Stock unit cannot be changed after the item has ledger movements or recipe quantities",
+            })
+          : message
+      );
     }
   }
 

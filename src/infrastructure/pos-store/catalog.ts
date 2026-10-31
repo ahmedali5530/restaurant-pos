@@ -119,6 +119,7 @@ export async function loadHydratedCatalog(): Promise<{
   menus: any[];
   modifier_groups: any[];
   groups_dishes: any[];
+  modifier_availability: any[];
   workflows: any[];
   workflow_stages: any[];
   extras: any[];
@@ -142,6 +143,7 @@ export async function loadHydratedCatalog(): Promise<{
     modifier_groups,
     modifiers,
     groups_dishes,
+    modifier_availabilityRaw,
     workflows,
     workflow_stages,
     extrasRaw,
@@ -164,6 +166,7 @@ export async function loadHydratedCatalog(): Promise<{
     getCatalogTable('modifier_group'),
     getCatalogTable('modifier'),
     getCatalogTable('menu_item_modifier_group'),
+    getCatalogTable('menu_item_modifier_availability'),
     getCatalogTable('workflow'),
     getCatalogTable('workflow_stage'),
     getCatalogTable('extra'),
@@ -288,6 +291,12 @@ export async function loadHydratedCatalog(): Promise<{
     }))
     .sort((a, b) => Number(a.priority ?? 0) - Number(b.priority ?? 0));
 
+  const hydratedModifierAvailability = (modifier_availabilityRaw ?? []).map((row) => ({
+    ...row,
+    parent: resolveOne(row.parent, dishHydratedMap) ?? row.parent,
+    option: resolveOne(row.option, dishHydratedMap) ?? row.option,
+  }));
+
   const hydratedTables = tables
     .map((table) => ({
       ...table,
@@ -320,6 +329,7 @@ export async function loadHydratedCatalog(): Promise<{
     menus: menusForSettings,
     modifier_groups: hydratedGroups,
     groups_dishes: hydratedGroupsDishes,
+    modifier_availability: hydratedModifierAvailability,
     workflows: [...workflowMap.values()],
     workflow_stages,
     extras: hydratedExtras,

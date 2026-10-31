@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Nächste Rechnungsnummer konnte nicht generiert werden",
     "unableGenerateReturnNumber": "Nächste Rückgabenummer konnte nicht generiert werden",
     "unableGeneratePoNumber": "Nächste Bestellnummer konnte nicht generiert werden",
-    "itemsExceedQuantity": "Ein oder mehrere Artikel überschreiten die verfügbare Menge"
+    "itemsExceedQuantity": "Ein oder mehrere Artikel überschreiten die verfügbare Menge",
+    "itemDeactivated": "{{name}} wird verwendet und wurde deaktiviert.",
+    "itemDeleted": "{{name}} erfolgreich gelöscht.",
+    "itemDeleteFailed": "{{name}} konnte nicht gelöscht werden."
   },
   "delivery": {
     "settingsSaved": "Liefereinstellungen erfolgreich gespeichert",
@@ -136,7 +139,9 @@
     "invalidPriority": "Priorität ist ungültig",
     "invalidRequiredModifiers": "Wert für erforderliche Modifier ist ungültig",
     "loginTaken": "Ein anderer Benutzer hat bereits diese Anmeldung/PIN – wählen Sie eine andere.",
-    "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes."
+    "passwordTaken": "Ein anderer Benutzer hat bereits dieses Passwort – wählen Sie ein anderes.",
+    "dishCostsSynced": "Kosten für {{dishes}} Gericht(e) aus {{items}} Inventarartikel(n) aktualisiert",
+    "barcodeInUse": "Barcode {{code}} wird bereits von {{name}} verwendet"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} wird verwendet und wurde deaktiviert.",

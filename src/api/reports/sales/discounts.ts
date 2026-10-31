@@ -17,12 +17,11 @@ export const getDiscountSummary = async (
   options: DateRangeFilter & {billPercentThreshold?: number} = {},
 ) => {
   const billPercentThreshold = options.billPercentThreshold ?? 20;
-  const orders = await fetchPaidOrders(db, {
+  const discountedOrders = await fetchPaidOrders(db, {
     ...options,
     fetches: DISCOUNT_FETCHES,
+    hasDiscount: true,
   });
-
-  const discountedOrders = orders.filter(orderHasDiscount);
 
   const byType = aggregateOrderDiscountBreakdown(discountedOrders, 'name').map(row => ({
     type: row.rateLabel !== '-' ? `${row.name} (${row.rateLabel})` : row.name,

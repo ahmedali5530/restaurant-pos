@@ -663,10 +663,15 @@
     },
     "errors": {
       "inUse": "Kan {{code}} niet deactiveren: gebruikt door {{count}} artikel(en)",
-      "duplicateCode": "Eenheidscode {{code}} bestaat al"
+      "duplicateCode": "Eenheidscode {{code}} bestaat al",
+      "stockUnitLocked": "Voorraadeenheid kan niet worden gewijzigd nadat het artikel voorraadbewegingen of recepthoeveelheden heeft"
     },
     "toast": {
       "saved": "Eenheid {{code}} opgeslagen"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} verwijderen",
+    "itemMessage": "Ongebruikte artikelen worden verwijderd. Staat het alleen in gerechtrecepten, dan worden die regels ook verwijderd. Bij voorraadhistorie of documenten wordt het gedeactiveerd."
   }
 }

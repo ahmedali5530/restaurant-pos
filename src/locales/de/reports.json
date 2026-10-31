@@ -197,6 +197,10 @@
     "coupon": "Gutschein",
     "discount": "Rabatt",
     "tax": "Steuer",
+    "taxFilter": "Steuerfilter",
+    "withTax": "Mit Steuer",
+    "withoutTax": "Ohne Steuer",
+    "selectSpecificTaxes": "Bestimmte Steuern auswählen (optional)",
     "provider": "Anbieter",
     "store": "Lagerort",
     "kitchen": "Küche",
@@ -390,7 +394,16 @@
     "menu": "Menü",
     "issue": "Ausgabe",
     "employee": "Mitarbeiter",
-    "turnTime": "Turn-Time (Min.)"
+    "turnTime": "Turn-Time (Min.)",
+    "metric": "Kennzahl",
+    "purchasedQty": "Einkaufsmenge",
+    "purchasedCost": "Einkaufskosten",
+    "issuedQty": "Ausgabemenge",
+    "issuedCost": "Ausgabekosten",
+    "consumedQty": "Verbrauchsmenge",
+    "consumedCost": "Verbrauchskosten",
+    "qtyVariance": "Mengenabweichung",
+    "costVariance": "Kostenabweichung"
   },
   "labels": {
     "modifiers": "Modifikatoren",
@@ -599,7 +612,15 @@
     "selfOrdersHint": "Von Gästen am Tisch online bezahlt — nicht in der Kasse oder im Kartenabschluss oben enthalten.",
     "selfOrdersTotal": "Online bezahlt",
     "selfOrdersTestWarning": "{{count}} Testbestellung(en) ({{amount}}) — dafür wurde kein Geld eingezogen.",
-    "testPayment": "Test"
+    "testPayment": "Test",
+    "saleVsConsumption": "Verkauf vs. Verbrauch",
+    "saleVsIssuance": "Verkauf vs. Bestand (Ausgabe)",
+    "saleVsPurchase": "Verkauf vs. Einkauf",
+    "saleTotal": "Verkauf gesamt",
+    "purchaseTotal": "Einkauf gesamt",
+    "profitPercent": "Gewinnprozent",
+    "byItem": "Nach Artikel",
+    "qtyVarianceHelp": "Mengenabweichung = ausgegeben − Rezeptverbrauch (positiv = mehr ausgegeben als Rezept). Verbrauchskosten nutzen den Perioden-Einkaufseinheitspreis, sonst den Katalog-Durchschnittspreis."
   },
   "metrics": {
     "gross": "Brutto",
@@ -706,6 +727,8 @@
     "noDiscountsByUsers": "Keine Rabatte nach Benutzer für den ausgewählten Zeitraum.",
     "noDiscountRows": "Keine Rabattzeilen für den ausgewählten Zeitraum gefunden.",
     "noEmployeeSales": "Keine Mitarbeiterverkaufsdaten verfügbar",
-    "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum"
+    "noScheduleRoster": "Keine geplanten Schichten für den ausgewählten Zeitraum",
+    "noData": "Keine Daten verfügbar",
+    "noItemActivity": "Keine Einkaufs-, Ausgabe- oder Rezeptverbrauchsaktivität für den ausgewählten Zeitraum."
   }
 }

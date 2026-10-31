@@ -21,6 +21,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {faSearch} from "@fortawesome/free-solid-svg-icons";
 import {MenuCategories} from "@/components/menu/categories.tsx";
 import {DishSearchKeyboard} from "@/components/menu/dish.search.keyboard.tsx";
+import {useDishAvailabilitySoldMap} from "@/hooks/useDishAvailabilitySoldMap.ts";
 
 export const MenuDishes = () => {
   const {t} = useTranslation('menu');
@@ -34,6 +35,7 @@ export const MenuDishes = () => {
   const [settings] = useAtom(appSettings);
   const [page] = useAtom(appPage);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  useDishAvailabilitySoldMap();
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const enableDishSearch = !!page.menuConfig?.enableDishSearch;
   const dishSearchType: DishSearchType = page.menuConfig?.dishSearchType ?? 'number';

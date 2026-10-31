@@ -164,7 +164,8 @@
     "recordNotFound": "Geen overeenkomend record gevonden om bij te werken.",
     "multipleMatches": "Meerdere records komen overeen met de geselecteerde kolommen.",
     "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\".",
-    "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}."
+    "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}.",
+    "ambiguousDishNumber": "Meerdere gerechten delen nummer \"{{number}}\". Geef id (menu_item:…) of een unieke naam."
   },
   "loading": "Laden...",
   "dataImport": {
@@ -227,7 +228,11 @@
         "nested_override": "Geneste prijsoverschrijving"
       }
     },
-    "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost."
+    "ingredientMustExist": "Moet exact overeenkomen met een bestaande voorraadartikelnaam of -code (hoofdletterongevoelig). Kies uit de lijst als het niet is opgelost.",
+    "unknownUom": "Onbekende eenheid \"{{uom}}\"",
+    "incompatibleUom": "Eenheid \"{{entered}}\" kan niet worden omgerekend naar voorraadeenheid \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "Ingrediënt heeft geen voorraad-UOM; kan \"{{uom}}\" niet controleren",
+    "recipeCostExceedsPrice": "Receptkosten {{recipeCost}} overschrijden de gerechtprijs {{price}} voor \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "{{name}} openen",
@@ -255,9 +260,46 @@
       "addDish": "Nieuw gerecht Margherita toevoegen voor €x",
       "listUsers": "Alle POS-gebruikers weergeven",
       "inventoryStock": "Voorraadartikelen onder bestelniveau tonen",
-      "howToPurchase": "Hoe boekt u een voorraadaankoop?"
+      "howToPurchase": "Hoe boekt u een voorraadaankoop?",
+      "cleanseCsv": "Voeg een rommelige CSV toe om te opschonen voor AI Import"
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
-    "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging"
+    "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging",
+    "cleanseTitle": "Importbestand opschonen",
+    "attachFile": "CSV/Excel bijvoegen",
+    "cleanseDomain": "Importdomein",
+    "cleanseRun": "Opschonen & CSV voorbereiden",
+    "cleanseDownload": "Gecorrigeerde CSV downloaden",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    }
   }
 }

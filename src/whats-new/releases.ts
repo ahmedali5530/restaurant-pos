@@ -15,6 +15,173 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-31',
+    title: 'Quick Order as its own build module',
+    items: [
+      'Quick Order is no longer tied to the floor Menu build flag. Use VITE_APP_MODULES_EXCLUDE=quick to omit the /quick screen, sidebar entry, POS mode card, and scale barcode settings while keeping the restaurant menu.',
+      'HQ exclude lists that previously dropped menu must also list quick, because excluding menu alone no longer removes Quick Order.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'Printer connectivity test',
+    items: [
+      'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',
+      'The printer row keeps the result: Printed when the server finished sending the slip, or the print server error (HTTP status and message) when it did not.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Menu tree on Dishes',
+    items: [
+      'Manage → Dishes includes a Menu tree button that opens a full-width SVG map: categories branch into dishes, then modifier groups and modifiers (including nested groups), with zoom, pan, and fit-to-screen.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Kenya KRA eTIMS fiscalization',
+    items: [
+      'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
+      'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
+      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Sale vs Consumption by item',
+    items: [
+      'Sale vs Consumption now lists each inventory item’s purchased, issued, and recipe-implied consumed qty/cost for the selected dates, with qty and cost variance (issued − consumed).',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Inventory item soft delete',
+    items: [
+      'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Assistant CSV cleanse and chat context',
+    items: [
+      'Attach a messy CSV/Excel in the AI assistant, pick an import domain (dishes, inventory, HR, accounts, and other AI Import screens), then download a corrected CSV to import on that screen.',
+      'Inventory item import no longer includes base quantity (unused after UOM conversion); UOM cleanse still maps synonyms and rejects pack-size numbers as units.',
+      'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
+      'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
+      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
+      'Assistant dish updates prefer matching by dish id from list_menu_items (numbers can be duplicated); duplicate numbers require id or a unique name.',
+      'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Faster reports for long date ranges',
+    items: [
+      'Report filters (taxes, discounts, categories, menu items, payments, shifts, locations, and more) are applied in the database instead of after loading every matching order.',
+      'Sales Dashboard loads paid KPIs and open delivery orders in separate queries so multi-month ranges no longer pull every order status into the browser.',
+      'Product Mix Summary, detailed inventory, kitchen reconciliation, and AI/ops helpers (discounts, cash audit, tips, dine-in analytics) follow the same push-down pattern.',
+    ],
+  },
+  {
+    date: '2026-10-27',
+    title: 'Update dish costs from inventory prices',
+    items: [
+      'Settings → Dishes has Update costs from items: with confirmation, unlocked recipe lines take the current inventory item price and each dish cost is recalculated (price-locked lines stay as they are).',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Modifier availability',
+    items: [
+      'Sale limits and sold-out now count modifier picks as well as top-level dishes (cart, sold map, and settle).',
+      'Manage → Dishes: under each modifier group, set Available / Sale limit for an option on this parent dish only (e.g. Large sold out on Chicken Tikka but still available on Margherita). Global dish availability still applies as a ceiling.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Advanced Sales report: taxes filter and faster long ranges',
+    items: [
+      'Advanced Sales filter can narrow by specific taxes (in addition to with/without tax), matching both legacy order tax and order tax lines.',
+      'The Advanced Sales orders table is virtualized so multi-month ranges stay responsive while scrolling; printing still includes every row.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Dish recipe export and inventory cost precision',
+    items: [
+      'Dish ingredient export includes entered UOM and the item’s stock UOM for reference, sorted by dish name.',
+      'Recipe line totals and dish cost from recipes use inventory decimal places (VITE_INVENTORY_DECIMAL_PLACES), not POS currency decimals.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Role updates no longer fail on audit log',
+    items: [
+      'Saving a user role no longer errors with audit_user_role_update / “record is not a function” — audit events no longer read $auth fields inside SurrealDB 3.x event closures.',
+    ],
+  },
+  {
+    date: '2026-10-26',
+    title: 'Per-dish ask quantity',
+    items: [
+      'Manage → Dishes: Ask quantity switch (and CSV column). When on, Menu and Quick Order prompt for qty after scan or tap for that dish only. CODE*N, *N, and scale labels still skip.',
+    ],
+  },
+  {
+    date: '2026-10-25',
+    title: 'Unique dish barcodes',
+    items: [
+      'Dish form and CSV import block saving when a primary or extra barcode is already used by another dish (same-dish duplicates are still cleaned automatically).',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Scale / weigh-label barcodes',
+    items: [
+      'Settings → Scale barcodes: enable EAN-13 weigh labels (butcher/bakery). Default layout 20 + PLU(5) + grams(5) + check; cart qty is kilograms and uses the dish price per kg.',
+      'Optional price-embedded mode for scales that encode amount instead of weight. PLU matches dish Number (leading zeros ignored) or barcode.',
+      'Quick Order reads scale codes before normal UPC lookup; fractional kg quantities are supported in the cart.',
+    ],
+  },
+  {
+    date: '2026-10-24',
+    title: 'Retail counter UX',
+    items: [
+      'Dishes support multiple barcodes (primary + aliases) for case/sleeve/alt UPCs; CSV import accepts an Extra barcodes column.',
+      'Quick Order qty after scan: type CODE*6 or *6 (last item) then Enter to add several units in one go.',
+      'Open customer display from Quick Order or Menu for a second-monitor cart and large total that updates live as you order and pay.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Item availability & sale limits',
+    items: [
+      'Dishes can be marked available/sold out and given an optional sale limit (units sold since you set the limit, minus the cart).',
+      'Manage → Availability: bulk update by selection or whole category; dish form also has Available + Sale limit.',
+      'Sold-out dishes are always blocked on Menu, Quick Order, and settle. Sale limits (available_qty) are on by default and count units sold since the limit was set (minus cart); Settings can turn limits off.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'Quick Order / retail mode',
+    items: [
+      'New Quick Order screen (/quick): scan barcodes with a USB wedge, browse items, and pay — built for liquor stores, bakeries, and counter shops.',
+      'Settings → POS mode switches this device between Restaurant (floors/tables) and Quick Order; retail login opens Quick Order by default.',
+      'Dishes support an optional Barcode field (and CSV import) for scan lookup; PLU/number still works as fallback. Kitchen send is hidden on Quick Order — Pay Now settles tableless checks.',
+    ],
+  },
+  {
+    date: '2026-10-23',
+    title: 'AI dish recipe lookup',
+    items: [
+      'Ask AI what ingredients are in a dish (by name or number) to get the recipe lines — quantity, unit, and cost — without looping through unrelated tools.',
+      'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
+      'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
+      'Ask for dish → recipe counts (e.g. “dish name -> number of recipes”) to audit every dish’s recipe line count without ingredient detail.',
+
+    ],
+  },
+  {
     date: '2026-10-22',
     title: 'Inventory UX polish',
     items: [

@@ -57,12 +57,12 @@ export const CurrentInventoryReport = () => {
         setLoading(true);
         setError(null);
 
-        let itemsQuery = `SELECT * FROM ${Tables.inventory_items} FETCH category`;
+        let itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE deleted_at = none FETCH category`;
         const itemsParams: Record<string, any> = {};
         if (filters.itemIds.length > 0) {
           const itemFilter = buildRecordInsideCondition('id', filters.itemIds, 'itemIds');
           if (itemFilter.condition) {
-            itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE ${itemFilter.condition} FETCH category`;
+            itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE deleted_at = none AND ${itemFilter.condition} FETCH category`;
             Object.assign(itemsParams, itemFilter.params);
           }
         }

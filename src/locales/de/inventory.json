@@ -663,10 +663,15 @@
     },
     "errors": {
       "inUse": "{{code}} kann nicht deaktiviert werden: von {{count}} Artikel(n) verwendet",
-      "duplicateCode": "Einheitscode {{code}} existiert bereits"
+      "duplicateCode": "Einheitscode {{code}} existiert bereits",
+      "stockUnitLocked": "Die Bestandseinheit kann nicht geändert werden, nachdem das Element Lagerbewegungen oder Rezeptmengen hat"
     },
     "toast": {
       "saved": "Einheit {{code}} gespeichert"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} löschen",
+    "itemMessage": "Ungenutzte Artikel werden entfernt. Steht der Artikel nur in Gerichte-Rezepten, werden diese Zeilen ebenfalls entfernt. Bei Lagerhistorie oder Belegen wird er deaktiviert."
   }
 }

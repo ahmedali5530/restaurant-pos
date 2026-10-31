@@ -24,7 +24,8 @@
     "accessTab": "Access {{title}}",
     "ariaLabel": "Administration tabs",
     "securityAlerts": "Security Alerts",
-    "catalogPublish": "Catalog publish"
+    "catalogPublish": "Catalog publish",
+    "availability": "Availability"
   },
   "catalogPublish": {
     "noAccess": "You need Catalog publish permission to use this screen.",
@@ -162,7 +163,15 @@
     "recordType": "Row type",
     "dishName": "Dish",
     "parentModifier": "Parent size",
-    "nextGroup": "Next group"
+    "nextGroup": "Next group",
+    "itemStockUom": "Item stock UOM",
+    "itemStockUomHint": "Reference only — inventory item stock unit. Not applied on import.",
+    "enteredUomHint": "Entered unit for quantity (convertible family of the item stock UOM).",
+    "barcode": "Barcode",
+    "available": "Available",
+    "availableQty": "Sale limit",
+    "extraBarcodes": "Extra barcodes",
+    "askQuantity": "Ask quantity"
   },
   "entities": {
     "dish": "Dish",
@@ -221,7 +230,9 @@
     "smartImport": "AI Import",
     "smartImportIngredients": "AI Import Ingredients",
     "smartImportModifierGroups": "AI Import Modifier Groups",
-    "smartImportMenuStructure": "AI Import Menu Structure"
+    "smartImportMenuStructure": "AI Import Menu Structure",
+    "syncDishCosts": "Update costs from items",
+    "menuTree": "Menu tree"
   },
   "delete": {
     "dish": "Delete item {{name}}",
@@ -503,7 +514,25 @@
     "usePrintSettings": "Use print settings",
     "userBranches": "Branches",
     "userBranchesShared": "All branches (shared)",
-    "userBranchesHint": "Leave empty for a shared employee on every store. Select branches to limit Sync now download to those stores."
+    "userBranchesHint": "Leave empty for a shared employee on every store. Select branches to limit Sync now download to those stores.",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Available on menu",
+    "availableQty": "Sale limit",
+    "availableQtyHint": "Sales count from the time you save this limit. Leave empty for unlimited.",
+    "extraBarcodes": "Additional barcodes",
+    "extraBarcodesHint": "Case, sleeve, or alternate UPCs that scan to this item",
+    "extraBarcodesEmpty": "No extra barcodes yet",
+    "addBarcode": "Add barcode",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Ask quantity",
+    "askQuantityHint": "When on, Menu and Quick Order ask for quantity after scan or tap (CODE*N / scale labels still skip).",
+    "modifierOptionAvailability": "Modifier availability (this dish)",
+    "modifierOptionAvailable": "Available for this dish",
+    "modifierOptionAvailableHint": "Leave defaults to use global dish availability. Turn off or set a sale limit to override for this parent dish only.",
+    "modifierOptionSaleLimit": "Sale limit (this dish)",
+    "kraItemClsCd": "KRA item class code",
+    "kraTaxTyCd": "KRA tax type (A–E)",
+    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -1119,5 +1148,69 @@
     "themeTitle": "Customer page theme",
     "themeDescription": "Colors for the QR ordering page. Light/dark can follow each customer’s phone.",
     "themeMode": "Appearance"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Update dish costs",
+    "syncDishCostsMessage": "Update unlocked recipe line costs from current inventory item prices, then recalculate each dish cost. Price-locked recipe lines are left unchanged."
+  },
+  "availability": {
+    "title": "Item availability",
+    "description": "Mark dishes available or sold out, and set optional sale limits for multiple items or a whole category.",
+    "allCategories": "All",
+    "selectAll": "Select all",
+    "applyToCategory": "Apply to whole category",
+    "targetsCategory": "{{count}} dishes in category",
+    "targetsSelected": "{{count}} selected",
+    "markAvailable": "Available",
+    "markUnavailable": "Sold out",
+    "saleLimit": "Limit",
+    "setLimit": "Set limit",
+    "clearLimit": "Unlimited",
+    "selectDishes": "Select dishes or enable apply to category",
+    "enterQty": "Enter a sale limit",
+    "saved": "Updated {{count}} dishes",
+    "empty": "No dishes in this category",
+    "available": "Available",
+    "unavailable": "Sold out"
+  },
+  "menuTree": {
+    "title": "Menu tree",
+    "search": "Search",
+    "searchPlaceholder": "Filter by name…",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "loading": "Loading menu tree…",
+    "empty": "No menu items to show.",
+    "uncategorized": "Uncategorized",
+    "required": "Required",
+    "hidden": "Hidden",
+    "hiddenFromMenu": "Hidden from menu",
+    "kind": {
+      "category": "Category",
+      "dish": "Dish",
+      "modifierGroup": "Modifier group",
+      "modifier": "Modifier",
+      "uncategorized": "Uncategorized"
+    },
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to screen",
+    "panHint": "Drag to pan · scroll to zoom"
+  },
+  "printers": {
+    "testPrint": "Test print",
+    "testPrintAccess": "Test print {{name}}",
+    "testPrintOk": "Printed. The server sent the test slip to {{name}}{{address}}.",
+    "testPrintError": "Print server error for {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Unknown print server error",
+    "slip": {
+      "title": "TEST PRINT",
+      "name": "Name",
+      "type": "Type",
+      "address": "Address",
+      "ok": "If you can read this, the printer is connected."
+    }
   }
 }

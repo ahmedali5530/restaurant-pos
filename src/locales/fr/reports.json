@@ -197,6 +197,10 @@
     "coupon": "Coupon",
     "discount": "Remise",
     "tax": "Taxe",
+    "taxFilter": "Filtre de taxe",
+    "withTax": "Avec taxe",
+    "withoutTax": "Sans taxe",
+    "selectSpecificTaxes": "Sélectionner des taxes spécifiques (facultatif)",
     "provider": "Prestataire",
     "store": "Magasin",
     "kitchen": "Cuisine",
@@ -390,7 +394,16 @@
     "menu": "Menu",
     "issue": "Sortie",
     "employee": "Employé",
-    "turnTime": "Temps de rotation (min)"
+    "turnTime": "Temps de rotation (min)",
+    "metric": "Indicateur",
+    "purchasedQty": "Qté achetée",
+    "purchasedCost": "Coût achat",
+    "issuedQty": "Qté émise",
+    "issuedCost": "Coût émis",
+    "consumedQty": "Qté consommée",
+    "consumedCost": "Coût consommé",
+    "qtyVariance": "Écart qté",
+    "costVariance": "Écart coût"
   },
   "labels": {
     "modifiers": "Modificateurs",
@@ -599,7 +612,15 @@
     "selfOrdersHint": "Payées en ligne par les clients à table — hors caisse et hors lot carte ci-dessus.",
     "selfOrdersTotal": "Payé en ligne",
     "selfOrdersTestWarning": "{{count}} commande(s) de test ({{amount}}) — aucun argent encaissé.",
-    "testPayment": "Test"
+    "testPayment": "Test",
+    "saleVsConsumption": "Ventes vs consommation",
+    "saleVsIssuance": "Ventes vs stock (émission)",
+    "saleVsPurchase": "Ventes vs achats",
+    "saleTotal": "Total des ventes",
+    "purchaseTotal": "Total des achats",
+    "profitPercent": "Pourcentage de profit",
+    "byItem": "Par article",
+    "qtyVarianceHelp": "Écart qté = émis − consommation recette (positif = plus émis que la recette). Le coût consommé utilise le coût unitaire d’achat de la période s’il y a des achats, sinon le prix moyen du catalogue."
   },
   "metrics": {
     "gross": "Brut",
@@ -706,6 +727,8 @@
     "noDiscountsByUsers": "Aucune remise par utilisateur pour la période sélectionnée.",
     "noDiscountRows": "Aucune ligne de remise trouvée pour la période sélectionnée.",
     "noEmployeeSales": "Aucune donnée de ventes par employé disponible",
-    "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée"
+    "noScheduleRoster": "Aucun quart planifié pour la période sélectionnée",
+    "noData": "Aucune donnée disponible",
+    "noItemActivity": "Aucune activité d’achat, d’émission ou de consommation de recette pour la période sélectionnée."
   }
 }

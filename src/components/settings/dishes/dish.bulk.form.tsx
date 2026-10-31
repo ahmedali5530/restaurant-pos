@@ -28,7 +28,7 @@ import {canUseInDishRecipe} from "@/utils/inventoryItemTypes.ts";
 import {StringRecordId, type RecordId} from "surrealdb";
 import React, {useEffect, useState} from "react";
 import {formatFileSize, MAX_UPLOAD_BYTES} from "@/utils/files";
-import {withCurrency} from "@/lib/utils.ts";
+import {roundInventory, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import { useHqCatalogBranchEdit } from '@/hooks/useHqCatalogBranchEdit.ts';
 import {toStockLine} from "@/lib/inventory/unit.convert.ts";
 import {QuantityUomFields} from "@/components/inventory/common/quantity.uom.fields.tsx";
@@ -159,7 +159,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     data: inventoryItems,
     fetchData: fetchInventoryItems,
     isFetching: loadingInventoryItems
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 99999, ["category"], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 99999, ["category"], {
     enabled: false
   });
 
@@ -328,7 +328,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
               quantity: stock.quantity,
               entered_quantity: stock.entered_quantity,
               entered_uom: stock.entered_uom,
-              cost: stock.price,
+              cost: roundInventory(stock.price),
               is_price_locked: recipe.is_price_locked || false
             });
             recipeIds.push(recipeRecord.id);
@@ -693,10 +693,11 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                       stockUnitPrice: rowCost,
                       mode: "quantity_only",
                     });
-                    rowTotal = stock.quantity * stock.price;
+                    rowTotal = roundInventory(stock.quantity * stock.price);
                   }
                 } catch {
                   // keep entered × cost while the unit pair is invalid
+                  rowTotal = roundInventory(rowTotal);
                 }
                 const availableOptions = inventoryItems?.data
                   ?.filter((inventoryItem) => canUseInDishRecipe(inventoryItem))
@@ -763,7 +764,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
                     <div className="flex-1">
                       <Input
                         type="text"
-                        value={withCurrency(rowTotal)}
+                        value={withInventoryCurrency(rowTotal)}
                         label={t('forms.lineTotal')}
                         readOnly
                         disabled

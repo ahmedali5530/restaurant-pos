@@ -6,6 +6,9 @@ import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {CatalogSyncSettingsCard} from "@/components/user_settings/catalog_sync.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
 import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
+import {PosModeSettings} from "@/components/user_settings/pos_mode.tsx";
+import {ItemAvailabilitySettings} from "@/components/user_settings/item_availability.tsx";
+import {ScaleBarcodeSettings} from "@/components/user_settings/scale_barcode.tsx";
 import {MenusSettings} from "@/components/user_settings/menus.tsx";
 import {AutoCheckCloseSettingsCard} from "@/components/user_settings/auto_check_close.tsx";
 import {ClosingCycleSettingsCard} from "@/components/user_settings/closing_cycle.tsx";
@@ -62,6 +65,13 @@ export const Settings = () => {
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
+        {__BUILD_MODULE_quick__ && (
+          <MasonryItem><PosModeSettings /></MasonryItem>
+        )}
+        <MasonryItem><ItemAvailabilitySettings /></MasonryItem>
+        {__BUILD_MODULE_quick__ && (
+          <MasonryItem><ScaleBarcodeSettings /></MasonryItem>
+        )}
         <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>
         <MasonryItem><ItemsVisibilityConfig /></MasonryItem>

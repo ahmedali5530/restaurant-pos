@@ -12,4 +12,12 @@ export {detectSourceKind, IMPORT_ACCEPT} from "@/lib/data-import/extract/detect.
 export {autoMapColumns} from "@/lib/data-import/extract/structured.ts";
 export {resolveClipboardPaste} from "@/lib/data-import/extract/clipboard.ts";
 export {nextImportClientId} from "@/lib/data-import/normalize.ts";
+export {cleanseImportFile} from "@/lib/data-import/cleanse.ts";
+export type {CleanseImportResult, CleanseIssuesSummary} from "@/lib/data-import/cleanse.ts";
+export {
+  buildCleanseSummaryMarkdown,
+  csvCellFromValue,
+  downloadImportCsv,
+  recordsToImportCsv,
+} from "@/lib/data-import/records-to-csv.ts";
 

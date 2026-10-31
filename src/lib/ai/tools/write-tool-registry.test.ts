@@ -41,6 +41,16 @@ describe("detectWriteToolsForPrompt", () => {
     expect(names).not.toContain("propose_create_dishes");
   });
 
+  it("does not offer dish-ingredient write tools for read-only recipe questions", () => {
+    const names = toolNames(
+      "What ingredients are in dish Margherita Pizza?",
+      ["admin.dishes.create", "admin.dishes.update"],
+      ["sales", "inventory"],
+    );
+    expect(names).not.toContain("propose_create_dish_ingredients");
+    expect(names).not.toContain("propose_update_dish_ingredients");
+  });
+
   it("routes scheduled shifts for HR scheduling permission", () => {
     const names = toolNames(
       "add a scheduled shift for employee 101 tomorrow 9am-5pm",
@@ -75,6 +85,35 @@ describe("detectWriteToolsForPrompt", () => {
     const names = toolNames(prompt, ["admin.modifier_groups.update", "admin.dishes.update"], ["manage"]);
     expect(names).toContain("propose_update_modifier_groups");
     expect(names).not.toContain("propose_update_dishes");
+  });
+
+  it("keeps dish create when creating dishes with modifier groups", () => {
+    const prompt =
+      "Create two menu dishes: Club Sandwich and Grilled Sandwich. "
+      + "Add a required modifier group called Bread with White and Whole Wheat, "
+      + "and an optional group called Add-ons with Cheese and Avocado.";
+    const names = toolNames(
+      prompt,
+      [
+        "admin.dishes.create",
+        "admin.dishes.import",
+        "admin.modifier_groups.create",
+      ],
+      ["sales", "manage"],
+    );
+    expect(names).toContain("propose_create_dishes");
+    expect(names).toContain("propose_create_modifier_groups");
+    expect(names).toContain("propose_create_dish_modifiers");
+    expect(names).not.toContain("propose_import_smart_menu");
+  });
+
+  it("offers smart menu only for explicit menu-structure import prompts", () => {
+    const names = toolNames(
+      "import menu structure from this OCR extract",
+      ["admin.dishes.import"],
+      ["sales", "manage"],
+    );
+    expect(names).toContain("propose_import_smart_menu");
   });
 
   it("listPermittedWriteTools excludes dishes for modifier group price prompts", () => {

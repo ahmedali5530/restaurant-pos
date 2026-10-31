@@ -96,18 +96,56 @@ describe("buildWriteProposal", () => {
     expect(db.merge).not.toHaveBeenCalled();
   });
 
-  it("propose_update_dishes: missing match field (number) is blocking in the preview, not just at commit", async () => {
+  it("propose_update_dishes: missing id and number is blocking in the preview", async () => {
     const db = makeDb();
     const proposal = await buildWriteProposal(
       "propose_update_dishes",
-      {dishes: [{price: 11}]}, // no `number` — nothing to match against
+      {dishes: [{price: 11}]}, // no id or number — nothing to match against
       {db, t},
     );
 
     expect(proposal.hasBlockingErrors).toBe(true);
     expect(
-      proposal.records[0].issues.some(i => i.field === "number" && i.severity === "error"),
+      proposal.records[0].issues.some(
+        i => (i.field === "id" || i.field === "number") && i.severity === "error",
+      ),
     ).toBe(true);
+  });
+
+  it("propose_update_dishes: matches by id when number is duplicated", async () => {
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string, vars?: Record<string, any>) => {
+        if (sql.includes("WHERE id = $id") || (sql.includes("id = $id") && vars?.id)) {
+          return [[{
+            id: "menu_item:abc",
+            name: "Club Sandwich",
+            number: "1",
+            priority: 0,
+            price: 9,
+            cost: 3,
+            categories: [{id: "category:1", name: "Sandwiches"}],
+            tax: null,
+          }]];
+        }
+        if (sql.includes("category")) return [[{id: "category:1", name: "Sandwiches"}]];
+        if (sql.includes("tax")) return [[]];
+        return [[]];
+      }),
+      create: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      insert: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      merge: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+    };
+
+    const proposal = await buildWriteProposal(
+      "propose_update_dishes",
+      {dishes: [{id: "menu_item:abc", price: 12.5}]},
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+    expect(proposal.records[0].values.id).toBe("menu_item:abc");
+    expect(proposal.records[0].values.number).toBe("1");
+    expect(proposal.records[0].values.price).toBe(12.5);
   });
 
   it("propose_update_dishes: a partial patch (price only) is NOT blocked by name/categories required checks", async () => {

@@ -76,6 +76,7 @@ const UOM_ALIASES: Record<string, string> = {
   dozens: "DZN",
   pk: "PK",
   pkt: "PK",
+  pac: "PK",
   pack: "PK",
   packs: "PK",
   package: "PK",
@@ -213,6 +214,46 @@ export function normalizeUom(input: unknown): InventoryUom | null {
   }
 
   return null;
+}
+
+/**
+ * Parse values like "1 PAC", "4PAC", "12 kg", "2.5L" into quantity + optional UOM.
+ * Returns null when no leading number is found.
+ */
+export function parseQuantityWithOptionalUom(input: unknown): {
+  quantity: number;
+  uom: InventoryUom | null;
+  rawUom: string | null;
+} | null {
+  if (input === null || input === undefined) return null;
+  if (typeof input === "number" && Number.isFinite(input)) {
+    return {quantity: input, uom: null, rawUom: null};
+  }
+  const raw = String(input).trim();
+  if (!raw) return null;
+
+  const match = raw.match(/^([+-]?\d+(?:[.,]\d+)?)\s*(.*)$/);
+  if (!match) return null;
+
+  const quantity = Number(String(match[1]).replace(/,/g, ""));
+  if (!Number.isFinite(quantity)) return null;
+
+  const rawUom = String(match[2] ?? "").trim();
+  if (!rawUom) {
+    return {quantity, uom: null, rawUom: null};
+  }
+  return {
+    quantity,
+    uom: normalizeUom(rawUom),
+    rawUom,
+  };
+}
+
+/** True when a UOM cell looks like a pack/case size number, not a unit code. */
+export function looksLikeNumericPackSize(input: unknown): boolean {
+  if (input === null || input === undefined || input === "") return false;
+  if (typeof input === "number" && Number.isFinite(input)) return true;
+  return /^\d+(\.\d+)?$/.test(String(input).trim());
 }
 
 export function formatUomList(): string {

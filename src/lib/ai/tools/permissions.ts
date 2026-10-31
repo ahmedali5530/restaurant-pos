@@ -56,6 +56,7 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   list_staff: "reports.ai",
   list_categories: "reports.ai",
   list_menu_items: ["admin.dishes", "reports.product_mix_summary"],
+  get_dish_recipe: ["admin.dishes", "reports.product_mix_summary", "reports.consumption"],
   list_inventory_items: "reports.current_inventory",
   get_labor_dashboard_snapshot: "reports.labor_dashboard",
   get_daily_labor_cost: "reports.daily_labor_cost",

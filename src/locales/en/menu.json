@@ -21,7 +21,8 @@
     "confirmTitle": "Please confirm",
     "confirmCartMessage_one": "There is {{count}} item in cart, choose an action",
     "confirmCartMessage_other": "There are {{count}} items in cart, choose an action",
-    "pax": "{{count}} PAX"
+    "pax": "{{count}} PAX",
+    "customerDisplay": "Customer display"
   },
   "modifiers": {
     "modifyTitle": "Modify {{name}}",
@@ -30,5 +31,18 @@
   },
   "persons": {
     "chooseCount": "Choose number of persons"
+  },
+  "availability": {
+    "unavailable": "{{name}} is sold out",
+    "onlyNLeft": "Only {{count}} left of {{name}}",
+    "nLeft": "{{count}} left",
+    "unavailableBadge": "Sold out",
+    "cartExceeds": "{{name}} exceeds available stock ({{count}} left)"
+  },
+  "qtyPrompt": {
+    "title": "Quantity — {{name}}",
+    "hint": "Use +/− or a quick amount, or type on the keypad. Add confirms; closing the dialog also applies a valid qty.",
+    "quantity": "Quantity",
+    "add": "Add"
   }
 }

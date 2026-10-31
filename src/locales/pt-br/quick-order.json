@@ -1,0 +1,30 @@
+{
+  "scan": {
+    "title": "Pronto para ler",
+    "ready": "Leia um código de barras ou escolha um item abaixo",
+    "last": "Última leitura: {{code}}",
+    "unknown": "Código desconhecido: {{code}}",
+    "added": "{{name}} adicionado",
+    "placeholder": "Escaneie código/PLU, CODE*6 ou *6 e Enter",
+    "inputLabel": "Código / PLU",
+    "qtyHint": "Qtd: CODE*6 adiciona seis; *6 adiciona seis do último",
+    "invalidQty": "Quantidade inválida — número inteiro após *",
+    "noLastItem": "Escaneie um item primeiro, depois *qtd",
+    "addedQty": "Adicionado {{count}} × {{name}}",
+    "unknownPlu": "PLU de balança desconhecida {{plu}} ({{code}})",
+    "addedWeight": "Adicionado {{weight}} kg {{name}}"
+  },
+  "cart": {
+    "title": "Carrinho",
+    "hint": "Pague quando estiver pronto — sem envio à cozinha",
+    "empty": "Leia ou toque nos itens para começar"
+  },
+  "browse": {
+    "title": "Navegar itens",
+    "show": "Mostrar",
+    "hide": "Ocultar"
+  },
+  "customerDisplay": {
+    "open": "Tela do cliente"
+  }
+}

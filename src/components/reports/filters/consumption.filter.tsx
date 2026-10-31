@@ -30,7 +30,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
 
 export const ConsumptionFilter = () => {
   const { t } = useTranslation('reports');
-  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
+  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], ['name asc'], 0, 9999);
   const {data: dishesData, isLoading: loadingDishes} = useApi<SettingsData<Dish>>(Tables.dishes, [], ['name asc'], 0, 9999);
 
   return (

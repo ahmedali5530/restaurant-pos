@@ -24,7 +24,8 @@
     "accessTab": "Toegang tot {{title}}",
     "ariaLabel": "Beheertabs",
     "securityAlerts": "Beveiligingsmeldingen",
-    "catalogPublish": "Catalogus publiceren"
+    "catalogPublish": "Catalogus publiceren",
+    "availability": "Beschikbaarheid"
   },
   "columns": {
     "photo": "Foto",
@@ -99,7 +100,15 @@
     "recordType": "Rijtype",
     "dishName": "Gerecht",
     "parentModifier": "Bovenliggende maat",
-    "nextGroup": "Volgende groep"
+    "nextGroup": "Volgende groep",
+    "itemStockUom": "Artikel voorraad-eenheid",
+    "itemStockUomHint": "Alleen ter referentie — voorraadeenheid van het voorraadartikel. Niet toegepast bij import.",
+    "enteredUomHint": "Ingevoerde eenheid voor hoeveelheid (converteerbare familie van de voorraad-eenheid).",
+    "barcode": "Barcode",
+    "available": "Beschikbaar",
+    "availableQty": "Verkooplimiet",
+    "extraBarcodes": "Extra barcodes",
+    "askQuantity": "Vraag aantal"
   },
   "entities": {
     "dish": "Gerecht",
@@ -158,7 +167,9 @@
     "smartImport": "AI-import",
     "smartImportIngredients": "Ingrediënten AI-importeren",
     "smartImportModifierGroups": "Modifiergroepen AI-importeren",
-    "smartImportMenuStructure": "AI-import menustructuur"
+    "smartImportMenuStructure": "AI-import menustructuur",
+    "syncDishCosts": "Kosten bijwerken vanuit artikelen",
+    "menuTree": "Menuboom"
   },
   "delete": {
     "dish": "Artikel {{name}} verwijderen",
@@ -440,7 +451,25 @@
     "usePrintSettings": "Printinstellingen gebruiken",
     "userBranches": "Vestigingen",
     "userBranchesShared": "Alle vestigingen (gedeeld)",
-    "userBranchesHint": "Leeg = gedeelde medewerker in alle winkels. Selecteer vestigingen om Sync now te beperken."
+    "userBranchesHint": "Leeg = gedeelde medewerker in alle winkels. Selecteer vestigingen om Sync now te beperken.",
+    "barcodeOfItem": "Barcode",
+    "availableOnMenu": "Beschikbaar op menu",
+    "availableQty": "Verkooplimiet",
+    "availableQtyHint": "Verkopen tellen vanaf het moment dat je deze limiet opslaat. Leeg = onbeperkt.",
+    "extraBarcodes": "Extra barcodes",
+    "extraBarcodesHint": "Doos-, multipack- of alternatieve UPC’s voor dit artikel",
+    "extraBarcodesEmpty": "Nog geen extra barcodes",
+    "addBarcode": "Barcode toevoegen",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Vraag om aantal",
+    "askQuantityHint": "Indien aan, vragen Menu en Quick Order na scan/tik om aantal (CODE*N / weegschaal overgeslagen).",
+    "modifierOptionAvailability": "Modifierbeschikbaarheid (dit gerecht)",
+    "modifierOptionAvailable": "Beschikbaar voor dit gerecht",
+    "modifierOptionAvailableHint": "Laat standaard staan voor globale beschikbaarheid. Zet uit of stel een verkooplimiet in alleen voor dit gerecht.",
+    "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)",
+    "kraItemClsCd": "KRA-artikelklassecode",
+    "kraTaxTyCd": "KRA-belastingtype (A–E)",
+    "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -1119,5 +1148,69 @@
     "themeTitle": "Thema van de klantpagina",
     "themeDescription": "Kleuren van de QR-bestelpagina. Licht/donker kan de telefoon van elke klant volgen.",
     "themeMode": "Weergave"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Gerechtkosten bijwerken",
+    "syncDishCostsMessage": "Werk niet-vergrendelde receptregelkosten bij vanuit huidige voorraadprijzen en herbereken daarna de gerechtkosten. Prijsvergrendelde regels blijven ongewijzigd."
+  },
+  "availability": {
+    "title": "Artikelbeschikbaarheid",
+    "description": "Markeer gerechten als beschikbaar of uitverkocht en stel optionele verkooplimieten in voor meerdere items of een hele categorie.",
+    "allCategories": "Alles",
+    "selectAll": "Alles selecteren",
+    "applyToCategory": "Toepassen op hele categorie",
+    "targetsCategory": "{{count}} gerechten in categorie",
+    "targetsSelected": "{{count}} geselecteerd",
+    "markAvailable": "Beschikbaar",
+    "markUnavailable": "Uitverkocht",
+    "saleLimit": "Limiet",
+    "setLimit": "Limiet instellen",
+    "clearLimit": "Onbeperkt",
+    "selectDishes": "Selecteer gerechten of pas toe op categorie",
+    "enterQty": "Voer een verkooplimiet in",
+    "saved": "{{count}} gerechten bijgewerkt",
+    "empty": "Geen gerechten in deze categorie",
+    "available": "Beschikbaar",
+    "unavailable": "Uitverkocht"
+  },
+  "menuTree": {
+    "title": "Menuboom",
+    "search": "Zoeken",
+    "searchPlaceholder": "Filteren op naam…",
+    "expandAll": "Alles uitklappen",
+    "collapseAll": "Alles inklappen",
+    "expand": "Uitklappen",
+    "collapse": "Inklappen",
+    "loading": "Menuboom laden…",
+    "empty": "Geen menu-items om te tonen.",
+    "uncategorized": "Zonder categorie",
+    "required": "Verplicht",
+    "hidden": "Verborgen",
+    "hiddenFromMenu": "Verborgen in menu",
+    "kind": {
+      "category": "Categorie",
+      "dish": "Gerecht",
+      "modifierGroup": "Modifiergroep",
+      "modifier": "Modifier",
+      "uncategorized": "Zonder categorie"
+    },
+    "zoomIn": "Inzoomen",
+    "zoomOut": "Uitzoomen",
+    "fit": "Passend maken",
+    "panHint": "Slepen om te verschuiven · scrollen om te zoomen"
+  },
+  "printers": {
+    "testPrint": "Testafdruk",
+    "testPrintAccess": "Testafdruk {{name}}",
+    "testPrintOk": "Afgedrukt. De server heeft de testbon naar {{name}}{{address}} gestuurd.",
+    "testPrintError": "Printserverfout voor {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Onbekende printserverfout",
+    "slip": {
+      "title": "TESTAFDRUK",
+      "name": "Naam",
+      "type": "Type",
+      "address": "Adres",
+      "ok": "Als u dit kunt lezen, is de printer verbonden."
+    }
   }
 }

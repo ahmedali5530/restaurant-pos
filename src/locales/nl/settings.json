@@ -339,7 +339,7 @@
       "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
       "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
-      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+      "provider_defined": "Voordelen: POSR bewaart wat FBR/PRA/KRA teruggeven. Nadelen: geen POSR-nummergever — gebruik met fiscale integraties."
     }
   },
   "catalogSync": {
@@ -362,5 +362,36 @@
     "progressTable": "{{table}} downloaden…",
     "progressCount": "{{completed}} / {{total}} tabellen ({{percent}}%)",
     "reloadCacheHint": "Catalogussync voltooid. Herlaad de cache in Instellingen zodat de kassa het nieuwe menu toont."
+  },
+  "posMode": {
+    "title": "Kassamodus",
+    "description": "Kies restaurant (tafels en verdiepingen) of Snelle bestelling (barcode scannen en betalen) voor dit apparaat.",
+    "restaurant": "Restaurant",
+    "retail": "Snelle bestelling"
+  },
+  "itemAvailability": {
+    "title": "Verkooplimieten afdwingen",
+    "description": "Uitverkochte gerechten worden altijd geblokkeerd. Verkooplimieten staan standaard aan (verkopen sinds de limiet, minus winkelwagen). Uit = alleen verkooplimieten negeren.",
+    "enabled": "Aan",
+    "disabled": "Uit"
+  },
+  "scaleBarcode": {
+    "title": "Weegschaalbacodes (EAN-13)",
+    "description": "Leest weeglabels van slager/bakkerij. De 5-cijferige PLU moet overeenkomen met het schotelnummer (of barcode). Standaard: 20 + PLU(5) + waarde(5) + controleteken.",
+    "enabled": "Weegschaalbacodes inschakelen",
+    "modeWeight": "Gewicht (gram → kg)",
+    "modePrice": "Prijs ingebed",
+    "modeWeightHint": "Waardecijfers = gewicht in gram. Winkelwagenhoeveelheid in kg (÷ deler). Prijs × kg.",
+    "modePriceHint": "Waardecijfers = prijs in kleine eenheden. Regel met die prijs bij aantal 1.",
+    "prefix": "Voorvoegsel",
+    "validateCheck": "Controlecijfer valideren",
+    "pluStart": "PLU-start (0-based)",
+    "pluLength": "PLU-lengte",
+    "valueStart": "Waarde-start (0-based)",
+    "valueLength": "Waarde-lengte",
+    "weightDivisor": "Gewichtsdeler (g→kg)",
+    "priceDivisor": "Prijsdeler (klein→groot)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Standaard herstellen (ingeschakeld houden)"
   }
 }

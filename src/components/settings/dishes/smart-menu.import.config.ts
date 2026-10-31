@@ -622,6 +622,31 @@ export function createSmartMenuImportConfig({
         "dish_link",
         "nested_override",
       ],
+      transform: (value) => {
+        if (value === null || value === undefined || value === "") return value;
+        const raw = String(value).trim().toLowerCase().replace(/[\s-]+/g, "_");
+        const aliases: Record<string, SmartMenuRecordType> = {
+          dish: "dish",
+          size: "size_option",
+          size_option: "size_option",
+          size_options: "size_option",
+          addon: "addon_option",
+          add_on: "addon_option",
+          addon_option: "addon_option",
+          addon_options: "addon_option",
+          topping: "addon_option",
+          // Common LLM mistake: group header rows — treat as addon_option so
+          // name/modifier + group_name can still import as an option row.
+          modifier_group: "addon_option",
+          modifier_groups: "addon_option",
+          group: "addon_option",
+          link: "dish_link",
+          dish_link: "dish_link",
+          override: "nested_override",
+          nested_override: "nested_override",
+        };
+        return aliases[raw] ?? String(value).trim();
+      },
     },
     {
       name: "name",

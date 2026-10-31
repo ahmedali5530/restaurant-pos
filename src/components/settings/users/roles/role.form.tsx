@@ -349,11 +349,12 @@ export const UserRoleForm = ({ open, onClose, data }: Props) => {
     const payload = {
       name: values.name,
       roles: values.roles,
-      ...(data?.id != null ? { id: data.id } : {}),
     };
 
     try {
       if (data?.id != null) {
+        // Do not MERGE `id` — SurrealDB rejects a string/object id on a targeted
+        // UPDATE, and a record id in CONTENT can break audit_user_role_update.
         await db.update(data.id, payload);
       } else {
         await db.create(Tables.user_roles, payload);

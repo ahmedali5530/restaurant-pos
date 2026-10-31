@@ -13,6 +13,25 @@ export interface Dish extends ID, Name, Priority {
   categories?: Category[]
   cost?: number
   number: string
+  /** Primary barcode / UPC / EAN for Quick Order scanning; optional */
+  barcode?: string | null
+  /** Extra barcodes (case, sleeve, alt UPCs); scanned codes match any of these */
+  barcodes?: string[] | null
+  /** Optional KRA eTIMS item classification code (10 digits); blank uses provider default */
+  kra_item_cls_cd?: string | null
+  /** Optional KRA eTIMS tax type (A–E); blank uses rate mapping / provider default */
+  kra_tax_ty_cd?: string | null
+  /** When false, dish is sold out (86). Missing/true = sellable. */
+  available?: boolean | null
+  /** Optional sale limit; null/undefined = unlimited. Counted since available_qty_set_at. */
+  available_qty?: number | null
+  /** When available_qty was last set/changed (sale window start). */
+  available_qty_set_at?: DateTime | string | null
+  /**
+   * When true, Menu / Quick Order prompt for quantity after scan or tap.
+   * False/null = add qty 1 immediately (default).
+   */
+  ask_quantity?: boolean | null
   position?: number
   price: number
   photo?: ArrayBuffer

@@ -20,6 +20,7 @@ import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 const PROVIDER_LABELS: Record<string, string> = {
   'provider:fbr': 'FBR',
   'provider:pra': 'PRA',
+  'provider:kra': 'KRA',
 };
 
 const providerLabel = (providerId?: string | null): string => {

@@ -1,9 +1,11 @@
 export const LOGIN = '/';
 export const MENU = '/menu';
+export const QUICK = '/quick';
 export const ORDERS = '/orders';
 export const SUMMARY = '/summary';
 export const KITCHEN = '/kitchen';
 export const ORDER_DISPLAY = '/order-display';
+export const CUSTOMER_DISPLAY = '/customer-display';
 export const DELIVERY = '/delivery';
 export const CLOSING = '/closing';
 export const ADMIN = '/admin';

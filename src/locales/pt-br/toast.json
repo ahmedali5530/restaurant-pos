@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Não foi possível gerar o próximo número de nota fiscal",
     "unableGenerateReturnNumber": "Não foi possível gerar o próximo número de devolução",
     "unableGeneratePoNumber": "Não foi possível gerar o próximo número de pedido de compra",
-    "itemsExceedQuantity": "Um ou mais itens excedem a quantidade disponível"
+    "itemsExceedQuantity": "Um ou mais itens excedem a quantidade disponível",
+    "itemDeactivated": "{{name}} está em uso e foi desativado.",
+    "itemDeleted": "{{name}} excluído com sucesso.",
+    "itemDeleteFailed": "Falha ao excluir {{name}}."
   },
   "delivery": {
     "settingsSaved": "Configurações de delivery salvas com sucesso",
@@ -136,7 +139,9 @@
     "invalidPriority": "Prioridade é inválida",
     "invalidRequiredModifiers": "Valor de modificadores obrigatórios é inválido",
     "loginTaken": "Outro usuário já tem este login/PIN — escolha outro.",
-    "passwordTaken": "Outro usuário já tem esta senha — escolha outra."
+    "passwordTaken": "Outro usuário já tem esta senha — escolha outra.",
+    "dishCostsSynced": "Custos atualizados para {{dishes}} prato(s) a partir de {{items}} item(ns) de inventário",
+    "barcodeInUse": "O código de barras {{code}} já é usado por {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} está em uso e foi desativado.",

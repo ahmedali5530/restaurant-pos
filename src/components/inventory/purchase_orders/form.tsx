@@ -124,7 +124,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['array::any(item_types, "raw")'], [], 0, 9999, ['suppliers'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none', 'array::any(item_types, "raw")'], [], 0, 9999, ['suppliers'], {
     enabled: false
   });
 

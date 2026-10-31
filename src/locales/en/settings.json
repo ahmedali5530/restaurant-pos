@@ -339,7 +339,7 @@
       "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
       "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
-      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+      "provider_defined": "Pros: POSR stores what FBR/PRA/KRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
   },
   "catalogSync": {
@@ -362,5 +362,36 @@
     "progressTable": "Downloading {{table}}…",
     "progressCount": "{{completed}} / {{total}} tables ({{percent}}%)",
     "reloadCacheHint": "Catalog sync finished. Reload cache in Settings so the POS UI picks up the new menu."
+  },
+  "posMode": {
+    "title": "POS mode",
+    "description": "Choose restaurant (tables and floors) or Quick Order (barcode scan and pay) for this device.",
+    "restaurant": "Restaurant",
+    "retail": "Quick Order"
+  },
+  "itemAvailability": {
+    "title": "Enforce sale limits",
+    "description": "Sold-out dishes are always blocked. Sale limits are on by default (units sold since the limit was set, minus the cart). Turn off to ignore sale limits only.",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "scaleBarcode": {
+    "title": "Scale barcodes (EAN-13)",
+    "description": "Parse weigh-label barcodes from butcher/bakery scales. Match the 5-digit PLU to the dish Number (or barcode). Default layout: 20 + PLU(5) + value(5) + check digit.",
+    "enabled": "Enable scale barcodes",
+    "modeWeight": "Weight (grams → kg)",
+    "modePrice": "Price embedded",
+    "modeWeightHint": "Value digits are weight in grams. Cart qty becomes kilograms (÷ weight divisor). Dish price × kg.",
+    "modePriceHint": "Value digits are price in minor units (e.g. paisa/cents). Line uses that price at qty 1.",
+    "prefix": "Prefix",
+    "validateCheck": "Validate check digit",
+    "pluStart": "PLU start (0-based)",
+    "pluLength": "PLU length",
+    "valueStart": "Value start (0-based)",
+    "valueLength": "Value length",
+    "weightDivisor": "Weight divisor (grams→kg)",
+    "priceDivisor": "Price divisor (minor→major)",
+    "layoutHint": "Layout: {{example}}",
+    "resetDefaults": "Reset to defaults (keep enabled)"
   }
 }

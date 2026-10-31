@@ -93,7 +93,7 @@ export type WriteToolRegistryEntry = {
 };
 
 const mergeDishUpdatePatches = createMergeUpdatePatchesByFetcher(
-  async (db, patch) => fetchExistingDishRaw(db, String(patch.number ?? "").trim()),
+  async (db, patch) => fetchExistingDishRaw(db, patch),
 );
 const mergeTableUpdatePatches = createMergeUpdatePatchesByFetcher(
   async (db, patch) => fetchExistingTableRaw(db, String(patch.number ?? "").trim()),
@@ -228,7 +228,9 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
   function: {
     name: "propose_update_dishes",
     description:
-      "Propose updating existing dishes matched by item number. Only include fields that should change.",
+      "Propose updating existing dishes. Prefer matching by id from list_menu_items "
+      + "(dish numbers can be duplicated). If matching by number, also pass name when "
+      + "numbers may collide. Only include fields that should change.",
     parameters: {
       type: "object",
       properties: {
@@ -237,8 +239,18 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
           items: {
             type: "object",
             properties: {
-              number: {type: "string"},
-              name: {type: "string"},
+              id: {
+                type: "string",
+                description: 'Dish record id from list_menu_items / get_dish_recipe (e.g. "menu_item:…"). Prefer over number.',
+              },
+              number: {
+                type: "string",
+                description: "Dish number/PLU. Prefer id when available; numbers may not be unique.",
+              },
+              name: {
+                type: "string",
+                description: "Dish name — use with number to disambiguate duplicate numbers, or alone if unique.",
+              },
               priority: {type: "number"},
               price: {type: "number"},
               cost: {type: "number"},
@@ -247,7 +259,7 @@ const DISH_UPDATE_TOOL: OpenAIToolDefinition = {
               workflow: {type: "string", description: "Workflow name for multi-stage kitchen routing"},
               stage_overrides: {type: "string", description: "JSON map of stage name to kitchen name"},
             },
-            required: ["number"],
+            required: [],
           },
         },
       },
@@ -511,14 +523,21 @@ const tipDistributionFields: WriteFieldSpec[] = [
 ];
 
 const smartMenuFields: WriteFieldSpec[] = [
-  {name: "record_type", type: "string", requiredOnCreate: true},
-  {name: "name", type: "string"},
+  {
+    name: "record_type",
+    type: "string",
+    requiredOnCreate: true,
+    description:
+      "Exactly one of: dish | size_option | addon_option | dish_link | nested_override. "
+      + "Never use modifier_group — put options as size_option/addon_option with group_name, and attach with dish_link.",
+  },
+  {name: "name", type: "string", description: "Dish name (dish rows) or option display name"},
   {name: "number", type: "string"},
   {name: "category", type: "string"},
-  {name: "group_name", type: "string"},
-  {name: "modifier", type: "string", description: "Size or addon dish name"},
+  {name: "group_name", type: "string", description: "Modifier group name for size_option/addon_option/dish_link"},
+  {name: "modifier", type: "string", description: "Size or addon option name (same as name for options)"},
   {name: "price", type: "number"},
-  {name: "dish_name", type: "string"},
+  {name: "dish_name", type: "string", description: "Parent dish name for dish_link rows"},
   {name: "parent_modifier", type: "string"},
   {name: "next_group", type: "string"},
   {name: "has_required_modifiers", type: "boolean"},
@@ -622,6 +641,10 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       updateToolName: "propose_update_dish_modifiers",
       matchFields: ["dish_number", "modifier_group"],
       fields: dishModifierFields,
+      createDescription:
+        "Propose attaching an existing modifier group to a dish (by dish number + group name). "
+        + "Set has_required_modifiers / required_modifiers for required groups (e.g. Bread), "
+        + "leave optional for Add-ons. Create the dishes and group options first.",
     }),
   },
   {
@@ -631,6 +654,7 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     updateToolName: "propose_update_dish_ingredients",
     permissionModules: {create: "admin.dishes.create", update: "admin.dishes.update"},
     keywords: /\b((dish|recipe)\s+ingredient|ingredient\s+(to|for)\s+dish|add\s+ingredient)\b/i,
+    actionKeywords: /\b(add|create|update|change|set|remove|delete|import|new)\b/i,
     domains: ["sales", "inventory"],
     createConfig: createDishIngredientsImportConfig,
     mergeUpdatePatches: mergeDishIngredientUpdatePatches,
@@ -841,8 +865,10 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       matchFields: ["group", "modifier"],
       fields: modifierGroupFields,
       createDescription:
-        "Propose adding a modifier option to a modifier group with its option price. "
-        + "Use for sizes/toppings/add-ons — not base dish price.",
+        "Propose adding modifier options to a group (one row per option: group + modifier + price). "
+        + "Example: Bread/White, Bread/Whole Wheat, Add-ons/Cheese. Creates the group if missing. "
+        + "Use for sizes/toppings/add-ons — not base dish price. "
+        + "After options exist, attach groups to dishes with propose_create_dish_modifiers.",
       updateDescription:
         "Propose updating a modifier option price within a modifier group (group + modifier name). "
         + "Do NOT use propose_update_dishes — that changes the base menu item price, not the modifier option price.",
@@ -918,8 +944,8 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
     recordsArgKey: "menu_records",
     createToolName: "propose_import_smart_menu",
     permissionModules: {create: "admin.dishes.import", update: "admin.dishes.import"},
-    keywords: /\b(smart menu|menu structure|import menu)\b/i,
-    domains: ["manage", "sales"],
+    keywords: /\b(smart menu|menu structure|import menu|ai import menu)\b/i,
+    // No domains — keyword-only so conversational "create dishes + modifiers" never picks this.
     actionKeywords: /\b(import|create|add)\b/i,
     createConfig: createSmartMenuImportConfig,
     buildToolDefinitions: () => buildWriteToolDefinitionsFromFields({
@@ -928,7 +954,11 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       createToolName: "propose_import_smart_menu",
       matchFields: ["record_type", "name", "group_name"],
       fields: smartMenuFields,
-      createDescription: "Propose importing structured menu records (dishes, size groups, addons). Use only for full menu structure imports.",
+      createDescription:
+        "Propose importing a full menu structure (OCR/AI Import Menu Structure). "
+        + "record_type must be dish, size_option, addon_option, dish_link, or nested_override — never modifier_group. "
+        + "For a few dishes with simple modifier groups (Bread, Add-ons), prefer propose_create_dishes, "
+        + "propose_create_modifier_groups, then propose_create_dish_modifiers instead.",
     }),
   },
   {

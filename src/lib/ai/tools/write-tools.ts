@@ -42,9 +42,26 @@ const recordHasError = (record: ImportRecord) =>
 function flagMissingMatchFields(config: ImportConfiguration, mode: CsvImportMode, records: ImportRecord[]): void {
   if (mode === "create") return;
   const matchFields = config.matchFields ?? [];
-  if (matchFields.length === 0) return;
+  if (matchFields.length === 0 && config.id !== "dishes") return;
 
   for (const record of records) {
+    // Dishes: match by unique id, or by number (optionally + name). Numbers alone may collide.
+    if (config.id === "dishes") {
+      const hasId = String(record.values.id ?? "").trim() !== "";
+      const hasNumber = String(record.values.number ?? "").trim() !== "";
+      if (!hasId && !hasNumber) {
+        record.issues.push({
+          field: "id",
+          code: "required",
+          severity: "error",
+          message:
+            '"id" or "number" is required to match the dish to update '
+            + "(prefer id from list_menu_items when numbers can duplicate)",
+        });
+      }
+      continue;
+    }
+
     for (const field of matchFields) {
       const value = record.values[field];
       const empty = value === null || value === undefined || String(value).trim() === "";

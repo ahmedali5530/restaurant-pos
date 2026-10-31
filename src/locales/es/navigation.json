@@ -16,7 +16,8 @@
     "clock": "Reloj",
     "hr": "RR. HH.",
     "integrations": "Integraciones",
-    "requiresApproval": "Requiere aprobación del gerente"
+    "requiresApproval": "Requiere aprobación del gerente",
+    "quickOrder": "Pedido rápido"
   },
   "modules": {
     "Menu": "Menú",

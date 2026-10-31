@@ -79,9 +79,9 @@ export const getCurrentInventory = async (
   options: {itemIds?: string[]; limit?: number} = {},
 ) => {
   const limit = options.limit ?? 100;
-  let itemsQuery = `SELECT * FROM ${Tables.inventory_items}`;
+  let itemsQuery = `SELECT * FROM ${Tables.inventory_items} WHERE deleted_at = none`;
   if (options.itemIds?.length) {
-    itemsQuery += ` WHERE id IN [${options.itemIds.map(id => `$item${id}`).join(", ")}]`;
+    itemsQuery += ` AND id IN [${options.itemIds.map(id => `$item${id}`).join(", ")}]`;
   }
   itemsQuery += ` LIMIT ${limit}`;
   itemsQuery += ` FETCH category`;
@@ -262,6 +262,7 @@ export const listInventoryItems = async (
   const limit = options.limit ?? 50;
   const query = `
     SELECT id, name, code, reorder_levels FROM ${Tables.inventory_items}
+    WHERE deleted_at = none
     ORDER BY name ASC
     LIMIT ${limit}
   `;
@@ -289,7 +290,7 @@ export const listInventoryItems = async (
     .filter(item => !search || item.name.toLowerCase().includes(search));
 };
 
-/** Same metrics as the Sale vs Consumption report UI. */
+/** Same metrics as the Sale vs Consumption report UI (top items for AI brevity). */
 export const getSaleVsConsumption = async (db: DbClient, options: DateRangeFilter) => {
   return getSaleVsConsumptionReport(db, {...options, limit: 30});
 };

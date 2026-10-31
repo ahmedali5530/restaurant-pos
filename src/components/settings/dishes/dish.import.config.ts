@@ -14,6 +14,11 @@ import {
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
 import {fetchNextSequentialNumber} from "@/utils/recordNumbers.ts";
+import {nowSurrealDateTime} from "@/lib/datetime.ts";
+import {
+  normalizeExtraBarcodes,
+  queryBarcodeCollisions,
+} from "@/lib/quick-order-scan.ts";
 
 type TFunc = (key: string, options?: any) => string;
 
@@ -46,6 +51,14 @@ export function createDishImportConfig({
 
   const fields: ImportField[] = [
     {
+      name: "id",
+      label: t("admin:columns.id", {defaultValue: "ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["ID", "Dish ID", "Record ID"],
+      description: "Existing dish record id (menu_item:…). Prefer for updates when numbers can duplicate.",
+    },
+    {
       name: "name",
       label: t("admin:columns.name"),
       type: "string",
@@ -59,6 +72,48 @@ export function createDishImportConfig({
       type: "string",
       aliases: ["Number", "No", "Code", "SKU", "#"],
       description: "Internal item number; leave blank to auto-assign",
+    },
+    {
+      name: "barcode",
+      label: t("admin:columns.barcode", {defaultValue: "Barcode"}),
+      type: "string",
+      optional: true,
+      aliases: ["Barcode", "UPC", "EAN", "GTIN", "Bar Code"],
+      description: "Primary barcode / UPC / EAN for Quick Order scanning",
+    },
+    {
+      name: "barcodes",
+      label: t("admin:columns.extraBarcodes", {defaultValue: "Extra barcodes"}),
+      type: "string",
+      optional: true,
+      aliases: ["Extra barcodes", "Barcodes", "Alt barcodes", "Case barcode"],
+      description: "Additional barcodes separated by semicolon or comma",
+    },
+    {
+      name: "available",
+      label: t("admin:columns.available", {defaultValue: "Available"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: true,
+      aliases: ["Available", "In Stock", "Sellable", "Active"],
+      description: "Whether the dish can be sold (false = sold out)",
+    },
+    {
+      name: "ask_quantity",
+      label: t("admin:columns.askQuantity", {defaultValue: "Ask quantity"}),
+      type: "boolean",
+      optional: true,
+      defaultValue: false,
+      aliases: ["Ask quantity", "Ask qty", "Prompt quantity", "Qty prompt"],
+      description: "When true, Menu/Quick Order ask for quantity after scan or tap",
+    },
+    {
+      name: "available_qty",
+      label: t("admin:columns.availableQty", {defaultValue: "Sale limit"}),
+      type: "number",
+      optional: true,
+      aliases: ["Sale limit", "Available qty", "Stock count", "Limit"],
+      description: "Optional sale count; leave blank for unlimited",
     },
     {
       name: "priority",
@@ -148,6 +203,20 @@ export function createDishImportConfig({
       }
 
       const number = await ensureNumber(values.number);
+      const barcodeRaw =
+        values.barcode === null || values.barcode === undefined
+          ? ""
+          : String(values.barcode).trim();
+      const barcodesRaw =
+        values.barcodes === null || values.barcodes === undefined
+          ? ""
+          : String(values.barcodes).trim();
+      const extraBarcodes = normalizeExtraBarcodes(
+        barcodesRaw
+          ? barcodesRaw.split(/[;,]/).map((part) => part.trim())
+          : [],
+        barcodeRaw,
+      );
       const priority = Number(values.priority ?? 0);
       const price = Number(values.price);
       const cost = Number(values.cost ?? 0);
@@ -170,6 +239,8 @@ export function createDishImportConfig({
         return toRecordId(ref.id);
       });
 
+      const idRaw = String(values.id ?? "").trim();
+
       const rowData: Record<string, string> = {
         name,
         number,
@@ -177,18 +248,63 @@ export function createDishImportConfig({
         price: String(price),
         cost: String(cost),
       };
+      if (idRaw) {
+        rowData.id = idRaw;
+      }
+      if (barcodeRaw) {
+        rowData.barcode = barcodeRaw;
+      }
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      // Updates: prefer unique id; otherwise require number (name used to disambiguate).
+      const updateMatchFields = idRaw
+        ? ["id"]
+        : (ctx.matchFields?.length ? ctx.matchFields : ["number"]);
+      if (ctx.mode !== "create") {
+        assertCsvMatchValues(rowData, updateMatchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      } else {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
+
+      const availableRaw = values.available;
+      const available =
+        availableRaw === false ||
+        availableRaw === "false" ||
+        availableRaw === 0 ||
+        availableRaw === "0"
+          ? false
+          : true;
+      const askQtyRaw = values.ask_quantity;
+      const askQuantity =
+        askQtyRaw === true ||
+        askQtyRaw === "true" ||
+        askQtyRaw === 1 ||
+        askQtyRaw === "1";
+      const qtyRaw = values.available_qty;
+      const availableQty =
+        qtyRaw === null || qtyRaw === undefined || qtyRaw === ""
+          ? null
+          : Number(qtyRaw);
 
       const dishData: any = {
         name,
         number,
+        barcode: barcodeRaw || null,
+        barcodes: extraBarcodes.length ? extraBarcodes : null,
         priority: Number.isFinite(priority) ? priority : 0,
         price,
         cost: Number.isFinite(cost) ? cost : 0,
         categories: categoryIds,
+        available,
+        ask_quantity: askQuantity,
+        available_qty: availableQty != null && Number.isFinite(availableQty) ? availableQty : null,
+        available_qty_set_at:
+          availableQty != null && Number.isFinite(availableQty)
+            ? nowSurrealDateTime()
+            : null,
       };
 
       const workflowRef = values.workflow as ResolvedReference | undefined;
@@ -227,26 +343,72 @@ export function createDishImportConfig({
         dishData.stage_overrides = null;
       }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (field === "price") {
-          return {column: "price", value: Number(value)};
+      let existing: Array<{id: any}> = [];
+      if (ctx.mode !== "create") {
+        if (idRaw) {
+          existing = await findCsvImportMatches(db, Tables.dishes, [
+            {column: "id", value: toRecordId(idRaw)},
+          ]);
+        } else {
+          const conditions = buildMatchConditions(rowData, updateMatchFields, (field, value) => {
+            if (field === "price") {
+              return {column: "price", value: Number(value)};
+            }
+            if (field === "cost") {
+              return {column: "cost", value: Number(value)};
+            }
+            if (field === "priority") {
+              return {column: "priority", value: Number(value)};
+            }
+            if (field === "categories") {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            return {column: field, value};
+          });
+          existing = await findCsvImportMatches(db, Tables.dishes, conditions);
+          if (existing.length > 1 && name) {
+            const [named] = await db.query(
+              `SELECT id FROM ${Tables.dishes}
+               WHERE number = $number
+                 AND string::lowercase(name) = string::lowercase($name)
+                 AND deleted_at = none
+               LIMIT 2`,
+              {number, name},
+            );
+            existing = (named ?? []).map((row: any) => ({id: row.id}));
+          }
+          if (existing.length > 1) {
+            throw new Error(
+              t("common:csvImport.ambiguousDishNumber", {
+                number,
+                defaultValue:
+                  `Multiple dishes share number "${number}". Pass id (menu_item:…) or a unique name to update the correct dish.`,
+              }),
+            );
+          }
         }
-        if (field === "cost") {
-          return {column: "cost", value: Number(value)};
-        }
-        if (field === "priority") {
-          return {column: "priority", value: Number(value)};
-        }
-        if (field === "categories") {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        return {column: field, value};
-      });
+      }
 
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.dishes, conditions);
+      const codesToCheck = [
+        ...(barcodeRaw ? [barcodeRaw] : []),
+        ...extraBarcodes,
+      ];
+      if (codesToCheck.length > 0) {
+        const collisions = await queryBarcodeCollisions(
+          db,
+          codesToCheck,
+          existing.map((row: any) => row?.id),
+        );
+        if (collisions.length > 0) {
+          const hit = collisions[0];
+          throw new Error(
+            t("toast:admin.barcodeInUse", {
+              code: hit.code,
+              name: hit.dishName,
+            }),
+          );
+        }
+      }
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

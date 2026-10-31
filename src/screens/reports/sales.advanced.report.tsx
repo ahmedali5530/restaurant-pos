@@ -1,5 +1,6 @@
-import {Fragment, useEffect, useMemo, useRef, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import { useTranslation } from 'react-i18next';
+import {useVirtualizer} from "@tanstack/react-virtual";
 import {ReportsLayout} from "@/screens/partials/reports.layout.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -24,6 +25,15 @@ import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
 import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+
+const ORDER_ROW_HEIGHT = 56;
+const ITEMS_ROW_BASE_HEIGHT = 48;
+const ITEMS_ROW_LINE_HEIGHT = 28;
+const VIRTUAL_OVERSCAN = 8;
+
+type VirtualTableRow =
+  | {kind: "order"; order: Order; orderId: string}
+  | {kind: "items"; order: Order; orderId: string};
 
 const recordToString = (value: any): string => recordIdToString(value);
 
@@ -68,6 +78,7 @@ interface ReportFilters {
   orderTypeIds: string[];
   withTax?: boolean;
   withoutTax?: boolean;
+  taxIds: string[];
   withDiscount?: boolean;
   withoutDiscount?: boolean;
   discountIds: string[];
@@ -105,6 +116,7 @@ const parseFilters = (): ReportFilters => {
     orderTypeIds: parseMulti('order_types'),
     withTax: params.has('with_tax'),
     withoutTax: params.has('without_tax'),
+    taxIds: parseMulti('taxes'),
     withDiscount: params.has('with_discount'),
     withoutDiscount: params.has('without_discount'),
     discountIds: parseMulti('discounts'),
@@ -213,6 +225,16 @@ export const SalesAdvancedReport = () => {
 
         if (filters.withoutTax) {
           orderConditions.push(`(tax_amount = 0 or tax_amount = null or tax_amount = none)`);
+        }
+
+        if (filters.taxIds.length > 0) {
+          const taxInside = buildRecordInsideCondition('tax', filters.taxIds, 'taxIds');
+          const taxLines = buildNestedRecordAnyCondition('order_taxes.tax', filters.taxIds, 'orderTax');
+          const parts = [taxInside.condition, taxLines.condition].filter(Boolean);
+          Object.assign(params, taxInside.params, taxLines.params);
+          if (parts.length > 0) {
+            orderConditions.push(`(${parts.join(' OR ')})`);
+          }
         }
 
         if (filters.paymentTypeIds.length > 0) {
@@ -379,7 +401,7 @@ export const SalesAdvancedReport = () => {
     filters.menuIds,
     filters.menuItemIds,
     filters.menuItemsMatch,
-    filters.withTax, filters.withoutTax,
+    filters.withTax, filters.withoutTax, filters.taxIds,
     filters.sortBy, filters.sortDirection
   ]);
 
@@ -440,6 +462,8 @@ const SalesAdvancedBody = ({
 }) => {
   const { t } = useTranslation('reports');
   const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
+  const [isPrinting, setIsPrinting] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const filteredOrders = orders;
   const baseColumns = 10;
   const detailsColumns = filters.showDetails ? 14 : 1;
@@ -453,6 +477,18 @@ const SalesAdvancedBody = ({
     [ordersWithItems],
   );
   const areAllExpanded = allExpandableOrderIds.length > 0 && allExpandableOrderIds.every(id => expandedOrderIds.has(id));
+
+  useEffect(() => {
+    const onBeforePrint = () => setIsPrinting(true);
+    const onAfterPrint = () => setIsPrinting(false);
+    window.addEventListener('beforeprint', onBeforePrint);
+    window.addEventListener('afterprint', onAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', onBeforePrint);
+      window.removeEventListener('afterprint', onAfterPrint);
+    };
+  }, []);
+
   useEffect(() => {
     // Keep default hidden and clear stale expanded rows when list/filters change.
     const allowedIds = new Set(allExpandableOrderIds);
@@ -462,6 +498,7 @@ const SalesAdvancedBody = ({
       return next;
     });
   }, [allExpandableOrderIds]);
+
   const toggleOrderItems = (orderId: string) => {
     setExpandedOrderIds(prev => {
       const next = new Set(prev);
@@ -479,6 +516,56 @@ const SalesAdvancedBody = ({
       return new Set(allExpandableOrderIds);
     });
   };
+
+  const virtualRows = useMemo((): VirtualTableRow[] => {
+    const rows: VirtualTableRow[] = [];
+    filteredOrders.forEach(order => {
+      const orderId = recordToString(order.id);
+      rows.push({kind: 'order', order, orderId});
+      if (
+        filters.showMenuItems &&
+        expandedOrderIds.has(orderId) &&
+        order.items &&
+        order.items.length > 0
+      ) {
+        rows.push({kind: 'items', order, orderId});
+      }
+    });
+    return rows;
+  }, [filteredOrders, filters.showMenuItems, expandedOrderIds]);
+
+  const rowVirtualizer = useVirtualizer({
+    count: isPrinting ? 0 : virtualRows.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: (index) => {
+      const row = virtualRows[index];
+      if (!row) return ORDER_ROW_HEIGHT;
+      if (row.kind === 'order') return ORDER_ROW_HEIGHT;
+      const itemCount = row.order.items?.length ?? 0;
+      return ITEMS_ROW_BASE_HEIGHT + itemCount * ITEMS_ROW_LINE_HEIGHT;
+    },
+    overscan: VIRTUAL_OVERSCAN,
+    getItemKey: (index) => {
+      const row = virtualRows[index];
+      if (!row) return index;
+      return row.kind === 'order' ? row.orderId : `${row.orderId}-items`;
+    },
+  });
+
+  useEffect(() => {
+    if (!isPrinting) {
+      rowVirtualizer.measure();
+    }
+    // Re-measure after expand/collapse changes row heights/count.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- measure only when row set changes
+  }, [expandedOrderIds, isPrinting, virtualRows.length]);
+
+  const virtualItems = rowVirtualizer.getVirtualItems();
+  const paddingTop = !isPrinting && virtualItems.length > 0 ? virtualItems[0].start : 0;
+  const paddingBottom =
+    !isPrinting && virtualItems.length > 0
+      ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
+      : 0;
 
   const getOrderPaymentBreakdown = (paymentTotals: OrderPaymentTotals): string => {
     const paymentMap = new Map<string, number>(Object.entries(paymentTotals.nonCashBreakdown));
@@ -562,6 +649,152 @@ const SalesAdvancedBody = ({
     [orderVoids],
   );
 
+  const renderOrderRow = (
+    order: Order,
+    orderId: string,
+    options?: {dataIndex?: number; measureRef?: (node: HTMLTableRowElement | null) => void},
+  ) => {
+    const isExpanded = expandedOrderIds.has(orderId);
+    const orderTotals = calculateOrderTotals(order);
+    const orderDate = toLuxonDateTime(order.created_at);
+    const dateStr = orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT);
+    const timeStr = orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT);
+    const orderTakerName = order.user
+      ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || 'Unknown'
+      : 'Unknown';
+    const cashierName = order.cashier
+      ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || 'Unknown'
+      : 'N/A';
+    const tableName = order.table?.name
+      ? `${order.table.name}${order.table.number ?? ''}`
+      : `Table ${order.table?.number ?? ''}`;
+    const floorName = order.floor?.name || 'Unknown';
+    const orderTypeName = order.order_type?.name || 'Unknown';
+    const hasItems = Boolean(filters.showMenuItems && order.items && order.items.length > 0);
+    const notesText = (order.notes ?? '').trim();
+
+    return (
+      <tr
+        key={orderId}
+        data-index={options?.dataIndex}
+        ref={options?.measureRef}
+        className={hasItems ? 'border-b-0' : ''}
+      >
+        {filters.showMenuItems && (
+          <td className="py-3 pl-6 pr-2 text-sm text-foreground print:hidden">
+            {hasItems ? (
+              <button
+                type="button"
+                onClick={() => toggleOrderItems(orderId)}
+                className="h-6 w-6 rounded border border-border text-xs font-bold text-foreground hover:bg-surface"
+                aria-label={isExpanded ? 'Hide menu items' : 'Show menu items'}
+              >
+                {isExpanded ? '-' : '+'}
+              </button>
+            ) : null}
+          </td>
+        )}
+        <td className="py-3 pl-6 pr-3 text-sm text-foreground">
+          <div>{dateStr}</div>
+          <div className="text-muted">{timeStr}</div>
+        </td>
+        <td className="py-3 px-3 text-sm text-foreground">{order.auto_id}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{orderTakerName}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{cashierName}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{tableName}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{floorName}</td>
+        <td className="py-3 px-3 text-sm text-foreground">{orderTypeName}</td>
+        <td className="py-3 px-3 text-sm text-foreground">
+          <span className={`px-2 py-1 rounded text-xs ${
+            order.status === OrderStatus.Paid ? 'bg-success-100 text-success-800' :
+              order.status === OrderStatus.Cancelled ? 'bg-danger-100 text-danger-800' :
+                order.status === OrderStatus.Merged ? 'bg-primary-100 text-primary-800' :
+                  order.status === OrderStatus.Refunded ? 'bg-warning-100 text-warning-800' :
+                    order.status === OrderStatus.Spilt ? 'bg-info-100 text-info-800' :
+                      'bg-surface text-foreground'
+          }`}>
+            {order.status}
+          </span>
+        </td>
+        {filters.showDetails && (
+          <>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.itemsCount)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.covers)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.taxes)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.tips)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.serviceCharges)}</td>
+            <td className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.discounts)}</td>
+            <td className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.coupons)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountDue)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
+            <td className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.changeDue)}</td>
+            <td className="py-3 px-3 text-sm text-foreground whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
+            <td className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
+            <td className="py-3 px-3 text-sm text-foreground max-w-xs whitespace-pre-wrap break-words">
+              {notesText || '—'}
+            </td>
+          </>
+        )}
+        {!filters.showDetails && (
+          <td className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
+        )}
+      </tr>
+    );
+  };
+
+  const renderItemsRow = (
+    order: Order,
+    orderId: string,
+    options?: {dataIndex?: number; measureRef?: (node: HTMLTableRowElement | null) => void},
+  ) => (
+    <tr
+      key={`${orderId}-items`}
+      data-index={options?.dataIndex}
+      ref={options?.measureRef}
+      className="bg-surface"
+    >
+      <td colSpan={tableColSpan} className="py-3 pl-6 pr-6">
+        <div className="space-y-2">
+          <table className="w-full text-xs">
+            <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-2 pr-4 font-semibold text-muted">{t('filters.item')}</th>
+              <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.quantity')}</th>
+              <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.price')}</th>
+              <th className="text-right py-2 px-2 font-semibold text-muted">{t('reports.discount')}</th>
+              <th className="text-right py-2 pl-2 font-semibold text-muted">{t('columns.total')}</th>
+            </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-100">
+            {order.items.map((item, idx) => {
+              const itemPrice = getOrderItemDisplayLineTotal(item, showInclusive);
+              const itemDiscount = safeNumber(item.discount);
+              const itemTotal = safeNumber(itemPrice) - itemDiscount;
+
+              return (
+                <tr
+                  key={`${orderId}-item-${idx}`}
+                  className={item.deleted_at ? 'text-danger-500' : ''}
+                >
+                  <td className="py-2 pr-4 text-foreground">
+                    <OrderItemName item={item} showQuantity={false} showPrice={false}
+                                   showGroups={false}/>
+                  </td>
+                  <td className="py-2 px-2 text-right text-foreground">{formatNumber(item.quantity)}</td>
+                  <td className="py-2 px-2 text-right text-foreground">{withCurrency(itemPrice)}</td>
+                  <td className="py-2 px-2 text-right text-danger-600">{withCurrency(-itemDiscount)}</td>
+                  <td className="py-2 pl-2 text-right font-semibold text-foreground">{withCurrency(itemTotal)}</td>
+                </tr>
+              );
+            })}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+  );
 
   return (
       <div className="space-y-8">
@@ -642,200 +875,91 @@ const SalesAdvancedBody = ({
             )}
             <h3 className="text-sm font-semibold text-foreground">{t('categories.orders')}</h3>
           </div>
-          <div className="overflow-x-auto">
+          <div
+            ref={scrollRef}
+            className="overflow-auto max-h-[70vh] print:max-h-none print:overflow-visible"
+          >
             <table className="min-w-full divide-y divide-neutral-200 table-hover">
-              <thead className="bg-surface">
+              <thead className="bg-surface sticky top-0 z-10">
               <tr>
                 {filters.showMenuItems && (
-                  <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-foreground print:hidden">{t('columns.items')}</th>
+                  <th className="py-3 pl-6 pr-2 text-left text-xs font-semibold text-foreground print:hidden bg-surface">{t('columns.items')}</th>
                 )}
-                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.date')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Order #</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.invoice')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Order Taker</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('metrics.cashier')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.table')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.floor')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.orderType')}</th>
-                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.status')}</th>
+                <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground bg-surface">{t('columns.date')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">Order #</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('columns.invoice')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">Order Taker</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('metrics.cashier')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('filters.table')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('filters.floor')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('filters.orderType')}</th>
+                <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">{t('filters.status')}</th>
                 {filters.showDetails && (
                   <>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.items')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.covers')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Sale w/o Tax</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Taxes</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Tip</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">Service Charges</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.discounts')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.coupons')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('labels.amountDue')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('labels.amountCollected')}</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.changeDue')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Payment Breakdown</th>
-                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.net')}</th>
-                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">Notes</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('columns.items')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('columns.covers')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">Sale w/o Tax</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">Taxes</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">Tip</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">Service Charges</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('metrics.discounts')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('metrics.coupons')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('labels.amountDue')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('labels.amountCollected')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('metrics.changeDue')}</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">Payment Breakdown</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground bg-surface">{t('metrics.net')}</th>
+                    <th className="py-3 px-3 text-left text-xs font-semibold text-foreground bg-surface">Notes</th>
                   </>
                 )}
                 {!filters.showDetails && (
-                  <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('metrics.net')}</th>
+                  <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground bg-surface">{t('metrics.net')}</th>
                 )}
               </tr>
               </thead>
               <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
-              {filteredOrders.map(order => {
-                const orderId = recordToString(order.id);
-                const isExpanded = expandedOrderIds.has(orderId);
-                const orderTotals = calculateOrderTotals(order);
-                const orderDate = toLuxonDateTime(order.created_at);
-                const dateStr = orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                const timeStr = orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT);
-                const orderTakerName = order.user
-                  ? `${order.user.first_name ?? ''} ${order.user.last_name ?? ''}`.trim() || order.user.login || 'Unknown'
-                  : 'Unknown';
-                const cashierName = order.cashier
-                  ? `${order.cashier.first_name ?? ''} ${order.cashier.last_name ?? ''}`.trim() || order.cashier.login || 'Unknown'
-                  : 'N/A';
-                const tableName = order.table?.name
-                  ? `${order.table.name}${order.table.number ?? ''}`
-                  : `Table ${order.table?.number ?? ''}`;
-                const floorName = order.floor?.name || 'Unknown';
-                const orderTypeName = order.order_type?.name || 'Unknown';
-                const hasItems = filters.showMenuItems && order.items && order.items.length > 0;
-                const notesText = (order.notes ?? '').trim();
-
-                return (
-                  <Fragment key={orderId}>
-                    <tr key={order.id} className={hasItems ? 'border-b-0' : ''}>
-                      {filters.showMenuItems && (
-                        <td className="py-3 pl-6 pr-2 text-sm text-foreground print:hidden">
-                          {hasItems ? (
-                            <button
-                              type="button"
-                              onClick={() => toggleOrderItems(orderId)}
-                              className="h-6 w-6 rounded border border-border text-xs font-bold text-foreground hover:bg-surface"
-                              aria-label={isExpanded ? 'Hide menu items' : 'Show menu items'}
-                            >
-                              {isExpanded ? '-' : '+'}
-                            </button>
-                          ) : null}
-                        </td>
-                      )}
-                      <td className="py-3 pl-6 pr-3 text-sm text-foreground">
-                        <div>{dateStr}</div>
-                        <div className="text-muted">{timeStr}</div>
-                      </td>
-                      <td className="py-3 px-3 text-sm text-foreground">{order.auto_id}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{orderTakerName}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{cashierName}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{tableName}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{floorName}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">{orderTypeName}</td>
-                      <td className="py-3 px-3 text-sm text-foreground">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            order.status === OrderStatus.Paid ? 'bg-success-100 text-success-800' :
-                              order.status === OrderStatus.Cancelled ? 'bg-danger-100 text-danger-800' :
-                                order.status === OrderStatus.Merged ? 'bg-primary-100 text-primary-800' :
-                                  order.status === OrderStatus.Refunded ? 'bg-warning-100 text-warning-800' :
-                                    order.status === OrderStatus.Spilt ? 'bg-info-100 text-info-800' :
-                                      'bg-surface text-foreground'
-                          }`}>
-                            {order.status}
-                          </span>
-                      </td>
-                      {filters.showDetails && (
-                        <>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.itemsCount)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(orderTotals.covers)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.salePriceWithoutTax)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.taxes)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.tips)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.serviceCharges)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.discounts)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-danger-600">{withCurrency(-orderTotals.coupons)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountDue)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.amountCollectedForDetail)}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm text-foreground">{withCurrency(orderTotals.changeDue)}</td>
-                          <td
-                            className="py-3 px-3 text-sm text-foreground whitespace-nowrap">{orderTotals.paymentBreakdown}</td>
-                          <td
-                            className="py-3 px-3 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
-                          <td className="py-3 px-3 text-sm text-foreground max-w-xs whitespace-pre-wrap break-words">
-                            {notesText || '—'}
-                          </td>
-                        </>
-                      )}
-                      {!filters.showDetails && (
-                        <td
-                          className="py-3 pr-6 text-right text-sm font-semibold text-foreground">{withCurrency(orderTotals.net)}</td>
-                      )}
-                    </tr>
-                    {hasItems && isExpanded && (
-                      <tr key={`${order.id}-items`} className="bg-surface">
-                        <td colSpan={tableColSpan} className="py-3 pl-6 pr-6">
-                          <div className="space-y-2">
-                            {/*<div className="text-xs font-semibold text-foreground mb-2">Menu Items:</div>*/}
-                            <table className="w-full text-xs">
-                              <thead>
-                              <tr className="border-b border-border">
-                                <th className="text-left py-2 pr-4 font-semibold text-muted">{t('filters.item')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.quantity')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('columns.price')}</th>
-                                <th className="text-right py-2 px-2 font-semibold text-muted">{t('reports.discount')}</th>
-                                <th className="text-right py-2 pl-2 font-semibold text-muted">{t('columns.total')}</th>
-                              </tr>
-                              </thead>
-                              <tbody className="divide-y divide-neutral-100">
-                              {order.items.map((item, idx) => {
-                                const itemPrice = getOrderItemDisplayLineTotal(item, showInclusive);
-                                const itemDiscount = safeNumber(item.discount);
-                                const itemTotal = safeNumber(itemPrice) - itemDiscount;
-
-                                return (
-                                  <tr
-                                    key={`${order.id}-item-${idx}`}
-                                    className={item.deleted_at ? 'text-danger-500' : ''}
-                                  >
-                                    <td className="py-2 pr-4 text-foreground">
-                                      <OrderItemName item={item} showQuantity={false} showPrice={false}
-                                                     showGroups={false}/>
-                                    </td>
-                                    <td
-                                      className="py-2 px-2 text-right text-foreground">{formatNumber(item.quantity)}</td>
-                                    <td className="py-2 px-2 text-right text-foreground">{withCurrency(itemPrice)}</td>
-                                    <td
-                                      className="py-2 px-2 text-right text-danger-600">{withCurrency(-itemDiscount)}</td>
-                                    <td
-                                      className="py-2 pl-2 text-right font-semibold text-foreground">{withCurrency(itemTotal)}</td>
-                                  </tr>
-                                );
-                              })}
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
-                );
-              })}
               {filteredOrders.length === 0 && (
                 <tr>
                   <td colSpan={tableColSpan} className="py-6 text-center text-sm text-muted">
                     No orders found for the selected filters.
                   </td>
                 </tr>
+              )}
+              {filteredOrders.length > 0 && isPrinting && virtualRows.map((row) => (
+                row.kind === 'order'
+                  ? renderOrderRow(row.order, row.orderId)
+                  : renderItemsRow(row.order, row.orderId)
+              ))}
+              {filteredOrders.length > 0 && !isPrinting && (
+                <>
+                  {paddingTop > 0 && (
+                    <tr aria-hidden className="pointer-events-none">
+                      <td colSpan={tableColSpan} className="!p-0 border-0">
+                        <div style={{height: paddingTop}} />
+                      </td>
+                    </tr>
+                  )}
+                  {virtualItems.map((virtualRow) => {
+                    const row = virtualRows[virtualRow.index];
+                    if (!row) return null;
+                    const measureRef = (node: HTMLTableRowElement | null) => {
+                      if (node) {
+                        rowVirtualizer.measureElement(node);
+                      }
+                    };
+                    const options = {dataIndex: virtualRow.index, measureRef};
+                    return row.kind === 'order'
+                      ? renderOrderRow(row.order, row.orderId, options)
+                      : renderItemsRow(row.order, row.orderId, options);
+                  })}
+                  {paddingBottom > 0 && (
+                    <tr aria-hidden className="pointer-events-none">
+                      <td colSpan={tableColSpan} className="!p-0 border-0">
+                        <div style={{height: paddingBottom}} />
+                      </td>
+                    </tr>
+                  )}
+                </>
               )}
               </tbody>
             </table>

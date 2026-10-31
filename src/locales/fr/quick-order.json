@@ -1,0 +1,30 @@
+{
+  "scan": {
+    "title": "Prêt à scanner",
+    "ready": "Scannez un code-barres ou choisissez un article",
+    "last": "Dernier scan : {{code}}",
+    "unknown": "Code inconnu : {{code}}",
+    "added": "{{name}} ajouté",
+    "placeholder": "Scanner code/PLU, CODE*6 ou *6 puis Entrée",
+    "inputLabel": "Code-barres / PLU",
+    "qtyHint": "Qté : CODE*6 ajoute six ; *6 ajoute six du dernier article",
+    "invalidQty": "Quantité invalide — entier après *",
+    "noLastItem": "Scannez d’abord un article, puis *qté",
+    "addedQty": "Ajouté {{count}} × {{name}}",
+    "unknownPlu": "PLU balance inconnue {{plu}} ({{code}})",
+    "addedWeight": "Ajouté {{weight}} kg {{name}}"
+  },
+  "cart": {
+    "title": "Panier",
+    "hint": "Payez quand prêt — pas d'envoi cuisine",
+    "empty": "Scannez ou touchez des articles pour vendre"
+  },
+  "browse": {
+    "title": "Parcourir les articles",
+    "show": "Afficher",
+    "hide": "Masquer"
+  },
+  "customerDisplay": {
+    "open": "Écran client"
+  }
+}

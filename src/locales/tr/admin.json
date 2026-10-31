@@ -24,7 +24,8 @@
     "accessTab": "{{title}} modülüne eriş",
     "ariaLabel": "Yönetim sekmeleri",
     "securityAlerts": "Güvenlik Uyarıları",
-    "catalogPublish": "Katalog yayınla"
+    "catalogPublish": "Katalog yayınla",
+    "availability": "Uygunluk"
   },
   "columns": {
     "photo": "Fotoğraf",
@@ -99,7 +100,15 @@
     "recordType": "Satır tipi",
     "dishName": "Yemek",
     "parentModifier": "Üst boyut",
-    "nextGroup": "Sonraki grup"
+    "nextGroup": "Sonraki grup",
+    "itemStockUom": "Kalem stok birimi",
+    "itemStockUomHint": "Yalnızca referans — envanter kaleminin stok birimi. İçe aktarmada uygulanmaz.",
+    "enteredUomHint": "Miktar için girilen birim (stok biriminin dönüştürülebilir ailesi).",
+    "barcode": "Barkod",
+    "available": "Uygun",
+    "availableQty": "Satış limiti",
+    "extraBarcodes": "Ek barkodlar",
+    "askQuantity": "Adet sor"
   },
   "entities": {
     "dish": "Yemek",
@@ -158,7 +167,9 @@
     "smartImport": "YZ içe aktarma",
     "smartImportIngredients": "Malzemeleri YZ ile içe aktar",
     "smartImportModifierGroups": "Modifikatör gruplarını YZ ile içe aktar",
-    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar"
+    "smartImportMenuStructure": "YZ ile menü yapısı içe aktar",
+    "syncDishCosts": "Maliyetleri kalemlerden güncelle",
+    "menuTree": "Menü ağacı"
   },
   "delete": {
     "dish": "{{name}} ürününü sil",
@@ -440,7 +451,25 @@
     "usePrintSettings": "Yazdırma ayarlarını kullan",
     "userBranches": "Şubeler",
     "userBranchesShared": "Tüm şubeler (paylaşılan)",
-    "userBranchesHint": "Boş = her mağazada paylaşılan çalışan. Sync now indirmesini sınırlamak için şube seçin."
+    "userBranchesHint": "Boş = her mağazada paylaşılan çalışan. Sync now indirmesini sınırlamak için şube seçin.",
+    "barcodeOfItem": "Barkod",
+    "availableOnMenu": "Menüde uygun",
+    "availableQty": "Satış limiti",
+    "availableQtyHint": "Satışlar bu limiti kaydettiğiniz andan itibaren sayılır. Boş = sınırsız.",
+    "extraBarcodes": "Ek barkodlar",
+    "extraBarcodesHint": "Koli, paket veya alternatif UPC’ler",
+    "extraBarcodesEmpty": "Henüz ek barkod yok",
+    "addBarcode": "Barkod ekle",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Adet sor",
+    "askQuantityHint": "Açıkken Menü ve Hızlı sipariş tarama/dokunmadan sonra adet sorar (CODE*N / terazi atlanır).",
+    "modifierOptionAvailability": "Değiştirici müsaitliği (bu yemek)",
+    "modifierOptionAvailable": "Bu yemek için müsait",
+    "modifierOptionAvailableHint": "Küresel müsaitlik için varsayılanı bırakın. Yalnızca bu yemek için kapatın veya satış limiti koyun.",
+    "modifierOptionSaleLimit": "Satış limiti (bu yemek)",
+    "kraItemClsCd": "KRA ürün sınıf kodu",
+    "kraTaxTyCd": "KRA vergi türü (A–E)",
+    "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -1119,5 +1148,69 @@
     "themeTitle": "Müşteri sayfası teması",
     "themeDescription": "QR sipariş sayfasının renkleri. Açık/koyu mod her müşterinin telefonunu takip edebilir.",
     "themeMode": "Görünüm"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Yemek maliyetlerini güncelle",
+    "syncDishCostsMessage": "Kilitli olmayan reçete satır maliyetlerini güncel envanter fiyatlarından günceller, ardından her yemeğin maliyetini yeniden hesaplar. Fiyatı kilitli satırlar değişmez."
+  },
+  "availability": {
+    "title": "Ürün uygunluğu",
+    "description": "Yemekleri uygun veya tükendi olarak işaretleyin; birden fazla ürün veya tüm kategori için satış limiti belirleyin.",
+    "allCategories": "Tümü",
+    "selectAll": "Tümünü seç",
+    "applyToCategory": "Tüm kategoriye uygula",
+    "targetsCategory": "Kategoride {{count}} yemek",
+    "targetsSelected": "{{count}} seçili",
+    "markAvailable": "Uygun",
+    "markUnavailable": "Tükendi",
+    "saleLimit": "Limit",
+    "setLimit": "Limit koy",
+    "clearLimit": "Sınırsız",
+    "selectDishes": "Yemek seçin veya kategoriye uygulayın",
+    "enterQty": "Satış limiti girin",
+    "saved": "{{count}} yemek güncellendi",
+    "empty": "Bu kategoride yemek yok",
+    "available": "Uygun",
+    "unavailable": "Tükendi"
+  },
+  "menuTree": {
+    "title": "Menü ağacı",
+    "search": "Ara",
+    "searchPlaceholder": "Ada göre filtrele…",
+    "expandAll": "Tümünü genişlet",
+    "collapseAll": "Tümünü daralt",
+    "expand": "Genişlet",
+    "collapse": "Daralt",
+    "loading": "Menü ağacı yükleniyor…",
+    "empty": "Gösterilecek menü öğesi yok.",
+    "uncategorized": "Kategorisiz",
+    "required": "Zorunlu",
+    "hidden": "Gizli",
+    "hiddenFromMenu": "Menüde gizli",
+    "kind": {
+      "category": "Kategori",
+      "dish": "Yemek",
+      "modifierGroup": "Modifikatör grubu",
+      "modifier": "Modifikatör",
+      "uncategorized": "Kategorisiz"
+    },
+    "zoomIn": "Yakınlaştır",
+    "zoomOut": "Uzaklaştır",
+    "fit": "Ekrana sığdır",
+    "panHint": "Sürükleyerek kaydır · tekerlek ile yakınlaştır"
+  },
+  "printers": {
+    "testPrint": "Test yazdır",
+    "testPrintAccess": "Test yazdır {{name}}",
+    "testPrintOk": "Yazdırıldı. Sunucu test fişini {{name}}{{address}} yazıcısına gönderdi.",
+    "testPrintError": "{{name}}{{address}} için yazdırma sunucusu hatası: {{error}}",
+    "testPrintUnknownError": "Bilinmeyen yazdırma sunucusu hatası",
+    "slip": {
+      "title": "TEST YAZDIRMA",
+      "name": "Ad",
+      "type": "Tür",
+      "address": "Adres",
+      "ok": "Bunu okuyabiliyorsanız yazıcı bağlıdır."
+    }
   }
 }

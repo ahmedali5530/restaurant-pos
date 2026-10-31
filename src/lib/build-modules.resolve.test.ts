@@ -69,4 +69,18 @@ describe('resolveTopLevelBuildFlags', () => {
     expect(define.__BUILD_MODULE_orders__).toBe('false');
     expect(define.__BUILD_MODULE_admin__).toBe('true');
   });
+
+  it('menu and quick are independent top-level flags', () => {
+    const excludeMenu = resolveTopLevelBuildFlags('', 'menu');
+    expect(excludeMenu.menu).toBe(false);
+    expect(excludeMenu.quick).toBe(true);
+
+    const excludeQuick = resolveTopLevelBuildFlags('', 'quick');
+    expect(excludeQuick.quick).toBe(false);
+    expect(excludeQuick.menu).toBe(true);
+
+    const define = buildModuleDefineMap('', 'quick');
+    expect(define.__BUILD_MODULE_quick__).toBe('false');
+    expect(define.__BUILD_MODULE_menu__).toBe('true');
+  });
 });

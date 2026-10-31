@@ -18,6 +18,7 @@ export enum Tables {
   modifier_groups = 'modifier_group',
   modifiers = 'modifier',
   dish_modifier_groups = 'menu_item_modifier_group',
+  dish_modifier_availability = 'menu_item_modifier_availability',
   menus = 'menu',
   menu_menu_items = 'menu_menu_item',
 
@@ -117,6 +118,7 @@ export enum Tables {
   integration_execution_history = 'integration_execution_history',
   integration_order_fiscals = 'integration_order_fiscal',
   integration_entity_mappings = 'integration_entity_mapping',
+  integration_kra_counters = 'integration_kra_counter',
   integration_oauth_credentials = 'integration_oauth_credential',
   integration_oauth_states = 'integration_oauth_state',
   integration_sync_runs = 'integration_sync_run',

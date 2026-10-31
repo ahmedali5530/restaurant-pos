@@ -89,7 +89,7 @@ DEFINE INDEX account_journal_entry_number_store_unique ON account_journal_entry 
 DEFINE INDEX aje_date ON account_journal_entry FIELDS date;
 DEFINE INDEX aje_status_date ON account_journal_entry FIELDS status, date;
 
-DEFINE EVENT audit_journal_entry_update ON account_journal_entry WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'account_journal_entry', record_id: <string> (IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { <array<string>> object::keys($after) }), source: 'surreal-event' } };
+DEFINE EVENT audit_journal_entry_update ON account_journal_entry WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: type::string($event), table_name: 'account_journal_entry', record_id: type::string(IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { object::keys($after) ?? [] }), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: account_journal_line
@@ -773,6 +773,23 @@ DEFINE INDEX idx_entity_mapping_posr ON integration_entity_mapping FIELDS provid
 
 
 -- ------------------------------
+-- TABLE: integration_kra_counter
+-- ------------------------------
+
+DEFINE TABLE integration_kra_counter TYPE NORMAL SCHEMAFULL PERMISSIONS NONE;
+
+DEFINE FIELD tin ON integration_kra_counter TYPE string PERMISSIONS FULL;
+DEFINE FIELD bhf_id ON integration_kra_counter TYPE string PERMISSIONS FULL;
+DEFINE FIELD next_invc_no ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD next_sar_no ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD next_item_seq ON integration_kra_counter TYPE int DEFAULT 0 PERMISSIONS FULL;
+DEFINE FIELD created_at ON integration_kra_counter TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD updated_at ON integration_kra_counter TYPE none | datetime | null PERMISSIONS FULL;
+
+DEFINE INDEX idx_kra_counter_tin_bhf ON integration_kra_counter FIELDS tin, bhf_id UNIQUE;
+
+
+-- ------------------------------
 -- TABLE: integration_execution_history
 -- ------------------------------
 
@@ -819,7 +836,7 @@ DEFINE FIELD updated_at ON integration_oauth_credential TYPE datetime DEFAULT ti
 
 DEFINE INDEX idx_oauth_credential ON integration_oauth_credential FIELDS provider_id, tenant_id UNIQUE;
 
-DEFINE EVENT audit_oauth_credential_update ON integration_oauth_credential WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'integration_oauth_credential', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_oauth_credential_update ON integration_oauth_credential WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: type::string($event), table_name: 'integration_oauth_credential', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: integration_oauth_state
@@ -1225,6 +1242,7 @@ DEFINE FIELD average_price ON inventory_item TYPE none | float | null PERMISSION
 DEFINE FIELD base_quantity ON inventory_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD category ON inventory_item TYPE none | record<inventory_category> | null PERMISSIONS FULL;
 DEFINE FIELD code ON inventory_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD deleted_at ON inventory_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD item_types ON inventory_item TYPE array<string> DEFAULT ['raw'] ASSERT array::len($value) > 0 PERMISSIONS FULL;
 DEFINE FIELD locations ON inventory_item TYPE none | array<record<inventory_location>> PERMISSIONS FULL;
 DEFINE FIELD locations.* ON inventory_item TYPE record<inventory_location> PERMISSIONS FULL;
@@ -1955,6 +1973,14 @@ DEFINE FIELD discount_type ON menu_item TYPE none | string | null PERMISSIONS FU
 DEFINE FIELD dish_photo ON menu_item TYPE none | record<document> | null PERMISSIONS FULL;
 DEFINE FIELD items ON menu_item TYPE none | array<record<menu_item_recipe>> | null PERMISSIONS FULL;
 DEFINE FIELD items.* ON menu_item TYPE record<menu_item_recipe> PERMISSIONS FULL;
+DEFINE FIELD available ON menu_item TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
+DEFINE FIELD ask_quantity ON menu_item TYPE none | bool | null PERMISSIONS FULL;
+DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FULL;
+DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
+DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD barcodes ON menu_item TYPE none | array<string> | null PERMISSIONS FULL;
+DEFINE FIELD kra_item_cls_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
+DEFINE FIELD kra_tax_ty_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;
@@ -1965,6 +1991,7 @@ DEFINE FIELD stage_overrides ON menu_item TYPE none | object | null PERMISSIONS 
 DEFINE FIELD tax ON menu_item TYPE none | record<tax> | null PERMISSIONS FULL;
 DEFINE FIELD workflow ON menu_item TYPE none | record<workflow> | null PERMISSIONS FULL;
 
+DEFINE INDEX mi_barcode ON menu_item FIELDS barcode;
 DEFINE INDEX mi_number ON menu_item FIELDS number;
 
 
@@ -2430,7 +2457,7 @@ DEFINE FIELD tax ON payment_type TYPE none | record<tax> | null PERMISSIONS FULL
 DEFINE FIELD type ON payment_type TYPE string PERMISSIONS FULL;
 
 
-DEFINE EVENT audit_payment_type_update ON payment_type WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'payment_type', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_payment_type_update ON payment_type WHEN $event == 'UPDATE' OR $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: type::string($event), table_name: 'payment_type', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: payment_type_gateway_config
@@ -2498,7 +2525,7 @@ DEFINE FIELD status ON payroll_run TYPE string DEFAULT 'draft' PERMISSIONS FULL;
 
 DEFINE INDEX pr_period ON payroll_run FIELDS payroll_period;
 
-DEFINE EVENT audit_payroll_run_update ON payroll_run WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: <string> $event, table_name: 'payroll_run', record_id: <string> (IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { <array<string>> object::keys($after) }), source: 'surreal-event' } };
+DEFINE EVENT audit_payroll_run_update ON payroll_run WHEN $event == 'CREATE' OR $event == 'UPDATE' OR $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: type::string($event), table_name: 'payroll_run', record_id: type::string(IF $event == 'DELETE' { $before.id } ELSE { $after.id }), changed_fields: (IF $event == 'DELETE' { [] } ELSE { object::keys($after) ?? [] }), source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: payroll_snapshot
@@ -2564,13 +2591,13 @@ DEFINE TABLE printer TYPE ANY SCHEMAFULL PERMISSIONS NONE;
 
 DEFINE FIELD command_set ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD deleted_at ON printer TYPE none | datetime | null PERMISSIONS FULL;
-DEFINE FIELD ip_address ON printer TYPE string PERMISSIONS FULL;
+DEFINE FIELD ip_address ON printer TYPE string | null | none PERMISSIONS FULL;
 DEFINE FIELD name ON printer TYPE string PERMISSIONS FULL;
 DEFINE FIELD paper_width_mm ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD pid ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD port ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD print_mode ON printer TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD prints ON printer TYPE int PERMISSIONS FULL;
+DEFINE FIELD prints ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD priority ON printer TYPE none | int | null PERMISSIONS FULL;
 DEFINE FIELD type ON printer TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD vid ON printer TYPE none | string | null PERMISSIONS FULL;
@@ -3184,9 +3211,9 @@ DEFINE FIELD user_role ON user TYPE none | record<user_role> | null PERMISSIONS 
 DEFINE FIELD user_shift ON user TYPE none | record<shift> | null PERMISSIONS FULL;
 
 
-DEFINE EVENT audit_user_create ON user WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_delete ON user WHEN $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'delete', table_name: 'user', record_id: <string> $before.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_update ON user WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_user_create ON user WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'create', table_name: 'user', record_id: type::string($after.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_delete ON user WHEN $event == 'DELETE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'delete', table_name: 'user', record_id: type::string($before.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_update ON user WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'update', table_name: 'user', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: user_role
@@ -3200,8 +3227,8 @@ DEFINE FIELD roles ON user_role TYPE array<string> PERMISSIONS FULL;
 DEFINE FIELD roles.* ON user_role TYPE string PERMISSIONS FULL;
 
 
-DEFINE EVENT audit_user_role_create ON user_role WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'create', table_name: 'user_role', record_id: <string> $after.id, changed_fields: [], source: 'surreal-event' } };
-DEFINE EVENT audit_user_role_update ON user_role WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: <string> $auth.sub, actor_login: $auth.login, actor_roles: $auth.roles, action: 'update', table_name: 'user_role', record_id: <string> $after.id, changed_fields: <array<string>> object::keys($after), source: 'surreal-event' } };
+DEFINE EVENT audit_user_role_create ON user_role WHEN $event == 'CREATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'create', table_name: 'user_role', record_id: type::string($after.id), changed_fields: [], source: 'surreal-event' } };
+DEFINE EVENT audit_user_role_update ON user_role WHEN $event == 'UPDATE' THEN { CREATE audit_log CONTENT { actor_id: (IF $auth = NONE OR $auth.sub = NONE { NONE } ELSE { type::string($auth.sub) }), actor_login: (IF $auth = NONE { NONE } ELSE { $auth.login }), actor_roles: (IF $auth = NONE OR $auth.roles = NONE { [] } ELSE { $auth.roles }), action: 'update', table_name: 'user_role', record_id: type::string($after.id), changed_fields: object::keys($after) ?? [], source: 'surreal-event' } };
 
 -- ------------------------------
 -- TABLE: work_schedule

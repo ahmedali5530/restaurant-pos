@@ -197,6 +197,10 @@
     "coupon": "Cupón",
     "discount": "Descuento",
     "tax": "Impuesto",
+    "taxFilter": "Filtro de impuestos",
+    "withTax": "Con impuesto",
+    "withoutTax": "Sin impuesto",
+    "selectSpecificTaxes": "Seleccionar impuestos específicos (opcional)",
     "provider": "Proveedor",
     "store": "Almacén",
     "kitchen": "Cocina",
@@ -390,7 +394,16 @@
     "menu": "Menú",
     "issue": "Salida",
     "employee": "Empleado",
-    "turnTime": "Tiempo de rotación (min)"
+    "turnTime": "Tiempo de rotación (min)",
+    "metric": "Métrica",
+    "purchasedQty": "Cant. comprada",
+    "purchasedCost": "Costo comprado",
+    "issuedQty": "Cant. emitida",
+    "issuedCost": "Costo emitido",
+    "consumedQty": "Cant. consumida",
+    "consumedCost": "Costo consumido",
+    "qtyVariance": "Variación cant.",
+    "costVariance": "Variación costo"
   },
   "labels": {
     "modifiers": "Modificadores",
@@ -599,7 +612,15 @@
     "selfOrdersHint": "Pagados en línea por los clientes en su mesa — no están en la caja ni en el lote de tarjetas de arriba.",
     "selfOrdersTotal": "Pagado en línea",
     "selfOrdersTestWarning": "{{count}} pedido(s) de prueba ({{amount}}) — no se cobró dinero por ellos.",
-    "testPayment": "Prueba"
+    "testPayment": "Prueba",
+    "saleVsConsumption": "Venta vs consumo",
+    "saleVsIssuance": "Venta vs inventario (emisión)",
+    "saleVsPurchase": "Venta vs compra",
+    "saleTotal": "Total de ventas",
+    "purchaseTotal": "Total de compras",
+    "profitPercent": "Porcentaje de ganancia",
+    "byItem": "Por artículo",
+    "qtyVarianceHelp": "Variación de cantidad = emitido − consumo de receta (positivo = más emitido que la receta). El costo consumido usa el costo unitario de compra del período si hay compras; si no, el precio promedio del catálogo."
   },
   "metrics": {
     "gross": "Bruto",
@@ -706,6 +727,8 @@
     "noDiscountsByUsers": "No hay descuentos por usuarios para el rango seleccionado.",
     "noDiscountRows": "No se encontraron filas de descuento para el rango seleccionado.",
     "noEmployeeSales": "No hay datos de ventas por empleados",
-    "noScheduleRoster": "No hay turnos programados para el rango seleccionado"
+    "noScheduleRoster": "No hay turnos programados para el rango seleccionado",
+    "noData": "No hay datos disponibles",
+    "noItemActivity": "No hay actividad de compra, emisión o consumo de receta en el rango seleccionado."
   }
 }

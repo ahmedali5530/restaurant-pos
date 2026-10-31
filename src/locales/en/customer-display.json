@@ -1,0 +1,12 @@
+{
+  "title": "Customer display",
+  "heading": "Your order",
+  "idle": "Welcome",
+  "idleHint": "Items you scan will appear here",
+  "thankYou": "Thank you!",
+  "thankYouHint": "Please come again",
+  "qty": "Qty {{count}}",
+  "total": "Total",
+  "items": "Items ({{count}})",
+  "totalWithTax": "Total with {{name}} {{rate}}%"
+}

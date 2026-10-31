@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Unable to generate next invoice number",
     "unableGenerateReturnNumber": "Unable to generate next return number",
     "unableGeneratePoNumber": "Unable to generate next PO number",
-    "itemsExceedQuantity": "One or more items exceed available quantity"
+    "itemsExceedQuantity": "One or more items exceed available quantity",
+    "itemDeactivated": "{{name}} is in use and was deactivated.",
+    "itemDeleted": "{{name}} deleted successfully.",
+    "itemDeleteFailed": "Failed to delete {{name}}."
   },
   "delivery": {
     "settingsSaved": "Delivery settings saved successfully",
@@ -145,7 +148,9 @@
     "invalidModifierGroup": "Modifier group is invalid",
     "duplicateDishModifierGroup": "Modifier group is already attached to this dish",
     "invalidPriority": "Priority is invalid",
-    "invalidRequiredModifiers": "Required modifiers value is invalid"
+    "invalidRequiredModifiers": "Required modifiers value is invalid",
+    "dishCostsSynced": "Updated costs for {{dishes}} dish(es) from {{items}} inventory item(s)",
+    "barcodeInUse": "Barcode {{code}} is already used by {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in use and was deactivated.",

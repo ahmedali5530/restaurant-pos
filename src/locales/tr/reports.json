@@ -197,6 +197,10 @@
     "coupon": "Kupon",
     "discount": "İndirim",
     "tax": "Vergi",
+    "taxFilter": "Vergi filtresi",
+    "withTax": "Vergili",
+    "withoutTax": "Vergisiz",
+    "selectSpecificTaxes": "Belirli vergileri seçin (isteğe bağlı)",
     "provider": "Sağlayıcı",
     "store": "Depo",
     "kitchen": "Mutfak",
@@ -390,7 +394,16 @@
     "menu": "Menü",
     "issue": "Çıkış",
     "employee": "Çalışan",
-    "turnTime": "Dönüş süresi (dk)"
+    "turnTime": "Dönüş süresi (dk)",
+    "metric": "Metrik",
+    "purchasedQty": "Satın alınan miktar",
+    "purchasedCost": "Satın alma maliyeti",
+    "issuedQty": "Çıkış miktarı",
+    "issuedCost": "Çıkış maliyeti",
+    "consumedQty": "Tüketilen miktar",
+    "consumedCost": "Tüketim maliyeti",
+    "qtyVariance": "Miktar farkı",
+    "costVariance": "Maliyet farkı"
   },
   "labels": {
     "modifiers": "Değiştiriciler",
@@ -599,7 +612,15 @@
     "selfOrdersHint": "Misafirler tarafından masada çevrimiçi ödendi — yukarıdaki kasa çekmecesine veya kart grubuna dahil değil.",
     "selfOrdersTotal": "Çevrimiçi ödenen",
     "selfOrdersTestWarning": "{{count}} test siparişi ({{amount}}) — bunlar için para tahsil edilmedi.",
-    "testPayment": "Test"
+    "testPayment": "Test",
+    "saleVsConsumption": "Satış vs tüketim",
+    "saleVsIssuance": "Satış vs stok (çıkış)",
+    "saleVsPurchase": "Satış vs satın alma",
+    "saleTotal": "Satış toplamı",
+    "purchaseTotal": "Satın alma toplamı",
+    "profitPercent": "Kâr yüzdesi",
+    "byItem": "Kaleme göre",
+    "qtyVarianceHelp": "Miktar farkı = çıkış − tarif tüketimi (pozitif = tariften fazla çıkış). Tüketim maliyeti, satın alma varsa dönem birim satın alma maliyetini, yoksa katalog ortalama fiyatını kullanır."
   },
   "metrics": {
     "gross": "Brüt",
@@ -706,6 +727,8 @@
     "noDiscountsByUsers": "Seçilen aralık için kullanıcıya göre indirim yok.",
     "noDiscountRows": "Seçilen aralık için indirim satırı bulunamadı.",
     "noEmployeeSales": "Çalışan satış verisi yok",
-    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok"
+    "noScheduleRoster": "Seçilen aralıkta planlanmış vardiya yok",
+    "noData": "Veri yok",
+    "noItemActivity": "Seçilen aralıkta satın alma, çıkış veya tarif tüketim etkinliği yok."
   }
 }

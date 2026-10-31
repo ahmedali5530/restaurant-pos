@@ -24,7 +24,8 @@
     "accessTab": "الوصول إلى {{title}}",
     "ariaLabel": "علامات تبويب الإدارة",
     "securityAlerts": "تنبيهات الأمان",
-    "catalogPublish": "نشر الكتالوج"
+    "catalogPublish": "نشر الكتالوج",
+    "availability": "التوفر"
   },
   "columns": {
     "photo": "صورة",
@@ -99,7 +100,15 @@
     "recordType": "نوع الصف",
     "dishName": "الطبق",
     "parentModifier": "الحجم الأب",
-    "nextGroup": "المجموعة التالية"
+    "nextGroup": "المجموعة التالية",
+    "itemStockUom": "وحدة مخزون الصنف",
+    "itemStockUomHint": "للمرجع فقط — وحدة مخزون عنصر المخزون. لا تُطبَّق عند الاستيراد.",
+    "enteredUomHint": "الوحدة المدخلة للكمية (من نفس عائلة وحدة مخزون الصنف).",
+    "barcode": "الباركود",
+    "available": "متاح",
+    "availableQty": "حد البيع",
+    "extraBarcodes": "باركودات إضافية",
+    "askQuantity": "طلب الكمية"
   },
   "entities": {
     "dish": "طبق",
@@ -158,7 +167,9 @@
     "smartImport": "استيراد بالذكاء الاصطناعي",
     "smartImportIngredients": "استيراد بالذكاء الاصطناعي للمكونات",
     "smartImportModifierGroups": "استيراد بالذكاء الاصطناعي لمجموعات المعدّلات",
-    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي"
+    "smartImportMenuStructure": "استيراد هيكل القائمة بالذكاء الاصطناعي",
+    "syncDishCosts": "تحديث التكاليف من الأصناف",
+    "menuTree": "شجرة القائمة"
   },
   "delete": {
     "dish": "حذف الصنف {{name}}",
@@ -440,7 +451,25 @@
     "usePrintSettings": "استخدم إعدادات الطباعة",
     "userBranches": "الفروع",
     "userBranchesShared": "كل الفروع (مشترك)",
-    "userBranchesHint": "اتركه فارغاً لموظف مشترك في كل المتاجر. حدد الفروع لتقييد التنزيل بتلك المتاجر."
+    "userBranchesHint": "اتركه فارغاً لموظف مشترك في كل المتاجر. حدد الفروع لتقييد التنزيل بتلك المتاجر.",
+    "barcodeOfItem": "الباركود",
+    "availableOnMenu": "متاح في القائمة",
+    "availableQty": "حد البيع",
+    "availableQtyHint": "تُحسب المبيعات من وقت حفظ هذا الحد. فارغ = غير محدود.",
+    "extraBarcodes": "باركودات إضافية",
+    "extraBarcodesHint": "باركودات العلبة أو العبوة أو البديلة لهذا الصنف",
+    "extraBarcodesEmpty": "لا توجد باركودات إضافية بعد",
+    "addBarcode": "إضافة باركود",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "طلب الكمية",
+    "askQuantityHint": "عند التفعيل يطلب القائمة/الطلب السريع الكمية بعد المسح أو النقر (يتخطى CODE*N وملصقات الميزان).",
+    "modifierOptionAvailability": "توفر المعدّل (لهذا الطبق)",
+    "modifierOptionAvailable": "متاح لهذا الطبق",
+    "modifierOptionAvailableHint": "اترك الافتراضي لاستخدام التوفر العام. عطّل أو ضع حد مبيعات لتجاوزه لهذا الطبق فقط.",
+    "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)",
+    "kraItemClsCd": "رمز تصنيف صنف KRA",
+    "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
+    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -1119,5 +1148,69 @@
     "themeTitle": "سمة صفحة العميل",
     "themeDescription": "ألوان صفحة الطلب عبر QR. يمكن أن يتبع الوضع الفاتح/الداكن هاتف كل عميل.",
     "themeMode": "المظهر"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "تحديث تكاليف الأطباق",
+    "syncDishCostsMessage": "تحديث تكاليف أسطر الوصفة غير المقفلة من أسعار عناصر المخزون الحالية، ثم إعادة حساب تكلفة كل طبق. أسطر الوصفة المقفلة السعر تبقى كما هي."
+  },
+  "availability": {
+    "title": "توفر الأصناف",
+    "description": "علّم الأطباق كمتاحة أو نافدة وحدد حدود بيع لعدة أصناف أو فئة كاملة.",
+    "allCategories": "الكل",
+    "selectAll": "تحديد الكل",
+    "applyToCategory": "تطبيق على الفئة كلها",
+    "targetsCategory": "{{count}} أطباق في الفئة",
+    "targetsSelected": "{{count}} محدد",
+    "markAvailable": "متاح",
+    "markUnavailable": "نافد",
+    "saleLimit": "الحد",
+    "setLimit": "تعيين الحد",
+    "clearLimit": "غير محدود",
+    "selectDishes": "حدد أطباقاً أو طبّق على الفئة",
+    "enterQty": "أدخل حد البيع",
+    "saved": "تم تحديث {{count}} أطباق",
+    "empty": "لا أطباق في هذه الفئة",
+    "available": "متاح",
+    "unavailable": "نافد"
+  },
+  "menuTree": {
+    "title": "شجرة القائمة",
+    "search": "بحث",
+    "searchPlaceholder": "تصفية حسب الاسم…",
+    "expandAll": "توسيع الكل",
+    "collapseAll": "طي الكل",
+    "expand": "توسيع",
+    "collapse": "طي",
+    "loading": "جاري تحميل شجرة القائمة…",
+    "empty": "لا توجد عناصر قائمة للعرض.",
+    "uncategorized": "بدون فئة",
+    "required": "مطلوب",
+    "hidden": "مخفي",
+    "hiddenFromMenu": "مخفي من القائمة",
+    "kind": {
+      "category": "فئة",
+      "dish": "طبق",
+      "modifierGroup": "مجموعة المعدّلات",
+      "modifier": "معدّل",
+      "uncategorized": "بدون فئة"
+    },
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "fit": "ملاءمة الشاشة",
+    "panHint": "اسحب للتحريك · مرّر للتكبير"
+  },
+  "printers": {
+    "testPrint": "طباعة اختبار",
+    "testPrintAccess": "طباعة اختبار {{name}}",
+    "testPrintOk": "تمت الطباعة. أرسل الخادم إيصال الاختبار إلى {{name}}{{address}}.",
+    "testPrintError": "خطأ خادم الطباعة لـ {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "خطأ غير معروف من خادم الطباعة",
+    "slip": {
+      "title": "طباعة اختبار",
+      "name": "الاسم",
+      "type": "النوع",
+      "address": "العنوان",
+      "ok": "إذا كنت تستطيع قراءة هذا، فالطابعة متصلة."
+    }
   }
 }

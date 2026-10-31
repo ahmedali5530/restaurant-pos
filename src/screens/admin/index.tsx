@@ -6,6 +6,7 @@ import { AdminFloors } from "@/components/settings/floors";
 import { AdminTables } from "@/components/settings/tables";
 import { AdminSelfOrder } from "@/components/settings/self_order";
 import { AdminDishes } from "@/components/settings/dishes";
+import { AdminAvailability } from "@/components/settings/availability";
 import { AdminCategories } from "@/components/settings/categories";
 import { AdminModifierGroups } from "@/components/settings/modifier_groups";
 import { AdminDiscounts } from "@/components/settings/discounts";
@@ -33,6 +34,7 @@ const CATALOG_PUBLISH_ENABLED =
 
 const BASE_ADMIN_TAB_KEYS = [
   'dishes',
+  'availability',
   'menus',
   'categories',
   'modifier_groups',
@@ -62,6 +64,7 @@ const ADMIN_TAB_KEYS: AdminTabKey[] = CATALOG_PUBLISH_ENABLED
 
 const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
   dishes: 'tabs.dishes',
+  availability: 'tabs.availability',
   menus: 'tabs.menus',
   categories: 'tabs.categories',
   modifier_groups: 'tabs.modifierGroups',
@@ -86,6 +89,7 @@ const TAB_I18N_KEYS: Record<AdminTabKey, string> = {
 /** Stable permission codes stored in user roles — not translated labels. */
 const ADMIN_TAB_MODULES: Record<AdminTabKey, string> = {
   dishes: 'admin.dishes',
+  availability: 'admin.dishes',
   menus: 'admin.menus',
   categories: 'admin.categories',
   modifier_groups: 'admin.modifier_groups',
@@ -123,6 +127,7 @@ export const Admin = () => {
   const pages = useMemo(() => {
     const all = {
       dishes: { component: <AdminDishes/>, title: t('tabs.dishes') },
+      availability: { component: <AdminAvailability/>, title: t('tabs.availability') },
       menus: { component: <AdminMenus/>, title: t('tabs.menus') },
       categories: { component: <AdminCategories/>, title: t('tabs.categories') },
       modifier_groups: { component: <AdminModifierGroups/>, title: t('tabs.modifierGroups') },

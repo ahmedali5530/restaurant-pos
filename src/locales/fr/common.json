@@ -164,7 +164,8 @@
     "recordNotFound": "Aucun enregistrement correspondant trouvé pour la mise à jour.",
     "multipleMatches": "Plusieurs enregistrements correspondent aux colonnes sélectionnées.",
     "unsupportedMatchField": "Impossible de correspondre sur la colonne \"{{field}}\".",
-    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est {{max}}."
+    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est {{max}}.",
+    "ambiguousDishNumber": "Plusieurs plats partagent le numéro \"{{number}}\". Passez l’id (menu_item:…) ou un nom unique."
   },
   "loading": "Chargement...",
   "dataImport": {
@@ -227,7 +228,11 @@
         "nested_override": "Prix imbriqué"
       }
     },
-    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu."
+    "ingredientMustExist": "Doit correspondre exactement au nom ou code d’un article d’inventaire existant (insensible à la casse). Choisissez dans la liste si non résolu.",
+    "unknownUom": "Unité inconnue \"{{uom}}\"",
+    "incompatibleUom": "L’unité \"{{entered}}\" ne peut pas être convertie en unité de stock \"{{stock}}\"{{item}}",
+    "missingItemStockUom": "L’ingrédient n’a pas d’UOM de stock ; impossible de vérifier \"{{uom}}\"",
+    "recipeCostExceedsPrice": "Le coût de la recette {{recipeCost}} dépasse le prix du plat {{price}} pour \"{{dish}}\""
   },
   "aiAssistant": {
     "open": "Ouvrir {{name}}",
@@ -255,9 +260,46 @@
       "addDish": "Ajouter un nouveau plat Margherita à x €",
       "listUsers": "Lister tous les utilisateurs POS",
       "inventoryStock": "Afficher les articles en stock sous le seuil de réapprovisionnement",
-      "howToPurchase": "Comment enregistrer un achat d'inventaire ?"
+      "howToPurchase": "Comment enregistrer un achat d'inventaire ?",
+      "cleanseCsv": "Joignez un CSV désordonné à nettoyer pour AI Import"
     },
     "unknownConfig": "Configuration d'importation inconnue pour l'aperçu.",
-    "passwordWillBeSet": "Le mot de passe sera défini à la confirmation"
+    "passwordWillBeSet": "Le mot de passe sera défini à la confirmation",
+    "cleanseTitle": "Nettoyer le fichier d'import",
+    "attachFile": "Joindre CSV/Excel",
+    "cleanseDomain": "Domaine d'import",
+    "cleanseRun": "Nettoyer et préparer le CSV",
+    "cleanseDownload": "Télécharger le CSV corrigé",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    }
   }
 }

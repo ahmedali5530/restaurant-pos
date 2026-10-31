@@ -155,7 +155,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 9999, ['suppliers', 'locations'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 9999, ['suppliers', 'locations'], {
     enabled: false
   });
 

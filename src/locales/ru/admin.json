@@ -24,7 +24,8 @@
     "accessTab": "Доступ к {{title}}",
     "ariaLabel": "Вкладки администрирования",
     "securityAlerts": "Оповещения безопасности",
-    "catalogPublish": "Публикация каталога"
+    "catalogPublish": "Публикация каталога",
+    "availability": "Доступность"
   },
   "columns": {
     "photo": "Фото",
@@ -99,7 +100,15 @@
     "recordType": "Тип строки",
     "dishName": "Блюдо",
     "parentModifier": "Родительский размер",
-    "nextGroup": "Следующая группа"
+    "nextGroup": "Следующая группа",
+    "itemStockUom": "Ед. склад. учёта товара",
+    "itemStockUomHint": "Только для справки — складская единица товара. Не применяется при импорте.",
+    "enteredUomHint": "Введённая единица количества (семейство, совместимое со складской единицей).",
+    "barcode": "Штрихкод",
+    "available": "Доступно",
+    "availableQty": "Лимит продаж",
+    "extraBarcodes": "Доп. штрихкоды",
+    "askQuantity": "Спрашивать кол-во"
   },
   "entities": {
     "dish": "Блюдо",
@@ -158,7 +167,9 @@
     "smartImport": "ИИ-импорт",
     "smartImportIngredients": "ИИ-импорт ингредиентов",
     "smartImportModifierGroups": "ИИ-импорт групп модификаторов",
-    "smartImportMenuStructure": "ИИ-импорт структуры меню"
+    "smartImportMenuStructure": "ИИ-импорт структуры меню",
+    "syncDishCosts": "Обновить себестоимость из товаров",
+    "menuTree": "Дерево меню"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -440,7 +451,25 @@
     "usePrintSettings": "Использовать настройки печати",
     "userBranches": "Филиалы",
     "userBranchesShared": "Все филиалы (общий)",
-    "userBranchesHint": "Пусто = общий сотрудник во всех магазинах. Выберите филиалы, чтобы ограничить загрузку Sync now."
+    "userBranchesHint": "Пусто = общий сотрудник во всех магазинах. Выберите филиалы, чтобы ограничить загрузку Sync now.",
+    "barcodeOfItem": "Штрихкод",
+    "availableOnMenu": "Доступно в меню",
+    "availableQty": "Лимит продаж",
+    "availableQtyHint": "Продажи считаются с момента сохранения лимита. Пусто = без лимита.",
+    "extraBarcodes": "Дополнительные штрихкоды",
+    "extraBarcodesHint": "Штрихкоды короба, упаковки или альтернативные UPC",
+    "extraBarcodesEmpty": "Дополнительных штрихкодов пока нет",
+    "addBarcode": "Добавить штрихкод",
+    "extraBarcodePlaceholder": "UPC / EAN",
+    "askQuantity": "Спрашивать количество",
+    "askQuantityHint": "Если включено, меню и быстрый заказ спрашивают количество после скана/нажатия (CODE*N / весы пропускаются).",
+    "modifierOptionAvailability": "Доступность модификатора (это блюдо)",
+    "modifierOptionAvailable": "Доступно для этого блюда",
+    "modifierOptionAvailableHint": "Оставьте по умолчанию для глобальной доступности. Отключите или задайте лимит только для этого блюда.",
+    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
+    "kraItemClsCd": "Код классификации товара KRA",
+    "kraTaxTyCd": "Тип налога KRA (A–E)",
+    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -1119,5 +1148,69 @@
     "themeTitle": "Тема страницы гостя",
     "themeDescription": "Цвета страницы QR-заказа. Светлая/тёмная тема может следовать настройкам телефона гостя.",
     "themeMode": "Оформление"
+  },
+  "confirm": {
+    "syncDishCostsTitle": "Обновить себестоимость блюд",
+    "syncDishCostsMessage": "Обновит незаблокированные строки рецептов по текущим ценам товаров, затем пересчитает себестоимость каждого блюда. Строки с заблокированной ценой не изменятся."
+  },
+  "availability": {
+    "title": "Доступность блюд",
+    "description": "Отмечайте блюда как доступные или закончившиеся и задавайте лимиты продаж для нескольких позиций или всей категории.",
+    "allCategories": "Все",
+    "selectAll": "Выбрать все",
+    "applyToCategory": "Применить ко всей категории",
+    "targetsCategory": "{{count}} блюд в категории",
+    "targetsSelected": "{{count}} выбрано",
+    "markAvailable": "Доступно",
+    "markUnavailable": "Нет в наличии",
+    "saleLimit": "Лимит",
+    "setLimit": "Задать лимит",
+    "clearLimit": "Без лимита",
+    "selectDishes": "Выберите блюда или примените к категории",
+    "enterQty": "Введите лимит продаж",
+    "saved": "Обновлено блюд: {{count}}",
+    "empty": "В этой категории нет блюд",
+    "available": "Доступно",
+    "unavailable": "Нет в наличии"
+  },
+  "menuTree": {
+    "title": "Дерево меню",
+    "search": "Поиск",
+    "searchPlaceholder": "Фильтр по названию…",
+    "expandAll": "Развернуть всё",
+    "collapseAll": "Свернуть всё",
+    "expand": "Развернуть",
+    "collapse": "Свернуть",
+    "loading": "Загрузка дерева меню…",
+    "empty": "Нет элементов меню для отображения.",
+    "uncategorized": "Без категории",
+    "required": "Обязательно",
+    "hidden": "Скрыто",
+    "hiddenFromMenu": "Скрыто в меню",
+    "kind": {
+      "category": "Категория",
+      "dish": "Блюдо",
+      "modifierGroup": "Группа модификаторов",
+      "modifier": "Модификатор",
+      "uncategorized": "Без категории"
+    },
+    "zoomIn": "Увеличить",
+    "zoomOut": "Уменьшить",
+    "fit": "По размеру экрана",
+    "panHint": "Перетаскивайте · колесо для масштаба"
+  },
+  "printers": {
+    "testPrint": "Тестовая печать",
+    "testPrintAccess": "Тестовая печать {{name}}",
+    "testPrintOk": "Напечатано. Сервер отправил тестовый чек на {{name}}{{address}}.",
+    "testPrintError": "Ошибка сервера печати для {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Неизвестная ошибка сервера печати",
+    "slip": {
+      "title": "ТЕСТОВАЯ ПЕЧАТЬ",
+      "name": "Имя",
+      "type": "Тип",
+      "address": "Адрес",
+      "ok": "Если вы можете это прочитать, принтер подключен."
+    }
   }
 }

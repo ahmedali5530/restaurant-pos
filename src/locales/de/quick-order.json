@@ -1,0 +1,30 @@
+{
+  "scan": {
+    "title": "Bereit zum Scannen",
+    "ready": "Barcode scannen oder Artikel unten wählen",
+    "last": "Letzter Scan: {{code}}",
+    "unknown": "Unbekannter Code: {{code}}",
+    "added": "{{name}} hinzugefügt",
+    "placeholder": "Barcode/PLU scannen, CODE*6 oder *6, dann Enter",
+    "inputLabel": "Barcode / PLU",
+    "qtyHint": "Menge: CODE*6 fügt sechs hinzu; *6 das letzte Item ×6",
+    "invalidQty": "Ungültige Menge — ganze Zahl nach *",
+    "noLastItem": "Zuerst ein Item scannen, dann *Menge",
+    "addedQty": "{{count}} × {{name}} hinzugefügt",
+    "unknownPlu": "Unbekannte Waagen-PLU {{plu}} ({{code}})",
+    "addedWeight": "{{weight}} kg {{name}} hinzugefügt"
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "hint": "Bei Bereitschaft zahlen — kein Küchensenden",
+    "empty": "Scannen oder tippen Sie Artikel, um zu verkaufen"
+  },
+  "browse": {
+    "title": "Artikel durchsuchen",
+    "show": "Anzeigen",
+    "hide": "Ausblenden"
+  },
+  "customerDisplay": {
+    "open": "Kundendisplay"
+  }
+}

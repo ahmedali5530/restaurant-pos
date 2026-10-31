@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Kan volgend factuurnummer niet genereren",
     "unableGenerateReturnNumber": "Kan volgend retournummer niet genereren",
     "unableGeneratePoNumber": "Kan volgend PO-nummer niet genereren",
-    "itemsExceedQuantity": "Een of meer artikelen overschrijden de beschikbare hoeveelheid"
+    "itemsExceedQuantity": "Een of meer artikelen overschrijden de beschikbare hoeveelheid",
+    "itemDeactivated": "{{name}} is in gebruik en is gedeactiveerd.",
+    "itemDeleted": "{{name}} succesvol verwijderd.",
+    "itemDeleteFailed": "{{name}} kon niet worden verwijderd."
   },
   "delivery": {
     "settingsSaved": "Bezorginstellingen succesvol opgeslagen",
@@ -136,7 +139,9 @@
     "invalidPriority": "Prioriteit is ongeldig",
     "invalidRequiredModifiers": "Waarde voor verplichte modifiers is ongeldig",
     "loginTaken": "Een andere gebruiker heeft al deze login/PIN — kies een andere.",
-    "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander."
+    "passwordTaken": "Een andere gebruiker heeft al dit wachtwoord — kies een ander.",
+    "dishCostsSynced": "Kosten bijgewerkt voor {{dishes}} gerecht(en) vanuit {{items}} voorraadartikel(en)",
+    "barcodeInUse": "Barcode {{code}} wordt al gebruikt door {{name}}"
   },
   "settingsDelete": {
     "deactivated": "{{entity}} is in gebruik en is gedeactiveerd.",
