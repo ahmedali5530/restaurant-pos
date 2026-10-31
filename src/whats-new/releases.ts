@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-01',
+    title: 'Assistant table name/number split',
+    items: [
+      'Creating tables via the assistant no longer doubles labels like F1F1: name is the prefix (F) and number is digits (1); identical full labels are split automatically.',
+    ],
+  },
+  {
     date: '2026-10-31',
     title: 'HQ user catalog download',
     items: [
