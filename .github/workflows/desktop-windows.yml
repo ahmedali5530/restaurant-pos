@@ -13,6 +13,14 @@ on:
         description: Draft release tag (required if create_draft_release)
         type: string
         default: desktop-windows-test
+      app_modules:
+        description: Modules to include, comma-separated. Leave empty for every module. menu, orders, summary, kitchen, order_display, delivery, closing, inventory, admin, reports, tips, accounts, hr, integrations, settings. A child such as admin.dishes keeps that tab.
+        type: string
+        default: ""
+      app_modules_exclude:
+        description: Modules to remove, comma-separated. Applied after the include list. Example hr, accounts, admin.qr_ordering
+        type: string
+        default: ""
 
 concurrency:
   group: desktop-windows-${{ github.ref }}
@@ -70,7 +78,11 @@ jobs:
         shell: pwsh
         env:
           POSR_REPO_ROOT: ${{ github.workspace }}
+          VITE_APP_MODULES: ${{ inputs.app_modules }}
+          VITE_APP_MODULES_EXCLUDE: ${{ inputs.app_modules_exclude }}
         run: |
+          Write-Host "App modules include: $(if ([string]::IsNullOrWhiteSpace($env:VITE_APP_MODULES)) { '<all>' } else { $env:VITE_APP_MODULES })"
+          Write-Host "App modules exclude: $(if ([string]::IsNullOrWhiteSpace($env:VITE_APP_MODULES_EXCLUDE)) { '<none>' } else { $env:VITE_APP_MODULES_EXCLUDE })"
           bun run desktop:build:windows
 
       - name: Locate installer
@@ -111,6 +123,9 @@ jobs:
           prerelease: true
           body: |
             Manual Windows desktop build from `${{ github.sha }}` on `${{ github.ref_name }}`.
+
+            Modules included: ${{ inputs.app_modules || '(all)' }}
+            Modules excluded: ${{ inputs.app_modules_exclude || '(none)' }}
 
             Install the `*-setup.exe` asset on a Windows 10/11 machine (WebView2 usually already present).
             First launch: import a `.surql` via Desktop database setup.

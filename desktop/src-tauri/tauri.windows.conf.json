@@ -6,7 +6,8 @@
       "resources/sidecars/**/*",
       "resources/migrations/**/*",
       "windows/configure-posr.ps1",
-      "windows/installer-settings.template.json"
+      "windows/installer-settings.template.json",
+      "resources/web/**/*"
     ],
     "windows": {
       "webviewInstallMode": {

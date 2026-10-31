@@ -35,6 +35,10 @@ export VITE_APP_TIMEZONE="${VITE_APP_TIMEZONE:-UTC}"
 export VITE_DEFAULT_LANGUAGE="${VITE_DEFAULT_LANGUAGE:-en}"
 export VITE_DEFAULT_LOGIN_METHOD="${VITE_DEFAULT_LOGIN_METHOD:-pin}"
 
+# Empty means every module. Set by the desktop workflow inputs for a client build.
+echo "[posr-desktop] VITE_APP_MODULES=${VITE_APP_MODULES:-<all>}"
+echo "[posr-desktop] VITE_APP_MODULES_EXCLUDE=${VITE_APP_MODULES_EXCLUDE:-<none>}"
+
 bunx vite build
 
 # Packaged desktop serves these files on port 5173 for other PCs on the LAN.

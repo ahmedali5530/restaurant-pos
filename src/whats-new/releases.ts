@@ -8,6 +8,20 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-31',
+    title: 'Desktop screens in the browser',
+    items: [
+      'The Windows installer now includes the screen files. While POSR is running, this PC can open http://127.0.0.1:5173 or http://localhost:5173, and other computers on the network can open http://<this-register-ip>:5173.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'Windows USB printing',
+    items: [
+      'A USB receipt printer that Windows already installed prints through that Windows printer queue. Printing no longer stops with LIBUSB_ERROR_NOT_SUPPORTED.',
+    ],
+  },
+  {
+    date: '2026-10-31',
     title: 'Printer connectivity test',
     items: [
       'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',

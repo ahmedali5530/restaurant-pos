@@ -4,7 +4,7 @@
 
 use std::fs::File;
 use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
+use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr, TcpListener, TcpStream};
 use std::path::{Path, PathBuf};
 use std::thread;
 use std::time::Duration;
@@ -18,49 +18,89 @@ const PORT: u16 = 5173;
 
 pub fn start(app: &AppHandle, log_hub: &LogHub) {
   let Some(root) = web_root(app) else {
-    log_hub.shell("LAN screens not bundled — browser access unavailable");
+    log_hub.shell(&format!(
+      "LAN screens not bundled — browser access unavailable ({})",
+      web_root_hint(app)
+    ));
     return;
   };
 
-  let listener = match TcpListener::bind(("0.0.0.0", PORT)) {
-    Ok(listener) => listener,
+  // Windows resolves "localhost" to ::1 first. An IPv4-only socket then
+  // answers that connection with "connection refused".
+  let mut listeners = Vec::new();
+  match TcpListener::bind(SocketAddr::from((Ipv6Addr::UNSPECIFIED, PORT))) {
+    Ok(listener) => listeners.push(listener),
     Err(err) => {
-      log_hub.shell(&format!(
-        "LAN screens port {PORT} is already in use ({err})"
-      ));
-      return;
+      log_hub.shell(&format!("LAN screens IPv6 port {PORT} not bound ({err})"));
     }
-  };
-  let _ = listener.set_nonblocking(false);
-  log_hub.shell(&format!(
-    "LAN screens on port {PORT} — other PCs open http://<this-ip>:{PORT} (allow it in the firewall)"
-  ));
-
-  thread::spawn(move || {
-    for conn in listener.incoming() {
-      let Ok(stream) = conn else { continue };
-      let root = root.clone();
-      thread::spawn(move || {
-        let _ = handle_client(stream, &root);
-      });
-    }
-  });
-}
-
-fn web_root(app: &AppHandle) -> Option<PathBuf> {
-  if let Ok(resource) = app.path().resource_dir() {
-    for rel in ["resources/web", "web", "resources/resources/web"] {
-      let dir = resource.join(rel);
-      if dir.join("index.html").is_file() {
-        return Some(dir);
+  }
+  match TcpListener::bind(SocketAddr::from((Ipv4Addr::UNSPECIFIED, PORT))) {
+    Ok(listener) => listeners.push(listener),
+    Err(err) => {
+      if listeners.is_empty() {
+        log_hub.shell(&format!(
+          "LAN screens port {PORT} is already in use ({err})"
+        ));
+        return;
       }
     }
   }
-  let dist = paths::resolve_repo_root()?.join("dist");
-  if dist.join("index.html").is_file() {
-    return Some(dist);
+
+  log_hub.shell(&format!(
+    "LAN screens on port {PORT} — this PC opens http://127.0.0.1:{PORT} or http://localhost:{PORT}; other PCs open http://<this-ip>:{PORT} (allow it in the firewall)"
+  ));
+
+  for listener in listeners {
+    let root = root.clone();
+    thread::spawn(move || {
+      for conn in listener.incoming() {
+        let Ok(stream) = conn else { continue };
+        let root = root.clone();
+        thread::spawn(move || {
+          let _ = handle_client(stream, &root);
+        });
+      }
+    });
+  }
+}
+
+fn web_root(app: &AppHandle) -> Option<PathBuf> {
+  for dir in web_root_candidates(app) {
+    if dir.join("index.html").is_file() {
+      return Some(dir);
+    }
   }
   None
+}
+
+fn web_root_hint(app: &AppHandle) -> String {
+  let tried: Vec<String> = web_root_candidates(app)
+    .into_iter()
+    .map(|dir| dir.display().to_string())
+    .collect();
+  if tried.is_empty() {
+    "no resource directory".to_string()
+  } else {
+    format!("looked in {}", tried.join(", "))
+  }
+}
+
+fn web_root_candidates(app: &AppHandle) -> Vec<PathBuf> {
+  let mut dirs = Vec::new();
+  if let Ok(resource) = app.path().resource_dir() {
+    for rel in ["resources/web", "web", "resources/resources/web"] {
+      dirs.push(resource.join(rel));
+    }
+  }
+  if let Ok(exe) = std::env::current_exe() {
+    if let Some(exe_dir) = exe.parent() {
+      dirs.push(exe_dir.join("resources").join("web"));
+    }
+  }
+  if let Some(root) = paths::resolve_repo_root() {
+    dirs.push(root.join("dist"));
+  }
+  dirs
 }
 
 fn handle_client(mut stream: TcpStream, root: &Path) -> std::io::Result<()> {
