@@ -20,6 +20,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Reinstalling POSR Desktop drops the window cache automatically. The database and store settings stay, and you do not need to delete a WebView folder by hand.',
       'Installing or updating POSR Desktop skips the setup questions when this PC already has store settings.',
       'A new database still opens the screen where you import a demo .surql file. Schema updates no longer skip that step.',
+      'The timezone from the desktop setup (for example Asia/Karachi) is used for times on screen. A second settings file no longer leaves the app on UTC.',
     ],
   },
   {

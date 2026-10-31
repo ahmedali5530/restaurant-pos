@@ -345,13 +345,91 @@ pub fn save_config(app_data: &Path, cfg: &DesktopConfig) -> Result<(), String> {
   fs::write(&path, raw).map_err(|e| format!("write config: {e}"))
 }
 
-pub fn load_installer_settings(app_data: &Path) -> Result<InstallerSettings, String> {
-  let path = installer_settings_path(app_data);
-  if !path.exists() {
-    return Err("installer-settings.json not found".into());
+fn read_installer_file(path: &Path) -> Result<InstallerSettings, String> {
+  if !path.is_file() {
+    return Err(format!("installer-settings.json not found at {}", path.display()));
   }
-  let raw = fs::read_to_string(&path).map_err(|e| format!("read installer-settings: {e}"))?;
-  serde_json::from_str(&raw).map_err(|e| format!("parse installer-settings: {e}"))
+  let raw = fs::read_to_string(path).map_err(|e| format!("read installer-settings: {e}"))?;
+  // PowerShell 5.1 Set-Content -Encoding UTF8 writes a BOM, which serde rejects.
+  let raw = raw.trim_start_matches('\u{feff}');
+  serde_json::from_str(raw).map_err(|e| format!("parse installer-settings: {e}"))
+}
+
+fn installer_settings_candidates(app_data: &Path) -> Vec<PathBuf> {
+  #[cfg(windows)]
+  {
+    let mut paths = vec![installer_settings_path(app_data)];
+    if let Ok(local) = std::env::var("LOCALAPPDATA") {
+      let wizard_copy = PathBuf::from(local)
+        .join("com.posr.desktop")
+        .join("installer-settings.json");
+      if wizard_copy != paths[0] {
+        paths.push(wizard_copy);
+      }
+    }
+    return paths;
+  }
+  #[cfg(not(windows))]
+  {
+    vec![installer_settings_path(app_data)]
+  }
+}
+
+fn timezone_is_set(settings: &InstallerSettings) -> bool {
+  let tz = settings.locale.timezone.trim();
+  !tz.is_empty() && !tz.eq_ignore_ascii_case("utc")
+}
+
+fn file_mtime(path: &Path) -> std::time::SystemTime {
+  fs::metadata(path)
+    .and_then(|meta| meta.modified())
+    .unwrap_or(std::time::UNIX_EPOCH)
+}
+
+pub fn load_installer_settings(app_data: &Path) -> Result<InstallerSettings, String> {
+  let mut found: Vec<(PathBuf, InstallerSettings)> = Vec::new();
+  let mut last_err = "installer-settings.json not found".to_string();
+  for path in installer_settings_candidates(app_data) {
+    match read_installer_file(&path) {
+      Ok(settings) => found.push((path, settings)),
+      Err(err) => last_err = err,
+    }
+  }
+  if found.is_empty() {
+    return Err(last_err);
+  }
+
+  // The wizard writes LocalAppData. A later launch can create a Roaming copy
+  // that is still the UTC placeholder. Prefer a file that names a real zone.
+  let configured: Vec<usize> = found
+    .iter()
+    .enumerate()
+    .filter(|(_, (_, settings))| timezone_is_set(settings))
+    .map(|(index, _)| index)
+    .collect();
+  let pool: Vec<usize> = if configured.is_empty() {
+    (0..found.len()).collect()
+  } else {
+    configured
+  };
+  let best_index = pool
+    .into_iter()
+    .max_by_key(|index| file_mtime(&found[*index].0))
+    .unwrap_or(0);
+  let (path, settings) = found.remove(best_index);
+
+  let canonical = installer_settings_path(app_data);
+  if path != canonical && timezone_is_set(&settings) {
+    let canonical_is_placeholder = match read_installer_file(&canonical) {
+      Ok(existing) => !timezone_is_set(&existing),
+      Err(_) => true,
+    };
+    if canonical_is_placeholder {
+      let _ = save_installer_settings(app_data, &settings);
+    }
+  }
+
+  Ok(settings)
 }
 
 pub fn save_installer_settings(app_data: &Path, settings: &InstallerSettings) -> Result<(), String> {

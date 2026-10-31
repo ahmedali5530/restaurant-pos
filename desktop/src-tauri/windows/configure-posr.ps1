@@ -9,10 +9,22 @@ $ErrorActionPreference = "Stop"
 New-Item -ItemType Directory -Force -Path $AppDataDir | Out-Null
 $outPath = Join-Path $AppDataDir "installer-settings.json"
 $roamingSettings = Join-Path $env:APPDATA "com.posr.desktop\installer-settings.json"
+$localSettings = Join-Path $env:LOCALAPPDATA "com.posr.desktop\installer-settings.json"
 $roamingDone = Join-Path $env:APPDATA "com.posr.desktop\.posr_setup_done"
-if ((Test-Path $outPath) -or (Test-Path $roamingSettings) -or (Test-Path $roamingDone)) {
+if ((Test-Path $outPath) -or (Test-Path $roamingSettings) -or (Test-Path $localSettings) -or (Test-Path $roamingDone)) {
   Write-Host "POSR settings already exist, skipping setup."
   exit 0
+}
+
+function Write-InstallerSettings([string]$Json) {
+  $utf8 = New-Object System.Text.UTF8Encoding $false
+  foreach ($path in @($outPath, $roamingSettings, $localSettings)) {
+    $dir = Split-Path -Parent $path
+    if ($dir) {
+      New-Item -ItemType Directory -Force -Path $dir | Out-Null
+    }
+    [System.IO.File]::WriteAllText($path, $Json, $utf8)
+  }
 }
 
 Add-Type -AssemblyName System.Windows.Forms
@@ -99,7 +111,7 @@ if ($result -ne [System.Windows.Forms.DialogResult]::OK) {
       server = @{ host = "" }
       applied = $false
     }
-    ($defaults | ConvertTo-Json -Depth 6) | Set-Content -Path $outPath -Encoding UTF8
+    Write-InstallerSettings ($defaults | ConvertTo-Json -Depth 6)
   }
   exit 0
 }
@@ -150,5 +162,5 @@ $payload = @{
   applied = $false
 }
 
-($payload | ConvertTo-Json -Depth 6) | Set-Content -Path $outPath -Encoding UTF8
+Write-InstallerSettings ($payload | ConvertTo-Json -Depth 6)
 Write-Host "Wrote $outPath"
