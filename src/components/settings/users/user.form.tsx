@@ -70,6 +70,16 @@ const validationSchema = yup.object({
     then: (schema) => schema.required(i18n.t('validation:required')),
     otherwise: (schema) => schema.nullable(),
   }),
+  // HQ catalog publish: multi-select of sync_branch client ids (empty = shared).
+  branch_ids: yup
+    .array()
+    .of(
+      yup.object({
+        label: yup.string().required(),
+        value: yup.string().required(),
+      })
+    )
+    .default([]),
 });
 
 export const UserForm = ({
@@ -86,6 +96,7 @@ export const UserForm = ({
       },
       create_employee: true,
       employee_number: '',
+      branch_ids: [],
     },
   });
 
@@ -109,6 +120,7 @@ export const UserForm = ({
       user_shift: null,
       create_employee: true,
       employee_number: '',
+      branch_ids: [],
     });
     lastAutoEmployeeNumber.current = '';
   }
@@ -136,10 +148,14 @@ export const UserForm = ({
         create_employee: false,
         employee_number: '',
         branch_ids: Array.isArray((data as any).branch_ids)
-          ? (data as any).branch_ids.map((id: string) => ({
-              label: id,
-              value: id,
-            }))
+          ? (data as any).branch_ids
+              .map((id: any) => {
+                const value = String(
+                  id && typeof id === 'object' && id.value != null ? id.value : id || ''
+                ).trim();
+                return value ? { label: value, value } : null;
+              })
+              .filter(Boolean)
           : [],
       });
     }
@@ -186,11 +202,18 @@ export const UserForm = ({
     vals.roles = selectedRoleModules;
     vals.user_shift = values.user_shift?.value ? new StringRecordId(values.user_shift.value) : null;
     vals.login_method = values.login_method.value;
-    const branchIds = CATALOG_PUBLISH_ENABLED
+    // Empty selection = shared employee (all stores). Never send JS null — Surreal
+    // option types want NONE / omit, and null was failing create when the
+    // Branches dropdown was left on "All branches".
+    const selectedBranchIds = CATALOG_PUBLISH_ENABLED
       ? (values.branch_ids || [])
           .map((o: any) => String(o?.value || o || '').trim())
           .filter(Boolean)
-      : undefined;
+      : null;
+    // Drop RHF select objects so they are never bound into Surreal params.
+    delete vals.branch_ids;
+    delete vals.create_employee;
+    delete vals.employee_number;
 
     if (vals.login_method === "pin") {
       vals.password = vals.login;
@@ -273,21 +296,32 @@ export const UserForm = ({
     const displayName = `${values.first_name} ${values.last_name}`;
 
     try {
+      const branchClause =
+        selectedBranchIds == null
+          ? ''
+          : selectedBranchIds.length
+            ? ', branch_ids = $branch_ids'
+            : ', branch_ids = NONE';
+      const branchParams =
+        selectedBranchIds != null && selectedBranchIds.length
+          ? { branch_ids: selectedBranchIds }
+          : {};
+
       if( data?.id ) {
         if (vals.login_method === "pin") {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchClause}`, {
             ...vals,
-            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
+            ...branchParams,
           });
         } else if (vals.password) {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, password = crypto::bcrypt::generate($password), roles = $roles, user_role = $user_role, user_shift = $user_shift${branchClause}`, {
             ...vals,
-            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
+            ...branchParams,
           });
         } else {
-          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift${branchIds ? ', branch_ids = $branch_ids' : ''}`, {
+          await db.query(`UPDATE ${data.id} set first_name = $first_name, last_name = $last_name, login = $login, login_method = $login_method, roles = $roles, user_role = $user_role, user_shift = $user_shift${branchClause}`, {
             ...vals,
-            ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
+            ...branchParams,
           });
         }
 
@@ -303,11 +337,11 @@ export const UserForm = ({
           roles: vals.roles,
           user_role: vals.user_role,
           user_shift: vals.user_shift,
-          ...(branchIds ? { branch_ids: branchIds.length ? branchIds : null } : {}),
+          ...branchParams,
         };
 
         const result = await db.query(
-          branchIds
+          selectedBranchIds != null && selectedBranchIds.length
             ? `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift, branch_ids) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift, $branch_ids) RETURN AFTER`
             : `INSERT INTO user (first_name, last_name, login, login_method, password, roles, user_role, user_shift) VALUES ($first_name, $last_name, $login, $login_method, crypto::bcrypt::generate($password), $roles, $user_role, $user_shift) RETURN AFTER`,
           userParams,

@@ -11,6 +11,7 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'HQ user catalog download',
     items: [
       'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
+      'Creating a user with Branches left on “All branches (shared)” no longer fails — empty selection omits branch_ids (Surreal NONE) instead of writing null.',
     ],
   },
   {
