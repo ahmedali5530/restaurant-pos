@@ -9,6 +9,7 @@ import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculati
 import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
 import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 interface ReportFilters {
   startDate?: string | null;
@@ -111,10 +112,10 @@ export const KitchenReconciliationReport = () => {
       );
       const totals = computeTotals(computedLines);
       const dateFrom = toLuxonDateTime(reconciliation.date_from).toFormat(
-        import.meta.env.VITE_DATE_FORMAT
+        runtimeDateFormat()
       );
       const dateTo = toLuxonDateTime(reconciliation.date_to).toFormat(
-        import.meta.env.VITE_DATE_FORMAT
+        runtimeDateFormat()
       );
 
       return {
@@ -125,7 +126,7 @@ export const KitchenReconciliationReport = () => {
         window: `${dateFrom} – ${dateTo}`,
         verifiedBy: formatUserName(reconciliation.verified_by),
         verifiedAt: reconciliation.verified_at
-          ? toLuxonDateTime(reconciliation.verified_at).toFormat(import.meta.env.VITE_DATE_FORMAT)
+          ? toLuxonDateTime(reconciliation.verified_at).toFormat(runtimeDateFormat())
           : "—",
         lineCount: totals.lineCount,
         totalVariance: totals.totalVariance,

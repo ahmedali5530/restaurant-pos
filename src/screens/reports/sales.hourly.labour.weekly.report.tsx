@@ -11,6 +11,7 @@ import {DateTime} from "luxon";
 import { getAppTimezone, toLuxonDateTime } from "@/lib/datetime.ts";
 import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {buildCreatedAtDateConditions, toReportBoundaryUtcIso} from "@/api/reports/shared/query.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
@@ -57,7 +58,7 @@ const parseWeekParams = () => {
   }
   weekStart = weekStart.startOf('week');
   const weekEnd = weekStart.plus({days: 6});
-  const dateTimeFormat = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+  const dateTimeFormat = runtimeDateTimeFormat();
 
   return {
     weekStart,

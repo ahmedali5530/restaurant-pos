@@ -4,8 +4,8 @@ import {getAppTimezone} from "@/lib/datetime.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {normalizeQueryDate} from "@/api/reports/shared/filters.ts";
 import {toRecordId} from "@/lib/utils.ts";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
-const QUERY_DATE_TIME_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
 export const POSTED_ENTRY_FILTER = "entry.status = 'posted'";
 
@@ -14,7 +14,7 @@ export const toJsDate = (value?: string): Date | undefined => {
     return undefined;
   }
 
-  const dt = DateTime.fromFormat(value, QUERY_DATE_TIME_FORMAT, {zone: getAppTimezone()});
+  const dt = DateTime.fromFormat(value, runtimeDateTimeFormat(), {zone: getAppTimezone()});
   if (dt.isValid) {
     return dt.toJSDate();
   }

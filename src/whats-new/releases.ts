@@ -70,10 +70,16 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-10-31',
-    title: 'HQ user catalog download',
+    title: 'Desktop screens in the browser',
     items: [
-      'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
-      'Creating a user with Branches left on “All branches (shared)” no longer fails — empty selection omits branch_ids (Surreal NONE) instead of writing null.',
+      'The Windows installer now includes the screen files. While POSR is running, this PC can open http://127.0.0.1:5173 or http://localhost:5173, and other computers on the network can open http://<this-register-ip>:5173.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'Windows USB printing',
+    items: [
+      'A USB receipt printer that Windows already installed prints through that Windows printer queue. Printing no longer stops with LIBUSB_ERROR_NOT_SUPPORTED.',
     ],
   },
   {
@@ -82,6 +88,14 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Quick Order is no longer tied to the floor Menu build flag. Use VITE_APP_MODULES_EXCLUDE=quick to omit the /quick screen, sidebar entry, POS mode card, and scale barcode settings while keeping the restaurant menu.',
       'HQ exclude lists that previously dropped menu must also list quick, because excluding menu alone no longer removes Quick Order.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'HQ user catalog download',
+    items: [
+      'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
+      'Creating a user with Branches left on “All branches (shared)” no longer fails — empty selection omits branch_ids (Surreal NONE) instead of writing null.',
     ],
   },
   {
@@ -110,6 +124,23 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-10-29',
+    title: 'Desktop display size',
+    items: [
+      'POSR Desktop can shrink or enlarge the whole window. Change it on the login screen or in Settings, or use Ctrl and minus, Ctrl and plus, and Ctrl and 0. This PC remembers the size.',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Desktop updates without clearing app data',
+    items: [
+      'Reinstalling POSR Desktop drops the window cache automatically. The database and store settings stay, and you do not need to delete a WebView folder by hand.',
+      'Installing or updating POSR Desktop skips the setup questions when this PC already has store settings.',
+      'A new database still opens the screen where you import a demo .surql file. Schema updates no longer skip that step.',
+      'The timezone from the desktop setup (for example Asia/Karachi) is used for times on screen. A second settings file no longer leaves the app on UTC.',
+    ],
+  },
+  {
+    date: '2026-10-29',
     title: 'Sale vs Consumption by item',
     items: [
       'Sale vs Consumption now lists each inventory item’s purchased, issued, and recipe-implied consumed qty/cost for the selected dates, with qty and cost variance (issued − consumed).',
@@ -120,6 +151,21 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Inventory item soft delete',
     items: [
       'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Desktop screens on the local network',
+    items: [
+      'POSR Desktop serves the app on port 5173. Another computer on the same network opens http://<this-pc-ip>:5173 in a browser — Kitchen is /kitchen, the order display is /order-display, and the customer display is /customer-display.',
+      'Allow inbound TCP 5173 and 3142 on the PC that runs POSR. The database stays on that PC.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Desktop stays up without internet',
+    items: [
+      'POSR Desktop no longer switches to offline mode or closes the local database when Windows or Linux reports no network. The register keeps using the database on this PC.',
     ],
   },
   {
@@ -245,6 +291,21 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-10-22',
+    title: 'Desktop terminal can follow a central POS',
+    items: [
+      'The setup window can name another POSR Desktop as the central terminal. That install does not start its own database. Kitchen and register screens sign in to the central gateway.',
+      'Leave the address blank on the PC that should keep the database. That PC accepts other terminals on the local network.',
+    ],
+  },
+  {
+    date: '2026-10-22',
+    title: 'Desktop catalog sync',
+    items: [
+      'Settings on POSR Desktop shows Catalog sync. Sync now downloads the HQ catalog when the sync service is in full mode.',
+    ],
+  },
+  {
+    date: '2026-10-22',
     title: 'Inventory UX polish',
     items: [
       'Document and dish views show entered qty/price together and keep line amounts in stock units, so on-screen totals match.',
@@ -267,6 +328,14 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-10-21',
+    title: 'Desktop reports and setup',
+    items: [
+      'On POSR Desktop, reports open in the same window. Back returns to the report list. A browser still opens each report in a new tab.',
+      'The Windows installer shows the store setup window after it creates the app data folder, instead of stopping there.',
+    ],
+  },
+  {
     date: '2026-10-20',
     title: 'Inventory unit converter',
     items: [
@@ -274,6 +343,17 @@ export const RELEASES: ReleaseNotes[] = [
       'Inventory → Units manages conversion factors in the database (view GAL↔L, edit factors, or add custom global units). Defaults use US customary; changing a factor does not rewrite past stock.',
       'Standard families: weight (MG, G, KG, LB, OZ), volume (ML, L, GAL, QT, PT, FLOZ), and count (PC, DZN). Pack units are not converted.',
       'The item stock unit cannot be changed after ledger movements or recipe lines exist, so existing balances are not relabeled.',
+    ],
+  },
+  {
+    date: '2026-10-17',
+    title: 'Desktop gateway on the LAN',
+    items: [
+      'POSR Desktop listens for the auth gateway on every network interface (port 3142) so phones and other apps on the same LAN can connect. Surreal and the other sidecars stay on this computer only.',
+      'The Windows installer finds the packaged gateway and other sidecars under resources, instead of looking next to the exe and reporting gateway/ not found.',
+      'POSR Desktop applies database schema the same way Docker does: a new database gets the baseline, and later launches only run migrations that are not already recorded.',
+      'Importing demo data skips migration rows that are already recorded, and Settings has a button that opens desktop logs.',
+      'The Windows setup wizard script no longer fails to parse after the installer finishes.',
     ],
   },
   {
