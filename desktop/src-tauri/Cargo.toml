@@ -1,6 +1,6 @@
 [package]
 name = "posr-desktop"
-version = "0.1.8"
+version = "0.1.9"
 description = "POSR desktop shell (Tauri 2 offline store)"
 authors = ["POSR"]
 license = ""
