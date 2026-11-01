@@ -35,6 +35,7 @@ import {Tab, TabPanel} from "@/components/common/react-aria/tabs.tsx";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel} from "@/utils/dayParts";
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
+import {orderReceiptUrl} from "@/routes/posr.ts";
 import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
 
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
@@ -817,7 +818,20 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
                 >
                   <Popup>
                     <div className="p-2 min-w-[200px]">
-                      <p className="font-bold text-sm mb-1">Order #{order.invoice_number}</p>
+                      <p className="font-bold text-sm mb-1">
+                        <a
+                          href={orderReceiptUrl({
+                            id: order.id,
+                            orderId: order.auto_id,
+                            invoice: order.invoice_number,
+                          })}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary underline"
+                        >
+                          Order #{order.invoice_number}
+                        </a>
+                      </p>
                       <p className="text-xs text-muted mb-1">
                         Status: <span className="font-semibold">{order.status}</span>
                       </p>
@@ -860,7 +874,18 @@ const DeliverySection = ({orders}: {orders: Order[]}) => {
               {orders.length > 0 ? orders.slice(0, 10).map(order => (
                 <tr key={order.id} className="hover:bg-surface transition-colors">
                   <td className="py-3 pl-4 pr-3 text-sm">
-                    <span className="font-mono text-sm font-semibold text-primary">#{order.invoice_number}</span>
+                    <a
+                      href={orderReceiptUrl({
+                        id: order.id,
+                        orderId: order.auto_id,
+                        invoice: order.invoice_number,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-sm font-semibold text-primary underline print:no-underline"
+                    >
+                      #{order.invoice_number}
+                    </a>
                   </td>
                   <td className="py-3 px-3 text-sm text-foreground">
                     {order.customer?.name || 'Walk-in'}
@@ -1149,7 +1174,18 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
             {orders.length > 0 ? orders.slice(0, 10).map(order => (
               <tr key={order.id} className="hover:bg-surface transition-colors">
                 <td className="py-3 pl-4 pr-3 text-sm">
-                  <span className="font-mono text-sm font-semibold text-primary">#{order.invoice_number}</span>
+                  <a
+                    href={orderReceiptUrl({
+                      id: order.id,
+                      orderId: order.auto_id,
+                      invoice: order.invoice_number,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-sm font-semibold text-primary underline print:no-underline"
+                  >
+                    #{order.invoice_number}
+                  </a>
                 </td>
                 <td className="py-3 px-3 text-sm text-foreground">
                   <span>
