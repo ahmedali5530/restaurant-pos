@@ -499,6 +499,97 @@ export async function getOpenOrders(): Promise<OrderRecord[]> {
   return rows.filter((order) => !isGhostOperationalOrder(order));
 }
 
+/** Keep open checks forever; drop settled Dexie orders older than this. */
+export const OPERATIONAL_ORDER_RETENTION_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Delete one closed order and its child rows. Identity / catalog / numbers untouched.
+ */
+async function deleteOrderCascade(orderId: string): Promise<void> {
+  const db = getPosStoreDatabase();
+  const key = String(orderId);
+  await db.transaction(
+    'rw',
+    [
+      db.orders,
+      db.orderItems,
+      db.orderItemKitchens,
+      db.orderPayments,
+      db.orderVoids,
+      db.orderRefunds,
+      db.orderTaxes,
+      db.orderDiscounts,
+      db.orderCoupons,
+      db.orderExtras,
+      db.couponRedemptions,
+      db.orderPrints,
+      db.orderSplits,
+      db.orderMerges,
+    ],
+    async () => {
+      const items = await db.orderItems.where('order').equals(key).toArray();
+      const itemIds = items.map((row) => String(row.id));
+      for (const itemId of itemIds) {
+        await db.orderItemKitchens.where('order_item').equals(itemId).delete();
+      }
+      if (itemIds.length) await db.orderItems.bulkDelete(itemIds);
+      await Promise.all([
+        db.orderPayments.where('order').equals(key).delete(),
+        db.orderVoids.where('order').equals(key).delete(),
+        db.orderRefunds.where('order').equals(key).delete(),
+        db.orderTaxes.where('order').equals(key).delete(),
+        db.orderDiscounts.where('order').equals(key).delete(),
+        db.orderCoupons.where('order').equals(key).delete(),
+        db.orderExtras.where('order').equals(key).delete(),
+        db.couponRedemptions.where('order').equals(key).delete(),
+        db.orderPrints.where('order').equals(key).delete(),
+        db.orderSplits.where('old_order').equals(key).delete(),
+        db.orderMerges.where('new_order').equals(key).delete(),
+      ]);
+      await db.orders.delete(key);
+    },
+  );
+}
+
+/**
+ * Drop settled (non In Progress) Dexie orders older than the retention window.
+ * Keeps terminal identity, number pools, catalog, and open checks. Used so
+ * tills with huge Surreal history never need a full Reload cache to stay light.
+ */
+export async function pruneStaleOperationalOrders(options?: {
+  olderThanMs?: number;
+  /** Max orders to delete per call (keeps UI responsive on huge DBs). */
+  limit?: number;
+  /** Skip UI refresh events (caller notifies once after several batches). */
+  silent?: boolean;
+}): Promise<number> {
+  const olderThanMs = options?.olderThanMs ?? OPERATIONAL_ORDER_RETENTION_MS;
+  const limit = Math.max(1, options?.limit ?? 500);
+  const cutoff = Date.now() - olderThanMs;
+  const db = getPosStoreDatabase();
+
+  const stale = await db.orders
+    .filter((order) => {
+      if (String(order.status) === 'In Progress') return false;
+      const created = new Date(String(order.created_at)).getTime();
+      return Number.isFinite(created) && created < cutoff;
+    })
+    .limit(limit)
+    .toArray();
+
+  if (stale.length === 0) return 0;
+
+  for (const order of stale) {
+    await deleteOrderCascade(String(order.id));
+  }
+
+  if (!options?.silent && typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('posr-posstore-write'));
+    window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
+  }
+  return stale.length;
+}
+
 /**
  * Remove open/pending Dexie rows that are empty sync shells (no invoice, owner,
  * or items). Local checks waiting for a gateway invoice are kept.

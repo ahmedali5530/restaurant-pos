@@ -165,7 +165,8 @@
     "multipleMatches": "تطابقت عدة سجلات مع الأعمدة المحددة.",
     "unsupportedMatchField": "لا يمكن المطابقة على العمود \"{{field}}\".",
     "fileTooLarge": "الملف كبير جدًا. الحد الأقصى للحجم هو {{max}}.",
-    "ambiguousDishNumber": "عدة أطباق تشترك في الرقم \"{{number}}\". مرّر المعرف (menu_item:…) أو اسماً فريداً لتحديث الطبق الصحيح."
+    "ambiguousDishNumber": "عدة أطباق تشترك في الرقم \"{{number}}\". مرّر المعرف (menu_item:…) أو اسماً فريداً لتحديث الطبق الصحيح.",
+    "ambiguousMatch": "عدة سجلات تطابق {{key}}. مرّر المعرف لتحديث السجل الصحيح."
   },
   "loading": "جارٍ التحميل...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "اعرض جميع مستخدمي نقطة البيع",
       "inventoryStock": "اعرض أصناف المخزون تحت حد إعادة الطلب",
       "howToPurchase": "كيف أنشر عملية شراء مخزون؟",
-      "cleanseCsv": "أرفق CSV فوضوي لتنظيفه للاستيراد بالذكاء الاصطناعي"
+      "cleanseCsv": "أرفق CSV فوضوي لتنظيفه للاستيراد بالذكاء الاصطناعي",
+      "analyzeCsv": "أرفق CSV واطلب من المساعد تحليله"
     },
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد",
@@ -300,6 +302,14 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "إرفاق CSV/Excel",
+    "fileMode": "ماذا نفعل بالملف",
+    "fileModeCleanse": "تنظيف للاستيراد",
+    "fileModeAnalyze": "تحليل في المحادثة",
+    "analyzeHint": "حضّر معاينة ثم اطرح سؤالاً في المحادثة.",
+    "analyzePrepare": "تجهيز للأسئلة",
+    "analyzeReady": "{{file}} جاهز ({{rows}} صفوف في المعاينة). اطرح سؤالك أدناه.",
+    "analyzeUserLabel": "[ملف: {{file}}]\n{{question}}"
   }
 }

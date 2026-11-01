@@ -165,7 +165,8 @@
     "multipleMatches": "Varios registros coinciden con las columnas seleccionadas.",
     "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\".",
     "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}.",
-    "ambiguousDishNumber": "Varios platos comparten el número \"{{number}}\". Indique id (menu_item:…) o un nombre único."
+    "ambiguousDishNumber": "Varios platos comparten el número \"{{number}}\". Indique id (menu_item:…) o un nombre único.",
+    "ambiguousMatch": "Varios registros coinciden con {{key}}. Indique id para actualizar el registro correcto."
   },
   "loading": "Cargando...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Listar todos los usuarios del POS",
       "inventoryStock": "Mostrar artículos de inventario bajo el nivel de reorden",
       "howToPurchase": "¿Cómo publico una compra de inventario?",
-      "cleanseCsv": "Adjunta un CSV desordenado para limpiarlo para AI Import"
+      "cleanseCsv": "Adjunta un CSV desordenado para limpiarlo para AI Import",
+      "analyzeCsv": "Adjunte un CSV y pida al asistente que lo analice"
     },
     "unknownConfig": "Configuración de importación desconocida para la vista previa.",
     "passwordWillBeSet": "La contraseña se establecerá al confirmar",
@@ -300,6 +302,14 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "Adjuntar CSV/Excel",
+    "fileMode": "Qué hacer con el archivo",
+    "fileModeCleanse": "Limpiar para importar",
+    "fileModeAnalyze": "Analizar en el chat",
+    "analyzeHint": "Prepare una vista previa y luego haga una pregunta en el chat.",
+    "analyzePrepare": "Preparar para preguntas",
+    "analyzeReady": "{{file}} está listo ({{rows}} filas en la vista previa). Haga su pregunta abajo.",
+    "analyzeUserLabel": "[Archivo: {{file}}]\n{{question}}"
   }
 }

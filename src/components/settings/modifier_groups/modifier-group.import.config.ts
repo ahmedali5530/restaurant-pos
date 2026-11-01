@@ -8,6 +8,7 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {optionalIdField} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {assertCsvMatchValues} from "@/utils/csv-import.ts";
@@ -21,6 +22,17 @@ async function findGroupsByName(db: ImportDbLike, name: string): Promise<any[]> 
     {name}
   );
   return rows ?? [];
+}
+
+async function findGroupById(db: ImportDbLike, id: string): Promise<any | null> {
+  const [rows] = await db.query(
+    `SELECT id, name, priority, modifiers FROM ${Tables.modifier_groups}
+     WHERE id = $id AND deleted_at = none
+     LIMIT 1
+     FETCH modifiers, modifiers.modifier`,
+    {id: toRecordId(id)},
+  );
+  return rows?.[0] ?? null;
 }
 
 function modifierForDish(group: any, dishId: string): any | undefined {
@@ -42,6 +54,15 @@ export function createModifierGroupImportConfig({
   let numberSeq: number | null = null;
 
   const fields: ImportField[] = [
+    optionalIdField(t),
+    {
+      name: "modifier_group_id",
+      label: t("admin:columns.id", {defaultValue: "Modifier group ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["Group ID", "Modifier group ID"],
+      description: "Existing modifier group record id. Prefer when group names collide.",
+    },
     {
       name: "group",
       label: t("admin:columns.modifierGroups"),
@@ -132,8 +153,10 @@ export function createModifierGroupImportConfig({
     },
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const values = record.values;
+      const optionIdRaw = String(values.id ?? "").trim();
+      const groupIdRaw = String(values.modifier_group_id ?? values.group_id ?? "").trim();
       const groupName = String(values.group ?? "").trim();
-      if (!groupName) throw new Error(t("validation:required"));
+      if (!groupName && !groupIdRaw && !optionIdRaw) throw new Error(t("validation:required"));
 
       const price = Number(values.price);
       if (!Number.isFinite(price)) throw new Error(t("validation:mustBeNumber"));
@@ -146,17 +169,53 @@ export function createModifierGroupImportConfig({
       );
       const modifierKey = String(modifierRef?.label ?? "").trim() || dishId;
 
-      const rowData: Record<string, string> = {group: groupName, modifier: modifierKey};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
-
-      const groups = await findGroupsByName(db, groupName);
-      if (groups.length > 1) {
-        throw new Error(t("common:csvImport.multipleMatches"));
+      const rowData: Record<string, string> = {group: groupName || groupIdRaw, modifier: modifierKey};
+      if (!optionIdRaw && !groupIdRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
       }
 
-      let group = groups[0];
+      if (ctx.mode === "update" && optionIdRaw) {
+        const [opts] = await db.query(
+          `SELECT id FROM ${Tables.modifiers} WHERE id = $id LIMIT 1`,
+          {id: toRecordId(optionIdRaw)},
+        );
+        const option = opts?.[0];
+        if (!option) throw new Error(t("common:csvImport.recordNotFound"));
+        await db.merge?.(option.id, {
+          modifier: toRecordId(dishId),
+          price,
+        });
+        let groupTarget: any = groupIdRaw ? toRecordId(groupIdRaw) : null;
+        if (!groupTarget) {
+          const [parentGroups] = await db.query(
+            `SELECT id FROM ${Tables.modifier_groups}
+             WHERE $option IN modifiers AND deleted_at = none LIMIT 1`,
+            {option: toRecordId(optionIdRaw)},
+          );
+          if (parentGroups?.[0]?.id) groupTarget = toRecordId(parentGroups[0].id);
+        }
+        if (groupTarget) {
+          await db.merge?.(groupTarget, {
+            ...(groupName ? {name: groupName} : {}),
+            priority,
+          });
+        }
+        return;
+      }
+
+      let group: any = null;
+      if (groupIdRaw) {
+        group = await findGroupById(db, groupIdRaw);
+        if (!group) throw new Error(t("common:csvImport.recordNotFound"));
+      } else {
+        const groups = await findGroupsByName(db, groupName);
+        if (groups.length > 1) {
+          throw new Error(t("common:csvImport.multipleMatches"));
+        }
+        group = groups[0];
+      }
       const existingModifier = group ? modifierForDish(group, dishId) : undefined;
 
       if (ctx.mode === "update") {
@@ -167,7 +226,7 @@ export function createModifierGroupImportConfig({
           modifier: toRecordId(dishId),
           price,
         });
-        await db.merge?.(group.id, {name: groupName, priority});
+        await db.merge?.(group.id, {name: groupName || group.name, priority});
         return;
       }
 

@@ -165,7 +165,8 @@
     "multipleMatches": "Mehrere Datensätze stimmen mit den ausgewählten Spalten überein.",
     "unsupportedMatchField": "Abgleich über Spalte \"{{field}}\" ist nicht möglich.",
     "fileTooLarge": "Die Datei ist zu groß. Maximale Größe ist {{max}}.",
-    "ambiguousDishNumber": "Mehrere Gerichte haben die Nummer \"{{number}}\". Übergeben Sie die id (menu_item:…) oder einen eindeutigen Namen."
+    "ambiguousDishNumber": "Mehrere Gerichte haben die Nummer \"{{number}}\". Übergeben Sie die id (menu_item:…) oder einen eindeutigen Namen.",
+    "ambiguousMatch": "Mehrere Datensätze stimmen mit {{key}} überein. Übergeben Sie die id, um den richtigen Datensatz zu aktualisieren."
   },
   "loading": "Wird geladen...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Alle POS-Benutzer auflisten",
       "inventoryStock": "Lagerartikel unter Mindestbestand anzeigen",
       "howToPurchase": "Wie buche ich einen Bestandseinkauf?",
-      "cleanseCsv": "Hängen Sie eine unordentliche CSV an, um sie für AI Import zu bereinigen"
+      "cleanseCsv": "Hängen Sie eine unordentliche CSV an, um sie für AI Import zu bereinigen",
+      "analyzeCsv": "CSV anhängen und den Assistenten um Analyse bitten"
     },
     "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau.",
     "passwordWillBeSet": "Passwort wird bei Bestätigung gesetzt",
@@ -300,6 +302,14 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "CSV/Excel anhängen",
+    "fileMode": "Was soll mit der Datei geschehen",
+    "fileModeCleanse": "Für Import bereinigen",
+    "fileModeAnalyze": "Im Chat analysieren",
+    "analyzeHint": "Vorschau vorbereiten, dann im Chat eine Frage stellen (z. B. Spalten zusammenfassen, Ausreißer finden).",
+    "analyzePrepare": "Für Fragen vorbereiten",
+    "analyzeReady": "{{file}} ist bereit ({{rows}} Zeilen in der Vorschau). Stellen Sie unten Ihre Frage.",
+    "analyzeUserLabel": "[Datei: {{file}}]\n{{question}}"
   }
 }

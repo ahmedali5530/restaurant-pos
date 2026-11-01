@@ -1,10 +1,12 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
+import {optionalIdField, resolveUpdateMatchesByIdOrLegacy} from "@/lib/data-import/match-by-id.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches, writeCsvImportRow} from "@/utils/csv-import.ts";
 
 export function createMenuImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "name", label: t("admin:columns.name"), type: "string", required: true},
     {name: "priority", label: t("admin:columns.priority"), type: "number", defaultValue: 0},
   ];
@@ -23,9 +25,19 @@ export function createMenuImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
       if (!name) throw new Error(t("validation:required"));
       const payload = {name, priority: Number(record.values.priority ?? 0) || 0};
       const rowData = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.menus, conditions);
+      const idRaw = String(record.values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.menus, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
+          return findCsvImportMatches(db, Tables.menus, conditions);
+        },
+      });
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
         table: Tables.menus,

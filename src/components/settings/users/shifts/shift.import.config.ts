@@ -1,11 +1,13 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
+import {optionalIdField, resolveUpdateMatchesByIdOrLegacy} from "@/lib/data-import/match-by-id.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches, writeCsvImportRow} from "@/utils/csv-import.ts";
 import {isOvernightShift} from "@/lib/shift.utils.ts";
 
 export function createShiftImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "name", label: t("admin:columns.name"), type: "string", required: true},
     {name: "start_time", label: t("admin:columns.startTime"), type: "string", required: true},
     {name: "end_time", label: t("admin:columns.endTime"), type: "string", required: true},
@@ -33,9 +35,19 @@ export function createShiftImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): 
 
       const payload = {name, start_time: startTime, end_time: endTime, ends_next_day: endsNextDay};
       const rowData = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.shifts, conditions);
+      const idRaw = String(record.values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.shifts, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
+          return findCsvImportMatches(db, Tables.shifts, conditions);
+        },
+      });
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
         table: Tables.shifts,

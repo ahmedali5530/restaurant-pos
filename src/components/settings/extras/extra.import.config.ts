@@ -9,6 +9,10 @@ import type {
 import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -27,6 +31,7 @@ export function createExtraImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("admin:columns.name"),
@@ -122,26 +127,32 @@ export function createExtraImportConfig({
       };
 
       const rowData: Record<string, string> = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const relationMatchFields = ["payment_types", "order_types", "tables"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (relationMatchFields.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "value") return {column: "value", value: Number(value)};
-        if (field === "apply_to_all" || field === "delivery") {
-          return {column: field, value: parseImportBool(value)};
-        }
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.extras, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (relationMatchFields.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "value") return {column: "value", value: Number(value)};
+            if (field === "apply_to_all" || field === "delivery") {
+              return {column: field, value: parseImportBool(value)};
+            }
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.extras, conditions, {softDelete: false});
+        },
       });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.extras, conditions, {softDelete: false});
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

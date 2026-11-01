@@ -81,14 +81,14 @@ function parseSnapshotDuration(raw, fallback) {
  * served by SurrealDB reports, not the terminal cache.
  *
  * Env (gateway):
- * - POS_SNAPSHOT_OPERATIONAL_DURATION — default `3d` (on-prem LAN often `12h`)
+ * - POS_SNAPSHOT_OPERATIONAL_DURATION — default `1d` (keep open checks + last day)
  * - POS_SNAPSHOT_COUPON_REDEMPTION_DURATION — default `90d` (on-prem often `7d`)
  *
  * @param {NodeJS.ProcessEnv} [env]
  */
 function resolveSnapshotDurations(env = process.env) {
   return {
-    operational: parseSnapshotDuration(env.POS_SNAPSHOT_OPERATIONAL_DURATION, '3d'),
+    operational: parseSnapshotDuration(env.POS_SNAPSHOT_OPERATIONAL_DURATION, '1d'),
     couponRedemption: parseSnapshotDuration(
       env.POS_SNAPSHOT_COUPON_REDEMPTION_DURATION,
       '90d',

@@ -11,6 +11,10 @@ import {toRecordId} from "@/lib/utils.ts";
 import {ensureLocationForKitchen} from "@/lib/inventory/location.service.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -28,6 +32,7 @@ export function createKitchenImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("admin:columns.name"),
@@ -91,21 +96,29 @@ export function createKitchenImportConfig({
       };
 
       const rowData: Record<string, string> = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const relationMatchFields = ["items", "printers"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (relationMatchFields.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "priority") return {column: "priority", value: Number(value)};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.kitchens, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (relationMatchFields.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "priority") return {column: "priority", value: Number(value)};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.kitchens, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.kitchens, conditions);
 
       if (existing.length > 1) {
         throw new Error(t("common:csvImport.multipleMatches"));

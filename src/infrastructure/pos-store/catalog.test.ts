@@ -366,6 +366,56 @@ describe('order item link reconcile', () => {
     expect(await db.orders.get('order:ghost-shell')).toBeUndefined();
   });
 
+  it('prunes settled orders older than one day and keeps open checks', async () => {
+    resetPosStoreDatabaseForTests();
+    await posStore.initialize();
+    const db = (await import('@/infrastructure/pos-store/db.ts')).getPosStoreDatabase();
+    const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+    const recent = new Date().toISOString();
+
+    await db.orders.bulkPut([
+      {
+        id: 'order:old-paid',
+        status: 'Paid',
+        order_type: 'order_type:o1',
+        items: [],
+        created_at: twoDaysAgo,
+        server_version: 1,
+      },
+      {
+        id: 'order:open',
+        status: 'In Progress',
+        order_type: 'order_type:o1',
+        items: [],
+        created_at: twoDaysAgo,
+        owner_terminal_id: 'terminal-x',
+        owner_heartbeat_at: recent,
+        server_version: 1,
+      },
+      {
+        id: 'order:recent-paid',
+        status: 'Paid',
+        order_type: 'order_type:o1',
+        items: [],
+        created_at: recent,
+        server_version: 1,
+      },
+    ] as any[]);
+    await db.orderPayments.put({
+      id: 'order_payment:p1',
+      order: 'order:old-paid',
+      amount: 10,
+      created_at: twoDaysAgo,
+    } as any);
+
+    const removed = await posStore.pruneStaleOperationalOrders();
+    expect(removed).toBe(1);
+    expect(await db.orders.get('order:old-paid')).toBeUndefined();
+    expect(await db.orderPayments.get('order_payment:p1')).toBeUndefined();
+    expect(await db.orders.get('order:open')).toBeDefined();
+    expect(await db.orders.get('order:recent-paid')).toBeDefined();
+  });
+
   it('prunes empty open shells without invoice, owner, or items', async () => {
     resetPosStoreDatabaseForTests();
     await posStore.initialize();

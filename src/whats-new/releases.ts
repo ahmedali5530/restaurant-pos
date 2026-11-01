@@ -16,6 +16,36 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-11-01',
+    title: 'Assistant KPI widgets',
+    items: [
+      'Assistant answers can highlight key numbers as colored KPI cards (via a ```kpi block) instead of burying them only in tables — bad figures use warning/danger tones; detail tables still work for rankings.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant personality',
+    items: [
+      'The AI assistant replies like a suspicious, blunt fifty-something who asks why you want this or that — and scolds hard whenever sales, waste, discounts, or other figures look bad — while still pulling real data and completing proposals.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant file cleanse or analyze',
+    items: [
+      'Attach a CSV/Excel in the AI assistant and choose Cleanse for import (corrected CSV download) or Analyze in chat — then ask questions about a capped preview of the file.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant updates prefer record id',
+    items: [
+      'AI assistant create/update/delete matching prefers the Surreal record id from list_* tools for inventory items, tables, employees, users, master data, and dish links — business keys (code, number, name, login) remain as fallback.',
+      'Inventory item codes (and other mutable keys) can be corrected in an update when you pass the row id, without losing the record.',
+      'Ambiguous business-key matches now ask for id instead of updating the wrong row.',
+    ],
+  },
+  {
+    date: '2026-11-01',
     title: 'Backup and restore',
     items: [
       'Settings includes Backup and restore: export or restore app settings (plus this browser’s language, appearance, touch keyboard, and POS mode) as a JSON file.',
@@ -319,10 +349,18 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-01',
+    title: 'One-day order cache retention',
+    items: [
+      'Gateway snapshot defaults to open checks plus the last 1 day of settled orders (POS_SNAPSHOT_OPERATIONAL_DURATION=1d).',
+      'Tills automatically prune closed Dexie orders older than 1 day on sync — identity and invoice/auto_id pools stay intact, so Reload cache is not required to shrink a bloated IndexedDB.',
+    ],
+  },
+  {
     date: '2026-10-06',
     title: 'Lean on-prem snapshot window',
     items: [
-      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 1d / 90d).',
       'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
     ],
   },

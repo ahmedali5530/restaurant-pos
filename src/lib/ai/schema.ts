@@ -18,29 +18,50 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 const CURRENCY_SYMBOL = CURRENCY_SYMBOLS[APP_CURRENCY] ?? APP_CURRENCY;
 
+const KPI_WIDGET_INSTRUCTIONS = `KPI widgets (highlight headline numbers):
+- For 1–6 key figures (totals, rates, counts that deserve attention), emit a fenced \`\`\`kpi block BEFORE tables/lists.
+- Prefer JSON array form:
+\`\`\`kpi
+[
+  {"label":"Net sales","value":"Rs 12,500","tone":"danger","hint":"-12% vs yesterday"},
+  {"label":"Orders","value":"142","tone":"neutral"}
+]
+\`\`\`
+- tone must be one of: neutral, success, warning, danger, info. Use danger/warning for bad figures, success for healthy ones.
+- Pipe fallback also works: Label | Value | tone | optional hint
+- Still use markdown tables for multi-row detail (top dishes, line items). Do not put long rankings only in KPI widgets.`;
+
 const FORMAT_INSTRUCTIONS: Record<AiReportFormat, string> = {
   table: `Output format: TABLE
-- Structure the final report using markdown tables for all structured data (dishes, metrics, comparisons, rankings).
+- Lead with KPI widgets for headline metrics that deserve attention (see KPI widgets rules).
+- Structure the rest using markdown tables for structured data (dishes, comparisons, rankings).
 - Use headings for sections and markdown tables with clear column headers for rows of data.
 - Prefer tables over bullet lists when presenting multiple items with columns.
-- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.`,
+- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.
+${KPI_WIDGET_INSTRUCTIONS}`,
   list: `Output format: LIST
-- Structure the final report using markdown bullet lists and numbered lists.
+- Lead with KPI widgets for headline metrics when useful (see KPI widgets rules).
+- Structure the rest using markdown bullet lists and numbered lists.
 - Use headings for sections and lists for items, metrics, and comparisons.
-- Do not use markdown tables in the final answer.`,
+- Do not use markdown tables in the final answer.
+${KPI_WIDGET_INSTRUCTIONS}`,
   chart: `Output format: CHART
 - You MUST call render_chart at least once with data from prior tool results before giving the final answer.
 - Provide only a short markdown summary (2–4 sentences) of key findings — no bullet lists, no tables, no ranked lists in prose.
+- You may still emit a small \`\`\`kpi block for 1–4 headline numbers alongside the summary.
 - Reference each chart by title in the summary (e.g. "See chart: Daily Net Sales").
 - Use line charts for trends/time series, bar charts for rankings/comparisons, pie charts for proportions.
-- If you fetched time-series or weekly sales data, always render it as a line chart.`,
+- If you fetched time-series or weekly sales data, always render it as a line chart.
+${KPI_WIDGET_INSTRUCTIONS}`,
   analysis: `Output format: ANALYSIS
+- Lead with KPI widgets for the most important figures (see KPI widgets rules).
 - Structure the response with these sections:
   ## Key Findings
   ## Trends
   ## Recommendations
 - Add an **Insights** section with 2–4 actionable observations grounded only in tool results.
-- Never invent trends not supported by the data.`,
+- Never invent trends not supported by the data.
+${KPI_WIDGET_INSTRUCTIONS}`,
 };
 
 export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
@@ -234,6 +255,7 @@ export const AI_ASSISTANT_WRITE_RULES = [
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
   "Call at most one propose_* tool per assistant turn (you may include many rows in that one call). After the user confirms or cancels, continue with the next propose_* if needed (e.g. category, then dishes, then modifier groups).",
   "Creating dishes with modifier groups: (1) propose_create_dishes for the menu items and prices, (2) propose_create_modifier_groups with one row per option (group + modifier + price), (3) propose_create_dish_modifiers to attach each group to each dish (required vs optional flags). Do not use propose_import_smart_menu unless the user asks to import a full menu structure / smart menu.",
+  "For ALL updates and deletes (propose_update_* / propose_delete_*): call the matching list_* (or get_*) read tool first and pass the record id from its rows. Prefer the record id over business keys; use name, number, code or login only as a fallback when no id is available. Business keys can be duplicated or ambiguous, ids cannot.",
   "When updating dishes, call list_menu_items (or get_dish_recipe) first and pass id into propose_update_dishes. Dish numbers are not always unique — do not match updates by number alone when id is available.",
   "propose_import_smart_menu record_type values are only: dish, size_option, addon_option, dish_link, nested_override — never modifier_group.",
   "For bulk changes, call propose_* with every affected row — the user reviews each row before confirming.",
@@ -293,9 +315,9 @@ export const getAiAssistantSystemPrompt = (
   const guideSection = guideHints.join(" ");
 
   const importCleanseHint =
-    "To fix a messy import CSV/Excel, the user attaches a file in the assistant and picks an import domain; "
-    + "they download a corrected CSV and import it on the matching AI Import screen. "
-    + "You do not invent CSV contents — summarize issues when a cleanse result is provided.";
+    "Attached CSV/Excel: the user chooses Cleanse (import domain → corrected CSV download for AI Import) "
+    + "or Analyze (file preview is included in their question — answer from that data; do not invent rows). "
+    + "When a cleanse summary is posted, summarize those issues; do not invent CSV contents.";
 
   if (compact) {
     return [

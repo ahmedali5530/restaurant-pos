@@ -216,9 +216,31 @@ function notifyCatalogReady(): void {
   }
 }
 
+/**
+ * Drop settled Dexie orders older than 1d in batches (keeps identity / numbers).
+ * @param maxBatches  Initialize uses a higher cap so a bloated till can recover
+ *   in one refresh without Reload cache.
+ */
+async function pruneStaleOperationalBatches(maxBatches = 5): Promise<number> {
+  let total = 0;
+  for (let i = 0; i < maxBatches; i += 1) {
+    const removed = await posStore.pruneStaleOperationalOrders({
+      limit: 500,
+      silent: true,
+    });
+    total += removed;
+    if (removed === 0) break;
+  }
+  if (total > 0) notifyRemoteChange();
+  return total;
+}
+
 export class TerminalSyncService {
   async initialize(online: boolean): Promise<void> {
     await posStore.initialize();
+    // Lighten a bloated local cache before sync — does not touch identity/numbers.
+    // Up to ~25k settled orders per boot so a 700k-history site recovers without Reload cache.
+    await pruneStaleOperationalBatches(50);
     if (!online) {
       setSyncStatus({ phase: 'offline' });
       return;
@@ -230,6 +252,7 @@ export class TerminalSyncService {
     if (!cursor.hydrated) {
       await hydrateSnapshot(identity.terminalId);
       await posStore.reconcileOrderItemLinks();
+      await pruneStaleOperationalBatches();
     }
     await this.synchronize();
   }
@@ -251,6 +274,7 @@ export class TerminalSyncService {
     await handshake({ terminalId: identity.terminalId });
     await hydrateSnapshot(identity.terminalId);
     await posStore.reconcileOrderItemLinks();
+    await pruneStaleOperationalBatches();
     // Refill here — synchronize() can skip runSync when another tab holds the
     // leader lock, which left terminals with an empty invoice pool after Reload cache.
     await this.refillNumbers(identity.terminalId, { required: true });
@@ -454,6 +478,9 @@ export class TerminalSyncService {
         forceNextPush = true;
         syncAgain = true;
       }
+
+      // Keep Dexie to ~1 day of settled checks (open checks always kept).
+      await pruneStaleOperationalBatches();
 
       await this.refreshStatus({ lastSyncedAt: new Date().toISOString() });
     } catch (error) {

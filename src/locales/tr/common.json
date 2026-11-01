@@ -165,7 +165,8 @@
     "multipleMatches": "Seçilen sütunlarla birden fazla kayıt eşleşti.",
     "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz.",
     "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}.",
-    "ambiguousDishNumber": "\"{{number}}\" numarası birden fazla üründe var. Doğru ürün için id (menu_item:…) veya benzersiz ad verin."
+    "ambiguousDishNumber": "\"{{number}}\" numarası birden fazla üründe var. Doğru ürün için id (menu_item:…) veya benzersiz ad verin.",
+    "ambiguousMatch": "{{key}} ile birden fazla kayıt eşleşiyor. Doğru kaydı güncellemek için id verin."
   },
   "loading": "Yükleniyor...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Tüm POS kullanıcılarını listele",
       "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster",
       "howToPurchase": "Envanter satın alma kaydını nasıl oluştururum?",
-      "cleanseCsv": "AI Import için dağınık bir CSV ekleyip temizleyin"
+      "cleanseCsv": "AI Import için dağınık bir CSV ekleyip temizleyin",
+      "analyzeCsv": "CSV ekleyip asistanın analiz etmesini isteyin"
     },
     "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
     "passwordWillBeSet": "Onaylandığında şifre ayarlanacak",
@@ -300,6 +302,14 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "CSV/Excel ekle",
+    "fileMode": "Dosya ile ne yapılsın",
+    "fileModeCleanse": "İçe aktarım için temizle",
+    "fileModeAnalyze": "Sohbette analiz et",
+    "analyzeHint": "Önizleme hazırlayın, sonra sohbette soru sorun.",
+    "analyzePrepare": "Sorular için hazırla",
+    "analyzeReady": "{{file}} hazır (önizlemede {{rows}} satır). Sorunuzu aşağıya yazın.",
+    "analyzeUserLabel": "[Dosya: {{file}}]\n{{question}}"
   }
 }

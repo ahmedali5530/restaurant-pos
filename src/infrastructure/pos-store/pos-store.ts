@@ -360,6 +360,15 @@ export class PosStore {
     return catalog.pruneGhostOperationalOrders();
   }
 
+  /** Drop settled Dexie orders older than 1d (default); keeps identity/catalog/numbers. */
+  pruneStaleOperationalOrders(options?: {
+    olderThanMs?: number;
+    limit?: number;
+    silent?: boolean;
+  }) {
+    return catalog.pruneStaleOperationalOrders(options);
+  }
+
   /** Open orders in the legacy FETCH shape (items.item, user, table, order_type…). */
   getOpenOrdersHydrated() {
     return catalog.getOpenOrdersHydrated();

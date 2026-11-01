@@ -4,6 +4,8 @@ import remarkGfm from "remark-gfm";
 import {cn} from "@/lib/utils.ts";
 import type {AiOrderRef} from "@/lib/ai/order-refs.ts";
 import {linkifyOrderChildren, ReceiptMarkdownLink} from "@/lib/ai/order-receipt-links.tsx";
+import {isKpiLanguage, parseAiKpiBlock} from "@/lib/ai/kpi-widgets.ts";
+import {AiKpiWidgets} from "@/components/ai-assistant/ai-kpi-widgets.tsx";
 
 type AiMarkdownProps = {
   children: string;
@@ -61,6 +63,13 @@ const buildMarkdownComponents = (compact: boolean, orderRefs?: AiOrderRef[]) => 
     ),
     code: ({children, className}: {children?: React.ReactNode; className?: string}) => {
       const isBlock = className?.includes("language-");
+      if (isBlock && isKpiLanguage(className)) {
+        const raw = String(children ?? "").replace(/\n$/, "");
+        const widgets = parseAiKpiBlock(raw);
+        if (widgets.length) {
+          return <AiKpiWidgets widgets={widgets} compact={compact} />;
+        }
+      }
       if (isBlock) {
         return (
           <code className={cn(
@@ -78,9 +87,17 @@ const buildMarkdownComponents = (compact: boolean, orderRefs?: AiOrderRef[]) => 
         )}>{children}</code>
       );
     },
-    pre: ({children}: {children?: React.ReactNode}) => (
-      <pre className={compact ? "mb-2 overflow-x-auto" : "mb-3 overflow-x-auto"}>{children}</pre>
-    ),
+    pre: ({children}: {children?: React.ReactNode}) => {
+      // KPI widgets render inside `code`; skip the extra <pre> chrome.
+      const child: any = Array.isArray(children) ? children[0] : children;
+      const className = child?.props?.className as string | undefined;
+      if (isKpiLanguage(className)) {
+        return <>{children}</>;
+      }
+      return (
+        <pre className={compact ? "mb-2 overflow-x-auto" : "mb-3 overflow-x-auto"}>{children}</pre>
+      );
+    },
     table: ({children}: {children?: React.ReactNode}) => (
       <div className={cn(
         "overflow-x-auto rounded-lg border border-border",

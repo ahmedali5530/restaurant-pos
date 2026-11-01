@@ -7,6 +7,10 @@ import type {
 } from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -32,6 +36,7 @@ export function createDiscountImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "name", label: t("admin:columns.name"), type: "string", required: true, aliases: ["Name", "Discount"]},
     {name: "type", label: t("admin:columns.type"), type: "string", required: true, aliases: ["Type", "Value type"]},
     {name: "min_rate", label: t("admin:columns.minRate"), type: "number", required: true, aliases: ["Min rate", "Value", "Rate"]},
@@ -143,19 +148,27 @@ export function createDiscountImportConfig({
       }
 
       const rowData: Record<string, string> = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field}),
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field}),
+        );
+      }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (field === "priority" || field === "min_rate" || field === "max_rate") {
-          return {column: field, value: Number(value)};
-        }
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.discounts, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (field === "priority" || field === "min_rate" || field === "max_rate") {
+              return {column: field, value: Number(value)};
+            }
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.discounts, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.discounts, conditions);
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

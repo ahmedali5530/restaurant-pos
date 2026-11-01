@@ -7,6 +7,10 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -24,6 +28,7 @@ export function createTableImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("admin:columns.name"),
@@ -137,22 +142,30 @@ export function createTableImportConfig({
         priority: String(payload.priority),
       };
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const relationMatchFields = ["categories", "order_types", "payment_types", "floor"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (relationMatchFields.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "priority") return {column: "priority", value: Number(value)};
-        if (field === "ask_for_covers") return {column: "ask_for_covers", value: parseImportBool(value)};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.tables, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (relationMatchFields.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "priority") return {column: "priority", value: Number(value)};
+            if (field === "ask_for_covers") return {column: "ask_for_covers", value: parseImportBool(value)};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.tables, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.tables, conditions);
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
