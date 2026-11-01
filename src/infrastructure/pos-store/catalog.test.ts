@@ -311,6 +311,45 @@ describe('order item link reconcile', () => {
     expect(after?.items).toContain(items[0].id);
   });
 
+  it('keeps order_void items and restores them after they were stripped', async () => {
+    resetPosStoreDatabaseForTests();
+    await posStore.initialize();
+    const { order, items } = await posStore.createOrderWithItems({
+      invoiceNumber: 3,
+      items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
+    });
+    const result = await posStore.voidOrderItems({
+      orderId: order.id,
+      lines: [{ itemId: items[0].id, quantity: 1 }],
+      reason: 'Spill',
+      userId: 'user:u1',
+    });
+    const voidId = result.voids[0].id;
+
+    await posStore.reconcileOrderItemLinks();
+
+    const db = (await import('@/infrastructure/pos-store/db.ts')).getPosStoreDatabase();
+    const pending = await posStore.getPendingOutbox();
+    const voidOp = pending
+      .map((row) => row.operation)
+      .find((op) => op?.payload?.table === 'order_void');
+    expect(voidOp?.payload.data.items).toEqual([items[0].id]);
+
+    const stored = await db.domainOperations.get(voidOp!.operationId);
+    await db.domainOperations.put({
+      ...stored!,
+      payload: {
+        ...stored!.payload,
+        data: { ...stored!.payload.data, items: undefined },
+      },
+    });
+
+    await posStore.reconcileOrderItemLinks();
+    const restored = await db.domainOperations.get(voidOp!.operationId);
+    expect(restored?.payload.data.items).toEqual([items[0].id]);
+    expect((await db.orderVoids.get(voidId))?.items).toEqual([items[0].id]);
+  });
+
   it('does not create a ghost order from a sparse MERGE on a missing id', async () => {
     resetPosStoreDatabaseForTests();
     await posStore.initialize();

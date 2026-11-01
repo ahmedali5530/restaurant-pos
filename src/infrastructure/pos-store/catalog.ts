@@ -528,8 +528,10 @@ export async function pruneGhostOperationalOrders(): Promise<number> {
 
 /**
  * Drop `order.items` links that have no matching `orderItems` row in Dexie, and
- * strip pending outbox `data.items` arrays so a repaired SurrealDB cannot be
- * re-poisoned by a stale local items list on the next MERGE push.
+ * strip pending order MERGE/CREATE `data.items` arrays so a repaired SurrealDB
+ * cannot be re-poisoned by a stale local items list on the next push.
+ * `order_void.items` and `order_refund.items` are the voided/refunded lines —
+ * those stay, and a row already stripped is filled back from the local child.
  */
 export async function reconcileOrderItemLinks(orderId?: string): Promise<number> {
   const db = getPosStoreDatabase();
@@ -537,7 +539,7 @@ export async function reconcileOrderItemLinks(orderId?: string): Promise<number>
 
   await db.transaction(
     'rw',
-    [db.orders, db.orderItems, db.domainOperations, db.syncOutbox],
+    [db.orders, db.orderItems, db.orderVoids, db.orderRefunds, db.domainOperations, db.syncOutbox],
     async () => {
       const orders = orderId
         ? ([await db.orders.get(orderId)].filter(Boolean) as OrderRecord[])
@@ -567,10 +569,31 @@ export async function reconcileOrderItemLinks(orderId?: string): Promise<number>
         .toArray();
       for (const row of pending) {
         const op = await db.domainOperations.get(row.operationId);
-        if (!op?.payload?.data || !Array.isArray(op.payload.data.items)) continue;
+        if (!op?.payload?.data || typeof op.payload.data !== 'object') continue;
+        const table = String(op.payload.table ?? '');
         if (op.operationType !== 'MERGE_RECORD' && op.operationType !== 'CREATE_RECORD') {
           continue;
         }
+
+        // These `items` arrays are the voided/refunded lines, not order.items.
+        // Stripping them makes Surreal reject the row: items expected array, found NONE.
+        if (table === 'order_void' || table === 'order_refund') {
+          if (Array.isArray(op.payload.data.items)) continue;
+          const store = table === 'order_void' ? db.orderVoids : db.orderRefunds;
+          const localId = String(op.payload.recordId ?? op.payload.data.id ?? '');
+          const local = localId ? await store.get(localId) : undefined;
+          if (!local || !Array.isArray(local.items)) continue;
+          await db.domainOperations.put({
+            ...op,
+            payload: {
+              ...op.payload,
+              data: { ...op.payload.data, items: local.items },
+            },
+          });
+          continue;
+        }
+
+        if (table !== 'order' || !Array.isArray(op.payload.data.items)) continue;
         // Gateway appends from payload.items children; data.items must not replace.
         const nextPayload = {
           ...op.payload,
