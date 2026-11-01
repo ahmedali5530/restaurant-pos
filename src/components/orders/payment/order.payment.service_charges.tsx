@@ -15,10 +15,12 @@ interface Props {
   serviceChargeType: DiscountType
 
   order: Order
+  /** When set, OK commits through this (PIN-protected) instead of setters directly. */
+  onCommit?: (serviceCharge: number, serviceChargeType: DiscountType) => void
 }
 
 export const OrderPaymentServiceCharges = ({
-  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order
+  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order, onCommit
 }: Props) => {
   const {t} = useTranslation(['payment', 'common']);
   const [settings] = useAtom(appSettings);
@@ -159,6 +161,10 @@ export const OrderPaymentServiceCharges = ({
           className="w-full"
           data-testid="payment-service-charges-apply"
           onClick={() => {
+            if (onCommit) {
+              onCommit(draftServiceCharge, draftServiceChargeType);
+              return;
+            }
             setServiceCharge(draftServiceCharge);
             setServiceChargeType(draftServiceChargeType);
           }}

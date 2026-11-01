@@ -165,7 +165,8 @@
     "multipleMatches": "Meerdere records komen overeen met de geselecteerde kolommen.",
     "unsupportedMatchField": "Kan niet matchen op kolom \"{{field}}\".",
     "fileTooLarge": "Het bestand is te groot. Maximale grootte is {{max}}.",
-    "ambiguousDishNumber": "Meerdere gerechten delen nummer \"{{number}}\". Geef id (menu_item:…) of een unieke naam."
+    "ambiguousDishNumber": "Meerdere gerechten delen nummer \"{{number}}\". Geef id (menu_item:…) of een unieke naam.",
+    "ambiguousMatch": "Meerdere records komen overeen met {{key}}. Geef id om het juiste record bij te werken."
   },
   "loading": "Laden...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Alle POS-gebruikers weergeven",
       "inventoryStock": "Voorraadartikelen onder bestelniveau tonen",
       "howToPurchase": "Hoe boekt u een voorraadaankoop?",
-      "cleanseCsv": "Voeg een rommelige CSV toe om te opschonen voor AI Import"
+      "cleanseCsv": "Voeg een rommelige CSV toe om te opschonen voor AI Import",
+      "analyzeCsv": "Voeg een CSV toe en vraag de assistent om analyse"
     },
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging",
@@ -300,7 +302,15 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "CSV/Excel bijvoegen",
+    "fileMode": "Wat te doen met het bestand",
+    "fileModeCleanse": "Opschonen voor import",
+    "fileModeAnalyze": "Analyseren in chat",
+    "analyzeHint": "Bereid een voorbeeld voor en stel daarna een vraag in de chat.",
+    "analyzePrepare": "Voorbereiden voor vragen",
+    "analyzeReady": "{{file}} is klaar ({{rows}} rijen in voorbeeld). Stel hieronder uw vraag.",
+    "analyzeUserLabel": "[Bestand: {{file}}]\n{{question}}"
   },
   "desktopSetup": {
     "title": "Desktop-database instellen",
@@ -355,5 +365,5 @@
     "larger": "Groter",
     "reset": "100%",
     "current": "{{percent}}%"
-  }
+}
 }

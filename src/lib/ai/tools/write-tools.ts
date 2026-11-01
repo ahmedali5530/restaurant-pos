@@ -39,40 +39,56 @@ const recordHasError = (record: ImportRecord) =>
  * the user already confirmed a preview that showed no errors. Flag it here
  * instead, at proposal time, so the preview is the actual ground truth.
  */
+/** Business-key fields that can be satisfied by an entity id alternate. */
+const MATCH_FIELD_ID_ALIASES: Record<string, string[]> = {
+  dish_number: ["dish_id"],
+  modifier_group: ["modifier_group_id"],
+  ingredient: ["item_id"],
+  group: ["modifier_group_id", "group_id"],
+};
+
+function valuePresent(values: Record<string, unknown>, field: string): boolean {
+  const value = values[field];
+  return value !== null && value !== undefined && String(value).trim() !== "";
+}
+
 function flagMissingMatchFields(config: ImportConfiguration, mode: CsvImportMode, records: ImportRecord[]): void {
   if (mode === "create") return;
   const matchFields = config.matchFields ?? [];
-  if (matchFields.length === 0 && config.id !== "dishes") return;
+  if (matchFields.length === 0) return;
 
   for (const record of records) {
-    // Dishes: match by unique id, or by number (optionally + name). Numbers alone may collide.
-    if (config.id === "dishes") {
-      const hasId = String(record.values.id ?? "").trim() !== "";
-      const hasNumber = String(record.values.number ?? "").trim() !== "";
-      if (!hasId && !hasNumber) {
-        record.issues.push({
-          field: "id",
-          code: "required",
-          severity: "error",
-          message:
-            '"id" or "number" is required to match the dish to update '
-            + "(prefer id from list_menu_items when numbers can duplicate)",
-        });
-      }
+    const hasId = String(record.values.id ?? "").trim() !== "";
+    if (hasId) continue;
+
+    const missingLegacy = matchFields.filter((field) => {
+      if (valuePresent(record.values, field)) return false;
+      const aliases = MATCH_FIELD_ID_ALIASES[field] ?? [];
+      return !aliases.some((alias) => valuePresent(record.values, alias));
+    });
+
+    if (missingLegacy.length === 0) continue;
+
+    // id OR full legacy match key set
+    if (missingLegacy.length === matchFields.length) {
+      record.issues.push({
+        field: "id",
+        code: "required",
+        severity: "error",
+        message:
+          `"id" or ${matchFields.map((f) => `"${f}"`).join(" + ")} is required to match the row to update `
+          + "(prefer id from list_* tools)",
+      });
       continue;
     }
 
-    for (const field of matchFields) {
-      const value = record.values[field];
-      const empty = value === null || value === undefined || String(value).trim() === "";
-      if (empty) {
-        record.issues.push({
-          field,
-          code: "required",
-          severity: "error",
-          message: `"${field}" is required to match the row to update`,
-        });
-      }
+    for (const field of missingLegacy) {
+      record.issues.push({
+        field,
+        code: "required",
+        severity: "error",
+        message: `"${field}" is required to match the row to update (or pass id)`,
+      });
     }
   }
 }

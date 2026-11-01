@@ -165,7 +165,8 @@
     "multipleMatches": "Несколько записей соответствуют выбранным столбцам.",
     "unsupportedMatchField": "Нельзя сопоставлять по столбцу \"{{field}}\".",
     "fileTooLarge": "Файл слишком большой. Максимальный размер — {{max}}.",
-    "ambiguousDishNumber": "Несколько блюд имеют номер \"{{number}}\". Укажите id (menu_item:…) или уникальное имя."
+    "ambiguousDishNumber": "Несколько блюд имеют номер \"{{number}}\". Укажите id (menu_item:…) или уникальное имя.",
+    "ambiguousMatch": "Несколько записей совпадают с {{key}}. Укажите id, чтобы обновить нужную запись."
   },
   "loading": "Загрузка...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Список всех пользователей POS",
       "inventoryStock": "Показать товары ниже уровня перезаказа",
       "howToPurchase": "Как провести закупку на склад?",
-      "cleanseCsv": "Прикрепите неаккуратный CSV для очистки под AI Import"
+      "cleanseCsv": "Прикрепите неаккуратный CSV для очистки под AI Import",
+      "analyzeCsv": "Прикрепите CSV и попросите ассистента проанализировать"
     },
     "unknownConfig": "Неизвестная конфигурация импорта для предпросмотра.",
     "passwordWillBeSet": "Пароль будет установлен при подтверждении",
@@ -300,7 +302,15 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "Прикрепить CSV/Excel",
+    "fileMode": "Что сделать с файлом",
+    "fileModeCleanse": "Очистить для импорта",
+    "fileModeAnalyze": "Анализировать в чате",
+    "analyzeHint": "Подготовьте превью, затем задайте вопрос в чате.",
+    "analyzePrepare": "Подготовить к вопросам",
+    "analyzeReady": "{{file}} готов ({{rows}} строк в превью). Задайте вопрос ниже.",
+    "analyzeUserLabel": "[Файл: {{file}}]\n{{question}}"
   },
   "desktopSetup": {
     "title": "Настройка базы данных для ПК",
@@ -355,5 +365,5 @@
     "larger": "Больше",
     "reset": "100%",
     "current": "{{percent}}%"
-  }
+}
 }

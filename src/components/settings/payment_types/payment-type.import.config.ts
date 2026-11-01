@@ -9,6 +9,10 @@ import type {
 import {type TFunc} from "@/lib/data-import/helpers.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -34,6 +38,7 @@ export function createPaymentTypeImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("admin:columns.name"),
@@ -100,20 +105,28 @@ export function createPaymentTypeImportConfig({
       }
 
       const rowData: Record<string, string> = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (field === "tax") {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "priority") return {column: "priority", value: Number(value)};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.payment_types, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (field === "tax") {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "priority") return {column: "priority", value: Number(value)};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.payment_types, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.payment_types, conditions);
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

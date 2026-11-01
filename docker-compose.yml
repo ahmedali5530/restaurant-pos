@@ -202,7 +202,11 @@ services:
     restart: unless-stopped
 
   gateway:
-    image: node:20-alpine
+    # Built image includes /surreal (v3.0.5) for in-app full-database backup/restore.
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    image: posr-react-gateway:latest
     working_dir: /app
     env_file:
       - path: ./gateway/.env
@@ -218,10 +222,13 @@ services:
       - GATEWAY_JWT_TTL=${GATEWAY_JWT_TTL:-12h}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
       - SURREAL_URL=ws://surrealdb:8000/rpc
+      - SURREAL_HTTP_ENDPOINT=http://surrealdb:8000
       - SURREAL_NS=posr
       - SURREAL_DB=posr
       - SURREAL_USER=${SURREAL_USER:?Set SURREAL_USER in .env}
       - SURREAL_PASS=${SURREAL_PASS:?Set SURREAL_PASS in .env}
+      - SURREAL_BIN=/surreal
+      - BACKUP_MAX_UPLOAD_BYTES=${BACKUP_MAX_UPLOAD_BYTES:-536870912}
     command: sh -c "npm install && node server.js"
     ports:
       # Bind to loopback only: nginx (and the Vite dev proxy) reach the

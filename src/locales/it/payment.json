@@ -93,7 +93,8 @@
     "exactCardAmount": "Aggiunto importo esatto per pagamento con carta",
     "tempAlreadyPrinted": "Preconto già stampato",
     "alreadyClosed": "Questo ordine è già chiuso.",
-    "notOwner": "Questo ordine è gestito da un altro terminale."
+    "notOwner": "Questo ordine è gestito da un altro terminale.",
+    "skipFinalPrint": "Salta scontrino finale"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",

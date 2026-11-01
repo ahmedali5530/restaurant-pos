@@ -335,6 +335,9 @@ export const ACCESS_RULE_MODULES: Record<string, AccessRuleModule> = {
       "settings.inventory",
       "settings.translate_receipts",
       "settings.number_policy",
+      "settings.backup",
+      "settings.restore",
+      "settings.database",
     ],
   },
   accounts: {
@@ -595,6 +598,9 @@ export const LEGACY_MODULE_MAP: Record<string, string | string[]> = {
   "Inventory Settings": "settings.inventory",
   "Translate receipts": "settings.translate_receipts",
   "Invoice numbers": "settings.number_policy",
+  "Settings backup": "settings.backup",
+  "Settings restore": "settings.restore",
+  "Database backup": "settings.database",
 
   // Accounts
   "Chart of Accounts": "accounts.chart_of_accounts",

@@ -393,5 +393,41 @@
     "priceDivisor": "Prijsdeler (klein→groot)",
     "layoutHint": "Layout: {{example}}",
     "resetDefaults": "Standaard herstellen (ingeschakeld houden)"
+  },
+  "backup": {
+    "title": "Back-up en herstel",
+    "description": "Exporteer of herstel app-instellingen en de voorkeuren van deze browser, of de volledige database.",
+    "offline": "Back-up of herstel is offline niet mogelijk",
+    "offlineHint": "Beschikbaar wanneer er verbinding met de server is",
+    "settings": {
+      "title": "Instellingen",
+      "description": "App-instellingen uit de database plus taal, weergave, aanraaktoetsenbord en POS-modus van deze browser. Open bestellingen en winkelwagen blijven ongewijzigd.",
+      "export": "Instellingen exporteren",
+      "restore": "Instellingen herstellen",
+      "exportDescription": "Instellingenback-up exporteren",
+      "restoreDescription": "Instellingen herstellen vanuit back-up",
+      "exported": "Instellingenback-up gedownload",
+      "exportFailed": "Exporteren van instellingen mislukt",
+      "restored": "Instellingen hersteld",
+      "restoreFailed": "Herstellen van instellingen mislukt",
+      "invalidFile": "Dit bestand is geen geldige instellingenback-up",
+      "confirmTitle": "Instellingen herstellen?",
+      "confirmMessage": "Alle app-instellingen vervangen door dit bestand en taal, weergave, touch en POS-modus op deze browser toepassen? Open bestellingen en winkelwagen blijven ongewijzigd."
+    },
+    "database": {
+      "title": "Volledige database",
+      "description": "Download of herstel de volledige Surreal-database (.surql), inclusief bestellingen, voorraad, catalogus en instellingen. Records in het bestand overschrijven overeenkomende rijen; rijen alleen in de live database blijven behouden.",
+      "export": "Database exporteren",
+      "restore": "Database herstellen",
+      "exportDescription": "Volledige databaseback-up exporteren",
+      "restoreDescription": "Volledige database herstellen vanuit back-up",
+      "exported": "Databaseback-up gedownload",
+      "exportFailed": "Exporteren van database mislukt",
+      "restored": "Database hersteld",
+      "restoreFailed": "Herstellen van database mislukt",
+      "forbidden": "Geen toestemming voor databaseback-up",
+      "confirmTitle": "Volledige database herstellen?",
+      "confirmMessage": "Importeer dit .surql-bestand in de live database. Records in het bestand overschrijven overeenkomende rijen; records die alleen live bestaan blijven behouden. De cataloguscache van deze terminal wordt daarna vernieuwd."
+    }
   }
 }

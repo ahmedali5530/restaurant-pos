@@ -835,7 +835,10 @@
       "reports": "التقارير",
       "inventory": "المخزون",
       "settings": "الإعدادات",
-      "admin.catalog_publish": "نشر الكتالوج"
+      "admin.catalog_publish": "نشر الكتالوج",
+      "settings.backup": "نسخ احتياطي للإعدادات",
+      "settings.restore": "استعادة الإعدادات",
+      "settings.database": "نسخ احتياطي لقاعدة البيانات"
     }
   },
   "discountEngine": {

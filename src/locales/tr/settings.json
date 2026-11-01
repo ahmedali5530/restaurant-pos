@@ -393,5 +393,41 @@
     "priceDivisor": "Fiyat böleni (küçük→büyük)",
     "layoutHint": "Düzen: {{example}}",
     "resetDefaults": "Varsayılana dön (açık kalsın)"
+  },
+  "backup": {
+    "title": "Yedekleme ve geri yükleme",
+    "description": "Uygulama ayarlarını ve bu tarayıcının tercihlerini veya tüm veritabanını dışa aktarın ya da geri yükleyin.",
+    "offline": "Çevrimdışıyken yedekleme veya geri yükleme yapılamaz",
+    "offlineHint": "Sunucuya bağlıyken kullanılabilir",
+    "settings": {
+      "title": "Ayarlar",
+      "description": "Veritabanındaki uygulama ayarları ile bu tarayıcının dili, görünümü, dokunmatik klavyesi ve POS modu. Açık siparişler ve sepet değişmez.",
+      "export": "Ayarları dışa aktar",
+      "restore": "Ayarları geri yükle",
+      "exportDescription": "Ayar yedeğini dışa aktar",
+      "restoreDescription": "Yedekten ayarları geri yükle",
+      "exported": "Ayar yedeği indirildi",
+      "exportFailed": "Ayarlar dışa aktarılamadı",
+      "restored": "Ayarlar geri yüklendi",
+      "restoreFailed": "Ayarlar geri yüklenemedi",
+      "invalidFile": "Bu dosya geçerli bir ayar yedeği değil",
+      "confirmTitle": "Ayarlar geri yüklensin mi?",
+      "confirmMessage": "Tüm uygulama ayarları bu dosyayla değiştirilsin ve dil, görünüm, dokunmatik ve POS modu bu tarayıcıya uygulansın mı? Açık siparişler ve sepet değişmez."
+    },
+    "database": {
+      "title": "Tam veritabanı",
+      "description": "Siparişler, stok, katalog ve ayarlar dahil tüm Surreal veritabanını (.surql) indirin veya geri yükleyin. Dosyadaki kayıtlar eşleşen satırların üzerine yazar; yalnızca canlı veritabanındaki satırlar korunur.",
+      "export": "Veritabanını dışa aktar",
+      "restore": "Veritabanını geri yükle",
+      "exportDescription": "Tam veritabanı yedeğini dışa aktar",
+      "restoreDescription": "Tam veritabanını yedekten geri yükle",
+      "exported": "Veritabanı yedeği indirildi",
+      "exportFailed": "Veritabanı dışa aktarılamadı",
+      "restored": "Veritabanı geri yüklendi",
+      "restoreFailed": "Veritabanı geri yüklenemedi",
+      "forbidden": "Veritabanı yedeği için izniniz yok",
+      "confirmTitle": "Tam veritabanı geri yüklensin mi?",
+      "confirmMessage": "Bu .surql dosyasını canlı veritabanına aktarın. Dosyadaki kayıtlar eşleşen satırların üzerine yazar; yalnızca canlıda olanlar korunur. Bu terminalin katalog önbelleği ardından yenilenir."
+    }
   }
 }

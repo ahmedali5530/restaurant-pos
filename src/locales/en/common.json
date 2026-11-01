@@ -165,7 +165,8 @@
     "multipleMatches": "Multiple records matched the selected columns.",
     "unsupportedMatchField": "Cannot match on column \"{{field}}\".",
     "fileTooLarge": "File is too large. Maximum size is {{max}}.",
-    "ambiguousDishNumber": "Multiple dishes share number \"{{number}}\". Pass id (menu_item:…) or a unique name to update the correct dish."
+    "ambiguousDishNumber": "Multiple dishes share number \"{{number}}\". Pass id (menu_item:…) or a unique name to update the correct dish.",
+    "ambiguousMatch": "Multiple records match {{key}}. Pass id to update the correct record."
   },
   "dataImport": {
     "title": "Import {{entity}}",
@@ -260,7 +261,8 @@
       "listUsers": "List all POS users",
       "inventoryStock": "Show inventory items below reorder level",
       "howToPurchase": "How do I post an inventory purchase?",
-      "cleanseCsv": "Attach a messy CSV to cleanse for AI Import"
+      "cleanseCsv": "Attach a messy CSV to cleanse for AI Import",
+      "analyzeCsv": "Attach a CSV and ask the assistant to analyze it"
     },
     "cleanseTitle": "Cleanse import file",
     "attachFile": "Attach CSV/Excel",
@@ -299,7 +301,15 @@
       "accounts": "Chart of accounts"
     },
     "unknownConfig": "Unknown import configuration for preview.",
-    "passwordWillBeSet": "Password will be set on confirm"
+    "passwordWillBeSet": "Password will be set on confirm",
+    "attachTitle": "Attach CSV/Excel",
+    "fileMode": "What to do with the file",
+    "fileModeCleanse": "Cleanse for import",
+    "fileModeAnalyze": "Analyze in chat",
+    "analyzeHint": "Prepare a preview, then ask a question in the chat (e.g. summarize columns, find outliers).",
+    "analyzePrepare": "Prepare for questions",
+    "analyzeReady": "{{file}} is ready ({{rows}} rows in preview). Ask your question below.",
+    "analyzeUserLabel": "[File: {{file}}]\n{{question}}"
   },
   "loading": "Loading...",
   "desktopSetup": {

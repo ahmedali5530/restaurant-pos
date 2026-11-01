@@ -37,6 +37,10 @@ import {
   downloadCleanseCsv,
   type CleanseResultPayload,
 } from "@/components/ai-assistant/assistant-cleanse-panel.tsx";
+import {
+  formatAnalyzeUserMessage,
+  type AssistantFilePreview,
+} from "@/lib/ai/assistant-file-preview.ts";
 import {AI_ASSISTANT_NAME} from "@/lib/ai/assistant-config.ts";
 import {isAssistantWidgetPath} from "@/lib/ai/assistant-widget-visibility.ts";
 import {buildAssistantContextHistory} from "@/lib/ai/assistant-conversation-context.ts";
@@ -98,6 +102,7 @@ export function AiAssistantWidget() {
   const [hydrated, setHydrated] = useState(false);
   const [completionPulse, setCompletionPulse] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
+  const [analyzePreview, setAnalyzePreview] = useState<AssistantFilePreview | null>(null);
 
   const assistantName = AI_ASSISTANT_NAME;
 
@@ -221,6 +226,7 @@ export function AiAssistantWidget() {
     setHistory([]);
     setPending(null);
     setError(null);
+    setAnalyzePreview(null);
     void clearAssistantConversation(userId);
   }, [entries.length, history.length, loading, userId]);
 
@@ -254,18 +260,30 @@ export function AiAssistantWidget() {
     const trimmed = prompt.trim();
     if (!trimmed || loading) return;
 
+    const modelPrompt = analyzePreview
+      ? formatAnalyzeUserMessage(trimmed, analyzePreview)
+      : trimmed;
+    const displayContent = analyzePreview
+      ? t("common:aiAssistant.analyzeUserLabel", {
+          file: analyzePreview.fileName,
+          question: trimmed,
+          defaultValue: "[File: {{file}}]\n{{question}}",
+        })
+      : trimmed;
+
     const conversationHistory = buildAssistantContextHistory([
       ...entries,
-      {role: "user", content: trimmed},
+      {role: "user", content: modelPrompt},
     ]);
 
-    setEntries(prev => [...prev, {role: "user", content: trimmed}]);
+    setEntries(prev => [...prev, {role: "user", content: displayContent}]);
     setPrompt("");
+    setAnalyzePreview(null);
     setLoading(true);
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {
+      const result = await runAiAssistantAgent(db, t, modelPrompt, {
         allowedModules,
         writeContext,
         language: i18n.language,
@@ -569,6 +587,8 @@ export function AiAssistantWidget() {
         allowedModules={allowedModules}
         pathname={location.pathname}
         disabled={loading || !!pending}
+        analyzePreview={analyzePreview}
+        onAnalyzeReady={setAnalyzePreview}
         onCleansed={handleCleansed}
         onError={message => setError(message || null)}
       />

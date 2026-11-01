@@ -165,7 +165,8 @@
     "multipleMatches": "Vários registros corresponderam às colunas selecionadas.",
     "unsupportedMatchField": "Não é possível corresponder pela coluna \"{{field}}\".",
     "fileTooLarge": "O arquivo é muito grande. O tamanho máximo é {{max}}.",
-    "ambiguousDishNumber": "Vários pratos compartilham o número \"{{number}}\". Informe id (menu_item:…) ou um nome único."
+    "ambiguousDishNumber": "Vários pratos compartilham o número \"{{number}}\". Informe id (menu_item:…) ou um nome único.",
+    "ambiguousMatch": "Vários registros correspondem a {{key}}. Informe id para atualizar o registro correto."
   },
   "loading": "Carregando...",
   "dataImport": {
@@ -261,7 +262,8 @@
       "listUsers": "Listar todos os usuários do POS",
       "inventoryStock": "Mostrar itens de estoque abaixo do nível de reposição",
       "howToPurchase": "Como faço para lançar uma compra de estoque?",
-      "cleanseCsv": "Anexe um CSV bagunçado para limpar para AI Import"
+      "cleanseCsv": "Anexe um CSV bagunçado para limpar para AI Import",
+      "analyzeCsv": "Anexe um CSV e peça ao assistente para analisá-lo"
     },
     "unknownConfig": "Configuração de importação desconhecida para visualização.",
     "passwordWillBeSet": "A senha será definida ao confirmar",
@@ -300,7 +302,15 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "Anexar CSV/Excel",
+    "fileMode": "O que fazer com o arquivo",
+    "fileModeCleanse": "Limpar para importação",
+    "fileModeAnalyze": "Analisar no chat",
+    "analyzeHint": "Prepare uma prévia e depois faça uma pergunta no chat.",
+    "analyzePrepare": "Preparar para perguntas",
+    "analyzeReady": "{{file}} está pronto ({{rows}} linhas na prévia). Faça sua pergunta abaixo.",
+    "analyzeUserLabel": "[Arquivo: {{file}}]\n{{question}}"
   },
   "desktopSetup": {
     "title": "Configuração do banco desktop",
@@ -355,5 +365,5 @@
     "larger": "Maior",
     "reset": "100%",
     "current": "{{percent}}%"
-  }
+}
 }

@@ -20,4 +20,11 @@ export {
   downloadImportCsv,
   recordsToImportCsv,
 } from "@/lib/data-import/records-to-csv.ts";
+export {
+  assertUniqueMatch,
+  findRecordsByIdOrKeys,
+  optionalIdField,
+  requireUniqueMatchByIdOrKeys,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 

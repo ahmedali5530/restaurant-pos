@@ -96,7 +96,7 @@ const mergeDishUpdatePatches = createMergeUpdatePatchesByFetcher(
   async (db, patch) => fetchExistingDishRaw(db, patch),
 );
 const mergeTableUpdatePatches = createMergeUpdatePatchesByFetcher(
-  async (db, patch) => fetchExistingTableRaw(db, String(patch.number ?? "").trim()),
+  async (db, patch) => fetchExistingTableRaw(db, patch),
 );
 const mergeCategoryUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.categories, ["name"], {
   softDelete: true,
@@ -119,7 +119,7 @@ const mergeDiscountUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.
 const mergeDishModifierUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingDishModifierRaw);
 const mergeDishIngredientUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingDishIngredientRaw);
 const mergeInventoryItemUpdatePatches = createMergeUpdatePatchesByFetcher(
-  async (db, patch) => fetchExistingInventoryItemRaw(db, String(patch.code ?? "").trim()),
+  async (db, patch) => fetchExistingInventoryItemRaw(db, patch),
 );
 const mergeScheduledShiftUpdatePatches = createMergeUpdatePatchesByFetcher(fetchExistingScheduledShiftRaw);
 const mergeEmployeeUpdatePatches = createMergeUpdatePatchesByMatchFields(Tables.employees, ["employee_number"], {
@@ -275,8 +275,22 @@ const categoryFields: WriteFieldSpec[] = [
 ];
 
 const tableFields: WriteFieldSpec[] = [
-  {name: "name", type: "string", requiredOnCreate: true},
-  {name: "number", type: "string", requiredOnCreate: true, description: "Table number (match key for updates)"},
+  {
+    name: "name",
+    type: "string",
+    requiredOnCreate: true,
+    description:
+      'Table name PREFIX only (e.g. "F"). The POS shows name+number, so "F"+"1"="F1". '
+      + 'Do not set name to "F1" when number is also "F1" or "1".',
+  },
+  {
+    name: "number",
+    type: "string",
+    requiredOnCreate: true,
+    description:
+      'Table number DIGITS only (e.g. "1".."10"), used as the match key for updates. '
+      + 'Do not include the name prefix (use "1", not "F1").',
+  },
   {name: "floor", type: "string", requiredOnCreate: true, description: "Floor name"},
   {name: "ask_for_covers", type: "boolean"},
   {name: "background", type: "string"},
@@ -288,7 +302,9 @@ const tableFields: WriteFieldSpec[] = [
 ];
 
 const dishModifierFields: WriteFieldSpec[] = [
+  {name: "dish_id", type: "string", description: "Dish record id from list_* (prefer over dish_number)"},
   {name: "dish_number", type: "string", requiredOnCreate: true},
+  {name: "modifier_group_id", type: "string", description: "Modifier group record id (prefer over name)"},
   {name: "modifier_group", type: "string", requiredOnCreate: true, description: "Modifier group name"},
   {name: "priority", type: "number", requiredOnCreate: true},
   {name: "has_required_modifiers", type: "boolean"},
@@ -298,7 +314,9 @@ const dishModifierFields: WriteFieldSpec[] = [
 ];
 
 const dishIngredientFields: WriteFieldSpec[] = [
+  {name: "dish_id", type: "string", description: "Dish record id from list_* (prefer over dish_number)"},
   {name: "dish_number", type: "string", requiredOnCreate: true},
+  {name: "item_id", type: "string", description: "Inventory item record id (prefer over ingredient name/code)"},
   {name: "ingredient", type: "string", requiredOnCreate: true, description: "Inventory item name or code"},
   {name: "uom", type: "string"},
   {name: "quantity", type: "number", requiredOnCreate: true},
@@ -409,6 +427,7 @@ const departmentFields: WriteFieldSpec[] = [
 ];
 
 const modifierGroupFields: WriteFieldSpec[] = [
+  {name: "modifier_group_id", type: "string", description: "Modifier group record id (prefer when names collide)"},
   {name: "group", type: "string", requiredOnCreate: true, description: "Modifier group name (e.g. Select pizza size)"},
   {
     name: "modifier",
@@ -619,9 +638,11 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       matchFields: ["number"],
       fields: tableFields,
       createDescription:
-        "Propose creating restaurant tables. Use floor name and category/order/payment type names as strings.",
+        "Propose creating restaurant tables. "
+        + 'name = prefix only (e.g. "F"), number = digits only (e.g. "1".."10"); UI shows F1..F10. '
+        + 'Never set both name and number to "F1". Use floor name and category/order/payment type names as strings.',
       updateDescription:
-        "Propose updating tables matched by table number. Only include fields that should change.",
+        "Propose updating tables matched by table number (digits). Only include fields that should change.",
     }),
   },
   {
@@ -642,9 +663,12 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       matchFields: ["dish_number", "modifier_group"],
       fields: dishModifierFields,
       createDescription:
-        "Propose attaching an existing modifier group to a dish (by dish number + group name). "
+        "Propose attaching an existing modifier group to a dish (prefer dish_id + modifier_group_id from list_*, "
+        + "or dish number + group name). "
         + "Set has_required_modifiers / required_modifiers for required groups (e.g. Bread), "
         + "leave optional for Add-ons. Create the dishes and group options first.",
+      updateDescription:
+        "Propose updating a dish↔modifier-group link. Prefer edge id or dish_id + modifier_group_id from list_*.",
     }),
   },
   {
@@ -665,6 +689,8 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
       updateToolName: "propose_update_dish_ingredients",
       matchFields: ["dish_number", "ingredient"],
       fields: dishIngredientFields,
+      updateDescription:
+        "Propose updating a dish recipe line. Prefer recipe id or dish_id + item_id from list_* tools.",
     }),
   },
   {
@@ -870,7 +896,8 @@ export const WRITE_TOOL_REGISTRY: WriteToolRegistryEntry[] = [
         + "Use for sizes/toppings/add-ons — not base dish price. "
         + "After options exist, attach groups to dishes with propose_create_dish_modifiers.",
       updateDescription:
-        "Propose updating a modifier option price within a modifier group (group + modifier name). "
+        "Propose updating a modifier option price within a modifier group. "
+        + "Prefer option id or modifier_group_id + modifier from list_*. "
         + "Do NOT use propose_update_dishes — that changes the base menu item price, not the modifier option price.",
     }),
   },

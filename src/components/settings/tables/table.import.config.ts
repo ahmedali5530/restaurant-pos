@@ -7,6 +7,10 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -14,6 +18,7 @@ import {
   findCsvImportMatches,
   writeCsvImportRow,
 } from "@/utils/csv-import.ts";
+import {normalizeTableNameAndNumber} from "@/components/settings/tables/table-name-number.ts";
 
 export function createTableImportConfig({
   db,
@@ -23,8 +28,35 @@ export function createTableImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
-    {name: "name", label: t("admin:columns.name"), type: "string", required: true, aliases: ["Name"]},
-    {name: "number", label: t("admin:columns.number"), type: "string", required: true, aliases: ["Number", "No"]},
+    optionalIdField(t),
+    {
+      name: "name",
+      label: t("admin:columns.name"),
+      type: "string",
+      required: true,
+      aliases: ["Name"],
+      description:
+        'Display prefix only (e.g. "F"). UI shows name+number as "F1". Do not put "F1" here when number is "1".',
+      transform: (value, row) => {
+        const fixed = normalizeTableNameAndNumber(value, row.number);
+        row.number = fixed.number;
+        return fixed.name;
+      },
+    },
+    {
+      name: "number",
+      label: t("admin:columns.number"),
+      type: "string",
+      required: true,
+      aliases: ["Number", "No"],
+      description:
+        'Numeric part only (e.g. "1".."10"). UI shows name+number. Do not repeat the prefix (not "F1").',
+      transform: (value, row) => {
+        const fixed = normalizeTableNameAndNumber(row.name, value);
+        row.name = fixed.name;
+        return fixed.number;
+      },
+    },
     {name: "ask_for_covers", label: t("admin:columns.askForCovers"), type: "boolean", defaultValue: false},
     {name: "background", label: t("admin:forms.backgroundColor"), type: "string", optional: true},
     {name: "color", label: t("admin:forms.fontColor"), type: "string", optional: true},
@@ -68,11 +100,15 @@ export function createTableImportConfig({
     defaultMode: "create",
     db,
     extractionInstructions:
-      "Extract restaurant table records. Map table names, numbers, floor names, categories, order types, and payment types. Use pipe-separated lists for multi-values when unsure.",
+      "Extract restaurant table records. name is the prefix (e.g. F), number is digits (e.g. 1); UI displays name+number (F1). "
+      + "Never put the full label in both fields. Map floor names, categories, order types, and payment types.",
     onImportRow: async (record: ImportRecord, ctx) => {
       const v = record.values;
-      const name = String(v.name ?? "").trim();
-      const number = String(v.number ?? "").trim();
+      const fixed = normalizeTableNameAndNumber(v.name, v.number);
+      const name = fixed.name;
+      const number = fixed.number;
+      v.name = name;
+      v.number = number;
       if (!name || !number) throw new Error(t("validation:required"));
 
       const floorId = requireRefId(v.floor as ResolvedReference, "Floor not found");
@@ -106,22 +142,30 @@ export function createTableImportConfig({
         priority: String(payload.priority),
       };
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const relationMatchFields = ["categories", "order_types", "payment_types", "floor"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (relationMatchFields.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "priority") return {column: "priority", value: Number(value)};
-        if (field === "ask_for_covers") return {column: "ask_for_covers", value: parseImportBool(value)};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.tables, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (relationMatchFields.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "priority") return {column: "priority", value: Number(value)};
+            if (field === "ask_for_covers") return {column: "ask_for_covers", value: parseImportBool(value)};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.tables, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.tables, conditions);
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

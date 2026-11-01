@@ -7,6 +7,68 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-02',
+    title: 'Advanced Sales Excel export fixes',
+    items: [
+      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with a separate Order Items sheet when Show menu items is on.',
+      'Order # and Invoice # link to the printable receipt in Advanced Sales and Sales Dashboard (and as Excel hyperlinks in the export).',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant KPI widgets',
+    items: [
+      'Assistant answers can highlight key numbers as colored KPI cards (via a ```kpi block) instead of burying them only in tables — bad figures use warning/danger tones; detail tables still work for rankings.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant personality',
+    items: [
+      'The AI assistant replies like a suspicious, blunt fifty-something who asks why you want this or that — and scolds hard whenever sales, waste, discounts, or other figures look bad — while still pulling real data and completing proposals.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant file cleanse or analyze',
+    items: [
+      'Attach a CSV/Excel in the AI assistant and choose Cleanse for import (corrected CSV download) or Analyze in chat — then ask questions about a capped preview of the file.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant updates prefer record id',
+    items: [
+      'AI assistant create/update/delete matching prefers the Surreal record id from list_* tools for inventory items, tables, employees, users, master data, and dish links — business keys (code, number, name, login) remain as fallback.',
+      'Inventory item codes (and other mutable keys) can be corrected in an update when you pass the row id, without losing the record.',
+      'Ambiguous business-key matches now ask for id instead of updating the wrong row.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Backup and restore',
+    items: [
+      'Settings includes Backup and restore: export or restore app settings (plus this browser’s language, appearance, touch keyboard, and POS mode) as a JSON file.',
+      'With the Database backup permission, you can download or import a full Surreal .surql dump (same format as the nightly backups). Rows in the file overwrite matches; rows only on the live database are kept.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Payment print, apply PIN, closing cash',
+    items: [
+      'Payment has a Skip final receipt switch that this terminal remembers. When on, completing payment does not print the final bill; a cash tender still opens the drawer.',
+      'Applying tax, discount, service charge, or tip on the payment screen asks for a manager PIN when the signed-in user does not have that module (opening the panel no longer asks).',
+      'Day closing no longer shows cash sales (system), expected in drawer, cash system payment cards, or over/short on screen or on the closing print.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant table name/number split',
+    items: [
+      'Creating tables via the assistant no longer doubles labels like F1F1: name is the prefix (F) and number is digits (1); identical full labels are split automatically.',
+    ],
+  },
+  {
     date: '2026-10-31',
     title: 'Desktop screens in the browser',
     items: [
@@ -367,10 +429,18 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-01',
+    title: 'One-day order cache retention',
+    items: [
+      'Gateway snapshot defaults to open checks plus the last 1 day of settled orders (POS_SNAPSHOT_OPERATIONAL_DURATION=1d).',
+      'Tills automatically prune closed Dexie orders older than 1 day on sync — identity and invoice/auto_id pools stay intact, so Reload cache is not required to shrink a bloated IndexedDB.',
+    ],
+  },
+  {
     date: '2026-10-06',
     title: 'Lean on-prem snapshot window',
     items: [
-      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 1d / 90d).',
       'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
     ],
   },

@@ -17,6 +17,8 @@ export default defineConfig(({ mode }) => {
   )
 
   return {
+    // Worktree shares a read-only node_modules symlink; keep Vite's dep cache writable.
+    cacheDir: process.env.VITE_CACHE_DIR || 'node_modules/.vite',
     define: {
       ...buildModuleDefines,
     },
@@ -26,12 +28,14 @@ export default defineConfig(({ mode }) => {
       host: '127.0.0.1',
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
+        '/backup': { target: gatewayTarget, changeOrigin: true },
       },
       allowedHosts: ['ahmed-pc.tailnet.ahmedali5530.xyz']
     },
     preview: {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
+        '/backup': { target: gatewayTarget, changeOrigin: true },
       },
     },
     plugins: [

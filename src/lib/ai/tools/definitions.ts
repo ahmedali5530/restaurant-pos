@@ -349,7 +349,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_suppliers",
-      description: "List inventory suppliers by name (for purchase proposals).",
+      description: "List inventory suppliers by name (for purchase proposals). Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {
@@ -363,7 +363,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_locations",
-      description: "List inventory stock locations (stores, kitchens, etc.).",
+      description: "List inventory stock locations (stores, kitchens, etc.). Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {
@@ -834,7 +834,8 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_accounts",
-      description: "List chart of accounts. Filter by headType, customerOnly, supplierOnly, or search. Read-only.",
+      description: "List chart of accounts. Filter by headType, customerOnly, supplierOnly, or search. Read-only. "
+        + "Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over code/name).",
       parameters: {
         type: "object",
         properties: {
@@ -891,7 +892,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_staff",
-      description: "List staff/users for name-to-ID resolution.",
+      description: "List staff/users for name-to-ID resolution. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {search: {type: "string"}, limit: {type: "number", default: 50}},
@@ -902,7 +903,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_categories",
-      description: "List menu categories.",
+      description: "List menu categories. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {limit: {type: "number", default: 50}},
@@ -915,7 +916,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       name: "list_menu_items",
       description:
         "List all active menu products/dishes in the catalog (includes id, number, name, price). "
-        + "Use the returned id with propose_update_dishes — dish numbers can be duplicated. "
+        + "Use the returned id with propose_update_dishes / propose_delete_dishes — dish numbers can be duplicated. "
         + "Does NOT return recipe ingredients — use get_dish_recipe for that.",
       parameters: {
         type: "object",
@@ -972,7 +973,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_items",
-      description: "List inventory items for name-to-ID resolution.",
+      description: "List inventory items for name-to-ID resolution. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name/code).",
       parameters: {
         type: "object",
         properties: {search: {type: "string"}, limit: {type: "number", default: 50}},

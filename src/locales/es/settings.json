@@ -393,5 +393,41 @@
     "priceDivisor": "Divisor de precio (menor→mayor)",
     "layoutHint": "Diseño: {{example}}",
     "resetDefaults": "Restablecer valores (mantener activo)"
+  },
+  "backup": {
+    "title": "Copia de seguridad y restauración",
+    "description": "Exporte o restaure la configuración de la app y las preferencias de este navegador, o la base de datos completa.",
+    "offline": "No se puede hacer copia de seguridad ni restaurar sin conexión",
+    "offlineHint": "Disponible cuando hay conexión con el servidor",
+    "settings": {
+      "title": "Configuración",
+      "description": "Configuración de la app desde la base de datos más idioma, apariencia, teclado táctil y modo POS de este navegador. Los pedidos abiertos y el carrito no cambian.",
+      "export": "Exportar configuración",
+      "restore": "Restaurar configuración",
+      "exportDescription": "Exportar copia de configuración",
+      "restoreDescription": "Restaurar configuración desde copia",
+      "exported": "Copia de configuración descargada",
+      "exportFailed": "Error al exportar la configuración",
+      "restored": "Configuración restaurada",
+      "restoreFailed": "Error al restaurar la configuración",
+      "invalidFile": "Este archivo no es una copia de configuración válida",
+      "confirmTitle": "¿Restaurar configuración?",
+      "confirmMessage": "¿Reemplazar toda la configuración de la app con este archivo y aplicar idioma, apariencia, táctil y modo POS en este navegador? Los pedidos abiertos y el carrito no cambian."
+    },
+    "database": {
+      "title": "Base de datos completa",
+      "description": "Descargue o restaure toda la base de datos Surreal (.surql), incluidos pedidos, inventario, catálogo y configuración. Los registros del archivo sobrescriben filas coincidentes; las filas solo en la base en vivo se conservan.",
+      "export": "Exportar base de datos",
+      "restore": "Restaurar base de datos",
+      "exportDescription": "Exportar copia completa de la base de datos",
+      "restoreDescription": "Restaurar base de datos completa desde copia",
+      "exported": "Copia de base de datos descargada",
+      "exportFailed": "Error al exportar la base de datos",
+      "restored": "Base de datos restaurada",
+      "restoreFailed": "Error al restaurar la base de datos",
+      "forbidden": "No tiene permiso para la copia de la base de datos",
+      "confirmTitle": "¿Restaurar la base de datos completa?",
+      "confirmMessage": "Importe este archivo .surql en la base en vivo. Los registros del archivo sobrescriben filas coincidentes; los que solo existen en la base en vivo se conservan. La caché del catálogo de este terminal se actualizará después."
+    }
   }
 }
