@@ -1,5 +1,8 @@
 import {describe, expect, it} from "vitest";
-import {formatAnalyzeUserMessage} from "@/lib/ai/assistant-file-preview.ts";
+import {
+  buildAnalyzeContentParts,
+  formatAnalyzeUserMessage,
+} from "@/lib/ai/assistant-file-preview.ts";
 
 describe("formatAnalyzeUserMessage", () => {
   it("includes file preview and the user question", () => {
@@ -27,5 +30,37 @@ describe("formatAnalyzeUserMessage", () => {
       sheetCount: 2,
     });
     expect(message).toContain("truncated");
+  });
+
+  it("describes vision attachments for pdf/image", () => {
+    const message = formatAnalyzeUserMessage("What is the total?", {
+      fileName: "menu.pdf",
+      kind: "pdf",
+      text: "PDF attached (2 page(s) prepared for visual analysis).",
+      truncated: false,
+      rowCount: 0,
+      sheetCount: 0,
+      imageUrls: ["data:image/jpeg;base64,aaa", "data:image/jpeg;base64,bbb"],
+      pageCount: 2,
+    });
+    expect(message).toContain("menu.pdf");
+    expect(message).toContain("Vision pages prepared: 2");
+    expect(message).toContain("What is the total?");
+    expect(message).not.toContain("```csv");
+  });
+});
+
+describe("buildAnalyzeContentParts", () => {
+  it("returns plain text when there are no images", () => {
+    expect(buildAnalyzeContentParts("hello", [])).toBe("hello");
+  });
+
+  it("returns multimodal parts when images are present", () => {
+    const parts = buildAnalyzeContentParts("look", ["data:image/jpeg;base64,x"]);
+    expect(Array.isArray(parts)).toBe(true);
+    expect(parts).toEqual([
+      {type: "text", text: "look"},
+      {type: "image_url", image_url: {url: "data:image/jpeg;base64,x", detail: "high"}},
+    ]);
   });
 });

@@ -5,6 +5,11 @@ import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {AI_ASSISTANT_PERSONA} from "@/lib/ai/assistant-config.ts";
 import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
+import {
+  DEEP_RESEARCH_PROMPT,
+  resolveAssistantPersona,
+  type AssistantPersonaId,
+} from "@/lib/ai/assistant-personas.ts";
 
 export {AI_ASSISTANT_PERSONA};
 
@@ -175,8 +180,11 @@ const FULL_WORKFLOW = `Workflow:
 const buildDateContextBlock = () =>
   `Current business date (${getAppTimezone()}): ${getBusinessDateContext()}.`;
 
-export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string =>
-  `${AI_ASSISTANT_PERSONA} Use tools to fetch live data — never guess numbers.
+export const getAiReportCorePrompt = (
+  format: AiReportFormat = "table",
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string =>
+  `${personaPrompt} Use tools to fetch live data — never guess numbers.
 
 ${buildDateContextBlock()}
 Date format for tool parameters: ${runtimeDateTimeFormat()}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
@@ -189,13 +197,17 @@ Rules:
 
 ${FORMAT_INSTRUCTIONS[format]}`;
 
-const buildCompactPrompt = (format: AiReportFormat, domains: AiReportToolDomain[]): string => {
+const buildCompactPrompt = (
+  format: AiReportFormat,
+  domains: AiReportToolDomain[],
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string => {
   const snippets = domains
     .map(domain => DOMAIN_PROMPT_SNIPPETS[domain])
     .filter(Boolean)
     .join("\n");
 
-  return `${getAiReportCorePrompt(format)}
+  return `${getAiReportCorePrompt(format, personaPrompt)}
 
 Domain hints:
 ${snippets}`;
@@ -203,8 +215,11 @@ ${snippets}`;
 
 
 
-const buildFullPrompt = (format: AiReportFormat): string =>
-  `${AI_ASSISTANT_PERSONA} You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
+const buildFullPrompt = (
+  format: AiReportFormat,
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string =>
+  `${personaPrompt} You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
 
 ${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
@@ -225,14 +240,15 @@ export const getAiReportSystemPrompt = (
   format: AiReportFormat = "table",
   domains: AiReportToolDomain[] = [],
   compact = false,
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
 ): string => {
   if (compact && domains.length > 0) {
-    return buildCompactPrompt(format, domains);
+    return buildCompactPrompt(format, domains, personaPrompt);
   }
   if (compact) {
-    return getAiReportCorePrompt(format);
+    return getAiReportCorePrompt(format, personaPrompt);
   }
-  return buildFullPrompt(format);
+  return buildFullPrompt(format, personaPrompt);
 };
 
 
@@ -277,6 +293,8 @@ export type AiAssistantGuideContext = {
   language?: string;
   pathname?: string;
   suggestedChapter?: string | null;
+  personaId?: AssistantPersonaId | string | null;
+  deepResearch?: boolean;
 };
 
 /**
@@ -290,7 +308,15 @@ export const getAiAssistantSystemPrompt = (
   writeToolNames: string[] = [],
   guideContext: AiAssistantGuideContext = {},
 ): string => {
-  const reportPrompt = getAiReportSystemPrompt("table", domains, compact);
+  const persona = resolveAssistantPersona(guideContext.personaId);
+  // Deep research uses the full workflow/domain context even if the profile is compact.
+  const effectiveCompact = guideContext.deepResearch ? false : compact;
+  const reportPrompt = getAiReportSystemPrompt(
+    "table",
+    domains,
+    effectiveCompact,
+    persona.prompt,
+  );
   const writeToolsBlock = writeToolNames.length
     ? [
       "You are NOT read-only when write tools are listed below.",
@@ -315,19 +341,25 @@ export const getAiAssistantSystemPrompt = (
   const guideSection = guideHints.join(" ");
 
   const importCleanseHint =
-    "Attached CSV/Excel: the user chooses Cleanse (import domain → corrected CSV download for AI Import) "
-    + "or Analyze (file preview is included in their question — answer from that data; do not invent rows). "
+    "Attached files (CSV/Excel/PDF/image): the user chooses Cleanse (import domain → corrected CSV for AI Import) "
+    + "or Analyze. Spreadsheet analyze includes a text preview; PDF/image analyze includes page images — "
+    + "read those images and answer from what is visible; do not invent unseen content. "
     + "When a cleanse summary is posted, summarize those issues; do not invent CSV contents.";
 
-  if (compact) {
+  const deepSection = guideContext.deepResearch ? DEEP_RESEARCH_PROMPT : null;
+
+  if (effectiveCompact) {
     return [
-      `${AI_ASSISTANT_PERSONA} You help managers using real data from their point-of-sale system.`,
+      `${persona.prompt} You help managers using real data from their point-of-sale system.`,
       reportPrompt,
       writeSection,
       guideSection,
       importCleanseHint,
-    ].join("\n\n");
+      deepSection,
+    ].filter(Boolean).join("\n\n");
   }
 
-  return `${reportPrompt}\n\n${writeSection}\n\n${guideSection}\n\n${importCleanseHint}`;
+  return [reportPrompt, writeSection, guideSection, importCleanseHint, deepSection]
+    .filter(Boolean)
+    .join("\n\n");
 };

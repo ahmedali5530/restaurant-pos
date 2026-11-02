@@ -268,7 +268,7 @@
     "unknownConfig": "Configuración de importación desconocida para la vista previa.",
     "passwordWillBeSet": "La contraseña se establecerá al confirmar",
     "cleanseTitle": "Limpiar archivo de importación",
-    "attachFile": "Adjuntar CSV/Excel",
+    "attachFile": "Adjuntar archivo",
     "cleanseDomain": "Dominio de importación",
     "cleanseRun": "Limpiar y preparar CSV",
     "cleanseDownload": "Descargar CSV corregido",
@@ -303,15 +303,32 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "Adjuntar CSV/Excel",
+    "attachTitle": "Adjuntar CSV/Excel/PDF/imagen",
     "fileMode": "Qué hacer con el archivo",
     "fileModeCleanse": "Limpiar para importar",
     "fileModeAnalyze": "Analizar en el chat",
-    "analyzeHint": "Prepare una vista previa y luego haga una pregunta en el chat.",
+    "analyzeHint": "Prepare una vista previa (texto CSV/Excel o páginas PDF/imagen) y pregunte en el chat.",
     "analyzePrepare": "Preparar para preguntas",
     "analyzeReady": "{{file}} está listo ({{rows}} filas en la vista previa). Haga su pregunta abajo.",
-    "analyzeUserLabel": "[Archivo: {{file}}]\n{{question}}"
-  },
+    "analyzeUserLabel": "[Archivo: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} está listo ({{pages}} imagen(es) de página). Haga su pregunta abajo.",
+    "personaLabel": "Personalidad",
+    "deepResearch": "Investigación profunda",
+    "deepResearchHint": "Perfil de análisis más fuerte, prompts completos, más bucles de herramientas y búsqueda web para hechos externos.",
+    "personas": {
+      "analyst": "Analista",
+      "analystHint": "Informes claros con widgets KPI",
+      "audit": "Auditoría",
+      "auditHint": "Suspicaz y duro — útil con cifras malas",
+      "brief": "Breve",
+      "briefHint": "Respuestas cortas de operaciones",
+      "guide": "Guía",
+      "guideHint": "Ayuda paciente para pantallas y flujos"
+    },
+    "settingsTitle": "Ajustes del asistente",
+    "analyzeAttached": "{{file}} listo — pregunte abajo"
+  }
+,
   "desktopSetup": {
     "title": "Configuración de base de datos de escritorio",
     "subtitle": "Las actualizaciones de esquema se aplican automáticamente cuando esta aplicación inicia su propia base de datos. Use esta pantalla para importar un archivo .surql adicional (datos de demo o un parche) si eso no ocurrió.",

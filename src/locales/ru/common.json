@@ -268,7 +268,7 @@
     "unknownConfig": "Неизвестная конфигурация импорта для предпросмотра.",
     "passwordWillBeSet": "Пароль будет установлен при подтверждении",
     "cleanseTitle": "Очистить файл импорта",
-    "attachFile": "Прикрепить CSV/Excel",
+    "attachFile": "Прикрепить файл",
     "cleanseDomain": "Домен импорта",
     "cleanseRun": "Очистить и подготовить CSV",
     "cleanseDownload": "Скачать исправленный CSV",
@@ -303,15 +303,32 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "Прикрепить CSV/Excel",
+    "attachTitle": "Прикрепить CSV/Excel/PDF/изображение",
     "fileMode": "Что сделать с файлом",
     "fileModeCleanse": "Очистить для импорта",
     "fileModeAnalyze": "Анализировать в чате",
-    "analyzeHint": "Подготовьте превью, затем задайте вопрос в чате.",
+    "analyzeHint": "Подготовьте превью (текст CSV/Excel или страницы PDF/изображения), затем спросите в чате.",
     "analyzePrepare": "Подготовить к вопросам",
     "analyzeReady": "{{file}} готов ({{rows}} строк в превью). Задайте вопрос ниже.",
-    "analyzeUserLabel": "[Файл: {{file}}]\n{{question}}"
-  },
+    "analyzeUserLabel": "[Файл: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} готов ({{pages}} изобр. страниц(ы)). Задайте вопрос ниже.",
+    "personaLabel": "Стиль",
+    "deepResearch": "Глубокое исследование",
+    "deepResearchHint": "Более сильный профиль analysis, полные промпты, больше циклов инструментов и веб-поиск для внешних фактов.",
+    "personas": {
+      "analyst": "Аналитик",
+      "analystHint": "Чёткие отчёты с KPI-виджетами",
+      "audit": "Аудит",
+      "auditHint": "Подозрительный и жёсткий — для плохих цифр",
+      "brief": "Кратко",
+      "briefHint": "Короткие ответы для операций",
+      "guide": "Гид",
+      "guideHint": "Терпеливая помощь по экранам и процессам"
+    },
+    "settingsTitle": "Настройки ассистента",
+    "analyzeAttached": "{{file}} готов — спросите ниже"
+  }
+,
   "desktopSetup": {
     "title": "Настройка базы данных для ПК",
     "subtitle": "Обновления схемы применяются автоматически, когда это приложение запускает свою базу. Если этого не произошло, импортируйте здесь дополнительный файл .surql (демо-данные или патч).",

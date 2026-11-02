@@ -268,7 +268,7 @@
     "unknownConfig": "Unbekannte Importkonfiguration für die Vorschau.",
     "passwordWillBeSet": "Passwort wird bei Bestätigung gesetzt",
     "cleanseTitle": "Importdatei bereinigen",
-    "attachFile": "CSV/Excel anhängen",
+    "attachFile": "Datei anhängen",
     "cleanseDomain": "Importbereich",
     "cleanseRun": "Bereinigen & CSV vorbereiten",
     "cleanseDownload": "Korrigierte CSV herunterladen",
@@ -303,15 +303,32 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "CSV/Excel anhängen",
+    "attachTitle": "CSV/Excel/PDF/Bild anhängen",
     "fileMode": "Was soll mit der Datei geschehen",
     "fileModeCleanse": "Für Import bereinigen",
     "fileModeAnalyze": "Im Chat analysieren",
-    "analyzeHint": "Vorschau vorbereiten, dann im Chat eine Frage stellen (z. B. Spalten zusammenfassen, Ausreißer finden).",
+    "analyzeHint": "Vorschau vorbereiten (CSV/Excel-Text oder PDF/Bildseiten), dann im Chat fragen.",
     "analyzePrepare": "Für Fragen vorbereiten",
     "analyzeReady": "{{file}} ist bereit ({{rows}} Zeilen in der Vorschau). Stellen Sie unten Ihre Frage.",
-    "analyzeUserLabel": "[Datei: {{file}}]\n{{question}}"
-  },
+    "analyzeUserLabel": "[Datei: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} ist bereit ({{pages}} Seitenbild(er)). Stellen Sie unten Ihre Frage.",
+    "personaLabel": "Persönlichkeit",
+    "deepResearch": "Tiefenrecherche",
+    "deepResearchHint": "Stärkeres Analyseprofil, ausführlichere Prompts, mehr Tool-Schleifen und Websuche für externe Fakten.",
+    "personas": {
+      "analyst": "Analyst",
+      "analystHint": "Klare, strukturierte Berichte mit KPI-Karten",
+      "audit": "Audit",
+      "auditHint": "Misstrauisch und streng — gut für schlechte Kennzahlen",
+      "brief": "Kurz",
+      "briefHint": "Kurze Ops-Antworten — nur die wichtigen Zahlen",
+      "guide": "Guide",
+      "guideHint": "Geduldige Hilfe zu Screens und Abläufen"
+    },
+    "settingsTitle": "Assistenteneinstellungen",
+    "analyzeAttached": "{{file}} bereit — unten fragen"
+  }
+,
   "desktopSetup": {
     "title": "Desktop-Datenbank einrichten",
     "subtitle": "Schema-Updates werden automatisch angewendet, wenn diese App ihre eigene Datenbank startet. Nutzen Sie diesen Bildschirm, um eine zusätzliche .surql-Datei (Demodaten oder Patch) zu importieren, falls das nicht geschehen ist.",

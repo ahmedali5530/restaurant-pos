@@ -142,8 +142,7 @@ DEFINE FIELD OVERWRITE available ON menu_item TYPE none | bool | null DEFAULT tr
 DEFINE FIELD OVERWRITE kra_item_cls_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE kra_tax_ty_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE available ON menu_item_modifier_availability TYPE none | bool | null DEFAULT true PERMISSIONS FULL;
-DEFINE FIELD OVERWRITE allowed_next_groups ON modifier TYPE option<array<record<modifier_group> | none>|null> PERMISSIONS FULL;
-DEFINE FIELD OVERWRITE allowed_next_groups.* ON modifier TYPE record<modifier_group> | none | null PERMISSIONS FULL;
+DEFINE FIELD OVERWRITE allowed_next_groups ON modifier TYPE option<array<record<modifier_group>>|null> PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE cost ON order_item TYPE none | float | null PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE completed_by ON order_item_kitchen TYPE option<array<record<user>>|null> DEFAULT [] PERMISSIONS FULL;
 DEFINE FIELD OVERWRITE printed_by ON order_print TYPE none | record<user> | null PERMISSIONS FULL;

@@ -268,7 +268,7 @@
     "unknownConfig": "Onbekende importconfiguratie voor voorbeeld.",
     "passwordWillBeSet": "Wachtwoord wordt ingesteld bij bevestiging",
     "cleanseTitle": "Importbestand opschonen",
-    "attachFile": "CSV/Excel bijvoegen",
+    "attachFile": "Bestand bijvoegen",
     "cleanseDomain": "Importdomein",
     "cleanseRun": "Opschonen & CSV voorbereiden",
     "cleanseDownload": "Gecorrigeerde CSV downloaden",
@@ -303,15 +303,32 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "CSV/Excel bijvoegen",
+    "attachTitle": "CSV/Excel/PDF/afbeelding bijvoegen",
     "fileMode": "Wat te doen met het bestand",
     "fileModeCleanse": "Opschonen voor import",
     "fileModeAnalyze": "Analyseren in chat",
-    "analyzeHint": "Bereid een voorbeeld voor en stel daarna een vraag in de chat.",
+    "analyzeHint": "Bereid een voorbeeld voor (CSV/Excel-tekst of PDF/afbeeldingspagina’s) en vraag in de chat.",
     "analyzePrepare": "Voorbereiden voor vragen",
     "analyzeReady": "{{file}} is klaar ({{rows}} rijen in voorbeeld). Stel hieronder uw vraag.",
-    "analyzeUserLabel": "[Bestand: {{file}}]\n{{question}}"
-  },
+    "analyzeUserLabel": "[Bestand: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} is klaar ({{pages}} pagina-afbeelding(en)). Stel hieronder uw vraag.",
+    "personaLabel": "Persoonlijkheid",
+    "deepResearch": "Diep onderzoek",
+    "deepResearchHint": "Sterker analyseprofiel, vollere prompts, meer tool-lussen en webzoeken voor externe feiten.",
+    "personas": {
+      "analyst": "Analist",
+      "analystHint": "Duidelijke rapporten met KPI-widgets",
+      "audit": "Audit",
+      "auditHint": "Achterdochtig en streng — goed bij slechte cijfers",
+      "brief": "Kort",
+      "briefHint": "Korte ops-antwoorden",
+      "guide": "Gids",
+      "guideHint": "Geduldige hulp bij schermen en workflows"
+    },
+    "settingsTitle": "Assistentinstellingen",
+    "analyzeAttached": "{{file}} klaar — stel hieronder uw vraag"
+  }
+,
   "desktopSetup": {
     "title": "Desktop-database instellen",
     "subtitle": "Schema-updates worden automatisch toegepast wanneer deze app zijn eigen database start. Gebruik dit scherm om een extra .surql-bestand (demogegevens of een patch) te importeren als dat niet is gebeurd.",
