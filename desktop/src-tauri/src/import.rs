@@ -35,6 +35,7 @@ fn relax_import_sql(raw: &str) -> String {
 
 use serde::Serialize;
 use tauri::{AppHandle, State};
+use tauri_plugin_dialog::DialogExt;
 
 use crate::config::{self, RuntimeConfigDto};
 use crate::logging;
@@ -243,7 +244,6 @@ pub fn import_surql(
 
 #[tauri::command]
 pub async fn pick_surql_files(app: AppHandle) -> Result<Vec<String>, String> {
-  use tauri_plugin_dialog::DialogExt;
   let files = app
     .dialog()
     .file()
@@ -304,4 +304,109 @@ pub fn get_runtime_config(
   supervisor: State<'_, SidecarSupervisor>,
 ) -> Result<RuntimeConfigDto, String> {
   Ok(config::runtime_config_dto(&supervisor.app_data))
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PickedTextFile {
+  pub name: String,
+  pub contents: String,
+}
+
+fn export_extension(extension: &str) -> Result<String, String> {
+  let ext = extension.trim().trim_start_matches('.').to_ascii_lowercase();
+  if ext == "json" || ext == "surql" {
+    Ok(ext)
+  } else {
+    Err("Only .json and .surql exports can be saved".into())
+  }
+}
+
+fn reject_live_database(app: &AppHandle, path: &std::path::Path) -> Result<(), String> {
+  let Ok(app_data) = paths::resolve_app_data(app) else {
+    return Ok(());
+  };
+  let db = app_data.join("database");
+  let Ok(db) = db.canonicalize() else {
+    return Ok(());
+  };
+  let parent = path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(path);
+  let Ok(parent) = parent.canonicalize() else {
+    return Ok(());
+  };
+  if parent.starts_with(&db) {
+    return Err("Choose a folder outside the live database directory".into());
+  }
+  Ok(())
+}
+
+/// Native save dialog. The webview download link does not open a save window.
+#[tauri::command]
+pub fn save_export_file(
+  app: AppHandle,
+  suggested_name: String,
+  extension: String,
+  contents: String,
+) -> Result<bool, String> {
+  let ext = export_extension(&extension)?;
+  let mut name = suggested_name.trim().to_string();
+  if name.is_empty() {
+    name = format!("posr-export.{ext}");
+  }
+  let filter = if ext == "json" { "JSON" } else { "SurrealQL" };
+  let chosen = app
+    .dialog()
+    .file()
+    .add_filter(filter, &[ext.as_str()])
+    .set_file_name(&name)
+    .set_title("Save file")
+    .blocking_save_file();
+  let Some(chosen) = chosen else {
+    return Ok(false);
+  };
+  let path = chosen.into_path().map_err(|err| err.to_string())?;
+  reject_live_database(&app, &path)?;
+  if let Some(parent) = path.parent() {
+    if !parent.as_os_str().is_empty() && !parent.exists() {
+      return Err("The folder to save into does not exist".into());
+    }
+  }
+  std::fs::write(&path, contents.as_bytes()).map_err(|err| format!("Could not save file: {err}"))?;
+  Ok(true)
+}
+
+/// Native open dialog. A hidden file input does not open a picker in the desktop window.
+#[tauri::command]
+pub fn pick_text_file(
+  app: AppHandle,
+  extension: String,
+  title: String,
+) -> Result<Option<PickedTextFile>, String> {
+  let ext = export_extension(&extension)?;
+  let filter = if ext == "json" { "JSON" } else { "SurrealQL" };
+  let title = {
+    let trimmed = title.trim();
+    if trimmed.is_empty() {
+      "Select file"
+    } else {
+      trimmed
+    }
+  };
+  let chosen = app
+    .dialog()
+    .file()
+    .add_filter(filter, &[ext.as_str()])
+    .set_title(title)
+    .blocking_pick_file();
+  let Some(chosen) = chosen else {
+    return Ok(None);
+  };
+  let path = chosen.into_path().map_err(|err| err.to_string())?;
+  let contents = std::fs::read_to_string(&path).map_err(|err| format!("Could not read file: {err}"))?;
+  let name = path
+    .file_name()
+    .and_then(|part| part.to_str())
+    .unwrap_or("file")
+    .to_string();
+  Ok(Some(PickedTextFile { name, contents }))
 }

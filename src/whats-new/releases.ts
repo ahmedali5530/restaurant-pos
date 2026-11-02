@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-03',
+    title: 'Desktop backup save window',
+    items: [
+      'Settings backup and database export on POSR Desktop open the system save window. Restore opens the system file window.',
+    ],
+  },
+  {
     date: '2026-11-02',
     title: 'Assistant personas and deep research',
     items: [

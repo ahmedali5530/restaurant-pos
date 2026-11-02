@@ -26,6 +26,7 @@ import {
 } from "@/lib/settings-backup.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {refreshCatalogIntoSettings} from "@/providers/pos-store.provider.tsx";
+import {isTauriDesktop, pickTextFile} from "@/lib/desktop.ts";
 
 type BusyKind = "settings-export" | "settings-restore" | "db-export" | "db-restore" | null;
 
@@ -68,8 +69,8 @@ export const BackupRestoreSettings = () => {
           page,
           state,
         });
-        downloadSettingsBackupJson(file);
-        toast.success(t("backup.settings.exported"));
+        const saved = await downloadSettingsBackupJson(file);
+        if (saved) toast.success(t("backup.settings.exported"));
       } catch (err) {
         console.error(err);
         toast.error(t("backup.settings.exportFailed"));
@@ -80,6 +81,41 @@ export const BackupRestoreSettings = () => {
       module: "settings.backup",
       description: t("backup.settings.exportDescription"),
     });
+  };
+
+  const chooseSettingsFile = async () => {
+    if (!isTauriDesktop()) {
+      settingsFileRef.current?.click();
+      return;
+    }
+    try {
+      const picked = await pickTextFile("json", t("backup.settings.restore"));
+      if (!picked) return;
+      const parsed = parseSettingsBackupFile(JSON.parse(picked.contents));
+      setPendingSettingsFile(parsed);
+      setSettingsRestoreOpen(true);
+    } catch (err) {
+      console.error(err);
+      toast.error(t("backup.settings.invalidFile"));
+    }
+  };
+
+  const chooseDatabaseFile = async () => {
+    if (!isTauriDesktop()) {
+      dbFileRef.current?.click();
+      return;
+    }
+    try {
+      const picked = await pickTextFile("surql", t("backup.database.restore"));
+      if (!picked) return;
+      const file = new File([picked.contents], picked.name || "restore.surql", {
+        type: "text/plain",
+      });
+      onDbFileChosen(file);
+    } catch (err) {
+      console.error(err);
+      toast.error(t("backup.database.restoreFailed"));
+    }
   };
 
   const onSettingsFileChosen = async (file: File | null) => {
@@ -145,8 +181,8 @@ export const BackupRestoreSettings = () => {
       }
       setBusy("db-export");
       try {
-        await downloadDatabaseBackup();
-        toast.success(t("backup.database.exported"));
+        const saved = await downloadDatabaseBackup();
+        if (saved) toast.success(t("backup.database.exported"));
       } catch (err) {
         console.error(err);
         const status = err instanceof BackupHttpError ? err.status : 0;
@@ -245,7 +281,7 @@ export const BackupRestoreSettings = () => {
               size="lg"
               disabled={!canAct || !isEffectivelyConnected}
               isLoading={busy === "settings-restore"}
-              onClick={() => settingsFileRef.current?.click()}
+              onClick={() => void chooseSettingsFile()}
             >
               {t("backup.settings.restore")}
             </Button>
@@ -281,7 +317,7 @@ export const BackupRestoreSettings = () => {
                 size="lg"
                 disabled={!canAct || !isEffectivelyConnected}
                 isLoading={busy === "db-restore"}
-                onClick={() => dbFileRef.current?.click()}
+                onClick={() => void chooseDatabaseFile()}
               >
                 {t("backup.database.restore")}
               </Button>

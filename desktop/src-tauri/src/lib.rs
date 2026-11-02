@@ -123,6 +123,8 @@ pub fn run() {
       import::open_logs_dir,
       import::clear_logs,
       import::get_runtime_config,
+      import::save_export_file,
+      import::pick_text_file,
     ])
     .build(tauri::generate_context!())
     .expect("error while building tauri application")

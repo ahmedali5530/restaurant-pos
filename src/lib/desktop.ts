@@ -63,3 +63,27 @@ export async function openLogsDir(): Promise<string> {
 export async function clearDesktopLogs(): Promise<void> {
   await invoke('clear_logs');
 }
+
+export type PickedTextFile = {
+  name: string;
+  contents: string;
+};
+
+/** Opens the system save window and writes the file. False when the user cancels. */
+export async function saveExportFile(
+  suggestedName: string,
+  extension: string,
+  contents: string,
+): Promise<boolean> {
+  if (!isTauriDesktop()) return false;
+  return invoke<boolean>('save_export_file', { suggestedName, extension, contents });
+}
+
+/** Opens the system file window and returns the text. Null when the user cancels. */
+export async function pickTextFile(
+  extension: string,
+  title: string,
+): Promise<PickedTextFile | null> {
+  if (!isTauriDesktop()) return null;
+  return invoke<PickedTextFile | null>('pick_text_file', { extension, title });
+}

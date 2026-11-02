@@ -11,5 +11,7 @@ commands.allow = [
   "get_log_tail",
   "open_logs_dir",
   "clear_logs",
-  "get_runtime_config"
+  "get_runtime_config",
+  "save_export_file",
+  "pick_text_file"
 ]
