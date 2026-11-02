@@ -697,6 +697,17 @@ export const Closing = () => {
       }
 
       toast.success(complete ? t("toast:closing.completed") : t("toast:closing.savedDraft"));
+
+      // Complete always prints the closing summary; keep the Print button for reprints.
+      if (complete) {
+        try {
+          await printClosing();
+        } catch (error) {
+          console.error("Auto print closing failed", error);
+          toast.error(t("toast:closing.printFailed"));
+        }
+      }
+
       await refreshClosingWindow();
       await loadClosingData();
     } catch (error) {

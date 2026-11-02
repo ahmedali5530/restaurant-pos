@@ -20,6 +20,7 @@ import {
   type PrintOptions,
 } from "@/api/model/print_options.ts";
 import { getAppTimezone } from "@/lib/datetime.ts";
+import { getPosStoreDatabase } from "@/infrastructure/pos-store/db.ts";
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -178,27 +179,52 @@ function orderNeedsEnrichment(order: Record<string, unknown>): boolean {
   if (!order?.id) return false;
   if (isBareRecordRef(order.order_type)) return true;
   if (isBareRecordRef(order.user)) return true;
+  if (isBareRecordRef(order.customer)) return true;
   return false;
 }
 
+async function resolveLocalCustomer(customerRef: unknown): Promise<Record<string, unknown> | null> {
+  if (!isBareRecordRef(customerRef)) return null;
+  try {
+    const raw = typeof customerRef === 'object' && customerRef !== null && 'id' in customerRef
+      ? String((customerRef as { id: unknown }).id)
+      : String(customerRef);
+    const key = raw.includes(':') ? raw : `customer:${raw}`;
+    const row = await getPosStoreDatabase().customers.get(key);
+    return row && typeof row === 'object' ? (row as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>): Promise<Record<string, unknown>> {
-  if (!orderNeedsEnrichment(order)) return order;
+  let next = order;
+  if (isBareRecordRef(order.customer)) {
+    const localCustomer = await resolveLocalCustomer(order.customer);
+    if (localCustomer) {
+      next = { ...next, customer: localCustomer };
+    }
+  }
+  if (!orderNeedsEnrichment(next)) return next;
   try {
     const [res] = await db.query(
-      `SELECT * FROM $id FETCH order_type, user, table`,
-      { id: order.id }
+      `SELECT * FROM $id FETCH order_type, user, table, customer`,
+      { id: next.id }
     );
     const rows = Array.isArray(res) ? res : [];
     const fetched = rows[0] as Record<string, unknown> | undefined;
-    if (!fetched) return order;
+    if (!fetched) return next;
     return {
-      ...order,
-      order_type: fetched.order_type ?? order.order_type,
-      user: fetched.user ?? order.user,
-      table: order.table ?? fetched.table,
+      ...next,
+      order_type: fetched.order_type ?? next.order_type,
+      user: fetched.user ?? next.user,
+      table: next.table ?? fetched.table,
+      customer: (fetched.customer && typeof fetched.customer === 'object')
+        ? fetched.customer
+        : next.customer,
     };
   } catch {
-    return order;
+    return next;
   }
 }
 
@@ -389,7 +415,7 @@ export async function dispatchPrintDetailed<Payload = any>(
   }
 
   let printPayload = { ...(payload as Record<string, unknown>) };
-  if (printPayload.order && (template === 'kitchen' || template === 'deletion')) {
+  if (printPayload.order) {
     printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
   }
 

@@ -439,6 +439,9 @@ async function renderTempRaster(data, config) {
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
+    customerName: bill.customerName || undefined,
+    phone: bill.phone || undefined,
+    address: bill.address || undefined,
     notes: bill.note || undefined,
     showPayments: false,
     showChange: false,
@@ -461,6 +464,9 @@ async function renderFinalRaster(data, config) {
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
+    customerName: bill.customerName || undefined,
+    phone: bill.phone || undefined,
+    address: bill.address || undefined,
     thankYou: bill.thankYou,
     showPayments: true,
     showChange: true,

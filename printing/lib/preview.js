@@ -168,6 +168,7 @@ function renderBillToHtml(bill, config, opts) {
     title = L.bill || 'Bill',
     address,
     phone,
+    customerName,
     notes,
     thankYou,
     showPayments = false,
@@ -176,6 +177,7 @@ function renderBillToHtml(bill, config, opts) {
   } = opts || {};
 
   const invoiceLabel = L.invoice || 'Invoice#';
+  const customerLabel = L.customer || 'Customer';
   const addressLabel = L.address || 'Address';
   const phoneLabel = L.phone || 'Phone';
   const itemsLabel = L.items || 'Items';
@@ -204,8 +206,9 @@ function renderBillToHtml(bill, config, opts) {
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
   parts.push(row(bill.table || '', bill.userName || ''));
-  if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
+  if (customerName) parts.push(`<div class="row"><span>${escapeHtml(customerLabel)}: ${escapeHtml(String(customerName))}</span></div>`);
   if (phone) parts.push(`<div class="row"><span>${escapeHtml(phoneLabel)}: ${escapeHtml(String(phone))}</span></div>`);
+  if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
   parts.push('<hr/>');
 
   // Items
@@ -649,6 +652,9 @@ function renderPreview(printType, data, config) {
     });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
+      customerName: bill.customerName || undefined,
+      phone: bill.phone || undefined,
+      address: bill.address || undefined,
       notes: bill.note || undefined,
       showPayments: false,
       showChange: false,
@@ -670,6 +676,9 @@ function renderPreview(printType, data, config) {
     });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
+      customerName: bill.customerName || undefined,
+      phone: bill.phone || undefined,
+      address: bill.address || undefined,
       thankYou: bill.thankYou,
       showPayments: true,
       showChange: true,
