@@ -10,6 +10,7 @@ import {isHrOperationPrompt} from "@/lib/ai/employee-query.ts";
 import {detectWriteToolsForPrompt, listPermittedWriteTools, WRITE_INTENT_PATTERN} from "@/lib/ai/tools/write-tool-registry.ts";
 import {LOOKUP_USER_GUIDE_TOOL, LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
 import {isUserGuideHowToPrompt} from "@/lib/ai/user-guide.ts";
+import {WEB_SEARCH_TOOL, WEB_SEARCH_TOOL_NAME} from "@/lib/ai/tools/web-search-tool.ts";
 
 const ASSISTANT_CORE_READ_TOOLS = ["resolve_date_range", "get_sales_summary", "get_orders"];
 
@@ -97,7 +98,7 @@ const resolveReadTools = (
 export const selectAssistantToolsForPrompt = (
   prompt: string,
   allowedModules: string[] = [],
-  options: {compact?: boolean; includeWrite?: boolean} = {},
+  options: {compact?: boolean; includeWrite?: boolean; deepResearch?: boolean} = {},
 ): SelectAssistantToolsResult => {
   const compact = options.compact ?? isLocalAiReportCompactMode("reporting");
   const includeWrite = options.includeWrite ?? true;
@@ -116,11 +117,15 @@ export const selectAssistantToolsForPrompt = (
   const writeFiltered = writeTools.filter(t => !readNames.has(t.function.name));
 
   // Always offer guide lookup on the floating assistant; prefer it for how-to prompts.
-  const withGuide = readNames.has(LOOKUP_USER_GUIDE_TOOL_NAME)
+  let withGuide = readNames.has(LOOKUP_USER_GUIDE_TOOL_NAME)
     ? readTools
     : isUserGuideHowToPrompt(prompt)
       ? [LOOKUP_USER_GUIDE_TOOL, ...readTools]
       : [...readTools, LOOKUP_USER_GUIDE_TOOL];
+
+  if (options.deepResearch && !withGuide.some(t => t.function.name === WEB_SEARCH_TOOL_NAME)) {
+    withGuide = [...withGuide, WEB_SEARCH_TOOL];
+  }
 
   return {
     tools: [...withGuide, ...writeFiltered],

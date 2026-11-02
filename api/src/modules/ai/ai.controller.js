@@ -3,6 +3,7 @@
 const { chatCompletion } = require('./ai.provider');
 const { assertAllowed, recordUse, getUsage } = require('./ai.quota');
 const { getPublicConfig } = require('./ai.profiles');
+const { webSearch } = require('./ai.web-search');
 const logger = require('../../lib/logger');
 
 function sendQuotaError(res, err) {
@@ -20,8 +21,15 @@ async function createChatCompletion(req, res, next) {
   try {
     assertAllowed();
 
-    const { task, messages, tools, response_format } = req.body || {};
-    const data = await chatCompletion({ task, messages, tools, response_format });
+    const { task, messages, tools, response_format, reasoning_effort, extra } = req.body || {};
+    const data = await chatCompletion({
+      task,
+      messages,
+      tools,
+      response_format,
+      reasoning_effort,
+      extra,
+    });
 
     await recordUse();
 
@@ -43,6 +51,25 @@ async function createChatCompletion(req, res, next) {
   }
 }
 
+async function createWebSearch(req, res, next) {
+  try {
+    assertAllowed();
+    const query = req.body?.query;
+    const data = await webSearch(query);
+    await recordUse();
+    res.status(200).json(data);
+  } catch (err) {
+    logger.error('ai', 'web search failed', {
+      statusCode: err.statusCode,
+      message: err.message,
+    });
+    if (err.code === 'AI_DISABLED' || err.code === 'AI_DAILY_LIMIT' || err.code === 'AI_MONTHLY_LIMIT') {
+      return sendQuotaError(res, err);
+    }
+    next(err);
+  }
+}
+
 async function getAiUsage(req, res, next) {
   try {
     const usage = getUsage();
@@ -57,4 +84,4 @@ async function getAiUsage(req, res, next) {
   }
 }
 
-module.exports = { createChatCompletion, getAiUsage };
+module.exports = { createChatCompletion, createWebSearch, getAiUsage };

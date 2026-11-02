@@ -268,7 +268,7 @@
     "unknownConfig": "Configurazione di importazione sconosciuta per l'anteprima.",
     "passwordWillBeSet": "La password verrà impostata alla conferma",
     "cleanseTitle": "Pulisci file di importazione",
-    "attachFile": "Allega CSV/Excel",
+    "attachFile": "Allega file",
     "cleanseDomain": "Dominio di importazione",
     "cleanseRun": "Pulisci e prepara CSV",
     "cleanseDownload": "Scarica CSV corretto",
@@ -303,13 +303,29 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "Allega CSV/Excel",
+    "attachTitle": "Allega CSV/Excel/PDF/immagine",
     "fileMode": "Cosa fare con il file",
     "fileModeCleanse": "Pulisci per import",
     "fileModeAnalyze": "Analizza in chat",
-    "analyzeHint": "Prepara un’anteprima, poi fai una domanda in chat.",
+    "analyzeHint": "Prepara un’anteprima (testo CSV/Excel o pagine PDF/immagine), poi chiedi in chat.",
     "analyzePrepare": "Prepara per le domande",
     "analyzeReady": "{{file}} è pronto ({{rows}} righe in anteprima). Fai la domanda qui sotto.",
-    "analyzeUserLabel": "[File: {{file}}]\n{{question}}"
+    "analyzeUserLabel": "[File: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} è pronto ({{pages}} immagine/i di pagina). Fai la domanda qui sotto.",
+    "personaLabel": "Personalità",
+    "deepResearch": "Ricerca approfondita",
+    "deepResearchHint": "Profilo di analisi più forte, prompt completi, più cicli di tool e ricerca web per fatti esterni.",
+    "personas": {
+      "analyst": "Analista",
+      "analystHint": "Report chiari con widget KPI",
+      "audit": "Audit",
+      "auditHint": "Sospettoso e severo — utile sui numeri cattivi",
+      "brief": "Breve",
+      "briefHint": "Risposte ops corte",
+      "guide": "Guida",
+      "guideHint": "Aiuto paziente per schermate e flussi"
+    },
+    "settingsTitle": "Impostazioni assistente",
+    "analyzeAttached": "{{file}} pronto — chiedi sotto"
   }
 }

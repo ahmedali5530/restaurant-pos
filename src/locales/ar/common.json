@@ -268,7 +268,7 @@
     "unknownConfig": "تكوين استيراد غير معروف للمعاينة.",
     "passwordWillBeSet": "سيتم تعيين كلمة المرور عند التأكيد",
     "cleanseTitle": "تنظيف ملف الاستيراد",
-    "attachFile": "إرفاق CSV/Excel",
+    "attachFile": "إرفاق ملف",
     "cleanseDomain": "مجال الاستيراد",
     "cleanseRun": "تنظيف وتجهيز CSV",
     "cleanseDownload": "تنزيل CSV المصحح",
@@ -303,13 +303,29 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "إرفاق CSV/Excel",
+    "attachTitle": "إرفاق CSV/Excel/PDF/صورة",
     "fileMode": "ماذا نفعل بالملف",
     "fileModeCleanse": "تنظيف للاستيراد",
     "fileModeAnalyze": "تحليل في المحادثة",
-    "analyzeHint": "حضّر معاينة ثم اطرح سؤالاً في المحادثة.",
+    "analyzeHint": "حضّر معاينة (نص CSV/Excel أو صفحات PDF/صورة) ثم اسأل في المحادثة.",
     "analyzePrepare": "تجهيز للأسئلة",
     "analyzeReady": "{{file}} جاهز ({{rows}} صفوف في المعاينة). اطرح سؤالك أدناه.",
-    "analyzeUserLabel": "[ملف: {{file}}]\n{{question}}"
+    "analyzeUserLabel": "[ملف: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} جاهز ({{pages}} صورة/صور صفحة). اطرح سؤالك أدناه.",
+    "personaLabel": "الشخصية",
+    "deepResearch": "بحث عميق",
+    "deepResearchHint": "ملف تحليل أقوى، مطالبات أوفى، حلقات أدوات أكثر، وبحث ويب للحقائق الخارجية.",
+    "personas": {
+      "analyst": "محلل",
+      "analystHint": "تقارير واضحة مع بطاقات مؤشرات",
+      "audit": "تدقيق",
+      "auditHint": "متشكك وصارم — مناسب للأرقام السيئة",
+      "brief": "موجز",
+      "briefHint": "إجابات تشغيل قصيرة",
+      "guide": "مرشد",
+      "guideHint": "مساعدة صبورة للشاشات ومسارات العمل"
+    },
+    "settingsTitle": "إعدادات المساعد",
+    "analyzeAttached": "{{file}} جاهز — اسأل أدناه"
   }
 }

@@ -8,6 +8,22 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-02',
+    title: 'Assistant personas and deep research',
+    items: [
+      'Choose an assistant personality: Analyst (default), Audit (suspicious/scolding), Brief (short ops answers), or Guide (patient how-tos) — saved per user.',
+      'Deep research toggles the stronger analysis profile, fuller prompts, more tool loops, optional model reasoning_effort, and a web_search tool for public/external facts (not live POS numbers).',
+      'Personality and deep research live under the header gear icon so they no longer crowd the chat footer; file attach/cleanse/analyze stays on the main assistant UI.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Assistant analyze PDF and images',
+    items: [
+      'Attach PDF or images in the AI assistant Analyze mode (alongside CSV/Excel). Pages are sent as vision images so you can ask what is on the document; PDFs are capped to the first few pages.',
+    ],
+  },
+  {
+    date: '2026-11-02',
     title: 'Advanced Sales Excel export fixes',
     items: [
       'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with a separate Order Items sheet when Show menu items is on.',

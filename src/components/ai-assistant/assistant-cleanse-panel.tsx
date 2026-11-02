@@ -14,6 +14,7 @@ import {
   type AssistantFilePreview,
 } from "@/lib/ai/assistant-file-preview.ts";
 import {cleanseImportFile} from "@/lib/data-import/cleanse.ts";
+import {detectSourceKind, IMPORT_ACCEPT} from "@/lib/data-import/extract/detect.ts";
 import {
   buildCleanseSummaryMarkdown,
   downloadImportCsv,
@@ -81,6 +82,17 @@ export function AssistantCleansePanel({
   const onPickFile = (next: File | null) => {
     setFile(next);
     onAnalyzeReady(null);
+    if (next) {
+      const kind = detectSourceKind(next);
+      // Spreadsheets default to cleanse when available; PDF/images default to analyze.
+      if (kind === "pdf" || kind === "image") {
+        setMode("analyze");
+      } else if (cleanseAvailable) {
+        setMode("cleanse");
+      } else {
+        setMode("analyze");
+      }
+    }
     if (next && !domainId && cleanseAvailable) {
       const suggested = suggestImportCleanseDomainId(pathname, domains);
       if (suggested) {
@@ -165,13 +177,13 @@ export function AssistantCleansePanel({
   return (
     <div className="space-y-2 border-t border-border px-2 py-2">
       <div className="text-xs font-medium text-muted">
-        {t("aiAssistant.attachTitle", {defaultValue: "Attach CSV/Excel"})}
+        {t("aiAssistant.attachTitle", {defaultValue: "Attach CSV/Excel/PDF/image"})}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <input
           ref={fileInputRef}
           type="file"
-          accept=".csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          accept={IMPORT_ACCEPT}
           className="hidden"
           disabled={disabled || busy}
           onChange={event => {
@@ -187,7 +199,7 @@ export function AssistantCleansePanel({
           disabled={disabled || busy}
           onClick={() => fileInputRef.current?.click()}
         >
-          {t("aiAssistant.attachFile", {defaultValue: "Attach CSV/Excel"})}
+          {t("aiAssistant.attachFile", {defaultValue: "Attach file"})}
         </Button>
         {(file || analyzePreview) && (
           <span className="inline-flex max-w-[12rem] items-center gap-1 truncate text-xs text-foreground">
@@ -260,7 +272,7 @@ export function AssistantCleansePanel({
               <p className="text-xs text-muted">
                 {t("aiAssistant.analyzeHint", {
                   defaultValue:
-                    "Prepare a preview, then ask a question in the chat (e.g. summarize columns, find outliers).",
+                    "Prepare a preview (CSV/Excel text, or PDF/image pages), then ask in chat — e.g. summarize, find outliers, read totals.",
                 })}
               </p>
               <div className="flex justify-end">
@@ -284,12 +296,19 @@ export function AssistantCleansePanel({
 
           {analyzePreview && (
             <p className="text-xs text-success-700 dark:text-success-400">
-              {t("aiAssistant.analyzeReady", {
-                file: analyzePreview.fileName,
-                rows: analyzePreview.rowCount,
-                defaultValue:
-                  "{{file}} is ready ({{rows}} rows in preview). Ask your question below.",
-              })}
+              {analyzePreview.imageUrls?.length
+                ? t("aiAssistant.analyzeReadyVision", {
+                    file: analyzePreview.fileName,
+                    pages: analyzePreview.imageUrls.length,
+                    defaultValue:
+                      "{{file}} is ready ({{pages}} page image(s)). Ask your question below.",
+                  })
+                : t("aiAssistant.analyzeReady", {
+                    file: analyzePreview.fileName,
+                    rows: analyzePreview.rowCount,
+                    defaultValue:
+                      "{{file}} is ready ({{rows}} rows in preview). Ask your question below.",
+                  })}
             </p>
           )}
         </>

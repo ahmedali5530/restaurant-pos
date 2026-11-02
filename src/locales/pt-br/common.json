@@ -268,7 +268,7 @@
     "unknownConfig": "Configuração de importação desconhecida para visualização.",
     "passwordWillBeSet": "A senha será definida ao confirmar",
     "cleanseTitle": "Limpar arquivo de importação",
-    "attachFile": "Anexar CSV/Excel",
+    "attachFile": "Anexar arquivo",
     "cleanseDomain": "Domínio de importação",
     "cleanseRun": "Limpar e preparar CSV",
     "cleanseDownload": "Baixar CSV corrigido",
@@ -303,13 +303,29 @@
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
     },
-    "attachTitle": "Anexar CSV/Excel",
+    "attachTitle": "Anexar CSV/Excel/PDF/imagem",
     "fileMode": "O que fazer com o arquivo",
     "fileModeCleanse": "Limpar para importação",
     "fileModeAnalyze": "Analisar no chat",
-    "analyzeHint": "Prepare uma prévia e depois faça uma pergunta no chat.",
+    "analyzeHint": "Prepare uma prévia (texto CSV/Excel ou páginas PDF/imagem) e pergunte no chat.",
     "analyzePrepare": "Preparar para perguntas",
     "analyzeReady": "{{file}} está pronto ({{rows}} linhas na prévia). Faça sua pergunta abaixo.",
-    "analyzeUserLabel": "[Arquivo: {{file}}]\n{{question}}"
+    "analyzeUserLabel": "[Arquivo: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} está pronto ({{pages}} imagem(ns) de página). Faça sua pergunta abaixo.",
+    "personaLabel": "Personalidade",
+    "deepResearch": "Pesquisa profunda",
+    "deepResearchHint": "Perfil de análise mais forte, prompts completos, mais loops de ferramentas e busca na web para fatos externos.",
+    "personas": {
+      "analyst": "Analista",
+      "analystHint": "Relatórios claros com widgets de KPI",
+      "audit": "Auditoria",
+      "auditHint": "Desconfiado e severo — útil com números ruins",
+      "brief": "Breve",
+      "briefHint": "Respostas curtas de operações",
+      "guide": "Guia",
+      "guideHint": "Ajuda paciente para telas e fluxos"
+    },
+    "settingsTitle": "Configurações do assistente",
+    "analyzeAttached": "{{file}} pronto — pergunte abaixo"
   }
 }

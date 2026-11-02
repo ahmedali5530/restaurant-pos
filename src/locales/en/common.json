@@ -265,7 +265,7 @@
       "analyzeCsv": "Attach a CSV and ask the assistant to analyze it"
     },
     "cleanseTitle": "Cleanse import file",
-    "attachFile": "Attach CSV/Excel",
+    "attachFile": "Attach file",
     "cleanseDomain": "Import domain",
     "cleanseRun": "Cleanse & prepare CSV",
     "cleanseDownload": "Download corrected CSV",
@@ -302,14 +302,30 @@
     },
     "unknownConfig": "Unknown import configuration for preview.",
     "passwordWillBeSet": "Password will be set on confirm",
-    "attachTitle": "Attach CSV/Excel",
+    "attachTitle": "Attach CSV/Excel/PDF/image",
     "fileMode": "What to do with the file",
     "fileModeCleanse": "Cleanse for import",
     "fileModeAnalyze": "Analyze in chat",
-    "analyzeHint": "Prepare a preview, then ask a question in the chat (e.g. summarize columns, find outliers).",
+    "analyzeHint": "Prepare a preview (CSV/Excel text, or PDF/image pages), then ask in chat — e.g. summarize, find outliers, read totals.",
     "analyzePrepare": "Prepare for questions",
     "analyzeReady": "{{file}} is ready ({{rows}} rows in preview). Ask your question below.",
-    "analyzeUserLabel": "[File: {{file}}]\n{{question}}"
+    "analyzeUserLabel": "[File: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} is ready ({{pages}} page image(s)). Ask your question below.",
+    "personaLabel": "Personality",
+    "deepResearch": "Deep research",
+    "deepResearchHint": "Uses the stronger analysis profile, fuller prompts, more tool loops, and web search for external facts.",
+    "personas": {
+      "analyst": "Analyst",
+      "analystHint": "Clear, structured reports with KPI widgets",
+      "audit": "Audit",
+      "auditHint": "Suspicious, scolding — good for digging into bad figures",
+      "brief": "Brief",
+      "briefHint": "Short ops-floor answers — just the numbers that matter",
+      "guide": "Guide",
+      "guideHint": "Patient how-to help for screens and workflows"
+    },
+    "settingsTitle": "Assistant settings",
+    "analyzeAttached": "{{file}} ready — ask below"
   },
   "loading": "Loading..."
 }
