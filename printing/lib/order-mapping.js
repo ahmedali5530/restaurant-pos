@@ -86,14 +86,39 @@ function walkModifierGroup(group, out, depth) {
 }
 
 /**
- * Modifier display lines from an order item (OrderItem). Names only, no price; any nesting depth.
- * @param {Object} orderItem - raw order item with modifiers
+ * Prefer groups that already look like OrderItem modifiers (selectedModifiers).
+ * Cart lines store the same tree on selectedGroups; bare catalog modifier ids
+ * on `modifiers` must not win over selectedGroups.
+ * @param {Object} orderItem
+ * @returns {Array}
+ */
+function resolveModifierGroups(orderItem) {
+  if (!orderItem) return [];
+  const fromModifiers = Array.isArray(orderItem.modifiers) ? orderItem.modifiers : null;
+  if (fromModifiers && fromModifiers.length > 0) {
+    const hasSelected = fromModifiers.some(
+      (group) => group && Array.isArray(group.selectedModifiers)
+    );
+    if (hasSelected) return fromModifiers;
+  }
+  if (Array.isArray(orderItem.selectedGroups) && orderItem.selectedGroups.length > 0) {
+    return orderItem.selectedGroups;
+  }
+  return fromModifiers || [];
+}
+
+/**
+ * Modifier display lines from an order item (OrderItem) or cart line.
+ * Names only, no price; any nesting depth. Accepts OrderItem.modifiers or
+ * cart selectedGroups (first-punch kitchen print).
+ * @param {Object} orderItem - raw order item with modifiers / selectedGroups
  * @returns {Array<{ depth: number, name: string }>}
  */
 function getOrderItemModifierLines(orderItem) {
-  if (!orderItem || !Array.isArray(orderItem.modifiers)) return [];
+  const groups = resolveModifierGroups(orderItem);
+  if (groups.length === 0) return [];
   const lines = [];
-  orderItem.modifiers.forEach((group) => {
+  groups.forEach((group) => {
     walkModifierGroup(group, lines, 0);
   });
   return lines;
@@ -347,8 +372,19 @@ function getOrderDeliveryAddress(order) {
 }
 
 function getOrderCustomerName(order) {
-  if (!order || !order.customer) return '';
+  if (!order || !order.customer || typeof order.customer !== 'object') return '';
   return order.customer.name || '';
+}
+
+/**
+ * Customer street address only (not delivery place) for temp/final receipts.
+ * @param {Object} order
+ * @returns {string}
+ */
+function getOrderCustomerAddress(order) {
+  if (!order || !order.customer || typeof order.customer !== 'object') return '';
+  const a = order.customer.address;
+  return a != null && String(a).trim() ? String(a).trim() : '';
 }
 
 function getOrderDeliveryTime(order) {
@@ -370,9 +406,9 @@ function getOrderDeliveryTime(order) {
  * @returns {string}
  */
 function getOrderPhone(order) {
-  if (!order || !order.customer) return '';
+  if (!order || !order.customer || typeof order.customer !== 'object') return '';
   const p = order.customer.phone;
-  return p != null ? String(p) : '';
+  return p != null && String(p).trim() ? String(p) : '';
 }
 
 /**
@@ -549,12 +585,19 @@ function mapOrderToBill(order, opts) {
     }];
   }
 
+  const customerName = getOrderCustomerName(order);
+  const customerPhone = getOrderPhone(order);
+  const customerAddress = getOrderCustomerAddress(order);
+
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
     orderType: getOrderType(order),
     date: getOrderDate(order, opts),
     userName: getOrderUserName(order),
+    customerName: customerName || undefined,
+    phone: customerPhone || undefined,
+    address: customerAddress || undefined,
     items,
     itemsCount: items.length,
     itemsTotal: tot.itemsTotal,
@@ -742,6 +785,7 @@ module.exports = {
   getOrderItemModifierLines,
   calculateOrderItemPricePrint,
   getOrderCustomerName,
+  getOrderCustomerAddress,
   getOrderDeliveryTime,
   getOrderUserName,
   mapOrderToTemp,

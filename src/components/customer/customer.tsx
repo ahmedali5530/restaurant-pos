@@ -8,6 +8,8 @@ import {Customer} from "@/api/model/customer.ts";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {useTranslation} from "react-i18next";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
+import { terminalSyncService } from "@/infrastructure/sync/sync-service.ts";
+import { toast } from "sonner";
 
 export interface Props {
   onAttach?: () => void;
@@ -17,6 +19,7 @@ export const Customers = ({
 }: Props) => {
   const [state, setState] = useAtom(appState);
   const {t} = useTranslation(["orders", "common"]);
+  const [attaching, setAttaching] = useState(false);
 
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -33,6 +36,73 @@ export const Customers = ({
   useEffect(() => {
     void loadCustomers(search)
   }, [search]);
+
+  /**
+   * Keep customer on the open check when the order is already punched.
+   * New checks keep the customer in app state until createOrderWithItems.
+   */
+  const persistCustomerOnOrder = async (customer: Customer | undefined | null) => {
+    const orderId = state?.order?.id;
+    if (!orderId || orderId === 'new' || !customer) {
+      return customer ?? undefined;
+    }
+
+    let nextCustomer = customer;
+    let customerId = customer.id != null ? String(customer.id) : null;
+
+    if (!customerId) {
+      const created = await posStore.createCustomer({ ...customer });
+      customerId = String(created.id);
+      nextCustomer = { ...customer, id: created.id } as Customer;
+    }
+
+    const existingId = state?.order?.order?.customer
+      ? String((state.order.order.customer as any)?.id ?? state.order.order.customer)
+      : null;
+    if (customerId === existingId) {
+      return nextCustomer;
+    }
+
+    const seed = {
+      order: state?.order?.order ?? { id: orderId },
+      items: state?.order?.order?.items,
+    };
+    await posStore.mergeOrder(
+      String(orderId),
+      { customer: customerId },
+      { seed },
+    );
+    setState((prev) => ({
+      ...prev,
+      customer: nextCustomer,
+      order: {
+        ...prev.order,
+        order: prev.order?.order
+          ? { ...prev.order.order, customer: nextCustomer }
+          : ({ id: orderId, customer: nextCustomer } as any),
+      },
+    }));
+    void terminalSyncService.synchronize().catch(() => undefined);
+    return nextCustomer;
+  };
+
+  const attachCustomer = async (customer: Customer | undefined | null) => {
+    if (attaching) return;
+    setAttaching(true);
+    try {
+      // Always put the selection into app state first (covers new / unpunched checks).
+      setState((prev) => ({ ...prev, customer: customer ?? undefined }));
+      await persistCustomerOnOrder(customer);
+      onAttach?.();
+    } catch (error) {
+      console.error('Failed to attach customer to order', error);
+      toast.error(t('customer.attachFailed', {
+        defaultValue: 'Could not attach customer to this order',
+      }));
+    } finally {
+      setAttaching(false);
+    }
+  };
 
   return (
     <>
@@ -80,7 +150,15 @@ export const Customers = ({
             enableKeyboard
           />
         </div>
-        <Button type="button" variant="primary" filled onClick={onAttach}>{t("customer.attach")}</Button>
+        <Button
+          type="button"
+          variant="primary"
+          filled
+          disabled={attaching || !state.customer?.name}
+          onClick={() => void attachCustomer(state.customer)}
+        >
+          {t("customer.attach")}
+        </Button>
       </div>
       <div className="h-[2px] bg-border my-5"/>
       <div className="mb-3">
@@ -107,13 +185,9 @@ export const Customers = ({
                 <IconTooltipButton
                   label={t('common:actions.select')}
                   icon={faCheck}
+                  disabled={attaching}
                   onClick={() => {
-                    setState(prev => ({
-                      ...prev,
-                      customer: item
-                    }));
-
-                    onAttach();
+                    void attachCustomer(item);
                   }}
                   variant="secondary"
                 />

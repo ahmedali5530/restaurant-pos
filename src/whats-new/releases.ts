@@ -8,6 +8,21 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-02',
+    title: 'Customer on temp and final receipts',
+    items: [
+      'Temp and final receipts now show the attached customer name, phone, and address when the order has a customer.',
+      'Attaching a customer after an order is already punched now links that customer on the order immediately (not only in the cart header), including when creating a new customer.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'First-punch kitchen KOT',
+    items: [
+      'The first kitchen ticket after punching an order now prints selected modifiers and waits briefly for the real order number instead of the temporary local code.',
+    ],
+  },
+  {
+    date: '2026-11-02',
     title: 'Assistant personas and deep research',
     items: [
       'Choose an assistant personality: Analyst (default), Audit (suspicious/scolding), Brief (short ops answers), or Guide (patient how-tos) — saved per user.',

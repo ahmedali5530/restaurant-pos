@@ -130,6 +130,20 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     return selected !== current;
   };
 
+  /** True when a customer was attached/changed on an existing check (no new lines required). */
+  const hasCustomerChange = () => {
+    if (state?.order?.id === 'new') return false;
+    const selected = state?.customer?.id != null
+      ? String(state.customer.id)
+      : (state?.customer?.name ? '__new__' : null);
+    if (!selected) return false;
+    const current = state?.order?.order?.customer
+      ? String((state.order.order.customer as any)?.id ?? state.order.order.customer)
+      : null;
+    if (selected === '__new__') return true;
+    return selected !== current;
+  };
+
   const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
     item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
 
@@ -153,9 +167,10 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     const isNewOrder = state?.order?.id === 'new';
     const hasNewItems = hasNewCartItems();
     const orderTypeChanged = hasOrderTypeChange();
+    const customerChanged = hasCustomerChange();
 
     // Existing order with only old lines and no meta changes: nothing to persist.
-    if (!isNewOrder && !hasNewItems && !orderTypeChanged) {
+    if (!isNewOrder && !hasNewItems && !orderTypeChanged && !customerChanged) {
       return state?.order?.order ?? { id: state?.order?.id };
     }
 
@@ -391,34 +406,66 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
       const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
       if (hasKitchenPrintItems && isEffectivelyConnected) {
-        // Printers lookup is a side effect — do not block return-to-floor.
-        void db.query(`SELECT *
-                                                from ${Tables.kitchens}
-                                                where deleted_at = none FETCH printers`).then(([kitchens]: any) => {
-          if (!kitchens?.length) return;
-          for (const k of kitchens) {
-            if (kitchenItems[k.id.toString()]) {
-              void dispatchPrint(db, 'kitchen', {
-                items: kitchenItems[k.id.toString()],
-                order: {
+        // Printers + invoice wait are side effects — do not block return-to-floor.
+        void (async () => {
+          let printOrder = normalizedOrder;
+          // First punch: wait briefly for gateway invoice so KOT shows the real
+          // number instead of the temporary local_invoice_code.
+          if (isNewOrder && normalizedOrder?.id && normalizedOrder.invoice_number == null) {
+            const SYNC_WAIT_MS = 8000;
+            try {
+              await Promise.race([
+                terminalSyncService.synchronize({ force: true }),
+                new Promise<void>((resolve) => setTimeout(resolve, SYNC_WAIT_MS)),
+              ]);
+            } catch {
+              // Print with pending code if sync fails.
+            }
+            try {
+              const refreshed = await posStore.getOrder(String(normalizedOrder.id));
+              if (
+                refreshed &&
+                (refreshed.invoice_number != null ||
+                  (typeof refreshed.invoice_display === 'string' && refreshed.invoice_display.trim()))
+              ) {
+                printOrder = {
                   ...normalizedOrder,
-                  order_type: state?.orderType ?? normalizedOrder.order_type,
-                  user: page?.user ?? normalizedOrder.user,
-                },
-                kitchenName: k.name,
-                table: state?.table,
-                isAddOn: !isNewOrder,
-              }, {
-                title: t("payment:print.kitchenTitle"),
-                copies: 1,
-                userId: page?.user?.id,
-                printers: k.printers
-              }).catch((error) => {
-                console.error('Kitchen print dispatch failed', error);
-              });
+                  invoice_number: refreshed.invoice_number,
+                  invoice_display: refreshed.invoice_display,
+                  invoice_prefix: refreshed.invoice_prefix,
+                };
+              }
+            } catch {
+              // Keep pending local code on the print payload.
             }
           }
-        }).catch(() => undefined);
+
+          const [kitchens]: any = await db.query(
+            `SELECT * from ${Tables.kitchens} where deleted_at = none FETCH printers`
+          ).catch(() => [undefined]);
+          if (!kitchens?.length) return;
+          for (const k of kitchens) {
+            if (!kitchenItems[k.id.toString()]) continue;
+            void dispatchPrint(db, 'kitchen', {
+              items: kitchenItems[k.id.toString()],
+              order: {
+                ...printOrder,
+                order_type: state?.orderType ?? printOrder.order_type,
+                user: page?.user ?? printOrder.user,
+              },
+              kitchenName: k.name,
+              table: state?.table,
+              isAddOn: !isNewOrder,
+            }, {
+              title: t("payment:print.kitchenTitle"),
+              copies: 1,
+              userId: page?.user?.id,
+              printers: k.printers,
+            }).catch((error) => {
+              console.error('Kitchen print dispatch failed', error);
+            });
+          }
+        })();
       }
 
       return orderObj;

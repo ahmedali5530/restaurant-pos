@@ -56,6 +56,9 @@ function build(printer, data = {}, config = {}) {
   return printReceiptHeader(printer, cfg).then(() => {
     return printBillLayout(printer, billToPrint, cfg, {
       title: bill.title,
+      customerName: bill.customerName,
+      phone: bill.phone,
+      address: bill.address,
       qrcode: data.qrcode,
       qrcodes: data.qrcodes,
       notes: bill.note || undefined,
