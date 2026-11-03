@@ -48,6 +48,12 @@ describe('isRetryableError', () => {
 
   it('detects retention gaps', () => {
     assert.equal(isChangefeedRetentionError(new Error('cursor outside retention window')), true);
+    assert.equal(
+      isChangefeedRetentionError(
+        new Error('changefeed cursor outside retention (silent gap): table=order_void')
+      ),
+      true
+    );
   });
 });
 

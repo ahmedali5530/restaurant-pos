@@ -91,7 +91,11 @@ export const listModifierGroups = async (db: DbClient, options: ListOptions = {}
     id: unknown;
     name?: string;
     priority?: number;
-    modifiers?: Array<{price?: number; modifier?: {name?: string; number?: string}}>;
+    modifiers?: Array<{
+      id?: unknown;
+      price?: number;
+      modifier?: {id?: unknown; name?: string; number?: string};
+    }>;
   }>(await db.query(query));
 
   return rows
@@ -100,6 +104,7 @@ export const listModifierGroups = async (db: DbClient, options: ListOptions = {}
       name: row.name ?? "Unknown",
       priority: row.priority ?? 0,
       options: (row.modifiers ?? []).map(option => ({
+        id: recordIdToString(option.modifier?.id ?? option.id),
         name: option.modifier?.name ?? "Unknown",
         number: option.modifier?.number ?? undefined,
         price: option.price ?? 0,
@@ -124,7 +129,14 @@ export const listKitchens = async (db: DbClient, options: ListOptions = {}) => {
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const rows = unwrapQueryResult<{id: unknown; name?: string; priority?: number}>(await db.query(query));
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+    }))
+    .filter(row => matchesSearch(row.name, search));
 };
 
 type KitchenDetailOptions = {name?: string; search?: string};
@@ -199,7 +211,9 @@ export const listDiscounts = async (db: DbClient, options: DiscountListOptions =
   const search = normalizeSearch(options.search);
   const activeOnly = options.active_only ?? false;
   const query = `
-    SELECT id, name, type, category, scope, application_mode, is_active, priority FROM ${Tables.discounts}
+    SELECT id, name, type, category, scope, application_mode, is_active, priority,
+      min_rate, max_rate, max_cap, stackable, exclusive
+    FROM ${Tables.discounts}
     WHERE deleted_at = NONE
     ${activeOnly ? "AND is_active = true" : ""}
     ORDER BY priority ASC, name ASC
@@ -214,6 +228,11 @@ export const listDiscounts = async (db: DbClient, options: DiscountListOptions =
     application_mode?: string;
     is_active?: boolean;
     priority?: number;
+    min_rate?: number;
+    max_rate?: number;
+    max_cap?: number;
+    stackable?: boolean;
+    exclusive?: boolean;
   }>(await db.query(query));
 
   return rows
@@ -226,6 +245,11 @@ export const listDiscounts = async (db: DbClient, options: DiscountListOptions =
       application_mode: row.application_mode ?? "",
       is_active: row.is_active ?? true,
       priority: row.priority ?? 0,
+      min_rate: row.min_rate ?? null,
+      max_rate: row.max_rate ?? null,
+      max_cap: row.max_cap ?? null,
+      stackable: row.stackable ?? true,
+      exclusive: row.exclusive ?? false,
     }))
     .filter(row => matchesSearch(row.name, search));
 };
@@ -234,32 +258,52 @@ export const listOrderTypes = async (db: DbClient, options: ListOptions = {}) =>
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, priority FROM ${Tables.order_types}
+    SELECT id, name, priority, allow_service_charges FROM ${Tables.order_types}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    allow_service_charges?: boolean;
+  }>(await db.query(query));
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+      allow_service_charges: row.allow_service_charges ?? false,
+    }))
+    .filter(row => matchesSearch(row.name, search));
 };
 
 export const listPaymentTypes = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, type, priority FROM ${Tables.payment_types}
+    SELECT id, name, type, priority, tax.name AS tax_name FROM ${Tables.payment_types}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
+    FETCH tax
   `;
-  const rows = unwrapQueryResult<{id: unknown; name?: string; type?: string; priority?: number}>(
-    await db.query(query),
-  );
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    type?: string;
+    priority?: number;
+    tax_name?: string;
+    tax?: {name?: string};
+  }>(await db.query(query));
   return rows
     .map(row => ({
       id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       type: row.type ?? "",
       priority: row.priority ?? 0,
+      tax_name: row.tax_name ?? row.tax?.name ?? "",
     }))
     .filter(row => matchesSearch(row.name, search) || matchesSearch(row.type ?? "", search));
 };
@@ -268,19 +312,39 @@ export const listExtras = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, priority FROM ${Tables.extras}
+    SELECT id, name, priority, value, apply_to_all, delivery FROM ${Tables.extras}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    value?: number;
+    apply_to_all?: boolean;
+    delivery?: boolean;
+  }>(await db.query(query));
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+      value: row.value ?? 0,
+      apply_to_all: row.apply_to_all ?? false,
+      delivery: row.delivery ?? false,
+    }))
+    .filter(row => matchesSearch(row.name, search));
 };
 
 export const listCoupons = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, code, description, coupon_type, is_active, priority FROM ${Tables.coupons}
+    SELECT id, code, description, coupon_type, is_active, priority,
+      discount_type, discount_value, min_order_amount, max_discount_amount,
+      stackable, first_order_only
+    FROM ${Tables.coupons}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, code ASC
     LIMIT ${limit}
@@ -292,6 +356,12 @@ export const listCoupons = async (db: DbClient, options: ListOptions = {}) => {
     coupon_type?: string;
     is_active?: boolean;
     priority?: number;
+    discount_type?: string;
+    discount_value?: number;
+    min_order_amount?: number;
+    max_discount_amount?: number;
+    stackable?: boolean;
+    first_order_only?: boolean;
   }>(await db.query(query));
 
   return rows
@@ -302,6 +372,12 @@ export const listCoupons = async (db: DbClient, options: ListOptions = {}) => {
       coupon_type: row.coupon_type ?? "",
       is_active: row.is_active ?? true,
       priority: row.priority ?? 0,
+      discount_type: row.discount_type ?? "",
+      discount_value: row.discount_value ?? null,
+      min_order_amount: row.min_order_amount ?? null,
+      max_discount_amount: row.max_discount_amount ?? null,
+      stackable: row.stackable ?? false,
+      first_order_only: row.first_order_only ?? false,
     }))
     .filter(row =>
       matchesSearch(row.code, search)
@@ -318,7 +394,14 @@ export const listMenus = async (db: DbClient, options: ListOptions = {}) => {
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
   `;
-  return mapNameId(unwrapQueryResult(await db.query(query))).filter(row => matchesSearch(row.name, search));
+  const rows = unwrapQueryResult<{id: unknown; name?: string; priority?: number}>(await db.query(query));
+  return rows
+    .map(row => ({
+      id: recordIdToString(row.id),
+      name: row.name ?? "Unknown",
+      priority: row.priority ?? 0,
+    }))
+    .filter(row => matchesSearch(row.name, search));
 };
 
 export const getMenuItems = async (db: DbClient, options: MenuItemsOptions = {}) => {
@@ -395,27 +478,38 @@ export const listWorkflows = async (db: DbClient, options: ListOptions = {}) => 
 
   const ids = workflows.map(w => w.id);
   const stageQuery = `
-    SELECT workflow, name, sequence, kitchen.name AS kitchen_name FROM ${Tables.workflow_stages}
+    SELECT id, workflow, name, sequence, kitchen.name AS kitchen_name, kitchen.id AS kitchen_id
+    FROM ${Tables.workflow_stages}
     WHERE workflow IN $workflows
     ORDER BY sequence ASC
     FETCH kitchen
   `;
   const stages = unwrapQueryResult<{
+    id?: unknown;
     workflow: unknown;
     name?: string;
     sequence?: number;
     kitchen_name?: string;
-    kitchen?: {name?: string};
+    kitchen_id?: unknown;
+    kitchen?: {id?: unknown; name?: string};
   }>(await db.query(stageQuery, {workflows: ids}));
 
-  const stagesByWorkflow = new Map<string, Array<{name: string; sequence: number; kitchen_name: string}>>();
+  const stagesByWorkflow = new Map<string, Array<{
+    id: string;
+    name: string;
+    sequence: number;
+    kitchen_name: string;
+    kitchen_id: string;
+  }>>();
   for (const stage of stages) {
     const wfId = recordIdToString(stage.workflow);
     const list = stagesByWorkflow.get(wfId) ?? [];
     list.push({
+      id: recordIdToString(stage.id),
       name: stage.name ?? "",
       sequence: stage.sequence ?? 0,
       kitchen_name: stage.kitchen_name ?? stage.kitchen?.name ?? "",
+      kitchen_id: recordIdToString(stage.kitchen_id ?? stage.kitchen?.id),
     });
     stagesByWorkflow.set(wfId, list);
   }
@@ -430,20 +524,31 @@ export const listPrinters = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, type, priority FROM ${Tables.printers}
+    SELECT id, name, type, priority, ip_address, port, print_mode, paper_width_mm FROM ${Tables.printers}
     WHERE deleted_at = NONE
     ORDER BY priority ASC, name ASC
     LIMIT ${limit}
   `;
-  const rows = unwrapQueryResult<{id: unknown; name?: string; type?: string; priority?: number}>(
-    await db.query(query),
-  );
+  const rows = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    type?: string;
+    priority?: number;
+    ip_address?: string;
+    port?: number;
+    print_mode?: string;
+    paper_width_mm?: number;
+  }>(await db.query(query));
   return rows
     .map(row => ({
       id: recordIdToString(row.id),
       name: row.name ?? "Unknown",
       type: row.type ?? "",
       priority: row.priority ?? 0,
+      ip_address: row.ip_address ?? "",
+      port: row.port ?? null,
+      print_mode: row.print_mode ?? "",
+      paper_width_mm: row.paper_width_mm ?? null,
     }))
     .filter(row => matchesSearch(row.name, search));
 };
@@ -452,11 +557,13 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, first_name, last_name, login, login_method, user_role.name AS role_name FROM ${Tables.users}
+    SELECT id, first_name, last_name, login, login_method,
+      user_role.name AS role_name, user_shift.name AS shift_name
+    FROM ${Tables.users}
     WHERE deleted_at = NONE
     ORDER BY first_name ASC, last_name ASC
     LIMIT ${limit}
-    FETCH user_role
+    FETCH user_role, user_shift
   `;
   const rows = unwrapQueryResult<{
     id: unknown;
@@ -465,7 +572,9 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
     login?: string;
     login_method?: string;
     role_name?: string;
+    shift_name?: string;
     user_role?: {name?: string};
+    user_shift?: {name?: string};
   }>(await db.query(query));
 
   return rows
@@ -477,12 +586,14 @@ export const listUsers = async (db: DbClient, options: ListOptions = {}) => {
         login: row.login ?? "",
         login_method: row.login_method ?? "pin",
         role_name: row.role_name ?? row.user_role?.name ?? "",
+        shift_name: row.shift_name ?? row.user_shift?.name ?? "",
       };
     })
     .filter(row =>
       matchesSearch(row.name, search)
       || matchesSearch(row.login ?? "", search)
-      || matchesSearch(row.role_name ?? "", search),
+      || matchesSearch(row.role_name ?? "", search)
+      || matchesSearch(row.shift_name ?? "", search),
     );
 };
 
@@ -502,7 +613,7 @@ export const listShifts = async (db: DbClient, options: ListOptions = {}) => {
   const limit = options.limit ?? 50;
   const search = normalizeSearch(options.search);
   const query = `
-    SELECT id, name, start_time, end_time FROM ${Tables.shifts}
+    SELECT id, name, start_time, end_time, ends_next_day FROM ${Tables.shifts}
     WHERE deleted_at = NONE
     ORDER BY name ASC
     LIMIT ${limit}
@@ -512,6 +623,7 @@ export const listShifts = async (db: DbClient, options: ListOptions = {}) => {
     name?: string;
     start_time?: string;
     end_time?: string;
+    ends_next_day?: boolean;
   }>(await db.query(query));
 
   return rows
@@ -520,6 +632,7 @@ export const listShifts = async (db: DbClient, options: ListOptions = {}) => {
       name: row.name ?? "Unknown",
       start_time: row.start_time ?? "",
       end_time: row.end_time ?? "",
+      ends_next_day: row.ends_next_day ?? false,
     }))
     .filter(row => matchesSearch(row.name, search));
 };

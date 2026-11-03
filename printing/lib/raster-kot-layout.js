@@ -56,7 +56,7 @@ function paintKotHeaderRaster(rc, opts) {
 
   extraLines.forEach((line) => {
     if (line && line.value) {
-      rc.fixedLine(`${line.label}: ${String(line.value).slice(0, 40)}`, { align: 'left' });
+      rc.fixedLine(`${line.label}: ${String(line.value)}`, { align: 'left' });
     }
   });
 

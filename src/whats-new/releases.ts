@@ -7,6 +7,35 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-03',
+    title: 'Receipt text wraps instead of cutting off',
+    items: [
+      'Long receipt lines (customer address, dish names, notes, custom header/footer text, and similar) wrap onto the next line instead of being truncated.',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Customer details after totals on receipts',
+    items: [
+      'Temp and final sale receipts print customer name, phone, and address after the totals block (instead of under the cashier line).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Product Mix Summary matches Daily Summary',
+    items: [
+      'Reports → Product Mix Summary now uses the same Category → Dish → Modifier layout and figures as the Product Mix section on Daily Sales Summary (Item / Qty / Total / Share %).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Assistant Manage linked details',
+    items: [
+      'Manage list tools now return richer scalars (rates, tax links, printer connection, shift, option ids).',
+      'New detail tools expose linked graphs before updates: dishes/modifiers, tables, discounts, coupons, extras, roles (modules), printers, print settings, and tip distribution.',
+    ],
+  },
+  {
     date: '2026-11-02',
     title: 'Tip and service charge draft display',
     items: [

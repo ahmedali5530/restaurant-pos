@@ -449,15 +449,20 @@ function printHardwareAlignedLine(printer, text, opts) {
 
 function printFixedLine(printer, text, opts) {
   const options = opts || {};
-  const align = options.align || 'left';
   const size = options.size || 'normal';
   const style = options.style;
+  const wrap = options.wrap !== false;
+  const lines = wrap
+    ? wrapReceiptText(text, size, options.maxWidth)
+    : [String(text == null ? '' : text)];
   hardResetLayout(printer);
-  if (size !== 'normal') applyTextSize(printer, size);
-  if (style === 'bold') printer.style('b');
-  else if (style === 'bold-underline') printer.style('bu');
-  printer.align('lt').text(formatFixedLine(text, opts));
-  hardResetLayout(printer);
+  lines.forEach((line) => {
+    if (size !== 'normal') applyTextSize(printer, size);
+    if (style === 'bold') printer.style('b');
+    else if (style === 'bold-underline') printer.style('bu');
+    printer.align('lt').text(formatFixedLine(line, options));
+    hardResetLayout(printer);
+  });
 }
 
 function printDivider(printer) {
@@ -543,18 +548,23 @@ function printLineLeftRight(printer, left, right, opts) {
 function printAlignedText(printer, text, align, opts) {
   const options = opts || {};
   const resolvedAlign = align || 'center';
-  if (resolvedAlign === 'left') {
-    printFixedLine(printer, text, {
-      align: 'left',
-      size: options.size || 'normal',
+  const size = options.size || 'normal';
+  const lines = wrapReceiptText(text, size, options.maxWidth);
+  lines.forEach((line) => {
+    if (resolvedAlign === 'left') {
+      printFixedLine(printer, line, {
+        align: 'left',
+        size,
+        style: options.style,
+        wrap: false,
+      });
+      return;
+    }
+    printHardwareAlignedLine(printer, line, {
+      align: resolvedAlign,
+      size,
       style: options.style,
     });
-    return;
-  }
-  printHardwareAlignedLine(printer, text, {
-    align: resolvedAlign,
-    size: options.size || 'normal',
-    style: options.style,
   });
 }
 
@@ -851,10 +861,16 @@ function feedBottomMargin(printer, config) {
  * Splits on newlines first, then wraps each paragraph; hard-breaks oversized tokens.
  * @param {string} text
  * @param {string} [size='normal']
+ * @param {number} [maxWidth] - override column width (e.g. item name column)
  * @returns {string[]}
  */
-function wrapReceiptText(text, size) {
-  const maxLen = getEffectiveLineWidth(size || 'normal');
+function wrapReceiptText(text, size, maxWidth) {
+  const maxLen = Math.max(
+    1,
+    maxWidth != null && Number.isFinite(Number(maxWidth))
+      ? Math.floor(Number(maxWidth))
+      : getEffectiveLineWidth(size || 'normal'),
+  );
   const paragraphs = String(text || '').split(/\r?\n/);
   const lines = [];
 
@@ -983,7 +999,7 @@ function printFooterSections(printer, config) {
  * @returns {string}
  */
 function formatItemLine(item, config) {
-  const name = (item.name || item.title || '').slice(0, 28);
+  const name = String(item.name || item.title || '').trim();
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const total = item.total != null ? Number(item.total) : price * qty;
@@ -1004,7 +1020,7 @@ function formatItemLine(item, config) {
  * @returns {{ left: string, right: string }}
  */
 function getItemLineLeftRight(item, config) {
-  const name = (item.name || item.title || '').slice(0, 18);
+  const name = String(item.name || item.title || '').trim() || '-';
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const lineTotal = item.total != null ? Number(item.total) : price * qty;
@@ -1028,24 +1044,51 @@ const ITEM_COL_RATE = 7;
 const ITEM_COL_TOTAL = 10;
 
 /**
- * Build a single fixed-width item line string (no tableCustom, avoids leftoverSpace bug).
+ * Build fixed-width item row string(s). Long dish names wrap within the name
+ * column; qty/rate/total stay on the last name line.
+ * @param {Object} item - { name, qty, price, total? }
+ * @param {Object} config - normalized config
+ * @returns {string[]}
+ */
+function buildItemRowStrings(item, config) {
+  const fullName = String(item.name || item.title || '').trim() || '-';
+  const qty = item.qty != null ? item.qty : 1;
+  const price = item.price != null ? Number(item.price) : 0;
+  const lineTotal = item.total != null ? Number(item.total) : price * qty;
+  const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
+  const showName = config.showItemName !== false;
+  const nameLines = showName
+    ? wrapReceiptText(fullName, 'normal', ITEM_COL_NAME)
+    : [''];
+
+  const blankQty = config.showItemQuantity ? ' '.repeat(ITEM_COL_QTY) : '';
+  const blankRate = config.showItemPrice ? ' '.repeat(ITEM_COL_RATE) : '';
+  const blankTotal = config.showItemTotal ? ' '.repeat(ITEM_COL_TOTAL) : '';
+  const qtyCol = config.showItemQuantity ? padLeft(String(qty), ITEM_COL_QTY) : '';
+  const rateCol = config.showItemPrice ? padLeft(price.toFixed(dp), ITEM_COL_RATE) : '';
+  const totalCol = config.showItemTotal ? padLeft(lineTotal.toFixed(dp), ITEM_COL_TOTAL) : '';
+
+  return nameLines.map((nameLine, index) => {
+    const isLast = index === nameLines.length - 1;
+    let line = showName ? padRight(nameLine, ITEM_COL_NAME) : '';
+    if (isLast) {
+      line += qtyCol + rateCol + totalCol;
+    } else {
+      line += blankQty + blankRate + blankTotal;
+    }
+    return line || fullName;
+  });
+}
+
+/**
+ * Build a single fixed-width item line string (first wrapped line).
+ * Prefer {@link buildItemRowStrings} when printing so long names wrap.
  * @param {Object} item - { name, qty, price, total? }
  * @param {Object} config - normalized config
  * @returns {string}
  */
 function buildItemRowString(item, config) {
-  const name = (item.name || item.title || '').slice(0, ITEM_COL_NAME);
-  const qty = item.qty != null ? item.qty : 1;
-  const price = item.price != null ? Number(item.price) : 0;
-  const lineTotal = item.total != null ? Number(item.total) : price * qty;
-  const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
-
-  let line = '';
-  if (config.showItemName !== false) line += padRight(name, ITEM_COL_NAME);
-  if (config.showItemQuantity) line += padLeft(String(qty), ITEM_COL_QTY);
-  if (config.showItemPrice) line += padLeft(price.toFixed(dp), ITEM_COL_RATE);
-  if (config.showItemTotal) line += padLeft(lineTotal.toFixed(dp), ITEM_COL_TOTAL);
-  return line || name || '-';
+  return buildItemRowStrings(item, config)[0] || '-';
 }
 
 /**
@@ -1089,8 +1132,9 @@ function printModifierLines(printer, modifierLines) {
  * @param {Object} config - normalized config
  */
 function printBillItemLine(printer, item, config) {
-  const { left, right } = getItemLineLeftRight(item, config);
-  printLineLeftRight(printer, left, right);
+  buildItemRowStrings(item, config).forEach((row) => {
+    printFixedLine(printer, row, { align: 'left', wrap: false });
+  });
   printModifierLines(printer, item.modifierLines);
 }
 
@@ -1661,6 +1705,7 @@ module.exports = {
   printBillItemLine,
   printModifierLines,
   buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   formatMoney,
   formatLineLeftRight,

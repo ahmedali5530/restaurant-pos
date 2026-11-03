@@ -76,7 +76,7 @@ function printKotHeader(printer, opts) {
 
   extraLines.forEach((line) => {
     if (line && line.value) {
-      printFixedLine(printer, `${line.label}: ${String(line.value).slice(0, 40)}`, { align: 'left' });
+      printFixedLine(printer, `${line.label}: ${String(line.value)}`, { align: 'left' });
     }
   });
 

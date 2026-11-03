@@ -4,7 +4,7 @@ const {
   normalizeConfig,
   printReceiptHeader,
   feedBottomMargin,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   printModifierLines,
   printFixedLine,
@@ -79,11 +79,13 @@ function build(printer, data = {}, config = {}) {
       labels: L,
     });
 
-    printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+    printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
     printItems.forEach((it) => {
-      printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
+      buildItemRowStrings(it, cfg).forEach((row) => {
+        printFixedLine(printer, row, { align: 'left', wrap: false });
+      });
       if (it.notes) {
-        printFixedLine(printer, ` >> ${it.notes.slice(0, 26)}`, { align: 'left' });
+        printFixedLine(printer, ` >> ${it.notes}`, { align: 'left' });
       }
       printModifierLines(printer, it.modifierLines);
     });

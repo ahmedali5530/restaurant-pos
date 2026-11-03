@@ -16,7 +16,7 @@ const {
   formatLineLeftRight,
   formatDividerLine,
   formatCenteredHardwareLine,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   wrapReceiptText,
   STORE_LOGO_BOX_PX,
@@ -90,11 +90,18 @@ class ReceiptCanvas {
 
   fixedLine(text, opts) {
     const o = opts || {};
-    this._pushText({
-      text: formatFixedLine(text, o),
-      size: o.size || 'normal',
-      style: o.style,
-      align: 'left',
+    const size = o.size || 'normal';
+    const wrap = o.wrap !== false;
+    const lines = wrap
+      ? wrapReceiptText(text, size, o.maxWidth)
+      : [String(text == null ? '' : text)];
+    lines.forEach((line) => {
+      this._pushText({
+        text: formatFixedLine(line, o),
+        size,
+        style: o.style,
+        align: 'left',
+      });
     });
   }
 
@@ -643,7 +650,7 @@ async function renderKitchenRaster(data, config) {
     labels: L,
   });
 
-  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
   const items = Array.isArray(data.items) ? data.items : [];
   items.forEach((it) => {
     const dish = it.item || it.dish || {};
@@ -654,9 +661,11 @@ async function renderKitchenRaster(data, config) {
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
       modifierLines: getOrderItemModifierLines(it),
     };
-    rc.fixedLine(buildItemRowString(row, cfg), { align: 'left' });
+    buildItemRowStrings(row, cfg).forEach((line) => {
+      rc.fixedLine(line, { align: 'left', wrap: false });
+    });
     if (it.comments) {
-      rc.fixedLine(` >> ${String(it.comments).slice(0, 26)}`, { align: 'left' });
+      rc.fixedLine(` >> ${String(it.comments)}`, { align: 'left' });
     }
     if (Array.isArray(row.modifierLines)) {
       row.modifierLines.forEach((line) => {
