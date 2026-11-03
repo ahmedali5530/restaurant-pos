@@ -112,6 +112,140 @@ const applyHyperlink = (ws: XLSX.WorkSheet, address: string, url: string, label:
   };
 };
 
+/** Builds Orders sheet rows: each order, then its line items immediately below when requested. */
+export const buildAdvancedSalesOrdersSheet = (options: {
+  orders: Order[];
+  filters: AdvancedSalesExportFilters;
+  showInclusive: boolean;
+}): {rows: any[][]; linkMeta: Array<{row: number; order: Order}>} => {
+  const {orders, filters, showInclusive} = options;
+  const includeItems = Boolean(filters.showMenuItems);
+  const headers = [
+    "Row",
+    "Date",
+    "Time",
+    "Order #",
+    "Invoice #",
+    "Order Taker",
+    "Cashier",
+    "Table",
+    "Floor",
+    "Order Type",
+    "Status",
+  ];
+  if (filters.showDetails) {
+    headers.push(
+      "Items",
+      "Covers",
+      "Sale w/o Tax",
+      "Taxes",
+      "Tip",
+      "Service Charges",
+      "Discounts",
+      "Coupons",
+      "Amount Due",
+      "Amount Collected",
+      "Change Due",
+      "Payment Breakdown",
+      "Net",
+      "Notes",
+    );
+  } else {
+    headers.push("Net");
+  }
+  if (includeItems) {
+    headers.push(
+      "Item",
+      "Item Qty",
+      "Item Price",
+      "Item Discount",
+      "Item Total",
+      "Item Deleted",
+    );
+  }
+
+  const emptyItemCols = includeItems ? ["", "", "", "", "", ""] : [];
+  const rows: any[][] = [headers];
+  const linkMeta: Array<{row: number; order: Order}> = [];
+  const blankOrderMoneyCols = (count: number) => Array.from({length: count}, () => "");
+
+  orders.forEach((order) => {
+    const orderTotals = calculateAdvancedSalesOrderTotals(order);
+    const orderDate = toLuxonDateTime(order.created_at);
+    const dateStr = orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT);
+    const timeStr = orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT);
+    const tableName = order.table?.name
+      ? `${order.table.name}${order.table.number ?? ""}`
+      : `Table ${order.table?.number ?? ""}`;
+    const orderCore = [
+      dateStr,
+      timeStr,
+      order.auto_id ?? "",
+      order.invoice_number ?? "",
+      personName(order.user),
+      order.cashier ? personName(order.cashier) : "N/A",
+      tableName,
+      order.floor?.name || "Unknown",
+      order.order_type?.name || "Unknown",
+      order.status,
+    ];
+
+    const orderDetailCols = filters.showDetails
+      ? [
+          orderTotals.itemsCount,
+          orderTotals.covers,
+          orderTotals.salePriceWithoutTax,
+          orderTotals.taxes,
+          orderTotals.tips,
+          orderTotals.serviceCharges,
+          -orderTotals.discounts,
+          -orderTotals.coupons,
+          orderTotals.amountDue,
+          orderTotals.amountCollectedForDetail,
+          orderTotals.changeDue,
+          orderTotals.paymentBreakdown,
+          orderTotals.net,
+          (order.notes ?? "").trim() || "—",
+        ]
+      : [orderTotals.net];
+
+    rows.push(["Order", ...orderCore, ...orderDetailCols, ...emptyItemCols]);
+    linkMeta.push({row: rows.length - 1, order});
+
+    if (!includeItems) return;
+
+    (order.items ?? []).forEach((item) => {
+      const itemPrice = getOrderItemDisplayLineTotal(item, showInclusive);
+      const itemDiscount = safeNumber(item.discount);
+      const itemTotal = safeNumber(itemPrice) - itemDiscount;
+      // Keep order identity on item rows; leave order money blank so totals don't double-count.
+      rows.push([
+        "Item",
+        dateStr,
+        timeStr,
+        order.auto_id ?? "",
+        order.invoice_number ?? "",
+        personName(order.user),
+        order.cashier ? personName(order.cashier) : "N/A",
+        tableName,
+        order.floor?.name || "Unknown",
+        order.order_type?.name || "Unknown",
+        order.status,
+        ...blankOrderMoneyCols(orderDetailCols.length),
+        formatAdvancedSalesItemName(item),
+        safeNumber(item.quantity),
+        itemPrice,
+        -itemDiscount,
+        itemTotal,
+        item.deleted_at ? "Yes" : "",
+      ]);
+      linkMeta.push({row: rows.length - 1, order});
+    });
+  });
+
+  return {rows, linkMeta};
+};
+
 export const exportAdvancedSalesExcel = (options: {
   orders: Order[];
   orderVoids: OrderVoid[];
@@ -171,141 +305,21 @@ export const exportAdvancedSalesExcel = (options: {
   ];
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), "Summary");
 
-  const orderHeaders = [
-    "Date",
-    "Time",
-    "Order #",
-    "Invoice #",
-    "Order Taker",
-    "Cashier",
-    "Table",
-    "Floor",
-    "Order Type",
-    "Status",
-  ];
-  if (filters.showDetails) {
-    orderHeaders.push(
-      "Items",
-      "Covers",
-      "Sale w/o Tax",
-      "Taxes",
-      "Tip",
-      "Service Charges",
-      "Discounts",
-      "Coupons",
-      "Amount Due",
-      "Amount Collected",
-      "Change Due",
-      "Payment Breakdown",
-      "Net",
-      "Notes",
-    );
-  } else {
-    orderHeaders.push("Net");
-  }
-
-  const orderRows: any[][] = [orderHeaders];
-  const orderLinkMeta: Array<{row: number; order: Order}> = [];
-
-  orders.forEach((order, index) => {
-    const orderTotals = calculateAdvancedSalesOrderTotals(order);
-    const orderDate = toLuxonDateTime(order.created_at);
-    const tableName = order.table?.name
-      ? `${order.table.name}${order.table.number ?? ""}`
-      : `Table ${order.table?.number ?? ""}`;
-    const row: any[] = [
-      orderDate.toFormat(import.meta.env.VITE_DATE_FORMAT),
-      orderDate.toFormat(import.meta.env.VITE_TIME_FORMAT),
-      order.auto_id ?? "",
-      order.invoice_number ?? "",
-      personName(order.user),
-      order.cashier ? personName(order.cashier) : "N/A",
-      tableName,
-      order.floor?.name || "Unknown",
-      order.order_type?.name || "Unknown",
-      order.status,
-    ];
-    if (filters.showDetails) {
-      row.push(
-        orderTotals.itemsCount,
-        orderTotals.covers,
-        orderTotals.salePriceWithoutTax,
-        orderTotals.taxes,
-        orderTotals.tips,
-        orderTotals.serviceCharges,
-        -orderTotals.discounts,
-        -orderTotals.coupons,
-        orderTotals.amountDue,
-        orderTotals.amountCollectedForDetail,
-        orderTotals.changeDue,
-        orderTotals.paymentBreakdown,
-        orderTotals.net,
-        (order.notes ?? "").trim() || "—",
-      );
-    } else {
-      row.push(orderTotals.net);
-    }
-    orderRows.push(row);
-    orderLinkMeta.push({row: index + 1, order});
+  const {rows: orderRows, linkMeta: orderLinkMeta} = buildAdvancedSalesOrdersSheet({
+    orders,
+    filters,
+    showInclusive,
   });
-
   const ordersWs = XLSX.utils.aoa_to_sheet(orderRows);
   orderLinkMeta.forEach(({row, order}) => {
     const url = absoluteReceiptUrl(order);
     const orderLabel = order.auto_id ?? recordIdToString(order.id);
     const invoiceLabel = order.invoice_number ?? orderLabel;
-    applyHyperlink(ordersWs, XLSX.utils.encode_cell({r: row, c: 2}), url, orderLabel);
-    applyHyperlink(ordersWs, XLSX.utils.encode_cell({r: row, c: 3}), url, invoiceLabel);
+    // Order # / Invoice # are columns 3 and 4 after Row type.
+    applyHyperlink(ordersWs, XLSX.utils.encode_cell({r: row, c: 3}), url, orderLabel);
+    applyHyperlink(ordersWs, XLSX.utils.encode_cell({r: row, c: 4}), url, invoiceLabel);
   });
   XLSX.utils.book_append_sheet(wb, ordersWs, "Orders");
-
-  if (filters.showMenuItems) {
-    const itemRows: any[][] = [[
-      "Date",
-      "Order #",
-      "Invoice #",
-      "Item",
-      "Quantity",
-      "Price",
-      "Discount",
-      "Total",
-      "Deleted",
-    ]];
-    const itemLinkMeta: Array<{row: number; order: Order}> = [];
-
-    orders.forEach((order) => {
-      const items = order.items ?? [];
-      if (items.length === 0) return;
-      const orderDate = toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT);
-      items.forEach((item) => {
-        const itemPrice = getOrderItemDisplayLineTotal(item, showInclusive);
-        const itemDiscount = safeNumber(item.discount);
-        const itemTotal = safeNumber(itemPrice) - itemDiscount;
-        itemRows.push([
-          orderDate,
-          order.auto_id ?? "",
-          order.invoice_number ?? "",
-          formatAdvancedSalesItemName(item),
-          safeNumber(item.quantity),
-          itemPrice,
-          -itemDiscount,
-          itemTotal,
-          item.deleted_at ? "Yes" : "",
-        ]);
-        itemLinkMeta.push({row: itemRows.length - 1, order});
-      });
-    });
-
-    const itemsWs = XLSX.utils.aoa_to_sheet(itemRows);
-    itemLinkMeta.forEach(({row, order}) => {
-      const url = absoluteReceiptUrl(order);
-      const orderLabel = order.auto_id ?? recordIdToString(order.id);
-      const invoiceLabel = order.invoice_number ?? orderLabel;
-      applyHyperlink(itemsWs, XLSX.utils.encode_cell({r: row, c: 1}), url, orderLabel);
-      applyHyperlink(itemsWs, XLSX.utils.encode_cell({r: row, c: 2}), url, invoiceLabel);
-    });
-    XLSX.utils.book_append_sheet(wb, itemsWs, "Order Items");
-  }
 
   XLSX.writeFile(wb, fileName);
 };

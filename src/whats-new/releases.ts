@@ -52,10 +52,17 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-03',
+    title: 'Advanced Sales export keeps items under each order',
+    items: [
+      'When Show menu items is on, Advanced Sales Excel lists each order row then its line items directly below on the same Orders sheet (full order columns plus item qty/price/discount/total).',
+    ],
+  },
+  {
     date: '2026-11-02',
     title: 'Advanced Sales Excel export fixes',
     items: [
-      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with a separate Order Items sheet when Show menu items is on.',
+      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with menu items under each order when Show menu items is on.',
       'Order # and Invoice # link to the printable receipt in Advanced Sales and Sales Dashboard (and as Excel hyperlinks in the export).',
     ],
   },
