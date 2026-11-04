@@ -87,7 +87,7 @@ export const QuickOrderBrowse = ({onAdd}: Props) => {
           </div>
           <ScrollContainer className="flex-1 min-h-0">
             <div
-              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1"
+              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1 auto-rows-fr items-stretch"
               onMouseDown={keepScanFocus}
               onPointerDown={keepScanFocus}
             >
