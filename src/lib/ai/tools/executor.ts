@@ -74,6 +74,8 @@ import type {InventoryDocumentStatus} from "@/api/model/inventory_document.ts";
 import type {InventoryDocumentType} from "@/lib/ai/inventory-operation-query.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
+import {getTableChangefeed} from "@/api/reports/operations/changefeed.ts";
+import {canUseReadTool} from "@/lib/ai/tools/permissions.ts";
 import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
 import {
   getActivityLog,
@@ -141,6 +143,8 @@ const parseOptionalDateRangeArgs = (args: Record<string, unknown>): DateRangeFil
 
 export interface ExecuteToolContext {
   charts: AiChartSpec[];
+  /** When set, read tools that require RBAC are denied if the module is missing. */
+  allowedModules?: string[];
 }
 
 export const executeAiReportTool = async (
@@ -334,6 +338,24 @@ export const executeAiReportTool = async (
         module: args.module ? String(args.module) : undefined,
         modules: Array.isArray(args.modules) ? args.modules.map(String) : undefined,
       });
+
+    case "get_table_changefeed": {
+      if (context.allowedModules && !canUseReadTool("get_table_changefeed", context.allowedModules)) {
+        return {
+          ok: false,
+          error:
+            "Permission denied: reports.changefeed (Reports → Table Changefeed) is required.",
+          mutations: [],
+        };
+      }
+      return getTableChangefeed(db, {
+        table: String(args.table ?? ""),
+        since: args.since != null ? (args.since as string | number) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+        record_id: args.record_id ? String(args.record_id) : undefined,
+        compact: args.compact === true || args.compact === "true",
+      });
+    }
 
     case "get_cash_closing":
       return getCashClosing(db, {date: args.date ? String(args.date) : undefined});

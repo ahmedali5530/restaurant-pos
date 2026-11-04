@@ -11,6 +11,7 @@ import {detectWriteToolsForPrompt, listPermittedWriteTools, WRITE_INTENT_PATTERN
 import {LOOKUP_USER_GUIDE_TOOL, LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
 import {isUserGuideHowToPrompt} from "@/lib/ai/user-guide.ts";
 import {WEB_SEARCH_TOOL, WEB_SEARCH_TOOL_NAME} from "@/lib/ai/tools/web-search-tool.ts";
+import {CHANGEFEED_TOOL_NAME, isChangefeedPrompt} from "@/lib/ai/changefeed-query.ts";
 
 const ASSISTANT_CORE_READ_TOOLS = ["resolve_date_range", "get_sales_summary", "get_orders"];
 
@@ -126,6 +127,24 @@ export const selectAssistantToolsForPrompt = (
   if (options.deepResearch && !withGuide.some(t => t.function.name === WEB_SEARCH_TOOL_NAME)) {
     withGuide = [...withGuide, WEB_SEARCH_TOOL];
   }
+
+  // Changefeed stays off unless explicitly requested — and then ONLY that tool
+  // (avoids huge manage/sales toolsets + fat dish payloads exhausting iterations).
+  // RBAC: filter by reports.changefeed (parent reports / reports.ai also grant).
+  if (isChangefeedPrompt(prompt)) {
+    const def = AI_REPORT_TOOLS.find(t => t.function.name === CHANGEFEED_TOOL_NAME);
+    const permitted = def
+      ? (allowedModules.length ? filterToolsByPermissions([def], allowedModules) : [def])
+      : [];
+    return {
+      tools: permitted,
+      readTools: permitted,
+      writeTools: [],
+      domains: domains.includes("operations") ? domains : [...domains, "operations"],
+    };
+  }
+
+  withGuide = withGuide.filter(t => t.function.name !== CHANGEFEED_TOOL_NAME);
 
   return {
     tools: [...withGuide, ...writeFiltered],

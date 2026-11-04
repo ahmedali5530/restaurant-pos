@@ -510,33 +510,55 @@ async function writeTableLock(
   return row;
 }
 
-export function lockTable(tableId: string, lockedBy: string | null): Promise<TableLockRecord> {
-  return writeTableLock(tableId, {
+/** How often a held lock is pushed. Local beats stay off the network. */
+const HEARTBEAT_PUBLISH_MS = 60_000;
+const lastLockPublishAt = new Map<string, number>();
+
+function noteLockPublished(id: string) {
+  lastLockPublishAt.set(id, Date.now());
+}
+
+function requestLockPublish() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('posr-lock-heartbeat'));
+}
+
+export async function lockTable(tableId: string, lockedBy: string | null): Promise<TableLockRecord> {
+  const row = await writeTableLock(tableId, {
     is_locked: true,
     locked_by: lockedBy ?? null,
     locked_at: nowIso(),
   });
+  noteLockPublished(row.id);
+  return row;
 }
 
-export function unlockTable(tableId: string): Promise<TableLockRecord> {
-  return writeTableLock(tableId, { is_locked: false, locked_by: null, locked_at: null });
+export async function unlockTable(tableId: string): Promise<TableLockRecord> {
+  const row = await writeTableLock(tableId, { is_locked: false, locked_by: null, locked_at: null });
+  lastLockPublishAt.delete(row.id);
+  return row;
 }
 
 /**
  * Refresh `locked_at` for a held table. No-ops if the lock was already
  * released — the check runs inside the same transaction as the write so a
  * concurrent unlock cannot be overwritten by a late heartbeat.
+ *
+ * Most beats only touch the local lock row. A publish (outbox + sync wake)
+ * happens about once a minute so other terminals can still drop a dead lock,
+ * without a full sync and a UI refresh on every beat.
  */
 export async function heartbeatTableLock(tableId: string): Promise<TableLockRecord | null> {
   const db = getPosStoreDatabase();
   const id = tableId.includes(':') ? tableId : `floor_table:${tableId}`;
   const createdAt = nowIso();
+  const publish = Date.now() - (lastLockPublishAt.get(id) ?? 0) >= HEARTBEAT_PUBLISH_MS;
   let result: TableLockRecord | null = null;
   let wrote = false;
 
   await db.transaction(
     'rw',
-    [db.tableLocks, db.catalog, db.domainOperations, db.syncOutbox, db.identity],
+    [db.tableLocks, db.domainOperations, db.syncOutbox, db.identity],
     async () => {
       const existing = await db.tableLocks.get(id);
       if (!existing?.is_locked) {
@@ -551,26 +573,24 @@ export async function heartbeatTableLock(tableId: string): Promise<TableLockReco
       };
       const row: TableLockRecord = { id, ...lock, updated_at: createdAt };
       await db.tableLocks.put(row);
-      const catalog = await db.catalog.get(id);
-      if (catalog) {
-        await db.catalog.put({
-          ...catalog,
-          payload: { ...catalog.payload, ...lock },
+      if (publish) {
+        await enqueue({
+          aggregateType: 'floor_table',
+          aggregateId: id,
+          operationType: 'MERGE_RECORD',
+          payload: { table: 'floor_table', recordId: id, data: lock },
+          createdAt,
         });
       }
-      await enqueue({
-        aggregateType: 'floor_table',
-        aggregateId: id,
-        operationType: 'MERGE_RECORD',
-        payload: { table: 'floor_table', recordId: id, data: lock },
-        createdAt,
-      });
       result = row;
       wrote = true;
     },
   );
 
-  if (wrote) notifyWrite();
+  if (wrote && publish) {
+    noteLockPublished(id);
+    requestLockPublish();
+  }
   return result;
 }
 

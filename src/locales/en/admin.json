@@ -819,6 +819,7 @@
       "reports.order_fiscal": "Order Fiscal",
       "reports.expense": "Expense",
       "reports.activity": "Activity",
+      "reports.changefeed": "Table Changefeed",
       "reports.product_mix_weekly": "Product Mix Weekly",
       "reports.product_mix_summary": "Product Mix Summary",
       "reports.products_hourly": "Products Hourly",

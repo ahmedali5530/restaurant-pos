@@ -7,12 +7,37 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-04',
+    title: 'Assistant knows who you are',
+    items: [
+      'The floating assistant receives your name, role, shift, clock status, and linked HR employee (department, position, manager) — never login or passwords — so answers can be personalized.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Terminals stay cooler while idle',
+    items: [
+      'An open table still holds its lock, and a terminal that crashes still gives the table up on its own (within a few minutes). Heartbeats stay on the device and sync about once a minute instead of driving a full sync every 10 seconds.',
+      'Kitchen tickets that run long keep their warning colors without the card scaling continuously.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Assistant on-demand table changefeed',
+    items: [
+      'Ask the assistant explicitly for a table changefeed / mutation history to pull Surreal SHOW CHANGES for allowlisted FOH and Manage tables (orders, voids, menu_item/dishes, categories, modifiers, etc.).',
+      'Gated by Roles → Reports → Table Changefeed (`reports.changefeed`); the parent Reports group or AI Report also grants access.',
+      'Normal sales and inventory reports stay dormant — changefeed is not loaded unless you ask for it (about 14 days retention after the feed is enabled).',
+    ],
+  },
+  {
     date: '2026-11-03',
     title: 'Receipt text wraps instead of cutting off',
     items: [
       'Long receipt lines (customer address, dish names, notes, custom header/footer text, and similar) wrap onto the next line instead of being truncated.',
     ],
   },
+
   {
     date: '2026-11-03',
     title: 'Customer details after totals on receipts',

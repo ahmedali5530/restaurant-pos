@@ -195,11 +195,20 @@ async function hydrateSnapshot(
  * already applied locally (Dexie-first) and are skipped so a delayed echo can
  * never roll back newer local state.
  */
-async function applyPullEvent(event: any, terminalId: string): Promise<boolean> {
+type PullApply = 'operational' | 'lock-chrome' | 'lock' | false;
+
+async function applyPullEvent(event: any, terminalId: string): Promise<PullApply> {
   if (!event) return false;
   if (String(event.terminal_id ?? event.terminalId ?? '') === terminalId) return false;
+  const lockOnly = isLockOnlyEvent(event);
+  const recordId = lockOnly ? lockRecordId(event) : '';
+  const before = lockOnly && recordId ? await posStore.getTableLock(recordId) : undefined;
+  const chromeBefore = `${!!before?.is_locked}:${before?.locked_by ?? ''}`;
   await applyRemoteEvent(event);
-  return true;
+  if (!lockOnly) return 'operational';
+  const after = recordId ? await posStore.getTableLock(recordId) : undefined;
+  const chromeAfter = `${!!after?.is_locked}:${after?.locked_by ?? ''}`;
+  return chromeAfter !== chromeBefore ? 'lock-chrome' : 'lock';
 }
 
 function notifyRemoteChange(): void {
@@ -207,6 +216,31 @@ function notifyRemoteChange(): void {
     window.dispatchEvent(new CustomEvent('posr-posstore-write'));
     window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
   }
+}
+
+/** Lock icon changed. Heartbeat-only updates do not use this. */
+function notifyLockChange(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('posr-table-locks-updated'));
+  }
+}
+
+const LOCK_FIELD_KEYS = new Set(['is_locked', 'locked_by', 'locked_at']);
+
+function isLockOnlyEvent(event: any): boolean {
+  const payload = event?.payload ?? event;
+  const table = String(payload?.table ?? event?.aggregate_type ?? event?.aggregateType ?? '');
+  if (table !== 'floor_table') return false;
+  const data = payload?.data;
+  if (!data || typeof data !== 'object') return false;
+  const keys = Object.keys(data);
+  return keys.length > 0 && keys.every((key) => LOCK_FIELD_KEYS.has(key));
+}
+
+function lockRecordId(event: any): string {
+  const payload = event?.payload ?? event;
+  const raw = payload?.recordId ?? event?.aggregate_id ?? event?.aggregateId ?? '';
+  return String(raw);
 }
 
 /** Catalog tables finished; UI may project menu/floors while orders still hydrate. */
@@ -235,7 +269,32 @@ async function pruneStaleOperationalBatches(maxBatches = 5): Promise<number> {
   return total;
 }
 
+const SYNC_WAKE_DEBOUNCE_MS = 1_500;
+
 export class TerminalSyncService {
+  private wakeTimer: ReturnType<typeof setTimeout> | null = null;
+  private wakeResolvers: Array<() => void> = [];
+
+  /**
+   * Coalesce live-query wakes into one sync. Callers that must push immediately
+   * (payment, reconnect, Sync now) keep using synchronize().
+   */
+  scheduleSynchronize(): Promise<void> {
+    return new Promise((resolve) => {
+      this.wakeResolvers.push(resolve);
+      if (this.wakeTimer != null) return;
+      this.wakeTimer = setTimeout(() => {
+        this.wakeTimer = null;
+        const resolvers = this.wakeResolvers.splice(0);
+        void this.synchronize()
+          .catch(() => undefined)
+          .finally(() => {
+            for (const done of resolvers) done();
+          });
+      }, SYNC_WAKE_DEBOUNCE_MS);
+    });
+  }
+
   async initialize(online: boolean): Promise<void> {
     await posStore.initialize();
     // Lighten a bloated local cache before sync — does not touch identity/numbers.
@@ -454,13 +513,16 @@ export class TerminalSyncService {
       let cursor = (await posStore.getSyncCursor()).cursor;
       let hasMore = true;
       let applied = 0;
+      let lockChrome = 0;
       while (hasMore) {
         const pulled = await pullEvents({
           terminalId: identity.terminalId,
           cursor,
         });
         for (const event of pulled.events ?? []) {
-          if (await applyPullEvent(event, identity.terminalId)) applied += 1;
+          const kind = await applyPullEvent(event, identity.terminalId);
+          if (kind === 'operational') applied += 1;
+          else if (kind === 'lock-chrome') lockChrome += 1;
         }
         cursor = pulled.cursor;
         hasMore = !!pulled.hasMore;
@@ -470,6 +532,7 @@ export class TerminalSyncService {
         });
       }
       if (applied > 0) notifyRemoteChange();
+      else if (lockChrome > 0) notifyLockChange();
 
       // Self-heal conflicts after pull: refresh versions and re-queue eligible
       // ops so the next synchronize pass drains them without UI clicks.

@@ -282,7 +282,7 @@ export const Orders = () => {
       // Surreal live = sync wake-up; Dexie refresh follows through the write event.
       const result = await db.live(Tables.orders, (action) => {
         if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
-          void terminalSyncService.synchronize().catch(() => undefined);
+          void terminalSyncService.scheduleSynchronize();
           scheduleFetchOrders();
         }
       });

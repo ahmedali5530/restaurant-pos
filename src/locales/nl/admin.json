@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Bestelling fiscaal",
       "reports.expense": "Uitgaven",
       "reports.activity": "Activiteit",
+"reports.changefeed": "Tabel-changefeed",
       "reports.product_mix_weekly": "Productmix wekelijks",
       "reports.product_mix_summary": "Productmixoverzicht",
       "reports.products_hourly": "Producten per uur",

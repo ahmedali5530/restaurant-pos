@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Фискализация заказов",
       "reports.expense": "Расходы",
       "reports.activity": "Активность",
+"reports.changefeed": "Changefeed таблиц",
       "reports.product_mix_weekly": "Ассортимент за неделю",
       "reports.product_mix_summary": "Сводка по ассортименту",
       "reports.products_hourly": "Товары по часам",

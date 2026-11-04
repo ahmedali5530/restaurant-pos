@@ -59,6 +59,10 @@ import {
   saveAssistantConversation,
   type AssistantDisplayEntry,
 } from "@/lib/ai/assistant-conversation.storage.ts";
+import {
+  formatAssistantUserContext,
+  resolveAssistantUserContext,
+} from "@/lib/ai/assistant-user-context.ts";
 
 const EXPANDED_STORAGE_KEY = "ai-assistant-expanded";
 const AUTO_EXPAND_MIN_LENGTH = 800;
@@ -304,6 +308,8 @@ export function AiAssistantWidget() {
     setError(null);
 
     try {
+      const userContext = await resolveAssistantUserContext(db, user);
+      const userContextBlock = formatAssistantUserContext(userContext);
       const result = await runAiAssistantAgent(db, t, modelPrompt, {
         allowedModules,
         writeContext,
@@ -313,6 +319,7 @@ export function AiAssistantWidget() {
         userImageUrls: userImageUrls.length ? userImageUrls : undefined,
         personaId,
         deepResearch,
+        userContextBlock,
       });
       applyResult(result);
     } catch (err) {

@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Sipariş Fiskal",
       "reports.expense": "Gider",
       "reports.activity": "Aktivite",
+"reports.changefeed": "Tablo Changefeed",
       "reports.product_mix_weekly": "Haftalık Ürün Karışımı",
       "reports.product_mix_summary": "Ürün Karışımı Özeti",
       "reports.products_hourly": "Saatlik Ürünler",

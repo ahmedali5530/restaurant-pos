@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Fiscalisation commandes",
       "reports.expense": "Dépenses",
       "reports.activity": "Activité",
+"reports.changefeed": "Changefeed des tables",
       "reports.product_mix_weekly": "Mix produits hebdomadaire",
       "reports.product_mix_summary": "Résumé mix produits",
       "reports.products_hourly": "Produits horaires",

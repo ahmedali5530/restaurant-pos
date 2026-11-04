@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Gastos",
       "reports.activity": "Actividad",
+"reports.changefeed": "Changefeed de tablas",
       "reports.product_mix_weekly": "Mezcla de productos semanal",
       "reports.product_mix_summary": "Resumen de mezcla de productos",
       "reports.products_hourly": "Productos por hora",

@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Bestellungsfiskalisierung",
       "reports.expense": "Ausgaben",
       "reports.activity": "Aktivität",
+"reports.changefeed": "Tabellen-Changefeed",
       "reports.product_mix_weekly": "Produktmix wöchentlich",
       "reports.product_mix_summary": "Produktmix-Übersicht",
       "reports.products_hourly": "Produkte stündlich",

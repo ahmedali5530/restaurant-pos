@@ -366,6 +366,10 @@ export class IntegrationManager {
     }
   }
 
+  onQueueWork(listener: () => void): () => void {
+    return this.queue.onWork(listener);
+  }
+
   async processQueue() {
     return this.queue.processNext(async (job) => {
       if (!this.isProviderEnabled(job.providerId)) {

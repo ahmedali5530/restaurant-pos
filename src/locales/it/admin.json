@@ -628,6 +628,7 @@
       "reports.order_fiscal": "Fiscale ordini",
       "reports.expense": "Spese",
       "reports.activity": "Attività",
+"reports.changefeed": "Changefeed tabelle",
       "reports.product_mix_weekly": "Product mix settimanale",
       "reports.product_mix_summary": "Riepilogo product mix",
       "reports.products_hourly": "Prodotti orari",
