@@ -372,7 +372,7 @@ export const MenuDish = ({
     <>
       <div
         className={cn(
-          "flex justify-center p-1 relative select-none",
+          "flex h-full justify-center p-1 relative select-none",
           blocked && "opacity-50",
         )}
         role="button"
@@ -407,21 +407,24 @@ export const MenuDish = ({
       >
         <div
           className={cn(
-            "flex-1 bg-surface-elevated w-fit rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none flex text-foreground active:text-warning",
+            "flex h-full flex-1 bg-surface-elevated w-full min-h-[50px] md:min-h-[60px] lg:min-h-[90px] xl:min-h-[100px] rounded-xl shadow-lg cursor-pointer menu-item active:shadow-none text-foreground active:text-warning",
             blocked && "cursor-not-allowed",
           )}
           style={{
             '--padding': '0'
           } as any}
         >
-          <div className="flex-shrink-0 flex justify-start">
+          <div
+            className="relative flex-shrink-0 self-stretch w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] min-h-[50px] md:min-h-[60px] lg:min-h-[90px] xl:min-h-[100px]"
+          >
             <img
               loading="lazy"
               src={imageSrc}
               alt={item.name}
-              className="rounded-xl rounded-r-none pointer-events-none h-full sm:w-[50px] md:w-[60px] lg:w-[90px] xl:w-[100px] object-cover"/>
+              className="absolute inset-0 h-full w-full rounded-xl rounded-r-none pointer-events-none object-cover"
+            />
           </div>
-          <div className="flex flex-1 flex-col px-3 py-2">
+          <div className="flex flex-1 flex-col px-3 py-2 min-w-0">
             <span className="flex flex-row gap-2 mb-1 flex-wrap">
               {showDishNumber && item.number != null && String(item.number).trim() !== '' && (
                 <span
