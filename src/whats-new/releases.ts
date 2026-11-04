@@ -8,6 +8,35 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-03',
+    title: 'Receipt text wraps instead of cutting off',
+    items: [
+      'Long receipt lines (customer address, dish names, notes, custom header/footer text, and similar) wrap onto the next line instead of being truncated.',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Customer details after totals on receipts',
+    items: [
+      'Temp and final sale receipts print customer name, phone, and address after the totals block (instead of under the cashier line).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Product Mix Summary matches Daily Summary',
+    items: [
+      'Reports → Product Mix Summary now uses the same Category → Dish → Modifier layout and figures as the Product Mix section on Daily Sales Summary (Item / Qty / Total / Share %).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Assistant Manage linked details',
+    items: [
+      'Manage list tools now return richer scalars (rates, tax links, printer connection, shift, option ids).',
+      'New detail tools expose linked graphs before updates: dishes/modifiers, tables, discounts, coupons, extras, roles (modules), printers, print settings, and tip distribution.',
+    ],
+  },
+  {
+    date: '2026-11-03',
     title: 'Desktop backup save window',
     items: [
       'Settings backup and database export on POSR Desktop open the system save window. Restore opens the system file window.',
@@ -60,10 +89,17 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-03',
+    title: 'Advanced Sales export keeps items under each order',
+    items: [
+      'When Show menu items is on, Advanced Sales Excel lists each order row then its line items directly below on the same Orders sheet (full order columns plus item qty/price/discount/total).',
+    ],
+  },
+  {
     date: '2026-11-02',
     title: 'Advanced Sales Excel export fixes',
     items: [
-      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with a separate Order Items sheet when Show menu items is on.',
+      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with menu items under each order when Show menu items is on.',
       'Order # and Invoice # link to the printable receipt in Advanced Sales and Sales Dashboard (and as Excel hyperlinks in the export).',
     ],
   },

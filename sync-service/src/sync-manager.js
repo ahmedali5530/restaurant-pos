@@ -9,6 +9,7 @@ const {
   withRetry,
   compactChangeBatch,
   nextCursorVersionstamp,
+  compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
   normalizeShowChangesResult,
@@ -129,6 +130,8 @@ class SyncManager {
     this.tableState = new Map();
     this.writeChain = Promise.resolve();
     this.catalogSyncPromise = null;
+    /** Max versionstamp observed from any table's SHOW CHANGES (in-retention). */
+    this.feedHighWater = null;
     this.catalogDownload = config.downloadEnabled
       ? new CatalogDownloadManager(config, logger, () => ({
           source: this.source,
@@ -381,6 +384,8 @@ class SyncManager {
         lastError: null,
         lastEventAt: null,
         lastSynced: null,
+        /** ISO time of last durable cursor write (from sync_cloud_cursor). */
+        cursorUpdatedAt: null,
         blockedUntil: 0,
         backoffMs: 1000,
       });
@@ -390,6 +395,7 @@ class SyncManager {
 
   async loadTableStates() {
     this.tableState.clear();
+    this.feedHighWater = null;
     for (const tableName of this.config.includeTables) {
       const state = this.ensureTableState(tableName);
       try {
@@ -397,6 +403,8 @@ class SyncManager {
         if (row && typeof row === 'object') {
           state.versionstamp = row.versionstamp != null ? row.versionstamp : null;
           state.backfillDone = Boolean(row.backfill_done);
+          state.cursorUpdatedAt = row.updated_at != null ? String(row.updated_at) : null;
+          this.noteFeedHighWater(state.versionstamp);
         }
       } catch (error) {
         this.logger.warn('Failed to load sync cursor', {
@@ -412,11 +420,13 @@ class SyncManager {
     if (patch.versionstamp !== undefined) state.versionstamp = patch.versionstamp;
     if (patch.backfillDone !== undefined) state.backfillDone = patch.backfillDone;
 
+    const updatedAt = new Date().toISOString();
+    state.cursorUpdatedAt = updatedAt;
     const payload = {
       table: tableName,
       versionstamp: versionstampForStorage(state.versionstamp),
       backfill_done: state.backfillDone,
-      updated_at: new Date().toISOString(),
+      updated_at: updatedAt,
     };
 
     await withRetry(
@@ -601,20 +611,87 @@ class SyncManager {
   }
 
   async readFeedWatermark(tableName) {
+    let stamp = 0;
     try {
       // SINCE 0 returns from the start of the feed; take the last stamp as watermark.
+      // After retention truncates history, SINCE 0 is often empty or ends below
+      // other tables' cursors — always raise to the process-wide high water so
+      // the post-backfill cursor stays inside the live window (avoids a
+      // re-backfill loop on quiet tables).
       const result = await this.source.query(
         `SHOW CHANGES FOR TABLE ${tableName} SINCE 0 LIMIT 1000;`
       );
       const entries = normalizeShowChangesResult(result);
-      if (!entries.length) return 0;
-      return entries[entries.length - 1].versionstamp ?? 0;
+      if (entries.length) {
+        stamp = entries[entries.length - 1].versionstamp ?? 0;
+        this.noteFeedHighWater(stamp);
+      }
     } catch (error) {
       this.logger.warn('Could not read feed watermark; starting from 0 after backfill', {
         table: tableName,
         error: error.message || String(error),
       });
-      return 0;
+    }
+    if (this.feedHighWater != null) {
+      stamp = nextCursorVersionstamp(stamp, this.feedHighWater);
+    }
+    return stamp;
+  }
+
+  noteFeedHighWater(versionstamp) {
+    if (versionstamp == null) return;
+    this.feedHighWater = nextCursorVersionstamp(this.feedHighWater, versionstamp);
+  }
+
+  /**
+   * Surreal returns [] for SHOW CHANGES when the cursor is older than retention
+   * (no error). Detect that silent gap via (a) mutations still visible near the
+   * process high-water stamp, or (b) a cursor that has not advanced for longer
+   * than half the feed retention while other tables keep moving.
+   */
+  async assertCursorInsideRetention(tableName, cursor) {
+    if (cursor == null || cursor === 0 || cursor === '0') return;
+    if (this.feedHighWater == null) return;
+    if (compareVersionstamp(this.feedHighWater, cursor) <= 0) return;
+
+    const limit = this.config.changeLimit || 100;
+    const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(this.feedHighWater)} LIMIT ${Number(limit) || 100};`;
+    let result;
+    try {
+      result = await withTimeout(
+        this.source.query(sql),
+        20000,
+        `SHOW CHANGES.probe(${tableName})`
+      );
+    } catch (error) {
+      if (isChangefeedRetentionError(error)) throw error;
+      this.logger.warn('Stale-cursor probe failed', {
+        table: tableName,
+        error: error.message || String(error),
+      });
+      return;
+    }
+
+    const probe = normalizeShowChangesResult(result);
+    for (const entry of probe) {
+      this.noteFeedHighWater(entry && entry.versionstamp);
+    }
+    const newer = entriesAfterCursor(probe, cursor);
+    if (newer.length) {
+      throw new Error(
+        `changefeed cursor outside retention (silent gap): table=${tableName} cursor=${versionstampForStorage(cursor)} highWater=${versionstampForStorage(this.feedHighWater)}`
+      );
+    }
+
+    // Quiet table whose cursor is behind other feeds and older than ~7d (half of
+    // the usual 14d CHANGEFEED window) — history for that stamp is gone.
+    const state = this.ensureTableState(tableName);
+    const updatedMs = Date.parse(state.cursorUpdatedAt || '');
+    const staleMs = 7 * 24 * 60 * 60 * 1000;
+    if (Number.isFinite(updatedMs) && Date.now() - updatedMs >= staleMs) {
+      throw new Error(
+        `changefeed cursor outside retention (silent gap, idle cursor): table=${tableName} cursor=${versionstampForStorage(cursor)} updatedAt=${state.cursorUpdatedAt}`
+      );
     }
   }
 
@@ -648,11 +725,16 @@ class SyncManager {
       throw error;
     }
 
-    const entries = entriesAfterCursor(
-      normalizeShowChangesResult(result),
-      since
-    );
-    if (!entries.length) return;
+    const rawEntries = normalizeShowChangesResult(result);
+    for (const entry of rawEntries) {
+      this.noteFeedHighWater(entry && entry.versionstamp);
+    }
+
+    const entries = entriesAfterCursor(rawEntries, since);
+    if (!entries.length) {
+      await this.assertCursorInsideRetention(tableName, since);
+      return;
+    }
 
     const { operations, lastVersionstamp } = compactChangeBatch(entries);
     if (!operations.length) {

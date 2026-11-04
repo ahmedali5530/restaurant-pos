@@ -16,7 +16,7 @@ const {
   formatLineLeftRight,
   formatDividerLine,
   formatCenteredHardwareLine,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   wrapReceiptText,
   STORE_LOGO_BOX_PX,
@@ -27,6 +27,7 @@ const { ensureRasterFonts } = require('./raster-fonts');
 const { getRasterMetrics, calibrateMetrics, buildCtxFont } = require('./raster-metrics');
 const { paintBillLayoutRaster } = require('./raster-bill-layout');
 const { paintKotHeaderRaster } = require('./raster-kot-layout');
+const { formatTableCustomLines, normalizeTableRows } = require('./table-layout');
 const { testSlipContent } = require('./test-print-content');
 
 function lineHeightForSize(metrics, size) {
@@ -90,11 +91,33 @@ class ReceiptCanvas {
 
   fixedLine(text, opts) {
     const o = opts || {};
+    const size = o.size || 'normal';
+    const wrap = o.wrap !== false;
+    const lines = wrap
+      ? wrapReceiptText(text, size, o.maxWidth)
+      : [String(text == null ? '' : text)];
+    lines.forEach((line) => {
+      this._pushText({
+        text: formatFixedLine(line, o),
+        size,
+        style: o.style,
+        align: 'left',
+      });
+    });
+  }
+
+  /**
+   * Pre-padded table row. Column spaces are already in the string, so it must
+   * not be re-aligned or clipped to the hardware line width.
+   */
+  rawLine(text, opts) {
+    const o = opts || {};
     this._pushText({
-      text: formatFixedLine(text, o),
+      text: String(text == null ? '' : text),
       size: o.size || 'normal',
       style: o.style,
       align: 'left',
+      raw: true,
     });
   }
 
@@ -176,7 +199,9 @@ class ReceiptCanvas {
       ctx.save();
       ctx.font = buildCtxFont(false, fontPx, family);
 
-      const maxChars = Math.max(1, Math.floor(cols / scaleX));
+      const maxChars = op.raw
+        ? String(op.text || '').length
+        : Math.max(1, Math.floor(cols / scaleX));
       const text = String(op.text || '').slice(0, maxChars);
       const usedCols = text.length * scaleX;
 
@@ -651,7 +676,7 @@ async function renderKitchenRaster(data, config) {
     labels: L,
   });
 
-  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
   const items = Array.isArray(data.items) ? data.items : [];
   items.forEach((it) => {
     const dish = it.item || it.dish || {};
@@ -662,9 +687,11 @@ async function renderKitchenRaster(data, config) {
       total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
       modifierLines: getOrderItemModifierLines(it),
     };
-    rc.fixedLine(buildItemRowString(row, cfg), { align: 'left' });
+    buildItemRowStrings(row, cfg).forEach((line) => {
+      rc.fixedLine(line, { align: 'left', wrap: false });
+    });
     if (it.comments) {
-      rc.fixedLine(` >> ${String(it.comments).slice(0, 26)}`, { align: 'left' });
+      rc.fixedLine(` >> ${String(it.comments)}`, { align: 'left' });
     }
     if (Array.isArray(row.modifierLines)) {
       row.modifierLines.forEach((line) => {
@@ -784,6 +811,38 @@ async function renderSummaryRaster(data, config) {
  * @param {Object} config
  * @returns {Promise<Buffer[]>}
  */
+async function renderTableRaster(data, config) {
+  const cfg = normalizeConfig(config || {});
+  const width = resolvePaperWidthPx(cfg);
+  const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
+  const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
+  if (topFeed) rc.feed(topFeed);
+  paintBranding(rc, cfg);
+
+  const rows = normalizeTableRows(data);
+  const defaultSize = Array.isArray(data && data.size) ? data.size : [1, 1];
+  rows.forEach((row) => {
+    if (!row || !Array.isArray(row.cells) || row.cells.length === 0) return;
+    const size = Array.isArray(row.size) ? row.size : defaultSize;
+    formatTableCustomLines(row.cells, {
+      printerWidth: rc.metrics.printerWidth,
+      size,
+    }).forEach((line) => {
+      rc.rawLine(line.text, { style: line.style, size: line.size });
+    });
+  });
+
+  paintSections(rc, cfg.footerSections);
+  const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
+  if (bottomFeed) rc.feed(bottomFeed);
+  const extraFeed = Math.max(0, parseInt(data && data.feed, 10) || 0);
+  if (extraFeed) rc.feed(extraFeed);
+  rc.feed(1);
+  rc.centered(formatPrintingTimestamp(cfg), { size: 'normal' });
+  rc.feed(3);
+  return rc.toPng();
+}
+
 async function renderRasterPngs(printType, data, config) {
   const cfg = normalizeConfig(config || {});
   const t = String(printType || (data && data.printType) || 'final').toLowerCase();
@@ -795,6 +854,7 @@ async function renderRasterPngs(printType, data, config) {
   else if (t === 'refund') png = await renderRefundRaster(data, cfg);
   else if (t === 'kitchen') png = await renderKitchenRaster(data, cfg);
   else if (t === 'summary') png = await renderSummaryRaster(data, cfg);
+  else if (t === 'table') png = await renderTableRaster(data, cfg);
   else if (t === 'test') png = await renderTestRaster(data, cfg);
   else {
     const err = new Error(`Raster not supported for print type: ${t}`);

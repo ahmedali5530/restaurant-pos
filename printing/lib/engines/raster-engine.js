@@ -22,7 +22,7 @@ const PULSE_TYPES = new Set(['final']);
 
 /**
  * Print receipt as full-width monochrome bit-image(s).
- * Falls back to text engine for unsupported types (pulse, deletion, table, …).
+ * Falls back to text engine for unsupported types (pulse, deletion, …).
  *
  * @param {Object} printerDriver
  * @param {Object} escposOptions
@@ -34,8 +34,8 @@ const PULSE_TYPES = new Set(['final']);
 async function print(printerDriver, escposOptions, printType, data, config) {
   const t = String(printType || 'final').toLowerCase();
 
-  // Pulse / deletion / table have no raster layout — keep command path.
-  if (t === 'pulse' || t === 'deletion' || t === 'table') {
+  // Pulse / deletion have no raster layout — keep the ESC/POS command path.
+  if (t === 'pulse' || t === 'deletion') {
     console.warn(`[raster] print type "${t}" has no raster layout; falling back to text`);
     return textEngine.print(printerDriver, escposOptions, printType, data, config);
   }

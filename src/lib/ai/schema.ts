@@ -117,11 +117,15 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.
 - Dish ingredients / recipe lines: get_dish_recipe (one dish via name/number/id; omit filters for catalog; countsOnly for dish→recipe counts; onlyMissingIngredients for dishes with no recipe; onlyWithIngredients=false to compare). Never invent ingredients; never use propose_create_dish_ingredients for read-only questions.`,
-  manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
-- For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
-- Modifier group option prices (sizes/toppings): use propose_update_modifier_groups with group + modifier + price — never propose_update_dishes (that changes the base menu item).
-- Kitchen dish routing: call get_kitchen_detail first, then propose_update_kitchens with items_add / items_remove (or items to replace all). Never change dish price for kitchen assignment.
-- Dish workflow routing: propose_update_dishes with workflow + stage_overrides (JSON stage→kitchen map).
+  manage: `- Manage configuration (not sales totals): use list_* for browse, then get_*_detail for linked graphs before propose_update_*.
+- Floors/tables: list_tables with floor_name; get_table_detail for categories/order/payment scoping before propose_update_tables.
+- Dishes: get_dish_detail for categories/tax/workflow/stage_overrides/modifier edges (not recipes — use get_dish_recipe). list_dish_modifiers before propose_*_dish_modifiers.
+- Discounts: list_discounts for overview; get_discount_detail for targets/BXGY/schedules before propose_update_discounts. For create: list_categories / list_menu_items first.
+- Coupons/extras: get_coupon_detail / get_extra_detail for targets and scoping before updates.
+- Roles: list_roles then get_role_detail (modules) before propose_update_roles.
+- Printers/print settings/tips: get_printer_detail; get_print_settings before propose_update_print_settings; get_tip_distribution before propose_update_tip_distribution (not get_tips sales totals).
+- Modifier group option prices: propose_update_modifier_groups with group + modifier + price — never propose_update_dishes for option prices.
+- Kitchen dish routing: get_kitchen_detail then propose_update_kitchens with items_add / items_remove (or items to replace all).
 - For changes: use propose_* tools — never claim tools are missing when list_* or propose_* appear in your tool list.`,
 };
 

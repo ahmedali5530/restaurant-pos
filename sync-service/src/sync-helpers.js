@@ -56,7 +56,10 @@ async function withRetry(task, options = {}) {
 function isChangefeedRetentionError(error) {
   const message = error && error.message ? String(error.message) : String(error || '');
   if (/Parse error/i.test(message)) return false;
-  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing)|versionstamp.*(too old|expired)/i
+  // Surreal often returns an empty SHOW CHANGES batch for a cursor older than
+  // retention instead of an explicit error — sync-manager synthesizes
+  // "silent gap" when a recent high-water probe still sees mutations.
+  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing|silent gap)|versionstamp.*(too old|expired)|silent gap/i
     .test(message);
 }
 

@@ -206,17 +206,22 @@ function renderBillToHtml(bill, config, opts) {
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
   parts.push(row(bill.table || '', bill.userName || ''));
-  if (customerName) parts.push(`<div class="row"><span>${escapeHtml(customerLabel)}: ${escapeHtml(String(customerName))}</span></div>`);
-  if (phone) parts.push(`<div class="row"><span>${escapeHtml(phoneLabel)}: ${escapeHtml(String(phone))}</span></div>`);
-  if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
   parts.push('<hr/>');
 
-  // Items
+  // Items (wrap long dish names; qty/total on last name line)
   (bill.items || []).forEach((it) => {
-    const name = (it.name || it.title || '').slice(0, 28);
+    const fullName = String(it.name || it.title || '').trim() || '-';
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym, cfg)));
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      if (isLast) {
+        parts.push(row(`${nameLine} x${qty}`, formatMoney(lineTotal, sym, cfg)));
+      } else {
+        parts.push(`<div class="row"><span>${escapeHtml(nameLine)}</span><span></span></div>`);
+      }
+    });
   });
   parts.push('<hr/>');
 
@@ -254,6 +259,18 @@ function renderBillToHtml(bill, config, opts) {
   // Total
   parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym, cfg))}</span></div>`);
 
+  if (customerName || phone || address) {
+    parts.push('<hr/>');
+    const pushWrapped = (label, value) => {
+      wrapReceiptText(`${label}: ${String(value)}`, 'normal').forEach((line) => {
+        parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
+      });
+    };
+    if (customerName) pushWrapped(customerLabel, customerName);
+    if (phone) pushWrapped(phoneLabel, phone);
+    if (address) pushWrapped(addressLabel, address);
+  }
+
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     parts.push('<hr/>');
     bill.payments.forEach((p) => {
@@ -267,7 +284,9 @@ function renderBillToHtml(bill, config, opts) {
 
   if (notes) {
     parts.push('<hr/>');
-    parts.push(`<div class="row"><span>${escapeHtml(notesLabel)}: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
+    wrapReceiptText(`${notesLabel}: ${String(notes)}`, 'normal').forEach((line) => {
+      parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
+    });
   }
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
@@ -522,10 +541,20 @@ function renderKitchenToHtml(data, config) {
   parts.push('<hr/>');
   items.forEach((it) => {
     const dish = it.item || it.dish || {};
-    const name = (dish.name || dish.title || '').slice(0, 28);
+    const fullName = String(dish.name || dish.title || '').trim() || '-';
     const qty = it.quantity != null ? it.quantity : 1;
-    parts.push(`<div class="row"><span>${escapeHtml(name)} x${qty}</span></div>`);
-    if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 26))}</div>`);
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      parts.push(
+        `<div class="row"><span>${escapeHtml(nameLine)}${isLast ? ` x${qty}` : ''}</span></div>`,
+      );
+    });
+    if (it.comments) {
+      wrapReceiptText(`>> ${String(it.comments)}`, 'normal').forEach((line) => {
+        parts.push(`<div class="indent">${escapeHtml(line)}</div>`);
+      });
+    }
   });
   parts.push(`<div class="center" style="margin-top:8px">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>
@@ -593,10 +622,18 @@ function renderRefundToHtml(data, config) {
   parts.push(row(`${refundDateLabel}: ${bill.refundDate || ''}`, ''));
   parts.push('<hr/>');
   (bill.items || []).forEach((it) => {
-    const name = (it.name || it.title || '').slice(0, 28);
+    const fullName = String(it.name || it.title || '').trim() || '-';
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym, cfg)));
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      if (isLast) {
+        parts.push(row(`${nameLine} x${qty}`, formatMoney(lineTotal, sym, cfg)));
+      } else {
+        parts.push(`<div class="row"><span>${escapeHtml(nameLine)}</span><span></span></div>`);
+      }
+    });
   });
   parts.push('<hr/>');
   parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg)));

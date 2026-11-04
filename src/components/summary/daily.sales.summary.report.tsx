@@ -5,6 +5,7 @@ import {formatNumber, withCurrency} from '@/lib/utils.ts';
 import {aggregateOrderDiscountBreakdown, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
 import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
+import {aggregateDailyCategoryMix} from '@/api/reports/sales/aggregate.ts';
 
 interface Props {
   orders: Order[];
@@ -16,74 +17,10 @@ const safeNumber = (value: unknown) => {
   return Number.isFinite(parsed) ? parsed : 0;
 };
 
-interface ModifierRow {
-  name: string;
-  depth: number;
-  path: string;
-  quantity: number;
-  price: number
-}
-
 interface BreakdownEntry {
   name: string;
   total: number;
 }
-
-interface DishMixAggregate {
-  name: string;
-  modifiers: Record<string, ModifierRow>;
-  total: number;
-  quantity: number;
-}
-
-interface CategoryMixAggregate {
-  total: number;
-  quantity: number;
-  dishes: Record<string, DishMixAggregate>;
-}
-
-interface DishMixRow {
-  key: string;
-  name: string;
-  modifiers: ModifierRow[];
-  total: number;
-  quantity: number;
-}
-
-interface CategoryMixRow {
-  name: string;
-  total: number;
-  quantity: number;
-  dishes: DishMixRow[];
-}
-
-const getModifierRows = (modifiers: any[] = []): ModifierRow[] => {
-  const rows: ModifierRow[] = [];
-
-  const walkGroups = (groups: any[] = [], depth = 1, parentPath = '') => {
-    groups.forEach(group => {
-      (group?.selectedModifiers ?? []).forEach((selected: any) => {
-        const modifierName = String(selected?.dish?.name || selected?.name || '').trim();
-        if (!modifierName) {
-          return;
-        }
-
-        const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
-        rows.push({
-          name: modifierName,
-          depth,
-          path: currentPath,
-          quantity: 0,
-          price: selected.price
-        });
-        walkGroups(selected?.selectedGroups ?? [], depth + 1, currentPath);
-      });
-    });
-  };
-
-  walkGroups(modifiers);
-  return rows;
-};
 
 function Row({label, value, hint}: {label: string; value: string; hint?: string}) {
   return (
@@ -260,67 +197,10 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       .map(([name, total]) => ({name, total}))
       .sort((a, b) => b.total - a.total);
 
-    const categoryMixMap: Record<string, CategoryMixAggregate> = {};
-    list.forEach(order => {
-      getOrderFilteredItems(order).forEach(item => {
-        const categoryName = String(item?.category || t('report.uncategorized'));
-        const dishName = String(item?.item?.name || t('report.unknownItem'));
-        const itemTotal = safeNumber(calculateOrderItemPrice(item));
-        const itemQuantity = safeNumber(item?.quantity);
-        const modifiers = getModifierRows(item?.modifiers ?? []);
-        const dishKey = dishName;
-
-        if (!categoryMixMap[categoryName]) {
-          categoryMixMap[categoryName] = {
-            total: 0,
-            quantity: 0,
-            dishes: {},
-          };
-        }
-        const category = categoryMixMap[categoryName];
-
-        if (!category.dishes[dishKey]) {
-          category.dishes[dishKey] = {
-            name: dishName,
-            modifiers: {},
-            total: 0,
-            quantity: 0,
-          };
-        }
-
-        category.total += itemTotal;
-        category.quantity += itemQuantity;
-        category.dishes[dishKey].total += itemTotal;
-        category.dishes[dishKey].quantity += itemQuantity;
-        modifiers.forEach(modifier => {
-          if (!category.dishes[dishKey].modifiers[modifier.path]) {
-            category.dishes[dishKey].modifiers[modifier.path] = {
-              ...modifier,
-              quantity: 0,
-            };
-          }
-          category.dishes[dishKey].modifiers[modifier.path].quantity += itemQuantity;
-        });
-      });
+    const categoryMix = aggregateDailyCategoryMix(list, {
+      uncategorizedLabel: t('report.uncategorized'),
+      unknownItemLabel: t('report.unknownItem'),
     });
-
-    const categoryMix: CategoryMixRow[] = Object.entries(categoryMixMap)
-      .map(([name, category]) => {
-        const dishes = Object.entries(category.dishes)
-          .map(([key, dish]) => ({
-            key,
-            ...dish,
-            modifiers: Object.values(dish.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
-          }))
-          .sort((a, b) => b.total - a.total);
-        return {
-          name,
-          total: category.total,
-          quantity: category.quantity,
-          dishes,
-        };
-      })
-      .sort((a, b) => b.total - a.total);
 
     return {
       exclusiveSales,

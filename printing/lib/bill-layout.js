@@ -6,7 +6,7 @@ const {
   printVatLine,
   feedBottomMargin,
   printFooterSections,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   printModifierLines,
   printCenteredText,
@@ -101,15 +101,14 @@ function printBillLayout(printer, bill, config, opts) {
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
   printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
   printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
-  if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
-  if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
-  if (address) printFixedLine(printer, `${addressLabel}: ${String(address).slice(0, 40)}`, { align: 'left' });
   if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   printDivider(printer);
 
-  printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+  printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
   (bill.items || []).forEach((it) => {
-    printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
+    buildItemRowStrings(it, cfg).forEach((row) => {
+      printFixedLine(printer, row, { align: 'left', wrap: false });
+    });
     printModifierLines(printer, it.modifierLines);
   });
   printDivider(printer);
@@ -158,6 +157,13 @@ function printBillLayout(printer, bill, config, opts) {
     hardResetLayout(printer);
   }
 
+  if (customerName || phone || address) {
+    printDivider(printer);
+    if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+    if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
+    if (address) printFixedLine(printer, `${addressLabel}: ${String(address)}`, { align: 'left' });
+  }
+
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     printDivider(printer);
     bill.payments.forEach((p) => {
@@ -171,7 +177,7 @@ function printBillLayout(printer, bill, config, opts) {
 
   if (notes) {
     printDivider(printer);
-    printFixedLine(printer, `${notesLabel}: ${String(notes).slice(0, 48)}`, { align: 'left' });
+    printFixedLine(printer, `${notesLabel}: ${String(notes)}`, { align: 'left' });
   }
   if (thankYou) {
     printer.feed(1);
