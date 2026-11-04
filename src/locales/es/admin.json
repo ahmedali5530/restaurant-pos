@@ -469,7 +469,9 @@
     "modifierOptionSaleLimit": "Límite de venta (este plato)",
     "kraItemClsCd": "Código de clase de artículo KRA",
     "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
-    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA."
+    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
+    "showOrderType": "Mostrar tipo de pedido",
+    "showCustomer": "Mostrar cliente"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -628,7 +630,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Gastos",
       "reports.activity": "Actividad",
-"reports.changefeed": "Changefeed de tablas",
+      "reports.changefeed": "Changefeed de tablas",
       "reports.product_mix_weekly": "Mezcla de productos semanal",
       "reports.product_mix_summary": "Resumen de mezcla de productos",
       "reports.products_hourly": "Productos por hora",

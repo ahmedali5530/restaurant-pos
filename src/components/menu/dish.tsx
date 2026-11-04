@@ -1,4 +1,4 @@
-import {cn, withCurrency} from "@/lib/utils.ts";
+import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {Dish} from "@/api/model/dish.ts";
 import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAtom} from "jotai";
@@ -7,7 +7,7 @@ import {MenuDishModifiers} from "@/components/menu/modifiers.tsx";
 import {DishQtyPrompt, dishAsksQuantity} from "@/components/menu/qty-prompt.tsx";
 import {CartModifierGroup, MenuItem, MenuItemType} from "@/api/model/cart_item.ts";
 import {nanoid} from "nanoid";
-import {detectMimeType} from "@/utils/files.ts";
+import {detectMimeType, toUint8Array} from "@/utils/files.ts";
 import defaultImage from '@/assets/images/default-image.png';
 import {useDB} from "@/api/db/db.ts";
 import {
@@ -35,6 +35,18 @@ import {toast} from "sonner";
 import {useTranslation} from "react-i18next";
 
 const dishImageCache = new Map<string, string>();
+
+/** Drop object-URL cache after documents IDB refresh so photos re-resolve. */
+export const clearDishImageCache = () => {
+  for (const url of dishImageCache.values()) {
+    try {
+      URL.revokeObjectURL(url);
+    } catch {
+      // ignore
+    }
+  }
+  dishImageCache.clear();
+};
 
 interface Props {
   onClick: (item: MenuItem, groups?: CartModifierGroup[], price?: number) => void
@@ -285,30 +297,63 @@ export const MenuDish = ({
       return;
     }
 
+    const normalizeDocId = (id: unknown) =>
+      String(id ?? '').replace(/^([^:]+:)⟨(.+)⟩$/, '$1$2');
+
+    const tryDecode = (content: unknown, mimeFallback: string): string | null => {
+      try {
+        const bytes = toUint8Array(content);
+        if (!bytes.byteLength) return null;
+        const mimeType = detectMimeType(bytes, mimeFallback);
+        return URL.createObjectURL(new Blob([bytes], {type: mimeType}));
+      } catch {
+        return null;
+      }
+    };
+
     const loadImage = async () => {
       try {
+        const wantId = normalizeDocId(dishPhotoId);
+        let objectUrl: string | null = null;
+
         const images = await get(Tables.documents);
-
-        if(Array.isArray(images)){
-          const photo = images.find(image => image.id.toString() === dishPhotoId);
-
-          if (!photo?.content || !(photo.content instanceof ArrayBuffer)) {
-            if (!cancelled) {
-              setImageSrc(defaultImage);
-            }
-            return;
-          }
-
-          const mimeType = detectMimeType(photo.content, "image/png");
-          const blob = new Blob([photo.content], {type: mimeType});
-          const objectUrl = URL.createObjectURL(blob);
-          dishImageCache.set(dishPhotoId, objectUrl);
-
-          if (!cancelled) {
-            setImageSrc(objectUrl);
+        if (Array.isArray(images)) {
+          const photo = images.find(
+            (image: any) => normalizeDocId(image?.id) === wantId,
+          );
+          if (photo?.content != null) {
+            objectUrl = tryDecode(
+              photo.content,
+              photo.type ? String(photo.type) : 'image/png',
+            );
           }
         }
 
+        // Surreal fallback when IDB is empty/stale/corrupt after HQ Sync now
+        if (!objectUrl) {
+          const [photo] = await db.query(`SELECT * FROM ONLY $id`, {
+            id: toRecordId(
+              dishPhotoId.includes(':') ? dishPhotoId : `document:${dishPhotoId}`,
+            ),
+          });
+          const row = Array.isArray(photo) ? photo[0] : photo;
+          if (row?.content != null) {
+            objectUrl = tryDecode(
+              row.content,
+              row.type ? String(row.type) : 'image/png',
+            );
+          }
+        }
+
+        if (!objectUrl) {
+          if (!cancelled) setImageSrc(defaultImage);
+          return;
+        }
+
+        dishImageCache.set(dishPhotoId, objectUrl);
+        if (!cancelled) {
+          setImageSrc(objectUrl);
+        }
       } catch {
         if (!cancelled) {
           setImageSrc(defaultImage);

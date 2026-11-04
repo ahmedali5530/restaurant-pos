@@ -469,7 +469,9 @@
     "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
     "kraItemClsCd": "Код классификации товара KRA",
     "kraTaxTyCd": "Тип налога KRA (A–E)",
-    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию."
+    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию.",
+    "showOrderType": "Показывать тип заказа",
+    "showCustomer": "Показывать клиента"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -628,7 +630,7 @@
       "reports.order_fiscal": "Фискализация заказов",
       "reports.expense": "Расходы",
       "reports.activity": "Активность",
-"reports.changefeed": "Changefeed таблиц",
+      "reports.changefeed": "Changefeed таблиц",
       "reports.product_mix_weekly": "Ассортимент за неделю",
       "reports.product_mix_summary": "Сводка по ассортименту",
       "reports.products_hourly": "Товары по часам",

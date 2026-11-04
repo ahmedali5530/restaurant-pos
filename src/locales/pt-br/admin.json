@@ -469,7 +469,9 @@
     "modifierOptionSaleLimit": "Limite de venda (este prato)",
     "kraItemClsCd": "Código de classificação do item KRA",
     "kraTaxTyCd": "Tipo de imposto KRA (A–E)",
-    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA."
+    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA.",
+    "showOrderType": "Mostrar tipo de pedido",
+    "showCustomer": "Mostrar cliente"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -628,7 +630,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Despesa",
       "reports.activity": "Atividade",
-"reports.changefeed": "Changefeed de tabelas",
+      "reports.changefeed": "Changefeed de tabelas",
       "reports.product_mix_weekly": "Mix de produtos semanal",
       "reports.product_mix_summary": "Resumo de mix de produtos",
       "reports.products_hourly": "Produtos por hora",

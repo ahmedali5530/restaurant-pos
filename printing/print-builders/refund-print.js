@@ -47,7 +47,10 @@ function build(printer, data = {}, config = {}) {
   return printReceiptHeader(printer, cfg).then(() => {
     printer.align('ct').style('bu').text(refundReceiptLabel).style('normal');
     printLineLeftRight(printer, `${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
-    printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+    const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+      ? `${orderTypeLabel}: ${bill.orderType}`
+      : '';
+    printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
     printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
     printLineLeftRight(printer, `${refundDateLabel}: ${bill.refundDate || ''}`, '');
     printer.drawLine();

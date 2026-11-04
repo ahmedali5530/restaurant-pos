@@ -31,6 +31,8 @@ const DEFAULT_DOWNLOAD_TABLES = [
   'order_type',
   'category',
   'menu_item',
+  // Dish photos live in document (menu_item.dish_photo → document); sync blobs with dishes.
+  'document',
   'modifier_group',
   'modifier',
   'menu_item_modifier_group',

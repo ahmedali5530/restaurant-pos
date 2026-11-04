@@ -23,8 +23,14 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
+import { toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import { toReportBoundaryUtcIso } from "@/api/reports/shared/query.ts";
+import {
+  type ClosingCycleConfig,
+  isClosingCycleEnabled,
+  loadClosingCycleConfig,
+} from "@/lib/closing-cycle.ts";
+import { buildWindowForBusinessDate } from "@/lib/kitchen/business-date.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
@@ -82,20 +88,58 @@ export const Summary = () => {
   const [isLoading, setLoading] = useState(true);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
+  const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
+  const [cycleConfigReady, setCycleConfigReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const {config} = await loadClosingCycleConfig(db);
+        if (!cancelled) setCycleConfig(config);
+      } catch (error) {
+        console.warn('Failed to load closing cycle for summary', error);
+        if (!cancelled) setCycleConfig(null);
+      } finally {
+        if (!cancelled) setCycleConfigReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const reportWindow = useMemo(() => {
+    if (!date) return null;
+    const reportDate = date.toString();
+    if (cycleConfig && isClosingCycleEnabled(cycleConfig)) {
+      return buildWindowForBusinessDate(cycleConfig, reportDate);
+    }
+    const dayStart = toReportBoundaryUtcIso(reportDate);
+    const dayEnd = toReportBoundaryUtcIso(reportDate, {endOfRange: true});
+    if (!dayStart || !dayEnd) return null;
+    return {
+      date_from: new Date(dayStart),
+      date_to: new Date(dayEnd),
+      exclusiveEnd: true as boolean,
+    };
+  }, [date, cycleConfig]);
 
   const orderFilters = useMemo(() => {
     const f = [`status = '${OrderStatus.Paid}'`];
 
-    if (date) {
-      const dayStart = toReportBoundaryUtcIso(date.toString());
-      const dayEnd = toReportBoundaryUtcIso(date.toString(), {endOfRange: true});
-      if (dayStart && dayEnd) {
-        f.push(`(created_at >= <datetime>"${dayStart}" AND created_at < <datetime>"${dayEnd}")`);
+    if (reportWindow) {
+      const startIso = reportWindow.date_from.toISOString();
+      const endIso = reportWindow.date_to.toISOString();
+      if ('exclusiveEnd' in reportWindow && reportWindow.exclusiveEnd) {
+        f.push(`(created_at >= <datetime>"${startIso}" AND created_at < <datetime>"${endIso}")`);
+      } else {
+        f.push(`(created_at >= <datetime>"${startIso}" AND created_at <= <datetime>"${endIso}")`);
       }
     }
 
     return f;
-  }, [date]);
+  }, [reportWindow]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), 99999, 0, ['created_at desc'],
@@ -107,16 +151,19 @@ export const Summary = () => {
   }, [orderFilters]);
 
   const fetchOrders = useCallback(async () => {
+    if (!cycleConfigReady || !reportWindow) {
+      return;
+    }
     setLoading(true);
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
 
     setOrders(listQuery as OrderModel[]);
     setLoading(false);
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [cycleConfigReady, reportWindow, ordersQb.queryString, ordersQb.parameters]);
 
   useEffect(() => {
     fetchOrders();
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [fetchOrders]);
 
   const handlePrintSummary = useCallback(() => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
@@ -196,18 +243,23 @@ export const Summary = () => {
   const handlePrintServerSales = useCallback(async () => {
     setIsPrintingServerSales(true);
     try {
+      if (!reportWindow) {
+        toast.error(t("toast:summary.noServerSales"));
+        return;
+      }
 
       const reportDate = date.toString();
-      const dayStart = toReportBoundaryUtcIso(reportDate);
-      const dayEnd = toReportBoundaryUtcIso(reportDate, {endOfRange: true});
+      const windowStart = toSurrealDateTime(reportWindow.date_from);
+      const windowEnd = toSurrealDateTime(reportWindow.date_to);
+      // Completed shifts that overlap the summary window (overnight shifts included).
       const [entryRes] = await db.query(
         `SELECT *
          FROM ${Tables.time_entries}
          WHERE clock_out != NONE
-           AND clock_in >= <datetime>$dayStart AND clock_in < <datetime>$dayEnd
-           AND clock_out >= <datetime>$dayStart AND clock_out < <datetime>$dayEnd
+           AND clock_in < $windowEnd
+           AND clock_out > $windowStart
              FETCH user`,
-        {dayStart, dayEnd}
+        {windowStart, windowEnd}
       );
 
       const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];
@@ -216,13 +268,15 @@ export const Summary = () => {
         return;
       }
 
-      const perUser = new Map<string, {
+      type ServerRow = {
         name: string;
         durationMs: number;
         guests: number;
         checks: number;
-        sales: number
-      }>();
+        sales: number;
+        shifts: Array<{ inAt: number; outAt: number }>;
+      };
+      const perUser = new Map<string, ServerRow>();
       entries.forEach((entry) => {
         const userId = toIdString(entry.user);
         if (!userId) return;
@@ -232,10 +286,14 @@ export const Summary = () => {
           guests: 0,
           checks: 0,
           sales: 0,
+          shifts: [],
         };
         const inAt = entry.clock_in ? toJsDate(entry.clock_in).getTime() : 0;
         const outAt = entry.clock_out ? toJsDate(entry.clock_out).getTime() : 0;
-        if (inAt > 0 && outAt > inAt) current.durationMs += (outAt - inAt);
+        if (inAt > 0 && outAt > inAt) {
+          current.durationMs += (outAt - inAt);
+          current.shifts.push({inAt, outAt});
+        }
         perUser.set(userId, current);
       });
 
@@ -243,6 +301,10 @@ export const Summary = () => {
         const userId = toIdString(order.user);
         const row = perUser.get(userId);
         if (!row) return;
+        const createdAt = order.created_at ? toJsDate(order.created_at).getTime() : 0;
+        if (!createdAt || !row.shifts.some((shift) => createdAt >= shift.inAt && createdAt <= shift.outAt)) {
+          return;
+        }
         row.checks += 1;
         row.guests += safeNumber(order.covers);
         row.sales += getOrderSale(order);
@@ -307,7 +369,7 @@ export const Summary = () => {
     } finally {
       setIsPrintingServerSales(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, date, orders, page?.user?.id, reportWindow, t]);
 
   return (
     <Layout overflowHidden>

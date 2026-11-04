@@ -7,6 +7,8 @@ export const CATALOG_DOWNLOAD_TABLES = [
   'order_type',
   'category',
   'menu_item',
+  // Dish photos live in document (menu_item.dish_photo → document); sync blobs with dishes.
+  'document',
   'modifier_group',
   'modifier',
   'menu_item_modifier_group',
@@ -65,7 +67,12 @@ export function resolveCatalogSyncTables(opts: {
         )
       : [];
 
-  if (!consider.length) return ensureUserRoleBeforeUser([...allowed]);
+  if (!consider.length) {
+    return ensureDishPhotoDocuments(
+      ensureMenuItemModifierGroup(ensureUserRoleBeforeUser([...allowed]), allowed),
+      allowed,
+    );
+  }
 
   const declared: string[] = [];
   let anyDeclared = false;
@@ -78,12 +85,25 @@ export function resolveCatalogSyncTables(opts: {
     }
   }
 
-  if (!anyDeclared) return ensureUserRoleBeforeUser([...allowed]);
+  if (!anyDeclared) {
+    return ensureDishPhotoDocuments(
+      ensureMenuItemModifierGroup(ensureUserRoleBeforeUser([...allowed]), allowed),
+      allowed,
+    );
+  }
 
   const wanted = new Set(declared);
   const filtered = allowed.filter((name) => wanted.has(name));
   // Older publishes listed `user` without `user_role` — still pull roles when users sync.
-  return ensureUserRoleBeforeUser(filtered.length ? filtered : [...allowed]);
+  // Dish publishes must also pull menu_item_modifier_group so removed edges prune locally.
+  // Dish photos live in `document` — pull them whenever dishes sync.
+  return ensureDishPhotoDocuments(
+    ensureMenuItemModifierGroup(
+      ensureUserRoleBeforeUser(filtered.length ? filtered : [...allowed]),
+      allowed,
+    ),
+    allowed,
+  );
 }
 
 /** Users reference user_role; download roles first, and always with users. */
@@ -100,6 +120,43 @@ export function ensureUserRoleBeforeUser(tables: string[]): string[] {
     out.splice(roleIdx, 1);
     out.splice(userIdx, 0, 'user_role');
   }
+  return out;
+}
+
+/**
+ * Dish ↔ modifier-group links live in menu_item_modifier_group. When a publish
+ * refreshes menu_item without that relation table, stale local edges remain.
+ * Always download the relation table whenever dishes sync (if allowlisted).
+ */
+export function ensureMenuItemModifierGroup(
+  tables: string[],
+  allowlist?: readonly string[],
+): string[] {
+  const out = [...tables];
+  if (!out.includes('menu_item')) return out;
+  if (out.includes('menu_item_modifier_group')) return out;
+  const downloadable = allowlist ?? out;
+  if (!downloadable.includes('menu_item_modifier_group')) return out;
+  const dishIdx = out.indexOf('menu_item');
+  out.splice(dishIdx + 1, 0, 'menu_item_modifier_group');
+  return out;
+}
+
+/**
+ * Dish photos are `menu_item.dish_photo → document`. Syncing dishes without
+ * `document` leaves FOH with photo refs and no bytes.
+ */
+export function ensureDishPhotoDocuments(
+  tables: string[],
+  allowlist?: readonly string[],
+): string[] {
+  const out = [...tables];
+  if (!out.includes('menu_item')) return out;
+  if (out.includes('document')) return out;
+  const downloadable = allowlist ?? out;
+  if (!downloadable.includes('document')) return out;
+  const dishIdx = out.indexOf('menu_item');
+  out.splice(dishIdx + 1, 0, 'document');
   return out;
 }
 

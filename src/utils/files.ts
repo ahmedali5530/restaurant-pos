@@ -104,7 +104,8 @@ export const viewArrayBufferInNewTab = (
 };
 
 /**
- * Converts binary data from SurrealDB (Uint8Array, ArrayBuffer, base64 string) to Uint8Array
+ * Converts binary data from SurrealDB (Uint8Array, ArrayBuffer, number[],
+ * Node Buffer-like, base64 string) to Uint8Array.
  */
 export const toUint8Array = (value: unknown): Uint8Array => {
   if (value instanceof Uint8Array) {
@@ -124,6 +125,18 @@ export const toUint8Array = (value: unknown): Uint8Array => {
       bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes;
+  }
+  // JSON / idb round-trips sometimes yield number[] or Buffer-shaped objects.
+  if (Array.isArray(value) && value.every((n) => typeof n === 'number')) {
+    return Uint8Array.from(value);
+  }
+  if (
+    value &&
+    typeof value === 'object' &&
+    Array.isArray((value as { data?: unknown }).data) &&
+    ((value as { data: unknown[] }).data.every((n) => typeof n === 'number'))
+  ) {
+    return Uint8Array.from((value as { data: number[] }).data);
   }
   throw new Error('Invalid value type for binary conversion');
 };

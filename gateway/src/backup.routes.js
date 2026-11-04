@@ -57,14 +57,40 @@ async function requireDatabaseBackupAccess(req, res, next) {
   }
 }
 
+/** Strip ANSI + log noise so CLI failures are readable in API errors. */
+function cleanSurrealStderr(raw) {
+  return String(raw || '')
+    .replace(/\u001b\[[0-9;]*m/g, '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join('\n');
+}
+
+function formatSurrealCliError(command, code, stderr) {
+  const cleaned = cleanSurrealStderr(stderr);
+  const lower = cleaned.toLowerCase();
+  // Surreal HTTP client returns this opaque string when the system CA bundle is missing.
+  if (lower.includes('builder error')) {
+    return (
+      `surreal ${command} failed: builder error. ` +
+      'Rebuild/redeploy the gateway image so it includes ca-certificates ' +
+      '(Surreal export needs the system CA store even for http:// endpoints).'
+    );
+  }
+  if (cleaned) return cleaned;
+  return `surreal ${command} exited with code ${code}`;
+}
+
 /** @param {'export'|'import'} command @param {string} filePath */
 function spawnSurreal(command, filePath) {
   const cfg = surrealCliConfig();
   const child = spawn(
     cfg.bin,
     [
+      // Keep error/warn so "builder error" and auth failures reach stderr.
       '--log',
-      'none',
+      'error',
       command,
       '--endpoint',
       cfg.endpoint,
@@ -99,9 +125,7 @@ function runSurrealToFile(command, filePath) {
         resolve({ stderr });
         return;
       }
-      const err = new Error(
-        stderr.trim() || `surreal ${command} exited with code ${code}`,
-      );
+      const err = new Error(formatSurrealCliError(command, code, stderr));
       err.status = 500;
       reject(err);
     });

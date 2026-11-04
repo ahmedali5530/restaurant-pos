@@ -8,6 +8,25 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-04',
+    title: 'Dish photos after HQ Sync now',
+    items: [
+      'Catalog Sync now downloads dish photo documents with dishes, refreshes the local photo cache when sync finishes, and decodes Surreal/Uint8Array blobs so menu tiles show pictures instead of the placeholder.',
+      'Refresh catalog also reloads dish photos (no full Reload cache required for pictures).',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Quick Order, receipts, and Summary polish',
+    items: [
+      'HQ Sync now removes dish modifier groups that were deleted at headquarters so store menus stay in sync.',
+      'Quick Order hides dishes that only belong to categories turned off for the menu, matching the main menu, and the category strip slides like the main menu again.',
+      'The quantity keypad replaces the default 1 on the first digit, and clicking outside the quantity dialog cancels without adding the item.',
+      'Print settings can show or hide order type and customer on receipts (on by default).',
+      'Summary uses the closing-cycle time window for the selected business day, and server sales only counts completed clock-in/out shifts and orders taken during those shifts.',
+    ],
+  },
+  {
+    date: '2026-11-04',
     title: 'Assistant knows who you are',
     items: [
       'The floating assistant receives your name, role, shift, clock status, and linked HR employee (department, position, manager) — never login or passwords — so answers can be personalized.',

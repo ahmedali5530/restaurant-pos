@@ -469,7 +469,9 @@
     "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)",
     "kraItemClsCd": "رمز تصنيف صنف KRA",
     "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
-    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية."
+    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية.",
+    "showOrderType": "إظهار نوع الطلب",
+    "showCustomer": "إظهار العميل"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -628,7 +630,7 @@
       "reports.order_fiscal": "الفوترة الضريبية للطلبات",
       "reports.expense": "المصروفات",
       "reports.activity": "النشاط",
-"reports.changefeed": "سجل تغييرات الجداول",
+      "reports.changefeed": "سجل تغييرات الجداول",
       "reports.product_mix_weekly": "مزيج المنتجات أسبوعياً",
       "reports.product_mix_summary": "ملخص مزيج المنتجات",
       "reports.products_hourly": "المنتجات بالساعة",

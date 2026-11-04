@@ -22,6 +22,8 @@ const SNAPSHOT_TABLES = [
   'order_type',
   'category',
   'menu_item',
+  // Dish photos (menu_item.dish_photo → document.content)
+  'document',
   'modifier_group',
   'modifier',
   'menu_item_modifier_group',

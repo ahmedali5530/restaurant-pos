@@ -46,6 +46,8 @@ const DEFAULTS = {
   showItemPrice: false,
   showItemQuantity: true,
   showItemTotal: false,
+  showOrderType: true,
+  showCustomer: true,
   showLogo: false,
   /** Horizontal logo shift in dots (negative = left, positive = right). */
   logoOffsetX: 0,
@@ -279,6 +281,8 @@ function normalizeConfig(c = {}) {
     showItemPrice: Boolean(c.showItemPrice !== undefined ? c.showItemPrice : DEFAULTS.showItemPrice),
     showItemQuantity: Boolean(c.showItemQuantity !== undefined ? c.showItemQuantity : DEFAULTS.showItemQuantity),
     showItemTotal: Boolean(c.showItemTotal !== undefined ? c.showItemTotal : DEFAULTS.showItemTotal),
+    showOrderType: Boolean(c.showOrderType !== undefined ? c.showOrderType : DEFAULTS.showOrderType),
+    showCustomer: Boolean(c.showCustomer !== undefined ? c.showCustomer : DEFAULTS.showCustomer),
     showLogo: Boolean(c.showLogo !== undefined ? c.showLogo : DEFAULTS.showLogo),
     logoOffsetX: signedInt(c.logoOffsetX, DEFAULTS.logoOffsetX),
     logoWidth: clampImageDim(c.logoWidth, DEFAULTS.logoWidth),

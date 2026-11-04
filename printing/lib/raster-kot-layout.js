@@ -17,6 +17,7 @@ function paintKotHeaderRaster(rc, opts) {
     createdAt,
     extraLines = [],
     labels = {},
+    showOrderType = true,
   } = opts || {};
 
   const L = labels || {};
@@ -43,7 +44,9 @@ function paintKotHeaderRaster(rc, opts) {
   }
 
   const tableLeft = table ? `${tableLabel}: ${table}` : '';
-  const typeRight = orderType ? `${orderTypeLabel}: ${orderType}` : '';
+  const typeRight = showOrderType !== false && orderType
+    ? `${orderTypeLabel}: ${orderType}`
+    : '';
   if (tableLeft || typeRight) {
     rc.lineLeftRight(tableLeft, typeRight);
   }

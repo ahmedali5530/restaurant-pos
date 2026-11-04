@@ -2,15 +2,15 @@ import {useState} from "react";
 import {useSetAtom} from "jotai";
 import {toast} from "sonner";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {appSettings} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {useTranslation} from 'react-i18next';
-import {del, set} from 'idb-keyval';
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {refreshCatalogIntoSettings} from "@/providers/pos-store.provider.tsx";
+import {refreshDocumentsIdbCache} from "@/lib/documents-cache.ts";
+import {clearDishImageCache} from "@/components/menu/dish.tsx";
 
 export const CacheSettings = () => {
   const db = useDB();
@@ -34,6 +34,12 @@ export const CacheSettings = () => {
       setBusy('catalog');
       await terminalSyncService.rehydrateCatalogFromServer();
       await refreshCatalogIntoSettings(setSettings);
+      try {
+        await refreshDocumentsIdbCache(db);
+        clearDishImageCache();
+      } catch (docError) {
+        console.warn('Documents cache refresh skipped', docError);
+      }
       toast.success(t('cache.catalogReloaded'));
     } catch (error) {
       console.error("Failed to refresh catalog:", error);
@@ -67,12 +73,8 @@ export const CacheSettings = () => {
 
       // Documents live outside PosStore (idb-keyval); best-effort refresh.
       try {
-        const documentsResult = await db.query(`SELECT id, content from ${Tables.documents}`);
-        await del(Tables.documents);
-        await set(Tables.documents, (documentsResult?.[0] ?? []).map((item: { id: { toString: () => string } }) => ({
-          ...item,
-          id: item.id.toString(),
-        })));
+        await refreshDocumentsIdbCache(db);
+        clearDishImageCache();
       } catch (docError) {
         console.warn('Documents cache refresh skipped', docError);
       }

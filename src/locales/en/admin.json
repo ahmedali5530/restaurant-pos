@@ -532,7 +532,9 @@
     "modifierOptionSaleLimit": "Sale limit (this dish)",
     "kraItemClsCd": "KRA item class code",
     "kraTaxTyCd": "KRA tax type (A–E)",
-    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults."
+    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults.",
+    "showOrderType": "Show order type",
+    "showCustomer": "Show customer"
   },
   "dishView": {
     "detailsTitle": "Dish details",

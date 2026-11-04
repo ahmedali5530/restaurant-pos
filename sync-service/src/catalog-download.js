@@ -693,6 +693,8 @@ class CatalogDownloadManager {
     const watermark = await this.readFeedWatermark(tableName);
     const pageSize = this.config.backfillPageSize;
     let start = 0;
+    const pruneRelations = RELATION_CATALOG_TABLES.includes(tableName);
+    const seenIds = pruneRelations ? new Set() : null;
 
     for (;;) {
       const page = await this.selectMasterPage(tableName, pageSize, start);
@@ -703,6 +705,7 @@ class CatalogDownloadManager {
         const targetId = toAnyRecordId(row && row.id);
         if (!targetId) continue;
         const recordId = recordIdToString(targetId);
+        if (seenIds) seenIds.add(recordId);
         this.noteSyncing({
           table: tableName,
           recordId,
@@ -727,6 +730,11 @@ class CatalogDownloadManager {
       if (page.length < pageSize) break;
     }
 
+    // Only prune after a full successful pass — never after a mid-backfill failure.
+    if (seenIds) {
+      await this.pruneStaleRelationRows(tableName, seenIds);
+    }
+
     await this.saveCursor(tableName, {
       backfillDone: true,
       versionstamp: watermark != null ? watermark : state.versionstamp,
@@ -736,6 +744,61 @@ class CatalogDownloadManager {
       rows: start,
       versionstamp: versionstampForStorage(state.versionstamp),
     });
+  }
+
+  /**
+   * Delete local relation rows whose ids were not in the completed HQ backfill
+   * set. An empty set clears every local edge (HQ removed all links).
+   */
+  async pruneStaleRelationRows(tableName, keepIds) {
+    this.assertClients();
+    const keep = keepIds instanceof Set ? keepIds : new Set(keepIds || []);
+    const localRows = await withRetry(
+      () => this.source.query(`SELECT id FROM type::table($table)`, { table: tableName }),
+      { label: `local.selectIds(${tableName})`, timeoutMs: 20000, retries: 3 }
+    );
+    const rows = normalizeSelectPage(localRows);
+    const stale = [];
+    for (const row of rows) {
+      const idStr = recordIdToString(row && row.id);
+      if (!idStr || keep.has(idStr)) continue;
+      const targetId = toAnyRecordId(row.id);
+      if (targetId) stale.push(targetId);
+    }
+    if (!stale.length) return;
+
+    this.logger.info('Pruning stale catalog relation rows', {
+      table: tableName,
+      keep: keep.size,
+      stale: stale.length,
+    });
+
+    for (const targetId of stale) {
+      const recordId = recordIdToString(targetId);
+      this.noteSyncing({
+        table: tableName,
+        recordId,
+        action: 'DELETE',
+        phase: 'catalog-prune',
+      });
+      try {
+        await this.enqueueWrite(() =>
+          withRetry(
+            () => this.source.delete(targetId),
+            { label: `local.prune(${recordId})`, retries: 5, timeoutMs: 15000 }
+          )
+        );
+        this.stats.eventsProcessed += 1;
+        this.noteLastSynced({
+          table: tableName,
+          recordId,
+          action: 'DELETE',
+          phase: 'catalog-prune',
+        });
+      } finally {
+        this.noteSyncing(null);
+      }
+    }
   }
 
   async tailTable(tableName) {
