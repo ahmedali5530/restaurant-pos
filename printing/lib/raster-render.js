@@ -27,6 +27,7 @@ const { ensureRasterFonts } = require('./raster-fonts');
 const { getRasterMetrics, calibrateMetrics, buildCtxFont } = require('./raster-metrics');
 const { paintBillLayoutRaster } = require('./raster-bill-layout');
 const { paintKotHeaderRaster } = require('./raster-kot-layout');
+const { formatTableCustomLines, normalizeTableRows } = require('./table-layout');
 const { testSlipContent } = require('./test-print-content');
 
 function lineHeightForSize(metrics, size) {
@@ -102,6 +103,21 @@ class ReceiptCanvas {
         style: o.style,
         align: 'left',
       });
+    });
+  }
+
+  /**
+   * Pre-padded table row. Column spaces are already in the string, so it must
+   * not be re-aligned or clipped to the hardware line width.
+   */
+  rawLine(text, opts) {
+    const o = opts || {};
+    this._pushText({
+      text: String(text == null ? '' : text),
+      size: o.size || 'normal',
+      style: o.style,
+      align: 'left',
+      raw: true,
     });
   }
 
@@ -183,7 +199,9 @@ class ReceiptCanvas {
       ctx.save();
       ctx.font = buildCtxFont(false, fontPx, family);
 
-      const maxChars = Math.max(1, Math.floor(cols / scaleX));
+      const maxChars = op.raw
+        ? String(op.text || '').length
+        : Math.max(1, Math.floor(cols / scaleX));
       const text = String(op.text || '').slice(0, maxChars);
       const usedCols = text.length * scaleX;
 
@@ -783,6 +801,38 @@ async function renderSummaryRaster(data, config) {
  * @param {Object} config
  * @returns {Promise<Buffer[]>}
  */
+async function renderTableRaster(data, config) {
+  const cfg = normalizeConfig(config || {});
+  const width = resolvePaperWidthPx(cfg);
+  const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
+  const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
+  if (topFeed) rc.feed(topFeed);
+  paintBranding(rc, cfg);
+
+  const rows = normalizeTableRows(data);
+  const defaultSize = Array.isArray(data && data.size) ? data.size : [1, 1];
+  rows.forEach((row) => {
+    if (!row || !Array.isArray(row.cells) || row.cells.length === 0) return;
+    const size = Array.isArray(row.size) ? row.size : defaultSize;
+    formatTableCustomLines(row.cells, {
+      printerWidth: rc.metrics.printerWidth,
+      size,
+    }).forEach((line) => {
+      rc.rawLine(line.text, { style: line.style, size: line.size });
+    });
+  });
+
+  paintSections(rc, cfg.footerSections);
+  const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
+  if (bottomFeed) rc.feed(bottomFeed);
+  const extraFeed = Math.max(0, parseInt(data && data.feed, 10) || 0);
+  if (extraFeed) rc.feed(extraFeed);
+  rc.feed(1);
+  rc.centered(formatPrintingTimestamp(cfg), { size: 'normal' });
+  rc.feed(3);
+  return rc.toPng();
+}
+
 async function renderRasterPngs(printType, data, config) {
   const cfg = normalizeConfig(config || {});
   const t = String(printType || (data && data.printType) || 'final').toLowerCase();
@@ -794,6 +844,7 @@ async function renderRasterPngs(printType, data, config) {
   else if (t === 'refund') png = await renderRefundRaster(data, cfg);
   else if (t === 'kitchen') png = await renderKitchenRaster(data, cfg);
   else if (t === 'summary') png = await renderSummaryRaster(data, cfg);
+  else if (t === 'table') png = await renderTableRaster(data, cfg);
   else if (t === 'test') png = await renderTestRaster(data, cfg);
   else {
     const err = new Error(`Raster not supported for print type: ${t}`);
