@@ -66,9 +66,19 @@ fn bundled_bin(app: &AppHandle, name: &str) -> Option<PathBuf> {
   } else {
     name.to_string()
   };
-  // Tauri externalBin places sidecars next to the executable.
+  // Tauri externalBin places sidecars next to the executable, keeping the
+  // target triple in the file name (posr-surreal-x86_64-pc-windows-msvc.exe).
+  let triple_name = format!(
+    "{name}-{}{}",
+    current_target_triple_stub(),
+    if cfg!(windows) { ".exe" } else { "" }
+  );
   if let Ok(exe) = std::env::current_exe() {
     if let Some(dir) = exe.parent() {
+      let named = dir.join(&triple_name);
+      if named.exists() {
+        return Some(named);
+      }
       let p = dir.join(&exe_name);
       if p.exists() {
         return Some(p);

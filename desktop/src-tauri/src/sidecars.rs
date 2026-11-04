@@ -545,6 +545,16 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
   }
 
   if !http_health("127.0.0.1:3142", "posr-gateway") {
+    let surreal_bin = paths::resolve_surreal_bin(Some(app));
+    let surreal_bin_env = surreal_bin.display().to_string();
+    let mut gateway_env = vec![
+      ("GATEWAY_HOST", "0.0.0.0"),
+      ("GATEWAY_PORT", "3142"),
+      ("SURREAL_HTTP_ENDPOINT", "http://127.0.0.1:8000"),
+    ];
+    if surreal_bin.is_file() {
+      gateway_env.push(("SURREAL_BIN", surreal_bin_env.as_str()));
+    }
     let child = spawn_node_service(
       app,
       &cfg,
@@ -552,10 +562,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
       installer.as_ref(),
       "gateway",
       "gateway",
-      &[
-        ("GATEWAY_HOST", "0.0.0.0"),
-        ("GATEWAY_PORT", "3142"),
-      ],
+      &gateway_env,
       &log_hub,
     )?;
     push_child(&supervisor, "gateway", child);
