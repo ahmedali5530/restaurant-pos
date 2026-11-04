@@ -311,6 +311,26 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_table_changefeed",
+      description:
+        "SHOW CHANGES for allowlisted FOH/Manage tables (menu_item, order, …). Always call when user asks for changefeed — not for normal reports.",
+      parameters: {
+        type: "object",
+        properties: {
+          table: {type: "string"},
+          since: {type: "string"},
+          limit: {type: "number"},
+          record_id: {type: "string"},
+          compact: {type: "boolean"},
+        },
+        required: ["table"],
+      },
+    },
+  },
+
+  {
+    type: "function",
+    function: {
       name: "get_cash_closing",
       description: "Cash closing summary for a date.",
       parameters: {type: "object", properties: {date: {type: "string"}}},

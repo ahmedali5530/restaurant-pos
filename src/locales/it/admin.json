@@ -469,7 +469,9 @@
     "modifierOptionSaleLimit": "Limite di vendita (questo piatto)",
     "kraItemClsCd": "Codice classificazione articolo KRA",
     "kraTaxTyCd": "Tipo imposta KRA (A–E)",
-    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA."
+    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA.",
+    "showOrderType": "Mostra tipo ordine",
+    "showCustomer": "Mostra cliente"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -628,6 +630,7 @@
       "reports.order_fiscal": "Fiscale ordini",
       "reports.expense": "Spese",
       "reports.activity": "Attività",
+      "reports.changefeed": "Changefeed tabelle",
       "reports.product_mix_weekly": "Product mix settimanale",
       "reports.product_mix_summary": "Riepilogo product mix",
       "reports.products_hourly": "Prodotti orari",

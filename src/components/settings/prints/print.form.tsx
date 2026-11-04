@@ -59,6 +59,8 @@ type PrintFormValues = {
   showItemQuantity?: boolean
   showItemPrice?: boolean
   showItemTotal?: boolean
+  showOrderType?: boolean
+  showCustomer?: boolean
 }
 
 function toSelectOption(value: unknown, options: SelectOption[]): SelectOption {
@@ -215,6 +217,8 @@ export const PrintForm = ({
           : '',
         logoWidth: clampImageDim(data.values.logoWidth, DEFAULT_LOGO_PX, 576),
         logoHeight: clampImageDim(data.values.logoHeight, DEFAULT_LOGO_PX, 576),
+        showOrderType: data.values.showOrderType !== false,
+        showCustomer: data.values.showCustomer !== false,
         logo: null,
         headerSections: normalizeSectionsFromDb(data.values.headerSections),
         footerSections: normalizeSectionsFromDb(data.values.footerSections),
@@ -349,6 +353,8 @@ export const PrintForm = ({
       rasterMaxHeightPx: maxH != null && !Number.isNaN(maxH) && maxH > 0 ? maxH : null,
       logoWidth: clampImageDim(values.logoWidth, DEFAULT_LOGO_PX, maxW),
       logoHeight: clampImageDim(values.logoHeight, DEFAULT_LOGO_PX, 576),
+      showOrderType: values.showOrderType !== false,
+      showCustomer: values.showCustomer !== false,
       renderOptions: (data?.values?.renderOptions && typeof data.values.renderOptions === 'object')
         ? data.values.renderOptions
         : {},
@@ -783,6 +789,34 @@ export const PrintForm = ({
                       onChange={field.onChange}
                     >
                       Show item total
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showOrderType"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showOrderType')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showCustomer"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showCustomer')}
                     </Switch>
                   )}
                 />

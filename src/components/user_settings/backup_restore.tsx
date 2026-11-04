@@ -186,12 +186,11 @@ export const BackupRestoreSettings = () => {
       } catch (err) {
         console.error(err);
         const status = err instanceof BackupHttpError ? err.status : 0;
+        const detail = err instanceof BackupHttpError ? err.message : "";
         toast.error(
           status === 403
             ? t("backup.database.forbidden")
-            : err instanceof BackupHttpError
-              ? err.message
-              : t("backup.database.exportFailed"),
+            : detail || t("backup.database.exportFailed"),
         );
       } finally {
         setBusy(null);

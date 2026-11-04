@@ -81,10 +81,15 @@ export function TerminalSyncProvider({ children }: { children: ReactNode }) {
 
     const interval = window.setInterval(run, PERIODIC_SYNC_MS);
     const onFocus = () => run();
+    const onLockHeartbeat = () => {
+      void terminalSyncService.scheduleSynchronize();
+    };
     window.addEventListener('focus', onFocus);
+    window.addEventListener('posr-lock-heartbeat', onLockHeartbeat);
     return () => {
       window.clearInterval(interval);
       window.removeEventListener('focus', onFocus);
+      window.removeEventListener('posr-lock-heartbeat', onLockHeartbeat);
     };
   }, [isReady, hasSession, isEffectivelyConnected, setAppSettings]);
 

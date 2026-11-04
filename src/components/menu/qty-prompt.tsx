@@ -7,6 +7,7 @@ import {VirtualKeyboardPad} from "@/components/common/input/virtual.keyboard.tsx
 import type {Dish} from "@/api/model/dish.ts";
 
 const QUICK_QTY = [1, 2, 3, 4, 5, 6, 10, 12] as const;
+const DEFAULT_QTY = "1";
 
 export const dishAsksQuantity = (
   dish: {ask_quantity?: boolean | null} | null | undefined,
@@ -31,13 +32,16 @@ const parseQty = (raw: string): number => {
 /** Shared qty dialog for Menu and Quick Order when a dish has ask_quantity. */
 export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
   const {t} = useTranslation(["menu", "common"]);
-  const [value, setValue] = useState("1");
+  const [value, setValue] = useState(DEFAULT_QTY);
+  /** First keypad digit replaces the untouched default 1 (payment keypad style). */
+  const [replaceDefault, setReplaceDefault] = useState(true);
   const valueRef = useRef(value);
   valueRef.current = value;
 
   useEffect(() => {
     if (open) {
-      setValue("1");
+      setValue(DEFAULT_QTY);
+      setReplaceDefault(true);
     }
   }, [open, dish?.id]);
 
@@ -54,23 +58,29 @@ export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
     submitCurrent();
   };
 
-  /** X / overlay: apply like dismissing the cart qty keyboard after typing. */
-  const handleDismiss = () => {
-    if (!submitCurrent()) {
-      onCancel();
-    }
-  };
-
   const bump = (delta: number) => {
     const current = parseQty(value) || 0;
     const next = Math.max(1, Math.round((current + delta) * 1000) / 1000);
+    setReplaceDefault(false);
     setValue(String(next));
+  };
+
+  const onKeypadChange = (next: string) => {
+    if (replaceDefault && next.length > value.length) {
+      // Digit / decimal appended onto default "1" → keep only the new char(s).
+      const added = next.slice(value.length);
+      setReplaceDefault(false);
+      setValue(added || next);
+      return;
+    }
+    setReplaceDefault(false);
+    setValue(next);
   };
 
   return (
     <Modal
       open={open}
-      onClose={handleDismiss}
+      onClose={onCancel}
       title={t("menu:qtyPrompt.title", {name: dish.name})}
       size="lg"
       testId="dish-qty-prompt"
@@ -131,7 +141,7 @@ export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
               type="number"
               placeholder={t("menu:qtyPrompt.quantity")}
               value={value}
-              onChange={setValue}
+              onChange={onKeypadChange}
             />
           </div>
         </div>

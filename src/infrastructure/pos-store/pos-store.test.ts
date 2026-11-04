@@ -855,6 +855,17 @@ describe('PosStore table locks', () => {
     expect(beat?.locked_by).toBe('Cashier Two');
     expect(beat?.locked_at).toBeTruthy();
   });
+
+  it('keeps a local heartbeat off the outbox until the publish interval', async () => {
+    const tableId = 'floor_table:t-lock-3';
+    await posStore.lockTable(tableId, 'Cashier Three');
+    const afterLock = (await posStore.getPendingOutbox()).length;
+    await posStore.heartbeatTableLock(tableId);
+    expect((await posStore.getPendingOutbox()).length).toBe(afterLock);
+    const stored = await posStore.getTableLock(tableId);
+    expect(stored?.is_locked).toBe(true);
+    expect(stored?.locked_at).toBeTruthy();
+  });
 });
 
 describe('PosStore number reservation allocate + release', () => {

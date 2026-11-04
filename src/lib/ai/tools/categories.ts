@@ -52,6 +52,7 @@ export const AI_REPORT_TOOL_CATEGORIES: Record<AiReportToolDomain | "core", read
     "get_order_lifecycle",
     "get_expenses",
     "get_activity_log",
+    "get_table_changefeed",
     "get_cash_closing",
     "list_active_sessions",
     "get_void_and_cancel_summary",

@@ -40,6 +40,10 @@ export const TOOL_PERMISSION_MODULES: Record<string, string | string[]> = {
   list_inventory_locations: "inventory.locations",
   get_expenses: "reports.expense",
   get_activity_log: "reports.activity",
+  // Dedicated RBAC module (Roles → Reports → Table Changefeed). Parent `reports`
+  // and `reports.ai` also grant via hasReadModuleAccess. Surreal SHOW CHANGES
+  // still enforces DB IAM (system user VIEWER+).
+  get_table_changefeed: "reports.changefeed",
   get_cash_closing: "reports.cash_closing",
   get_order_lifecycle: "reports.order_life_cycle",
   get_orders: "reports.order_life_cycle",
@@ -93,7 +97,13 @@ const hasReadModuleAccess = (module: string, normalizedAllowed: string[]): boole
   if (normalizedAllowed.includes(module) || normalizedAllowed.includes("reports.ai")) {
     return true;
   }
-  if (module.startsWith("admin.") || module.startsWith("hr.")) {
+  // Parent section grant: role UI stores `reports` when the Reports group is
+  // checked, which must cover children including newly added modules.
+  const section = module.split(".")[0];
+  if (section && normalizedAllowed.includes(section)) {
+    return true;
+  }
+  if (module.startsWith("admin.") || module.startsWith("hr.") || module.startsWith("reports.")) {
     return normalizedAllowed.some(allowed =>
       allowed === module
       || module.startsWith(`${allowed}.`)
@@ -101,6 +111,21 @@ const hasReadModuleAccess = (module: string, normalizedAllowed: string[]): boole
     );
   }
   return false;
+};
+
+/** True when allowedModules grants the module(s) this read tool needs. */
+export const canUseReadTool = (toolName: string, allowedModules: string[]): boolean => {
+  const module = TOOL_PERMISSION_MODULES[toolName];
+  if (!module) {
+    return true;
+  }
+  const normalizedAllowed = normalizeModules(allowedModules);
+  // Match filterToolsByPermissions: empty list means "not yet loaded / unrestricted".
+  if (!normalizedAllowed.length) {
+    return true;
+  }
+  const modules = Array.isArray(module) ? module : [module];
+  return modules.some(name => hasReadModuleAccess(name, normalizedAllowed));
 };
 
 export const filterToolsByPermissions = (
@@ -112,12 +137,5 @@ export const filterToolsByPermissions = (
     return tools;
   }
 
-  return tools.filter(tool => {
-    const module = TOOL_PERMISSION_MODULES[tool.function.name];
-    if (!module) {
-      return true;
-    }
-    const modules = Array.isArray(module) ? module : [module];
-    return modules.some(name => hasReadModuleAccess(name, normalizedAllowed));
-  });
+  return tools.filter(tool => canUseReadTool(tool.function.name, normalizedAllowed));
 };

@@ -219,17 +219,23 @@ export async function projectTableLock(row: {
   await db.transaction('rw', [db.tableLocks, db.catalog], async () => {
     await db.tableLocks.put(lock);
     const catalog = await db.catalog.get(lock.id);
-    if (catalog) {
-      await db.catalog.put({
-        ...catalog,
-        payload: {
-          ...catalog.payload,
-          is_locked: lock.is_locked,
-          locked_by: lock.locked_by,
-          locked_at: lock.locked_at,
-        },
-      });
-    }
+    if (!catalog) return;
+    const payload = catalog.payload ?? {};
+    const chromeSame =
+      !!payload.is_locked === lock.is_locked
+      && String(payload.locked_by ?? '') === String(lock.locked_by ?? '');
+    // Heartbeats only move locked_at. Rewriting the catalog row for that
+    // forces every floor to re-render. The lock icon reads is_locked / locked_by.
+    if (chromeSame) return;
+    await db.catalog.put({
+      ...catalog,
+      payload: {
+        ...payload,
+        is_locked: lock.is_locked,
+        locked_by: lock.locked_by,
+        locked_at: lock.locked_at,
+      },
+    });
   });
 }
 

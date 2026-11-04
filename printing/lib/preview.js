@@ -205,7 +205,14 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
-  parts.push(row(bill.table || '', bill.userName || ''));
+  const orderTypeLabel = L.orderType || 'Order Type';
+  const tableLabel = L.table || 'Table';
+  const cashierLabel = L.cashier || 'Cashier';
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  parts.push(row(`${tableLabel}: ${bill.table || '-'}`, orderTypeRight));
+  parts.push(row(`${cashierLabel}: ${bill.userName || '-'}`, ''));
   parts.push('<hr/>');
 
   // Items (wrap long dish names; qty/total on last name line)
@@ -259,7 +266,7 @@ function renderBillToHtml(bill, config, opts) {
   // Total
   parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym, cfg))}</span></div>`);
 
-  if (customerName || phone || address) {
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
     parts.push('<hr/>');
     const pushWrapped = (label, value) => {
       wrapReceiptText(`${label}: ${String(value)}`, 'normal').forEach((line) => {
@@ -526,10 +533,11 @@ function renderKitchenToHtml(data, config) {
   if (orderBannerLine) {
     parts.push(`<div class="center bold">${escapeHtml(orderBannerLine)}</div>`);
   }
-  if (table || orderType) {
+  const showOrderType = cfg.showOrderType !== false;
+  if (table || (showOrderType && orderType)) {
     parts.push(
       `<div class="row"><span>${table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
-        `<span>${orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
+        `<span>${showOrderType && orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
     );
   }
   if (orderTaker || createdAt) {

@@ -132,7 +132,7 @@ export const Menu = () => {
     // Online-only sync wake — never the data source.
     if (isEffectivelyConnected) {
       void db.live(Tables.orders, () => {
-        void terminalSyncService.synchronize().catch(() => undefined).then(fetchTablelessOrders);
+        void terminalSyncService.scheduleSynchronize().then(fetchTablelessOrders);
       }).then((subscription) => {
         if (cancelled) {
           void subscription.kill().catch(() => undefined);

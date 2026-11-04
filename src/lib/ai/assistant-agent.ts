@@ -20,8 +20,11 @@ import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
 import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 import {tryDishRecipeFastPath} from "@/lib/ai/dish-recipe-fast-path.ts";
+import {tryChangefeedFastPath} from "@/lib/ai/changefeed-fast-path.ts";
 import {sanitizeAssistantAnswer} from "@/lib/ai/answer-sanitize.ts";
 import {formatDishRecipeAsAnswer} from "@/api/reports/sales/dish-recipe.ts";
+import {formatChangefeedAsAnswer} from "@/api/reports/operations/changefeed.ts";
+import {isChangefeedPrompt} from "@/lib/ai/changefeed-query.ts";
 import {LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
 import {
   isUserGuideHowToPrompt,
@@ -89,6 +92,11 @@ export type AssistantAgentOptions = {
   personaId?: AssistantPersonaId | string;
   /** Deeper investigation: analysis task, full prompts, web_search, more tool loops. */
   deepResearch?: boolean;
+  /**
+   * Credential-free logged-in user block for personalization
+   * (name, role, shift, linked HR employee). Prefer formatAssistantUserContext().
+   */
+  userContextBlock?: string | null;
 };
 
 export type AssistantAgentResult =
@@ -138,7 +146,10 @@ async function runLoop(
   options: AssistantAgentOptions & {tools: OpenAIToolDefinition[]},
 ): Promise<AssistantAgentResult> {
   const {tools} = options;
-  const context: ExecuteToolContext = {charts: []};
+  const context: ExecuteToolContext = {
+    charts: [],
+    allowedModules: options.allowedModules,
+  };
 
   const maxIterations = options.deepResearch ? MAX_DEEP_ITERATIONS : MAX_ITERATIONS;
   for (let iteration = 0; iteration < maxIterations; iteration++) {
@@ -296,6 +307,7 @@ export async function runAiAssistantAgent(
     suggestedChapter,
     personaId: options.personaId,
     deepResearch,
+    userContextBlock: options.userContextBlock,
   });
 
   const priorContext: OpenAIChatMessage[] = (options.conversationHistory ?? [])
@@ -322,6 +334,34 @@ export async function runAiAssistantAgent(
     charts: [],
     messages: turnMessages([...(extra ?? []), {role: "assistant", content: answer}]),
   });
+
+  // Changefeed MUST run before any other path and NEVER fall through to the LLM
+  // tool loop. An empty/missing tool catalog makes the model invent
+  // "get_table_changefeed is not in my catalog" even when reports perms are fine.
+  if (isChangefeedPrompt(trimmed)) {
+    try {
+      const changefeedFastPath = await tryChangefeedFastPath(db, trimmed, {
+        onToolStart: options.onToolStart,
+        allowedModules: options.allowedModules,
+      });
+      if (changefeedFastPath?.directAnswer?.trim()) {
+        return finishAnswer(changefeedFastPath.directAnswer.trim());
+      }
+      if (changefeedFastPath?.result != null) {
+        const fallback = formatChangefeedAsAnswer(changefeedFastPath.result as any);
+        if (fallback.trim()) {
+          return finishAnswer(fallback.trim());
+        }
+      }
+      return finishAnswer(
+        "Changefeed query returned no usable result. Try: `pull changefeed for menu_item`.",
+      );
+    } catch (err) {
+      return finishAnswer(
+        `Changefeed query failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
 
   // Skip tabular fast-paths when the user attached images/PDF pages to analyze.
   const skipDataFastPaths = hasVision || isUserGuideHowToPrompt(trimmed);
@@ -384,10 +424,15 @@ export async function runAiAssistantAgent(
     }
   }
 
+  // Safety net if fast-path was skipped but prompt is still a changefeed ask.
+  const loopTools = isChangefeedPrompt(trimmed)
+    ? tools.filter(tool => tool.function.name === "get_table_changefeed")
+    : tools;
+
   return runLoop(db, t, turnMessages(), {
     ...options,
     prompt: trimmed,
-    tools,
+    tools: loopTools,
     task,
     deepResearch,
   });

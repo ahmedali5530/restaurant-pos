@@ -58,7 +58,10 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   }
 
   rc.lineLeftRight(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
-  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
   rc.lineLeftRight(`${cashierLabel}: ${bill.userName || '-'}`, '');
   if (deliveryTime) rc.fixedLine(`${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   rc.divider();
@@ -122,7 +125,7 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
     rc.lineLeftRight(totalLabel, formatMoney(bill.total, sym, cfg), { style: 'bold' });
   }
 
-  if (customerName || phone || address) {
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
     rc.divider();
     if (customerName) rc.fixedLine(`${customerLabel}: ${String(customerName)}`, { align: 'left' });
     if (phone) rc.fixedLine(`${phoneLabel}: ${String(phone)}`, { align: 'left' });

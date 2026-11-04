@@ -453,7 +453,7 @@ export const KitchenScreen = () => {
     // Surreal live = sync wake-up only; the refresh itself reads Dexie after pull.
     const wake = (action: string) => {
       if (action === 'CREATE' || action === 'UPDATE') {
-        void terminalSyncService.synchronize().catch(() => undefined).finally(refresh);
+        void terminalSyncService.scheduleSynchronize().finally(refresh);
       }
     };
     try {

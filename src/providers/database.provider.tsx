@@ -338,7 +338,7 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       if (!live && getSessionToken() && readBrowserOnline() && !connectInFlight.current) {
         void connect({ silent: true }).catch(() => {});
       }
-    }, 2000);
+    }, 10_000);
     return () => window.clearInterval(id);
   }, [surrealInstance, connect]);
 

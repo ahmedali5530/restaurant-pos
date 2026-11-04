@@ -90,7 +90,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Specific order id / "everything about this order": get_order_detail (items[].dishName are the dishes — never infer dishes from tracking alone; include fiscals + prints). Include a markdown link to /reports/order-receipt?id={order.id}.
 - Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
 - Cash audit: get_cash_settlement_audit. Expenses: ${Tables.closings}. Activity/tracking: ${Tables.tracking} via get_activity_log.
-- Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).`,
+- Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).
+- Database changefeed / SHOW CHANGES / mutation history: ALWAYS call get_table_changefeed when the user explicitly asks (menu_item, order, category, …). Never say the tool is unavailable — call it; the result lists allowlisted tables if needed. Report event_count and include SCHEMA define_table rows when present (they count toward the DB feed total). Leave compact=false unless asked. ~14d retention after CHANGEFEED was enabled. Never call it for normal sales, inventory, or order list questions.`,
   labor: `- Staff sessions: ${Tables.time_entries} (active = clock_out is NONE).
 - Hourly labor % vs sales: get_hourly_labor_vs_sales (use phrase last Friday or peak hours).
 - Labor reports: get_labor_dashboard_snapshot, get_daily_labor_cost, get_overtime_report, etc.
@@ -299,6 +300,8 @@ export type AiAssistantGuideContext = {
   suggestedChapter?: string | null;
   personaId?: AssistantPersonaId | string | null;
   deepResearch?: boolean;
+  /** Pre-formatted logged-in user block (no credentials). */
+  userContextBlock?: string | null;
 };
 
 /**
@@ -351,10 +354,12 @@ export const getAiAssistantSystemPrompt = (
     + "When a cleanse summary is posted, summarize those issues; do not invent CSV contents.";
 
   const deepSection = guideContext.deepResearch ? DEEP_RESEARCH_PROMPT : null;
+  const userSection = guideContext.userContextBlock?.trim() || null;
 
   if (effectiveCompact) {
     return [
       `${persona.prompt} You help managers using real data from their point-of-sale system.`,
+      userSection,
       reportPrompt,
       writeSection,
       guideSection,
@@ -363,7 +368,7 @@ export const getAiAssistantSystemPrompt = (
     ].filter(Boolean).join("\n\n");
   }
 
-  return [reportPrompt, writeSection, guideSection, importCleanseHint, deepSection]
+  return [userSection, reportPrompt, writeSection, guideSection, importCleanseHint, deepSection]
     .filter(Boolean)
     .join("\n\n");
 };

@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { Button } from '@/components/common/input/button.tsx';
+import { useDB } from '@/api/db/db.ts';
+import { clearDishImageCache } from '@/components/menu/dish.tsx';
 import { isTauriDesktop } from '@/lib/desktop.ts';
+import { refreshDocumentsIdbCache } from '@/lib/documents-cache.ts';
 import { runtimeSyncServiceUrl } from '@/lib/runtime-config.ts';
 
 /** Packaged POSR Desktop always runs sync-service on this address. */
@@ -64,6 +67,7 @@ function syncSecretHeaders(): HeadersInit {
  */
 export const CatalogSyncSettingsCard = () => {
   const { t } = useTranslation('settings');
+  const db = useDB();
   const baseUrl = syncServiceBaseUrl();
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -104,6 +108,14 @@ export const CatalogSyncSettingsCard = () => {
         if (data.catalog?.lastError) {
           toast.error(t('catalogSync.failed'));
         } else {
+          // Dish photos live in idb-keyval outside PosStore — refresh now so
+          // FOH tiles can decode bytes without a full Reload cache.
+          try {
+            await refreshDocumentsIdbCache(db);
+            clearDishImageCache();
+          } catch (docError) {
+            console.warn('Documents cache refresh after Sync now skipped', docError);
+          }
           toast.success(t('catalogSync.complete'));
           toast.message(t('catalogSync.reloadCacheHint'));
         }

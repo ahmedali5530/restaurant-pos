@@ -398,4 +398,36 @@ describe('resolveCatalogSyncTables (Phase 5)', () => {
       ['user_role', 'user', 'tax']
     );
   });
+
+  it('injects menu_item_modifier_group when a dish publish omitted the relation table', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist: [
+          'menu_item',
+          'modifier_group',
+          'menu_item_modifier_group',
+          'category',
+        ],
+        localVersion: 0,
+        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
+      }),
+      ['menu_item', 'menu_item_modifier_group', 'category']
+    );
+  });
+
+  it('injects document when a dish publish omitted photo blobs', () => {
+    assert.deepEqual(
+      resolveCatalogSyncTables({
+        allowlist: [
+          'menu_item',
+          'document',
+          'menu_item_modifier_group',
+          'category',
+        ],
+        localVersion: 0,
+        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
+      }),
+      ['menu_item', 'document', 'menu_item_modifier_group', 'category']
+    );
+  });
 });

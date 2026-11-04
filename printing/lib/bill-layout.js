@@ -99,7 +99,10 @@ function printBillLayout(printer, bill, config, opts) {
   const checkClosedLabel = L.checkClosed || 'Check Closed';
 
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
-  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
   printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
   if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   printDivider(printer);
@@ -157,7 +160,7 @@ function printBillLayout(printer, bill, config, opts) {
     hardResetLayout(printer);
   }
 
-  if (customerName || phone || address) {
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
     printDivider(printer);
     if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
     if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });

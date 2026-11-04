@@ -568,7 +568,10 @@ async function renderRefundRaster(data, config) {
 
   rc.centered(refundReceiptLabel, { size: 'normal', style: 'bold-underline' });
   rc.lineLeftRight(`${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
-  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
   rc.lineLeftRight(`${cashierLabel}: ${bill.userName || '-'}`, '');
   rc.lineLeftRight(`${refundDateLabel}: ${bill.refundDate || ''}`, '');
   rc.divider();
@@ -674,6 +677,7 @@ async function renderKitchenRaster(data, config) {
     orderTaker: getOrderUserName(order),
     createdAt: getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale, dateFormat: cfg.dateFormat, timeFormat: cfg.timeFormat }),
     labels: L,
+    showOrderType: cfg.showOrderType !== false,
   });
 
   rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });

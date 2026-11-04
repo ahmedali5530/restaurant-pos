@@ -395,6 +395,46 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
   {
     type: "function",
     function: {
+      name: "get_table_changefeed",
+      description:
+        "On-demand Surreal SHOW CHANGES for allowlisted tables (FOH + Manage catalog). "
+        + "ALWAYS call this when the user asks for changefeed / mutation history / table DB changes "
+        + "(including menu_item, dishes, category, order, order_void, etc.) — do not say the tool is missing. "
+        + "Returns every feed event (CREATE/UPDATE/DELETE and SCHEMA define_table) — report event_count, "
+        + "data_mutation_count, and schema_event_count. Do not omit SCHEMA rows when summarizing. "
+        + "Leave compact=false unless the user asks for net-per-record only. "
+        + "Never use for normal sales/inventory reports. Retention ~14 days after the feed was enabled.",
+      parameters: {
+        type: "object",
+        properties: {
+          table: {
+            type: "string",
+            description: "Table name or alias (e.g. menu_item, dishes, order, order_void, category, customer)",
+          },
+          since: {
+            type: "string",
+            description:
+              "Versionstamp digits (prefer) or ISO datetime AFTER the feed was enabled. Default: 0 (start of retained feed). Do not pass yesterday if the feed was just enabled.",
+          },
+          limit: {type: "number", default: 50, description: "Max SHOW CHANGES entries (1–200)"},
+          record_id: {
+            type: "string",
+            description: "Optional record id substring filter (e.g. order:abc)",
+          },
+          compact: {
+            type: "boolean",
+            description:
+              "Default false. When true, collapse CREATE/UPDATE/DELETE to the latest per record_id (SCHEMA rows kept). Prefer false so counts match the DB UI.",
+          },
+        },
+        required: ["table"],
+      },
+    },
+  },
+
+  {
+    type: "function",
+    function: {
       name: "get_cash_closing",
       description: "Get cash closing summary for a date.",
       parameters: {
