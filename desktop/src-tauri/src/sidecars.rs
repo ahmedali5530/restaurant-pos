@@ -302,6 +302,11 @@ fn apply_common_env(
     );
 
   if let Some(inst) = installer {
+    let timezone = inst.locale.timezone.trim();
+    if !timezone.is_empty() {
+      cmd.env("PRINT_TIMEZONE", timezone);
+      cmd.env("TZ", timezone);
+    }
     apply_ai_env(cmd, &inst.ai);
     let integ = &inst.integrations;
     if !integ.qbo_client_id.is_empty() {

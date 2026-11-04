@@ -435,14 +435,87 @@ function toJsDate(value) {
  * @returns {{ timezone?: string, locale: string }}
  */
 function getDateFormatOpts(opts) {
+  const src = opts || {};
   return {
-    timezone: opts && typeof opts.timezone === 'string' && opts.timezone.trim()
-      ? opts.timezone.trim()
+    timezone: typeof src.timezone === 'string' && src.timezone.trim()
+      ? src.timezone.trim()
       : undefined,
-    locale: opts && typeof opts.locale === 'string' && opts.locale
-      ? opts.locale
+    locale: typeof src.locale === 'string' && src.locale
+      ? src.locale
       : 'en-US',
+    dateFormat: typeof src.dateFormat === 'string' ? src.dateFormat.trim() : '',
+    timeFormat: typeof src.timeFormat === 'string' ? src.timeFormat.trim() : '',
   };
+}
+
+function zonedParts(date, timezone, locale, hourCycle) {
+  const formatOpts = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle,
+  };
+  if (timezone) formatOpts.timeZone = timezone;
+  let parts;
+  try {
+    parts = new Intl.DateTimeFormat(locale || 'en-US', formatOpts).formatToParts(date);
+  } catch (e) {
+    parts = new Intl.DateTimeFormat('en-US', formatOpts).formatToParts(date);
+  }
+  const get = (type) => {
+    const part = parts.find((p) => p.type === type);
+    return part ? part.value : '';
+  };
+  return {
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    hour: get('hour'),
+    minute: get('minute'),
+    second: get('second'),
+    dayPeriod: get('dayPeriod'),
+  };
+}
+
+/**
+ * Luxon-style pattern used by installer date_format / time_format (yyyy-MM-dd, HH:mm, hh:mm a).
+ * @param {Date} date
+ * @param {string} pattern
+ * @param {string|undefined} timezone
+ * @param {string|undefined} locale
+ * @returns {string}
+ */
+function formatWithPattern(date, pattern, timezone, locale) {
+  if (!pattern) return '';
+  const h23 = zonedParts(date, timezone, locale, 'h23');
+  const h12 = zonedParts(date, timezone, locale, 'h12');
+  const hour24 = String(h23.hour).padStart(2, '0');
+  const hour12 = String(h12.hour).padStart(2, '0');
+  const minute = String(h23.minute).padStart(2, '0');
+  const second = String(h23.second).padStart(2, '0');
+  return String(pattern)
+    .replace(/yyyy/g, h23.year)
+    .replace(/yy/g, String(h23.year).slice(-2))
+    .replace(/MM/g, String(h23.month).padStart(2, '0'))
+    .replace(/dd/g, String(h23.day).padStart(2, '0'))
+    .replace(/HH/g, hour24)
+    .replace(/hh/g, hour12)
+    .replace(/mm/g, minute)
+    .replace(/ss/g, second)
+    .replace(/(^|[^A-Za-z])M([^A-Za-z]|$)/g, (_, lead, tail) => `${lead}${Number(h23.month)}${tail}`)
+    .replace(/(^|[^A-Za-z])d([^A-Za-z]|$)/g, (_, lead, tail) => `${lead}${Number(h23.day)}${tail}`)
+    .replace(/(^|[^A-Za-z])H([^A-Za-z]|$)/g, (_, lead, tail) => `${lead}${Number(hour24)}${tail}`)
+    .replace(/(^|[^A-Za-z])h([^A-Za-z]|$)/g, (_, lead, tail) => `${lead}${Number(hour12)}${tail}`)
+    .replace(/(^|[^A-Za-z])a([^A-Za-z]|$)/g, (_, lead, tail) => `${lead}${h12.dayPeriod}${tail}`);
+}
+
+function appDateTimePattern(opts) {
+  const dateFormat = opts && typeof opts.dateFormat === 'string' ? opts.dateFormat.trim() : '';
+  const timeFormat = opts && typeof opts.timeFormat === 'string' ? opts.timeFormat.trim() : '';
+  return [dateFormat, timeFormat].filter(Boolean).join(' ').trim();
 }
 
 /**
@@ -452,7 +525,11 @@ function getDateFormatOpts(opts) {
  */
 function getOrderDate(order, opts) {
   const d = toJsDate(order && order.created_at);
-  const { timezone, locale } = getDateFormatOpts(opts);
+  const { timezone, locale, dateFormat, timeFormat } = getDateFormatOpts(opts);
+  const pattern = appDateTimePattern({ dateFormat, timeFormat });
+  if (pattern) {
+    return formatWithPattern(d, pattern, timezone, locale);
+  }
   const formatOpts = {
     year: 'numeric',
     month: '2-digit',
@@ -483,7 +560,10 @@ function getOrderDate(order, opts) {
  */
 function getOrderCreatedAt(order, opts) {
   const d = (!order || !order.created_at) ? new Date() : toJsDate(order.created_at);
-  const { timezone, locale } = getDateFormatOpts(opts);
+  const { timezone, locale, timeFormat } = getDateFormatOpts(opts);
+  if (timeFormat) {
+    return formatWithPattern(d, timeFormat, timezone, locale);
+  }
   const formatOpts = {};
   if (timezone) formatOpts.timeZone = timezone;
   return d.toLocaleTimeString(locale, formatOpts);
@@ -628,8 +708,7 @@ function mapOrderToTemp(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
-      timezone: options && options.timezone,
-      locale: options && options.locale,
+      ...getDateFormatOpts(options),
     }),
     title: L.preSaleBill || 'Pre-Sale Bill',
     note: '',
@@ -646,8 +725,7 @@ function mapOrderToFinal(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
-      timezone: options && options.timezone,
-      locale: options && options.locale,
+      ...getDateFormatOpts(options),
     }),
     title: dup
       ? (L.duplicateFinalBill || 'Duplicate Final Bill')
@@ -665,8 +743,7 @@ function mapOrderToDelivery(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: true,
       showInclusivePrices: !!(options && options.showInclusivePrices),
-      timezone: options && options.timezone,
-      locale: options && options.locale,
+      ...getDateFormatOpts(options),
     }),
     title: L.delivery || 'DELIVERY',
     address: getOrderDeliveryAddress(order),
@@ -737,22 +814,29 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
   const orig = originalOrder || refundOrder;
   const serviceChargeLabel = getOrderServiceChargeLabel(refundOrder);
   const tipLabel = refundOrder && refundOrder.tip_type === 'Percent' ? 'Tip %' : 'Tip';
-  const { timezone, locale } = getDateFormatOpts(options);
-  const refundFormatOpts = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  };
-  if (timezone) refundFormatOpts.timeZone = timezone;
+  const dateOpts = getDateFormatOpts(options);
+  const refundPattern = appDateTimePattern(dateOpts);
+  let refundDate;
+  if (refundPattern) {
+    refundDate = formatWithPattern(new Date(), refundPattern, dateOpts.timezone, dateOpts.locale);
+  } else {
+    const refundFormatOpts = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+    if (dateOpts.timezone) refundFormatOpts.timeZone = dateOpts.timezone;
+    refundDate = new Date().toLocaleString(dateOpts.locale, refundFormatOpts);
+  }
   return {
     originalOrderId: getOrderId(orig),
     table: getOrderTable(orig),
     orderType: getOrderType(orig),
     userName: getOrderUserName(orig),
-    refundDate: new Date().toLocaleString(locale, refundFormatOpts),
+    refundDate,
     items,
     itemsCount: items.length,
     itemsTotal,
@@ -794,4 +878,7 @@ module.exports = {
   mapOrderToKitchen,
   getRefundOrderItems,
   mapOrderToRefund,
+  formatWithPattern,
+  appDateTimePattern,
+  getDateFormatOpts,
 };

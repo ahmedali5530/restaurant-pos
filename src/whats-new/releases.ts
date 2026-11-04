@@ -11,6 +11,7 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'Desktop backup save window',
     items: [
       'Settings backup and database export on POSR Desktop open the system save window. Restore opens the system file window.',
+      'Receipts use the store currency, timezone, locale, and date format from the desktop installer settings.',
     ],
   },
   {

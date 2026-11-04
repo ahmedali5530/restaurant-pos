@@ -80,58 +80,58 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   });
   rc.divider();
 
-  rc.lineLeftRight(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
+  rc.lineLeftRight(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    rc.lineLeftRight(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
+    rc.lineLeftRight(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym, cfg));
     if (Array.isArray(bill.taxLines) && bill.taxLines.length > 0) {
       bill.taxLines.forEach((t) => {
-        rc.lineLeftRight(t.label || taxLabel, formatMoney(t.amount, sym));
+        rc.lineLeftRight(t.label || taxLabel, formatMoney(t.amount, sym, cfg));
       });
     }
   }
   if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
     const d = bill.discountLines[0];
     const singleLabel = formatDiscountMinimalPrint(d.rawName, d.valueType, d.rate, discountLabel);
-    rc.lineLeftRight(singleLabel, '-' + formatMoney(d.amount, sym));
+    rc.lineLeftRight(singleLabel, '-' + formatMoney(d.amount, sym, cfg));
   } else if (Array.isArray(bill.discountLines) && bill.discountLines.length > 1) {
-    rc.lineLeftRight(discountLabel, '-' + formatMoney(bill.discountAmount, sym));
+    rc.lineLeftRight(discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg));
     bill.discountLines.forEach((d) => {
-      rc.lineLeftRight('  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym));
+      rc.lineLeftRight('  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym, cfg));
     });
   } else if (bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    rc.lineLeftRight(bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym));
+    rc.lineLeftRight(bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-    rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
+    rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg));
   }
   (bill.extras || []).forEach((e) => {
-    rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym));
+    rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym, cfg));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    rc.lineLeftRight(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym));
+    rc.lineLeftRight(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym, cfg));
   }
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
-    rc.lineLeftRight(deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym));
+    rc.lineLeftRight(deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym, cfg));
   }
   rc.divider();
 
   if (Array.isArray(bill.totalRows) && bill.totalRows.length > 0) {
     bill.totalRows.forEach((row) => {
-      rc.lineLeftRight(row.label || totalLabel, formatMoney(row.amount, sym));
+      rc.lineLeftRight(row.label || totalLabel, formatMoney(row.amount, sym, cfg));
     });
   } else {
-    rc.lineLeftRight(totalLabel, formatMoney(bill.total, sym), { style: 'bold' });
+    rc.lineLeftRight(totalLabel, formatMoney(bill.total, sym, cfg), { style: 'bold' });
   }
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     rc.divider();
     bill.payments.forEach((p) => {
-      rc.lineLeftRight(p.method || paymentLabel, formatMoney(p.amount, sym));
+      rc.lineLeftRight(p.method || paymentLabel, formatMoney(p.amount, sym, cfg));
     });
   }
   if (showChange && bill.change != null && Number(bill.change) !== 0) {
     rc.divider();
-    rc.lineLeftRight(changeLabel, formatMoney(bill.change, sym), { style: 'bold' });
+    rc.lineLeftRight(changeLabel, formatMoney(bill.change, sym, cfg), { style: 'bold' });
   }
 
   if (notes) {

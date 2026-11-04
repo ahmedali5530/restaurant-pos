@@ -290,6 +290,8 @@ function normalizeConfig(c = {}) {
     currencySymbol: c.showCurrencySymbol === false
       ? ''
       : String(n(c.currencySymbol, DEFAULTS.currencySymbol) || '$'),
+    dateFormat: typeof c.dateFormat === 'string' ? c.dateFormat : '',
+    timeFormat: typeof c.timeFormat === 'string' ? c.timeFormat : '',
     headerSections: normalizeSections(c.headerSections),
     footerSections: normalizeSections(c.footerSections),
     paperWidthMm,
@@ -299,7 +301,7 @@ function normalizeConfig(c = {}) {
     rasterMaxHeightPx,
     renderOptions,
     showInclusivePrices: Boolean(c.showInclusivePrices),
-    decimal_place: c.decimal_place,
+    decimal_place: resolveDecimalPlaces(c.decimal_place),
     labels: c.labels && typeof c.labels === 'object' ? c.labels : {},
     locale: typeof c.locale === 'string' && c.locale ? c.locale : 'en-US',
     timezone: resolveTimezone(c.timezone),
@@ -471,8 +473,17 @@ function printDivider(printer) {
  * @param {string} [symbol='$'] - empty string omits the symbol
  * @returns {string}
  */
-function formatMoney(amount, symbol) {
-  const num = Number(amount || 0).toFixed(0);
+function resolveDecimalPlaces(value) {
+  if (value && typeof value === 'object') {
+    return resolveDecimalPlaces(value.decimal_place);
+  }
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return 0;
+  return Math.min(6, Math.floor(n));
+}
+
+function formatMoney(amount, symbol, decimalPlaces) {
+  const num = Number(amount || 0).toFixed(resolveDecimalPlaces(decimalPlaces));
   const s = symbol === undefined || symbol === null ? '$' : String(symbol);
   if (!s) return num;
   return s + ' ' + num;
@@ -786,6 +797,11 @@ function printVatLine(printer, config) {
 function formatPrintingTimestamp(config) {
   const cfg = config || {};
   const now = new Date();
+  const { appDateTimePattern, formatWithPattern } = require('./order-mapping');
+  const pattern = appDateTimePattern(cfg);
+  if (pattern) {
+    return formatWithPattern(now, pattern, cfg.timezone, cfg.locale || 'en-US');
+  }
   const locale = cfg.locale || 'en-US';
   const formatOpts = {
     year: 'numeric',
@@ -987,7 +1003,7 @@ function formatItemLine(item, config) {
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const total = item.total != null ? Number(item.total) : price * qty;
-  const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
+  const dp = resolveDecimalPlaces(config && config.decimal_place);
 
   const parts = [];
   if (config.showItemName !== false) parts.push(name);
@@ -1008,7 +1024,7 @@ function getItemLineLeftRight(item, config) {
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const lineTotal = item.total != null ? Number(item.total) : price * qty;
-  const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
+  const dp = resolveDecimalPlaces(config && config.decimal_place);
 
   const left = (config.showItemName !== false ? name : '') || '-';
   const rightParts = [];
@@ -1038,7 +1054,7 @@ function buildItemRowString(item, config) {
   const qty = item.qty != null ? item.qty : 1;
   const price = item.price != null ? Number(item.price) : 0;
   const lineTotal = item.total != null ? Number(item.total) : price * qty;
-  const dp = typeof config.decimal_place === 'number' ? config.decimal_place : 0;
+  const dp = resolveDecimalPlaces(config && config.decimal_place);
 
   let line = '';
   if (config.showItemName !== false) line += padRight(name, ITEM_COL_NAME);

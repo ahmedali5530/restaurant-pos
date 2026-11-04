@@ -216,53 +216,53 @@ function renderBillToHtml(bill, config, opts) {
     const name = (it.name || it.title || '').slice(0, 28);
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym)));
+    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym, cfg)));
   });
   parts.push('<hr/>');
 
   // Summary
-  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
+  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg)));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym)));
+    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym, cfg)));
   }
   if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
     const d = bill.discountLines[0];
     const singleLabel = formatDiscountMinimalPreview(d.rawName, d.valueType, d.rate, discountLabel);
-    parts.push(row(singleLabel, '-' + formatMoney(d.amount, sym)));
+    parts.push(row(singleLabel, '-' + formatMoney(d.amount, sym, cfg)));
   } else if (Array.isArray(bill.discountLines) && bill.discountLines.length > 1) {
-    parts.push(row(discountLabel, '-' + formatMoney(bill.discountAmount, sym)));
+    parts.push(row(discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg)));
     bill.discountLines.forEach((d) => {
-      parts.push(row('  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym)));
+      parts.push(row('  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym, cfg)));
     });
   } else if (bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    parts.push(row(bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym)));
+    parts.push(row(bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg)));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-    parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
+    parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg)));
   }
   (bill.extras || []).forEach((e) => {
-    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
+    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym, cfg)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym)));
+    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym, cfg)));
   }
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
-    parts.push(row(deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym)));
+    parts.push(row(deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym, cfg)));
   }
   parts.push('<hr/>');
 
   // Total
-  parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym, cfg))}</span></div>`);
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     parts.push('<hr/>');
     bill.payments.forEach((p) => {
-      parts.push(row(p.method || paymentLabel, formatMoney(p.amount, sym)));
+      parts.push(row(p.method || paymentLabel, formatMoney(p.amount, sym, cfg)));
     });
   }
   if (showChange && bill.change != null && Number(bill.change) !== 0) {
     parts.push('<hr/>');
-    parts.push(`<div class="row bold"><span>${escapeHtml(changeLabel)}</span><span>${escapeHtml(formatMoney(bill.change, sym))}</span></div>`);
+    parts.push(`<div class="row bold"><span>${escapeHtml(changeLabel)}</span><span>${escapeHtml(formatMoney(bill.change, sym, cfg))}</span></div>`);
   }
 
   if (notes) {
@@ -309,6 +309,8 @@ function renderSummaryToHtml(data, config) {
     ...(data || {}),
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const row = (a, b) => `<div class="row"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`;
   const sect = (t) => `<div class="sect">${escapeHtml(t)}</div>`;
@@ -322,35 +324,35 @@ function renderSummaryToHtml(data, config) {
   parts.push(`<div class="title">${escapeHtml(title)}</div>`);
   parts.push('<hr/>');
   parts.push(sect(L.salesRevenue || '1. Sales revenue'));
-  parts.push(row(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym)));
-  parts.push(row(L.extras || 'Extras', formatMoney(s.totalExtras, sym)));
-  parts.push(row(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym)));
-  parts.push(row(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym)));
-  parts.push(row(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym)));
-  parts.push(row(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym)));
-  parts.push(row(L.discountsMinus || '(−) Discounts', formatMoney(s.discounts, sym)));
-  parts.push(row(L.netSales || 'Net sales', formatMoney(s.netSales, sym)));
+  parts.push(row(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym, cfg)));
+  parts.push(row(L.extras || 'Extras', formatMoney(s.totalExtras, sym, cfg)));
+  parts.push(row(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym, cfg)));
+  parts.push(row(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym, cfg)));
+  parts.push(row(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym, cfg)));
+  parts.push(row(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym, cfg)));
+  parts.push(row(L.discountsMinus || '(−) Discounts', formatMoney(s.discounts, sym, cfg)));
+  parts.push(row(L.netSales || 'Net sales', formatMoney(s.netSales, sym, cfg)));
   parts.push('<hr/>');
   parts.push(sect(L.surchargesTaxes || '2. Surcharges and taxes'));
-  parts.push(row(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym)));
-  parts.push(row(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym)));
-  parts.push(`<div class="row bold"><span>${escapeHtml(L.totalRevenue || 'Total revenue')}</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
+  parts.push(row(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym, cfg)));
+  parts.push(row(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym, cfg)));
+  parts.push(`<div class="row bold"><span>${escapeHtml(L.totalRevenue || 'Total revenue')}</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym, cfg))}</span></div>`);
   parts.push('<hr/>');
   parts.push(sect(L.settlementCashier || '3. Settlement and cashier'));
-  parts.push(row(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym)));
-  parts.push(row(L.tips || 'Tips', formatMoney(s.tips, sym)));
-  parts.push(`<div class="row bold"><span>${escapeHtml(L.grandTotalDue || 'Grand total (due)')}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
-  parts.push(row(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym)));
-  parts.push(row(L.rounding || 'Rounding', formatMoney(s.rounding, sym)));
-  parts.push(row(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym)));
+  parts.push(row(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym, cfg)));
+  parts.push(row(L.tips || 'Tips', formatMoney(s.tips, sym, cfg)));
+  parts.push(`<div class="row bold"><span>${escapeHtml(L.grandTotalDue || 'Grand total (due)')}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym, cfg))}</span></div>`);
+  parts.push(row(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym, cfg)));
+  parts.push(row(L.rounding || 'Rounding', formatMoney(s.rounding, sym, cfg)));
+  parts.push(row(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym, cfg)));
   parts.push('<hr/>');
   parts.push(sect(L.operationalControls || '4. Operational controls'));
-  parts.push(row(L.voids || 'Voids', formatMoney(s.voids, sym)));
-  parts.push(row(L.refunds || 'Refunds', formatMoney(s.refunds, sym)));
+  parts.push(row(L.voids || 'Voids', formatMoney(s.voids, sym, cfg)));
+  parts.push(row(L.refunds || 'Refunds', formatMoney(s.refunds, sym, cfg)));
   parts.push(row(L.covers || 'Covers', formatNum(s.covers)));
-  parts.push(row(L.averageCover || 'Average cover', formatMoney(s.averageCover, sym)));
+  parts.push(row(L.averageCover || 'Average cover', formatMoney(s.averageCover, sym, cfg)));
   parts.push(row(L.ordersChecks || 'Orders / checks', formatNum(s.ordersCount)));
-  parts.push(row(L.averageOrderCheck || 'Average order / check', formatMoney(s.averageOrderCheck, sym)));
+  parts.push(row(L.averageOrderCheck || 'Average order / check', formatMoney(s.averageOrderCheck, sym, cfg)));
   parts.push('<hr/>');
   parts.push(sect(L.productMix || '5. Product mix'));
   parts.push(
@@ -362,12 +364,12 @@ function renderSummaryToHtml(data, config) {
     s.categoryMix.forEach((category) => {
       const catShare = formatNum(pct(category.total, ex)) + '%';
       parts.push(
-        `<div class="row4 boldish"><span>${escapeHtml(String(category.name))}</span><span>${formatNum(category.quantity)}</span><span>${escapeHtml(formatMoney(category.total, sym))}</span><span>${escapeHtml(catShare)}</span></div>`
+        `<div class="row4 boldish"><span>${escapeHtml(String(category.name))}</span><span>${formatNum(category.quantity)}</span><span>${escapeHtml(formatMoney(category.total, sym, cfg))}</span><span>${escapeHtml(catShare)}</span></div>`
       );
       (category.dishes || []).forEach((dish) => {
         const dishShare = formatNum(pct(dish.total, ex)) + '%';
         parts.push(
-          `<div class="row4"><span class="pl">${escapeHtml(String(dish.name))}</span><span>${formatNum(dish.quantity)}</span><span>${escapeHtml(formatMoney(dish.total, sym))}</span><span>${escapeHtml(dishShare)}</span></div>`
+          `<div class="row4"><span class="pl">${escapeHtml(String(dish.name))}</span><span>${formatNum(dish.quantity)}</span><span>${escapeHtml(formatMoney(dish.total, sym, cfg))}</span><span>${escapeHtml(dishShare)}</span></div>`
         );
         (dish.modifiers || []).forEach((modifier) => {
           const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
@@ -387,7 +389,7 @@ function renderSummaryToHtml(data, config) {
     s.paymentTypes.forEach((payment) => {
       const p = formatNum(pct(payment.total, s.amountDue)) + '%';
       parts.push(
-        row(payment.name, `${formatMoney(payment.total, sym)}  ${p}`)
+        row(payment.name, `${formatMoney(payment.total, sym, cfg)}  ${p}`)
       );
     });
   }
@@ -398,7 +400,7 @@ function renderSummaryToHtml(data, config) {
   } else {
     s.taxesList.forEach((tax) => {
       const p = formatNum(pct(tax.total, s.taxCollected)) + '%';
-      parts.push(row(`${tax.name}%`, `${formatMoney(tax.total, sym)}  ${p}`));
+      parts.push(row(`${tax.name}%`, `${formatMoney(tax.total, sym, cfg)}  ${p}`));
     });
   }
   parts.push('<hr/>');
@@ -408,7 +410,7 @@ function renderSummaryToHtml(data, config) {
   } else {
     s.discountsList.forEach((discount) => {
       const p = formatNum(pct(discount.total, s.discounts)) + '%';
-      parts.push(row(discount.name, `${formatMoney(discount.total, sym)}  ${p}`));
+      parts.push(row(discount.name, `${formatMoney(discount.total, sym, cfg)}  ${p}`));
     });
   }
   parts.push('<hr/>');
@@ -418,7 +420,7 @@ function renderSummaryToHtml(data, config) {
   } else {
     s.extrasList.forEach((extra) => {
       const p = formatNum(pct(extra.total, s.totalExtras)) + '%';
-      parts.push(row(extra.name, `${formatMoney(extra.total, sym)}  ${p}`));
+      parts.push(row(extra.name, `${formatMoney(extra.total, sym, cfg)}  ${p}`));
     });
   }
   parts.push('<hr/>');
@@ -427,7 +429,7 @@ function renderSummaryToHtml(data, config) {
     parts.push(`<p class="muted">${escapeHtml(L.noCoupons || 'No coupon usage for this date.')}</p>`);
   } else {
     s.couponsList.forEach((coupon) => {
-      parts.push(row(coupon.name, formatMoney(coupon.total, sym)));
+      parts.push(row(coupon.name, formatMoney(coupon.total, sym, cfg)));
     });
   }
   if (cfg.showVatNumber && cfg.vatNumber) {
@@ -484,7 +486,7 @@ function renderKitchenToHtml(data, config) {
   const kitchenName = data.kitchenName || 'KOT';
   const isAddOn = !!data.isAddOn;
   const orderId = getOrderId(order);
-  const createdAt = getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale });
+  const createdAt = getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale, dateFormat: cfg.dateFormat, timeFormat: cfg.timeFormat });
   const orderTaker = getOrderUserName(order);
   const orderType = getOrderType(order);
   const table = data.table
@@ -564,6 +566,8 @@ function renderRefundToHtml(data, config) {
     showInclusivePrices: !!cfg.showInclusivePrices,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const row = (left, right) =>
     `<div class="row"><span>${escapeHtml(left)}</span><span>${escapeHtml(right)}</span></div>`;
@@ -592,27 +596,27 @@ function renderRefundToHtml(data, config) {
     const name = (it.name || it.title || '').slice(0, 28);
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym)));
+    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym, cfg)));
   });
   parts.push('<hr/>');
-  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
+  parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg)));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym)));
+    parts.push(row(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym, cfg)));
   }
   if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    parts.push(row(discountLabel, formatMoney(bill.discountAmount, sym)));
+    parts.push(row(discountLabel, formatMoney(bill.discountAmount, sym, cfg)));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-    parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
+    parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg)));
   }
   (bill.extras || []).forEach((e) => {
-    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
+    parts.push(row(e.name || extraLabel, formatMoney(e.value, sym, cfg)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym)));
+    parts.push(row(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym, cfg)));
   }
   parts.push('<hr/>');
-  parts.push(`<div class="row bold"><span>${escapeHtml(refundTotalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(refundTotalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym, cfg))}</span></div>`);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
   if (footerSections) parts.push(footerSections);
   parts.push(`<div class="center thankyou">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
@@ -648,6 +652,8 @@ function renderPreview(printType, data, config) {
       labels: cfg.labels,
       timezone: cfg.timezone,
       locale: cfg.locale,
+      dateFormat: cfg.dateFormat,
+      timeFormat: cfg.timeFormat,
       showInclusivePrices: !!cfg.showInclusivePrices,
     });
     return renderBillToHtml(bill, cfg, {
@@ -672,6 +678,8 @@ function renderPreview(printType, data, config) {
       labels: cfg.labels,
       timezone: cfg.timezone,
       locale: cfg.locale,
+      dateFormat: cfg.dateFormat,
+      timeFormat: cfg.timeFormat,
       showInclusivePrices: !!cfg.showInclusivePrices,
     });
     return renderBillToHtml(bill, cfg, {
@@ -695,6 +703,8 @@ function renderPreview(printType, data, config) {
       labels: cfg.labels,
       timezone: cfg.timezone,
       locale: cfg.locale,
+      dateFormat: cfg.dateFormat,
+      timeFormat: cfg.timeFormat,
       showInclusivePrices: !!cfg.showInclusivePrices,
     });
     return renderBillToHtml(bill, cfg, {

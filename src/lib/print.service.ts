@@ -3,7 +3,14 @@ import { toast } from "sonner";
 import { getDefaultStore } from "jotai";
 import i18n from "@/lib/i18n.ts";
 import { authHeaders, desktopLoopback } from "@/lib/session.ts";
-import { runtimePrintServerUrl } from "@/lib/runtime-config.ts";
+import {
+  runtimeCurrencySymbol,
+  runtimeDateFormat,
+  runtimeDecimalPlaces,
+  runtimeLocale,
+  runtimePrintServerUrl,
+  runtimeTimeFormat,
+} from "@/lib/runtime-config.ts";
 import { Tables } from "@/api/db/tables.ts";
 import type { Printer } from "@/api/model/printer.ts";
 import {RecordId, StringRecordId} from "surrealdb";
@@ -60,10 +67,6 @@ const PRINT_CONFIG_KEYS: Record<string, string> = {
   delivery: 'Delivery Print',
   summary: 'Summary Print',
   pulse: 'Final Print',
-};
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$', PKR: 'Rs', EUR: '€', GBP: '£', IDR: 'Rp',
 };
 
 // Set VITE_PRINT_SERVER_URL in .env (e.g. http://localhost:3132) to override.
@@ -156,14 +159,12 @@ export async function getPrintConfig(db: PrintDB, template: string): Promise<Rec
   }
 
   const logo = logoToBase64(values.logo);
-  const currency = (import.meta.env.VITE_CURRENCY as string) || 'USD';
-  const currencySymbol = CURRENCY_SYMBOLS[currency] || (import.meta.env.VITE_CURRENCY as string) || '$';
   return {
     ...values,
     logo: logo ?? values.logo,
     headerSections: normalizeReceiptSections(values.headerSections),
     footerSections: normalizeReceiptSections(values.footerSections),
-    currencySymbol: (values.currencySymbol as string) ?? currencySymbol,
+    currencySymbol: runtimeCurrencySymbol(),
   };
 }
 
@@ -429,16 +430,19 @@ export async function dispatchPrintDetailed<Payload = any>(
 
   const printConfig: Record<string, unknown> = {
     ...config,
-    decimal_place: import.meta.env.VITE_DECIMAL_PLACES,
+    currencySymbol: runtimeCurrencySymbol(),
+    decimal_place: runtimeDecimalPlaces(),
     showInclusivePrices,
     showCurrencySymbol: currencySymbolSettings.receipts,
     timezone: getAppTimezone(),
+    locale: runtimeLocale(),
+    dateFormat: runtimeDateFormat(),
+    timeFormat: runtimeTimeFormat(),
   };
 
   if (translateReceipts) {
     await i18n.loadNamespaces(['receipts', 'summary']);
     printConfig.labels = buildReceiptLabels(i18n.t.bind(i18n));
-    printConfig.locale = i18n.language;
   }
 
   const body = {

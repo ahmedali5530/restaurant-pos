@@ -59,6 +59,27 @@ export function runtimeCurrency(): string {
   return cache?.currency || (import.meta.env.VITE_CURRENCY as string) || 'USD';
 }
 
+/** Symbol the app shows for the store currency. Installer `currency_symbol` wins when set. */
+export function runtimeCurrencySymbol(): string {
+  const explicit = cache?.currencySymbol?.trim();
+  if (explicit) return explicit;
+  const currency = (runtimeCurrency() || 'USD').toUpperCase();
+  const locale = runtimeLocale();
+  try {
+    const formatted = (0).toLocaleString(locale, {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    const symbol = formatted.replace(/\d/g, '').replace(/\u00a0/g, ' ').trim();
+    if (symbol) return symbol;
+  } catch {
+    // Intl rejects an unknown currency code.
+  }
+  return '$';
+}
+
 export function runtimeDecimalPlaces(): number {
   if (cache && typeof cache.decimalPlaces === 'number') {
     return cache.decimalPlaces;

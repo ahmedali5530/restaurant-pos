@@ -128,8 +128,14 @@ function computeSummary(props) {
   const list = normalizeOrdersList(props);
   const dateFormatOpts = {};
   if (props?.timezone) dateFormatOpts.timeZone = props.timezone;
-  const date = props?.date
-    || new Date().toLocaleDateString(props?.locale || undefined, dateFormatOpts);
+  let date = props?.date;
+  if (!date && props?.dateFormat) {
+    const { formatWithPattern } = require('./order-mapping');
+    date = formatWithPattern(new Date(), props.dateFormat, props.timezone, props.locale);
+  }
+  if (!date) {
+    date = new Date().toLocaleDateString(props?.locale || undefined, dateFormatOpts);
+  }
 
   const paymentTotals = list.map((order) => getOrderPaymentTotals(order));
 
