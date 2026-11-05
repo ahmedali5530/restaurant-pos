@@ -1,7 +1,7 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
-import {DENOMINATION_COINS, DENOMINATION_NOTES, formatNumber, toRecordId, withCurrency, safeNumber} from "@/lib/utils.ts";
+import {DENOMINATION_COINS, DENOMINATION_NOTES, toRecordId, withCurrency, safeNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faPrint, faSave, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
@@ -50,6 +50,7 @@ import {
   fetchSelfOrderClosing,
   SelfOrderClosingSummary,
 } from "@/lib/self-order-closing.ts";
+import {buildClosingPrintRows as buildClosingPrintTableRows} from "@/lib/closing-print.ts";
 import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
@@ -531,73 +532,24 @@ export const Closing = () => {
     setExpenses(prev => prev.filter(expense => expense.id !== id));
   };
 
-  const buildClosingPrintRows = () => {
-    return [
-      [{text: `CLOSING SUMMARY (${today})`, align: "CENTER", width: 1, style: "B"}],
-      [{text: closingWindowLabel, align: "LEFT", width: 1}],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Previous float", align: "LEFT", width: 0.6}, {
-        text: formatNumber(previousDayBalance),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Petty cash in", align: "LEFT", width: 0.6}, {
-        text: formatNumber(pettyCash),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Expenses", align: "LEFT", width: 0.6}, {
-        text: formatNumber(totalExpenses),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Cash drop", align: "LEFT", width: 0.6}, {
-        text: formatNumber(cashDrop),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Counted cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalCash),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Cash left for next shift", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(drawerFloat),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Terminal Cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Amount",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...computedTerminalCash.map(terminal => ([
-        {text: terminal.terminal_name, align: "LEFT", width: 0.6},
-        {text: formatNumber(terminal.cash_amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Non-cash (system)", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Batch",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...batchTotals.map(row => ([
-        {text: `${row.payment_type_name} (${formatNumber(row.system_amount)})`, align: "LEFT", width: 0.6},
-        {text: formatNumber(row.batch_amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: "Other Payments", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalOtherPayments),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-    ];
-  };
+  const buildClosingPrintRows = () =>
+    buildClosingPrintTableRows({
+      titleDate: today,
+      closingWindowLabel,
+      closedByLabel,
+      previousDayBalance,
+      pettyCash,
+      cashDrop,
+      totalExpenses,
+      totalCash,
+      totalSystemCash,
+      drawerFloat,
+      terminals: computedTerminalCash,
+      denominations: terminalDenominations,
+      expenses,
+      batchTotals,
+      shiftRecap,
+    });
 
   const saveClosing = async (complete = false) => {
     if (isReadOnly) {

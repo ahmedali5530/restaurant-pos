@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-05',
+    title: 'Closing print: denominations for every terminal',
+    items: [
+      'Closing slip print lists cash denominations (or entered total) for each recorded terminal, plus expenses, payment Manual/System/Diff, and shift summary — matching the cash closing summary layout.',
+    ],
+  },
+  {
+    date: '2026-11-05',
     title: 'Customer display idle ads and clear after payment',
     items: [
       'Closing or settling Pay Now clears the customer display (thank-you briefly after pay) instead of leaving the previous check stuck on screen.',
