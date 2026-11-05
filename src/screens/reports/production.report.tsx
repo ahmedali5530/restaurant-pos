@@ -8,6 +8,7 @@ import {
   fetchProductionLinesForReport,
   ProductionReportLine,
 } from "@/lib/inventory/production.service.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
@@ -120,7 +121,7 @@ export const ProductionReport = () => {
             <tr key={batch.batchId}>
               <td>{batch.batchNumber}</td>
               <td>
-                {toLuxonDateTime(batch.createdAt).toFormat(import.meta.env.VITE_DATE_FORMAT)}
+                {toLuxonDateTime(batch.createdAt).toFormat(runtimeDateFormat())}
               </td>
               <td>{batch.recipeName}</td>
               <td>{batch.locationName}</td>

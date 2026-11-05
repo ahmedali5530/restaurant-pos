@@ -37,6 +37,7 @@ import {DAY_PARTS, getDayPartLabel, getDayPartTimeRangeLabel, type DayPartLabel}
 import {getOrderFilteredItems, getOrderPaymentTotals} from "@/lib/order.ts";
 import {orderReceiptUrl} from "@/routes/posr.ts";
 import {detectBrowser, detectOS, displayValue} from "@/screens/reports/activity.report.tsx";
+import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
 
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
@@ -713,7 +714,7 @@ const ActivitySection = () => {
           <table className="table table-xs">
             {trackingRows.map((row) => (
               <tr key={String(row.id)}>
-                <td className="text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat(import.meta.env.VITE_DATE_FORMAT)}</td>
+                <td className="text-sm text-foreground">{toLuxonDateTime(row.created_at as any).toFormat(runtimeDateFormat())}</td>
                 <td className="text-sm text-foreground">
                   <span className="tag">{String(row.user || "-")}</span>
                 </td>
@@ -1213,9 +1214,9 @@ const LatestOrdersTable = ({orders}: {orders: Order[]}) => {
                   {order.items?.length || 0}
                 </td>
                 <td className="py-3 px-3 text-sm text-muted">
-                  {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_DATE_FORMAT)}
+                  {toLuxonDateTime(order.created_at).toFormat(runtimeDateFormat())}
                   <br/>
-                  {toLuxonDateTime(order.created_at).toFormat(import.meta.env.VITE_TIME_FORMAT)}
+                  {toLuxonDateTime(order.created_at).toFormat(runtimeTimeFormat())}
                 </td>
                 <td className="py-3 pr-4 text-right text-sm font-semibold text-foreground">
                   {withCurrency(getOrderPaymentTotals(order).amountCollected)}

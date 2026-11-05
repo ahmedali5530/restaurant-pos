@@ -2,9 +2,11 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const path = require('path');
 const {
   hasDatabaseBackupAccess,
   surrealHttpEndpoint,
+  resolveSurrealBin,
   maxUploadBytes,
 } = require('./backup.helpers');
 
@@ -46,6 +48,34 @@ describe('surrealHttpEndpoint', () => {
         SURREAL_URL: 'ws://ignored:8000/rpc',
       }),
       'http://db:9000',
+    );
+  });
+});
+
+describe('resolveSurrealBin', () => {
+  it('keeps an existing SURREAL_BIN', () => {
+    assert.equal(
+      resolveSurrealBin({
+        bin: '/surreal',
+        execDir: 'C:\\POSR',
+        entries: () => ['posr-surreal-x86_64-pc-windows-msvc.exe'],
+        exists: (file) => file === '/surreal',
+      }),
+      '/surreal',
+    );
+  });
+
+  it('uses the sidecar beside Node when SURREAL_BIN is missing', () => {
+    const execDir = 'C:\\Users\\pos\\AppData\\Local\\POSR';
+    const name = 'posr-surreal-x86_64-pc-windows-msvc.exe';
+    assert.equal(
+      resolveSurrealBin({
+        bin: '',
+        execDir,
+        entries: () => ['POSR.exe', 'posr-node-x86_64-pc-windows-msvc.exe', name],
+        exists: (file) => file === path.join(execDir, name),
+      }),
+      path.join(execDir, name),
     );
   });
 });

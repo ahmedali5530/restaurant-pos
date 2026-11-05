@@ -84,6 +84,14 @@ function createSessionAuthMiddleware(options = {}) {
   };
 }
 
+function isPosrLanUiOrigin(origin) {
+  try {
+    return new URL(origin).port === '5173';
+  } catch {
+    return false;
+  }
+}
+
 function createCorsOriginDelegate() {
   const raw =
     process.env.PAYMENT_ALLOWED_ORIGINS ||
@@ -99,7 +107,7 @@ function createCorsOriginDelegate() {
     if (!origin) {
       return cb(null, true);
     }
-    if (allowed.includes('*') || allowed.includes(origin)) {
+    if (allowed.includes('*') || allowed.includes(origin) || isPosrLanUiOrigin(origin)) {
       return cb(null, true);
     }
     return cb(null, false);

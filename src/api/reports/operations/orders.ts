@@ -11,6 +11,7 @@ import {getOrderFilteredItems, getOrderCartDiscountAmount} from "@/lib/order.ts"
 import {toJsDate} from "@/lib/datetime.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DateTime} from "luxon";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
 
 const STATUS_ALIASES: Record<string, string> = {
   "in progress": OrderStatus["In Progress"],
@@ -87,7 +88,7 @@ const formatOrderRow = (order: Order) => {
     orderId: recordToString(order.id),
     invoiceNumber: order.invoice_number,
     status: order.status,
-    createdAt: DateTime.fromJSDate(jsDate).toFormat(import.meta.env.VITE_DATE_TIME_FORMAT as string),
+    createdAt: DateTime.fromJSDate(jsDate).toFormat(runtimeDateTimeFormat()),
     server: user ? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() : undefined,
     customer: customer?.name,
     customerPhone: customer?.phone != null ? String(customer.phone) : undefined,

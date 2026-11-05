@@ -52,7 +52,7 @@ function build(printer, data = {}, config = {}) {
   const comments = data.comments || '';
   const cfg = normalizeConfig(config);
 
-  const dateOpts = { timezone: cfg.timezone, locale: cfg.locale };
+  const dateOpts = { timezone: cfg.timezone, locale: cfg.locale, dateFormat: cfg.dateFormat, timeFormat: cfg.timeFormat };
   const orderId = order ? getOrderId(order) : '';
   const createdAt = order
     ? getOrderCreatedAt(order, dateOpts)

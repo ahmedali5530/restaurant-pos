@@ -20,13 +20,14 @@ import {
 import { PageLoader } from "@/components/common/loader/page-loader.tsx";
 import { useTranslation } from "react-i18next";
 import { setPosStoreEffectivelyConnected } from "@/infrastructure/pos-store/connectivity.ts";
+import { browserReportsOnline, desktopKeepsLocalSession } from "@/lib/desktop-connectivity.ts";
 
 const SESSION_EVENT = "posr-session";
 /** Durable across tabs/sessions — allows offline cold boot after a prior connect. */
 const CONNECTED_ONCE_KEY = "posr-db-connected-once";
 
 function readBrowserOnline(): boolean {
-  return typeof navigator === "undefined" || navigator.onLine;
+  return browserReportsOnline();
 }
 
 function readConnectedOnceFlag(): boolean {
@@ -61,7 +62,7 @@ function persistConnectedOnce(value: boolean) {
 
 /** Offline FOH may mount without Surreal when a prior session exists. */
 function canBootWithoutSurreal(): boolean {
-  if (typeof navigator !== "undefined" && navigator.onLine === false && Boolean(getSessionToken())) {
+  if (!browserReportsOnline() && Boolean(getSessionToken())) {
     return true;
   }
   return readConnectedOnceFlag();
@@ -288,6 +289,8 @@ export const DatabaseProvider: React.FC<DatabaseProviderProps> = ({
       }
     };
     const onOffline = () => {
+      // The local database does not use the NIC. Closing it freezes the register.
+      if (desktopKeepsLocalSession()) return;
       setIsBrowserOnline(false);
       setIsConnected(false);
       void surrealInstance.close().catch(() => {});

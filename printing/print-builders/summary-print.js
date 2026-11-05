@@ -26,7 +26,7 @@ function printMixRow(printer, left, qty, total, share, sym, options = {}) {
   const { bold = false, indent = 0 } = options;
   const pad = ' '.repeat(indent);
   const label = `${pad}${String(left).slice(0, 22)}`;
-  const right = `${formatNum(qty)}  ${formatMoney(total, sym)}  ${formatNum(share)}%`;
+  const right = `${formatNum(qty)}  ${formatMoney(total, sym, cfg)}  ${formatNum(share)}%`;
   if (bold) {
     printer.style('b');
   }
@@ -91,7 +91,7 @@ function printPaymentTypes(printer, paymentTypes, grandTotalDue, sym, line, L) {
   rows.forEach((payment) => {
     const share = formatNum(pct(payment.total, grandTotalDue)) + '%';
     const count = payment.count != null ? ` x${formatNum(payment.count)}` : '';
-    line(payment.name, `${formatMoney(payment.total, sym)}${count}  ${share}`);
+    line(payment.name, `${formatMoney(payment.total, sym, cfg)}${count}  ${share}`);
   });
 }
 
@@ -103,7 +103,7 @@ function printSaleGroups(printer, rows, emptyLabel, line, sym) {
   rows.forEach((row) => {
     line(
       `${row.name} (${formatNum(row.ordersCount)})`,
-      formatMoney(row.total, sym)
+      formatMoney(row.total, sym, cfg)
     );
   });
 }
@@ -116,20 +116,20 @@ function printTaxesBreakdown(printer, taxesList, taxCollected, sym, line, L) {
   taxesList.forEach((tax) => {
     const share = formatNum(pct(tax.total, taxCollected)) + '%';
     const count = tax.count != null ? ` x${formatNum(tax.count)}` : '';
-    line(`${tax.name}%`, `${formatMoney(tax.total, sym)}${count}  ${share}`);
+    line(`${tax.name}%`, `${formatMoney(tax.total, sym, cfg)}${count}  ${share}`);
   });
 }
 
 function printOperationalControls(printer, s, sym, line, L) {
-  line(L.voids || 'Voids', formatMoney(s.voids, sym));
-  line(L.refunds || 'Refunds', formatMoney(s.refunds, sym));
+  line(L.voids || 'Voids', formatMoney(s.voids, sym, cfg));
+  line(L.refunds || 'Refunds', formatMoney(s.refunds, sym, cfg));
   line(
     L.covers || 'Covers',
-    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`
+    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym, cfg)}`
   );
   line(
     L.ordersChecks || 'Orders / checks',
-    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`
+    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym, cfg)}`
   );
 }
 
@@ -153,22 +153,22 @@ function printSummaryHeader(printer, s, L) {
 
 function printSalesRevenue(printer, s, sym, line, L, sectionTitle) {
   sect(printer, sectionTitle || L.salesRevenue || '1. Sales revenue');
-  line(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym));
-  line(L.extras || 'Extras', formatMoney(s.totalExtras, sym));
-  line(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym));
-  line(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym));
-  line(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym));
-  line(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym));
-  line(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym));
-  line(L.netSales || 'Net sales', formatMoney(s.netSales, sym));
+  line(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym, cfg));
+  line(L.extras || 'Extras', formatMoney(s.totalExtras, sym, cfg));
+  line(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym, cfg));
+  line(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym, cfg));
+  line(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym, cfg));
+  line(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym, cfg));
+  line(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym, cfg));
+  line(L.netSales || 'Net sales', formatMoney(s.netSales, sym, cfg));
 }
 
 function printSurchargesTaxes(printer, s, sym, line, L, sectionTitle, includeBreakdown) {
   sect(printer, sectionTitle || L.surchargesTaxes || '2. Surcharges and taxes');
-  line(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym));
-  line(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym));
+  line(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym, cfg));
+  line(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym, cfg));
   printer.style('bu');
-  line(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym));
+  line(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym, cfg));
   printer.style('normal');
   if (includeBreakdown) {
     printTaxesBreakdown(printer, s.taxesList, s.taxCollected, sym, line, L);
@@ -177,14 +177,14 @@ function printSurchargesTaxes(printer, s, sym, line, L, sectionTitle, includeBre
 
 function printSettlementCashier(printer, s, sym, line, L, sectionTitle) {
   sect(printer, sectionTitle || L.settlementCashier || '3. Settlement and cashier');
-  line(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym));
-  line(L.tips || 'Tips', formatMoney(s.tips, sym));
+  line(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym, cfg));
+  line(L.tips || 'Tips', formatMoney(s.tips, sym, cfg));
   printer.style('bu');
-  line(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym));
+  line(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym, cfg));
   printer.style('normal');
-  line(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym));
-  line(L.rounding || 'Rounding', formatMoney(s.rounding, sym));
-  line(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym));
+  line(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym, cfg));
+  line(L.rounding || 'Rounding', formatMoney(s.rounding, sym, cfg));
+  line(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym, cfg));
 }
 
 function printMinimalDailySalesSummary(printer, data, cfg) {
@@ -194,6 +194,8 @@ function printMinimalDailySalesSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const line = (left, right) => printLineLeftRight(printer, left, right);
 
@@ -234,6 +236,8 @@ function printProductMixSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
 
   const titleTemplate = L.productMixTitle || 'Product mix — {{date}}';
@@ -269,6 +273,8 @@ function printDailySalesSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const line = (left, right) => printLineLeftRight(printer, left, right);
 
@@ -314,14 +320,14 @@ function printDailySalesSummary(printer, data, cfg) {
     s.discountsList.forEach((discount) => {
       const share = formatNum(pct(discount.total, s.discounts)) + '%';
       const count = discount.count != null ? ` x${formatNum(discount.count)}` : '';
-      line(discount.name, `${formatMoney(discount.total, sym)}${count}  ${share}`);
+      line(discount.name, `${formatMoney(discount.total, sym, cfg)}${count}  ${share}`);
     });
   }
 
   sect(printer, L.tipsBreakdown || '11. Tips');
   line(
     L.tips || 'Tips',
-    `${formatMoney(s.tips, sym)} x${formatNum(s.tipsCount || 0)}`
+    `${formatMoney(s.tips, sym, cfg)} x${formatNum(s.tipsCount || 0)}`
   );
 
   sect(printer, L.extrasBreakdown || '12. Extras breakdown');
@@ -331,7 +337,7 @@ function printDailySalesSummary(printer, data, cfg) {
     s.extrasList.forEach((extra) => {
       const share = formatNum(pct(extra.total, s.totalExtras)) + '%';
       const count = extra.count != null ? ` x${formatNum(extra.count)}` : '';
-      line(extra.name, `${formatMoney(extra.total, sym)}${count}  ${share}`);
+      line(extra.name, `${formatMoney(extra.total, sym, cfg)}${count}  ${share}`);
     });
   }
 
@@ -341,7 +347,7 @@ function printDailySalesSummary(printer, data, cfg) {
   } else {
     s.couponsList.forEach((coupon) => {
       const count = coupon.count != null ? ` x${formatNum(coupon.count)}` : '';
-      line(coupon.name, `${formatMoney(coupon.total, sym)}${count}`);
+      line(coupon.name, `${formatMoney(coupon.total, sym, cfg)}${count}`);
     });
   }
 

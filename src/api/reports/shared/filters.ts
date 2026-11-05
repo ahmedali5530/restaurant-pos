@@ -4,9 +4,9 @@ import type {BranchScopeParams, BranchView} from "@/api/reports/shared/branch-sc
 import type {DateRangeFilter} from "@/api/reports/shared/types.ts";
 import type {ClosingCycleConfig} from "@/lib/closing-cycle.ts";
 import {formatReportRangeForQuery} from "@/lib/kitchen/business-date.ts";
+import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 /** Luxon format for query parameter values (matches report date pickers). */
-const QUERY_DATE_TIME_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
 
 const rangeForDays = (
   config: ClosingCycleConfig | null | undefined,
@@ -42,14 +42,14 @@ export const parseBranchScopeFromParams = (params: URLSearchParams): BranchScope
   branchView: parseBranchView(params.get("branchView")),
 });
 
-export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(QUERY_DATE_TIME_FORMAT);
+export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(runtimeDateTimeFormat());
 
 const getNow = () => DateTime.now().setZone(getAppTimezone());
 
 /** Human-readable anchor date for AI system prompts. */
 export const getBusinessDateContext = (): string => {
   const now = getNow();
-  const dateFormat = import.meta.env.VITE_DATE_FORMAT as string;
+  const dateFormat = runtimeDateFormat();
 
   return [
     `Today is ${now.toFormat("cccc, MMMM d, yyyy")} (${now.toFormat(dateFormat)})`,
@@ -71,17 +71,17 @@ export const normalizeQueryDate = (value: string): string => {
     return formatDateTimeForQuery(fromIso);
   }
 
-  const fromQueryFormat = DateTime.fromFormat(trimmed, QUERY_DATE_TIME_FORMAT, {zone: timezone});
+  const fromQueryFormat = DateTime.fromFormat(trimmed, runtimeDateTimeFormat(), {zone: timezone});
   if (fromQueryFormat.isValid) {
     return formatDateTimeForQuery(fromQueryFormat);
   }
 
-  const fromDateOnly = DateTime.fromFormat(trimmed, import.meta.env.VITE_DATE_FORMAT as string, {zone: timezone});
+  const fromDateOnly = DateTime.fromFormat(trimmed, runtimeDateFormat(), {zone: timezone});
   if (fromDateOnly.isValid) {
     return formatDateTimeForQuery(fromDateOnly);
   }
 
-  throw new Error(`Could not parse date: "${value}". Expected format like ${QUERY_DATE_TIME_FORMAT}.`);
+  throw new Error(`Could not parse date: "${value}". Expected format like ${runtimeDateTimeFormat()}.`);
 };
 
 export const resolveNaturalDateRange = ({

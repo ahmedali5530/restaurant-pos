@@ -1,0 +1,32 @@
+{
+  "store": {
+    "store_name": "My Store",
+    "store_address": ""
+  },
+  "locale": {
+    "default_language": "en",
+    "locale": "en-US",
+    "currency": "USD",
+    "currency_symbol": "",
+    "decimal_places": 2,
+    "timezone": "UTC",
+    "date_format": "yyyy-MM-dd",
+    "time_format": "HH:mm"
+  },
+  "ai": {
+    "enabled": false,
+    "default_profile": "",
+    "profiles": []
+  },
+  "integrations": {
+    "token_encryption_key": "",
+    "qbo_client_id": "",
+    "qbo_client_secret": "",
+    "qbo_redirect_uri": "",
+    "qbo_env": "sandbox"
+  },
+  "server": {
+    "host": ""
+  },
+  "applied": false
+}

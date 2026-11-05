@@ -121,59 +121,59 @@ function printBillLayout(printer, bill, config, opts) {
   });
   printDivider(printer);
 
-  printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
+  printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
+    printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym, cfg));
     if (Array.isArray(bill.taxLines) && bill.taxLines.length > 0) {
       bill.taxLines.forEach((t) => {
-        printLineLeftRight(printer, t.label || taxLabel, formatMoney(t.amount, sym));
+        printLineLeftRight(printer, t.label || taxLabel, formatMoney(t.amount, sym, cfg));
       });
     }
   }
   if (Array.isArray(bill.discountLines) && bill.discountLines.length === 1) {
     const d = bill.discountLines[0];
     const singleLabel = formatDiscountMinimalPrint(d.rawName, d.valueType, d.rate, discountLabel);
-    printLineLeftRight(printer, singleLabel, '-' + formatMoney(d.amount, sym));
+    printLineLeftRight(printer, singleLabel, '-' + formatMoney(d.amount, sym, cfg));
   } else if (Array.isArray(bill.discountLines) && bill.discountLines.length > 1) {
-    printLineLeftRight(printer, discountLabel, '-' + formatMoney(bill.discountAmount, sym));
+    printLineLeftRight(printer, discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg));
     bill.discountLines.forEach((d) => {
-      printLineLeftRight(printer, '  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym));
+      printLineLeftRight(printer, '  ' + (d.name || discountLabel), '-' + formatMoney(d.amount, sym, cfg));
     });
   } else if (bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    printLineLeftRight(printer, bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym));
+    printLineLeftRight(printer, bill.discountLabel || discountLabel, '-' + formatMoney(bill.discountAmount, sym, cfg));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-    printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
+    printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg));
   }
   (bill.extras || []).forEach((e) => {
-    printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, sym));
+    printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, sym, cfg));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym));
+    printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym, cfg));
   }
   if (showDeliveryLine && bill.deliveryCharges != null && Number(bill.deliveryCharges) !== 0) {
-    printLineLeftRight(printer, deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym));
+    printLineLeftRight(printer, deliveryChargesLabel, formatMoney(bill.deliveryCharges, sym, cfg));
   }
   printDivider(printer);
 
   if (Array.isArray(bill.totalRows) && bill.totalRows.length > 0) {
     bill.totalRows.forEach((row) => {
-      printLineLeftRight(printer, row.label || totalLabel, formatMoney(row.amount, sym));
+      printLineLeftRight(printer, row.label || totalLabel, formatMoney(row.amount, sym, cfg));
     });
   } else {
-    printLineLeftRight(printer, totalLabel, formatMoney(bill.total, sym), { style: 'bold' });
+    printLineLeftRight(printer, totalLabel, formatMoney(bill.total, sym, cfg), { style: 'bold' });
     hardResetLayout(printer);
   }
 
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     printDivider(printer);
     bill.payments.forEach((p) => {
-      printLineLeftRight(printer, p.method || paymentLabel, formatMoney(p.amount, sym));
+      printLineLeftRight(printer, p.method || paymentLabel, formatMoney(p.amount, sym, cfg));
     });
   }
   if (showChange && bill.change != null && Number(bill.change) !== 0) {
     printDivider(printer);
-    printLineLeftRight(printer, changeLabel, formatMoney(bill.change, sym), { style: 'bold' });
+    printLineLeftRight(printer, changeLabel, formatMoney(bill.change, sym, cfg), { style: 'bold' });
   }
 
   if (notes) {

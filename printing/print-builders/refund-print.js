@@ -29,6 +29,8 @@ function build(printer, data = {}, config = {}) {
     showInclusivePrices: !!cfg.showInclusivePrices,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
 
   const refundReceiptLabel = L.refundReceipt || 'REFUND RECEIPT';
@@ -64,30 +66,30 @@ function build(printer, data = {}, config = {}) {
       const name = (it.name || it.title || '').slice(0, 28);
       const qty = it.qty != null ? it.qty : 1;
       const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-      printLineLeftRight(printer, `${name} x${qty}`, formatMoney(lineTotal, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, `${name} x${qty}`, formatMoney(lineTotal, cfg.currencySymbol ?? '$', cfg));
     });
     printer.drawLine();
 
-    printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, cfg.currencySymbol ?? '$'));
+    printLineLeftRight(printer, `${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, cfg.currencySymbol ?? '$', cfg));
     if (bill.tax != null && Number(bill.tax) !== 0) {
-      printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, `${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, cfg.currencySymbol ?? '$', cfg));
     }
     if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-      printLineLeftRight(printer, discountLabel, formatMoney(bill.discountAmount, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, discountLabel, formatMoney(bill.discountAmount, cfg.currencySymbol ?? '$', cfg));
     }
     if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-      printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, cfg.currencySymbol ?? '$', cfg));
     }
     (bill.extras || []).forEach((e) => {
-      printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, cfg.currencySymbol ?? '$', cfg));
     });
     if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-      printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, cfg.currencySymbol ?? '$'));
+      printLineLeftRight(printer, bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, cfg.currencySymbol ?? '$', cfg));
     }
     printer.drawLine();
 
     printer.style('bu');
-    printLineLeftRight(printer, refundTotalLabel, formatMoney(bill.total, cfg.currencySymbol ?? '$'));
+    printLineLeftRight(printer, refundTotalLabel, formatMoney(bill.total, cfg.currencySymbol ?? '$', cfg));
     printer.style('normal');
 
     printVatLine(printer, cfg);

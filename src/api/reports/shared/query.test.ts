@@ -67,6 +67,16 @@ describe('toReportBoundaryUtcIso', () => {
     )
   })
 
+  it('uses yyyy-MM-dd HH:mm when the date env vars are unset', () => {
+    vi.stubEnv('VITE_APP_TIMEZONE', 'UTC')
+    vi.stubEnv('VITE_DATE_FORMAT', '')
+    vi.stubEnv('VITE_DATE_TIME_FORMAT', '')
+    vi.stubEnv('VITE_TIME_FORMAT', '')
+    expect(toReportBoundaryUtcIso('2026-10-02 23:59')).toBe(
+      '2026-10-02T23:59:00.000Z'
+    )
+  })
+
   it('returns undefined and warns for an unparseable boundary', () => {
     vi.stubEnv('VITE_APP_TIMEZONE', 'UTC')
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
