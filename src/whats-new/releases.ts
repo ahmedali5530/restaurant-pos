@@ -7,6 +7,20 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-05',
+    title: 'Customer details before receipt footer',
+    items: [
+      'Temp and final bills print customer name, phone, and address after payments/change/notes, immediately before the custom footer sections.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Show table name on receipts',
+    items: [
+      'Print settings can show or hide the table name on bills and kitchen tickets (on by default), alongside order type and customer.',
+    ],
+  },
+  {
     date: '2026-11-04',
     title: 'Dish photos after HQ Sync now',
     items: [

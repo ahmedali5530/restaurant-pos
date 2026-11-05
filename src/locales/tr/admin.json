@@ -471,7 +471,8 @@
     "kraTaxTyCd": "KRA vergi türü (A–E)",
     "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın.",
     "showOrderType": "Sipariş türünü göster",
-    "showCustomer": "Müşteriyi göster"
+    "showCustomer": "Müşteriyi göster",
+    "showTableName": "Masa adını göster"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

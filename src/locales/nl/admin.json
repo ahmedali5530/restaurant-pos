@@ -471,7 +471,8 @@
     "kraTaxTyCd": "KRA-belastingtype (A–E)",
     "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken.",
     "showOrderType": "Besteltype tonen",
-    "showCustomer": "Klant tonen"
+    "showCustomer": "Klant tonen",
+    "showTableName": "Tafelnaam tonen"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",

@@ -471,7 +471,8 @@
     "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
     "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
     "showOrderType": "Mostrar tipo de pedido",
-    "showCustomer": "Mostrar cliente"
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nombre de mesa"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

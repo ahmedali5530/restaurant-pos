@@ -471,7 +471,8 @@
     "kraTaxTyCd": "KRA-Steuertyp (A–E)",
     "kraFiscalHint": "Optionale Kenia-eTIMS-Überschreibungen. Leer lassen, um die KRA-Provider-Standards zu verwenden.",
     "showOrderType": "Bestelltyp anzeigen",
-    "showCustomer": "Kunde anzeigen"
+    "showCustomer": "Kunde anzeigen",
+    "showTableName": "Tischnamen anzeigen"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

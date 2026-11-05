@@ -471,7 +471,8 @@
     "kraTaxTyCd": "Tipo de imposto KRA (A–E)",
     "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA.",
     "showOrderType": "Mostrar tipo de pedido",
-    "showCustomer": "Mostrar cliente"
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nome da mesa"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

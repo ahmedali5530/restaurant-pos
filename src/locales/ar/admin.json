@@ -471,7 +471,8 @@
     "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
     "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية.",
     "showOrderType": "إظهار نوع الطلب",
-    "showCustomer": "إظهار العميل"
+    "showCustomer": "إظهار العميل",
+    "showTableName": "إظهار اسم الطاولة"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

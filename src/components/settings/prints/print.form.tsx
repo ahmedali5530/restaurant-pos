@@ -61,6 +61,7 @@ type PrintFormValues = {
   showItemTotal?: boolean
   showOrderType?: boolean
   showCustomer?: boolean
+  showTableName?: boolean
 }
 
 function toSelectOption(value: unknown, options: SelectOption[]): SelectOption {
@@ -219,6 +220,7 @@ export const PrintForm = ({
         logoHeight: clampImageDim(data.values.logoHeight, DEFAULT_LOGO_PX, 576),
         showOrderType: data.values.showOrderType !== false,
         showCustomer: data.values.showCustomer !== false,
+        showTableName: data.values.showTableName !== false,
         logo: null,
         headerSections: normalizeSectionsFromDb(data.values.headerSections),
         footerSections: normalizeSectionsFromDb(data.values.footerSections),
@@ -355,6 +357,7 @@ export const PrintForm = ({
       logoHeight: clampImageDim(values.logoHeight, DEFAULT_LOGO_PX, 576),
       showOrderType: values.showOrderType !== false,
       showCustomer: values.showCustomer !== false,
+      showTableName: values.showTableName !== false,
       renderOptions: (data?.values?.renderOptions && typeof data.values.renderOptions === 'object')
         ? data.values.renderOptions
         : {},
@@ -817,6 +820,20 @@ export const PrintForm = ({
                       onChange={field.onChange}
                     >
                       {t('forms.showCustomer')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showTableName"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showTableName')}
                     </Switch>
                   )}
                 />

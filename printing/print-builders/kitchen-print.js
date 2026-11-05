@@ -78,6 +78,7 @@ function build(printer, data = {}, config = {}) {
       createdAt,
       labels: L,
       showOrderType: cfg.showOrderType !== false,
+      showTableName: cfg.showTableName !== false,
     });
 
     printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });

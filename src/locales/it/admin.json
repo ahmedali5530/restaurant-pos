@@ -471,7 +471,8 @@
     "kraTaxTyCd": "Tipo imposta KRA (A–E)",
     "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA.",
     "showOrderType": "Mostra tipo ordine",
-    "showCustomer": "Mostra cliente"
+    "showCustomer": "Mostra cliente",
+    "showTableName": "Mostra nome tavolo"
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",

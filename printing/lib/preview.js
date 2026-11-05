@@ -208,10 +208,15 @@ function renderBillToHtml(bill, config, opts) {
   const orderTypeLabel = L.orderType || 'Order Type';
   const tableLabel = L.table || 'Table';
   const cashierLabel = L.cashier || 'Cashier';
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
   const orderTypeRight = cfg.showOrderType !== false && bill.orderType
     ? `${orderTypeLabel}: ${bill.orderType}`
     : '';
-  parts.push(row(`${tableLabel}: ${bill.table || '-'}`, orderTypeRight));
+  if (tableLeft || orderTypeRight) {
+    parts.push(row(tableLeft, orderTypeRight));
+  }
   parts.push(row(`${cashierLabel}: ${bill.userName || '-'}`, ''));
   parts.push('<hr/>');
 
@@ -266,18 +271,6 @@ function renderBillToHtml(bill, config, opts) {
   // Total
   parts.push(`<div class="row bold"><span>${escapeHtml(totalLabel)}</span><span>${escapeHtml(formatMoney(bill.total, sym))}</span></div>`);
 
-  if (cfg.showCustomer !== false && (customerName || phone || address)) {
-    parts.push('<hr/>');
-    const pushWrapped = (label, value) => {
-      wrapReceiptText(`${label}: ${String(value)}`, 'normal').forEach((line) => {
-        parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
-      });
-    };
-    if (customerName) pushWrapped(customerLabel, customerName);
-    if (phone) pushWrapped(phoneLabel, phone);
-    if (address) pushWrapped(addressLabel, address);
-  }
-
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     parts.push('<hr/>');
     bill.payments.forEach((p) => {
@@ -298,6 +291,20 @@ function renderBillToHtml(bill, config, opts) {
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
   }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    parts.push('<hr/>');
+    const pushWrapped = (label, value) => {
+      wrapReceiptText(`${label}: ${String(value)}`, 'normal').forEach((line) => {
+        parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
+      });
+    };
+    if (customerName) pushWrapped(customerLabel, customerName);
+    if (phone) pushWrapped(phoneLabel, phone);
+    if (address) pushWrapped(addressLabel, address);
+  }
+
   const fiscalHtml = renderFiscalQrToHtml(opts && opts.qrcodes, opts && opts.qrcode);
   if (fiscalHtml) parts.push(fiscalHtml);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
@@ -532,9 +539,10 @@ function renderKitchenToHtml(data, config) {
     parts.push(`<div class="center bold">${escapeHtml(orderBannerLine)}</div>`);
   }
   const showOrderType = cfg.showOrderType !== false;
-  if (table || (showOrderType && orderType)) {
+  const showTableName = cfg.showTableName !== false;
+  if ((showTableName && table) || (showOrderType && orderType)) {
     parts.push(
-      `<div class="row"><span>${table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
+      `<div class="row"><span>${showTableName && table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
         `<span>${showOrderType && orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
     );
   }

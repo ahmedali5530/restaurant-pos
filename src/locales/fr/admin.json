@@ -471,7 +471,8 @@
     "kraTaxTyCd": "Type de taxe KRA (A–E)",
     "kraFiscalHint": "Remplacements eTIMS Kenya facultatifs. Laissez vide pour utiliser les valeurs par défaut du fournisseur KRA.",
     "showOrderType": "Afficher le type de commande",
-    "showCustomer": "Afficher le client"
+    "showCustomer": "Afficher le client",
+    "showTableName": "Afficher le nom de table"
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
