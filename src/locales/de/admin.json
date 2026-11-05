@@ -843,7 +843,8 @@
       "admin.catalog_publish": "Katalog veröffentlichen",
       "settings.backup": "Einstellungssicherung",
       "settings.restore": "Einstellungen wiederherstellen",
-      "settings.database": "Datenbanksicherung"
+      "settings.database": "Datenbanksicherung",
+      "settings.customer_display": "Kundendisplay"
     }
   },
   "discountEngine": {

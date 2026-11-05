@@ -843,7 +843,8 @@
       "admin.catalog_publish": "Catalogus publiceren",
       "settings.backup": "Instellingenback-up",
       "settings.restore": "Instellingen herstellen",
-      "settings.database": "Databaseback-up"
+      "settings.database": "Databaseback-up",
+      "settings.customer_display": "Klantenscherm"
     }
   },
   "discountEngine": {

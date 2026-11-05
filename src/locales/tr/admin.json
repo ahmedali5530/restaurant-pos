@@ -843,7 +843,8 @@
       "admin.catalog_publish": "Katalog yayınla",
       "settings.backup": "Ayar yedeği",
       "settings.restore": "Ayarları geri yükle",
-      "settings.database": "Veritabanı yedeği"
+      "settings.database": "Veritabanı yedeği",
+      "settings.customer_display": "Müşteri ekranı"
     }
   },
   "discountEngine": {

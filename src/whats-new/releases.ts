@@ -8,6 +8,24 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-05',
+    title: 'Customer display idle ads and clear after payment',
+    items: [
+      'Closing or settling Pay Now clears the customer display (thank-you briefly after pay) instead of leaving the previous check stuck on screen.',
+      'Settings → Customer display (permission-gated) can enable an idle image/video playlist for advertisement when no order is shown.',
+      'Opening the customer display copies a pairing URL (?terminal=&pair=) that another browser can open without logging in — it polls the gateway instead of connecting to Surreal.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer display: modifiers, prices, and Tauri sync',
+    items: [
+      'Customer display shows each line in a borderless Item / Qty / Price / Total table, including indented modifiers under dishes.',
+      'Opening the display pairs with this terminal via ?terminal=; Surreal keeps a logged-in browser window in sync with the Tauri POS cart (same-browser BroadcastChannel still works).',
+      'When a check is open (or Pay Now is open), the display also shows tax, discounts, coupons, service charges, extras, and tip so the grand total matches the cart footer.',
+    ],
+  },
+  {
+    date: '2026-11-05',
     title: '72 mm paper width',
     items: [
       'Print settings and printer overrides can select 72 mm paper (512-dot raster width) in addition to 58 mm and 80 mm.',

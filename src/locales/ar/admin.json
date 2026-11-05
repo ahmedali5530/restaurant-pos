@@ -843,7 +843,8 @@
       "admin.catalog_publish": "نشر الكتالوج",
       "settings.backup": "نسخ احتياطي للإعدادات",
       "settings.restore": "استعادة الإعدادات",
-      "settings.database": "نسخ احتياطي لقاعدة البيانات"
+      "settings.database": "نسخ احتياطي لقاعدة البيانات",
+      "settings.customer_display": "شاشة العميل"
     }
   },
   "discountEngine": {

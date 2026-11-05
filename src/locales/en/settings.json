@@ -429,5 +429,22 @@
       "confirmTitle": "Restore full database?",
       "confirmMessage": "Import this .surql file into the live database. Records in the file overwrite matching rows; records that exist only in the live database are kept. Catalog cache on this terminal will refresh afterward."
     }
+  },
+  "customerDisplay": {
+    "title": "Customer display",
+    "description": "When the customer display has no order, show welcome text or a rotating advertisement playlist of images and videos.",
+    "enabled": "Show advertisements when idle",
+    "rotationInterval": "Image rotation (seconds)",
+    "rotationHint": "How long each image stays on screen. Videos advance when they finish playing.",
+    "pickMedia": "Add images or videos",
+    "mediaHint": "PNG, JPEG, GIF, WebP, or common video formats. Max {{size}} per file.",
+    "noMedia": "No media uploaded yet.",
+    "remove": "Remove",
+    "updated": "Customer display settings updated",
+    "saveDescription": "Save customer display settings",
+    "loadFailed": "Failed to load customer display settings",
+    "saveFailed": "Failed to save customer display settings",
+    "tooLarge": "File exceeds the maximum size of {{size}}.",
+    "invalidType": "Use an image or video file."
   }
 }

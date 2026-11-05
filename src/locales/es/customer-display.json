@@ -6,7 +6,20 @@
   "thankYou": "¡Gracias!",
   "thankYouHint": "Vuelva pronto",
   "qty": "Cant. {{count}}",
+  "colItem": "Artículo",
+  "colQty": "Cant.",
+  "colPrice": "Precio",
+  "colTotal": "Total",
   "total": "Total",
   "items": "Artículos ({{count}})",
-  "totalWithTax": "Total con {{name}} {{rate}}%"
+  "totalWithTax": "Total con {{name}} {{rate}}%",
+  "adjTax": "{{name}}",
+  "adjTaxNamed": "{{name}} {{rate}}%",
+  "adjDiscount": "Descuento ({{name}})",
+  "adjCoupon": "Cupón ({{name}})",
+  "adjService": "Cargo por servicio ({{value}}{{unit}})",
+  "adjServicePlain": "Cargo por servicio",
+  "adjTip": "Propina",
+  "adjTipPercent": "Propina %",
+  "adjExtra": "Extra"
 }

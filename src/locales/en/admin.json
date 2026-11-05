@@ -1060,7 +1060,8 @@
       "integrations.save_configuration": "Save integration configuration",
       "settings.backup": "Settings backup",
       "settings.restore": "Settings restore",
-      "settings.database": "Database backup"
+      "settings.database": "Database backup",
+      "settings.customer_display": "Customer display"
     }
   },
   "securityAlerts": {

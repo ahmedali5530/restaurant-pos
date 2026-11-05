@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
+        '/customer-display-api': { target: gatewayTarget, changeOrigin: true },
         '/backup': { target: gatewayTarget, changeOrigin: true },
       },
       allowedHosts: ['ahmed-pc.tailnet.ahmedali5530.xyz']
@@ -32,6 +33,7 @@ export default defineConfig(({ mode }) => {
     preview: {
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
+        '/customer-display-api': { target: gatewayTarget, changeOrigin: true },
         '/backup': { target: gatewayTarget, changeOrigin: true },
       },
     },

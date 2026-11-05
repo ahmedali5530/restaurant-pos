@@ -429,5 +429,22 @@
       "confirmTitle": "Volledige database herstellen?",
       "confirmMessage": "Importeer dit .surql-bestand in de live database. Records in het bestand overschrijven overeenkomende rijen; records die alleen live bestaan blijven behouden. De cataloguscache van deze terminal wordt daarna vernieuwd."
     }
+  },
+  "customerDisplay": {
+    "title": "Klantenscherm",
+    "description": "Wanneer het klantenscherm geen bestelling toont, welkomsttekst of een roterende advertentieplaylist met afbeeldingen en video's tonen.",
+    "enabled": "Advertenties tonen in idle",
+    "rotationInterval": "Afbeeldingsrotatie (seconden)",
+    "rotationHint": "Hoe lang elke afbeelding blijft. Video's gaan door na afspelen.",
+    "pickMedia": "Afbeeldingen of video's toevoegen",
+    "mediaHint": "PNG, JPEG, GIF, WebP of gangbare videoformaten. Max {{size}} per bestand.",
+    "noMedia": "Nog geen media geüpload.",
+    "remove": "Verwijderen",
+    "updated": "Klantenscherm-instellingen bijgewerkt",
+    "saveDescription": "Klantenscherm-instellingen opslaan",
+    "loadFailed": "Klantenscherm-instellingen laden mislukt",
+    "saveFailed": "Klantenscherm-instellingen opslaan mislukt",
+    "tooLarge": "Bestand overschrijdt de maximale grootte van {{size}}.",
+    "invalidType": "Gebruik een afbeeldings- of videobestand."
   }
 }

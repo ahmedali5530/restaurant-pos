@@ -16,6 +16,7 @@ import {NumberPolicySettingsCard} from "@/components/user_settings/number_policy
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ThemeSettings} from "@/components/user_settings/theme.tsx";
 import {BrandingSettingsCard} from "@/components/user_settings/branding.tsx";
+import {CustomerDisplaySettingsCard} from "@/components/user_settings/customer_display.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
@@ -56,6 +57,7 @@ export const Settings = () => {
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>
         <MasonryItem><BrandingSettingsCard /></MasonryItem>
+        <MasonryItem><CustomerDisplaySettingsCard /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
         <MasonryItem><Printersettings /></MasonryItem>
         <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>

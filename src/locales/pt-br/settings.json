@@ -429,5 +429,22 @@
       "confirmTitle": "Restaurar o banco completo?",
       "confirmMessage": "Importe este arquivo .surql no banco ao vivo. Registros no arquivo sobrescrevem linhas correspondentes; os que existem só ao vivo são mantidos. O cache do catálogo deste terminal será atualizado em seguida."
     }
+  },
+  "customerDisplay": {
+    "title": "Tela do cliente",
+    "description": "Quando a tela do cliente não tiver pedido, mostrar o texto de boas-vindas ou uma playlist de anúncios com imagens e vídeos.",
+    "enabled": "Mostrar anúncios no modo ocioso",
+    "rotationInterval": "Rotação de imagens (segundos)",
+    "rotationHint": "Quanto tempo cada imagem fica. Vídeos avançam ao terminar.",
+    "pickMedia": "Adicionar imagens ou vídeos",
+    "mediaHint": "PNG, JPEG, GIF, WebP ou formatos de vídeo comuns. Máx. {{size}} por arquivo.",
+    "noMedia": "Nenhuma mídia enviada ainda.",
+    "remove": "Remover",
+    "updated": "Configurações da tela do cliente atualizadas",
+    "saveDescription": "Salvar configurações da tela do cliente",
+    "loadFailed": "Falha ao carregar configurações da tela do cliente",
+    "saveFailed": "Falha ao salvar configurações da tela do cliente",
+    "tooLarge": "O arquivo excede o tamanho máximo de {{size}}.",
+    "invalidType": "Use um arquivo de imagem ou vídeo."
   }
 }

@@ -41,6 +41,7 @@ import {
   loadClosingCycleConfigFromCatalog,
 } from "@/lib/closing-cycle.ts";
 import {resolveReportDayWindow} from "@/lib/kitchen/business-date.ts";
+import {useCustomerDisplayPublisher} from "@/hooks/useCustomerDisplayPublisher.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -100,6 +101,7 @@ export const Orders = () => {
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
+  useCustomerDisplayPublisher();
   const liveQueryRef = useRef<LiveSubscription | null>(null);
   const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);

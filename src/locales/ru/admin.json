@@ -843,7 +843,8 @@
       "admin.catalog_publish": "Публикация каталога",
       "settings.backup": "Резервная копия настроек",
       "settings.restore": "Восстановление настроек",
-      "settings.database": "Резервная копия базы"
+      "settings.database": "Резервная копия базы",
+      "settings.customer_display": "Экран клиента"
     }
   },
   "discountEngine": {

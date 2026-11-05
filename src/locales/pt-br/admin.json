@@ -843,7 +843,8 @@
       "admin.catalog_publish": "Publicar catálogo",
       "settings.backup": "Backup de configurações",
       "settings.restore": "Restaurar configurações",
-      "settings.database": "Backup do banco"
+      "settings.database": "Backup do banco",
+      "settings.customer_display": "Tela do cliente"
     }
   },
   "discountEngine": {
