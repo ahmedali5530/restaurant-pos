@@ -36,6 +36,7 @@ import {
   openCustomerDisplayWindow,
   useCustomerDisplayPublisher,
 } from "@/hooks/useCustomerDisplayPublisher.ts";
+import {useDB} from "@/api/db/db.ts";
 
 type AddDishOpts = {
   fractionalQty?: boolean;
@@ -47,6 +48,7 @@ type AddDishOpts = {
 
 export const QuickOrder = () => {
   const {t} = useTranslation(["quick-order", "navigation", "closing", "menu"]);
+  const db = useDB();
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -397,7 +399,7 @@ export const QuickOrder = () => {
   };
 
   const openCustomerDisplay = () => {
-    openCustomerDisplayWindow(state.cart, settings.taxes);
+    void openCustomerDisplayWindow(state.cart, settings.taxes, db);
   };
 
   return (

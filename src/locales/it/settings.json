@@ -429,5 +429,22 @@
       "confirmTitle": "Ripristinare l’intero database?",
       "confirmMessage": "Importa questo file .surql nel database live. I record nel file sovrascrivono le righe corrispondenti; quelli presenti solo sul live restano. La cache catalogo di questo terminale verrà aggiornata dopo."
     }
+  },
+  "customerDisplay": {
+    "title": "Display cliente",
+    "description": "Quando il display cliente non ha un ordine, mostra il messaggio di benvenuto o una playlist pubblicitaria di immagini e video.",
+    "enabled": "Mostra pubblicità in idle",
+    "rotationInterval": "Rotazione immagini (secondi)",
+    "rotationHint": "Durata di ogni immagine. I video avanzano al termine della riproduzione.",
+    "pickMedia": "Aggiungi immagini o video",
+    "mediaHint": "PNG, JPEG, GIF, WebP o formati video comuni. Max {{size}} per file.",
+    "noMedia": "Nessun media caricato.",
+    "remove": "Rimuovi",
+    "updated": "Impostazioni display cliente aggiornate",
+    "saveDescription": "Salva impostazioni display cliente",
+    "loadFailed": "Caricamento impostazioni display cliente non riuscito",
+    "saveFailed": "Salvataggio impostazioni display cliente non riuscito",
+    "tooLarge": "Il file supera la dimensione massima di {{size}}.",
+    "invalidType": "Usa un file immagine o video."
   }
 }

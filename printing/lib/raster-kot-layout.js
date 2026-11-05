@@ -18,6 +18,7 @@ function paintKotHeaderRaster(rc, opts) {
     extraLines = [],
     labels = {},
     showOrderType = true,
+    showTableName = true,
   } = opts || {};
 
   const L = labels || {};
@@ -43,7 +44,7 @@ function paintKotHeaderRaster(rc, opts) {
     rc.centered(orderBannerLine, { style: 'bold', size: 'normal' });
   }
 
-  const tableLeft = table ? `${tableLabel}: ${table}` : '';
+  const tableLeft = showTableName !== false && table ? `${tableLabel}: ${table}` : '';
   const typeRight = showOrderType !== false && orderType
     ? `${orderTypeLabel}: ${orderType}`
     : '';

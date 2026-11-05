@@ -4,7 +4,8 @@
     "nextDate": "Date suivante",
     "printSummary": "Imprimer le résumé",
     "productMixReport": "Rapport mix produits",
-    "serverSales": "Ventes par serveur"
+    "serverSales": "Ventes par serveur",
+    "printMinimalSummary": "Imprimer le résumé minimal"
   },
   "security": {
     "printSummaryDescription": "Imprimer le résumé",
@@ -12,7 +13,8 @@
     "productMixDescription": "Rapport mix produits",
     "productMixModule": "Rapport mix produits",
     "serverSalesDescription": "Ventes par serveur",
-    "serverSalesModule": "Ventes par serveur"
+    "serverSalesModule": "Ventes par serveur",
+    "printMinimalSummaryDescription": "Imprimer le résumé minimal"
   },
   "unknown": {
     "user": "Inconnu",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Règlement et caisse",
       "operationalControls": "4. Contrôles opérationnels",
       "productMix": "5. Mix produits",
-      "paymentTypes": "6. Types de paiement",
-      "taxesBreakdown": "7. Détail des taxes",
-      "discountsBreakdown": "8. Détail des remises",
-      "extrasBreakdown": "9. Détail des suppléments",
-      "couponsBreakdown": "10. Détail des coupons"
+      "paymentTypes": "8. Types de paiement",
+      "taxesBreakdown": "9. Détail des taxes",
+      "discountsBreakdown": "10. Détail des remises",
+      "extrasBreakdown": "12. Détail des extras",
+      "couponsBreakdown": "13. Détail des coupons",
+      "orderTypes": "6. Ventes par type de commande",
+      "orderTakers": "7. Ventes par preneur de commande",
+      "tipsBreakdown": "11. Pourboires"
     },
     "subtitles": {
       "surchargesTaxes": "Suppléments et taxes collectés (depuis les commandes ; généralement calculés sur le net après remise).",
       "settlementCashier": "Vue de la caisse.",
       "operationalControls": "Signaux d'audit (annulations distinctes du chiffre d'affaires brut).",
       "productMix": "Catégories regroupées avec les plats et leurs modificateurs.",
-      "paymentTypes": "Montant collecté réparti par mode de paiement.",
+      "paymentTypes": "Montant encaissé et nombre par mode (% du total dû).",
       "taxesBreakdown": "Composantes fiscales collectées sur les commandes.",
       "discountsBreakdown": "Schémas de remise appliqués sur cette période.",
       "extrasBreakdown": "Détail des suppléments au niveau de la commande.",
-      "couponsBreakdown": "Coupons utilisés et leurs valeurs."
+      "couponsBreakdown": "Coupons utilisés et leurs valeurs.",
+      "orderTypes": "Montant dû (avant pourboires) et nombre de commandes par type.",
+      "orderTakers": "Montant dû (avant pourboires) et nombre par preneur.",
+      "tipsBreakdown": "Montant des pourboires et commandes avec pourboire."
     },
     "rows": {
       "exclusiveSales": "Ventes hors taxes",
@@ -97,7 +105,9 @@
       "averageCover": "Montant dû (avant pourboires) ÷ couverts.",
       "ordersChecks": "Nombre de tickets/commandes clôturés.",
       "averageOrderCheck": "Montant dû (avant pourboires) ÷ commandes.",
-      "roundingLegacy": "Montant encaissé - Montant dû"
+      "roundingLegacy": "Montant encaissé - Montant dû",
+      "coversWithAverage": "Nombre de couverts et montant dû (avant pourboires) ÷ couverts.",
+      "ordersChecksWithAverage": "Commandes/chèques clôturés et montant dû (avant pourboires) ÷ commandes."
     },
     "columns": {
       "item": "Article",
@@ -111,7 +121,9 @@
       "noTaxRows": "Aucune ligne de taxe pour cette date.",
       "noDiscountRows": "Aucune ligne de remise pour cette date.",
       "noExtras": "Aucun supplément trouvé pour cette date.",
-      "noCoupons": "Aucune utilisation de coupon pour cette date."
+      "noCoupons": "Aucune utilisation de coupon pour cette date.",
+      "noOrderTypes": "Aucune donnée de type de commande pour cette date.",
+      "noOrderTakers": "Aucune donnée de preneur pour cette date."
     },
     "footer": "Séquence : ventes brutes → remises → ventes nettes → frais de service → taxes → pourboires → total général → encaissé. Le mix produits est regroupé par catégorie avec les plats imbriqués.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Couvert moyen",
       "ordersChecks": "Commandes/Tickets",
       "averageOrderCheck": "Commande/ticket moyen"
-    }
+    },
+    "unknownOrderType": "Type de commande inconnu",
+    "unknownTaker": "Inconnu",
+    "windowRange": "Période : {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Chiffre d'affaires",
+      "surchargesTaxes": "2. Surcharges et taxes",
+      "settlementCashier": "3. Règlement et caisse",
+      "operationalControls": "4. Contrôles opérationnels",
+      "paymentTypes": "5. Types de paiement"
+    },
+    "productMixTitle": "Mix produits — {{date}}"
   },
   "clock": {
     "title": "Pointage",

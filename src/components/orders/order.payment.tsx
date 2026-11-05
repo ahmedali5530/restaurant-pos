@@ -6,7 +6,7 @@ import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState}
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {computeOrderPaymentTotals} from "@/lib/order-payment-totals.ts";
-import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {cn, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
 import {Tax} from "@/api/model/tax.ts";
@@ -30,9 +30,22 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getInvoiceNumber, getOrderFilteredItems, isCashPaymentType} from "@/lib/order.ts";
-import {useAtom} from "jotai";
-import {appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
+import {
+  getInvoiceNumber,
+  getOrderFilteredItems,
+  isCashPaymentType,
+  recomputeDraftPaymentPayables,
+} from "@/lib/order.ts";
+import {useAtom, useAtomValue} from "jotai";
+import {appPage, appSettings, appState, skipFinalPrintOnPayment} from "@/store/jotai.ts";
+import {
+  acquireCustomerDisplayPaymentLock,
+  buildCustomerDisplaySnapshot,
+  publishCustomerDisplayIdle,
+  publishCustomerDisplaySnapshot,
+  upsertCustomerDisplayToSurreal,
+} from "@/lib/customer-display.ts";
+import {ensureTerminalIdentity} from "@/infrastructure/pos-store/identity.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
 import {isExtraApplicable as extraMatchesContext} from "@/infrastructure/pos-store/catalog.ts";
@@ -342,6 +355,146 @@ export const OrderPayment = ({
   }, [order, isInitialized]);
 
   const total = paymentTotals.total;
+  const cart = useAtomValue(appState).cart;
+  const taxes = useAtomValue(appSettings).taxes;
+  const settledRef = useRef(false);
+  const cartRef = useRef(cart);
+  const orderRef = useRef(order);
+  const taxesRef = useRef(taxes);
+  cartRef.current = cart;
+  orderRef.current = order;
+  taxesRef.current = taxes;
+
+  const displayTerminalIdRef = useRef<string | null>(null);
+  const displayUpsertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dbRef = useRef(db);
+  dbRef.current = db;
+
+  // Customer display: lock cart publisher while payment is open; clear on close/settle.
+  useEffect(() => {
+    const release = acquireCustomerDisplayPaymentLock();
+    return () => {
+      if (displayUpsertTimerRef.current) {
+        clearTimeout(displayUpsertTimerRef.current);
+        displayUpsertTimerRef.current = null;
+      }
+
+      // Unlock first (publisher may republish), then publish the intentional
+      // idle/thank-you/cart snapshot so it wins as the last write.
+      release();
+
+      const liveLen = (cartRef.current ?? []).filter((line) => !line.deleted_at).length;
+      let snapshot;
+      if (settledRef.current || liveLen === 0) {
+        snapshot = publishCustomerDisplayIdle({thankYou: settledRef.current});
+      } else {
+        snapshot = buildCustomerDisplaySnapshot(cartRef.current, {
+          taxes: taxesRef.current,
+          order: orderRef.current,
+        });
+        publishCustomerDisplaySnapshot(snapshot);
+      }
+
+      const terminalId = displayTerminalIdRef.current;
+      if (terminalId) {
+        void upsertCustomerDisplayToSurreal(dbRef.current, snapshot, terminalId);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void ensureTerminalIdentity()
+      .then((identity) => {
+        if (!cancelled) {
+          displayTerminalIdRef.current = identity.terminalId;
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+    const snapshot = buildCustomerDisplaySnapshot(cart, {
+      // Orders-screen Pay Now has no menu cart — lines come from `order.items`.
+      order,
+      paymentLive: {
+        itemsTotal,
+        taxAmount: paymentTotals.taxAmount,
+        taxName: tax?.name ?? order.tax?.name,
+        taxRate: safeNumber(tax?.rate ?? order.tax?.rate),
+        discountTotal: paymentTotals.discountTotal,
+        discountLines: paymentTotals.discountLines.map((line) => ({
+          name: line.name,
+          appliedAmount: line.appliedAmount,
+          appliedRate: line.appliedRate,
+          valueType: line.valueType,
+        })),
+        couponAmount,
+        couponLabel: coupon?.name ?? coupon?.code,
+        serviceChargeAmount,
+        serviceCharge,
+        serviceChargeType,
+        tipAmount,
+        tip,
+        tipType,
+        extras: Object.entries(extras)
+          .filter(([, value]) => Number(value) !== 0)
+          .map(([name, value]) => ({name, value: Number(value) || 0})),
+        total,
+      },
+    });
+    publishCustomerDisplaySnapshot(snapshot);
+
+    if (displayUpsertTimerRef.current) {
+      clearTimeout(displayUpsertTimerRef.current);
+    }
+    displayUpsertTimerRef.current = setTimeout(() => {
+      const terminalId = displayTerminalIdRef.current;
+      if (!terminalId) {
+        return;
+      }
+      void upsertCustomerDisplayToSurreal(dbRef.current, snapshot, terminalId);
+    }, 150);
+
+    return () => {
+      if (displayUpsertTimerRef.current) {
+        clearTimeout(displayUpsertTimerRef.current);
+        displayUpsertTimerRef.current = null;
+      }
+    };
+  }, [
+    isInitialized,
+    cart,
+    order,
+    itemsTotal,
+    paymentTotals.taxAmount,
+    paymentTotals.discountTotal,
+    paymentTotals.discountLines,
+    tax,
+    order.tax,
+    couponAmount,
+    coupon,
+    serviceChargeAmount,
+    serviceCharge,
+    serviceChargeType,
+    tipAmount,
+    tip,
+    tipType,
+    extras,
+    total,
+  ]);
+
+  // Keep draft tender payables aligned when discount/tip/service/extras change after tender.
+  useEffect(() => {
+    if (!isInitialized) return;
+    setPaymentTypes((prev) => recomputeDraftPaymentPayables(prev, total));
+  }, [total, isInitialized]);
 
   const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
     return computeOrderPaymentTotals(order, {
@@ -537,6 +690,7 @@ export const OrderPayment = ({
   const onPayment = (opts?: { settled?: boolean }) => {
     // After settle the order is Paid — do not flush draft/tax again (blocks modal close).
     if (opts?.settled) {
+      settledRef.current = true;
       onClose();
     } else {
       void closeModal();

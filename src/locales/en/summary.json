@@ -4,7 +4,8 @@
     "nextDate": "Next date",
     "printSummary": "Print summary",
     "productMixReport": "Product Mix Report",
-    "serverSales": "Server Sales"
+    "serverSales": "Server Sales",
+    "printMinimalSummary": "Print minimal summary"
   },
   "security": {
     "printSummaryDescription": "Print summary",
@@ -12,7 +13,8 @@
     "productMixDescription": "Product mix report",
     "productMixModule": "Product mix report",
     "serverSalesDescription": "Server sales",
-    "serverSalesModule": "Server sales"
+    "serverSalesModule": "Server sales",
+    "printMinimalSummaryDescription": "Print minimal summary"
   },
   "unknown": {
     "user": "Unknown",
@@ -21,6 +23,7 @@
   },
   "report": {
     "title": "Daily sales summary — {{date}}",
+    "windowRange": "Period: {{range}}",
     "orderDiscount": "Order discount",
     "uncategorized": "Uncategorized",
     "unknownItem": "Unknown item",
@@ -30,23 +33,31 @@
       "settlementCashier": "3. Settlement and cashier",
       "operationalControls": "4. Operational controls",
       "productMix": "5. Product mix",
-      "paymentTypes": "6. Payment types",
-      "taxesBreakdown": "7. Taxes breakdown",
-      "discountsBreakdown": "8. Discounts breakdown",
-      "extrasBreakdown": "9. Extras breakdown",
-      "couponsBreakdown": "10. Coupons breakdown"
+      "orderTypes": "6. Sale by order type",
+      "orderTakers": "7. Sale by order taker",
+      "paymentTypes": "8. Payment types",
+      "taxesBreakdown": "9. Taxes breakdown",
+      "discountsBreakdown": "10. Discounts breakdown",
+      "tipsBreakdown": "11. Tips",
+      "extrasBreakdown": "12. Extras breakdown",
+      "couponsBreakdown": "13. Coupons breakdown"
     },
     "subtitles": {
       "surchargesTaxes": "Collected surcharges and tax (from orders; typically calculated on net after discount).",
       "settlementCashier": "Cash drawer view.",
       "operationalControls": "Audit signals (voids separate from gross sales).",
       "productMix": "Categories grouped with dishes and their modifiers.",
-      "paymentTypes": "Collected amount split by payment method.",
+      "orderTypes": "Net amount due (before tips) and order count by order type.",
+      "orderTakers": "Net amount due (before tips) and order count by order taker.",
+      "paymentTypes": "Collected amount and tender count by payment method (% of grand total due).",
       "taxesBreakdown": "Tax components collected from orders.",
       "discountsBreakdown": "Discount schemes applied in this period.",
+      "tipsBreakdown": "Tip amount and number of tipped orders.",
       "extrasBreakdown": "Breakdown of order-level extras.",
       "couponsBreakdown": "Coupons redeemed and their values."
     },
+    "unknownOrderType": "Unknown order type",
+    "unknownTaker": "Unknown",
     "rows": {
       "exclusiveSales": "Exclusive sales",
       "extras": "Extras",
@@ -97,7 +108,9 @@
       "averageCover": "Amount due (before tips) ÷ covers.",
       "ordersChecks": "Number of closed checks/orders.",
       "averageOrderCheck": "Amount due (before tips) ÷ orders.",
-      "roundingLegacy": "Amount collected - Amount due"
+      "roundingLegacy": "Amount collected - Amount due",
+      "coversWithAverage": "Guest count (pax) and amount due (before tips) ÷ covers.",
+      "ordersChecksWithAverage": "Closed checks/orders and amount due (before tips) ÷ orders."
     },
     "columns": {
       "item": "Item",
@@ -111,7 +124,9 @@
       "noTaxRows": "No tax rows for this date.",
       "noDiscountRows": "No discount rows for this date.",
       "noExtras": "No extras found for this date.",
-      "noCoupons": "No coupon usage for this date."
+      "noCoupons": "No coupon usage for this date.",
+      "noOrderTypes": "No order type data for this date.",
+      "noOrderTakers": "No order taker data for this date."
     },
     "footer": "Sequence: gross sales → discounts → net sales → service charges → taxes → tips → grand total → collected. Product mix is grouped by category with dishes nested inside.",
     "legacy": {
@@ -127,7 +142,15 @@
       "averageCover": "Average cover",
       "ordersChecks": "Orders/Checks",
       "averageOrderCheck": "Average order/check"
-    }
+    },
+    "sectionsMinimal": {
+      "salesRevenue": "1. Sales revenue",
+      "surchargesTaxes": "2. Surcharges and taxes",
+      "settlementCashier": "3. Settlement and cashier",
+      "operationalControls": "4. Operational controls",
+      "paymentTypes": "5. Payment types"
+    },
+    "productMixTitle": "Product mix — {{date}}"
   },
   "clock": {
     "title": "Time Clock",

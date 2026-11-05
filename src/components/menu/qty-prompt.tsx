@@ -84,6 +84,7 @@ export const DishQtyPrompt = ({dish, open, onConfirm, onCancel}: Props) => {
       title={t("menu:qtyPrompt.title", {name: dish.name})}
       size="lg"
       testId="dish-qty-prompt"
+      shouldCloseOnOverlayClick
     >
       <div className="flex flex-col gap-4 p-1">
         <p className="text-sm text-muted">{t("menu:qtyPrompt.hint")}</p>

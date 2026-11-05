@@ -24,13 +24,11 @@ import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import { toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
-import { toReportBoundaryUtcIso } from "@/api/reports/shared/query.ts";
 import {
   type ClosingCycleConfig,
-  isClosingCycleEnabled,
   loadClosingCycleConfig,
 } from "@/lib/closing-cycle.ts";
-import { buildWindowForBusinessDate } from "@/lib/kitchen/business-date.ts";
+import { formatBusinessDateWindow, resolveReportDayWindow } from "@/lib/kitchen/business-date.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
@@ -111,19 +109,13 @@ export const Summary = () => {
 
   const reportWindow = useMemo(() => {
     if (!date) return null;
-    const reportDate = date.toString();
-    if (cycleConfig && isClosingCycleEnabled(cycleConfig)) {
-      return buildWindowForBusinessDate(cycleConfig, reportDate);
-    }
-    const dayStart = toReportBoundaryUtcIso(reportDate);
-    const dayEnd = toReportBoundaryUtcIso(reportDate, {endOfRange: true});
-    if (!dayStart || !dayEnd) return null;
-    return {
-      date_from: new Date(dayStart),
-      date_to: new Date(dayEnd),
-      exclusiveEnd: true as boolean,
-    };
+    return resolveReportDayWindow(cycleConfig, date.toString());
   }, [date, cycleConfig]);
+
+  const reportWindowLabel = useMemo(() => {
+    if (!reportWindow) return null;
+    return formatBusinessDateWindow(reportWindow);
+  }, [reportWindow]);
 
   const orderFilters = useMemo(() => {
     const f = [`status = '${OrderStatus.Paid}'`];
@@ -169,76 +161,32 @@ export const Summary = () => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
       orders,
       date: date.toString(),
+      windowRange: reportWindowLabel ?? undefined,
     }, {userId: page?.user?.id});
-  }, [db, orders, date, page?.user?.id]);
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
 
-  const handlePrintProductMix = useCallback(async () => {
+  const handlePrintMinimalSummary = useCallback(() => {
+    void dispatchPrint(db, PRINT_TYPE.summary, {
+      orders,
+      date: date.toString(),
+      windowRange: reportWindowLabel ?? undefined,
+      variant: 'minimal',
+    }, {userId: page?.user?.id});
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
+
+  const handlePrintProductMix = useCallback(() => {
     setIsPrintingMix(true);
     try {
-      const dishMap = new Map<string, { name: string; qty: number; total: number }>();
-
-      (orders || []).forEach((order) => {
-        (getOrderFilteredItems(order) || []).forEach((item) => {
-          const name = item?.item?.name || 'Unknown Item';
-          const qty = safeNumber(item?.quantity);
-          const total = safeNumber(calculateOrderItemPrice(item));
-          const key = String(item.item.name);
-          const prev = dishMap.get(key) || {name: key.substring(0, 12), qty: 0, total: 0};
-          prev.qty += qty;
-          prev.total += total;
-
-          dishMap.set(key, prev);
-        });
-      });
-
-      const rows = Array.from(dishMap.values())
-        .sort((a, b) => b.total - a.total);
-
-      const totalSale = rows.reduce((sum, row) => sum + row.total, 0);
-      if (rows.length === 0) {
-        toast.error(t("toast:summary.noProductMix"));
-        return;
-      }
-
-      const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: `PRODUCT MIX REPORT (${date.toString()})`, align: 'CENTER', width: 1, style: 'B'}],
-        [{text: 'Item', align: 'LEFT', width: 0.30, style: 'B'}, {
-          text: 'Qty',
-          align: 'RIGHT',
-          width: 0.18,
-          style: 'B'
-        }, {text: 'Ttl', align: 'RIGHT', width: 0.23, style: 'B'}, {
-          text: '%',
-          align: 'RIGHT',
-          width: 0.23,
-          style: 'B'
-        }],
-        ...rows.map((row) => {
-          const percent = totalSale > 0 ? (row.total / totalSale) * 100 : 0;
-          return [
-            {text: row.name, align: 'LEFT', width: 0.30},
-            {text: String(formatNumber(row.qty)), align: 'RIGHT', width: 0.18},
-            {text: formatNumber(row.total), align: 'RIGHT', width: 0.23},
-            {text: `${percent.toFixed(2)}%`, align: 'RIGHT', width: 0.23},
-          ];
-        }),
-        [{
-          text: 'TOTAL',
-          align: 'LEFT',
-          width: 0.50,
-          style: 'B'
-        }, {text: withCurrency(undefined) + formatNumber(totalSale), align: 'RIGHT', width: 0.50, style: 'B'}],
-      ];
-
       void dispatchPrint(db, PRINT_TYPE.summary, {
-        printType: 'table',
-        rows: tableRows,
-        cut: true,
+        orders,
+        date: date.toString(),
+        windowRange: reportWindowLabel ?? undefined,
+        variant: 'product_mix',
       }, {userId: page?.user?.id});
     } finally {
       setIsPrintingMix(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
 
   const handlePrintServerSales = useCallback(async () => {
     setIsPrintingServerSales(true);
@@ -422,6 +370,16 @@ export const Summary = () => {
               <Button
                 icon={faPrint}
                 variant="lg"
+                onClick={() => {
+                  protectAction(handlePrintMinimalSummary, {
+                    description: t("summary:security.printMinimalSummaryDescription"),
+                    module: 'summary.print',
+                  });
+                }}
+              >{t("summary:screen.printMinimalSummary")}</Button>
+              <Button
+                icon={faPrint}
+                variant="lg"
                 isLoading={isPrintingMix}
                 onClick={() => {
                   protectAction(handlePrintProductMix, {
@@ -454,7 +412,11 @@ export const Summary = () => {
               </div>
             ) : (
               <>
-                <DailySalesSummaryReport orders={orders} date={date.toString()} />
+                <DailySalesSummaryReport
+                  orders={orders}
+                  date={date.toString()}
+                  windowRange={reportWindowLabel}
+                />
               </>
             )}
           </ScrollContainer>

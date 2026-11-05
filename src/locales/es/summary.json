@@ -4,7 +4,8 @@
     "nextDate": "Fecha siguiente",
     "printSummary": "Imprimir resumen",
     "productMixReport": "Informe de mezcla de productos",
-    "serverSales": "Ventas del servidor"
+    "serverSales": "Ventas del servidor",
+    "printMinimalSummary": "Imprimir resumen mínimo"
   },
   "security": {
     "printSummaryDescription": "Imprimir resumen",
@@ -12,7 +13,8 @@
     "productMixDescription": "Informe de mezcla de productos",
     "productMixModule": "Informe de mezcla de productos",
     "serverSalesDescription": "Ventas del servidor",
-    "serverSalesModule": "Ventas del servidor"
+    "serverSalesModule": "Ventas del servidor",
+    "printMinimalSummaryDescription": "Imprimir resumen mínimo"
   },
   "unknown": {
     "user": "Desconocido",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Liquidación y caja",
       "operationalControls": "4. Controles operativos",
       "productMix": "5. Mezcla de productos",
-      "paymentTypes": "6. Tipos de pago",
-      "taxesBreakdown": "7. Desglose de impuestos",
-      "discountsBreakdown": "8. Desglose de descuentos",
-      "extrasBreakdown": "9. Desglose de extras",
-      "couponsBreakdown": "10. Desglose de cupones"
+      "paymentTypes": "8. Tipos de pago",
+      "taxesBreakdown": "9. Desglose de impuestos",
+      "discountsBreakdown": "10. Desglose de descuentos",
+      "extrasBreakdown": "12. Desglose de extras",
+      "couponsBreakdown": "13. Desglose de cupones",
+      "orderTypes": "6. Venta por tipo de pedido",
+      "orderTakers": "7. Venta por tomador del pedido",
+      "tipsBreakdown": "11. Propinas"
     },
     "subtitles": {
       "surchargesTaxes": "Recargos e impuestos cobrados (de pedidos; generalmente calculados sobre el neto después del descuento).",
       "settlementCashier": "Vista de caja registradora.",
       "operationalControls": "Señales de auditoría (anulaciones separadas de las ventas brutas).",
       "productMix": "Categorías agrupadas con platos y sus modificadores.",
-      "paymentTypes": "Importe cobrado dividido por método de pago.",
+      "paymentTypes": "Importe cobrado y recuento por método (% del total adeudado).",
       "taxesBreakdown": "Componentes de impuestos cobrados de los pedidos.",
       "discountsBreakdown": "Esquemas de descuento aplicados en este período.",
       "extrasBreakdown": "Desglose de extras a nivel de pedido.",
-      "couponsBreakdown": "Cupones canjeados y sus valores."
+      "couponsBreakdown": "Cupones canjeados y sus valores.",
+      "orderTypes": "Importe adeudado (antes de propinas) y recuento por tipo de pedido.",
+      "orderTakers": "Importe adeudado (antes de propinas) y recuento por tomador.",
+      "tipsBreakdown": "Importe de propinas y pedidos con propina."
     },
     "rows": {
       "exclusiveSales": "Ventas exclusivas",
@@ -97,7 +105,9 @@
       "averageCover": "Importe adeudado (antes de propinas) ÷ cubiertos.",
       "ordersChecks": "Número de cuentas/pedidos cerrados.",
       "averageOrderCheck": "Importe adeudado (antes de propinas) ÷ pedidos.",
-      "roundingLegacy": "Importe cobrado - Importe adeudado"
+      "roundingLegacy": "Importe cobrado - Importe adeudado",
+      "coversWithAverage": "Cantidad de comensales e importe adeudado (antes de propinas) ÷ cubiertos.",
+      "ordersChecksWithAverage": "Cheques/pedidos cerrados e importe adeudado (antes de propinas) ÷ pedidos."
     },
     "columns": {
       "item": "Artículo",
@@ -111,7 +121,9 @@
       "noTaxRows": "Sin filas de impuestos para esta fecha.",
       "noDiscountRows": "Sin filas de descuentos para esta fecha.",
       "noExtras": "No se encontraron extras para esta fecha.",
-      "noCoupons": "Sin uso de cupones para esta fecha."
+      "noCoupons": "Sin uso de cupones para esta fecha.",
+      "noOrderTypes": "Sin datos de tipo de pedido para esta fecha.",
+      "noOrderTakers": "Sin datos de tomador para esta fecha."
     },
     "footer": "Secuencia: ventas brutas → descuentos → ventas netas → cargos por servicio → impuestos → propinas → gran total → cobrado. La mezcla de productos se agrupa por categoría con platos anidados.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Cubierto promedio",
       "ordersChecks": "Pedidos/Cuentas",
       "averageOrderCheck": "Pedido/cuenta promedio"
-    }
+    },
+    "unknownOrderType": "Tipo de pedido desconocido",
+    "unknownTaker": "Desconocido",
+    "windowRange": "Periodo: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Ingresos por ventas",
+      "surchargesTaxes": "2. Recargos e impuestos",
+      "settlementCashier": "3. Liquidación y caja",
+      "operationalControls": "4. Controles operativos",
+      "paymentTypes": "5. Tipos de pago"
+    },
+    "productMixTitle": "Mix de productos — {{date}}"
   },
   "clock": {
     "title": "Reloj de fichaje",

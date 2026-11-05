@@ -156,7 +156,14 @@ export const executeAiReportTool = async (
   switch (toolName) {
     case "resolve_date_range": {
       const phrase = String(args.phrase ?? "");
-      return resolveNaturalDateRange({phrase});
+      let closingCycleConfig = null;
+      try {
+        const {loadClosingCycleConfigFromCatalog} = await import("@/lib/closing-cycle.ts");
+        closingCycleConfig = (await loadClosingCycleConfigFromCatalog()).config;
+      } catch {
+        // fall back to calendar day when catalog is unavailable
+      }
+      return resolveNaturalDateRange({phrase, closingCycleConfig});
     }
 
     case "get_top_selling_dishes": {

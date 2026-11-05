@@ -159,6 +159,10 @@ function gated(
 export const AppRoutes = () => (
   <Routes>
     <Route path={LOGIN} element={<Login/>}/>
+    {/* Public pairing URL — polls gateway; no POS/Surreal session required. */}
+    <Route element={<SuspenseOutlet/>}>
+      {gated(__BUILD_MODULE_menu__, CustomerDisplayScreen, CUSTOMER_DISPLAY)}
+    </Route>
     <Route element={<ProtectedRoute/>}>
       <Route element={<SuspenseOutlet/>}>
         {gated(__BUILD_MODULE_menu__, Menu, MENU)}
@@ -168,7 +172,6 @@ export const AppRoutes = () => (
         <Route path={CLOCK} element={<Clock/>}/>
         {gated(__BUILD_MODULE_closing__, Closing, CLOSING)}
         {gated(__BUILD_MODULE_order_display__, OrderDisplayScreen, ORDER_DISPLAY)}
-        {gated(__BUILD_MODULE_menu__, CustomerDisplayScreen, CUSTOMER_DISPLAY)}
         {gated(__BUILD_MODULE_quick__, QuickOrder, QUICK)}
         {gated(__BUILD_MODULE_delivery__, Delivery, DELIVERY)}
         {gated(__BUILD_MODULE_admin__, Admin, ADMIN)}

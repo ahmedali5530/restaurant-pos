@@ -7,6 +7,63 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-05',
+    title: 'Customer display idle ads and clear after payment',
+    items: [
+      'Closing or settling Pay Now clears the customer display (thank-you briefly after pay) instead of leaving the previous check stuck on screen.',
+      'Settings → Customer display (permission-gated) can enable an idle image/video playlist for advertisement when no order is shown.',
+      'Opening the customer display copies a pairing URL (?terminal=&pair=) that another browser can open without logging in — it polls the gateway instead of connecting to Surreal.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer display: modifiers, prices, and Tauri sync',
+    items: [
+      'Customer display shows each line in a borderless Item / Qty / Price / Total table, including indented modifiers under dishes.',
+      'Opening the display pairs with this terminal via ?terminal=; Surreal keeps a logged-in browser window in sync with the Tauri POS cart (same-browser BroadcastChannel still works).',
+      'When a check is open (or Pay Now is open), the display also shows tax, discounts, coupons, service charges, extras, and tip so the grand total matches the cart footer.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: '72 mm paper width',
+    items: [
+      'Print settings and printer overrides can select 72 mm paper (512-dot raster width) in addition to 58 mm and 80 mm.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Minimal Summary print and compact ops rows',
+    items: [
+      'Summary operational controls show covers and average cover on one line, and orders/checks with average check on one line (screen and print).',
+      'Print minimal summary prints a shorter slip: sales revenue, surcharges and taxes with tax breakdown, settlement and cashier, operational controls, and payment types.',
+      'Product Mix Report prints the same category → dish → modifier layout as the daily summary product mix section, with bold category names.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Closing-cycle Summary, Orders, and reports',
+    items: [
+      'When the closing cycle is enabled, Summary, Orders, Closing, cash closing report, and report date filters (including Today/Yesterday presets) use the cycle window (e.g. 06:00–05:59) instead of midnight–midnight.',
+      'Payment tenders refresh their payable when discounts, tips, service charges, or extras change after tender, so Summary amount collected stays accurate; payment-type shares use grand total due (including tips).',
+      'Daily Summary (and its print) adds sale by order type and order taker, plus counts for payment types, taxes, discounts, tips, and extras.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer details before receipt footer',
+    items: [
+      'Temp and final bills print customer name, phone, and address after payments/change/notes, immediately before the custom footer sections.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Show table name on receipts',
+    items: [
+      'Print settings can show or hide the table name on bills and kitchen tickets (on by default), alongside order type and customer.',
+    ],
+  },
+  {
     date: '2026-11-04',
     title: 'Dish photos after HQ Sync now',
     items: [

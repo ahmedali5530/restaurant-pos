@@ -433,7 +433,7 @@
     "printModeText": "Tekst (ESC/POS)",
     "printModeRaster": "Raster (afbeelding)",
     "paperWidthMm": "Papierbreedte",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Fysieke papierbreedte voor raster en beeldcentrering (58mm = 384 dots, 72mm = 512 dots, 80mm = 576 dots).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Rasterdrempel",
@@ -471,7 +471,9 @@
     "kraTaxTyCd": "KRA-belastingtype (A–E)",
     "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken.",
     "showOrderType": "Besteltype tonen",
-    "showCustomer": "Klant tonen"
+    "showCustomer": "Klant tonen",
+    "showTableName": "Tafelnaam tonen",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -841,7 +843,8 @@
       "admin.catalog_publish": "Catalogus publiceren",
       "settings.backup": "Instellingenback-up",
       "settings.restore": "Instellingen herstellen",
-      "settings.database": "Databaseback-up"
+      "settings.database": "Databaseback-up",
+      "settings.customer_display": "Klantenscherm"
     }
   },
   "discountEngine": {

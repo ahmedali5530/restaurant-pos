@@ -433,7 +433,7 @@
     "printModeText": "نص (ESC/POS)",
     "printModeRaster": "صورة نقطية",
     "paperWidthMm": "عرض الورق",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "حجم الورق الفعلي المستخدم للتنقيط وتوسيط الصور (58مم = 384 نقطة، 72مم = 512 نقطة، 80مم = 576 نقطة).",
     "paperWidth58": "58 مم",
     "paperWidth80": "80 مم",
     "rasterThreshold": "عتبة الصورة النقطية",
@@ -471,7 +471,9 @@
     "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
     "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية.",
     "showOrderType": "إظهار نوع الطلب",
-    "showCustomer": "إظهار العميل"
+    "showCustomer": "إظهار العميل",
+    "showTableName": "إظهار اسم الطاولة",
+    "paperWidth72": "72 مم"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -841,7 +843,8 @@
       "admin.catalog_publish": "نشر الكتالوج",
       "settings.backup": "نسخ احتياطي للإعدادات",
       "settings.restore": "استعادة الإعدادات",
-      "settings.database": "نسخ احتياطي لقاعدة البيانات"
+      "settings.database": "نسخ احتياطي لقاعدة البيانات",
+      "settings.customer_display": "شاشة العميل"
     }
   },
   "discountEngine": {
