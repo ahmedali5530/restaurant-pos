@@ -160,6 +160,7 @@ export const PrintForm = ({
 
   const paperWidthOptions: SelectOption[] = useMemo(() => [
     { label: t('forms.paperWidth58'), value: '58' },
+    { label: t('forms.paperWidth72'), value: '72' },
     { label: t('forms.paperWidth80'), value: '80' },
   ], [t]);
 
@@ -176,7 +177,7 @@ export const PrintForm = ({
 
   const isRasterMode = selectValue(watchedPrintMode, 'text') === 'raster';
   const paperWidthMm = Number(selectValue(watchedPaperWidthMm, '80'));
-  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : 576;
+  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : paperWidthMm === 72 ? 512 : 576;
 
   const selectedLogoPreset = useMemo(() => {
     const w = Number(watchedLogoWidth) || DEFAULT_LOGO_PX;
@@ -344,7 +345,7 @@ export const PrintForm = ({
     const maxHRaw = values.rasterMaxHeightPx;
     const maxH = maxHRaw === '' || maxHRaw == null ? null : Number(maxHRaw);
     const paperMm = Number(selectValue(values.paperWidthMm, '80'));
-    const maxW = paperMm === 58 ? 384 : 576;
+    const maxW = paperMm === 58 ? 384 : paperMm === 72 ? 512 : 576;
     const vals: Record<string, unknown> = {
       ...values,
       printMode: selectValue(values.printMode, 'text'),

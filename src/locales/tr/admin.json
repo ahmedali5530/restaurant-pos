@@ -433,7 +433,7 @@
     "printModeText": "Metin (ESC/POS)",
     "printModeRaster": "Raster (görüntü)",
     "paperWidthMm": "Kağıt genişliği",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Raster ve görsel ortalama için fiziksel kağıt genişliği (58mm = 384 nokta, 72mm = 512 nokta, 80mm = 576 nokta).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Raster eşiği",
@@ -472,7 +472,8 @@
     "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın.",
     "showOrderType": "Sipariş türünü göster",
     "showCustomer": "Müşteriyi göster",
-    "showTableName": "Masa adını göster"
+    "showTableName": "Masa adını göster",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

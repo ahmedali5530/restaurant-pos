@@ -30,7 +30,12 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getInvoiceNumber, getOrderFilteredItems, isCashPaymentType} from "@/lib/order.ts";
+import {
+  getInvoiceNumber,
+  getOrderFilteredItems,
+  isCashPaymentType,
+  recomputeDraftPaymentPayables,
+} from "@/lib/order.ts";
 import {useAtom} from "jotai";
 import {appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
 import {Extra} from "@/api/model/extra.ts";
@@ -342,6 +347,12 @@ export const OrderPayment = ({
   }, [order, isInitialized]);
 
   const total = paymentTotals.total;
+
+  // Keep draft tender payables aligned when discount/tip/service/extras change after tender.
+  useEffect(() => {
+    if (!isInitialized) return;
+    setPaymentTypes((prev) => recomputeDraftPaymentPayables(prev, total));
+  }, [total, isInitialized]);
 
   const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
     return computeOrderPaymentTotals(order, {

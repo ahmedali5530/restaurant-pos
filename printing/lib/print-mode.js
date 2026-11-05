@@ -4,6 +4,7 @@
 
 const PAPER_WIDTH_DOTS = {
   58: 384,
+  72: 512,
   80: 576,
 };
 
@@ -16,9 +17,14 @@ const DEFAULT_RASTER_THRESHOLD = 180;
  * @param {unknown} mm
  * @returns {number|null}
  */
+function isSupportedPaperWidthMm(mm) {
+  const n = parseInt(String(mm), 10);
+  return n === 58 || n === 72 || n === 80;
+}
+
 function paperWidthMmToPx(mm) {
   const n = parseInt(String(mm), 10);
-  if (n === 58 || n === 80) return PAPER_WIDTH_DOTS[n];
+  if (isSupportedPaperWidthMm(n)) return PAPER_WIDTH_DOTS[n];
   return null;
 }
 
@@ -48,7 +54,7 @@ function mergeEffectiveConfig(typeConfig, printer) {
   }
   if (p.paper_width_mm != null && String(p.paper_width_mm).trim() !== '') {
     const mm = parseInt(String(p.paper_width_mm), 10);
-    if (mm === 58 || mm === 80) {
+    if (isSupportedPaperWidthMm(mm)) {
       base.paperWidthMm = mm;
       base.paperWidthPx = PAPER_WIDTH_DOTS[mm];
     }
@@ -64,7 +70,7 @@ function mergeEffectiveConfig(typeConfig, printer) {
     base.paperWidthMm = DEFAULT_PAPER_WIDTH_MM;
   } else {
     const mm = parseInt(String(base.paperWidthMm), 10);
-    base.paperWidthMm = mm === 58 || mm === 80 ? mm : DEFAULT_PAPER_WIDTH_MM;
+    base.paperWidthMm = isSupportedPaperWidthMm(mm) ? mm : DEFAULT_PAPER_WIDTH_MM;
   }
 
   const fromMm = paperWidthMmToPx(base.paperWidthMm);
@@ -80,6 +86,7 @@ module.exports = {
   DEFAULT_PRINT_MODE,
   DEFAULT_PAPER_WIDTH_MM,
   DEFAULT_RASTER_THRESHOLD,
+  isSupportedPaperWidthMm,
   paperWidthMmToPx,
   resolvePrintMode,
   mergeEffectiveConfig,

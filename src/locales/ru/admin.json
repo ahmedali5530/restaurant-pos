@@ -433,7 +433,7 @@
     "printModeText": "Текст (ESC/POS)",
     "printModeRaster": "Растр (изображение)",
     "paperWidthMm": "Ширина бумаги",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Физическая ширина бумаги для растра и центрирования изображений (58мм = 384 точки, 72мм = 512 точек, 80мм = 576 точек).",
     "paperWidth58": "58 мм",
     "paperWidth80": "80 мм",
     "rasterThreshold": "Порог растра",
@@ -472,7 +472,8 @@
     "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию.",
     "showOrderType": "Показывать тип заказа",
     "showCustomer": "Показывать клиента",
-    "showTableName": "Показывать название стола"
+    "showTableName": "Показывать название стола",
+    "paperWidth72": "72 мм"
   },
   "dishView": {
     "detailsTitle": "Детали блюда",

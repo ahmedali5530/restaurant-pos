@@ -74,7 +74,7 @@ services:
       - PRINT_HOST=0.0.0.0
       - TZ=${VITE_APP_TIMEZONE:-UTC}
       - GATEWAY_ALLOWED_ORIGINS=${GATEWAY_ALLOWED_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173}
-    command: sh -c "npm install && node server.js"
+    command: sh -c "npm install && node --watch server.js"
     ports:
       - "3132:3132"
     # USB access for local USB printers

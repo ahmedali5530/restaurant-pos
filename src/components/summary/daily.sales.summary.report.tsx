@@ -2,7 +2,13 @@ import {useMemo, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
-import {aggregateOrderDiscountBreakdown, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures} from '@/lib/order.ts';
+import {
+  aggregateOrderDiscountBreakdown,
+  getOrderFilteredItems,
+  getOrderPaymentTotalsForOrder,
+  getOrderRounding,
+  getOrderSettlementFigures,
+} from '@/lib/order.ts';
 import {calculateOrderItemPrice} from '@/lib/cart.ts';
 import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
 import {aggregateDailyCategoryMix} from '@/api/reports/sales/aggregate.ts';
@@ -10,6 +16,8 @@ import {aggregateDailyCategoryMix} from '@/api/reports/sales/aggregate.ts';
 interface Props {
   orders: Order[];
   date: string;
+  /** Inclusive wall-clock range label for the query window (cycle or calendar). */
+  windowRange?: string | null;
 }
 
 const safeNumber = (value: unknown) => {
@@ -20,6 +28,13 @@ const safeNumber = (value: unknown) => {
 interface BreakdownEntry {
   name: string;
   total: number;
+  count: number;
+}
+
+interface SaleGroupEntry {
+  name: string;
+  total: number;
+  ordersCount: number;
 }
 
 function Row({label, value, hint}: {label: string; value: string; hint?: string}) {
@@ -57,7 +72,7 @@ function useDailySalesFigures(orders: Order[] | undefined) {
   const {t} = useTranslation('summary');
   return useMemo(() => {
     const list = orders ?? [];
-    const paymentTotals = list.map(order => getOrderPaymentTotals(order));
+    const paymentTotals = list.map(order => getOrderPaymentTotalsForOrder(order));
     const settlementFigures = list.map(order => getOrderSettlementFigures(order));
 
     const exclusiveSales = settlementFigures.reduce((sum, figures) => sum + figures.itemsTotal, 0);
@@ -133,69 +148,117 @@ function useDailySalesFigures(orders: Order[] | undefined) {
     const averageCover = covers > 0 ? amountDue / covers : 0;
     const averageOrderCheck = ordersCount > 0 ? amountDue / ordersCount : 0;
 
-    const paymentTypeMap: Record<string, number> = {};
-    paymentTotals.forEach(totals => {
+    const paymentTypeMap: Record<string, {total: number; count: number}> = {};
+    list.forEach((order) => {
+      const totals = getOrderPaymentTotalsForOrder(order);
+      const bump = (name: string, amount: number, count: number) => {
+        if (!paymentTypeMap[name]) paymentTypeMap[name] = {total: 0, count: 0};
+        paymentTypeMap[name].total += safeNumber(amount);
+        paymentTypeMap[name].count += count;
+      };
       Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => {
-        if (!paymentTypeMap[typeName]) {
-          paymentTypeMap[typeName] = 0;
-        }
-        paymentTypeMap[typeName] += safeNumber(amount);
+        bump(typeName, amount, 1);
       });
-      if (!paymentTypeMap.Cash) {
-        paymentTypeMap.Cash = 0;
+      if (totals.cashAmount > 0 || (order.payments ?? []).some((p) => String(p?.payment_type?.type || '').toLowerCase() === 'cash')) {
+        const cashLines = (order.payments ?? []).filter((p) => {
+          const typ = String(p?.payment_type?.type || '').toLowerCase();
+          const nam = String(p?.payment_type?.name || '').toLowerCase();
+          return typ === 'cash' || nam === 'cash';
+        }).length;
+        bump('Cash', totals.cashAmount, cashLines || (totals.cashAmount > 0 ? 1 : 0));
       }
-      paymentTypeMap.Cash += safeNumber(totals.cashAmount);
     });
 
     const paymentTypes = Object.entries(paymentTypeMap)
-      .map(([name, total]) => ({name, total}))
+      .map(([name, row]) => ({name, total: row.total, count: row.count}))
       .sort((a, b) => b.total - a.total);
 
-    const taxesMap: Record<string, number> = {};
+    const taxesMap: Record<string, {total: number; count: number}> = {};
     getOrdersTaxBreakdown(list).forEach(({ name, rate, amount }) => {
       const key = `${name} ${rate}%`;
-      taxesMap[key] = (taxesMap[key] ?? 0) + amount;
+      if (!taxesMap[key]) taxesMap[key] = {total: 0, count: 0};
+      taxesMap[key].total += amount;
+      taxesMap[key].count += 1;
     });
     const taxesList: BreakdownEntry[] = Object.entries(taxesMap)
-      .map(([name, total]) => ({name, total}))
+      .map(([name, row]) => ({name, total: row.total, count: row.count}))
       .sort((a, b) => b.total - a.total);
 
     const discountsList: BreakdownEntry[] = aggregateOrderDiscountBreakdown(list, 'name', t('report.orderDiscount'))
       .map(row => ({
         name: row.rateLabel !== '-' ? `${row.name} (${row.rateLabel})` : row.name,
         total: row.total,
+        count: safeNumber(row.quantity) || 1,
       }));
 
-    const extrasMap: Record<string, number> = {};
+    const extrasMap: Record<string, {total: number; count: number}> = {};
     list.forEach(order => {
       (order?.extras ?? []).forEach(extra => {
         if (!extra?.name) {
           return;
         }
         if (!extrasMap[extra.name]) {
-          extrasMap[extra.name] = 0;
+          extrasMap[extra.name] = {total: 0, count: 0};
         }
-        extrasMap[extra.name] += safeNumber(extra?.value);
+        extrasMap[extra.name].total += safeNumber(extra?.value);
+        extrasMap[extra.name].count += 1;
       });
     });
     const extrasList: BreakdownEntry[] = Object.entries(extrasMap)
-      .map(([name, total]) => ({name, total}))
+      .map(([name, row]) => ({name, total: row.total, count: row.count}))
       .sort((a, b) => b.total - a.total);
 
-    const couponsMap: Record<string, number> = {};
+    const couponsMap: Record<string, {total: number; count: number}> = {};
     list.forEach(order => {
       if (!order?.coupon) {
         return;
       }
       const code = order.coupon?.coupon?.code || t('unknown.coupon');
       if (!couponsMap[code]) {
-        couponsMap[code] = 0;
+        couponsMap[code] = {total: 0, count: 0};
       }
-      couponsMap[code] += safeNumber(order.coupon.discount);
+      couponsMap[code].total += safeNumber(order.coupon.discount);
+      couponsMap[code].count += 1;
     });
     const couponsList: BreakdownEntry[] = Object.entries(couponsMap)
-      .map(([name, total]) => ({name, total}))
+      .map(([name, row]) => ({name, total: row.total, count: row.count}))
       .sort((a, b) => b.total - a.total);
+
+    const tipsCount = list.filter((order) => safeNumber(order.tip_amount) > 0).length;
+
+    const orderTypeMap: Record<string, SaleGroupEntry> = {};
+    const orderTakerMap: Record<string, SaleGroupEntry> = {};
+    list.forEach((order, index) => {
+      const figures = settlementFigures[index];
+      const sale = safeNumber(figures?.amountDueBeforeTips);
+      const typeName =
+        (order.order_type && typeof order.order_type === 'object' && 'name' in order.order_type
+          ? String((order.order_type as {name?: string}).name || '')
+          : '') || t('report.unknownOrderType');
+      if (!orderTypeMap[typeName]) {
+        orderTypeMap[typeName] = {name: typeName, total: 0, ordersCount: 0};
+      }
+      orderTypeMap[typeName].total += sale;
+      orderTypeMap[typeName].ordersCount += 1;
+
+      const user = order.user;
+      const takerName =
+        user && typeof user === 'object'
+          ? [ (user as {first_name?: string}).first_name, (user as {last_name?: string}).last_name ]
+              .filter(Boolean)
+              .join(' ')
+              .trim() ||
+            String((user as {login?: string}).login || '') ||
+            t('report.unknownTaker')
+          : t('report.unknownTaker');
+      if (!orderTakerMap[takerName]) {
+        orderTakerMap[takerName] = {name: takerName, total: 0, ordersCount: 0};
+      }
+      orderTakerMap[takerName].total += sale;
+      orderTakerMap[takerName].ordersCount += 1;
+    });
+    const orderTypes = Object.values(orderTypeMap).sort((a, b) => b.total - a.total);
+    const orderTakers = Object.values(orderTakerMap).sort((a, b) => b.total - a.total);
 
     const categoryMix = aggregateDailyCategoryMix(list, {
       uncategorizedLabel: t('report.uncategorized'),
@@ -232,12 +295,15 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       discountsList,
       extrasList,
       couponsList,
+      tipsCount,
+      orderTypes,
+      orderTakers,
       categoryMix,
     };
   }, [orders, t]);
 }
 
-export function DailySalesSummaryReport({orders, date}: Props) {
+export function DailySalesSummaryReport({orders, date, windowRange}: Props) {
   const {t} = useTranslation('summary');
   const f = useDailySalesFigures(orders);
 
@@ -246,6 +312,11 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       <div className="mb-3 text-center text-lg font-semibold text-foreground">
         {t('report.title', {date})}
       </div>
+      {windowRange ? (
+        <p className="mb-3 text-center text-sm text-muted" data-testid="summary-window-range">
+          {t('report.windowRange', {range: windowRange})}
+        </p>
+      ) : null}
 
       <Section
         title={t('report.sections.salesRevenue')}
@@ -353,21 +424,15 @@ export function DailySalesSummaryReport({orders, date}: Props) {
       <Section title={t('report.sections.operationalControls')} subtitle={t('report.subtitles.operationalControls')}>
         <Row label={t('report.rows.voids')} value={withCurrency(f.voids)} hint={t('report.hints.voids')} />
         <Row label={t('report.rows.refunds')} value={withCurrency(f.refunds)} hint={t('report.hints.refunds')} />
-        <Row label={t('report.rows.covers')} value={formatNumber(f.covers)} hint={t('report.hints.covers')} />
         <Row
-          label={t('report.rows.averageCover')}
-          value={withCurrency(f.averageCover)}
-          hint={t('report.hints.averageCover')}
+          label={t('report.rows.covers')}
+          value={`${formatNumber(f.covers)} / ${withCurrency(f.averageCover)}`}
+          hint={t('report.hints.coversWithAverage')}
         />
         <Row
           label={t('report.rows.ordersChecks')}
-          value={formatNumber(f.ordersCount)}
-          hint={t('report.hints.ordersChecks')}
-        />
-        <Row
-          label={t('report.rows.averageOrderCheck')}
-          value={withCurrency(f.averageOrderCheck)}
-          hint={t('report.hints.averageOrderCheck')}
+          value={`${formatNumber(f.ordersCount)} / ${withCurrency(f.averageOrderCheck)}`}
+          hint={t('report.hints.ordersChecksWithAverage')}
         />
       </Section>
 
@@ -385,9 +450,9 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         ) : (
           f.categoryMix.map(category => (
             <div key={category.name}>
-              <div className="border-b border-border bg-surface py-2 text-sm font-semibold">
+              <div className="border-b border-border bg-surface py-2 text-sm font-bold">
                 <div className="flex">
-                  <span className="w-1/2">{category.name}</span>
+                  <span className="w-1/2 font-bold">{category.name}</span>
                   <span className="w-1/6 text-right tabular-nums">{formatNumber(category.quantity)}</span>
                   <span className="w-1/6 text-right tabular-nums">{withCurrency(category.total)}</span>
                   <span className="w-1/6 text-right tabular-nums">
@@ -429,6 +494,38 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
+      <Section title={t('report.sections.orderTypes')} subtitle={t('report.subtitles.orderTypes')}>
+        {f.orderTypes.length === 0 ? (
+          <p className="py-3 text-sm text-muted">{t('report.empty.noOrderTypes')}</p>
+        ) : (
+          f.orderTypes.map((row) => (
+            <div key={row.name} className="border-b border-border py-2 last:border-b-0">
+              <div className="flex justify-between gap-3 text-sm">
+                <span>{row.name}</span>
+                <span className="tabular-nums text-muted">{row.ordersCount}</span>
+                <span className="tabular-nums font-medium">{withCurrency(row.total)}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </Section>
+
+      <Section title={t('report.sections.orderTakers')} subtitle={t('report.subtitles.orderTakers')}>
+        {f.orderTakers.length === 0 ? (
+          <p className="py-3 text-sm text-muted">{t('report.empty.noOrderTakers')}</p>
+        ) : (
+          f.orderTakers.map((row) => (
+            <div key={row.name} className="border-b border-border py-2 last:border-b-0">
+              <div className="flex justify-between gap-3 text-sm">
+                <span>{row.name}</span>
+                <span className="tabular-nums text-muted">{row.ordersCount}</span>
+                <span className="tabular-nums font-medium">{withCurrency(row.total)}</span>
+              </div>
+            </div>
+          ))
+        )}
+      </Section>
+
       <Section title={t('report.sections.paymentTypes')} subtitle={t('report.subtitles.paymentTypes')}>
         {f.paymentTypes.length === 0 ? (
           <p className="py-3 text-sm text-muted">{t('report.empty.noPaymentData')}</p>
@@ -437,9 +534,10 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={payment.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{payment.name}</span>
+                <span className="tabular-nums text-muted">{payment.count}</span>
                 <span className="tabular-nums font-medium">{withCurrency(payment.total)}</span>
                 <span className="tabular-nums text-muted">
-                  {formatNumber(f.amountDue > 0 ? (payment.total / f.amountDue) * 100 : 0)}%
+                  {formatNumber(f.grandTotalDue > 0 ? (payment.total / f.grandTotalDue) * 100 : 0)}%
                 </span>
               </div>
             </div>
@@ -455,6 +553,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={tax.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{tax.name}%</span>
+                <span className="tabular-nums text-muted">{tax.count}</span>
                 <span className="tabular-nums font-medium">{withCurrency(tax.total)}</span>
                 <span className="tabular-nums text-muted">
                   {formatNumber(f.taxCollected > 0 ? (tax.total / f.taxCollected) * 100 : 0)}%
@@ -473,6 +572,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={discount.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{discount.name}</span>
+                <span className="tabular-nums text-muted">{discount.count}</span>
                 <span className="tabular-nums font-medium">{withCurrency(discount.total)}</span>
                 <span className="tabular-nums text-muted">
                   {formatNumber(f.discounts > 0 ? (discount.total / f.discounts) * 100 : 0)}%
@@ -483,6 +583,16 @@ export function DailySalesSummaryReport({orders, date}: Props) {
         )}
       </Section>
 
+      <Section title={t('report.sections.tipsBreakdown')} subtitle={t('report.subtitles.tipsBreakdown')}>
+        <div className="border-b border-border py-2 last:border-b-0">
+          <div className="flex justify-between gap-3 text-sm">
+            <span>{t('report.rows.tips')}</span>
+            <span className="tabular-nums text-muted">{f.tipsCount}</span>
+            <span className="tabular-nums font-medium">{withCurrency(f.tips)}</span>
+          </div>
+        </div>
+      </Section>
+
       <Section title={t('report.sections.extrasBreakdown')} subtitle={t('report.subtitles.extrasBreakdown')}>
         {f.extrasList.length === 0 ? (
           <p className="py-3 text-sm text-muted">{t('report.empty.noExtras')}</p>
@@ -491,6 +601,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={extra.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{extra.name}</span>
+                <span className="tabular-nums text-muted">{extra.count}</span>
                 <span className="tabular-nums font-medium">{withCurrency(extra.total)}</span>
                 <span className="tabular-nums text-muted">
                   {formatNumber(f.totalExtras > 0 ? (extra.total / f.totalExtras) * 100 : 0)}%
@@ -509,6 +620,7 @@ export function DailySalesSummaryReport({orders, date}: Props) {
             <div key={coupon.name} className="border-b border-border py-2 last:border-b-0">
               <div className="flex justify-between gap-3 text-sm">
                 <span>{coupon.name}</span>
+                <span className="tabular-nums text-muted">{coupon.count}</span>
                 <span className="tabular-nums font-medium">{withCurrency(coupon.total)}</span>
               </div>
             </div>

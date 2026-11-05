@@ -433,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Raster (imagem)",
     "paperWidthMm": "Largura do papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Largura física do papel para raster e centralização de imagem (58mm = 384 pontos, 72mm = 512 pontos, 80mm = 576 pontos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Limiar raster",
@@ -472,7 +472,8 @@
     "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA.",
     "showOrderType": "Mostrar tipo de pedido",
     "showCustomer": "Mostrar cliente",
-    "showTableName": "Mostrar nome da mesa"
+    "showTableName": "Mostrar nome da mesa",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",

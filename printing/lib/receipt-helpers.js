@@ -241,7 +241,7 @@ function normalizeConfig(c = {}) {
   let paperWidthMm = DEFAULT_PAPER_WIDTH_MM;
   if (c.paperWidthMm != null && c.paperWidthMm !== '') {
     const mm = parseInt(String(c.paperWidthMm), 10);
-    if (mm === 58 || mm === 80) paperWidthMm = mm;
+    if (mm === 58 || mm === 72 || mm === 80) paperWidthMm = mm;
   }
 
   const fromMm = paperWidthMmToPx(paperWidthMm);

@@ -257,6 +257,20 @@ export const getAppliedPaymentAmount = (payment?: OrderPayment) => {
   return amount;
 };
 
+/**
+ * After discount/tip/service/extras change, every draft tender line should
+ * store the current check total as `payable` (cash may still over-tender).
+ */
+export const recomputeDraftPaymentPayables = <T extends {payable?: number}>(
+  payments: T[],
+  grandTotalDue: number,
+): T[] => {
+  const due = safeNumber(grandTotalDue);
+  if (!payments.length) return payments;
+  if (payments.every((p) => safeNumber(p.payable) === due)) return payments;
+  return payments.map((p) => ({...p, payable: due}));
+};
+
 export const isCashPaymentType = (paymentType?: {type?: string; name?: string} | null) => {
   const normalizedType = paymentType?.type?.toLowerCase()?.trim() ?? '';
   const normalizedName = paymentType?.name?.toLowerCase()?.trim() ?? '';
@@ -294,25 +308,37 @@ export interface OrderPaymentTotals {
   totalReceivedWithChange: number
 }
 
-export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
+export type GetOrderPaymentTotalsOptions = {
+  /** Cap applied amounts so stale high `payable` cannot inflate collected. */
+  maxCollectable?: number;
+};
+
+export const getOrderPaymentTotals = (
+  order: Pick<OrderModel, 'payments'>,
+  options?: GetOrderPaymentTotalsOptions,
+): OrderPaymentTotals => {
   const payments = getOrderPayments(order);
+  let remaining =
+    options?.maxCollectable != null && Number.isFinite(options.maxCollectable)
+      ? Math.max(0, safeNumber(options.maxCollectable))
+      : null;
 
-  const nonCashBreakdown = payments.reduce((acc, payment) => {
+  let cashAmount = 0;
+  const nonCashBreakdown: Record<string, number> = {};
+
+  for (const payment of payments) {
+    let applied = getAppliedPaymentAmount(payment);
+    if (remaining != null) {
+      applied = Math.min(applied, remaining);
+      remaining = Math.max(0, remaining - applied);
+    }
     if (isCashPayment(payment)) {
-      return acc;
+      cashAmount += applied;
+    } else {
+      const label = payment?.payment_type?.name || 'Other';
+      nonCashBreakdown[label] = (nonCashBreakdown[label] ?? 0) + applied;
     }
-    const label = payment?.payment_type?.name || 'Other';
-    const applied = getAppliedPaymentAmount(payment);
-    acc[label] = (acc[label] ?? 0) + applied;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const cashAmount = payments.reduce((sum, payment) => {
-    if (!isCashPayment(payment)) {
-      return sum;
-    }
-    return sum + getAppliedPaymentAmount(payment);
-  }, 0);
+  }
 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
   const totalReceivedWithChange = payments.reduce((sum, payment) => sum + getTenderedAmount(payment), 0);
@@ -377,6 +403,12 @@ export const getOrderSettlementFigures = (order: OrderModel): OrderSettlementFig
     tips,
     grandTotalDue,
   };
+};
+
+/** Payment totals capped to the order's current settlement due (incl. tips). */
+export const getOrderPaymentTotalsForOrder = (order: OrderModel): OrderPaymentTotals => {
+  const due = getOrderSettlementFigures(order).grandTotalDue;
+  return getOrderPaymentTotals(order, {maxCollectable: due});
 };
 
 /** Amount due at checkout: max payment payable when recorded, else reconstructed settlement. */

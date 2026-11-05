@@ -433,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Ráster (imagen)",
     "paperWidthMm": "Ancho del papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Tamaño físico del papel para raster y centrado de imagen (58mm = 384 puntos, 72mm = 512 puntos, 80mm = 576 puntos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Umbral ráster",
@@ -472,7 +472,8 @@
     "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
     "showOrderType": "Mostrar tipo de pedido",
     "showCustomer": "Mostrar cliente",
-    "showTableName": "Mostrar nombre de mesa"
+    "showTableName": "Mostrar nombre de mesa",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
