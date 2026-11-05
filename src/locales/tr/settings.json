@@ -429,5 +429,22 @@
       "confirmTitle": "Tam veritabanı geri yüklensin mi?",
       "confirmMessage": "Bu .surql dosyasını canlı veritabanına aktarın. Dosyadaki kayıtlar eşleşen satırların üzerine yazar; yalnızca canlıda olanlar korunur. Bu terminalin katalog önbelleği ardından yenilenir."
     }
+  },
+  "customerDisplay": {
+    "title": "Müşteri ekranı",
+    "description": "Müşteri ekranında sipariş yokken karşılama metnini veya görsel/video reklam listesini göster.",
+    "enabled": "Boştayken reklamları göster",
+    "rotationInterval": "Görsel süresi (saniye)",
+    "rotationHint": "Her görselin ekranda kalma süresi. Videolar bitince ilerler.",
+    "pickMedia": "Görsel veya video ekle",
+    "mediaHint": "PNG, JPEG, GIF, WebP veya yaygın video biçimleri. Dosya başına en fazla {{size}}.",
+    "noMedia": "Henüz medya yüklenmedi.",
+    "remove": "Kaldır",
+    "updated": "Müşteri ekranı ayarları güncellendi",
+    "saveDescription": "Müşteri ekranı ayarlarını kaydet",
+    "loadFailed": "Müşteri ekranı ayarları yüklenemedi",
+    "saveFailed": "Müşteri ekranı ayarları kaydedilemedi",
+    "tooLarge": "Dosya maksimum boyutu aşıyor: {{size}}.",
+    "invalidType": "Bir görsel veya video dosyası kullanın."
   }
 }

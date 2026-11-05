@@ -58,10 +58,15 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   }
 
   rc.lineLeftRight(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
   const orderTypeRight = cfg.showOrderType !== false && bill.orderType
     ? `${orderTypeLabel}: ${bill.orderType}`
     : '';
-  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
+  if (tableLeft || orderTypeRight) {
+    rc.lineLeftRight(tableLeft, orderTypeRight);
+  }
   rc.lineLeftRight(`${cashierLabel}: ${bill.userName || '-'}`, '');
   if (deliveryTime) rc.fixedLine(`${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   rc.divider();
@@ -125,13 +130,6 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
     rc.lineLeftRight(totalLabel, formatMoney(bill.total, sym, cfg), { style: 'bold' });
   }
 
-  if (cfg.showCustomer !== false && (customerName || phone || address)) {
-    rc.divider();
-    if (customerName) rc.fixedLine(`${customerLabel}: ${String(customerName)}`, { align: 'left' });
-    if (phone) rc.fixedLine(`${phoneLabel}: ${String(phone)}`, { align: 'left' });
-    if (address) rc.fixedLine(`${addressLabel}: ${String(address)}`, { align: 'left' });
-  }
-
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     rc.divider();
     bill.payments.forEach((p) => {
@@ -150,6 +148,14 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   if (thankYou) {
     rc.feed(1);
     rc.centered(String(thankYou), { size: 'normal' });
+  }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    rc.divider();
+    if (customerName) rc.fixedLine(`${customerLabel}: ${String(customerName)}`, { align: 'left' });
+    if (phone) rc.fixedLine(`${phoneLabel}: ${String(phone)}`, { align: 'left' });
+    if (address) rc.fixedLine(`${addressLabel}: ${String(address)}`, { align: 'left' });
   }
 }
 

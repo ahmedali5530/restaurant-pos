@@ -6,7 +6,20 @@
   "thankYou": "Dank u!",
   "thankYouHint": "Tot ziens",
   "qty": "Aantal {{count}}",
+  "colItem": "Artikel",
+  "colQty": "Aantal",
+  "colPrice": "Prijs",
+  "colTotal": "Totaal",
   "total": "Totaal",
   "items": "Artikelen ({{count}})",
-  "totalWithTax": "Totaal met {{name}} {{rate}}%"
+  "totalWithTax": "Totaal met {{name}} {{rate}}%",
+  "adjTax": "{{name}}",
+  "adjTaxNamed": "{{name}} {{rate}}%",
+  "adjDiscount": "Korting ({{name}})",
+  "adjCoupon": "Coupon ({{name}})",
+  "adjService": "Servicekosten ({{value}}{{unit}})",
+  "adjServicePlain": "Servicekosten",
+  "adjTip": "Fooi",
+  "adjTipPercent": "Fooi %",
+  "adjExtra": "Extra"
 }

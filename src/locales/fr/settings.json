@@ -429,5 +429,22 @@
       "confirmTitle": "Restaurer toute la base ?",
       "confirmMessage": "Importer ce fichier .surql dans la base en direct. Les enregistrements du fichier écrasent les lignes correspondantes ; ceux présents uniquement en direct sont conservés. Le cache catalogue de ce terminal sera ensuite actualisé."
     }
+  },
+  "customerDisplay": {
+    "title": "Écran client",
+    "description": "Quand l'écran client n'a aucune commande, afficher le message d'accueil ou une playlist publicitaire d'images et de vidéos.",
+    "enabled": "Afficher les publicités en veille",
+    "rotationInterval": "Rotation des images (secondes)",
+    "rotationHint": "Durée d'affichage de chaque image. Les vidéos passent à la suivante à la fin.",
+    "pickMedia": "Ajouter des images ou vidéos",
+    "mediaHint": "PNG, JPEG, GIF, WebP ou formats vidéo courants. Max {{size}} par fichier.",
+    "noMedia": "Aucun média téléversé.",
+    "remove": "Supprimer",
+    "updated": "Paramètres de l'écran client mis à jour",
+    "saveDescription": "Enregistrer les paramètres de l'écran client",
+    "loadFailed": "Échec du chargement des paramètres de l'écran client",
+    "saveFailed": "Échec de l'enregistrement des paramètres de l'écran client",
+    "tooLarge": "Le fichier dépasse la taille maximale de {{size}}.",
+    "invalidType": "Utilisez un fichier image ou vidéo."
   }
 }

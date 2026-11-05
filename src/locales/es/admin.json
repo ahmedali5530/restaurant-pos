@@ -433,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Ráster (imagen)",
     "paperWidthMm": "Ancho del papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Tamaño físico del papel para raster y centrado de imagen (58mm = 384 puntos, 72mm = 512 puntos, 80mm = 576 puntos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Umbral ráster",
@@ -471,7 +471,9 @@
     "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
     "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
     "showOrderType": "Mostrar tipo de pedido",
-    "showCustomer": "Mostrar cliente"
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nombre de mesa",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -841,7 +843,8 @@
       "admin.catalog_publish": "Publicar catálogo",
       "settings.backup": "Copia de configuración",
       "settings.restore": "Restaurar configuración",
-      "settings.database": "Copia de base de datos"
+      "settings.database": "Copia de base de datos",
+      "settings.customer_display": "Pantalla del cliente"
     }
   },
   "discountEngine": {

@@ -41,19 +41,39 @@ function isCashPayment(payment) {
   return t === 'cash' || n === 'cash';
 }
 
+function getOrderGrandTotalDue(order) {
+  const items = (getFilteredItems(order) || []).reduce(
+    (s, item) => s + safeNumber(itemLineTotal(item)),
+    0
+  );
+  const extras = (order.extras || []).reduce((s, extra) => s + safeNumber(extra?.value), 0);
+  const lineDiscounts = safeNumber(sumFilteredItemDiscounts(order));
+  const cartDiscount = getOrderSubtotalDiscount(order);
+  const coupon = safeNumber(order.coupon?.discount);
+  const discounts = safeNumber(lineDiscounts + cartDiscount + coupon);
+  const net = safeNumber(items + extras - discounts);
+  const service = safeNumber(order.service_charge_amount);
+  const tax = safeNumber(order.tax_amount);
+  const tips = safeNumber(order.tip_amount);
+  return safeNumber(net + service + tax + tips);
+}
+
 function getOrderPaymentTotals(order) {
   const payments = order?.payments || [];
-  const nonCashBreakdown = payments.reduce((acc, payment) => {
-    if (isCashPayment(payment)) return acc;
-    const label = payment?.payment_type?.name || payment?.payment_type?.title || 'Other';
-    const applied = getAppliedAmount(payment);
-    acc[label] = (acc[label] || 0) + applied;
-    return acc;
-  }, {});
-  const cashAmount = payments.reduce((sum, payment) => {
-    if (!isCashPayment(payment)) return sum;
-    return sum + getAppliedAmount(payment);
-  }, 0);
+  let remaining = Math.max(0, getOrderGrandTotalDue(order));
+  let cashAmount = 0;
+  const nonCashBreakdown = {};
+  payments.forEach((payment) => {
+    let applied = getAppliedAmount(payment);
+    applied = Math.min(applied, remaining);
+    remaining = Math.max(0, remaining - applied);
+    if (isCashPayment(payment)) {
+      cashAmount += applied;
+    } else {
+      const label = payment?.payment_type?.name || payment?.payment_type?.title || 'Other';
+      nonCashBreakdown[label] = (nonCashBreakdown[label] || 0) + applied;
+    }
+  });
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, x) => sum + x, 0);
   const totalReceivedWithChange = payments.reduce((sum, p) => sum + getTenderedAmount(p), 0);
   const amountCollected = safeNumber(cashAmount + nonCashAmount);
@@ -136,6 +156,7 @@ function computeSummary(props) {
   if (!date) {
     date = new Date().toLocaleDateString(props?.locale || undefined, dateFormatOpts);
   }
+  const windowRange = props?.windowRange ? String(props.windowRange) : '';
 
   const paymentTotals = list.map((order) => getOrderPaymentTotals(order));
 
@@ -228,28 +249,34 @@ function computeSummary(props) {
   const averageOrderCheck = ordersCount > 0 ? amountDue / ordersCount : 0;
 
   const paymentTypeMap = {};
-  paymentTotals.forEach((totals) => {
-    Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => {
-      if (!paymentTypeMap[typeName]) paymentTypeMap[typeName] = 0;
-      paymentTypeMap[typeName] += safeNumber(amount);
-    });
-    if (!paymentTypeMap.Cash) paymentTypeMap.Cash = 0;
-    paymentTypeMap.Cash += safeNumber(totals.cashAmount);
+  list.forEach((order) => {
+    const totals = getOrderPaymentTotals(order);
+    const bump = (name, amount, count) => {
+      if (!paymentTypeMap[name]) paymentTypeMap[name] = { total: 0, count: 0 };
+      paymentTypeMap[name].total += safeNumber(amount);
+      paymentTypeMap[name].count += count;
+    };
+    Object.entries(totals.nonCashBreakdown).forEach(([typeName, amount]) => bump(typeName, amount, 1));
+    const cashLines = (order.payments || []).filter((p) => isCashPayment(p)).length;
+    if (totals.cashAmount > 0 || cashLines > 0) {
+      bump('Cash', totals.cashAmount, cashLines || (totals.cashAmount > 0 ? 1 : 0));
+    }
   });
 
   const paymentTypes = Object.entries(paymentTypeMap)
-    .map(([name, total]) => ({ name, total }))
+    .map(([name, row]) => ({ name, total: row.total, count: row.count }))
     .sort((a, b) => b.total - a.total);
 
   const taxesMap = {};
   list.forEach((order) => {
     if (!order?.tax) return;
     const key = `${order.tax?.name} ${order.tax?.rate}`;
-    if (!taxesMap[key]) taxesMap[key] = 0;
-    taxesMap[key] += safeNumber(order.tax_amount);
+    if (!taxesMap[key]) taxesMap[key] = { total: 0, count: 0 };
+    taxesMap[key].total += safeNumber(order.tax_amount);
+    taxesMap[key].count += 1;
   });
   const taxesList = Object.entries(taxesMap)
-    .map(([name, total]) => ({ name, total }))
+    .map(([name, row]) => ({ name, total: row.total, count: row.count }))
     .sort((a, b) => b.total - a.total);
 
   const discountsMap = {};
@@ -257,35 +284,76 @@ function computeSummary(props) {
     const discountAmount = safeNumber(order.discount_amount);
     if (discountAmount <= 0) return;
     const name = order?.discount?.name || 'Order discount';
-    if (!discountsMap[name]) discountsMap[name] = 0;
-    discountsMap[name] += discountAmount;
+    if (!discountsMap[name]) discountsMap[name] = { total: 0, count: 0 };
+    discountsMap[name].total += discountAmount;
+    discountsMap[name].count += 1;
   });
   const discountsList = Object.entries(discountsMap)
-    .map(([name, total]) => ({ name, total }))
+    .map(([name, row]) => ({ name, total: row.total, count: row.count }))
     .sort((a, b) => b.total - a.total);
 
   const extrasMap = {};
   list.forEach((order) => {
     (order?.extras || []).forEach((extra) => {
       if (!extra?.name) return;
-      if (!extrasMap[extra.name]) extrasMap[extra.name] = 0;
-      extrasMap[extra.name] += safeNumber(extra?.value);
+      if (!extrasMap[extra.name]) extrasMap[extra.name] = { total: 0, count: 0 };
+      extrasMap[extra.name].total += safeNumber(extra?.value);
+      extrasMap[extra.name].count += 1;
     });
   });
   const extrasList = Object.entries(extrasMap)
-    .map(([name, total]) => ({ name, total }))
+    .map(([name, row]) => ({ name, total: row.total, count: row.count }))
     .sort((a, b) => b.total - a.total);
 
   const couponsMap = {};
   list.forEach((order) => {
     if (!order?.coupon) return;
     const code = order.coupon?.coupon?.code || 'Unknown';
-    if (!couponsMap[code]) couponsMap[code] = 0;
-    couponsMap[code] += safeNumber(order.coupon.discount);
+    if (!couponsMap[code]) couponsMap[code] = { total: 0, count: 0 };
+    couponsMap[code].total += safeNumber(order.coupon.discount);
+    couponsMap[code].count += 1;
   });
   const couponsList = Object.entries(couponsMap)
-    .map(([name, total]) => ({ name, total }))
+    .map(([name, row]) => ({ name, total: row.total, count: row.count }))
     .sort((a, b) => b.total - a.total);
+
+  const tipsCount = list.filter((order) => safeNumber(order.tip_amount) > 0).length;
+
+  const orderTypeMap = {};
+  const orderTakerMap = {};
+  list.forEach((order) => {
+    const items = (getFilteredItems(order) || []).reduce(
+      (s, item) => s + safeNumber(itemLineTotal(item)),
+      0
+    );
+    const extras = (order.extras || []).reduce((s, extra) => s + safeNumber(extra?.value), 0);
+    const lineDiscounts = safeNumber(sumFilteredItemDiscounts(order));
+    const cartDiscount = getOrderSubtotalDiscount(order);
+    const coupon = safeNumber(order.coupon?.discount);
+    const net = safeNumber(items + extras - lineDiscounts - cartDiscount - coupon);
+    const sale = safeNumber(
+      net + safeNumber(order.service_charge_amount) + safeNumber(order.tax_amount)
+    );
+    const typeName =
+      (order.order_type && order.order_type.name) || 'Unknown order type';
+    if (!orderTypeMap[typeName]) orderTypeMap[typeName] = { name: typeName, total: 0, ordersCount: 0 };
+    orderTypeMap[typeName].total += sale;
+    orderTypeMap[typeName].ordersCount += 1;
+
+    const user = order.user;
+    const takerName = user
+      ? [user.first_name, user.last_name].filter(Boolean).join(' ').trim() ||
+        user.login ||
+        'Unknown'
+      : 'Unknown';
+    if (!orderTakerMap[takerName]) {
+      orderTakerMap[takerName] = { name: takerName, total: 0, ordersCount: 0 };
+    }
+    orderTakerMap[takerName].total += sale;
+    orderTakerMap[takerName].ordersCount += 1;
+  });
+  const orderTypes = Object.values(orderTypeMap).sort((a, b) => b.total - a.total);
+  const orderTakers = Object.values(orderTakerMap).sort((a, b) => b.total - a.total);
 
   const categoryMixMap = {};
   list.forEach((order) => {
@@ -351,6 +419,7 @@ function computeSummary(props) {
 
   return {
     date,
+    windowRange,
     exclusiveSales,
     totalExtras,
     grossSales,
@@ -380,6 +449,9 @@ function computeSummary(props) {
     discountsList,
     extrasList,
     couponsList,
+    tipsCount,
+    orderTypes,
+    orderTakers,
     categoryMix,
   };
 }

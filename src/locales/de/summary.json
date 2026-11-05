@@ -4,7 +4,8 @@
     "nextDate": "Nächstes Datum",
     "printSummary": "Zusammenfassung drucken",
     "productMixReport": "Produktmix-Bericht",
-    "serverSales": "Kellnerumsatz"
+    "serverSales": "Kellnerumsatz",
+    "printMinimalSummary": "Kurzfassung drucken"
   },
   "security": {
     "printSummaryDescription": "Zusammenfassung drucken",
@@ -12,7 +13,8 @@
     "productMixDescription": "Produktmix-Bericht",
     "productMixModule": "Produktmix-Bericht",
     "serverSalesDescription": "Kellnerumsatz",
-    "serverSalesModule": "Kellnerumsatz"
+    "serverSalesModule": "Kellnerumsatz",
+    "printMinimalSummaryDescription": "Kurzfassung drucken"
   },
   "unknown": {
     "user": "Unbekannt",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Abrechnung und Kasse",
       "operationalControls": "4. Betriebskontrollen",
       "productMix": "5. Produktmix",
-      "paymentTypes": "6. Zahlungsarten",
-      "taxesBreakdown": "7. Steueraufschlüsselung",
-      "discountsBreakdown": "8. Rabattaufschlüsselung",
-      "extrasBreakdown": "9. Extras-Aufschlüsselung",
-      "couponsBreakdown": "10. Gutscheinaufschlüsselung"
+      "paymentTypes": "8. Zahlungsarten",
+      "taxesBreakdown": "9. Steueraufschlüsselung",
+      "discountsBreakdown": "10. Rabattaufschlüsselung",
+      "extrasBreakdown": "12. Extra-Aufschlüsselung",
+      "couponsBreakdown": "13. Gutschein-Aufschlüsselung",
+      "orderTypes": "6. Verkauf nach Bestelltyp",
+      "orderTakers": "7. Verkauf nach Bestellnehmer",
+      "tipsBreakdown": "11. Trinkgelder"
     },
     "subtitles": {
       "surchargesTaxes": "Erhobene Zuschläge und Steuern (aus Bestellungen; typischerweise auf Netto nach Rabatt berechnet).",
       "settlementCashier": "Kassenansicht.",
       "operationalControls": "Prüfsignale (Stornos getrennt vom Bruttoumsatz).",
       "productMix": "Kategorien gruppiert mit Gerichten und deren Modifikatoren.",
-      "paymentTypes": "Erhobener Betrag nach Zahlungsmethode aufgeteilt.",
+      "paymentTypes": "Eingenommener Betrag und Zahlungsanzahl nach Methode (% der Gesamtfälligkeit).",
       "taxesBreakdown": "Aus Bestellungen erhobene Steuerkomponenten.",
       "discountsBreakdown": "In diesem Zeitraum angewendete Rabattschemata.",
       "extrasBreakdown": "Aufschlüsselung der Bestell-Extras.",
-      "couponsBreakdown": "Eingelöste Gutscheine und deren Werte."
+      "couponsBreakdown": "Eingelöste Gutscheine und deren Werte.",
+      "orderTypes": "Fälliger Betrag (vor Trinkgeld) und Bestellanzahl nach Bestelltyp.",
+      "orderTakers": "Fälliger Betrag (vor Trinkgeld) und Bestellanzahl nach Bestellnehmer.",
+      "tipsBreakdown": "Trinkgeldbetrag und Anzahl getippter Bestellungen."
     },
     "rows": {
       "exclusiveSales": "Reiner Artikelumsatz",
@@ -97,7 +105,9 @@
       "averageCover": "Fälliger Betrag (vor Trinkgeld) ÷ Gäste.",
       "ordersChecks": "Anzahl geschlossener Rechnungen/Bestellungen.",
       "averageOrderCheck": "Fälliger Betrag (vor Trinkgeld) ÷ Bestellungen.",
-      "roundingLegacy": "Eingezogener Betrag - Fälliger Betrag"
+      "roundingLegacy": "Eingezogener Betrag - Fälliger Betrag",
+      "coversWithAverage": "Gästeanzahl und fälliger Betrag (vor Trinkgeld) ÷ Gäste.",
+      "ordersChecksWithAverage": "Geschlossene Checks/Bestellungen und fälliger Betrag (vor Trinkgeld) ÷ Bestellungen."
     },
     "columns": {
       "item": "Artikel",
@@ -111,7 +121,9 @@
       "noTaxRows": "Keine Steuerzeilen für dieses Datum.",
       "noDiscountRows": "Keine Rabattzeilen für dieses Datum.",
       "noExtras": "Keine Extras für dieses Datum gefunden.",
-      "noCoupons": "Keine Gutscheinnutzung für dieses Datum."
+      "noCoupons": "Keine Gutscheinnutzung für dieses Datum.",
+      "noOrderTypes": "Keine Bestelltypdaten für dieses Datum.",
+      "noOrderTakers": "Keine Bestellnehmerdaten für dieses Datum."
     },
     "footer": "Reihenfolge: Bruttoumsatz → Rabatte → Nettoumsatz → Servicegebühren → Steuern → Trinkgeld → Gesamtsumme → eingezogen. Produktmix ist nach Kategorie gruppiert mit verschachtelten Gerichten.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Durchschnitt pro Gast",
       "ordersChecks": "Bestellungen/Rechnungen",
       "averageOrderCheck": "Durchschnitt pro Bestellung/Rechnung"
-    }
+    },
+    "unknownOrderType": "Unbekannter Bestelltyp",
+    "unknownTaker": "Unbekannt",
+    "windowRange": "Zeitraum: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Verkaufserlös",
+      "surchargesTaxes": "2. Zuschläge und Steuern",
+      "settlementCashier": "3. Abrechnung und Kasse",
+      "operationalControls": "4. Betriebskontrollen",
+      "paymentTypes": "5. Zahlungsarten"
+    },
+    "productMixTitle": "Produktmix — {{date}}"
   },
   "clock": {
     "title": "Zeiterfassung",

@@ -4,7 +4,8 @@
     "nextDate": "Volgende datum",
     "printSummary": "Overzicht afdrukken",
     "productMixReport": "Productmixrapport",
-    "serverSales": "Serververkoop"
+    "serverSales": "Serververkoop",
+    "printMinimalSummary": "Minimaal overzicht afdrukken"
   },
   "security": {
     "printSummaryDescription": "Overzicht afdrukken",
@@ -12,7 +13,8 @@
     "productMixDescription": "Productmixrapport",
     "productMixModule": "Productmixrapport",
     "serverSalesDescription": "Serververkoop",
-    "serverSalesModule": "Serververkoop"
+    "serverSalesModule": "Serververkoop",
+    "printMinimalSummaryDescription": "Minimaal overzicht afdrukken"
   },
   "unknown": {
     "user": "Onbekend",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Afrekening en kassa",
       "operationalControls": "4. Operationele controles",
       "productMix": "5. Productmix",
-      "paymentTypes": "6. Betaaltypen",
-      "taxesBreakdown": "7. Belastingenoverzicht",
-      "discountsBreakdown": "8. Kortingenoverzicht",
-      "extrasBreakdown": "9. Extra'soverzicht",
-      "couponsBreakdown": "10. Couponsoverzicht"
+      "paymentTypes": "8. Betaalwijzen",
+      "taxesBreakdown": "9. Belastinguitsplitsing",
+      "discountsBreakdown": "10. Kortingsuitsplitsing",
+      "extrasBreakdown": "12. Extra's-uitsplitsing",
+      "couponsBreakdown": "13. Coupon-uitsplitsing",
+      "orderTypes": "6. Verkoop per ordertype",
+      "orderTakers": "7. Verkoop per bestelnemer",
+      "tipsBreakdown": "11. Fooien"
     },
     "subtitles": {
       "surchargesTaxes": "Geïnde toeslagen en belasting (van bestellingen; doorgaans berekend op netto na korting).",
       "settlementCashier": "Kassalade-overzicht.",
       "operationalControls": "Audit-signalen (annuleringen apart van brutoverkoop).",
       "productMix": "Categorieën gegroepeerd met gerechten en hun modifiers.",
-      "paymentTypes": "Geïnd bedrag verdeeld per betaalmethode.",
+      "paymentTypes": "Ontvangen bedrag en aantal per methode (% van totaal verschuldigd).",
       "taxesBreakdown": "Belastingcomponenten geïnd van bestellingen.",
       "discountsBreakdown": "Kortingsschema's toegepast in deze periode.",
       "extrasBreakdown": "Overzicht van extra's op bestellingsniveau.",
-      "couponsBreakdown": "Ingewisselde coupons en hun waarden."
+      "couponsBreakdown": "Ingewisselde coupons en hun waarden.",
+      "orderTypes": "Verschuldigd bedrag (vóór fooi) en aantal per ordertype.",
+      "orderTakers": "Verschuldigd bedrag (vóór fooi) en aantal per bestelnemer.",
+      "tipsBreakdown": "Fooibedrag en aantal orders met fooi."
     },
     "rows": {
       "exclusiveSales": "Exclusieve verkoop",
@@ -97,7 +105,9 @@
       "averageCover": "Verschuldigd bedrag (vóór fooi) ÷ couverts.",
       "ordersChecks": "Aantal gesloten bonnen/bestellingen.",
       "averageOrderCheck": "Verschuldigd bedrag (vóór fooi) ÷ bestellingen.",
-      "roundingLegacy": "Geïnd bedrag - Verschuldigd bedrag"
+      "roundingLegacy": "Geïnd bedrag - Verschuldigd bedrag",
+      "coversWithAverage": "Aantal gasten en verschuldigd bedrag (vóór fooi) ÷ couverts.",
+      "ordersChecksWithAverage": "Gesloten checks/bestellingen en verschuldigd bedrag (vóór fooi) ÷ bestellingen."
     },
     "columns": {
       "item": "Artikel",
@@ -111,7 +121,9 @@
       "noTaxRows": "Geen belastingregels voor deze datum.",
       "noDiscountRows": "Geen kortingsregels voor deze datum.",
       "noExtras": "Geen extra's gevonden voor deze datum.",
-      "noCoupons": "Geen coupongebruik voor deze datum."
+      "noCoupons": "Geen coupongebruik voor deze datum.",
+      "noOrderTypes": "Geen ordertypegegevens voor deze datum.",
+      "noOrderTakers": "Geen bestelnemergegevens voor deze datum."
     },
     "footer": "Volgorde: brutoverkoop → kortingen → nettoverkoop → servicekosten → belastingen → fooien → eindtotaal → geïnd. Productmix is gegroepeerd per categorie met gerechten genest.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Gemiddeld couvert",
       "ordersChecks": "Bestellingen/Bonnen",
       "averageOrderCheck": "Gemiddelde bestelling/bon"
-    }
+    },
+    "unknownOrderType": "Onbekend ordertype",
+    "unknownTaker": "Onbekend",
+    "windowRange": "Periode: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Omzet",
+      "surchargesTaxes": "2. Toeslagen en belastingen",
+      "settlementCashier": "3. Afrekening en kassa",
+      "operationalControls": "4. Operationele controles",
+      "paymentTypes": "5. Betaalwijzen"
+    },
+    "productMixTitle": "Productmix — {{date}}"
   },
   "clock": {
     "title": "Tijdklok",

@@ -14,6 +14,7 @@ const cors = require('cors');
 const authRoutes = require('./src/auth.routes');
 const syncRoutes = require('./src/sync.routes');
 const selfOrderRoutes = require('./src/self-order/routes');
+const customerDisplayRoutes = require('./src/customer-display.routes');
 const { router: backupRoutes } = require('./src/backup.routes');
 const { getUserRoleModules, hasSecurityAlertsAccess } = require('./src/auth.service');
 const { attachRpcRelay } = require('./src/ws-relay');
@@ -91,6 +92,8 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRoutes);
 app.use('/sync', syncRoutes);
 app.use('/self-order', selfOrderRoutes);
+// Distinct from the SPA route /customer-display so nginx/vite can proxy safely.
+app.use('/customer-display-api', customerDisplayRoutes);
 app.use('/backup', backupRoutes);
 
 /** Shared verify endpoint for other services (optional). */

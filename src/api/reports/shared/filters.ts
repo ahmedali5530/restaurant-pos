@@ -2,9 +2,24 @@ import {DateTime} from "luxon";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {BranchScopeParams, BranchView} from "@/api/reports/shared/branch-scope.ts";
 import type {DateRangeFilter} from "@/api/reports/shared/types.ts";
+import type {ClosingCycleConfig} from "@/lib/closing-cycle.ts";
+import {formatReportRangeForQuery} from "@/lib/kitchen/business-date.ts";
 import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 /** Luxon format for query parameter values (matches report date pickers). */
+
+const rangeForDays = (
+  config: ClosingCycleConfig | null | undefined,
+  start: DateTime,
+  end: DateTime,
+): DateRangeFilter => {
+  const {startDate, endDate} = formatReportRangeForQuery(
+    config,
+    start.toFormat("yyyy-MM-dd"),
+    end.toFormat("yyyy-MM-dd"),
+  );
+  return {startDate, endDate};
+};
 
 export const parseMultiFilter = (params: URLSearchParams, name: string): string[] => {
   return [
@@ -69,83 +84,60 @@ export const normalizeQueryDate = (value: string): string => {
   throw new Error(`Could not parse date: "${value}". Expected format like ${runtimeDateTimeFormat()}.`);
 };
 
-export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFilter => {
+export const resolveNaturalDateRange = ({
+  phrase,
+  closingCycleConfig = null,
+}: {
+  phrase: string;
+  closingCycleConfig?: ClosingCycleConfig | null;
+}): DateRangeFilter => {
   const normalized = phrase.trim().toLowerCase();
   const now = getNow();
+  const cfg = closingCycleConfig;
 
   if (normalized === "today" || normalized.includes("today")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now, now);
   }
 
   if (normalized === "yesterday" || normalized.includes("yesterday")) {
     const day = now.minus({days: 1});
-    return {
-      startDate: formatDateTimeForQuery(day.startOf("day")),
-      endDate: formatDateTimeForQuery(day.endOf("day")),
-    };
+    return rangeForDays(cfg, day, day);
   }
 
   if (normalized === "this week" || normalized.includes("this week")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("week")),
-      endDate: formatDateTimeForQuery(now.endOf("week")),
-    };
+    return rangeForDays(cfg, now.startOf("week"), now.endOf("week"));
   }
 
   if (normalized === "last week" || normalized.includes("last week")) {
     const week = now.minus({weeks: 1});
-    return {
-      startDate: formatDateTimeForQuery(week.startOf("week")),
-      endDate: formatDateTimeForQuery(week.endOf("week")),
-    };
+    return rangeForDays(cfg, week.startOf("week"), week.endOf("week"));
   }
 
   if (normalized === "this month" || normalized.includes("this month")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("month")),
-      endDate: formatDateTimeForQuery(now.endOf("month")),
-    };
+    return rangeForDays(cfg, now.startOf("month"), now.endOf("month"));
   }
 
   if (normalized === "last month" || normalized.includes("last month")) {
     const month = now.minus({months: 1});
-    return {
-      startDate: formatDateTimeForQuery(month.startOf("month")),
-      endDate: formatDateTimeForQuery(month.endOf("month")),
-    };
+    return rangeForDays(cfg, month.startOf("month"), month.endOf("month"));
   }
 
   if (normalized === "this year" || normalized.includes("this year")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("year")),
-      endDate: formatDateTimeForQuery(now.endOf("year")),
-    };
+    return rangeForDays(cfg, now.startOf("year"), now.endOf("year"));
   }
 
   if (normalized === "last 7 days" || normalized.includes("last 7 days") || normalized.includes("past 7 days")) {
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: 6}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: 6}), now);
   }
 
   if (normalized === "last 30 days" || normalized.includes("last 30 days") || normalized.includes("past 30 days")) {
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: 29}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: 29}), now);
   }
 
   const lastDaysMatch = normalized.match(/(?:last|past)\s+(\d+)\s+days?/);
   if (lastDaysMatch) {
     const days = Math.max(1, Number(lastDaysMatch[1]));
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: days - 1}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: days - 1}), now);
   }
 
   const quarterMatch = normalized.match(/q([1-4])\s*(\d{4})?/);
@@ -154,13 +146,10 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     const year = quarterMatch[2] ? Number(quarterMatch[2]) : now.year;
     const startMonth = (quarter - 1) * 3 + 1;
     const start = DateTime.fromObject({year, month: startMonth, day: 1}, {zone: getAppTimezone()});
-    return {
-      startDate: formatDateTimeForQuery(start.startOf("month")),
-      endDate: formatDateTimeForQuery(start.plus({months: 2}).endOf("month")),
-    };
+    return rangeForDays(cfg, start.startOf("month"), start.plus({months: 2}).endOf("month"));
   }
 
-  const weekdayRange = resolveWeekdayPhrase(normalized, now);
+  const weekdayRange = resolveWeekdayPhrase(normalized, now, cfg);
   if (weekdayRange) {
     return weekdayRange;
   }
@@ -188,7 +177,11 @@ const WEEKDAY_NAMES: Record<string, number> = {
   sun: 7,
 };
 
-const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilter | null => {
+const resolveWeekdayPhrase = (
+  normalized: string,
+  now: DateTime,
+  config: ClosingCycleConfig | null | undefined,
+): DateRangeFilter | null => {
   const match = normalized.match(/\b(last|this)\s+(monday|mon|tuesday|tue|tues|wednesday|wed|thursday|thu|thur|thurs|friday|fri|saturday|sat|sunday|sun)\b/);
   if (!match) {
     return null;
@@ -204,10 +197,7 @@ const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilte
     const daysBack = (now.weekday - weekday + 7) % 7;
     const offset = daysBack === 0 ? 7 : daysBack;
     const target = now.minus({days: offset});
-    return {
-      startDate: formatDateTimeForQuery(target.startOf("day")),
-      endDate: formatDateTimeForQuery(target.endOf("day")),
-    };
+    return rangeForDays(config, target, target);
   }
 
   const startOfWeek = now.startOf("week");
@@ -215,10 +205,7 @@ const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilte
   if (target > now.endOf("day")) {
     target = target.minus({weeks: 1});
   }
-  return {
-    startDate: formatDateTimeForQuery(target.startOf("day")),
-    endDate: formatDateTimeForQuery(target.endOf("day")),
-  };
+  return rangeForDays(config, target, target);
 };
 
 /** Default peak dining hours in business timezone (7 PM – 9 PM). */

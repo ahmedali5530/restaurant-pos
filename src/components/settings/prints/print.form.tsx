@@ -61,6 +61,7 @@ type PrintFormValues = {
   showItemTotal?: boolean
   showOrderType?: boolean
   showCustomer?: boolean
+  showTableName?: boolean
 }
 
 function toSelectOption(value: unknown, options: SelectOption[]): SelectOption {
@@ -159,6 +160,7 @@ export const PrintForm = ({
 
   const paperWidthOptions: SelectOption[] = useMemo(() => [
     { label: t('forms.paperWidth58'), value: '58' },
+    { label: t('forms.paperWidth72'), value: '72' },
     { label: t('forms.paperWidth80'), value: '80' },
   ], [t]);
 
@@ -175,7 +177,7 @@ export const PrintForm = ({
 
   const isRasterMode = selectValue(watchedPrintMode, 'text') === 'raster';
   const paperWidthMm = Number(selectValue(watchedPaperWidthMm, '80'));
-  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : 576;
+  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : paperWidthMm === 72 ? 512 : 576;
 
   const selectedLogoPreset = useMemo(() => {
     const w = Number(watchedLogoWidth) || DEFAULT_LOGO_PX;
@@ -219,6 +221,7 @@ export const PrintForm = ({
         logoHeight: clampImageDim(data.values.logoHeight, DEFAULT_LOGO_PX, 576),
         showOrderType: data.values.showOrderType !== false,
         showCustomer: data.values.showCustomer !== false,
+        showTableName: data.values.showTableName !== false,
         logo: null,
         headerSections: normalizeSectionsFromDb(data.values.headerSections),
         footerSections: normalizeSectionsFromDb(data.values.footerSections),
@@ -342,7 +345,7 @@ export const PrintForm = ({
     const maxHRaw = values.rasterMaxHeightPx;
     const maxH = maxHRaw === '' || maxHRaw == null ? null : Number(maxHRaw);
     const paperMm = Number(selectValue(values.paperWidthMm, '80'));
-    const maxW = paperMm === 58 ? 384 : 576;
+    const maxW = paperMm === 58 ? 384 : paperMm === 72 ? 512 : 576;
     const vals: Record<string, unknown> = {
       ...values,
       printMode: selectValue(values.printMode, 'text'),
@@ -355,6 +358,7 @@ export const PrintForm = ({
       logoHeight: clampImageDim(values.logoHeight, DEFAULT_LOGO_PX, 576),
       showOrderType: values.showOrderType !== false,
       showCustomer: values.showCustomer !== false,
+      showTableName: values.showTableName !== false,
       renderOptions: (data?.values?.renderOptions && typeof data.values.renderOptions === 'object')
         ? data.values.renderOptions
         : {},
@@ -817,6 +821,20 @@ export const PrintForm = ({
                       onChange={field.onChange}
                     >
                       {t('forms.showCustomer')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showTableName"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showTableName')}
                     </Switch>
                   )}
                 />

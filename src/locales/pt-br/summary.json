@@ -4,7 +4,8 @@
     "nextDate": "Próxima data",
     "printSummary": "Imprimir resumo",
     "productMixReport": "Relatório de Mix de Produtos",
-    "serverSales": "Vendas por Garçom"
+    "serverSales": "Vendas por Garçom",
+    "printMinimalSummary": "Imprimir resumo mínimo"
   },
   "security": {
     "printSummaryDescription": "Imprimir resumo",
@@ -12,7 +13,8 @@
     "productMixDescription": "Relatório de mix de produtos",
     "productMixModule": "Relatório de mix de produtos",
     "serverSalesDescription": "Vendas por garçom",
-    "serverSalesModule": "Vendas por garçom"
+    "serverSalesModule": "Vendas por garçom",
+    "printMinimalSummaryDescription": "Imprimir resumo mínimo"
   },
   "unknown": {
     "user": "Desconhecido",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Liquidação e caixa",
       "operationalControls": "4. Controles operacionais",
       "productMix": "5. Mix de produtos",
-      "paymentTypes": "6. Tipos de pagamento",
-      "taxesBreakdown": "7. Detalhamento de impostos",
-      "discountsBreakdown": "8. Detalhamento de descontos",
-      "extrasBreakdown": "9. Detalhamento de extras",
-      "couponsBreakdown": "10. Detalhamento de cupons"
+      "paymentTypes": "8. Tipos de pagamento",
+      "taxesBreakdown": "9. Detalhe de impostos",
+      "discountsBreakdown": "10. Detalhe de descontos",
+      "extrasBreakdown": "12. Detalhe de extras",
+      "couponsBreakdown": "13. Detalhe de cupons",
+      "orderTypes": "6. Vendas por tipo de pedido",
+      "orderTakers": "7. Vendas por atendente",
+      "tipsBreakdown": "11. Gorjetas"
     },
     "subtitles": {
       "surchargesTaxes": "Acréscimos e impostos cobrados (dos pedidos; normalmente calculados sobre o líquido após desconto).",
       "settlementCashier": "Visão do caixa.",
       "operationalControls": "Sinais de auditoria (cancelamentos separados das vendas brutas).",
       "productMix": "Categorias agrupadas com pratos e seus modificadores.",
-      "paymentTypes": "Valor cobrado dividido por forma de pagamento.",
+      "paymentTypes": "Valor recebido e contagem por método (% do total devido).",
       "taxesBreakdown": "Componentes de imposto cobrados dos pedidos.",
       "discountsBreakdown": "Esquemas de desconto aplicados neste período.",
       "extrasBreakdown": "Detalhamento de extras no nível do pedido.",
-      "couponsBreakdown": "Cupons resgatados e seus valores."
+      "couponsBreakdown": "Cupons resgatados e seus valores.",
+      "orderTypes": "Valor devido (antes de gorjetas) e contagem por tipo de pedido.",
+      "orderTakers": "Valor devido (antes de gorjetas) e contagem por atendente.",
+      "tipsBreakdown": "Valor de gorjetas e pedidos com gorjeta."
     },
     "rows": {
       "exclusiveSales": "Vendas exclusivas",
@@ -97,7 +105,9 @@
       "averageCover": "Valor devido (antes das gorjetas) ÷ coberturas.",
       "ordersChecks": "Número de comandas/pedidos fechados.",
       "averageOrderCheck": "Valor devido (antes das gorjetas) ÷ pedidos.",
-      "roundingLegacy": "Valor recebido - Valor devido"
+      "roundingLegacy": "Valor recebido - Valor devido",
+      "coversWithAverage": "Número de clientes e valor devido (antes das gorjetas) ÷ coberturas.",
+      "ordersChecksWithAverage": "Contas/pedidos fechados e valor devido (antes das gorjetas) ÷ pedidos."
     },
     "columns": {
       "item": "Item",
@@ -111,7 +121,9 @@
       "noTaxRows": "Nenhuma linha de imposto para esta data.",
       "noDiscountRows": "Nenhuma linha de desconto para esta data.",
       "noExtras": "Nenhum extra encontrado para esta data.",
-      "noCoupons": "Nenhum uso de cupom para esta data."
+      "noCoupons": "Nenhum uso de cupom para esta data.",
+      "noOrderTypes": "Sem dados de tipo de pedido nesta data.",
+      "noOrderTakers": "Sem dados de atendente nesta data."
     },
     "footer": "Sequência: vendas brutas → descontos → vendas líquidas → taxa de serviço → impostos → gorjetas → total geral → recebido. O mix de produtos é agrupado por categoria com pratos aninhados.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Média por cobertura",
       "ordersChecks": "Pedidos/Comandas",
       "averageOrderCheck": "Média por pedido/comanda"
-    }
+    },
+    "unknownOrderType": "Tipo de pedido desconhecido",
+    "unknownTaker": "Desconhecido",
+    "windowRange": "Período: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Receita de vendas",
+      "surchargesTaxes": "2. Taxas e impostos",
+      "settlementCashier": "3. Liquidação e caixa",
+      "operationalControls": "4. Controles operacionais",
+      "paymentTypes": "5. Tipos de pagamento"
+    },
+    "productMixTitle": "Mix de produtos — {{date}}"
   },
   "clock": {
     "title": "Registro de Ponto",

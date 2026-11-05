@@ -99,10 +99,15 @@ function printBillLayout(printer, bill, config, opts) {
   const checkClosedLabel = L.checkClosed || 'Check Closed';
 
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
   const orderTypeRight = cfg.showOrderType !== false && bill.orderType
     ? `${orderTypeLabel}: ${bill.orderType}`
     : '';
-  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, orderTypeRight);
+  if (tableLeft || orderTypeRight) {
+    printLineLeftRight(printer, tableLeft, orderTypeRight);
+  }
   printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
   if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   printDivider(printer);
@@ -160,13 +165,6 @@ function printBillLayout(printer, bill, config, opts) {
     hardResetLayout(printer);
   }
 
-  if (cfg.showCustomer !== false && (customerName || phone || address)) {
-    printDivider(printer);
-    if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
-    if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
-    if (address) printFixedLine(printer, `${addressLabel}: ${String(address)}`, { align: 'left' });
-  }
-
   if (showPayments && Array.isArray(bill.payments) && bill.payments.length > 0) {
     printDivider(printer);
     bill.payments.forEach((p) => {
@@ -185,6 +183,14 @@ function printBillLayout(printer, bill, config, opts) {
   if (thankYou) {
     printer.feed(1);
     printCenteredText(printer, thankYou);
+  }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    printDivider(printer);
+    if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+    if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
+    if (address) printFixedLine(printer, `${addressLabel}: ${String(address)}`, { align: 'left' });
   }
 
   const qrItems = normalizeQrItems(qrcodes, qrcode);

@@ -3,6 +3,7 @@ import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faArrowLeft, faDisplay, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {openCustomerDisplayWindow} from "@/hooks/useCustomerDisplayPublisher.ts";
+import {useDB} from "@/api/db/db.ts";
 import {cn} from "@/lib/utils.ts";
 import React, {useEffect, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
@@ -18,6 +19,7 @@ import i18n from "@/lib/i18n.ts";
 
 export const MenuHeader = () => {
   const { t } = useTranslation('menu');
+  const db = useDB();
 
   const [state, setState] = useAtom(appState);
   const [setting] = useAtom(appSettings);
@@ -248,7 +250,7 @@ export const MenuHeader = () => {
             size="lg"
             flat
             icon={faDisplay}
-            onClick={() => openCustomerDisplayWindow(state.cart, setting?.taxes)}
+            onClick={() => void openCustomerDisplayWindow(state.cart, setting?.taxes, db)}
             data-testid="menu-open-customer-display"
           >
             {t('header.customerDisplay')}

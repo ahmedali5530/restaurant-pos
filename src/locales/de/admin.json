@@ -433,7 +433,7 @@
     "printModeText": "Text (ESC/POS)",
     "printModeRaster": "Raster (Bild)",
     "paperWidthMm": "Papierbreite",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Physische Papierbreite für Raster und Bildzentrierung (58mm = 384 Punkte, 72mm = 512 Punkte, 80mm = 576 Punkte).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Raster-Schwellwert",
@@ -471,7 +471,9 @@
     "kraTaxTyCd": "KRA-Steuertyp (A–E)",
     "kraFiscalHint": "Optionale Kenia-eTIMS-Überschreibungen. Leer lassen, um die KRA-Provider-Standards zu verwenden.",
     "showOrderType": "Bestelltyp anzeigen",
-    "showCustomer": "Kunde anzeigen"
+    "showCustomer": "Kunde anzeigen",
+    "showTableName": "Tischnamen anzeigen",
+    "paperWidth72": "72 mm"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",
@@ -841,7 +843,8 @@
       "admin.catalog_publish": "Katalog veröffentlichen",
       "settings.backup": "Einstellungssicherung",
       "settings.restore": "Einstellungen wiederherstellen",
-      "settings.database": "Datenbanksicherung"
+      "settings.database": "Datenbanksicherung",
+      "settings.customer_display": "Kundendisplay"
     }
   },
   "discountEngine": {

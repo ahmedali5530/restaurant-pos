@@ -4,7 +4,8 @@
     "nextDate": "Следующая дата",
     "printSummary": "Печать сводки",
     "productMixReport": "Отчёт по ассортименту",
-    "serverSales": "Продажи официантов"
+    "serverSales": "Продажи официантов",
+    "printMinimalSummary": "Печать краткой сводки"
   },
   "security": {
     "printSummaryDescription": "Печать сводки",
@@ -12,7 +13,8 @@
     "productMixDescription": "Отчёт по ассортименту",
     "productMixModule": "Отчёт по ассортименту",
     "serverSalesDescription": "Продажи официантов",
-    "serverSalesModule": "Продажи официантов"
+    "serverSalesModule": "Продажи официантов",
+    "printMinimalSummaryDescription": "Печать краткой сводки"
   },
   "unknown": {
     "user": "Неизвестно",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Расчёты и касса",
       "operationalControls": "4. Операционный контроль",
       "productMix": "5. Ассортимент",
-      "paymentTypes": "6. Типы оплаты",
-      "taxesBreakdown": "7. Детализация налогов",
-      "discountsBreakdown": "8. Детализация скидок",
-      "extrasBreakdown": "9. Детализация дополнений",
-      "couponsBreakdown": "10. Детализация купонов"
+      "paymentTypes": "8. Типы оплаты",
+      "taxesBreakdown": "9. Разбивка налогов",
+      "discountsBreakdown": "10. Разбивка скидок",
+      "extrasBreakdown": "12. Разбивка доплат",
+      "couponsBreakdown": "13. Разбивка купонов",
+      "orderTypes": "6. Продажи по типу заказа",
+      "orderTakers": "7. Продажи по принявшему заказ",
+      "tipsBreakdown": "11. Чаевые"
     },
     "subtitles": {
       "surchargesTaxes": "Собранные надбавки и налог (из заказов; обычно рассчитываются на сумму после скидки).",
       "settlementCashier": "Вид кассового ящика.",
       "operationalControls": "Контрольные сигналы (аннулирования отдельно от валовых продаж).",
       "productMix": "Категории с блюдами и их модификаторами.",
-      "paymentTypes": "Собранная сумма по способам оплаты.",
+      "paymentTypes": "Собранная сумма и число платежей по методу (% от итога к оплате).",
       "taxesBreakdown": "Налоговые компоненты, собранные из заказов.",
       "discountsBreakdown": "Схемы скидок, применённые за этот период.",
       "extrasBreakdown": "Детализация дополнений на уровне заказа.",
-      "couponsBreakdown": "Использованные купоны и их значения."
+      "couponsBreakdown": "Использованные купоны и их значения.",
+      "orderTypes": "Сумма к оплате (до чаевых) и число заказов по типу.",
+      "orderTakers": "Сумма к оплате (до чаевых) и число заказов по сотруднику.",
+      "tipsBreakdown": "Сумма чаевых и число заказов с чаевыми."
     },
     "rows": {
       "exclusiveSales": "Продажи без дополнений",
@@ -97,7 +105,9 @@
       "averageCover": "К оплате (до чаевых) ÷ гости.",
       "ordersChecks": "Количество закрытых чеков/заказов.",
       "averageOrderCheck": "К оплате (до чаевых) ÷ заказы.",
-      "roundingLegacy": "Собрано − к оплате"
+      "roundingLegacy": "Собрано − к оплате",
+      "coversWithAverage": "Количество гостей и сумма к оплате (до чаевых) ÷ гости.",
+      "ordersChecksWithAverage": "Закрытые заказы/чеки и сумма к оплате (до чаевых) ÷ заказы."
     },
     "columns": {
       "item": "Позиция",
@@ -111,7 +121,9 @@
       "noTaxRows": "Нет строк налогов за эту дату.",
       "noDiscountRows": "Нет строк скидок за эту дату.",
       "noExtras": "Дополнения за эту дату не найдены.",
-      "noCoupons": "Использование купонов за эту дату отсутствует."
+      "noCoupons": "Использование купонов за эту дату отсутствует.",
+      "noOrderTypes": "Нет данных по типам заказов за эту дату.",
+      "noOrderTakers": "Нет данных по принявшим заказ за эту дату."
     },
     "footer": "Последовательность: валовые продажи → скидки → чистые продажи → сервисный сбор → налоги → чаевые → итого → собрано. Ассортимент сгруппирован по категориям с вложенными блюдами.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Средний чек на гостя",
       "ordersChecks": "Заказы/чеки",
       "averageOrderCheck": "Средний чек"
-    }
+    },
+    "unknownOrderType": "Неизвестный тип заказа",
+    "unknownTaker": "Неизвестно",
+    "windowRange": "Период: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Выручка",
+      "surchargesTaxes": "2. Надбавки и налоги",
+      "settlementCashier": "3. Расчёт и касса",
+      "operationalControls": "4. Операционный контроль",
+      "paymentTypes": "5. Типы оплаты"
+    },
+    "productMixTitle": "Микс продуктов — {{date}}"
   },
   "clock": {
     "title": "Учёт рабочего времени",
