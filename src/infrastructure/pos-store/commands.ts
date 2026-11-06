@@ -473,6 +473,41 @@ export async function createCustomer(input: Record<string, any>): Promise<Custom
   return customer;
 }
 
+/** Update an existing local customer and enqueue MERGE_RECORD for sync. */
+export async function updateCustomer(input: Record<string, any>): Promise<CustomerRecord> {
+  const db = getPosStoreDatabase();
+  const createdAt = nowIso();
+  if (input.id == null || String(input.id).trim() === '') {
+    throw new PosStoreError('INVALID_ARGUMENT', 'Customer id is required to update');
+  }
+  const id = recordId('customer', String(input.id));
+  const existing = await db.customers.get(id);
+  const { id: _ignored, ...rest } = input;
+  const customer: CustomerRecord = {
+    ...(existing ?? {}),
+    ...rest,
+    id,
+    name: String(input.name ?? existing?.name ?? ''),
+    tags: Array.isArray(input.tags)
+      ? input.tags
+      : Array.isArray(existing?.tags)
+        ? existing.tags
+        : [],
+  };
+  await db.transaction('rw', [db.customers, db.domainOperations, db.syncOutbox, db.identity], async () => {
+    await db.customers.put(customer);
+    await enqueue({
+      aggregateType: 'customer',
+      aggregateId: id,
+      operationType: 'MERGE_RECORD',
+      payload: { table: 'customer', recordId: id, data: customer },
+      createdAt,
+    });
+  });
+  notifyWrite();
+  return customer;
+}
+
 // ---------------------------------------------------------------------------
 // Table locks (floor_table.is_locked / locked_by / locked_at)
 // ---------------------------------------------------------------------------

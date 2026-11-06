@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-06',
+    title: 'Order customer: remove and edit',
+    items: [
+      'Customer modal can remove the attached customer from the open check, and edit existing customers (save updates the customer record; attach still binds them to the order).',
+    ],
+  },
+  {
+    date: '2026-11-06',
     title: 'Menu stays table-based; Quick Order is the counter path',
     items: [
       'Removed the “Hide table selection” settings toggle — the main Menu always uses floors/tables. Counter / barcode ordering is Quick Order (and POS mode retail).',

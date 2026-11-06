@@ -224,6 +224,10 @@ export class PosStore {
     return commands.createCustomer(input);
   }
 
+  updateCustomer(input: Record<string, any>) {
+    return commands.updateCustomer(input);
+  }
+
   recordOrderPrint(input: Parameters<typeof commands.recordOrderPrint>[0]) {
     return commands.recordOrderPrint(input);
   }
