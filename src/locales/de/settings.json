@@ -145,10 +145,6 @@
     "saved": "Speisekarteneinstellungen gespeichert",
     "saveFailed": "Speisekarteneinstellungen konnten nicht gespeichert werden"
   },
-  "tableSelection": {
-    "title": "Tischauswahl in Speisekarte ausblenden",
-    "description": "Tischauswahl überspringen und Speisekarte direkt öffnen. Gilt nur für dieses Gerät. Geeignet für Mitnahme-Bestellungen"
-  },
   "autoCheckClose": {
     "title": "Automatischer Rechnungsabschluss",
     "description": "Offene Tischrechnungen am Ende des Abschlusszyklus automatisch schließen. Lieferbestellungen sind ausgeschlossen. Eine Warnung erscheint 1 Minute vor dem Abschluss.",

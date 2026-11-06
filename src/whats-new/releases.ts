@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-06',
+    title: 'Menu stays table-based; Quick Order is the counter path',
+    items: [
+      'Removed the “Hide table selection” settings toggle — the main Menu always uses floors/tables. Counter / barcode ordering is Quick Order (and POS mode retail).',
+      'Customer display opens from the bottom app toolbar instead of the crowded menu header row.',
+      'When a table has attached order types, the menu keeps showing those types (and selects the first if none is selected) instead of flashing back to the full catalog after sync.',
+    ],
+  },
+  {
     date: '2026-11-05',
     title: 'Closing print: denominations for every terminal',
     items: [

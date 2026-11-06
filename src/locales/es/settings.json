@@ -145,10 +145,6 @@
     "saved": "Configuración de menús guardada",
     "saveFailed": "Error al guardar la configuración de menús"
   },
-  "tableSelection": {
-    "title": "Ocultar selección de mesa en el menú",
-    "description": "Omitir la selección de mesa y abrir el menú directamente. Solo se aplica a este dispositivo. Adecuado para pedidos para llevar"
-  },
   "autoCheckClose": {
     "title": "Cierre automático de cuentas",
     "description": "Cerrar automáticamente las cuentas abiertas al final del ciclo de cierre. Los pedidos de entrega quedan excluidos. Aparece una advertencia 1 minuto antes del cierre.",

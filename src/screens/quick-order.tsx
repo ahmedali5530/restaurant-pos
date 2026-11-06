@@ -97,14 +97,11 @@ export const QuickOrder = () => {
     [enforce, soldFor, state.cart, settings.dishes, t],
   );
 
-  // Seed tableless context for createOrderWithItems (no table).
+  // Tableless cart context only — do not flip Menu floor/table preferences.
   useEffect(() => {
     setState((prev) => ({
       ...prev,
-      showFloor: false,
-      showPersons: false,
       table: undefined,
-      hideTableSelection: true,
       posMode: prev.posMode ?? "retail",
       floor: prev.floor ?? settings.floors[0],
       orderType: prev.orderType ?? settings.order_types[0],

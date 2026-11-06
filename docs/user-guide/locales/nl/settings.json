@@ -225,19 +225,6 @@
       "caption": "Schermtoetsenbord."
     },
     {
-      "id": "table-selection",
-      "title": "Tafelkeuze",
-      "intro": "Indien ingeschakeld kiest personeel een tafel vóór bestellen. Indien uit, wordt de plattegrond op dit terminal verborgen.",
-      "steps": [
-        "Open de kaart.",
-        "Schakel in of uit met de knop.",
-        "Geldt meteen."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Tafelkeuze toon/verberg.",
-      "note": "Documentatiecapture vereist ingeschakelde tafelkeuze."
-    },
-    {
       "id": "inventory",
       "title": "Voorraadinstellingen",
       "intro": "Globaal voorraadgedrag: ledger, batch/houdbaarheid, kostprijs, inkopen.",

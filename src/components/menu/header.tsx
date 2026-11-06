@@ -1,11 +1,9 @@
 import {useAtom} from "jotai";
 import {appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faArrowLeft, faDisplay, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
-import {openCustomerDisplayWindow} from "@/hooks/useCustomerDisplayPublisher.ts";
-import {useDB} from "@/api/db/db.ts";
+import {faArrowLeft, faPlus, faTable, faTimes, faUser, faUsers} from "@fortawesome/free-solid-svg-icons";
 import {cn} from "@/lib/utils.ts";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {Payment} from "@/components/payment/payment.tsx";
@@ -19,24 +17,41 @@ import i18n from "@/lib/i18n.ts";
 
 export const MenuHeader = () => {
   const { t } = useTranslation('menu');
-  const db = useDB();
 
   const [state, setState] = useAtom(appState);
   const [setting] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
   const orderTakingBlocked = enforcement.orderTakingBlocked;
-  const hideTableSelection = state.hideTableSelection === true;
   const [customerModal, setCustomerModal] = useState(false);
   const [confirmCartAction, setConfirmCartAction] = useState(false);
 
-  useEffect(() => {
-    if (!state.orderType) {
-      setState(prev => ({
-        ...prev,
-        orderType: setting?.order_types[0]
-      }))
+  /** Table-attached types when set; otherwise full catalog (survives catalog refresh). */
+  const visibleOrderTypes = useMemo(() => {
+    const tableTypes = state.table?.order_types;
+    if (Array.isArray(tableTypes) && tableTypes.length > 0) {
+      return tableTypes;
     }
-  }, [setting?.order_types, state.orderType]);
+    return setting?.order_types ?? [];
+  }, [state.table?.order_types, setting?.order_types]);
+
+  useEffect(() => {
+    if (visibleOrderTypes.length === 0) {
+      if (state.orderType) {
+        setState((prev) => ({...prev, orderType: undefined}));
+      }
+      return;
+    }
+    const currentId = state.orderType?.id != null ? String(state.orderType.id) : null;
+    const stillValid = currentId
+      ? visibleOrderTypes.some((ot) => String(ot.id) === currentId)
+      : false;
+    if (!stillValid) {
+      setState((prev) => ({
+        ...prev,
+        orderType: visibleOrderTypes[0],
+      }));
+    }
+  }, [visibleOrderTypes, state.orderType]);
 
   useEffect(() => {
     // load old items into cart
@@ -182,9 +197,7 @@ export const MenuHeader = () => {
     <>
       <div className="flex justify-between items-center w-full" data-testid="menu-header">
         <div className="flex items-center gap-2">
-          {!hideTableSelection && (
-            <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-floor">{state?.floor?.name}</Button>
-          )}
+          <Button variant="primary" icon={faArrowLeft} onClick={reset} size="lg" data-testid="menu-back-floor">{state?.floor?.name}</Button>
           {state?.orders?.length > 0 ? (
             <>
               <ScrollContainer className="max-w-[300px] flex flex-nowrap gap-3">
@@ -216,15 +229,13 @@ export const MenuHeader = () => {
             </>
           ) : null}
 
-          {!hideTableSelection && (
-            <Button
-              type="button"
-              className="btn btn-primary lg btn-flat min-w-[50px]"
-              onClick={switchTable}
-              icon={faTable}
-              data-testid="menu-table"
-            >{state?.table?.name}{state?.table?.number}</Button>
-          )}
+          <Button
+            type="button"
+            className="btn btn-primary lg btn-flat min-w-[50px]"
+            onClick={switchTable}
+            icon={faTable}
+            data-testid="menu-table"
+          >{state?.table?.name}{state?.table?.number}</Button>
           <Button type="button"
                   className="btn btn-primary lg btn-flat"
                   onClick={openPersons}
@@ -244,28 +255,17 @@ export const MenuHeader = () => {
                     data-testid="menu-clear-cart"
             >{t('header.clear')}</Button>
           )}
-          <Button
-            type="button"
-            variant="secondary"
-            size="lg"
-            flat
-            icon={faDisplay}
-            onClick={() => void openCustomerDisplayWindow(state.cart, setting?.taxes, db)}
-            data-testid="menu-open-customer-display"
-          >
-            {t('header.customerDisplay')}
-          </Button>
         </div>
 
         <div className="flex input-group rounded-full" data-testid="menu-order-types">
-          {setting?.order_types?.map((item, index) => (
+          {visibleOrderTypes.map((item, index) => (
             <Button
               variant="primary"
               size="lg"
               className={cn(
                 "flex-1",
                 index === 0 && '!rounded-l-lg',
-                index === setting?.order_types?.length - 1 && ' !rounded-r-lg'
+                index === visibleOrderTypes.length - 1 && ' !rounded-r-lg'
               )}
               active={item.id.toString() === state?.orderType?.id?.toString()}
               onClick={() => {
@@ -274,7 +274,7 @@ export const MenuHeader = () => {
                   orderType: item
                 }))
               }}
-              key={index}
+              key={item.id?.toString?.() ?? index}
               flat
               data-testid={`menu-order-type-${index}`}
             >

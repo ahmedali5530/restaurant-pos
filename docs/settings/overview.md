@@ -25,8 +25,8 @@ The main settings page is organized into a grid layout with the following config
 6. **Closing Cycle Settings** - Set daily closing cycle time window
 7. **Auto Check Close Settings** - Configure automatic check closing
 8. **Touch Settings** - Toggle touch-optimized interface
-9. **Table Selection Settings** - Show/hide table selection interface
-10. **Items Visibility Settings** - Configure item display options
+9. **Items Visibility Settings** - Configure item display options
+10. **POS mode** (when Quick Order is built) - Default shell: restaurant Menu vs retail Quick Order
 
 ### Delivery Settings (`/delivery/settings`)
 

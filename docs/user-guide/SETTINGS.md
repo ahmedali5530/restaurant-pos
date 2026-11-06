@@ -195,20 +195,6 @@ Control whether the currency symbol is shown on screen and on printed receipts.
 
 *On-screen keyboard toggle card.*
 
-### Table selection
-
-When table selection is enabled, staff pick a floor table before ordering (dine-in). When disabled, the floor step is hidden on this terminal (useful for quick service).
-
-1. Open the Table selection card.
-2. Tap the button to enable or disable table selection for this device.
-3. The change applies immediately on this browser.
-
-![Table selection hide/show for this terminal.](images/en/settings-table-selection.png)
-
-*Table selection hide/show for this terminal.*
-
-> Documentation capture requires table selection enabled (visible floors and tables).
-
 ### Inventory settings
 
 Global inventory behavior: ledger, batch/expiry, costing method, purchase discounts/taxes, and allocation defaults. Mostly used when inventory modules are active.

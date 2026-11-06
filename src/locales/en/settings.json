@@ -145,10 +145,6 @@
     "saved": "Menu settings saved",
     "saveFailed": "Failed to save menu settings"
   },
-  "tableSelection": {
-    "title": "Hide table selection from menu",
-    "description": "Skip table selection and open the menu directly. Only applies to this device. Suitable for takeaway based ordering"
-  },
   "autoCheckClose": {
     "title": "Auto check close",
     "description": "Automatically close open table checks at closing cycle end time. Delivery orders are excluded. A warning appears 1 minute before close.",

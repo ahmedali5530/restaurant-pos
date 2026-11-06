@@ -145,10 +145,6 @@
     "saved": "Menü ayarları kaydedildi",
     "saveFailed": "Menü ayarları kaydedilemedi"
   },
-  "tableSelection": {
-    "title": "Menüden masa seçimini gizle",
-    "description": "Masa seçimini atlayın ve menüyü doğrudan açın. Yalnızca bu cihaza uygulanır. Paket servis tabanlı sipariş için uygundur"
-  },
   "autoCheckClose": {
     "title": "Otomatik adisyon kapatma",
     "description": "Kapanış döngüsü bitiş saatinde açık masa adisyonlarını otomatik olarak kapatır. Teslimat siparişleri hariç tutulur. Kapanmadan 1 dakika önce bir uyarı görünür.",
