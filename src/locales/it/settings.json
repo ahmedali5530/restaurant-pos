@@ -145,10 +145,6 @@
     "saved": "Impostazioni menu salvate",
     "saveFailed": "Salvataggio impostazioni menu non riuscito"
   },
-  "tableSelection": {
-    "title": "Nascondi selezione tavolo dal menu",
-    "description": "Salta la selezione tavolo e apri il menu direttamente. Si applica solo a questo dispositivo. Adatto per ordini da asporto"
-  },
   "autoCheckClose": {
     "title": "Chiusura automatica conti",
     "description": "Chiudi automaticamente i conti aperti alla fine del ciclo di chiusura. Gli ordini di consegna sono esclusi. Un avviso compare 1 minuto prima della chiusura.",

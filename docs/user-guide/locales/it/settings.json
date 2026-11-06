@@ -225,19 +225,6 @@
       "caption": "Tastiera virtuale."
     },
     {
-      "id": "table-selection",
-      "title": "Selezione tavolo",
-      "intro": "Se attiva, lo staff sceglie un tavolo prima di ordinare. Se disattiva, il passo mappa sala è nascosto su questo terminale.",
-      "steps": [
-        "Apri la scheda.",
-        "Tocca il pulsante per attivare o disattivare.",
-        "Si applica subito."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Mostra/nascondi selezione tavolo.",
-      "note": "La cattura documentazione richiede la selezione tavolo attiva."
-    },
-    {
       "id": "inventory",
       "title": "Impostazioni magazzino",
       "intro": "Comportamento magazzino globale: ledger, lotti/scadenza, costi, acquisti.",

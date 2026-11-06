@@ -13,7 +13,13 @@
       "address": "Adr.",
       "secondaryAddress": "Adr. secondaire",
       "points": "Points"
-    }
+    },
+    "save": "Enregistrer",
+    "remove": "Retirer de la commande",
+    "saved": "Client enregistré",
+    "saveFailed": "Impossible d'enregistrer le client",
+    "attachFailed": "Impossible d'associer le client à cette commande",
+    "removeFailed": "Impossible de retirer le client de cette commande"
   },
   "filters": {
     "status": "Sélectionner le statut de commande",

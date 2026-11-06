@@ -495,10 +495,11 @@ export const FloorLayout = () => {
         orderType: orderTypeFromOrder ?? availableOrderTypes[0]
       }));
 
+      // Keep catalog order_types global — MenuHeader filters from state.table.order_types
+      // so catalog refresh cannot flash the full list over table-attached types.
       setSettings(prev => ({
         ...prev,
         categories: item.categories?.length > 0 ? item.categories : categories,
-        order_types: item.order_types?.length > 0 ? item.order_types : orderTypes,
         payment_types: item.payment_types?.length > 0 ? item.payment_types : paymentTypes,
       }));
 

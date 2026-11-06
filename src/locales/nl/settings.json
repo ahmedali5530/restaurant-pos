@@ -145,10 +145,6 @@
     "saved": "Menu-instellingen opgeslagen",
     "saveFailed": "Menu-instellingen opslaan mislukt"
   },
-  "tableSelection": {
-    "title": "Tafelselectie verbergen in menu",
-    "description": "Tafelselectie overslaan en het menu direct openen. Geldt alleen voor dit apparaat. Geschikt voor afhaalbestellingen"
-  },
   "autoCheckClose": {
     "title": "Automatisch bon sluiten",
     "description": "Open tafelbonnen automatisch sluiten bij het einde van de afsluitingscyclus. Bezorgbestellingen zijn uitgesloten. Er verschijnt 1 minuut voor sluiting een waarschuwing.",

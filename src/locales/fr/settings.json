@@ -145,10 +145,6 @@
     "saved": "Paramètres du menu enregistrés",
     "saveFailed": "Échec de l'enregistrement des paramètres du menu"
   },
-  "tableSelection": {
-    "title": "Masquer la sélection de table dans le menu",
-    "description": "Ignorer la sélection de table et ouvrir le menu directement. S'applique uniquement à cet appareil. Adapté aux commandes à emporter"
-  },
   "autoCheckClose": {
     "title": "Clôture automatique des tickets",
     "description": "Fermer automatiquement les tickets de table ouverts à l'heure de fin du cycle de clôture. Les commandes en livraison sont exclues. Un avertissement apparaît 1 minute avant la fermeture.",

@@ -225,19 +225,6 @@
       "caption": "Teclado virtual."
     },
     {
-      "id": "table-selection",
-      "title": "Seleção de mesa",
-      "intro": "Quando ativa, a equipe escolhe mesa antes de pedir. Quando desativada, o passo do salão some neste terminal.",
-      "steps": [
-        "Abra o cartão.",
-        "Toque no botão para ativar ou desativar.",
-        "Aplica-se imediatamente."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Mostrar/ocultar seleção de mesa.",
-      "note": "A captura de documentação exige seleção de mesa ativada."
-    },
-    {
       "id": "inventory",
       "title": "Configurações de estoque",
       "intro": "Comportamento global de estoque: ledger, lote/validade, custo, compras.",

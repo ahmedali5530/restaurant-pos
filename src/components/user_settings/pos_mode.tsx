@@ -12,7 +12,6 @@ export const PosModeSettings = () => {
     setState((prev) => ({
       ...prev,
       posMode: next,
-      hideTableSelection: next === "retail" ? true : prev.hideTableSelection,
       ...(next === "retail"
         ? {
             showFloor: false,
@@ -20,7 +19,10 @@ export const PosModeSettings = () => {
             table: undefined,
             order: {id: "new" as const, order: undefined},
           }
-        : {}),
+        : {
+            showFloor: true,
+            showPersons: false,
+          }),
     }));
   };
 

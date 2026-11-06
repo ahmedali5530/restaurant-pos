@@ -108,13 +108,11 @@ export async function resetSession(page: Page): Promise<void> {
 }
 
 /**
- * Force floor-plan mode for capture (never tableless).
- * Clears sticky hideTableSelection from earlier docs runs.
+ * Force floor-plan mode for capture (Menu is always table-based).
  */
 export async function ensureFloorMenuMode(page: Page): Promise<void> {
   await page.evaluate(() => {
     try {
-      localStorage.setItem('posr_docs_tableless_leak_recovered', '1');
       const key = 'app-state';
       let data: Record<string, unknown> = {};
       try {
@@ -122,7 +120,7 @@ export async function ensureFloorMenuMode(page: Page): Promise<void> {
       } catch {
         data = {};
       }
-      data.hideTableSelection = false;
+      delete data.hideTableSelection;
       data.showFloor = true;
       data.showPersons = false;
       data.table = undefined;

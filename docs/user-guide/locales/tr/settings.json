@@ -225,19 +225,6 @@
       "caption": "Ekran klavyesi anahtarı."
     },
     {
-      "id": "table-selection",
-      "title": "Masa seçimi",
-      "intro": "Etkinse personel siparişten önce masa seçer. Devre dışıysa bu terminalde kat planı adımı gizlenir (hızlı servis için).",
-      "steps": [
-        "Masa seçimi kartını açın.",
-        "Bu cihaz için etkinleştirmek veya kapatmak üzere düğmeye dokunun.",
-        "Değişiklik hemen uygulanır."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Bu terminalde masa seçimini göster/gizle.",
-      "note": "Belgelendirme yakalama, masa seçiminin etkin olmasını gerektirir."
-    },
-    {
       "id": "inventory",
       "title": "Envanter ayarları",
       "intro": "Genel envanter davranışı: defter, parti/son kullanma, maliyetleme, satınalma ve varsayılanlar.",

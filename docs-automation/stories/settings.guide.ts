@@ -22,7 +22,6 @@ const SETTINGS_CARDS: Array<{ testId: string; file: string }> = [
   { testId: 'settings-card-show-inclusive-prices', file: 'settings-show-inclusive-prices' },
   { testId: 'settings-card-currency-symbol', file: 'settings-currency-symbol' },
   { testId: 'settings-card-touch', file: 'settings-touch' },
-  { testId: 'settings-card-table-selection', file: 'settings-table-selection' },
   { testId: 'settings-card-inventory', file: 'settings-inventory' },
   { testId: 'settings-card-items-visibility', file: 'settings-items-visibility' },
 ];
