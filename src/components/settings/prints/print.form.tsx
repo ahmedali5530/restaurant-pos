@@ -59,6 +59,7 @@ type PrintFormValues = {
   showItemQuantity?: boolean
   showItemPrice?: boolean
   showItemTotal?: boolean
+  accumulateSameItems?: boolean
   showOrderType?: boolean
   showCustomer?: boolean
   showTableName?: boolean
@@ -792,8 +793,27 @@ export const PrintForm = ({
                       checked={field.value}
                       onChange={field.onChange}
                     >
-                      Show item total
+                      {t('forms.showItemTotal')}
                     </Switch>
+                  )}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Controller
+                  name="accumulateSameItems"
+                  control={control}
+                  render={({field}) => (
+                    <div>
+                      <Switch
+                        checked={!!field.value}
+                        onChange={field.onChange}
+                      >
+                        {t('forms.accumulateSameItems')}
+                      </Switch>
+                      <p className="text-xs text-muted mt-1">
+                        {t('forms.accumulateSameItemsHint')}
+                      </p>
+                    </div>
                   )}
                 />
               </div>

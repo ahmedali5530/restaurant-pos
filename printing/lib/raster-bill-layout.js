@@ -111,7 +111,7 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
   }
-  (bill.extras || []).forEach((e) => {
+  (bill.extras || []).filter((e) => e && Number(e.value) !== 0).forEach((e) => {
     rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {

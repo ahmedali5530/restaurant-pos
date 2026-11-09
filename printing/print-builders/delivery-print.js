@@ -17,6 +17,7 @@ function build(printer, data = {}, config = {}) {
   const cfg = normalizeConfig(config);
   const bill = mapOrderToDelivery(order, {
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,

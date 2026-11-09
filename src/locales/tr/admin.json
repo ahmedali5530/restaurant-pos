@@ -473,7 +473,10 @@
     "showOrderType": "Sipariş türünü göster",
     "showCustomer": "Müşteriyi göster",
     "showTableName": "Masa adını göster",
-    "paperWidth72": "72 mm"
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Kalem toplamını göster",
+    "accumulateSameItems": "Aynı kalemleri birleştir",
+    "accumulateSameItemsHint": "Aynı ürünleri (aynı modifier ve notlar) birleştirilmiş miktarla tek satırda göster."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",

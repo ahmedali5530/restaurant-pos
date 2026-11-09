@@ -79,6 +79,7 @@ function build(printer, data = {}, config = {}) {
       printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, cfg.currencySymbol ?? '$'));
     }
     (bill.extras || []).forEach((e) => {
+      if (!e || Number(e.value) === 0) return;
       printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, cfg.currencySymbol ?? '$'));
     });
     if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {

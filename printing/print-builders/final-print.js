@@ -18,6 +18,7 @@ function build(printer, data = {}, config = {}) {
   const bill = mapOrderToFinal(order, {
     duplicate: !!data.duplicate,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,

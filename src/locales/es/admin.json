@@ -473,7 +473,10 @@
     "showOrderType": "Mostrar tipo de pedido",
     "showCustomer": "Mostrar cliente",
     "showTableName": "Mostrar nombre de mesa",
-    "paperWidth72": "72 mm"
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostrar total del artículo",
+    "accumulateSameItems": "Acumular artículos iguales",
+    "accumulateSameItemsHint": "Combinar platos idénticos (mismos modificadores y notas) en una línea con cantidad acumulada."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",

@@ -473,7 +473,10 @@
     "showOrderType": "Besteltype tonen",
     "showCustomer": "Klant tonen",
     "showTableName": "Tafelnaam tonen",
-    "paperWidth72": "72 mm"
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Artikeltotaal tonen",
+    "accumulateSameItems": "Zelfde artikelen samentellen",
+    "accumulateSameItemsHint": "Identieke gerechten (zelfde modifiers en notities) samenvoegen tot één regel met gecombineerde hoeveelheid."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
