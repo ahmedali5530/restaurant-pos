@@ -258,6 +258,7 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg)));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     parts.push(row(e.name || extraLabel, formatMoney(e.value, sym, cfg)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -737,6 +738,7 @@ function renderRefundToHtml(data, config) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg)));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     parts.push(row(e.name || extraLabel, formatMoney(e.value, sym, cfg)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {

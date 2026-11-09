@@ -473,7 +473,10 @@
     "showOrderType": "إظهار نوع الطلب",
     "showCustomer": "إظهار العميل",
     "showTableName": "إظهار اسم الطاولة",
-    "paperWidth72": "72 مم"
+    "paperWidth72": "72 مم",
+    "showItemTotal": "إظهار إجمالي الصنف",
+    "accumulateSameItems": "تجميع الأصناف المتشابهة",
+    "accumulateSameItemsHint": "دمج الأطباق المتطابقة (نفس المعدّلات والملاحظات) في سطر واحد بكمية مجمّعة لهذا النوع من الإيصالات."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

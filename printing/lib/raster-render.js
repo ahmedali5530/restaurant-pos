@@ -463,6 +463,7 @@ async function renderTempRaster(data, config) {
     dateFormat: cfg.dateFormat,
     timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
@@ -490,6 +491,7 @@ async function renderFinalRaster(data, config) {
     dateFormat: cfg.dateFormat,
     timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
@@ -517,6 +519,7 @@ async function renderDeliveryRaster(data, config) {
     dateFormat: cfg.dateFormat,
     timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
@@ -600,6 +603,7 @@ async function renderRefundRaster(data, config) {
     rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym, cfg));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -656,9 +660,10 @@ async function renderKitchenRaster(data, config) {
   const {
     getOrderId,
     getOrderCreatedAt,
-    getOrderItemModifierLines,
     getOrderUserName,
     getOrderType,
+    mapOrderItemToPrintRow,
+    accumulatePrintItems,
   } = require('./order-mapping');
   const width = resolvePaperWidthPx(cfg);
   const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
@@ -687,21 +692,17 @@ async function renderKitchenRaster(data, config) {
   });
 
   rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
-  const items = Array.isArray(data.items) ? data.items : [];
-  items.forEach((it) => {
-    const dish = it.item || it.dish || {};
-    const row = {
-      name: dish.name || dish.title || '',
-      qty: it.quantity != null ? it.quantity : 1,
-      price: Number(it.price || 0),
-      total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
-      modifierLines: getOrderItemModifierLines(it),
-    };
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const printItems = (() => {
+    const rows = rawItems.map((it) => mapOrderItemToPrintRow(it, false));
+    return cfg.accumulateSameItems ? accumulatePrintItems(rows) : rows;
+  })();
+  printItems.forEach((row) => {
     buildItemRowStrings(row, cfg).forEach((line) => {
       rc.fixedLine(line, { align: 'left', wrap: false });
     });
-    if (it.comments) {
-      rc.fixedLine(` >> ${String(it.comments)}`, { align: 'left' });
+    if (row.notes) {
+      rc.fixedLine(` >> ${String(row.notes)}`, { align: 'left' });
     }
     if (Array.isArray(row.modifierLines)) {
       row.modifierLines.forEach((line) => {

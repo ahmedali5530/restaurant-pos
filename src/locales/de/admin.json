@@ -473,7 +473,10 @@
     "showOrderType": "Bestelltyp anzeigen",
     "showCustomer": "Kunde anzeigen",
     "showTableName": "Tischnamen anzeigen",
-    "paperWidth72": "72 mm"
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Artikelsumme anzeigen",
+    "accumulateSameItems": "Gleiche Artikel zusammenfassen",
+    "accumulateSameItemsHint": "Identische Gerichte (gleiche Modifier und Notizen) zu einer Zeile mit kombinierter Menge zusammenführen."
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

@@ -6,6 +6,10 @@ import {
   type CustomerDisplayMediaSettings,
 } from "@/api/model/customer-display-media.ts";
 import {
+  customerDisplayPublicMediaFileUrl,
+  fetchCustomerDisplayPublicMediaSettings,
+} from "@/lib/customer-display.ts";
+import {
   fetchCustomerDisplayMediaContent,
   loadCustomerDisplayMediaSettings,
 } from "@/lib/customer-display-media.service.ts";
@@ -16,8 +20,13 @@ type PlayableItem = CustomerDisplayMediaItem & {url: string};
 type Props = {
   /** When true, show thank-you briefly before media/welcome. */
   thankYou?: boolean;
-  /** Idle ads need a DB session; skip on public unpaired browsers. */
-  enableMedia?: boolean;
+  /**
+   * Prefer gateway pair API when set (works without Surreal login).
+   * Falls back to Surreal when omitted and the POS session can query.
+   */
+  publicPair?: {terminalId: string; pairToken: string} | null;
+  /** Allow Surreal-backed load when no public pair (logged-in POS window). */
+  enableSurrealMedia?: boolean;
   thankYouNode: React.ReactNode;
   welcomeNode: React.ReactNode;
 };
@@ -26,7 +35,8 @@ const THANK_YOU_MS = 3000;
 
 export const CustomerDisplayIdleMedia = ({
   thankYou,
-  enableMedia = true,
+  publicPair = null,
+  enableSurrealMedia = true,
   thankYouNode,
   welcomeNode,
 }: Props) => {
@@ -41,6 +51,10 @@ export const CustomerDisplayIdleMedia = ({
   const urlsRef = useRef<string[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
+  const pairTerminal = publicPair?.terminalId?.trim() || "";
+  const pairToken = publicPair?.pairToken?.trim() || "";
+  const usePublicMedia = Boolean(pairTerminal && pairToken);
+
   useEffect(() => {
     setShowThankYou(!!thankYou);
     if (!thankYou) {
@@ -51,7 +65,7 @@ export const CustomerDisplayIdleMedia = ({
   }, [thankYou]);
 
   useEffect(() => {
-    if (!enableMedia) {
+    if (!usePublicMedia && !enableSurrealMedia) {
       setSettings(null);
       setPlaylist([]);
       return;
@@ -59,12 +73,39 @@ export const CustomerDisplayIdleMedia = ({
 
     let cancelled = false;
 
+    const revokeTracked = () => {
+      urlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      urlsRef.current = [];
+    };
+
     const load = async () => {
       try {
-        const next = await loadCustomerDisplayMediaSettings(dbRef.current.query);
+        let next: CustomerDisplayMediaSettings | null = null;
+
+        if (usePublicMedia) {
+          const publicSettings = await fetchCustomerDisplayPublicMediaSettings(
+            pairTerminal,
+            pairToken,
+          );
+          if (publicSettings) {
+            next = publicSettings;
+          }
+        }
+
+        if (!next && enableSurrealMedia) {
+          next = await loadCustomerDisplayMediaSettings(dbRef.current.query);
+        }
+
         if (cancelled) {
           return;
         }
+
+        if (!next) {
+          setSettings(null);
+          setPlaylist([]);
+          return;
+        }
+
         setSettings(next);
         if (!next.enabled || next.items.length === 0) {
           setPlaylist([]);
@@ -72,26 +113,44 @@ export const CustomerDisplayIdleMedia = ({
         }
 
         const loaded: PlayableItem[] = [];
-        for (const item of next.items) {
-          try {
-            const content = await fetchCustomerDisplayMediaContent(
-              dbRef.current.query,
-              item.documentId,
-            );
-            if (!content || cancelled) {
-              continue;
+
+        if (usePublicMedia) {
+          for (const item of next.items) {
+            if (cancelled) {
+              break;
             }
-            const mimeType = item.mimeType || detectMimeType(content, "image/jpeg");
-            const blob = new Blob([new Uint8Array(content)], {type: mimeType});
-            const url = URL.createObjectURL(blob);
-            urlsRef.current.push(url);
-            loaded.push({...item, mimeType, url});
-          } catch {
-            // skip broken document
+            loaded.push({
+              ...item,
+              url: customerDisplayPublicMediaFileUrl(
+                pairTerminal,
+                pairToken,
+                item.documentId,
+              ),
+            });
+          }
+        } else {
+          for (const item of next.items) {
+            try {
+              const content = await fetchCustomerDisplayMediaContent(
+                dbRef.current.query,
+                item.documentId,
+              );
+              if (!content || cancelled) {
+                continue;
+              }
+              const mimeType = item.mimeType || detectMimeType(content, "image/jpeg");
+              const blob = new Blob([new Uint8Array(content)], {type: mimeType});
+              const url = URL.createObjectURL(blob);
+              urlsRef.current.push(url);
+              loaded.push({...item, mimeType, url});
+            } catch {
+              // skip broken document
+            }
           }
         }
+
         if (cancelled) {
-          loaded.forEach((item) => URL.revokeObjectURL(item.url));
+          revokeTracked();
           return;
         }
         setPlaylist(loaded);
@@ -108,10 +167,9 @@ export const CustomerDisplayIdleMedia = ({
 
     return () => {
       cancelled = true;
-      urlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-      urlsRef.current = [];
+      revokeTracked();
     };
-  }, [enableMedia]);
+  }, [usePublicMedia, pairTerminal, pairToken, enableSurrealMedia]);
 
   const advance = () => {
     setIndex((prev) => (playlist.length === 0 ? 0 : (prev + 1) % playlist.length));

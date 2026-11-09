@@ -46,6 +46,8 @@ const DEFAULTS = {
   showItemPrice: false,
   showItemQuantity: true,
   showItemTotal: false,
+  /** Merge identical dish+modifier lines into one qty (temp/final/KOT). */
+  accumulateSameItems: false,
   showOrderType: true,
   showCustomer: true,
   showTableName: true,
@@ -282,6 +284,9 @@ function normalizeConfig(c = {}) {
     showItemPrice: Boolean(c.showItemPrice !== undefined ? c.showItemPrice : DEFAULTS.showItemPrice),
     showItemQuantity: Boolean(c.showItemQuantity !== undefined ? c.showItemQuantity : DEFAULTS.showItemQuantity),
     showItemTotal: Boolean(c.showItemTotal !== undefined ? c.showItemTotal : DEFAULTS.showItemTotal),
+    accumulateSameItems: Boolean(
+      c.accumulateSameItems !== undefined ? c.accumulateSameItems : DEFAULTS.accumulateSameItems,
+    ),
     showOrderType: Boolean(c.showOrderType !== undefined ? c.showOrderType : DEFAULTS.showOrderType),
     showCustomer: Boolean(c.showCustomer !== undefined ? c.showCustomer : DEFAULTS.showCustomer),
     showTableName: Boolean(c.showTableName !== undefined ? c.showTableName : DEFAULTS.showTableName),

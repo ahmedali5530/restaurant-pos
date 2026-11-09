@@ -18,7 +18,7 @@ import {appAlert, appPage, appSettings, skipFinalPrintOnPayment} from "@/store/j
 import {Switch} from "@/components/common/input/switch.tsx";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {calculateChangeDue} from "@/lib/cart.ts";
+import {getDraftPaymentChangeDisplay, isCardPaymentType} from "@/lib/order.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {
@@ -434,9 +434,12 @@ const OrderPaymentReceivingContent = ({
     return payments.reduce((prev, item) => prev + item.amount, 0)
   }, [payments])
 
-  const changeDue = useMemo(() => {
-    return calculateChangeDue(tendered, total);
-  }, [total, tendered]);
+  const changeDisplay = useMemo(
+    () => getDraftPaymentChangeDisplay(payments, total),
+    [payments, total],
+  );
+  /** Negative = remaining; positive = cash change only (exact tenders never invent change). */
+  const changeDue = changeDisplay.displayAmount;
 
   const addPayment = async (amount: string | number, paymentType: PaymentType, payable: number) => {
     if (amount.toString().length === 0) {
@@ -451,7 +454,7 @@ const OrderPaymentReceivingContent = ({
     // Compute change due relative to this payable (may include tax for selected payment type)
     const localChangeDue = tendered - payable;
 
-    if (paymentType.type === 'Card' && localChangeDue >= 0) {
+    if (isCardPaymentType(paymentType) && localChangeDue >= 0) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -462,7 +465,7 @@ const OrderPaymentReceivingContent = ({
       return;
     }
 
-    if (paymentType.type === 'Card' && Number(amount) > Number(-1 * localChangeDue)) {
+    if (isCardPaymentType(paymentType) && Number(amount) > Number(-1 * localChangeDue)) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -529,7 +532,10 @@ const OrderPaymentReceivingContent = ({
             changeDue > 0 && 'text-success-700'
           )
         }>
-          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
+          {changeDisplay.isRemaining ? t('receiving.remaining') : t('receiving.change')}:{' '}
+          <span className="">
+            {withCurrency(changeDisplay.isRemaining ? changeDisplay.remaining : changeDisplay.change)}
+          </span>
         </div>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">

@@ -536,7 +536,10 @@
     "showOrderType": "Show order type",
     "showCustomer": "Show customer",
     "showTableName": "Show table name",
-    "paperWidth72": "72 mm"
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Show item total",
+    "accumulateSameItems": "Accumulate same items",
+    "accumulateSameItemsHint": "Merge identical dishes (same modifiers and notes) into one line with combined quantity on this receipt type."
   },
   "dishView": {
     "detailsTitle": "Dish details",

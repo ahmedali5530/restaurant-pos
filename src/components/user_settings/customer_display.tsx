@@ -244,7 +244,10 @@ export const CustomerDisplaySettingsCard = () => {
         >
           <div className="grid grid-cols-1 gap-4 mb-4">
             <div>
-              <Switch checked={enabled} onChange={setEnabled}>
+              <Switch
+                checked={enabled}
+                onChange={(e) => setEnabled(e.target.checked)}
+              >
                 {t("settings:customerDisplay.enabled")}
               </Switch>
             </div>

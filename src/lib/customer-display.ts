@@ -739,3 +739,53 @@ export const fetchCustomerDisplayPublicSnapshot = async (
   }
   return snapshotFromCustomerDisplayRecord(json.snapshot);
 };
+
+export type CustomerDisplayPublicMediaSettings = {
+  enabled: boolean;
+  rotationIntervalSec: number;
+  items: Array<{
+    id: string;
+    name: string;
+    mimeType: string;
+    documentId: string;
+    sort: number;
+  }>;
+};
+
+/** Idle ad playlist via gateway (pair-gated; no Surreal session). */
+export const fetchCustomerDisplayPublicMediaSettings = async (
+  terminalId: string,
+  pairToken: string,
+): Promise<CustomerDisplayPublicMediaSettings | null> => {
+  if (!terminalId || !pairToken) {
+    return null;
+  }
+  const url =
+    `/customer-display-api/public/${encodeURIComponent(terminalId)}/media` +
+    `?pair=${encodeURIComponent(pairToken)}`;
+  const res = await fetch(url, {headers: {Accept: "application/json"}});
+  if (res.status === 404) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error(`customer-display public media failed: ${res.status}`);
+  }
+  const json = (await res.json()) as {
+    ok?: boolean;
+    settings?: CustomerDisplayPublicMediaSettings;
+  };
+  if (!json?.ok || !json.settings) {
+    return null;
+  }
+  return json.settings;
+};
+
+/** Absolute URL for one idle-ad document (pair-gated). */
+export const customerDisplayPublicMediaFileUrl = (
+  terminalId: string,
+  pairToken: string,
+  documentId: string,
+): string =>
+  `/customer-display-api/public/${encodeURIComponent(terminalId)}/media/file` +
+  `?pair=${encodeURIComponent(pairToken)}` +
+  `&id=${encodeURIComponent(documentId)}`;

@@ -33,30 +33,57 @@ function calculateCartItemPricePrint(item) {
 }
 
 /**
+ * Prefer groups that already look like OrderItem modifiers (selectedModifiers).
+ * Cart lines store the same tree on selectedGroups; bare catalog modifier ids
+ * on `modifiers` must not win over selectedGroups.
+ * @param {Object} orderItem
+ * @returns {Array}
+ */
+function resolveModifierGroups(orderItem) {
+  if (!orderItem) return [];
+  const fromModifiers = Array.isArray(orderItem.modifiers) ? orderItem.modifiers : null;
+  if (fromModifiers && fromModifiers.length > 0) {
+    const hasSelected = fromModifiers.some(
+      (group) => group && Array.isArray(group.selectedModifiers)
+    );
+    if (hasSelected) return fromModifiers;
+  }
+  if (Array.isArray(orderItem.selectedGroups) && orderItem.selectedGroups.length > 0) {
+    return orderItem.selectedGroups;
+  }
+  return fromModifiers || [];
+}
+
+/**
+ * Unit base (dish + modifiers once) — mirrors src/lib/cart.ts getOrderItemTaxableUnitBase.
+ * @param {Object} item
+ * @returns {number}
+ */
+function calculateOrderItemUnitBasePrint(item) {
+  if (!item) return 0;
+  let unit = Number(item.price || 0);
+  const groups = resolveModifierGroups(item);
+  for (const group of groups) {
+    const selected = group && group.selectedModifiers;
+    if (!Array.isArray(selected)) continue;
+    for (const smG of selected) {
+      if (!smG) continue;
+      unit += calculateCartItemPricePrint(smG);
+    }
+  }
+  return unit;
+}
+
+/**
  * Calculate OrderItem line total including modifiers (mirrors src/lib/cart.ts calculateOrderItemPrice).
+ * Unit (dish + modifiers) × dish quantity — modifiers must scale with qty.
  * @param {Object} item - OrderItem with { price, quantity, modifiers? }
  * @returns {number}
  */
 function calculateOrderItemPricePrint(item) {
   if (!item) return 0;
   const qty = item.quantity != null ? item.quantity : 1;
-  let price = Number(item.price || 0) * qty;
-
-  if (Array.isArray(item.modifiers)) {
-    price += item.modifiers.reduce((prev, modifier) => {
-      const groups = modifier && modifier.selectedModifiers;
-      if (!Array.isArray(groups)) return prev;
-      return (
-        prev +
-        groups.reduce((smPrev, smG) => {
-          if (!smG) return smPrev;
-          return smPrev + calculateCartItemPricePrint(smG);
-        }, 0)
-      );
-    }, 0);
-  }
-
-  return price;
+  return calculateOrderItemUnitBasePrint(item) * qty;
 }
 
 const MODIFIER_WALK_MAX_DEPTH = 32;
@@ -83,28 +110,6 @@ function walkModifierGroup(group, out, depth) {
       walkModifierGroup(nestedGroup, out, depth + 1);
     });
   });
-}
-
-/**
- * Prefer groups that already look like OrderItem modifiers (selectedModifiers).
- * Cart lines store the same tree on selectedGroups; bare catalog modifier ids
- * on `modifiers` must not win over selectedGroups.
- * @param {Object} orderItem
- * @returns {Array}
- */
-function resolveModifierGroups(orderItem) {
-  if (!orderItem) return [];
-  const fromModifiers = Array.isArray(orderItem.modifiers) ? orderItem.modifiers : null;
-  if (fromModifiers && fromModifiers.length > 0) {
-    const hasSelected = fromModifiers.some(
-      (group) => group && Array.isArray(group.selectedModifiers)
-    );
-    if (hasSelected) return fromModifiers;
-  }
-  if (Array.isArray(orderItem.selectedGroups) && orderItem.selectedGroups.length > 0) {
-    return orderItem.selectedGroups;
-  }
-  return fromModifiers || [];
 }
 
 /**
@@ -161,33 +166,85 @@ function inflateInclusiveAmount(net, taxes, originalPrice, dishNet) {
 }
 
 /**
+ * Merge identical printed lines (same name, unit price, notes, modifiers).
+ * @param {Array<{ name, qty, price, total, notes?, modifierLines? }>} items
+ * @returns {Array}
+ */
+function accumulatePrintItems(items) {
+  if (!Array.isArray(items) || items.length <= 1) return items || [];
+  const map = new Map();
+  const keys = [];
+  for (const it of items) {
+    const modsKey = JSON.stringify(
+      (it.modifierLines || []).map((m) => ({ d: m.depth, n: m.name })),
+    );
+    const key = JSON.stringify({
+      name: it.name || '',
+      price: Number(it.price || 0),
+      notes: it.notes || '',
+      mods: modsKey,
+    });
+    const existing = map.get(key);
+    if (existing) {
+      existing.qty = Number(existing.qty || 0) + Number(it.qty || 0);
+      existing.total = Math.round(Number(existing.price || 0) * Number(existing.qty || 0) * 100) / 100;
+    } else {
+      const copy = {
+        ...it,
+        modifierLines: Array.isArray(it.modifierLines) ? it.modifierLines.slice() : [],
+      };
+      map.set(key, copy);
+      keys.push(key);
+    }
+  }
+  return keys.map((k) => map.get(k));
+}
+
+/**
+ * Map a raw order/cart line to a print row with correct modifier × qty totals.
+ * @param {Object} it
+ * @param {boolean} [showInclusivePrices=false]
+ * @returns {{ name, qty, price, total, notes, modifierLines }}
+ */
+function mapOrderItemToPrintRow(it, showInclusivePrices) {
+  const dish = it.item || it.dish || {};
+  const name = (dish && (dish.name || dish.title)) || '';
+  const qty = it.quantity != null ? it.quantity : 1;
+  const netLineTotal = calculateOrderItemPricePrint(it);
+  let lineTotal = netLineTotal;
+  if (showInclusivePrices && (it.tax_mode || 'exclusive') === 'inclusive') {
+    const unitNet = qty > 0 ? netLineTotal / qty : netLineTotal;
+    const dishNet = Number(it.price || 0);
+    const unitGross = inflateInclusiveAmount(unitNet, it.taxes, it.original_price, dishNet);
+    lineTotal = Math.round(unitGross * qty * 100) / 100;
+  }
+  const price = qty > 0 ? lineTotal / qty : 0;
+  const total = lineTotal;
+  const notes = it.comments || '';
+  const modifierLines = getOrderItemModifierLines(it);
+  return { name, qty, price, total, notes, modifierLines };
+}
+
+/** Drop falsy extras and those with a zero amount (still keep negative charges). */
+function filterPrintExtras(extras) {
+  return (extras || []).filter(
+    (e) => e && Number(e.value) !== 0,
+  );
+}
+
+/**
  * Filter order items: exclude deleted, refunded, suspended.
  * @param {Object} order
  * @param {boolean} [showInclusivePrices=false]
+ * @param {boolean} [accumulateSameItems=false]
  * @returns {Array<{ name, qty, price, total, notes, modifierLines }>}
  */
-function getOrderItems(order, showInclusivePrices) {
+function getOrderItems(order, showInclusivePrices, accumulateSameItems) {
   if (!order || !Array.isArray(order.items)) return [];
-  return order.items
+  const rows = order.items
     .filter((it) => !it.deleted_at && it.is_refunded !== true && it.is_suspended !== true)
-    .map((it) => {
-      const dish = it.item || it.dish;
-      const name = (dish && (dish.name || dish.title)) || '';
-      const qty = it.quantity != null ? it.quantity : 1;
-      const netLineTotal = calculateOrderItemPricePrint(it);
-      let lineTotal = netLineTotal;
-      if (showInclusivePrices && (it.tax_mode || 'exclusive') === 'inclusive') {
-        const unitNet = qty > 0 ? netLineTotal / qty : netLineTotal;
-        const dishNet = Number(it.price || 0);
-        const unitGross = inflateInclusiveAmount(unitNet, it.taxes, it.original_price, dishNet);
-        lineTotal = Math.round(unitGross * qty * 100) / 100;
-      }
-      const price = qty > 0 ? lineTotal / qty : 0;
-      const total = lineTotal;
-      const notes = it.comments || '';
-      const modifierLines = getOrderItemModifierLines(it);
-      return { name, qty, price, total, notes, modifierLines };
-    });
+    .map((it) => mapOrderItemToPrintRow(it, showInclusivePrices));
+  return accumulateSameItems ? accumulatePrintItems(rows) : rows;
 }
 
 /**
@@ -630,15 +687,16 @@ function formatDiscountMinimal(name, valueType, rate, fallback) {
 /**
  * Common bill shape aligned with _common.bill.tsx and final.bill.tsx.
  * @param {Object} order
- * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean, timezone?: string, locale?: string }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
+ * @param {{ forDelivery?: boolean, showInclusivePrices?: boolean, accumulateSameItems?: boolean, timezone?: string, locale?: string }} opts - forDelivery: use totalWithDelivery and include deliveryCharges in total
  */
 function mapOrderToBill(order, opts) {
   const tot = getOrderTotals(order);
   const forDelivery = opts && opts.forDelivery;
   const showInclusivePrices = !!(opts && opts.showInclusivePrices);
+  const accumulateSameItems = !!(opts && opts.accumulateSameItems);
   const total = forDelivery ? tot.totalWithDelivery : tot.total;
   const pay = getOrderPaymentSummary(order, total);
-  const items = getOrderItems(order, showInclusivePrices);
+  const items = getOrderItems(order, showInclusivePrices, accumulateSameItems);
   const tipLabel = order && order.tip_type === 'Percent' ? 'Tip %' : 'Tip';
   let discountLines = (order.order_discounts || [])
     .filter((od) => od && !od.removed_at)
@@ -689,7 +747,7 @@ function mapOrderToBill(order, opts) {
     taxLabel: getOrderTaxLabel(order),
     serviceChargeLabel: getOrderServiceChargeLabel(order),
     serviceChargeAmount: tot.service,
-    extras: (order.extras || []).filter(Boolean),
+    extras: filterPrintExtras(order.extras),
     tipAmount: tot.tip,
     tipLabel,
     deliveryCharges: tot.deliveryCharges,
@@ -708,6 +766,7 @@ function mapOrderToTemp(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      accumulateSameItems: !!(options && options.accumulateSameItems),
       ...getDateFormatOpts(options),
     }),
     title: L.preSaleBill || 'Pre-Sale Bill',
@@ -725,6 +784,7 @@ function mapOrderToFinal(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: false,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      accumulateSameItems: !!(options && options.accumulateSameItems),
       ...getDateFormatOpts(options),
     }),
     title: dup
@@ -743,6 +803,7 @@ function mapOrderToDelivery(order, options) {
     ...mapOrderToBill(order, {
       forDelivery: true,
       showInclusivePrices: !!(options && options.showInclusivePrices),
+      accumulateSameItems: !!(options && options.accumulateSameItems),
       ...getDateFormatOpts(options),
     }),
     title: L.delivery || 'DELIVERY',
@@ -763,7 +824,7 @@ function mapOrderToKitchen(order, options) {
   return {
     orderId: getOrderId(order),
     table: getOrderTable(order),
-    items: getOrderItems(order),
+    items: getOrderItems(order, false, !!(options && options.accumulateSameItems)),
     createdAt: getOrderCreatedAt(order, options),
     priority: getOrderPriority(order),
   };
@@ -778,20 +839,8 @@ function mapOrderToKitchen(order, options) {
 function getRefundOrderItems(order, showInclusivePrices) {
   if (!order || !Array.isArray(order.items)) return [];
   return order.items.map((it) => {
-    const dish = it.item || it.dish;
-    const name = (dish && (dish.name || dish.title)) || '';
-    const qty = it.quantity != null ? it.quantity : 1;
-    const netLineTotal = calculateOrderItemPricePrint(it);
-    let lineTotal = netLineTotal;
-    if (showInclusivePrices && (it.tax_mode || 'exclusive') === 'inclusive') {
-      const unitNet = qty > 0 ? netLineTotal / qty : netLineTotal;
-      const dishNet = Number(it.price || 0);
-      const unitGross = inflateInclusiveAmount(unitNet, it.taxes, it.original_price, dishNet);
-      lineTotal = Math.round(unitGross * qty * 100) / 100;
-    }
-    const price = qty > 0 ? lineTotal / qty : 0;
-    const total = lineTotal;
-    return { name, qty, price, total };
+    const row = mapOrderItemToPrintRow(it, showInclusivePrices);
+    return { name: row.name, qty: row.qty, price: row.price, total: row.total };
   });
 }
 
@@ -846,7 +895,7 @@ function mapOrderToRefund(refundOrder, originalOrder, options) {
     discountAmount,
     serviceChargeLabel,
     serviceChargeAmount,
-    extras: refundOrder.extras || [],
+    extras: filterPrintExtras(refundOrder.extras),
     tipAmount,
     tipLabel,
     total,
@@ -868,6 +917,10 @@ module.exports = {
   getOrderPriority,
   getOrderItemModifierLines,
   calculateOrderItemPricePrint,
+  calculateOrderItemUnitBasePrint,
+  mapOrderItemToPrintRow,
+  accumulatePrintItems,
+  filterPrintExtras,
   getOrderCustomerName,
   getOrderCustomerAddress,
   getOrderDeliveryTime,

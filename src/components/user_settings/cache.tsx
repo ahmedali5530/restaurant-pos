@@ -4,6 +4,7 @@ import {toast} from "sonner";
 import {useDB} from "@/api/db/db.ts";
 import {appSettings} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useTranslation} from 'react-i18next';
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
@@ -16,10 +17,43 @@ export const CacheSettings = () => {
   const db = useDB();
   const setSettings = useSetAtom(appSettings);
   const [busy, setBusy] = useState<'catalog' | 'full' | null>(null);
+  const [catalogConfirmOpen, setCatalogConfirmOpen] = useState(false);
+  const [fullConfirmOpen, setFullConfirmOpen] = useState(false);
+  const [fullConfirmMessage, setFullConfirmMessage] = useState('');
   const { t } = useTranslation('settings');
   const { isEffectivelyConnected } = useDatabase();
 
   const canAct = isEffectivelyConnected && busy === null;
+
+  const requestCatalogRefresh = () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+    setCatalogConfirmOpen(true);
+  };
+
+  const requestFullReload = async () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+
+    try {
+      const pending = await posStore.getPendingOutbox();
+      const pendingCount = pending.length;
+      setFullConfirmMessage(
+        pendingCount > 0
+          ? t('cache.confirmWithPending', { count: pendingCount })
+          : t('cache.confirm'),
+      );
+      setFullConfirmOpen(true);
+    } catch (error) {
+      console.error("Failed to check pending outbox:", error);
+      setFullConfirmMessage(t('cache.confirm'));
+      setFullConfirmOpen(true);
+    }
+  };
 
   const refreshCatalog = async () => {
     if (!isEffectivelyConnected) {
@@ -28,9 +62,6 @@ export const CacheSettings = () => {
     }
 
     try {
-      const confirmed = window.confirm(t('cache.confirmCatalog'));
-      if (!confirmed) return;
-
       setBusy('catalog');
       await terminalSyncService.rehydrateCatalogFromServer();
       await refreshCatalogIntoSettings(setSettings);
@@ -58,15 +89,6 @@ export const CacheSettings = () => {
     }
 
     try {
-      const pending = await posStore.getPendingOutbox();
-      const pendingCount = pending.length;
-      const confirmed = window.confirm(
-        pendingCount > 0
-          ? t('cache.confirmWithPending', { count: pendingCount })
-          : t('cache.confirm'),
-      );
-      if (!confirmed) return;
-
       setBusy('full');
       await terminalSyncService.rehydrateFromServer();
       await refreshCatalogIntoSettings(setSettings);
@@ -101,7 +123,7 @@ export const CacheSettings = () => {
               variant="primary"
               size="lg"
               filled
-              onClick={refreshCatalog}
+              onClick={requestCatalogRefresh}
               isLoading={busy === 'catalog'}
               disabled={!canAct}
               data-testid="cache-refresh-catalog"
@@ -112,7 +134,7 @@ export const CacheSettings = () => {
               variant="danger"
               size="lg"
               filled
-              onClick={reloadCache}
+              onClick={() => void requestFullReload()}
               isLoading={busy === 'full'}
               disabled={!canAct}
               data-testid="cache-reload-full"
@@ -127,6 +149,22 @@ export const CacheSettings = () => {
           )}
         </div>
       </div>
+
+      <DeleteConfirm
+        open={catalogConfirmOpen}
+        onOpenChange={setCatalogConfirmOpen}
+        title={t('cache.refreshCatalog')}
+        message={t('cache.confirmCatalog')}
+        onConfirm={refreshCatalog}
+      />
+
+      <DeleteConfirm
+        open={fullConfirmOpen}
+        onOpenChange={setFullConfirmOpen}
+        title={t('cache.reload')}
+        message={fullConfirmMessage}
+        onConfirm={reloadCache}
+      />
     </div>
   );
 };

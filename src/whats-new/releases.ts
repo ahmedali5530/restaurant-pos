@@ -7,6 +7,31 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-08',
+    title: 'Payment: card amounts follow total changes',
+    items: [
+      'After discount, tip, service, delivery, or extras change the check total, local card (exact) draft payments auto-adjust — last card first when there are several — so the screen no longer shows false change due.',
+      'Cash tenders stay sticky for over-tender; gateway-captured remote payments are not rewritten. Change is shown only for cash over-tender.',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Receipts: item totals, extras, and accumulate lines',
+    items: [
+      'Temp/final/KOT line totals now multiply modifier prices by dish quantity (matching the cart).',
+      'Extras with a zero amount are omitted from printed bills.',
+      'Admin → Prints has “Accumulate same items” to merge identical dish+modifier lines into one qty on that receipt type (default: separate).',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Customer display idle advertisements',
+    items: [
+      'Idle ads on the customer display load through the pairing URL (gateway) so the playlist shows when the check is empty — including second browsers without a Surreal login.',
+      'Fixed the “Show advertisements when idle” switch so it saves true/false correctly.',
+    ],
+  },
+  {
     date: '2026-11-06',
     title: 'Order customer: remove and edit',
     items: [

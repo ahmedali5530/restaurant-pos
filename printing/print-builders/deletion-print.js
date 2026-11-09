@@ -14,23 +14,15 @@ const { printKotHeader } = require('../lib/kot-layout');
 const {
   getOrderId,
   getOrderCreatedAt,
-  getOrderItemModifierLines,
   getOrderUserName,
   getOrderType,
+  mapOrderItemToPrintRow,
+  accumulatePrintItems,
 } = require('../lib/order-mapping');
 
-function mapPrintItems(items) {
-  return items.map((it) => {
-    const dish = it.item || it.dish || {};
-    return {
-      name: dish.name || dish.title || '',
-      qty: it.quantity != null ? it.quantity : 1,
-      price: Number(it.price || 0),
-      total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
-      notes: it.comments || '',
-      modifierLines: getOrderItemModifierLines(it),
-    };
-  });
+function mapPrintItems(items, accumulateSameItems) {
+  const rows = (items || []).map((it) => mapOrderItemToPrintRow(it, false));
+  return accumulateSameItems ? accumulatePrintItems(rows) : rows;
 }
 
 function getTableLabel(data) {
@@ -60,7 +52,7 @@ function build(printer, data = {}, config = {}) {
   const orderTaker = order ? getOrderUserName(order) : '';
   const orderType = order ? getOrderType(order) : '';
   const table = getTableLabel(data);
-  const printItems = mapPrintItems(items);
+  const printItems = mapPrintItems(items, !!cfg.accumulateSameItems);
 
   const L = cfg.labels || {};
   const extraLines = [];
