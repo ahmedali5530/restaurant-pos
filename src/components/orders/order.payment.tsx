@@ -34,7 +34,7 @@ import {
   getInvoiceNumber,
   getOrderFilteredItems,
   isCashPaymentType,
-  recomputeDraftPaymentPayables,
+  recomputeDraftPaymentsForTotal,
 } from "@/lib/order.ts";
 import {useAtom, useAtomValue} from "jotai";
 import {appPage, appSettings, appState, skipFinalPrintOnPayment} from "@/store/jotai.ts";
@@ -490,10 +490,11 @@ export const OrderPayment = ({
     total,
   ]);
 
-  // Keep draft tender payables aligned when discount/tip/service/extras change after tender.
+  // Keep draft tenders aligned when discount/tip/service/extras change after tender.
+  // Cash amounts stay sticky; exact (card) amounts waterfall to the new due.
   useEffect(() => {
     if (!isInitialized) return;
-    setPaymentTypes((prev) => recomputeDraftPaymentPayables(prev, total));
+    setPaymentTypes((prev) => recomputeDraftPaymentsForTotal(prev, total));
   }, [total, isInitialized]);
 
   const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
