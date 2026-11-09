@@ -239,7 +239,12 @@ export const CustomerDisplayScreen = () => {
         {!hasLines ? (
           <CustomerDisplayIdleMedia
             thankYou={snapshot.thankYou === true}
-            enableMedia={hasSession && !usePublicPoll}
+            publicPair={
+              usePublicPoll
+                ? {terminalId: terminalParam, pairToken: pairParam}
+                : null
+            }
+            enableSurrealMedia={hasSession && !usePublicPoll}
             thankYouNode={
               <div className="flex-1 flex flex-col items-center justify-center text-center gap-3">
                 <div className="text-3xl md:text-5xl font-bold text-success-700">
