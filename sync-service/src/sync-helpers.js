@@ -217,6 +217,23 @@ function versionstampForStorage(value) {
   return value;
 }
 
+/**
+ * Local catalog ids that are missing from the master keep-set (hard-deleted on HQ
+ * or out of branch scope). Used when changefeed replay cannot cover the gap.
+ */
+function diffOrphanLocalIds(localIds, remoteIds) {
+  const remote = remoteIds instanceof Set
+    ? remoteIds
+    : new Set((remoteIds || []).map((id) => String(id || '')).filter(Boolean));
+  const orphans = [];
+  for (const raw of localIds || []) {
+    const key = String(raw || '');
+    if (!key) continue;
+    if (!remote.has(key)) orphans.push(key);
+  }
+  return orphans;
+}
+
 const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_code'];
 
 /**
@@ -324,38 +341,6 @@ const USER_LOCAL_FIELDS = new Set([
   'user_shift',
 ]);
 
-/**
- * Coerce Surreal `bytes` / JSON-ish binary into Uint8Array so document
- * photos survive HQ → local catalog upsert (SCHEMAFULL content: bytes).
- */
-function coerceBytes(value) {
-  if (value == null) return value;
-  if (value instanceof Uint8Array) return value;
-  if (value instanceof ArrayBuffer) return new Uint8Array(value);
-  if (ArrayBuffer.isView(value)) {
-    return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
-  }
-  if (Array.isArray(value) && value.every((n) => typeof n === 'number')) {
-    return Uint8Array.from(value);
-  }
-  if (
-    value &&
-    typeof value === 'object' &&
-    Array.isArray(value.data) &&
-    value.data.every((n) => typeof n === 'number')
-  ) {
-    return Uint8Array.from(value.data);
-  }
-  if (typeof value === 'string' && value.length > 0) {
-    try {
-      return Uint8Array.from(Buffer.from(value, 'base64'));
-    } catch {
-      return value;
-    }
-  }
-  return value;
-}
-
 function prepareCatalogPayload(tableName, value) {
   const raw = { ...(value || {}) };
   delete raw.id;
@@ -366,13 +351,6 @@ function prepareCatalogPayload(tableName, value) {
     if (fieldValue === null || fieldValue === undefined) continue;
     if (tableName === 'user' && !USER_LOCAL_FIELDS.has(key)) continue;
     payload[key] = fieldValue;
-  }
-
-  if (tableName === 'document' && payload.content != null) {
-    payload.content = coerceBytes(payload.content);
-  }
-  if (tableName === 'menu_item' && payload.photo != null) {
-    payload.photo = coerceBytes(payload.photo);
   }
 
   if (tableName === 'user') {
@@ -441,12 +419,7 @@ function resolveCatalogSyncTables({
       ? [pickWinningCatalogRelease(globalRelease, branchRelease)].filter(Boolean)
       : [];
 
-  if (!consider.length) {
-    return ensureDishPhotoDocuments(
-      ensureMenuItemModifierGroup(ensureUserRoleBeforeUser([...allowed]), allowed),
-      allowed
-    );
-  }
+  if (!consider.length) return ensureUserRoleBeforeUser([...allowed]);
 
   const declared = [];
   let anyDeclared = false;
@@ -459,25 +432,12 @@ function resolveCatalogSyncTables({
     }
   }
 
-  if (!anyDeclared) {
-    return ensureDishPhotoDocuments(
-      ensureMenuItemModifierGroup(ensureUserRoleBeforeUser([...allowed]), allowed),
-      allowed
-    );
-  }
+  if (!anyDeclared) return ensureUserRoleBeforeUser([...allowed]);
 
   const wanted = new Set(declared);
   const filtered = allowed.filter((name) => wanted.has(name));
   // Older publishes listed `user` without `user_role` — still pull roles when users sync.
-  // Dish publishes must also pull menu_item_modifier_group so removed edges prune locally.
-  // Dish photos live in `document` — pull them whenever dishes sync.
-  return ensureDishPhotoDocuments(
-    ensureMenuItemModifierGroup(
-      ensureUserRoleBeforeUser(filtered.length ? filtered : [...allowed]),
-      allowed
-    ),
-    allowed
-  );
+  return ensureUserRoleBeforeUser(filtered.length ? filtered : [...allowed]);
 }
 
 /** Users reference user_role; download roles first, and always with users. */
@@ -494,37 +454,6 @@ function ensureUserRoleBeforeUser(tables) {
     out.splice(roleIdx, 1);
     out.splice(userIdx, 0, 'user_role');
   }
-  return out;
-}
-
-/**
- * Dish ↔ modifier-group links live in menu_item_modifier_group. When a publish
- * refreshes menu_item without that relation table, stale local edges remain.
- * Always download the relation table whenever dishes sync (if allowlisted).
- */
-function ensureMenuItemModifierGroup(tables, allowlist) {
-  const out = Array.isArray(tables) ? [...tables] : [];
-  if (!out.includes('menu_item')) return out;
-  if (out.includes('menu_item_modifier_group')) return out;
-  const downloadable = Array.isArray(allowlist) ? allowlist : out;
-  if (!downloadable.includes('menu_item_modifier_group')) return out;
-  const dishIdx = out.indexOf('menu_item');
-  out.splice(dishIdx + 1, 0, 'menu_item_modifier_group');
-  return out;
-}
-
-/**
- * Dish photos are menu_item.dish_photo → document. Syncing dishes without
- * document leaves FOH with photo refs and no bytes.
- */
-function ensureDishPhotoDocuments(tables, allowlist) {
-  const out = Array.isArray(tables) ? [...tables] : [];
-  if (!out.includes('menu_item')) return out;
-  if (out.includes('document')) return out;
-  const downloadable = Array.isArray(allowlist) ? allowlist : out;
-  if (!downloadable.includes('document')) return out;
-  const dishIdx = out.indexOf('menu_item');
-  out.splice(dishIdx + 1, 0, 'document');
   return out;
 }
 
@@ -547,6 +476,7 @@ module.exports = {
   compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
+  diffOrphanLocalIds,
   normalizeShowChangesResult,
   normalizeSelectPage,
   recordIdKey,
@@ -559,8 +489,6 @@ module.exports = {
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
   ensureUserRoleBeforeUser,
-  ensureMenuItemModifierGroup,
-  ensureDishPhotoDocuments,
   USER_SECRET_FIELDS,
   RELATION_CATALOG_TABLES,
 };

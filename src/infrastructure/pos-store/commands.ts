@@ -2,7 +2,6 @@ import { getPosStoreDatabase } from './db.ts';
 import {
   ensureTerminalIdentity,
   nextOperationIdentity,
-  pendingCodeFromPolicy,
   recordId,
 } from './identity.ts';
 import { assertCashierOwner, canStealOrder } from './ownership.ts';
@@ -195,8 +194,7 @@ export async function ensureLocalOrder(source: {
     id: key,
     status: String(source.order?.status ?? 'In Progress'),
     invoice_number: source.order?.invoice_number,
-    local_invoice_code: source.order?.local_invoice_code
-      ?? (source.order?.invoice_number == null ? pendingCodeFromPolicy() : undefined),
+    local_invoice_code: source.order?.local_invoice_code || undefined,
     invoice_display: source.order?.invoice_display,
     invoice_prefix: source.order?.invoice_prefix,
     auto_id: source.order?.auto_id,
@@ -676,14 +674,8 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
       let invoiceNumber = input.invoiceNumber;
       let invoiceDisplay: string | undefined;
       let invoicePrefix: string | undefined;
-      let autoId = input.autoId;
-      if (autoId == null) {
-        try {
-          autoId = await consumeNumberInTx(db, 'auto_id');
-        } catch {
-          autoId = undefined;
-        }
-      }
+      // auto_id is gateway-minted on CREATE push — leave unset until assignment.
+      const autoId = input.autoId;
       if (invoiceNumber == null && useLocalPool) {
         try {
           await adoptOrDiscardInTx(db, 'invoice', allocateScope.businessDay);
@@ -710,7 +702,8 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
         invoice_number: invoiceNumber,
         invoice_display: invoiceDisplay,
         invoice_prefix: invoicePrefix,
-        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+        // No random local codes — UI shows Pending until gateway assignment.
+        local_invoice_code: undefined,
         auto_id: autoId,
         covers: input.covers ?? 1,
         floor: input.floorId ?? null,

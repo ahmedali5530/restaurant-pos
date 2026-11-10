@@ -878,34 +878,41 @@ describe('PosStore number reservation allocate + release', () => {
     await posStore.storeNumberReservations('auto_id', 800, 805);
   });
 
-  it('creates orders without a local invoice number and still allocates auto_id', async () => {
+  it('creates orders without local invoice/auto_id until gateway assignment', async () => {
     const beforeInvoice = await posStore.countReservedNumbers('invoice');
     const beforeAuto = await posStore.countReservedNumbers('auto_id');
     const { order } = await posStore.createOrderWithItems({
       items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
     });
     expect(order.invoice_number).toBeUndefined();
-    expect(order.local_invoice_code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
-    expect(getInvoiceNumber(order as any)).toBe(order.local_invoice_code);
+    expect(order.local_invoice_code).toBeUndefined();
+    expect(order.auto_id).toBeUndefined();
+    expect(getInvoiceNumber(order as any)).toBe('—');
     const pending = await posStore.getPendingOutbox();
     expect(pending[0].operation?.operationType).toBe('CREATE_RECORD');
     expect(pending[0].operation?.payload?.data?.local_invoice_code).toBeUndefined();
-    expect(order.auto_id).toBe(800);
     expect(await posStore.countReservedNumbers('invoice')).toBe(beforeInvoice);
-    expect(await posStore.countReservedNumbers('auto_id')).toBe(beforeAuto - 1);
+    // Local auto_id pool is no longer consumed on create.
+    expect(await posStore.countReservedNumbers('auto_id')).toBe(beforeAuto);
   });
 
-  it('applies gateway invoice assignments onto the local order', async () => {
+  it('applies gateway invoice and auto_id assignments onto the local order', async () => {
     const { order } = await posStore.createOrderWithItems({
       items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
     });
     await posStore.applyInvoiceAssignments([
-      { aggregateId: order.id, invoiceNumber: 7, invoiceDisplay: 'INV-007', invoicePrefix: 'INV-' },
+      {
+        aggregateId: order.id,
+        invoiceNumber: 7,
+        invoiceDisplay: 'INV-007',
+        invoicePrefix: 'INV-',
+        autoId: 42,
+      },
     ]);
     const next = await posStore.getOrder(order.id);
     expect(next?.invoice_number).toBe(7);
     expect(next?.invoice_display).toBe('INV-007');
-    expect(next?.local_invoice_code).toBe(order.local_invoice_code);
+    expect(next?.auto_id).toBe(42);
     expect(getInvoiceNumber(next as any)).toBe('INV-007');
   });
 

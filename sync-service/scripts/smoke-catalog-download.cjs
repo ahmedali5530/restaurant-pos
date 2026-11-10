@@ -140,6 +140,44 @@ async function main() {
       break;
     }
   }
+  if (!ok) {
+    await manager.stop();
+    await master.close();
+    throw new Error('menu_item was not downloaded to source');
+  }
+
+  // Hard-delete on master + republish, then Sync now must remove the local row
+  // via changefeed DELETE replay (cursor preserved across re-backfill).
+  await master.delete(dishId);
+  await master.upsert(new RecordId('catalog_release', 'current')).content({
+    version: Date.now() + 1,
+    published_at: new Date().toISOString(),
+  });
+  console.log('deleted master', String(dishId));
+
+  const queuedDelete = manager.requestCatalogSync();
+  assert.ok(queuedDelete.ok, 'sync-now after delete should queue');
+  await queuedDelete.done;
+
+  let deleted = false;
+  for (let i = 0; i < 15; i += 1) {
+    await new Promise((r) => setTimeout(r, 200));
+    const source = await connect('source-delete-check', {
+      url: sourceUrl, ns: sourceNs, db: sourceDb, user, pass,
+    });
+    let row = null;
+    try {
+      row = await source.select(dishId);
+    } catch {
+      row = null;
+    }
+    await source.close();
+    if (!row) {
+      deleted = true;
+      console.log('delete download verified', String(dishId));
+      break;
+    }
+  }
 
   const stats = manager.getStats();
   assert.ok(stats.downloadEnabled === true);
@@ -148,7 +186,7 @@ async function main() {
 
   await manager.stop();
   await master.close();
-  if (!ok) throw new Error('menu_item was not downloaded to source');
+  if (!deleted) throw new Error('menu_item was not deleted from source after HQ delete + Sync now');
   console.log('SMOKE CATALOG OK');
 }
 
