@@ -351,6 +351,67 @@ describe('PosStore draft + settle (Phase 3)', () => {
     expect(newOps.some((op) => op.payload?.data?.status === 'Paid')).toBe(true);
     expect((await posStore.getOrder(order.id))?.status).toBe('Paid');
   });
+
+  it('settle skipDraft still writes extras and coupon supplied at Complete', async () => {
+    const { order } = await createOrder();
+    await posStore.settleOrder({
+      orderId: order.id,
+      payments: [{ paymentTypeId: 'payment_type:cash', amount: 20, payable: 20 }],
+      cashierId: 'user:u1',
+      tip: 10,
+      tipAmount: 2,
+      tipType: 'percent',
+      serviceCharge: 5,
+      serviceChargeAmount: 1,
+      serviceChargeType: 'percent',
+      extras: [{ name: 'Delivery', value: 3 }],
+      coupon: { couponId: 'coupon:c1', discount: 1 },
+      keepTaxes: true,
+      skipDraft: true,
+    });
+
+    const paid = await posStore.getOrder(order.id);
+    expect(paid?.status).toBe('Paid');
+    expect(Number(paid?.tip_amount)).toBe(2);
+    expect(Number(paid?.service_charge_amount)).toBe(1);
+    const children = await posStore.getOrderChildren(order.id);
+    expect(children.extras.some((row) => row.name === 'Delivery' && Number(row.value) === 3)).toBe(true);
+    expect(children.coupons.some((row) => String(row.coupon) === 'coupon:c1')).toBe(true);
+  });
+
+  it('settle keepTaxes still recomputes when taxId is set but tax_amount is still 0', async () => {
+    await posStore.upsertCatalogRecords('tax', [{
+      id: 'tax:vat16',
+      name: 'VAT 16',
+      rate: 16,
+      fixed: false,
+      inclusive: false,
+    }]);
+    // No line taxes — mimics payment-type auto-tax only in React before draft flush.
+    const { order } = await posStore.createOrderWithItems({
+      invoiceNumber: 71,
+      items: [{ dishId: 'menu_item:d1', price: 20, quantity: 1, taxMode: 'exclusive', taxes: [] }],
+    });
+    expect(Number((await posStore.getOrder(order.id))?.tax_amount ?? 0)).toBe(0);
+
+    await posStore.settleOrder({
+      orderId: order.id,
+      payments: [{ paymentTypeId: 'payment_type:cash', amount: 23.2, payable: 23.2 }],
+      cashierId: 'user:u1',
+      taxId: 'tax:vat16',
+      keepTaxes: true,
+      skipDraft: true,
+    });
+
+    const paid = await posStore.getOrder(order.id);
+    expect(paid?.status).toBe('Paid');
+    expect(paid?.tax).toBe('tax:vat16');
+    expect(Number(paid?.tax_amount)).toBeGreaterThan(0);
+    const taxOps = (await posStore.getPendingOutbox())
+      .map((row) => row.operation!)
+      .filter((op) => op.operationType === 'REPLACE_ORDER_RELATION' && op.payload.relation === 'order_taxes');
+    expect(taxOps.length).toBeGreaterThan(0);
+  });
 });
 
 describe('PosStore refund (Phase 4)', () => {
@@ -878,34 +939,41 @@ describe('PosStore number reservation allocate + release', () => {
     await posStore.storeNumberReservations('auto_id', 800, 805);
   });
 
-  it('creates orders without a local invoice number and still allocates auto_id', async () => {
+  it('creates orders without local invoice/auto_id until gateway assignment', async () => {
     const beforeInvoice = await posStore.countReservedNumbers('invoice');
     const beforeAuto = await posStore.countReservedNumbers('auto_id');
     const { order } = await posStore.createOrderWithItems({
       items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
     });
     expect(order.invoice_number).toBeUndefined();
-    expect(order.local_invoice_code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
-    expect(getInvoiceNumber(order as any)).toBe(order.local_invoice_code);
+    expect(order.local_invoice_code).toBeUndefined();
+    expect(order.auto_id).toBeUndefined();
+    expect(getInvoiceNumber(order as any)).toBe('—');
     const pending = await posStore.getPendingOutbox();
     expect(pending[0].operation?.operationType).toBe('CREATE_RECORD');
     expect(pending[0].operation?.payload?.data?.local_invoice_code).toBeUndefined();
-    expect(order.auto_id).toBe(800);
     expect(await posStore.countReservedNumbers('invoice')).toBe(beforeInvoice);
-    expect(await posStore.countReservedNumbers('auto_id')).toBe(beforeAuto - 1);
+    // Local auto_id pool is no longer consumed on create.
+    expect(await posStore.countReservedNumbers('auto_id')).toBe(beforeAuto);
   });
 
-  it('applies gateway invoice assignments onto the local order', async () => {
+  it('applies gateway invoice and auto_id assignments onto the local order', async () => {
     const { order } = await posStore.createOrderWithItems({
       items: [{ dishId: 'menu_item:d1', price: 5, quantity: 1 }],
     });
     await posStore.applyInvoiceAssignments([
-      { aggregateId: order.id, invoiceNumber: 7, invoiceDisplay: 'INV-007', invoicePrefix: 'INV-' },
+      {
+        aggregateId: order.id,
+        invoiceNumber: 7,
+        invoiceDisplay: 'INV-007',
+        invoicePrefix: 'INV-',
+        autoId: 42,
+      },
     ]);
     const next = await posStore.getOrder(order.id);
     expect(next?.invoice_number).toBe(7);
     expect(next?.invoice_display).toBe('INV-007');
-    expect(next?.local_invoice_code).toBe(order.local_invoice_code);
+    expect(next?.auto_id).toBe(42);
     expect(getInvoiceNumber(next as any)).toBe('INV-007');
   });
 

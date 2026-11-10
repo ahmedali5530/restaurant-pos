@@ -8,9 +8,12 @@ import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
 
+/** Stable sentinel while gateway assignment is pending — never a random local code. */
+export const PENDING_INVOICE_LABEL = '—';
+
 export const getInvoiceNumber = (order?: OrderModel | null) => {
   if (!order) {
-    return '-';
+    return PENDING_INVOICE_LABEL;
   }
 
   if (typeof order.invoice_display === 'string' && order.invoice_display.trim()) {
@@ -21,13 +24,15 @@ export const getInvoiceNumber = (order?: OrderModel | null) => {
     return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
   }
 
-  const local = order.local_invoice_code;
-  if (typeof local === 'string' && local.trim()) {
-    return order.split ? `${local}/${order.split}` : local;
-  }
-
-  return '-';
+  // Do not surface local_invoice_code (random 6-char placeholders).
+  return PENDING_INVOICE_LABEL;
 }
+
+export const hasAbsoluteInvoiceNumber = (order?: OrderModel | null): boolean => {
+  if (!order) return false;
+  if (typeof order.invoice_display === 'string' && order.invoice_display.trim()) return true;
+  return order.invoice_number != null && Number.isFinite(Number(order.invoice_number));
+};
 
 export const getOrderFilteredItems = (order: OrderModel) => {
   return (order?.items ?? [])

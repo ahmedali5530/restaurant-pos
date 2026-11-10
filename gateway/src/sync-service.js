@@ -484,13 +484,14 @@ async function push(db, body) {
       }
       if (result.status === 'accepted') {
         accepted.push(op.operationId);
-        if (result.invoiceNumber != null) {
+        if (result.invoiceNumber != null || result.autoId != null) {
           assignments.push({
             operationId: op.operationId,
             aggregateId: String(op.aggregateId || op.payload?.recordId || ''),
-            invoiceNumber: result.invoiceNumber,
+            ...(result.invoiceNumber != null ? { invoiceNumber: result.invoiceNumber } : {}),
             ...(result.invoiceDisplay ? { invoiceDisplay: result.invoiceDisplay } : {}),
             ...(result.invoicePrefix ? { invoicePrefix: result.invoicePrefix } : {}),
+            ...(result.autoId != null ? { autoId: result.autoId } : {}),
           });
         }
       } else {

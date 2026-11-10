@@ -18,12 +18,10 @@ import {useQueryBuilder} from "@/api/db/query-builder.ts";
 import {getOrderFilteredItems} from "@/lib/order.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {TimeEntry} from "@/api/model/time_entry.ts";
 import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
 import {
   type ClosingCycleConfig,
   loadClosingCycleConfig,
@@ -65,13 +63,6 @@ const getOrderSale = (order: OrderModel): number => {
   const serviceAmount = safeNumber(order.service_charge_amount);
   const discountAmount = safeNumber(order.discount_amount);
   return safeNumber(itemsTotal + extrasTotal + taxAmount + serviceAmount - discountAmount);
-};
-
-const formatDuration = (ms: number): string => {
-  const totalMinutes = Math.max(0, Math.floor(ms / 60000));
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 };
 
 export const Summary = () => {
@@ -191,71 +182,34 @@ export const Summary = () => {
   const handlePrintServerSales = useCallback(async () => {
     setIsPrintingServerSales(true);
     try {
-      if (!reportWindow) {
+      // Same closing-cycle order set as the Summary report (no attendance filter).
+      if (!reportWindow || !orders?.length) {
         toast.error(t("toast:summary.noServerSales"));
         return;
       }
 
       const reportDate = date.toString();
-      const windowStart = toSurrealDateTime(reportWindow.date_from);
-      const windowEnd = toSurrealDateTime(reportWindow.date_to);
-      // Completed shifts that overlap the summary window (overnight shifts included).
-      const [entryRes] = await db.query(
-        `SELECT *
-         FROM ${Tables.time_entries}
-         WHERE clock_out != NONE
-           AND clock_in < $windowEnd
-           AND clock_out > $windowStart
-             FETCH user`,
-        {windowStart, windowEnd}
-      );
-
-      const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];
-      if (entries.length === 0) {
-        toast.error(t("toast:summary.noTimeEntries"));
-        return;
-      }
-
       type ServerRow = {
         name: string;
-        durationMs: number;
         guests: number;
         checks: number;
         sales: number;
-        shifts: Array<{ inAt: number; outAt: number }>;
       };
       const perUser = new Map<string, ServerRow>();
-      entries.forEach((entry) => {
-        const userId = toIdString(entry.user);
-        if (!userId) return;
+      const unknownUser = t("summary:unknown.user");
+
+      orders.forEach((order) => {
+        const userId = toIdString(order.user) || 'unknown';
         const current = perUser.get(userId) || {
-          name: getUserDisplayName(entry.user, t("summary:unknown.user")).substring(0, 12),
-          durationMs: 0,
+          name: getUserDisplayName(order.user, unknownUser).substring(0, 16),
           guests: 0,
           checks: 0,
           sales: 0,
-          shifts: [],
         };
-        const inAt = entry.clock_in ? toJsDate(entry.clock_in).getTime() : 0;
-        const outAt = entry.clock_out ? toJsDate(entry.clock_out).getTime() : 0;
-        if (inAt > 0 && outAt > inAt) {
-          current.durationMs += (outAt - inAt);
-          current.shifts.push({inAt, outAt});
-        }
+        current.checks += 1;
+        current.guests += safeNumber(order.covers);
+        current.sales += getOrderSale(order);
         perUser.set(userId, current);
-      });
-
-      (orders || []).forEach((order) => {
-        const userId = toIdString(order.user);
-        const row = perUser.get(userId);
-        if (!row) return;
-        const createdAt = order.created_at ? toJsDate(order.created_at).getTime() : 0;
-        if (!createdAt || !row.shifts.some((shift) => createdAt >= shift.inAt && createdAt <= shift.outAt)) {
-          return;
-        }
-        row.checks += 1;
-        row.guests += safeNumber(order.covers);
-        row.sales += getOrderSale(order);
       });
 
       const rows = Array.from(perUser.values()).sort((a, b) => b.sales - a.sales);
@@ -265,48 +219,35 @@ export const Summary = () => {
       }
 
       const totals = rows.reduce((acc, row) => ({
-        durationMs: acc.durationMs + row.durationMs,
         guests: acc.guests + row.guests,
         checks: acc.checks + row.checks,
         sales: acc.sales + row.sales,
-      }), {durationMs: 0, guests: 0, checks: 0, sales: 0});
+      }), {guests: 0, checks: 0, sales: 0});
+
+      const title = reportWindowLabel
+        ? `SERVER SALES (${reportWindowLabel})`
+        : `SERVER SALES (${reportDate})`;
 
       const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: `SERVER SALES (${reportDate})`, align: 'CENTER', width: 1, style: 'B'}],
-        [{text: 'Name', align: 'LEFT', width: 0.22, style: 'B'}, {
-          text: 'Time',
-          align: 'RIGHT',
-          width: 0.20,
-          style: 'B'
-        }, {text: 'Gsts', align: 'RIGHT', width: 0.12, style: 'B'}, {
-          text: 'Chks',
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {text: 'Sale', align: 'RIGHT', width: 0.22, style: 'B'}],
+        [{text: title, align: 'CENTER', width: 1, style: 'B'}],
+        [
+          {text: 'Name', align: 'LEFT', width: 0.40, style: 'B'},
+          {text: 'Gsts', align: 'RIGHT', width: 0.15, style: 'B'},
+          {text: 'Chks', align: 'RIGHT', width: 0.15, style: 'B'},
+          {text: 'Sale', align: 'RIGHT', width: 0.30, style: 'B'},
+        ],
         ...rows.map((row) => ([
-          {text: row.name, align: 'LEFT', width: 0.22},
-          {text: formatDuration(row.durationMs), align: 'RIGHT', width: 0.20},
-          {text: String(Math.round(row.guests)), align: 'RIGHT', width: 0.12},
-          {text: String(Math.round(row.checks)), align: 'RIGHT', width: 0.12},
-          {text: formatNumber(row.sales), align: 'RIGHT', width: 0.22},
+          {text: row.name, align: 'LEFT', width: 0.40},
+          {text: String(Math.round(row.guests)), align: 'RIGHT', width: 0.15},
+          {text: String(Math.round(row.checks)), align: 'RIGHT', width: 0.15},
+          {text: formatNumber(row.sales), align: 'RIGHT', width: 0.30},
         ])),
-        [{text: 'TOTAL', align: 'LEFT', width: 0.22, style: 'B'}, {
-          text: formatDuration(totals.durationMs),
-          align: 'RIGHT',
-          width: 0.20,
-          style: 'B'
-        }, {
-          text: String(Math.round(totals.guests)),
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {
-          text: String(Math.round(totals.checks)),
-          align: 'RIGHT',
-          width: 0.12,
-          style: 'B'
-        }, {text: withCurrency(undefined) + formatNumber(totals.sales), align: 'RIGHT', width: 0.22, style: 'B'}],
+        [
+          {text: 'TOTAL', align: 'LEFT', width: 0.40, style: 'B'},
+          {text: String(Math.round(totals.guests)), align: 'RIGHT', width: 0.15, style: 'B'},
+          {text: String(Math.round(totals.checks)), align: 'RIGHT', width: 0.15, style: 'B'},
+          {text: withCurrency(undefined) + formatNumber(totals.sales), align: 'RIGHT', width: 0.30, style: 'B'},
+        ],
       ];
 
       void dispatchPrint(db, PRINT_TYPE.summary, {
@@ -317,7 +258,7 @@ export const Summary = () => {
     } finally {
       setIsPrintingServerSales(false);
     }
-  }, [db, date, orders, page?.user?.id, reportWindow, t]);
+  }, [db, date, orders, page?.user?.id, reportWindow, reportWindowLabel, t]);
 
   return (
     <Layout overflowHidden>

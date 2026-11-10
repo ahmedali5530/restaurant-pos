@@ -136,5 +136,6 @@
     "paymentReceived": "{{gateway}} payment received.",
     "payWithCard": "Pay with card",
     "payWithRazorpay": "Pay with Razorpay"
-  }
+  },
+  "invoiceAssigning": "Order saved — invoice number still assigning…"
 }

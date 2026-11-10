@@ -310,8 +310,7 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
       }
 
       if (isNewOrder) {
-        // Allocate invoice/auto_id inside createOrderWithItems so a failed create
-        // cannot burn reserved numbers.
+        // Create locally without numbers; when online, wait for gateway mint.
         const created = await posStore.createOrderWithItems({
           covers: parseInt(state?.persons) || 1,
           floorId: state?.floor?.id ? String(state.floor.id) : null,
@@ -325,7 +324,24 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
           items: newLines,
           createdAt: date.toISOString(),
         });
-        orderObj = [created.order];
+        let orderRow = created.order;
+        if (isEffectivelyConnected && orderRow?.id) {
+          const assigned = await terminalSyncService.awaitOrderNumbers(String(orderRow.id), {
+            timeoutMs: 15_000,
+          });
+          const refreshed = await posStore.getOrder(String(orderRow.id)).catch(() => null);
+          if (refreshed) orderRow = refreshed;
+          const hasInvoice =
+            (typeof orderRow?.invoice_display === 'string' && orderRow.invoice_display.trim().length > 0)
+            || (orderRow?.invoice_number != null && Number.isFinite(Number(orderRow.invoice_number)));
+          // Only warn when invoice is still missing — never after a successful mint.
+          if (!assigned && !hasInvoice) {
+            toast.message(t('invoiceAssigning', {
+              defaultValue: 'Order saved — invoice number still assigning…',
+            }));
+          }
+        }
+        orderObj = [orderRow];
       } else {
         const orderId = String(state?.order?.id);
         const seed = {
@@ -366,8 +382,10 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
         await posStore.recomputeOrderTaxes(String(normalizedOrder.id)).catch(() => undefined);
       }
 
-      // Drain outbox in the background — never hold the cashier on gateway RTT.
-      void terminalSyncService.synchronize().catch(() => undefined);
+      // New online creates already forced a push above; otherwise drain in background.
+      if (!(isNewOrder && isEffectivelyConnected)) {
+        void terminalSyncService.synchronize().catch(() => undefined);
+      }
       postOrderTracking({
         module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
         page: page?.page,
@@ -409,17 +427,20 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
         // Printers + invoice wait are side effects — do not block return-to-floor.
         void (async () => {
           let printOrder = normalizedOrder;
-          // First punch: wait briefly for gateway invoice so KOT shows the real
-          // number instead of the temporary local_invoice_code.
-          if (isNewOrder && normalizedOrder?.id && normalizedOrder.invoice_number == null) {
-            const SYNC_WAIT_MS = 8000;
+          // First punch: prefer absolute gateway numbers on KOT.
+          // Primary create path already awaited numbers; only poll/push if still pending.
+          if (
+            isNewOrder
+            && normalizedOrder?.id
+            && normalizedOrder.invoice_number == null
+            && !(typeof normalizedOrder.invoice_display === 'string' && normalizedOrder.invoice_display.trim())
+          ) {
             try {
-              await Promise.race([
-                terminalSyncService.synchronize({ force: true }),
-                new Promise<void>((resolve) => setTimeout(resolve, SYNC_WAIT_MS)),
-              ]);
+              await terminalSyncService.awaitOrderNumbers(String(normalizedOrder.id), {
+                timeoutMs: 8_000,
+              });
             } catch {
-              // Print with pending code if sync fails.
+              // Print with pending label if sync fails.
             }
             try {
               const refreshed = await posStore.getOrder(String(normalizedOrder.id));
@@ -433,10 +454,11 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
                   invoice_number: refreshed.invoice_number,
                   invoice_display: refreshed.invoice_display,
                   invoice_prefix: refreshed.invoice_prefix,
+                  auto_id: refreshed.auto_id,
                 };
               }
             } catch {
-              // Keep pending local code on the print payload.
+              // Keep pending label on the print payload.
             }
           }
 

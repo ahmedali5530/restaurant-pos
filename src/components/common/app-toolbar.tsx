@@ -234,6 +234,7 @@ export function AppToolbar() {
       className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-between gap-3 border-t border-border bg-surface-elevated px-4 pointer-events-auto"
       data-testid="app-toolbar"
       data-app-toolbar
+      data-react-aria-top-layer="true"
       style={{ height: APP_TOOLBAR_HEIGHT }}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
@@ -245,6 +246,12 @@ export function AppToolbar() {
       <div className="relative flex items-center gap-1 shrink-0">
         <CustomerDisplayToolbar />
         <UomConverterToolbar />
+        {/* AI assistant trigger portals here (between converter and sync indicator). */}
+        <div
+          id="app-toolbar-assistant-slot"
+          className="relative flex items-center"
+          data-testid="app-toolbar-assistant-slot"
+        />
         {showConflicts && (
           <SyncConflictPanel onChanged={() => setSync(getSyncStatus())} />
         )}

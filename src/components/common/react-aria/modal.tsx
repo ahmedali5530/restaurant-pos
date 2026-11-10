@@ -55,7 +55,7 @@ export const Modal: FunctionComponent<ModalProps> = ({
   const shouldCloseOnInteractOutside = useCallback(
     (element: Element) => {
       if (isReactAriaTopLayer(element)) {
-        return false;
+        return true;
       }
       return props.shouldCloseOnInteractOutside?.(element) ?? true;
     },

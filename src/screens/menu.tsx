@@ -124,7 +124,7 @@ export const Menu = () => {
             <MenuDishes/>
           </div>
         </div>
-        <div className="bg-surface-elevated rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
+        <div className="bg-surface rounded-xl flex flex-col h-full min-h-0 overflow-hidden" data-testid="menu-cart">
           <MenuCart/>
         </div>
       </div>
