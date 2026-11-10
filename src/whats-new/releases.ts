@@ -7,6 +7,20 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-09',
+    title: 'Catalog Sync now removes HQ deletes',
+    items: [
+      'Settings → Sync now keeps the catalog down-cursor and replays the master 14-day changefeed after the SELECT backfill, so dishes and other catalog rows hard-deleted at HQ are removed from the branch database. If the cursor is older than retention, Sync now reconciles local ids against the master page set instead. Reload cache afterward so the terminal PosStore drops the ghosts.',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Order voids upload to HQ again',
+    items: [
+      'Branch sync recovers when a quiet FOH table’s changefeed cursor ages past Surreal retention (Surreal returns an empty SHOW CHANGES batch instead of an error). Order voids, refunds, and similar tables re-backfill and resume uploading to HQ.',
+    ],
+  },
+  {
     date: '2026-10-31',
     title: 'HQ user catalog download',
     items: [

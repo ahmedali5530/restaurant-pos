@@ -32,6 +32,11 @@ cloud master. Multi-branch / franchise stores also need **catalog** data
 6. **Nudge** — `catalog_release` versions in `/stats`; Settings “Catalog sync”
    + `POST /catalog/sync-now` when the frontend has `VITE_SYNC_SERVICE_URL`
    and the service reports `full`.
+7. **Deletes** — Sync now re-`SELECT`s master pages (upsert) but **preserves**
+   the prior down-cursor, then replays master catalog `CHANGEFEED 14d`
+   (`SHOW CHANGES`) so hard `DELETE`s apply locally. If the cursor is outside
+   retention (empty/silent gap) or missing (first sync), reconcile: delete
+   local ids absent from the applied master keep-set.
 
 ## Consequences
 
@@ -39,6 +44,9 @@ cloud master. Multi-branch / franchise stores also need **catalog** data
 - Linked reporting-only: `report_only` — sales upload only.
 - Full distribution: HQ edits cloud catalog (shared and/or per-branch rows),
   bumps `catalog_release`, branches pull.
+- HQ hard-deletes (unused catalog) reach branches on the next Sync now within
+  the 14d feed window; longer gaps use orphan reconcile on that Sync now.
+- Soft-deletes (`deleted_at`) still arrive via upsert of the master row.
 - Terminal Dexie still refreshes via existing PosStore snapshot/sync after
   local Surreal catalog changes (operators may use Cache reload).
 - Base+override prices: [ADR 0004](0004-base-branch-overrides.md).

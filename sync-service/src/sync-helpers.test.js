@@ -17,6 +17,7 @@ const {
   prepareCatalogPayload,
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
+  diffOrphanLocalIds,
 } = require('./sync-helpers');
 const {
   resolveIncludeTables,
@@ -28,6 +29,20 @@ const {
   resolveDistributionMode,
   loadConfig,
 } = require('./config');
+
+describe('diffOrphanLocalIds', () => {
+  it('returns local ids missing from the remote keep-set', () => {
+    assert.deepEqual(
+      diffOrphanLocalIds(
+        ['menu_item:a', 'menu_item:b', 'menu_item:c'],
+        new Set(['menu_item:a', 'menu_item:c'])
+      ),
+      ['menu_item:b']
+    );
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], ['menu_item:a']), []);
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], []), ['menu_item:a']);
+  });
+});
 
 describe('isRetryableError', () => {
   it('retries timeouts', () => {
@@ -48,6 +63,12 @@ describe('isRetryableError', () => {
 
   it('detects retention gaps', () => {
     assert.equal(isChangefeedRetentionError(new Error('cursor outside retention window')), true);
+    assert.equal(
+      isChangefeedRetentionError(
+        new Error('changefeed cursor outside retention (silent gap): table=order_void')
+      ),
+      true
+    );
   });
 });
 

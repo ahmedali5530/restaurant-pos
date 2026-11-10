@@ -56,7 +56,10 @@ async function withRetry(task, options = {}) {
 function isChangefeedRetentionError(error) {
   const message = error && error.message ? String(error.message) : String(error || '');
   if (/Parse error/i.test(message)) return false;
-  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing)|versionstamp.*(too old|expired)/i
+  // Surreal often returns an empty SHOW CHANGES batch for a cursor older than
+  // retention instead of an explicit error — sync-manager synthesizes
+  // "silent gap" when a recent high-water probe still sees mutations.
+  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing|silent gap)|versionstamp.*(too old|expired)|silent gap/i
     .test(message);
 }
 
@@ -212,6 +215,23 @@ function versionstampForStorage(value) {
   if (value == null) return null;
   if (typeof value === 'bigint') return value.toString();
   return value;
+}
+
+/**
+ * Local catalog ids that are missing from the master keep-set (hard-deleted on HQ
+ * or out of branch scope). Used when changefeed replay cannot cover the gap.
+ */
+function diffOrphanLocalIds(localIds, remoteIds) {
+  const remote = remoteIds instanceof Set
+    ? remoteIds
+    : new Set((remoteIds || []).map((id) => String(id || '')).filter(Boolean));
+  const orphans = [];
+  for (const raw of localIds || []) {
+    const key = String(raw || '');
+    if (!key) continue;
+    if (!remote.has(key)) orphans.push(key);
+  }
+  return orphans;
 }
 
 const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_code'];
@@ -456,6 +476,7 @@ module.exports = {
   compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
+  diffOrphanLocalIds,
   normalizeShowChangesResult,
   normalizeSelectPage,
   recordIdKey,
