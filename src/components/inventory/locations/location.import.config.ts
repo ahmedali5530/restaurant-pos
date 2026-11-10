@@ -15,6 +15,10 @@ import {
   updateLocation,
 } from "@/lib/inventory/location.service.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -40,6 +44,7 @@ export function createLocationImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("inventory:columns.name"),
@@ -84,20 +89,26 @@ export function createLocationImportConfig({
       const is_active = parseImportBool(values.is_active);
 
       const rowData: Record<string, string> = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.inventory_locations, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.inventory_locations, conditions, {
+            softDelete: false,
+          });
+        },
       });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.inventory_locations, conditions, {
-              softDelete: false,
-            });
 
       if (existing.length > 1) {
         throw new Error(t("common:csvImport.multipleMatches"));

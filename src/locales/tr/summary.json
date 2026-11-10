@@ -4,7 +4,8 @@
     "nextDate": "Sonraki tarih",
     "printSummary": "Özeti yazdır",
     "productMixReport": "Ürün Karışımı Raporu",
-    "serverSales": "Garson Satışları"
+    "serverSales": "Garson Satışları",
+    "printMinimalSummary": "Minimal özeti yazdır"
   },
   "security": {
     "printSummaryDescription": "Özeti yazdır",
@@ -12,7 +13,8 @@
     "productMixDescription": "Ürün karışımı raporu",
     "productMixModule": "Ürün karışımı raporu",
     "serverSalesDescription": "Garson satışları",
-    "serverSalesModule": "Garson satışları"
+    "serverSalesModule": "Garson satışları",
+    "printMinimalSummaryDescription": "Minimal özeti yazdır"
   },
   "unknown": {
     "user": "Bilinmiyor",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. Mutabakat ve kasa",
       "operationalControls": "4. Operasyonel kontroller",
       "productMix": "5. Ürün karışımı",
-      "paymentTypes": "6. Ödeme türleri",
-      "taxesBreakdown": "7. Vergi dökümü",
-      "discountsBreakdown": "8. İndirim dökümü",
-      "extrasBreakdown": "9. Ekstra dökümü",
-      "couponsBreakdown": "10. Kupon dökümü"
+      "paymentTypes": "8. Ödeme türleri",
+      "taxesBreakdown": "9. Vergi dökümü",
+      "discountsBreakdown": "10. İndirim dökümü",
+      "extrasBreakdown": "12. Ekstra dökümü",
+      "couponsBreakdown": "13. Kupon dökümü",
+      "orderTypes": "6. Sipariş türüne göre satış",
+      "orderTakers": "7. Sipariş alanına göre satış",
+      "tipsBreakdown": "11. Bahşişler"
     },
     "subtitles": {
       "surchargesTaxes": "Tahsil edilen ek ücretler ve vergi (siparişlerden; genellikle indirim sonrası net üzerinden hesaplanır).",
       "settlementCashier": "Kasa çekmecesi görünümü.",
       "operationalControls": "Denetim sinyalleri (iptaller brüt satışlardan ayrı).",
       "productMix": "Kategorilere göre gruplandırılmış yemekler ve değiştiricileri.",
-      "paymentTypes": "Ödeme yöntemine göre bölünmüş tahsil edilen tutar.",
+      "paymentTypes": "Tahsil edilen tutar ve yönteme göre adet (toplam ödenecek %).",
       "taxesBreakdown": "Siparişlerden tahsil edilen vergi bileşenleri.",
       "discountsBreakdown": "Bu dönemde uygulanan indirim şemaları.",
       "extrasBreakdown": "Sipariş düzeyinde ekstraların dökümü.",
-      "couponsBreakdown": "Kullanılan kuponlar ve değerleri."
+      "couponsBreakdown": "Kullanılan kuponlar ve değerleri.",
+      "orderTypes": "Ödenecek tutar (bahşiş öncesi) ve sipariş türüne göre adet.",
+      "orderTakers": "Ödenecek tutar (bahşiş öncesi) ve alan kişiye göre adet.",
+      "tipsBreakdown": "Bahşiş tutarı ve bahşişli sipariş sayısı."
     },
     "rows": {
       "exclusiveSales": "Özel satışlar",
@@ -97,7 +105,9 @@
       "averageCover": "Ödenecek tutar (bahşiş öncesi) ÷ kişi sayısı.",
       "ordersChecks": "Kapatılan adisyon/sipariş sayısı.",
       "averageOrderCheck": "Ödenecek tutar (bahşiş öncesi) ÷ siparişler.",
-      "roundingLegacy": "Tahsil edilen tutar - Ödenecek tutar"
+      "roundingLegacy": "Tahsil edilen tutar - Ödenecek tutar",
+      "coversWithAverage": "Misafir sayısı ve ödenecek tutar (bahşiş öncesi) ÷ kişi sayısı.",
+      "ordersChecksWithAverage": "Kapanmış çekler/siparişler ve ödenecek tutar (bahşiş öncesi) ÷ siparişler."
     },
     "columns": {
       "item": "Ürün",
@@ -111,7 +121,9 @@
       "noTaxRows": "Bu tarih için vergi satırı yok.",
       "noDiscountRows": "Bu tarih için indirim satırı yok.",
       "noExtras": "Bu tarih için ekstra bulunamadı.",
-      "noCoupons": "Bu tarih için kupon kullanımı yok."
+      "noCoupons": "Bu tarih için kupon kullanımı yok.",
+      "noOrderTypes": "Bu tarih için sipariş türü verisi yok.",
+      "noOrderTakers": "Bu tarih için sipariş alan verisi yok."
     },
     "footer": "Sıra: brüt satışlar → indirimler → net satışlar → servis ücretleri → vergiler → bahşişler → genel toplam → tahsil edilen. Ürün karışımı kategoriye göre gruplandırılmış, yemekler iç içe.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "Ortalama kişi",
       "ordersChecks": "Siparişler/Adisyonlar",
       "averageOrderCheck": "Ortalama sipariş/adisyon"
-    }
+    },
+    "unknownOrderType": "Bilinmeyen sipariş türü",
+    "unknownTaker": "Bilinmiyor",
+    "windowRange": "Dönem: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. Satış geliri",
+      "surchargesTaxes": "2. Ek ücretler ve vergiler",
+      "settlementCashier": "3. Tahsilat ve kasa",
+      "operationalControls": "4. Operasyonel kontroller",
+      "paymentTypes": "5. Ödeme türleri"
+    },
+    "productMixTitle": "Ürün karması — {{date}}"
   },
   "clock": {
     "title": "Zaman Saati",

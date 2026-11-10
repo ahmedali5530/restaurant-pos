@@ -47,7 +47,15 @@ function build(printer, data = {}, config = {}) {
   return printReceiptHeader(printer, cfg).then(() => {
     printer.align('ct').style('bu').text(refundReceiptLabel).style('normal');
     printLineLeftRight(printer, `${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
-    printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+    const tableLeft = cfg.showTableName !== false
+      ? `${tableLabel}: ${bill.table || '-'}`
+      : '';
+    const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+      ? `${orderTypeLabel}: ${bill.orderType}`
+      : '';
+    if (tableLeft || orderTypeRight) {
+      printLineLeftRight(printer, tableLeft, orderTypeRight);
+    }
     printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
     printLineLeftRight(printer, `${refundDateLabel}: ${bill.refundDate || ''}`, '');
     printer.drawLine();
@@ -71,6 +79,7 @@ function build(printer, data = {}, config = {}) {
       printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, cfg.currencySymbol ?? '$'));
     }
     (bill.extras || []).forEach((e) => {
+      if (!e || Number(e.value) === 0) return;
       printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, cfg.currencySymbol ?? '$'));
     });
     if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {

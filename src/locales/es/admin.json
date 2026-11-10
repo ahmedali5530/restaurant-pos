@@ -433,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Ráster (imagen)",
     "paperWidthMm": "Ancho del papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Tamaño físico del papel para raster y centrado de imagen (58mm = 384 puntos, 72mm = 512 puntos, 80mm = 576 puntos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Umbral ráster",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Límite de venta (este plato)",
     "kraItemClsCd": "Código de clase de artículo KRA",
     "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
-    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA."
+    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
+    "showOrderType": "Mostrar tipo de pedido",
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nombre de mesa",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostrar total del artículo",
+    "accumulateSameItems": "Acumular artículos iguales",
+    "accumulateSameItemsHint": "Combinar platos idénticos (mismos modificadores y notas) en una línea con cantidad acumulada."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Gastos",
       "reports.activity": "Actividad",
+      "reports.changefeed": "Changefeed de tablas",
       "reports.product_mix_weekly": "Mezcla de productos semanal",
       "reports.product_mix_summary": "Resumen de mezcla de productos",
       "reports.products_hourly": "Productos por hora",
@@ -835,7 +843,11 @@
       "reports": "Informes",
       "inventory": "Inventario",
       "settings": "Ajustes",
-      "admin.catalog_publish": "Publicar catálogo"
+      "admin.catalog_publish": "Publicar catálogo",
+      "settings.backup": "Copia de configuración",
+      "settings.restore": "Restaurar configuración",
+      "settings.database": "Copia de base de datos",
+      "settings.customer_display": "Pantalla del cliente"
     }
   },
   "discountEngine": {

@@ -433,7 +433,7 @@
     "printModeText": "Metin (ESC/POS)",
     "printModeRaster": "Raster (görüntü)",
     "paperWidthMm": "Kağıt genişliği",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Raster ve görsel ortalama için fiziksel kağıt genişliği (58mm = 384 nokta, 72mm = 512 nokta, 80mm = 576 nokta).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Raster eşiği",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Satış limiti (bu yemek)",
     "kraItemClsCd": "KRA ürün sınıf kodu",
     "kraTaxTyCd": "KRA vergi türü (A–E)",
-    "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın."
+    "kraFiscalHint": "İsteğe bağlı Kenya eTIMS geçersiz kılmaları. KRA sağlayıcı varsayılanlarını kullanmak için boş bırakın.",
+    "showOrderType": "Sipariş türünü göster",
+    "showCustomer": "Müşteriyi göster",
+    "showTableName": "Masa adını göster",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Kalem toplamını göster",
+    "accumulateSameItems": "Aynı kalemleri birleştir",
+    "accumulateSameItemsHint": "Aynı ürünleri (aynı modifier ve notlar) birleştirilmiş miktarla tek satırda göster."
   },
   "dishView": {
     "detailsTitle": "Yemek detayları",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Sipariş Fiskal",
       "reports.expense": "Gider",
       "reports.activity": "Aktivite",
+      "reports.changefeed": "Tablo Changefeed",
       "reports.product_mix_weekly": "Haftalık Ürün Karışımı",
       "reports.product_mix_summary": "Ürün Karışımı Özeti",
       "reports.products_hourly": "Saatlik Ürünler",
@@ -835,7 +843,11 @@
       "reports": "Raporlar",
       "inventory": "Envanter",
       "settings": "Ayarlar",
-      "admin.catalog_publish": "Katalog yayınla"
+      "admin.catalog_publish": "Katalog yayınla",
+      "settings.backup": "Ayar yedeği",
+      "settings.restore": "Ayarları geri yükle",
+      "settings.database": "Veritabanı yedeği",
+      "settings.customer_display": "Müşteri ekranı"
     }
   },
   "discountEngine": {

@@ -59,6 +59,10 @@ type PrintFormValues = {
   showItemQuantity?: boolean
   showItemPrice?: boolean
   showItemTotal?: boolean
+  accumulateSameItems?: boolean
+  showOrderType?: boolean
+  showCustomer?: boolean
+  showTableName?: boolean
 }
 
 function toSelectOption(value: unknown, options: SelectOption[]): SelectOption {
@@ -157,6 +161,7 @@ export const PrintForm = ({
 
   const paperWidthOptions: SelectOption[] = useMemo(() => [
     { label: t('forms.paperWidth58'), value: '58' },
+    { label: t('forms.paperWidth72'), value: '72' },
     { label: t('forms.paperWidth80'), value: '80' },
   ], [t]);
 
@@ -173,7 +178,7 @@ export const PrintForm = ({
 
   const isRasterMode = selectValue(watchedPrintMode, 'text') === 'raster';
   const paperWidthMm = Number(selectValue(watchedPaperWidthMm, '80'));
-  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : 576;
+  const maxLogoWidthPx = paperWidthMm === 58 ? 384 : paperWidthMm === 72 ? 512 : 576;
 
   const selectedLogoPreset = useMemo(() => {
     const w = Number(watchedLogoWidth) || DEFAULT_LOGO_PX;
@@ -215,6 +220,9 @@ export const PrintForm = ({
           : '',
         logoWidth: clampImageDim(data.values.logoWidth, DEFAULT_LOGO_PX, 576),
         logoHeight: clampImageDim(data.values.logoHeight, DEFAULT_LOGO_PX, 576),
+        showOrderType: data.values.showOrderType !== false,
+        showCustomer: data.values.showCustomer !== false,
+        showTableName: data.values.showTableName !== false,
         logo: null,
         headerSections: normalizeSectionsFromDb(data.values.headerSections),
         footerSections: normalizeSectionsFromDb(data.values.footerSections),
@@ -338,7 +346,7 @@ export const PrintForm = ({
     const maxHRaw = values.rasterMaxHeightPx;
     const maxH = maxHRaw === '' || maxHRaw == null ? null : Number(maxHRaw);
     const paperMm = Number(selectValue(values.paperWidthMm, '80'));
-    const maxW = paperMm === 58 ? 384 : 576;
+    const maxW = paperMm === 58 ? 384 : paperMm === 72 ? 512 : 576;
     const vals: Record<string, unknown> = {
       ...values,
       printMode: selectValue(values.printMode, 'text'),
@@ -349,6 +357,9 @@ export const PrintForm = ({
       rasterMaxHeightPx: maxH != null && !Number.isNaN(maxH) && maxH > 0 ? maxH : null,
       logoWidth: clampImageDim(values.logoWidth, DEFAULT_LOGO_PX, maxW),
       logoHeight: clampImageDim(values.logoHeight, DEFAULT_LOGO_PX, 576),
+      showOrderType: values.showOrderType !== false,
+      showCustomer: values.showCustomer !== false,
+      showTableName: values.showTableName !== false,
       renderOptions: (data?.values?.renderOptions && typeof data.values.renderOptions === 'object')
         ? data.values.renderOptions
         : {},
@@ -782,7 +793,68 @@ export const PrintForm = ({
                       checked={field.value}
                       onChange={field.onChange}
                     >
-                      Show item total
+                      {t('forms.showItemTotal')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Controller
+                  name="accumulateSameItems"
+                  control={control}
+                  render={({field}) => (
+                    <div>
+                      <Switch
+                        checked={!!field.value}
+                        onChange={field.onChange}
+                      >
+                        {t('forms.accumulateSameItems')}
+                      </Switch>
+                      <p className="text-xs text-muted mt-1">
+                        {t('forms.accumulateSameItemsHint')}
+                      </p>
+                    </div>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showOrderType"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showOrderType')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showCustomer"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showCustomer')}
+                    </Switch>
+                  )}
+                />
+              </div>
+              <div>
+                <Controller
+                  name="showTableName"
+                  control={control}
+                  render={({field}) => (
+                    <Switch
+                      checked={field.value ?? true}
+                      onChange={field.onChange}
+                    >
+                      {t('forms.showTableName')}
                     </Switch>
                   )}
                 />

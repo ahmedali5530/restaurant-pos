@@ -433,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Raster (imagem)",
     "paperWidthMm": "Largura do papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Largura física do papel para raster e centralização de imagem (58mm = 384 pontos, 72mm = 512 pontos, 80mm = 576 pontos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Limiar raster",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Limite de venda (este prato)",
     "kraItemClsCd": "Código de classificação do item KRA",
     "kraTaxTyCd": "Tipo de imposto KRA (A–E)",
-    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA."
+    "kraFiscalHint": "Substituições opcionais do eTIMS do Quênia. Deixe em branco para usar os padrões do provedor KRA.",
+    "showOrderType": "Mostrar tipo de pedido",
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nome da mesa",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostrar total do item",
+    "accumulateSameItems": "Acumular itens iguais",
+    "accumulateSameItemsHint": "Mesclar pratos idênticos (mesmos modificadores e notas) em uma linha com quantidade combinada."
   },
   "dishView": {
     "detailsTitle": "Detalhes do prato",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Despesa",
       "reports.activity": "Atividade",
+      "reports.changefeed": "Changefeed de tabelas",
       "reports.product_mix_weekly": "Mix de produtos semanal",
       "reports.product_mix_summary": "Resumo de mix de produtos",
       "reports.products_hourly": "Produtos por hora",
@@ -835,7 +843,11 @@
       "reports": "Relatórios",
       "inventory": "Estoque",
       "settings": "Configurações",
-      "admin.catalog_publish": "Publicar catálogo"
+      "admin.catalog_publish": "Publicar catálogo",
+      "settings.backup": "Backup de configurações",
+      "settings.restore": "Restaurar configurações",
+      "settings.database": "Backup do banco",
+      "settings.customer_display": "Tela do cliente"
     }
   },
   "discountEngine": {

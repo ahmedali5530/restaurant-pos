@@ -187,6 +187,52 @@ describe("buildWriteProposal", () => {
     expect(proposal.records[0].values.price).toBe(12.5); // AI's change applied
   });
 
+  it("propose_update_inventory_items: matches by id and keeps a new code", async () => {
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("inventory_item") && sql.includes("id = $id")) {
+          return [[{
+            id: "inventory_item:1",
+            name: "Flour",
+            code: "OLD-CODE",
+            uom: "KG",
+            price: 2,
+            average_price: 2,
+            category: {id: "inventory_categories:1", name: "Dry"},
+            locations: [{id: "inventory_locations:1", name: "Main"}],
+            suppliers: [{id: "inventory_suppliers:1", name: "ACME"}],
+            item_types: ["raw"],
+            reorder_levels: {},
+          }]];
+        }
+        if (sql.includes("inventory_categor")) {
+          return [[{id: "inventory_categories:1", name: "Dry"}]];
+        }
+        if (sql.includes("inventory_location") || sql.includes("store")) {
+          return [[{id: "inventory_locations:1", name: "Main"}]];
+        }
+        if (sql.includes("supplier")) {
+          return [[{id: "inventory_suppliers:1", name: "ACME"}]];
+        }
+        return [[]];
+      }),
+      create: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      insert: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      merge: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+    };
+
+    const proposal = await buildWriteProposal(
+      "propose_update_inventory_items",
+      {inventory_items: [{id: "inventory_item:1", code: "NEW-CODE"}]},
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+    expect(proposal.records[0].values.id).toBe("inventory_item:1");
+    expect(proposal.records[0].values.code).toBe("NEW-CODE");
+    expect(proposal.records[0].values.name).toBe("Flour");
+  });
+
   it("rejects unknown tool names", async () => {
     const db = makeDb();
     await expect(

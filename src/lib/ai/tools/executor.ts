@@ -32,6 +32,18 @@ import {
   listUsers,
   listWorkflows,
 } from "@/api/reports/manage/lists.ts";
+import {
+  getCouponDetail,
+  getDiscountDetail,
+  getDishDetail,
+  getExtraDetail,
+  getPrinterDetail,
+  getPrintSettings,
+  getRoleDetail,
+  getTableDetail,
+  getTipDistribution,
+  listDishModifiers,
+} from "@/api/reports/manage/details.ts";
 import {listInventoryLocations, listSuppliers} from "@/api/reports/inventory/lists.ts";
 import {
   estimatePriceChangeImpact,
@@ -62,6 +74,8 @@ import type {InventoryDocumentStatus} from "@/api/model/inventory_document.ts";
 import type {InventoryDocumentType} from "@/lib/ai/inventory-operation-query.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
+import {getTableChangefeed} from "@/api/reports/operations/changefeed.ts";
+import {canUseReadTool} from "@/lib/ai/tools/permissions.ts";
 import {extractOrderStatusesFromArgs, inferOrderStatusesFromPrompt, isOrderListByStatusPrompt} from "@/lib/ai/order-query.ts";
 import {
   getActivityLog,
@@ -129,6 +143,8 @@ const parseOptionalDateRangeArgs = (args: Record<string, unknown>): DateRangeFil
 
 export interface ExecuteToolContext {
   charts: AiChartSpec[];
+  /** When set, read tools that require RBAC are denied if the module is missing. */
+  allowedModules?: string[];
 }
 
 export const executeAiReportTool = async (
@@ -140,7 +156,14 @@ export const executeAiReportTool = async (
   switch (toolName) {
     case "resolve_date_range": {
       const phrase = String(args.phrase ?? "");
-      return resolveNaturalDateRange({phrase});
+      let closingCycleConfig = null;
+      try {
+        const {loadClosingCycleConfigFromCatalog} = await import("@/lib/closing-cycle.ts");
+        closingCycleConfig = (await loadClosingCycleConfigFromCatalog()).config;
+      } catch {
+        // fall back to calendar day when catalog is unavailable
+      }
+      return resolveNaturalDateRange({phrase, closingCycleConfig});
     }
 
     case "get_top_selling_dishes": {
@@ -323,6 +346,24 @@ export const executeAiReportTool = async (
         modules: Array.isArray(args.modules) ? args.modules.map(String) : undefined,
       });
 
+    case "get_table_changefeed": {
+      if (context.allowedModules && !canUseReadTool("get_table_changefeed", context.allowedModules)) {
+        return {
+          ok: false,
+          error:
+            "Permission denied: reports.changefeed (Reports → Table Changefeed) is required.",
+          mutations: [],
+        };
+      }
+      return getTableChangefeed(db, {
+        table: String(args.table ?? ""),
+        since: args.since != null ? (args.since as string | number) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
+        record_id: args.record_id ? String(args.record_id) : undefined,
+        compact: args.compact === true || args.compact === "true",
+      });
+    }
+
     case "get_cash_closing":
       return getCashClosing(db, {date: args.date ? String(args.date) : undefined});
 
@@ -469,6 +510,15 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 50,
       });
 
+    case "get_table_detail":
+      return getTableDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        number: args.number ? String(args.number) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
+      });
+
     case "list_modifier_groups":
       return listModifierGroups(db, {
         search: args.search ? String(args.search) : undefined,
@@ -485,6 +535,24 @@ export const executeAiReportTool = async (
       return getKitchenDetail(db, {
         name: args.name ? String(args.name) : undefined,
         search: args.search ? String(args.search) : undefined,
+      });
+
+    case "get_dish_detail":
+      return getDishDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        number: args.number ? String(args.number) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
+      });
+
+    case "list_dish_modifiers":
+      return listDishModifiers(db, {
+        dish_id: args.dish_id ? String(args.dish_id) : undefined,
+        dish_number: args.dish_number ? String(args.dish_number) : undefined,
+        dish_name: args.dish_name ? String(args.dish_name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 50,
       });
 
     case "list_suppliers":
@@ -512,6 +580,14 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 50,
       });
 
+    case "get_discount_detail":
+      return getDiscountDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
+      });
+
     case "list_order_types":
       return listOrderTypes(db, {
         search: args.search ? String(args.search) : undefined,
@@ -530,10 +606,26 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 50,
       });
 
+    case "get_extra_detail":
+      return getExtraDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
+      });
+
     case "list_coupons":
       return listCoupons(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_coupon_detail":
+      return getCouponDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        code: args.code ? String(args.code) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
       });
 
     case "list_menus":
@@ -561,6 +653,22 @@ export const executeAiReportTool = async (
         limit: args.limit ? Number(args.limit) : 50,
       });
 
+    case "get_printer_detail":
+      return getPrinterDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
+      });
+
+    case "get_print_settings":
+      return getPrintSettings(db, {
+        key: args.key ? String(args.key) : undefined,
+      });
+
+    case "get_tip_distribution":
+      return getTipDistribution(db);
+
     case "list_users":
       return listUsers(db, {
         search: args.search ? String(args.search) : undefined,
@@ -571,6 +679,14 @@ export const executeAiReportTool = async (
       return listRoles(db, {
         search: args.search ? String(args.search) : undefined,
         limit: args.limit ? Number(args.limit) : 50,
+      });
+
+    case "get_role_detail":
+      return getRoleDetail(db, {
+        id: args.id ? String(args.id) : undefined,
+        name: args.name ? String(args.name) : undefined,
+        search: args.search ? String(args.search) : undefined,
+        limit: args.limit ? Number(args.limit) : 5,
       });
 
     case "list_shifts":

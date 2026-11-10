@@ -433,7 +433,7 @@
     "printModeText": "نص (ESC/POS)",
     "printModeRaster": "صورة نقطية",
     "paperWidthMm": "عرض الورق",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "حجم الورق الفعلي المستخدم للتنقيط وتوسيط الصور (58مم = 384 نقطة، 72مم = 512 نقطة، 80مم = 576 نقطة).",
     "paperWidth58": "58 مم",
     "paperWidth80": "80 مم",
     "rasterThreshold": "عتبة الصورة النقطية",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)",
     "kraItemClsCd": "رمز تصنيف صنف KRA",
     "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
-    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية."
+    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية.",
+    "showOrderType": "إظهار نوع الطلب",
+    "showCustomer": "إظهار العميل",
+    "showTableName": "إظهار اسم الطاولة",
+    "paperWidth72": "72 مم",
+    "showItemTotal": "إظهار إجمالي الصنف",
+    "accumulateSameItems": "تجميع الأصناف المتشابهة",
+    "accumulateSameItemsHint": "دمج الأطباق المتطابقة (نفس المعدّلات والملاحظات) في سطر واحد بكمية مجمّعة لهذا النوع من الإيصالات."
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "الفوترة الضريبية للطلبات",
       "reports.expense": "المصروفات",
       "reports.activity": "النشاط",
+      "reports.changefeed": "سجل تغييرات الجداول",
       "reports.product_mix_weekly": "مزيج المنتجات أسبوعياً",
       "reports.product_mix_summary": "ملخص مزيج المنتجات",
       "reports.products_hourly": "المنتجات بالساعة",
@@ -835,7 +843,11 @@
       "reports": "التقارير",
       "inventory": "المخزون",
       "settings": "الإعدادات",
-      "admin.catalog_publish": "نشر الكتالوج"
+      "admin.catalog_publish": "نشر الكتالوج",
+      "settings.backup": "نسخ احتياطي للإعدادات",
+      "settings.restore": "استعادة الإعدادات",
+      "settings.database": "نسخ احتياطي لقاعدة البيانات",
+      "settings.customer_display": "شاشة العميل"
     }
   },
   "discountEngine": {

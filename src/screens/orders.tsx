@@ -32,9 +32,16 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import { batchOrdersWithTempPrint } from "@/lib/order-print.ts";
-import {calendarDateToAppDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {toSurrealDateTime} from "@/lib/datetime.ts";
 import {mergeRemoteRelations} from "@/lib/pos-order-merge.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
+import {
+  type ClosingCycleConfig,
+  loadClosingCycleConfig,
+  loadClosingCycleConfigFromCatalog,
+} from "@/lib/closing-cycle.ts";
+import {resolveReportDayWindow} from "@/lib/kitchen/business-date.ts";
+import {useCustomerDisplayPublisher} from "@/hooks/useCustomerDisplayPublisher.ts";
 
 const ORDERS_LIST_LIMIT = 500;
 const ORDERS_LIVE_DEBOUNCE_MS = 1000;
@@ -94,6 +101,7 @@ export const Orders = () => {
   const {t: tNav} = useTranslation('navigation');
   const db = useDB();
   const {protectAction} = useSecurity();
+  useCustomerDisplayPublisher();
   const liveQueryRef = useRef<LiveSubscription | null>(null);
   const fetchOrdersRef = useRef<() => Promise<void>>(() => Promise.resolve());
   const fetchOrdersTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,12 +129,48 @@ export const Orders = () => {
   const [tempPrintedOrderIds, setTempPrintedOrderIds] = useState<Set<string>>(new Set());
   // PosStore (Dexie) is the list: open checks + closed checks for the selected day.
   const [localOrders, setLocalOrders] = useState<OrderModel[]>([]);
+  const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const local = await loadClosingCycleConfigFromCatalog();
+        if (!cancelled && local.setting) {
+          setCycleConfig(local.config);
+          return;
+        }
+      } catch {
+        // fall through to Surreal
+      }
+      try {
+        const {config} = await loadClosingCycleConfig(db);
+        if (!cancelled) setCycleConfig(config);
+      } catch (error) {
+        console.warn('Failed to load closing cycle for orders', error);
+        if (!cancelled) setCycleConfig(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const reportDayWindow = useMemo(() => {
+    if (!date) return null;
+    const businessDate = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+    return resolveReportDayWindow(cycleConfig, businessDate);
+  }, [date, cycleConfig]);
 
   const dayWindow = useMemo(() => {
-    if (!date) return null;
-    const dayStart = calendarDateToAppDateTime({ year: date.year, month: date.month, day: date.day });
-    return { sinceIso: dayStart.toISO() ?? new Date().toISOString(), untilIso: dayStart.plus({ days: 1 }).toISO() ?? undefined };
-  }, [date]);
+    if (!reportDayWindow) return null;
+    return {
+      sinceIso: reportDayWindow.date_from.toISOString(),
+      untilIso: reportDayWindow.exclusiveEnd
+        ? reportDayWindow.date_to.toISOString()
+        : new Date(reportDayWindow.date_to.getTime() + 1).toISOString(),
+    };
+  }, [reportDayWindow]);
 
   const refreshLocalOrders = useCallback(async () => {
     if (!dayWindow) return;
@@ -214,22 +258,17 @@ export const Orders = () => {
       f.push(`(${orderTypeFilters.join(' or ')})`);
     }
 
-    if (date) {
-      const dayStart = calendarDateToAppDateTime({
-        year: date.year,
-        month: date.month,
-        day: date.day,
-      });
-      const dayEnd = dayStart.plus({days: 1});
+    if (reportDayWindow) {
+      const endOp = reportDayWindow.exclusiveEnd ? '<' : '<=';
       f.push(
-        `(status = "${OrderStatus["In Progress"]}" OR (created_at >= $dayStart AND created_at < $dayEnd))`
+        `(status = "${OrderStatus["In Progress"]}" OR (created_at >= $dayStart AND created_at ${endOp} $dayEnd))`
       );
-      params.dayStart = toSurrealDateTime(dayStart);
-      params.dayEnd = toSurrealDateTime(dayEnd);
+      params.dayStart = toSurrealDateTime(reportDayWindow.date_from);
+      params.dayEnd = toSurrealDateTime(reportDayWindow.date_to);
     }
 
     return {orderFilters: f, orderFilterParams: params};
-  }, [selectedOrderFilters, date]);
+  }, [selectedOrderFilters, reportDayWindow]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), ORDERS_LIST_LIMIT, 0, ['created_at desc'],
@@ -282,7 +321,7 @@ export const Orders = () => {
       // Surreal live = sync wake-up; Dexie refresh follows through the write event.
       const result = await db.live(Tables.orders, (action) => {
         if (action === 'CREATE' || action === 'UPDATE' || action === 'DELETE') {
-          void terminalSyncService.synchronize().catch(() => undefined);
+          void terminalSyncService.scheduleSynchronize();
           scheduleFetchOrders();
         }
       });

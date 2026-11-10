@@ -93,7 +93,8 @@
     "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
     "tempAlreadyPrinted": "Conta provisória já impressa",
     "alreadyClosed": "Este pedido já está fechado.",
-    "notOwner": "Este pedido está sendo tratado por outro terminal."
+    "notOwner": "Este pedido está sendo tratado por outro terminal.",
+    "skipFinalPrint": "Pular recibo final"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",
@@ -135,5 +136,6 @@
     "paymentReceived": "Pagamento {{gateway}} recebido.",
     "payWithCard": "Pagar com cartão",
     "payWithRazorpay": "Pagar com Razorpay"
-  }
+  },
+  "invoiceAssigning": "Pedido salvo — número da fatura ainda sendo atribuído…"
 }

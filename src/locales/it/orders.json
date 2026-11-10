@@ -13,7 +13,13 @@
       "address": "Indir.",
       "secondaryAddress": "Indir. secondario",
       "points": "Punti"
-    }
+    },
+    "save": "Salva",
+    "remove": "Rimuovi dall'ordine",
+    "saved": "Cliente salvato",
+    "saveFailed": "Impossibile salvare il cliente",
+    "attachFailed": "Impossibile associare il cliente a questo ordine",
+    "removeFailed": "Impossibile rimuovere il cliente da questo ordine"
   },
   "filters": {
     "status": "Seleziona stato ordine",

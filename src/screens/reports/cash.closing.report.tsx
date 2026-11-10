@@ -7,7 +7,9 @@ import {Closing} from "@/api/model/closing.ts";
 import {OrderStatus} from "@/api/model/order.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
-import {getBusinessDayUnixRange, toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {toLuxonDateTime, toSurrealDateTime} from "@/lib/datetime.ts";
+import {loadClosingCycleConfigFromCatalog} from "@/lib/closing-cycle.ts";
+import {resolveReportDayWindow} from "@/lib/kitchen/business-date.ts";
 import {
   EXCLUDE_QR_ORDERS_SQL,
   fetchSelfOrderClosing,
@@ -91,17 +93,22 @@ export const CashClosingReport = () => {
           return;
         }
 
-        // time::format(date_from, ...) runs on the raw UTC instant, not the app's
-        // configured business timezone — a closing near midnight in that timezone
-        // would match the wrong calendar day. Compare against a real UTC range
-        // (start/end of the business day in the app timezone) instead.
-        const {startUnix, endUnix} = getBusinessDayUnixRange(selectedDate);
-        const rangeStart = new Date(startUnix * 1000).toISOString();
-        const rangeEnd = new Date(endUnix * 1000).toISOString();
+        // Prefer closing-cycle window when enabled so overnight shifts match Summary.
+        let cycleConfig = null;
+        try {
+          cycleConfig = (await loadClosingCycleConfigFromCatalog()).config;
+        } catch {
+          cycleConfig = null;
+        }
+        const dayKey = toLuxonDateTime(selectedDate).toFormat("yyyy-MM-dd");
+        const window = resolveReportDayWindow(cycleConfig, dayKey);
+        const rangeStart = window.date_from.toISOString();
+        const rangeEnd = window.date_to.toISOString();
+        const endOp = window.exclusiveEnd ? '<' : '<=';
 
         const conditions = [
           `date_from >= <datetime>$rangeStart`,
-          `date_from < <datetime>$rangeEnd`,
+          `date_from ${endOp} <datetime>$rangeEnd`,
         ];
         const params: Record<string, any> = {rangeStart, rangeEnd};
         if (filterShiftId) {

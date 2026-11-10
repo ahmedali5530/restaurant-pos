@@ -35,6 +35,7 @@ const CATALOG_SNAPSHOT_TABLES = [
   Tables.order_types,
   Tables.categories,
   Tables.dishes,
+  Tables.documents,
   Tables.modifier_groups,
   Tables.modifiers,
   Tables.dish_modifier_groups,
@@ -86,20 +87,22 @@ const OPERATIONAL_TABLES = new Set<string>([
  * `auto_id` always uses a local reserved block. When the restaurant chooses
  * pool/hybrid mint, invoice rejoins this refill loop.
  */
-const NUMBER_BLOCK_SIZE = 200;
+const NUMBER_BLOCK_SIZE = 10;
 const NUMBER_REFILL_THRESHOLD = NUMBER_BLOCK_SIZE / 2;
 
 async function numberSeriesForPolicy(): Promise<NumberSeries[]> {
   try {
     const row = await posStore.getGlobalSetting(NUMBER_POLICY_KEY);
     const policy = normalizeNumberPolicy(row?.values ?? row?.payload?.values);
+    // Invoice pools only for terminal/hybrid mint. auto_id is always
+    // gateway-minted on CREATE — never refill local auto_id blocks.
     if (policyUsesLocalInvoicePool(policy)) {
-      return ['invoice', 'auto_id'];
+      return ['invoice'];
     }
   } catch {
-    // Default: gateway mint — no invoice pool.
+    // Default: gateway mint — no local number pools.
   }
-  return ['auto_id'];
+  return [];
 }
 
 let syncInFlight: Promise<void> | null = null;
@@ -195,11 +198,20 @@ async function hydrateSnapshot(
  * already applied locally (Dexie-first) and are skipped so a delayed echo can
  * never roll back newer local state.
  */
-async function applyPullEvent(event: any, terminalId: string): Promise<boolean> {
+type PullApply = 'operational' | 'lock-chrome' | 'lock' | false;
+
+async function applyPullEvent(event: any, terminalId: string): Promise<PullApply> {
   if (!event) return false;
   if (String(event.terminal_id ?? event.terminalId ?? '') === terminalId) return false;
+  const lockOnly = isLockOnlyEvent(event);
+  const recordId = lockOnly ? lockRecordId(event) : '';
+  const before = lockOnly && recordId ? await posStore.getTableLock(recordId) : undefined;
+  const chromeBefore = `${!!before?.is_locked}:${before?.locked_by ?? ''}`;
   await applyRemoteEvent(event);
-  return true;
+  if (!lockOnly) return 'operational';
+  const after = recordId ? await posStore.getTableLock(recordId) : undefined;
+  const chromeAfter = `${!!after?.is_locked}:${after?.locked_by ?? ''}`;
+  return chromeAfter !== chromeBefore ? 'lock-chrome' : 'lock';
 }
 
 function notifyRemoteChange(): void {
@@ -209,6 +221,31 @@ function notifyRemoteChange(): void {
   }
 }
 
+/** Lock icon changed. Heartbeat-only updates do not use this. */
+function notifyLockChange(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('posr-table-locks-updated'));
+  }
+}
+
+const LOCK_FIELD_KEYS = new Set(['is_locked', 'locked_by', 'locked_at']);
+
+function isLockOnlyEvent(event: any): boolean {
+  const payload = event?.payload ?? event;
+  const table = String(payload?.table ?? event?.aggregate_type ?? event?.aggregateType ?? '');
+  if (table !== 'floor_table') return false;
+  const data = payload?.data;
+  if (!data || typeof data !== 'object') return false;
+  const keys = Object.keys(data);
+  return keys.length > 0 && keys.every((key) => LOCK_FIELD_KEYS.has(key));
+}
+
+function lockRecordId(event: any): string {
+  const payload = event?.payload ?? event;
+  const raw = payload?.recordId ?? event?.aggregate_id ?? event?.aggregateId ?? '';
+  return String(raw);
+}
+
 /** Catalog tables finished; UI may project menu/floors while orders still hydrate. */
 function notifyCatalogReady(): void {
   if (typeof window !== 'undefined') {
@@ -216,9 +253,109 @@ function notifyCatalogReady(): void {
   }
 }
 
+/**
+ * Drop settled Dexie orders older than 1d in batches (keeps identity / numbers).
+ * @param maxBatches  Initialize uses a higher cap so a bloated till can recover
+ *   in one refresh without Reload cache.
+ */
+async function pruneStaleOperationalBatches(maxBatches = 5): Promise<number> {
+  let total = 0;
+  for (let i = 0; i < maxBatches; i += 1) {
+    const removed = await posStore.pruneStaleOperationalOrders({
+      limit: 500,
+      silent: true,
+    });
+    total += removed;
+    if (removed === 0) break;
+  }
+  if (total > 0) notifyRemoteChange();
+  return total;
+}
+
+const SYNC_WAKE_DEBOUNCE_MS = 1_500;
+
 export class TerminalSyncService {
+  private wakeTimer: ReturnType<typeof setTimeout> | null = null;
+  private wakeResolvers: Array<() => void> = [];
+
+  /**
+   * Coalesce live-query wakes into one sync. Callers that must push immediately
+   * (payment, reconnect, Sync now) keep using synchronize().
+   */
+  scheduleSynchronize(): Promise<void> {
+    return new Promise((resolve) => {
+      this.wakeResolvers.push(resolve);
+      if (this.wakeTimer != null) return;
+      this.wakeTimer = setTimeout(() => {
+        this.wakeTimer = null;
+        const resolvers = this.wakeResolvers.splice(0);
+        void this.synchronize()
+          .catch(() => undefined)
+          .finally(() => {
+            for (const done of resolvers) done();
+          });
+      }, SYNC_WAKE_DEBOUNCE_MS);
+    });
+  }
+
+  /**
+   * Force-push once, then poll Dexie until absolute invoice (+ optional auto_id).
+   * Does not hammer /sync — at most one retry push if assignments are still missing.
+   */
+  async awaitOrderNumbers(
+    orderId: string,
+    options?: { timeoutMs?: number; requireAutoId?: boolean },
+  ): Promise<boolean> {
+    const timeoutMs = options?.timeoutMs ?? 15_000;
+    // Invoice is the user-facing absolute number; auto_id is optional unless asked.
+    const requireAutoId = options?.requireAutoId === true;
+    const key = orderId.includes(':') ? orderId : `order:${orderId}`;
+    const deadline = Date.now() + timeoutMs;
+
+    const hasNumbers = async (): Promise<boolean> => {
+      const row = await posStore.getOrder(key).catch(() => null);
+      if (!row) return false;
+      const hasInvoice =
+        (typeof row.invoice_display === 'string' && row.invoice_display.trim().length > 0)
+        || (row.invoice_number != null && Number.isFinite(Number(row.invoice_number)));
+      if (!hasInvoice) return false;
+      if (!requireAutoId) return true;
+      return row.auto_id != null && Number.isFinite(Number(row.auto_id));
+    };
+
+    if (await hasNumbers()) return true;
+
+    try {
+      await this.synchronize({ force: true });
+    } catch {
+      // Concurrent sync may still land assignments — keep polling Dexie.
+    }
+
+    if (await hasNumbers()) return true;
+
+    // One delayed retry covers the case where CREATE landed in the outbox after
+    // a racing drain of an empty batch. Never re-sync on every poll tick.
+    let retried = false;
+    while (Date.now() < deadline) {
+      if (await hasNumbers()) return true;
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
+      if (!retried && Date.now() >= deadline - timeoutMs + 1_500) {
+        retried = true;
+        try {
+          await this.synchronize({ force: true });
+        } catch {
+          // ignore
+        }
+      }
+    }
+    return hasNumbers();
+  }
+
   async initialize(online: boolean): Promise<void> {
     await posStore.initialize();
+    // Lighten a bloated local cache before sync — does not touch identity/numbers.
+    // Up to ~25k settled orders per boot so a 700k-history site recovers without Reload cache.
+    await pruneStaleOperationalBatches(50);
     if (!online) {
       setSyncStatus({ phase: 'offline' });
       return;
@@ -230,6 +367,7 @@ export class TerminalSyncService {
     if (!cursor.hydrated) {
       await hydrateSnapshot(identity.terminalId);
       await posStore.reconcileOrderItemLinks();
+      await pruneStaleOperationalBatches();
     }
     await this.synchronize();
   }
@@ -251,6 +389,7 @@ export class TerminalSyncService {
     await handshake({ terminalId: identity.terminalId });
     await hydrateSnapshot(identity.terminalId);
     await posStore.reconcileOrderItemLinks();
+    await pruneStaleOperationalBatches();
     // Refill here — synchronize() can skip runSync when another tab holds the
     // leader lock, which left terminals with an empty invoice pool after Reload cache.
     await this.refillNumbers(identity.terminalId, { required: true });
@@ -430,13 +569,16 @@ export class TerminalSyncService {
       let cursor = (await posStore.getSyncCursor()).cursor;
       let hasMore = true;
       let applied = 0;
+      let lockChrome = 0;
       while (hasMore) {
         const pulled = await pullEvents({
           terminalId: identity.terminalId,
           cursor,
         });
         for (const event of pulled.events ?? []) {
-          if (await applyPullEvent(event, identity.terminalId)) applied += 1;
+          const kind = await applyPullEvent(event, identity.terminalId);
+          if (kind === 'operational') applied += 1;
+          else if (kind === 'lock-chrome') lockChrome += 1;
         }
         cursor = pulled.cursor;
         hasMore = !!pulled.hasMore;
@@ -446,6 +588,7 @@ export class TerminalSyncService {
         });
       }
       if (applied > 0) notifyRemoteChange();
+      else if (lockChrome > 0) notifyLockChange();
 
       // Self-heal conflicts after pull: refresh versions and re-queue eligible
       // ops so the next synchronize pass drains them without UI clicks.
@@ -454,6 +597,9 @@ export class TerminalSyncService {
         forceNextPush = true;
         syncAgain = true;
       }
+
+      // Keep Dexie to ~1 day of settled checks (open checks always kept).
+      await pruneStaleOperationalBatches();
 
       await this.refreshStatus({ lastSyncedAt: new Date().toISOString() });
     } catch (error) {
@@ -573,12 +719,16 @@ export class TerminalSyncService {
       }
     }
 
-    if (options?.required) {
-      const autoIdLeft = await posStore.countReservedNumbers('auto_id');
-      if (autoIdLeft === 0) {
+    // auto_id is gateway-minted on CREATE — no local pool to require.
+    if (options?.required && seriesList.includes('invoice')) {
+      const invoiceLeft = await posStore.countReservedNumbers(
+        'invoice',
+        getBusinessDayUnixRange().day,
+      );
+      if (invoiceLeft === 0) {
         throw lastError instanceof Error
           ? lastError
-          : new Error('No reserved receipt numbers after refill — check the gateway');
+          : new Error('No reserved invoice numbers after refill — check the gateway');
       }
     }
   }

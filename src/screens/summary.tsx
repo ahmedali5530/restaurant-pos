@@ -23,8 +23,12 @@ import {formatNumber, withCurrency} from "@/lib/utils.ts";
 import {toast} from "sonner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import { toJsDate } from "@/lib/datetime.ts";
-import { toReportBoundaryUtcIso } from "@/api/reports/shared/query.ts";
+import { toJsDate, toSurrealDateTime } from "@/lib/datetime.ts";
+import {
+  type ClosingCycleConfig,
+  loadClosingCycleConfig,
+} from "@/lib/closing-cycle.ts";
+import { formatBusinessDateWindow, resolveReportDayWindow } from "@/lib/kitchen/business-date.ts";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 
@@ -82,20 +86,52 @@ export const Summary = () => {
   const [isLoading, setLoading] = useState(true);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
+  const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
+  const [cycleConfigReady, setCycleConfigReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const {config} = await loadClosingCycleConfig(db);
+        if (!cancelled) setCycleConfig(config);
+      } catch (error) {
+        console.warn('Failed to load closing cycle for summary', error);
+        if (!cancelled) setCycleConfig(null);
+      } finally {
+        if (!cancelled) setCycleConfigReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const reportWindow = useMemo(() => {
+    if (!date) return null;
+    return resolveReportDayWindow(cycleConfig, date.toString());
+  }, [date, cycleConfig]);
+
+  const reportWindowLabel = useMemo(() => {
+    if (!reportWindow) return null;
+    return formatBusinessDateWindow(reportWindow);
+  }, [reportWindow]);
 
   const orderFilters = useMemo(() => {
     const f = [`status = '${OrderStatus.Paid}'`];
 
-    if (date) {
-      const dayStart = toReportBoundaryUtcIso(date.toString());
-      const dayEnd = toReportBoundaryUtcIso(date.toString(), {endOfRange: true});
-      if (dayStart && dayEnd) {
-        f.push(`(created_at >= <datetime>"${dayStart}" AND created_at < <datetime>"${dayEnd}")`);
+    if (reportWindow) {
+      const startIso = reportWindow.date_from.toISOString();
+      const endIso = reportWindow.date_to.toISOString();
+      if ('exclusiveEnd' in reportWindow && reportWindow.exclusiveEnd) {
+        f.push(`(created_at >= <datetime>"${startIso}" AND created_at < <datetime>"${endIso}")`);
+      } else {
+        f.push(`(created_at >= <datetime>"${startIso}" AND created_at <= <datetime>"${endIso}")`);
       }
     }
 
     return f;
-  }, [date]);
+  }, [reportWindow]);
 
   const ordersQb = useQueryBuilder(
     Tables.orders, '*', orderFilters.map(item => `and ${item}`), 99999, 0, ['created_at desc'],
@@ -107,107 +143,71 @@ export const Summary = () => {
   }, [orderFilters]);
 
   const fetchOrders = useCallback(async () => {
+    if (!cycleConfigReady || !reportWindow) {
+      return;
+    }
     setLoading(true);
     const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
 
     setOrders(listQuery as OrderModel[]);
     setLoading(false);
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [cycleConfigReady, reportWindow, ordersQb.queryString, ordersQb.parameters]);
 
   useEffect(() => {
     fetchOrders();
-  }, [ordersQb.queryString, ordersQb.parameters]);
+  }, [fetchOrders]);
 
   const handlePrintSummary = useCallback(() => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
       orders,
       date: date.toString(),
+      windowRange: reportWindowLabel ?? undefined,
     }, {userId: page?.user?.id});
-  }, [db, orders, date, page?.user?.id]);
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
 
-  const handlePrintProductMix = useCallback(async () => {
+  const handlePrintMinimalSummary = useCallback(() => {
+    void dispatchPrint(db, PRINT_TYPE.summary, {
+      orders,
+      date: date.toString(),
+      windowRange: reportWindowLabel ?? undefined,
+      variant: 'minimal',
+    }, {userId: page?.user?.id});
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
+
+  const handlePrintProductMix = useCallback(() => {
     setIsPrintingMix(true);
     try {
-      const dishMap = new Map<string, { name: string; qty: number; total: number }>();
-
-      (orders || []).forEach((order) => {
-        (getOrderFilteredItems(order) || []).forEach((item) => {
-          const name = item?.item?.name || 'Unknown Item';
-          const qty = safeNumber(item?.quantity);
-          const total = safeNumber(calculateOrderItemPrice(item));
-          const key = String(item.item.name);
-          const prev = dishMap.get(key) || {name: key.substring(0, 12), qty: 0, total: 0};
-          prev.qty += qty;
-          prev.total += total;
-
-          dishMap.set(key, prev);
-        });
-      });
-
-      const rows = Array.from(dishMap.values())
-        .sort((a, b) => b.total - a.total);
-
-      const totalSale = rows.reduce((sum, row) => sum + row.total, 0);
-      if (rows.length === 0) {
-        toast.error(t("toast:summary.noProductMix"));
-        return;
-      }
-
-      const tableRows: Array<Array<Record<string, unknown>>> = [
-        [{text: `PRODUCT MIX REPORT (${date.toString()})`, align: 'CENTER', width: 1, style: 'B'}],
-        [{text: 'Item', align: 'LEFT', width: 0.30, style: 'B'}, {
-          text: 'Qty',
-          align: 'RIGHT',
-          width: 0.18,
-          style: 'B'
-        }, {text: 'Ttl', align: 'RIGHT', width: 0.23, style: 'B'}, {
-          text: '%',
-          align: 'RIGHT',
-          width: 0.23,
-          style: 'B'
-        }],
-        ...rows.map((row) => {
-          const percent = totalSale > 0 ? (row.total / totalSale) * 100 : 0;
-          return [
-            {text: row.name, align: 'LEFT', width: 0.30},
-            {text: String(formatNumber(row.qty)), align: 'RIGHT', width: 0.18},
-            {text: formatNumber(row.total), align: 'RIGHT', width: 0.23},
-            {text: `${percent.toFixed(2)}%`, align: 'RIGHT', width: 0.23},
-          ];
-        }),
-        [{
-          text: 'TOTAL',
-          align: 'LEFT',
-          width: 0.50,
-          style: 'B'
-        }, {text: withCurrency(undefined) + formatNumber(totalSale), align: 'RIGHT', width: 0.50, style: 'B'}],
-      ];
-
       void dispatchPrint(db, PRINT_TYPE.summary, {
-        printType: 'table',
-        rows: tableRows,
-        cut: true,
+        orders,
+        date: date.toString(),
+        windowRange: reportWindowLabel ?? undefined,
+        variant: 'product_mix',
       }, {userId: page?.user?.id});
     } finally {
       setIsPrintingMix(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
 
   const handlePrintServerSales = useCallback(async () => {
     setIsPrintingServerSales(true);
     try {
+      if (!reportWindow) {
+        toast.error(t("toast:summary.noServerSales"));
+        return;
+      }
 
       const reportDate = date.toString();
-      const dayStart = toReportBoundaryUtcIso(reportDate);
-      const dayEnd = toReportBoundaryUtcIso(reportDate, {endOfRange: true});
+      const windowStart = toSurrealDateTime(reportWindow.date_from);
+      const windowEnd = toSurrealDateTime(reportWindow.date_to);
+      // Completed shifts that overlap the summary window (overnight shifts included).
       const [entryRes] = await db.query(
         `SELECT *
          FROM ${Tables.time_entries}
          WHERE clock_out != NONE
-           AND clock_in >= <datetime>$dayStart AND clock_in < <datetime>$dayEnd
-           AND clock_out >= <datetime>$dayStart AND clock_out < <datetime>$dayEnd
+           AND clock_in < $windowEnd
+           AND clock_out > $windowStart
              FETCH user`,
-        {dayStart, dayEnd}
+        {windowStart, windowEnd}
       );
 
       const entries = (Array.isArray(entryRes) ? entryRes : []) as TimeEntry[];
@@ -216,13 +216,15 @@ export const Summary = () => {
         return;
       }
 
-      const perUser = new Map<string, {
+      type ServerRow = {
         name: string;
         durationMs: number;
         guests: number;
         checks: number;
-        sales: number
-      }>();
+        sales: number;
+        shifts: Array<{ inAt: number; outAt: number }>;
+      };
+      const perUser = new Map<string, ServerRow>();
       entries.forEach((entry) => {
         const userId = toIdString(entry.user);
         if (!userId) return;
@@ -232,10 +234,14 @@ export const Summary = () => {
           guests: 0,
           checks: 0,
           sales: 0,
+          shifts: [],
         };
         const inAt = entry.clock_in ? toJsDate(entry.clock_in).getTime() : 0;
         const outAt = entry.clock_out ? toJsDate(entry.clock_out).getTime() : 0;
-        if (inAt > 0 && outAt > inAt) current.durationMs += (outAt - inAt);
+        if (inAt > 0 && outAt > inAt) {
+          current.durationMs += (outAt - inAt);
+          current.shifts.push({inAt, outAt});
+        }
         perUser.set(userId, current);
       });
 
@@ -243,6 +249,10 @@ export const Summary = () => {
         const userId = toIdString(order.user);
         const row = perUser.get(userId);
         if (!row) return;
+        const createdAt = order.created_at ? toJsDate(order.created_at).getTime() : 0;
+        if (!createdAt || !row.shifts.some((shift) => createdAt >= shift.inAt && createdAt <= shift.outAt)) {
+          return;
+        }
         row.checks += 1;
         row.guests += safeNumber(order.covers);
         row.sales += getOrderSale(order);
@@ -307,7 +317,7 @@ export const Summary = () => {
     } finally {
       setIsPrintingServerSales(false);
     }
-  }, [db, date, orders, page?.user?.id]);
+  }, [db, date, orders, page?.user?.id, reportWindow, t]);
 
   return (
     <Layout overflowHidden>
@@ -360,6 +370,16 @@ export const Summary = () => {
               <Button
                 icon={faPrint}
                 variant="lg"
+                onClick={() => {
+                  protectAction(handlePrintMinimalSummary, {
+                    description: t("summary:security.printMinimalSummaryDescription"),
+                    module: 'summary.print',
+                  });
+                }}
+              >{t("summary:screen.printMinimalSummary")}</Button>
+              <Button
+                icon={faPrint}
+                variant="lg"
                 isLoading={isPrintingMix}
                 onClick={() => {
                   protectAction(handlePrintProductMix, {
@@ -392,7 +412,11 @@ export const Summary = () => {
               </div>
             ) : (
               <>
-                <DailySalesSummaryReport orders={orders} date={date.toString()} />
+                <DailySalesSummaryReport
+                  orders={orders}
+                  date={date.toString()}
+                  windowRange={reportWindowLabel}
+                />
               </>
             )}
           </ScrollContainer>

@@ -7,6 +7,10 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -35,6 +39,7 @@ export function createEmployeeImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "employee_number",
       label: t("hr:columns.employeeNumber", {defaultValue: "Employee number"}),
@@ -151,19 +156,25 @@ export function createEmployeeImportConfig({
       }
 
       const rowData: Record<string, string> = {employee_number: employeeNumber};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => ({
-        column: field,
-        value,
-      }));
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.employees, conditions, {softDelete: false});
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.employees, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => ({
+            column: field,
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.employees, conditions, {softDelete: false});
+        },
+      });
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

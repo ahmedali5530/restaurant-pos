@@ -5,7 +5,6 @@ import {ServiceChargesSettings} from "@/components/user_settings/service_charges
 import {CacheSettings} from "@/components/user_settings/cache.tsx";
 import {CatalogSyncSettingsCard} from "@/components/user_settings/catalog_sync.tsx";
 import {TouchSettings} from "@/components/user_settings/touch.tsx";
-import {TableSelectionSettings} from "@/components/user_settings/table_selection.tsx";
 import {PosModeSettings} from "@/components/user_settings/pos_mode.tsx";
 import {ItemAvailabilitySettings} from "@/components/user_settings/item_availability.tsx";
 import {ScaleBarcodeSettings} from "@/components/user_settings/scale_barcode.tsx";
@@ -16,6 +15,7 @@ import {NumberPolicySettingsCard} from "@/components/user_settings/number_policy
 import {LanguageSettings} from "@/components/user_settings/language.tsx";
 import {ThemeSettings} from "@/components/user_settings/theme.tsx";
 import {BrandingSettingsCard} from "@/components/user_settings/branding.tsx";
+import {CustomerDisplaySettingsCard} from "@/components/user_settings/customer_display.tsx";
 import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translate_receipts.tsx";
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
@@ -24,6 +24,7 @@ import {InventorySettingsCard} from "@/components/user_settings/inventory_settin
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
 import {AutoClockOutSettingsCard} from "@/components/user_settings/auto_clock_out.tsx";
+import {BackupRestoreSettings} from "@/components/user_settings/backup_restore.tsx";
 import {useTranslation} from "react-i18next";
 import {DocumentTitle} from "@/components/common/document-title.tsx";
 import {PropsWithChildren} from "react";
@@ -38,6 +39,9 @@ export const Settings = () => {
   return (
     <Layout containerClassName="p-5 [overflow-anchor:none]">
       <DocumentTitle parts={[tNav('sidebar.settings')]} />
+      <div className="mb-5" data-testid="settings-backup-restore">
+        <BackupRestoreSettings />
+      </div>
       {/*
         CSS columns packs uneven card heights (masonry). Grid left large gaps in each row.
         overflow-anchor + break-inside-avoid keep focus/clicks from reshuffling scroll.
@@ -52,6 +56,7 @@ export const Settings = () => {
         <MasonryItem><LanguageSettings /></MasonryItem>
         <MasonryItem><ThemeSettings /></MasonryItem>
         <MasonryItem><BrandingSettingsCard /></MasonryItem>
+        <MasonryItem><CustomerDisplaySettingsCard /></MasonryItem>
         <MasonryItem><TranslateReceiptsSettingsCard /></MasonryItem>
         <MasonryItem><Printersettings /></MasonryItem>
         <MasonryItem><PrintOptionsSettingsCard /></MasonryItem>
@@ -72,7 +77,6 @@ export const Settings = () => {
         {__BUILD_MODULE_quick__ && (
           <MasonryItem><ScaleBarcodeSettings /></MasonryItem>
         )}
-        <MasonryItem><TableSelectionSettings /></MasonryItem>
         <MasonryItem><InventorySettingsCard /></MasonryItem>
         <MasonryItem><ItemsVisibilityConfig /></MasonryItem>
       </div>

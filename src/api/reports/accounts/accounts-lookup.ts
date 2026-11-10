@@ -8,7 +8,7 @@ import {
 } from "@/components/accounts/reports.utils.ts";
 
 export interface AccountListItem {
-  id?: string;
+  id: string;
   code: string;
   name: string;
   headType?: AccountHeadType;
@@ -55,13 +55,13 @@ export const listAccounts = async (
   );
 
   let accounts: AccountListItem[] = (rows || []).map((account: {
-    id?: {toString(): string};
+    id?: unknown;
     code?: string;
     name?: string;
     is_active?: boolean;
     group?: {head_type?: string};
   }) => ({
-    id: account.id?.toString(),
+    id: account.id == null ? "" : String(account.id),
     code: String(account.code || ""),
     name: String(account.name || ""),
     headType: getAccountHeadType(account),

@@ -13,7 +13,13 @@
       "address": "Addr.",
       "secondaryAddress": "Secondary Addr.",
       "points": "Points"
-    }
+    },
+    "save": "Save",
+    "remove": "Remove from order",
+    "saved": "Customer saved",
+    "saveFailed": "Could not save customer",
+    "attachFailed": "Could not attach customer to this order",
+    "removeFailed": "Could not remove customer from this order"
   },
   "filters": {
     "status": "Select order status",

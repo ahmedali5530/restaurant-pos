@@ -16,9 +16,33 @@ import {calculateOrderItemPrice} from "@/lib/cart.ts";
 import {getOrderItemTaxAmount, getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {getOrderItemDisplayLineTotal, getOrderItemModifierDisplayPrice} from "@/lib/order-item-display.ts";
 import {toJsDate} from "@/lib/datetime.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
+import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderCartDiscountAmount, getOrderLineDiscountTotal, getOrderSettlementFigures, calculateOrderNetSales, aggregateOrderDiscountBreakdown} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {DAY_PARTS, getDayPartLabel, type DayPartLabel} from "@/utils/dayParts";
+
+/** Modifier row shape used by Daily Sales Summary / Product Mix Summary (summary-style). */
+export type DailyCategoryMixModifier = {
+  name: string;
+  depth: number;
+  path: string;
+  quantity: number;
+  price: number;
+};
+
+export type DailyCategoryMixDish = {
+  key: string;
+  name: string;
+  modifiers: DailyCategoryMixModifier[];
+  total: number;
+  quantity: number;
+};
+
+export type DailyCategoryMixCategory = {
+  name: string;
+  total: number;
+  quantity: number;
+  dishes: DailyCategoryMixDish[];
+};
 
 export const getOrderFigures = (order: Order): OrderFigures => {
   const filteredItems = getOrderFilteredItems(order) ?? [];
@@ -668,4 +692,162 @@ export const aggregateAccumulatedModifiersSummary = (
   return Array.from(summaryMap.values()).sort((a, b) =>
     a.modifierName.localeCompare(b.modifierName),
   );
+};
+
+/**
+ * Walk modifier groups the same way as Daily Sales Summary product mix
+ * (name/path/depth + raw selected.price; quantity filled by the caller).
+ */
+export const getOrderItemModifierRows = (modifiers: any[] = []): DailyCategoryMixModifier[] => {
+  const rows: DailyCategoryMixModifier[] = [];
+
+  const walkGroups = (groups: any[] = [], depth = 1, parentPath = "") => {
+    groups.forEach(group => {
+      (group?.selectedModifiers ?? []).forEach((selected: any) => {
+        const modifierName = String(selected?.dish?.name || selected?.name || "").trim();
+        if (!modifierName) {
+          return;
+        }
+
+        const currentPath = parentPath ? `${parentPath}>${modifierName}` : modifierName;
+        rows.push({
+          name: modifierName,
+          depth,
+          path: currentPath,
+          quantity: 0,
+          price: selected.price,
+        });
+        walkGroups(selected?.selectedGroups ?? [], depth + 1, currentPath);
+      });
+    });
+  };
+
+  walkGroups(modifiers);
+  return rows;
+};
+
+type DailyCategoryMixAggregate = {
+  total: number;
+  quantity: number;
+  dishes: Record<string, {
+    name: string;
+    modifiers: Record<string, DailyCategoryMixModifier>;
+    total: number;
+    quantity: number;
+  }>;
+};
+
+/**
+ * Category → dish → modifier mix matching Daily Sales Summary
+ * (`item.category`, dish keyed by name, amount = calculateOrderItemPrice).
+ */
+export const aggregateDailyCategoryMix = (
+  orders: Order[],
+  options: {
+    filters?: ProductMixFilters;
+    uncategorizedLabel?: string;
+    unknownItemLabel?: string;
+  } = {},
+): DailyCategoryMixCategory[] => {
+  const filters = options.filters ?? {};
+  const uncategorizedLabel = options.uncategorizedLabel ?? "Uncategorized";
+  const unknownItemLabel = options.unknownItemLabel ?? "Unknown item";
+  const selectedModifierIds = new Set(filters.modifierIds ?? []);
+  const categoryMixMap: Record<string, DailyCategoryMixAggregate> = {};
+
+  filterOrdersByProductMix(orders, filters).forEach(order => {
+    getFilteredOrderItems(order, filters).forEach(item => {
+      if (selectedModifierIds.size > 0) {
+        const hasMatchingModifier = walkSelectedModifiers(item.modifiers, 1, item, false)
+          .some(modifier => selectedModifierIds.has(modifier.modifierId));
+        if (!hasMatchingModifier) {
+          return;
+        }
+      }
+
+      const categoryName = String(item?.category || uncategorizedLabel);
+      const dishName = String(item?.item?.name || unknownItemLabel);
+      const itemTotal = safeNumber(calculateOrderItemPrice(item));
+      const itemQuantity = safeNumber(item?.quantity);
+      const modifiers = getOrderItemModifierRows(item?.modifiers ?? []);
+      const dishKey = dishName;
+
+      if (!categoryMixMap[categoryName]) {
+        categoryMixMap[categoryName] = {
+          total: 0,
+          quantity: 0,
+          dishes: {},
+        };
+      }
+      const category = categoryMixMap[categoryName];
+
+      if (!category.dishes[dishKey]) {
+        category.dishes[dishKey] = {
+          name: dishName,
+          modifiers: {},
+          total: 0,
+          quantity: 0,
+        };
+      }
+
+      category.total += itemTotal;
+      category.quantity += itemQuantity;
+      category.dishes[dishKey].total += itemTotal;
+      category.dishes[dishKey].quantity += itemQuantity;
+      modifiers.forEach(modifier => {
+        if (!category.dishes[dishKey].modifiers[modifier.path]) {
+          category.dishes[dishKey].modifiers[modifier.path] = {
+            ...modifier,
+            quantity: 0,
+          };
+        }
+        category.dishes[dishKey].modifiers[modifier.path].quantity += itemQuantity;
+      });
+    });
+  });
+
+  return Object.entries(categoryMixMap)
+    .map(([name, category]) => {
+      const dishes = Object.entries(category.dishes)
+        .map(([key, dish]) => ({
+          key,
+          ...dish,
+          modifiers: Object.values(dish.modifiers).sort((a, b) => a.path.localeCompare(b.path)),
+        }))
+        .sort((a, b) => b.total - a.total);
+      return {
+        name,
+        total: category.total,
+        quantity: category.quantity,
+        dishes,
+      };
+    })
+    .sort((a, b) => b.total - a.total);
+};
+
+/** Exclusive sales denominator for share % — same basis as Daily Sales Summary. */
+export const sumOrdersExclusiveSales = (orders: Order[]): number =>
+  orders.reduce((sum, order) => sum + getOrderSettlementFigures(order).itemsTotal, 0);
+
+/**
+ * Exclusive sales for a filtered product-mix set: sum of line prices on items
+ * that participate in the mix (matches Daily when filters are empty).
+ */
+export const sumFilteredExclusiveSales = (
+  orders: Order[],
+  filters: ProductMixFilters = {},
+): number => {
+  const selectedModifierIds = new Set(filters.modifierIds ?? []);
+  return filterOrdersByProductMix(orders, filters).reduce((sum, order) => {
+    return sum + getFilteredOrderItems(order, filters).reduce((itemSum, item) => {
+      if (selectedModifierIds.size > 0) {
+        const hasMatchingModifier = walkSelectedModifiers(item.modifiers, 1, item, false)
+          .some(modifier => selectedModifierIds.has(modifier.modifierId));
+        if (!hasMatchingModifier) {
+          return itemSum;
+        }
+      }
+      return itemSum + safeNumber(calculateOrderItemPrice(item));
+    }, 0);
+  }, 0);
 };

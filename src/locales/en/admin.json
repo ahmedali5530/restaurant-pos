@@ -496,7 +496,7 @@
     "printModeText": "Text (ESC/POS)",
     "printModeRaster": "Raster (image)",
     "paperWidthMm": "Paper width",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 72mm = 512 dots, 80mm = 576 dots).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Raster threshold",
@@ -532,7 +532,14 @@
     "modifierOptionSaleLimit": "Sale limit (this dish)",
     "kraItemClsCd": "KRA item class code",
     "kraTaxTyCd": "KRA tax type (A–E)",
-    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults."
+    "kraFiscalHint": "Optional Kenya eTIMS overrides. Leave blank to use the KRA provider defaults.",
+    "showOrderType": "Show order type",
+    "showCustomer": "Show customer",
+    "showTableName": "Show table name",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Show item total",
+    "accumulateSameItems": "Accumulate same items",
+    "accumulateSameItemsHint": "Merge identical dishes (same modifiers and notes) into one line with combined quantity on this receipt type."
   },
   "dishView": {
     "detailsTitle": "Dish details",
@@ -819,6 +826,7 @@
       "reports.order_fiscal": "Order Fiscal",
       "reports.expense": "Expense",
       "reports.activity": "Activity",
+      "reports.changefeed": "Table Changefeed",
       "reports.product_mix_weekly": "Product Mix Weekly",
       "reports.product_mix_summary": "Product Mix Summary",
       "reports.products_hourly": "Products Hourly",
@@ -1052,7 +1060,11 @@
       "integrations.queue": "Integration queue",
       "integrations.toggle_provider": "Toggle integration provider",
       "integrations.open_configuration": "Open integration configuration",
-      "integrations.save_configuration": "Save integration configuration"
+      "integrations.save_configuration": "Save integration configuration",
+      "settings.backup": "Settings backup",
+      "settings.restore": "Settings restore",
+      "settings.database": "Database backup",
+      "settings.customer_display": "Customer display"
     }
   },
   "securityAlerts": {

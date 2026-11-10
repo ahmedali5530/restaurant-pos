@@ -93,7 +93,8 @@
     "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",
     "alreadyClosed": "Diese Bestellung ist bereits abgeschlossen.",
-    "notOwner": "Diese Bestellung wird von einem anderen Terminal bearbeitet."
+    "notOwner": "Diese Bestellung wird von einem anderen Terminal bearbeitet.",
+    "skipFinalPrint": "Abschlussbeleg überspringen"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",
@@ -135,5 +136,6 @@
     "paymentReceived": "{{gateway}}-Zahlung erhalten.",
     "payWithCard": "Mit Karte bezahlen",
     "payWithRazorpay": "Mit Razorpay bezahlen"
-  }
+  },
+  "invoiceAssigning": "Bestellung gespeichert — Rechnungsnummer wird noch vergeben…"
 }

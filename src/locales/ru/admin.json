@@ -433,7 +433,7 @@
     "printModeText": "Текст (ESC/POS)",
     "printModeRaster": "Растр (изображение)",
     "paperWidthMm": "Ширина бумаги",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Физическая ширина бумаги для растра и центрирования изображений (58мм = 384 точки, 72мм = 512 точек, 80мм = 576 точек).",
     "paperWidth58": "58 мм",
     "paperWidth80": "80 мм",
     "rasterThreshold": "Порог растра",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
     "kraItemClsCd": "Код классификации товара KRA",
     "kraTaxTyCd": "Тип налога KRA (A–E)",
-    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию."
+    "kraFiscalHint": "Необязательные переопределения eTIMS Кении. Оставьте пустым, чтобы использовать значения провайдера KRA по умолчанию.",
+    "showOrderType": "Показывать тип заказа",
+    "showCustomer": "Показывать клиента",
+    "showTableName": "Показывать название стола",
+    "paperWidth72": "72 мм",
+    "showItemTotal": "Показать итог позиции",
+    "accumulateSameItems": "Суммировать одинаковые позиции",
+    "accumulateSameItemsHint": "Объединять одинаковые блюда (те же модификаторы и заметки) в одну строку с суммарным количеством."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Фискализация заказов",
       "reports.expense": "Расходы",
       "reports.activity": "Активность",
+      "reports.changefeed": "Changefeed таблиц",
       "reports.product_mix_weekly": "Ассортимент за неделю",
       "reports.product_mix_summary": "Сводка по ассортименту",
       "reports.products_hourly": "Товары по часам",
@@ -835,7 +843,11 @@
       "reports": "Отчёты",
       "inventory": "Склад",
       "settings": "Настройки",
-      "admin.catalog_publish": "Публикация каталога"
+      "admin.catalog_publish": "Публикация каталога",
+      "settings.backup": "Резервная копия настроек",
+      "settings.restore": "Восстановление настроек",
+      "settings.database": "Резервная копия базы",
+      "settings.customer_display": "Экран клиента"
     }
   },
   "discountEngine": {

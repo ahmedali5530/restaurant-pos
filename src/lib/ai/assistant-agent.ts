@@ -4,8 +4,10 @@ import {
   callOpenAIChat,
   type AiTask,
   type OpenAIChatMessage,
+  type OpenAIContentPart,
   type OpenAIToolDefinition,
 } from "@/lib/openai.service.ts";
+import {buildAnalyzeContentParts} from "@/lib/ai/assistant-file-preview.ts";
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
 import {getAiAssistantSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
@@ -18,8 +20,11 @@ import {type AiChartSpec, dedupeCharts} from "@/lib/ai/charts.ts";
 import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
 import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
 import {tryDishRecipeFastPath} from "@/lib/ai/dish-recipe-fast-path.ts";
+import {tryChangefeedFastPath} from "@/lib/ai/changefeed-fast-path.ts";
 import {sanitizeAssistantAnswer} from "@/lib/ai/answer-sanitize.ts";
 import {formatDishRecipeAsAnswer} from "@/api/reports/sales/dish-recipe.ts";
+import {formatChangefeedAsAnswer} from "@/api/reports/operations/changefeed.ts";
+import {isChangefeedPrompt} from "@/lib/ai/changefeed-query.ts";
 import {LOOKUP_USER_GUIDE_TOOL_NAME} from "@/lib/ai/tools/user-guide-tool-definition.ts";
 import {
   isUserGuideHowToPrompt,
@@ -30,8 +35,14 @@ import {
   appendDeferredToolResults,
   ensureToolCallResultsComplete,
 } from "@/lib/ai/assistant-tool-messages.ts";
+import type {AssistantPersonaId} from "@/lib/ai/assistant-personas.ts";
+import {
+  executeWebSearch,
+  WEB_SEARCH_TOOL_NAME,
+} from "@/lib/ai/tools/web-search-tool.ts";
 
 const MAX_ITERATIONS = 10;
+const MAX_DEEP_ITERATIONS = 16;
 const WRITE_TOOL_NAME_SET = new Set(listWriteToolNames());
 
 /**
@@ -72,6 +83,20 @@ export type AssistantAgentOptions = {
    * the model must act on the latest prompt alone.
    */
   conversationHistory?: {role: "user" | "assistant"; content: string}[];
+  /**
+   * Optional vision images (JPEG data URLs) for the latest user turn only.
+   * Not persisted in conversation history.
+   */
+  userImageUrls?: string[];
+  /** Personality profile (analyst / audit / brief / guide). */
+  personaId?: AssistantPersonaId | string;
+  /** Deeper investigation: analysis task, full prompts, web_search, more tool loops. */
+  deepResearch?: boolean;
+  /**
+   * Credential-free logged-in user block for personalization
+   * (name, role, shift, linked HR employee). Prefer formatAssistantUserContext().
+   */
+  userContextBlock?: string | null;
 };
 
 export type AssistantAgentResult =
@@ -90,9 +115,17 @@ type ResolvedToolset = {
   compact: boolean;
 };
 
-const resolveToolset = (prompt: string, allowedModules: string[]): ResolvedToolset => {
-  const compact = isLocalAiReportCompactMode("reporting");
-  const {tools, domains} = selectAssistantToolsForPrompt(prompt, allowedModules, {compact});
+const resolveToolset = (
+  prompt: string,
+  allowedModules: string[],
+  options: {deepResearch?: boolean; task?: AiTask} = {},
+): ResolvedToolset => {
+  const task = options.task ?? (options.deepResearch ? "analysis" : "reporting");
+  const compact = options.deepResearch ? false : isLocalAiReportCompactMode(task);
+  const {tools, domains} = selectAssistantToolsForPrompt(prompt, allowedModules, {
+    compact,
+    deepResearch: options.deepResearch,
+  });
   return {tools, domains, compact};
 };
 
@@ -113,16 +146,25 @@ async function runLoop(
   options: AssistantAgentOptions & {tools: OpenAIToolDefinition[]},
 ): Promise<AssistantAgentResult> {
   const {tools} = options;
-  const context: ExecuteToolContext = {charts: []};
+  const context: ExecuteToolContext = {
+    charts: [],
+    allowedModules: options.allowedModules,
+  };
 
-  for (let iteration = 0; iteration < MAX_ITERATIONS; iteration++) {
+  const maxIterations = options.deepResearch ? MAX_DEEP_ITERATIONS : MAX_ITERATIONS;
+  for (let iteration = 0; iteration < maxIterations; iteration++) {
     const safeMessages = ensureToolCallResultsComplete(messages);
     if (safeMessages !== messages) {
       messages.length = 0;
       messages.push(...safeMessages);
     }
 
-    const response = await callOpenAIChat({messages, tools, task: options.task ?? "reporting"});
+    const response = await callOpenAIChat({
+      messages,
+      tools,
+      task: options.task ?? "reporting",
+      reasoningEffort: options.deepResearch ? "high" : undefined,
+    });
     const choice = response.choices[0]?.message;
 
     if (!choice) {
@@ -199,6 +241,21 @@ async function runLoop(
         continue;
       }
 
+      if (name === WEB_SEARCH_TOOL_NAME) {
+        try {
+          const query = typeof args.query === "string" ? args.query : "";
+          const result = await executeWebSearch(query);
+          messages.push({role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result)});
+        } catch (err) {
+          messages.push({
+            role: "tool",
+            tool_call_id: toolCall.id,
+            content: JSON.stringify({error: err instanceof Error ? err.message : "Web search failed"}),
+          });
+        }
+        continue;
+      }
+
       try {
         const result = await executeAiReportTool(db, name, args, context);
         messages.push({role: "tool", tool_call_id: toolCall.id, content: JSON.stringify(result)});
@@ -227,7 +284,17 @@ export async function runAiAssistantAgent(
     throw new Error("Prompt is empty.");
   }
 
-  const {tools, domains, compact} = resolveToolset(trimmed, options.allowedModules);
+  const deepResearch = Boolean(options.deepResearch);
+  const imageUrls = (options.userImageUrls ?? []).filter(Boolean);
+  const hasVision = imageUrls.length > 0;
+  // Vision profiles (ocr) are required for image/PDF analyze; deep research uses analysis.
+  const task: AiTask = options.task
+    ?? (hasVision ? "ocr" : deepResearch ? "analysis" : "reporting");
+
+  const {tools, domains, compact} = resolveToolset(trimmed, options.allowedModules, {
+    deepResearch,
+    task,
+  });
   const writeToolNames = tools
     .map(tool => tool.function.name)
     .filter(name => WRITE_TOOL_NAME_SET.has(name));
@@ -238,16 +305,23 @@ export async function runAiAssistantAgent(
     language: options.language,
     pathname: options.pathname,
     suggestedChapter,
+    personaId: options.personaId,
+    deepResearch,
+    userContextBlock: options.userContextBlock,
   });
 
   const priorContext: OpenAIChatMessage[] = (options.conversationHistory ?? [])
     .filter(entry => entry.content?.trim())
     .map(entry => ({role: entry.role, content: entry.content.trim()}));
 
+  const userContent: string | OpenAIContentPart[] = hasVision
+    ? buildAnalyzeContentParts(trimmed, imageUrls)
+    : trimmed;
+
   const turnMessages = (extra?: OpenAIChatMessage[]): OpenAIChatMessage[] => [
     {role: "system", content: systemContent},
     ...priorContext,
-    {role: "user", content: trimmed},
+    {role: "user", content: userContent},
     ...(extra ?? []),
   ];
 
@@ -261,7 +335,36 @@ export async function runAiAssistantAgent(
     messages: turnMessages([...(extra ?? []), {role: "assistant", content: answer}]),
   });
 
-  const skipDataFastPaths = isUserGuideHowToPrompt(trimmed);
+  // Changefeed MUST run before any other path and NEVER fall through to the LLM
+  // tool loop. An empty/missing tool catalog makes the model invent
+  // "get_table_changefeed is not in my catalog" even when reports perms are fine.
+  if (isChangefeedPrompt(trimmed)) {
+    try {
+      const changefeedFastPath = await tryChangefeedFastPath(db, trimmed, {
+        onToolStart: options.onToolStart,
+        allowedModules: options.allowedModules,
+      });
+      if (changefeedFastPath?.directAnswer?.trim()) {
+        return finishAnswer(changefeedFastPath.directAnswer.trim());
+      }
+      if (changefeedFastPath?.result != null) {
+        const fallback = formatChangefeedAsAnswer(changefeedFastPath.result as any);
+        if (fallback.trim()) {
+          return finishAnswer(fallback.trim());
+        }
+      }
+      return finishAnswer(
+        "Changefeed query returned no usable result. Try: `pull changefeed for menu_item`.",
+      );
+    } catch (err) {
+      return finishAnswer(
+        `Changefeed query failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
+  // Skip tabular fast-paths when the user attached images/PDF pages to analyze.
+  const skipDataFastPaths = hasVision || isUserGuideHowToPrompt(trimmed);
 
   if (!skipDataFastPaths) {
     const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmed, {
@@ -271,7 +374,7 @@ export async function runAiAssistantAgent(
       const response = await callOpenAIChat({
         messages: fastPathMessages(inventoryFastPath.instruction),
         tools: [],
-        task: options.task ?? "reporting",
+        task,
       });
       const answer = messageText(response.choices[0]?.message?.content);
       if (!answer) {
@@ -287,7 +390,7 @@ export async function runAiAssistantAgent(
       const response = await callOpenAIChat({
         messages: fastPathMessages(employeeFastPath.instruction),
         tools: [],
-        task: options.task ?? "reporting",
+        task,
       });
       const answer = messageText(response.choices[0]?.message?.content);
       if (!answer) {
@@ -306,7 +409,7 @@ export async function runAiAssistantAgent(
       const response = await callOpenAIChat({
         messages: fastPathMessages(dishRecipeFastPath.instruction),
         tools: [],
-        task: options.task ?? "reporting",
+        task,
       });
       const answer = sanitizeAssistantAnswer(messageText(response.choices[0]?.message?.content));
       if (!answer) {
@@ -321,7 +424,18 @@ export async function runAiAssistantAgent(
     }
   }
 
-  return runLoop(db, t, turnMessages(), {...options, prompt: trimmed, tools});
+  // Safety net if fast-path was skipped but prompt is still a changefeed ask.
+  const loopTools = isChangefeedPrompt(trimmed)
+    ? tools.filter(tool => tool.function.name === "get_table_changefeed")
+    : tools;
+
+  return runLoop(db, t, turnMessages(), {
+    ...options,
+    prompt: trimmed,
+    tools: loopTools,
+    task,
+    deepResearch,
+  });
 }
 
 /**
@@ -339,7 +453,10 @@ export async function resumeAiAssistantAgent(
   options: AssistantAgentOptions,
 ): Promise<AssistantAgentResult> {
   const prompt = options.prompt?.trim() || extractLastUserPrompt(messages);
-  const {tools} = resolveToolset(prompt, options.allowedModules);
+  const {tools} = resolveToolset(prompt, options.allowedModules, {
+    deepResearch: options.deepResearch,
+    task: options.task,
+  });
 
   const content = outcome.confirmed
     ? JSON.stringify({applied: true, summary: outcome.summary ?? null})

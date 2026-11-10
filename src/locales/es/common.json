@@ -165,7 +165,8 @@
     "multipleMatches": "Varios registros coinciden con las columnas seleccionadas.",
     "unsupportedMatchField": "No se puede coincidir por la columna \"{{field}}\".",
     "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es {{max}}.",
-    "ambiguousDishNumber": "Varios platos comparten el número \"{{number}}\". Indique id (menu_item:…) o un nombre único."
+    "ambiguousDishNumber": "Varios platos comparten el número \"{{number}}\". Indique id (menu_item:…) o un nombre único.",
+    "ambiguousMatch": "Varios registros coinciden con {{key}}. Indique id para actualizar el registro correcto."
   },
   "loading": "Cargando...",
   "dataImport": {
@@ -261,12 +262,13 @@
       "listUsers": "Listar todos los usuarios del POS",
       "inventoryStock": "Mostrar artículos de inventario bajo el nivel de reorden",
       "howToPurchase": "¿Cómo publico una compra de inventario?",
-      "cleanseCsv": "Adjunta un CSV desordenado para limpiarlo para AI Import"
+      "cleanseCsv": "Adjunta un CSV desordenado para limpiarlo para AI Import",
+      "analyzeCsv": "Adjunte un CSV y pida al asistente que lo analice"
     },
     "unknownConfig": "Configuración de importación desconocida para la vista previa.",
     "passwordWillBeSet": "La contraseña se establecerá al confirmar",
     "cleanseTitle": "Limpiar archivo de importación",
-    "attachFile": "Adjuntar CSV/Excel",
+    "attachFile": "Adjuntar archivo",
     "cleanseDomain": "Dominio de importación",
     "cleanseRun": "Limpiar y preparar CSV",
     "cleanseDownload": "Descargar CSV corregido",
@@ -300,6 +302,30 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "Adjuntar CSV/Excel/PDF/imagen",
+    "fileMode": "Qué hacer con el archivo",
+    "fileModeCleanse": "Limpiar para importar",
+    "fileModeAnalyze": "Analizar en el chat",
+    "analyzeHint": "Prepare una vista previa (texto CSV/Excel o páginas PDF/imagen) y pregunte en el chat.",
+    "analyzePrepare": "Preparar para preguntas",
+    "analyzeReady": "{{file}} está listo ({{rows}} filas en la vista previa). Haga su pregunta abajo.",
+    "analyzeUserLabel": "[Archivo: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} está listo ({{pages}} imagen(es) de página). Haga su pregunta abajo.",
+    "personaLabel": "Personalidad",
+    "deepResearch": "Investigación profunda",
+    "deepResearchHint": "Perfil de análisis más fuerte, prompts completos, más bucles de herramientas y búsqueda web para hechos externos.",
+    "personas": {
+      "analyst": "Analista",
+      "analystHint": "Informes claros con widgets KPI",
+      "audit": "Auditoría",
+      "auditHint": "Suspicaz y duro — útil con cifras malas",
+      "brief": "Breve",
+      "briefHint": "Respuestas cortas de operaciones",
+      "guide": "Guía",
+      "guideHint": "Ayuda paciente para pantallas y flujos"
+    },
+    "settingsTitle": "Ajustes del asistente",
+    "analyzeAttached": "{{file}} listo — pregunte abajo"
   }
 }

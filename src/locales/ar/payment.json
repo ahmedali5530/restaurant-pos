@@ -93,7 +93,8 @@
     "exactCardAmount": "تمت إضافة المبلغ الدقيق للدفع بالبطاقة",
     "tempAlreadyPrinted": "تمت طباعة الفاتورة المؤقتة مسبقاً",
     "alreadyClosed": "هذا الطلب مغلق بالفعل.",
-    "notOwner": "يتم التعامل مع هذا الطلب من جهاز آخر."
+    "notOwner": "يتم التعامل مع هذا الطلب من جهاز آخر.",
+    "skipFinalPrint": "تخطي الإيصال النهائي"
   },
   "remote": {
     "remoteLabel": "{{name}} (عن بُعد)",
@@ -135,5 +136,6 @@
     "paymentReceived": "تم استلام دفع {{gateway}}.",
     "payWithCard": "الدفع بالبطاقة",
     "payWithRazorpay": "الدفع عبر Razorpay"
-  }
+  },
+  "invoiceAssigning": "تم حفظ الطلب — رقم الفاتورة قيد التعيين…"
 }

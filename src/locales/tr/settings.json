@@ -145,10 +145,6 @@
     "saved": "Menü ayarları kaydedildi",
     "saveFailed": "Menü ayarları kaydedilemedi"
   },
-  "tableSelection": {
-    "title": "Menüden masa seçimini gizle",
-    "description": "Masa seçimini atlayın ve menüyü doğrudan açın. Yalnızca bu cihaza uygulanır. Paket servis tabanlı sipariş için uygundur"
-  },
   "autoCheckClose": {
     "title": "Otomatik adisyon kapatma",
     "description": "Kapanış döngüsü bitiş saatinde açık masa adisyonlarını otomatik olarak kapatır. Teslimat siparişleri hariç tutulur. Kapanmadan 1 dakika önce bir uyarı görünür.",
@@ -393,5 +389,58 @@
     "priceDivisor": "Fiyat böleni (küçük→büyük)",
     "layoutHint": "Düzen: {{example}}",
     "resetDefaults": "Varsayılana dön (açık kalsın)"
+  },
+  "backup": {
+    "title": "Yedekleme ve geri yükleme",
+    "description": "Uygulama ayarlarını ve bu tarayıcının tercihlerini veya tüm veritabanını dışa aktarın ya da geri yükleyin.",
+    "offline": "Çevrimdışıyken yedekleme veya geri yükleme yapılamaz",
+    "offlineHint": "Sunucuya bağlıyken kullanılabilir",
+    "settings": {
+      "title": "Ayarlar",
+      "description": "Veritabanındaki uygulama ayarları ile bu tarayıcının dili, görünümü, dokunmatik klavyesi ve POS modu. Açık siparişler ve sepet değişmez.",
+      "export": "Ayarları dışa aktar",
+      "restore": "Ayarları geri yükle",
+      "exportDescription": "Ayar yedeğini dışa aktar",
+      "restoreDescription": "Yedekten ayarları geri yükle",
+      "exported": "Ayar yedeği indirildi",
+      "exportFailed": "Ayarlar dışa aktarılamadı",
+      "restored": "Ayarlar geri yüklendi",
+      "restoreFailed": "Ayarlar geri yüklenemedi",
+      "invalidFile": "Bu dosya geçerli bir ayar yedeği değil",
+      "confirmTitle": "Ayarlar geri yüklensin mi?",
+      "confirmMessage": "Tüm uygulama ayarları bu dosyayla değiştirilsin ve dil, görünüm, dokunmatik ve POS modu bu tarayıcıya uygulansın mı? Açık siparişler ve sepet değişmez."
+    },
+    "database": {
+      "title": "Tam veritabanı",
+      "description": "Siparişler, stok, katalog ve ayarlar dahil tüm Surreal veritabanını (.surql) indirin veya geri yükleyin. Dosyadaki kayıtlar eşleşen satırların üzerine yazar; yalnızca canlı veritabanındaki satırlar korunur.",
+      "export": "Veritabanını dışa aktar",
+      "restore": "Veritabanını geri yükle",
+      "exportDescription": "Tam veritabanı yedeğini dışa aktar",
+      "restoreDescription": "Tam veritabanını yedekten geri yükle",
+      "exported": "Veritabanı yedeği indirildi",
+      "exportFailed": "Veritabanı dışa aktarılamadı",
+      "restored": "Veritabanı geri yüklendi",
+      "restoreFailed": "Veritabanı geri yüklenemedi",
+      "forbidden": "Veritabanı yedeği için izniniz yok",
+      "confirmTitle": "Tam veritabanı geri yüklensin mi?",
+      "confirmMessage": "Bu .surql dosyasını canlı veritabanına aktarın. Dosyadaki kayıtlar eşleşen satırların üzerine yazar; yalnızca canlıda olanlar korunur. Bu terminalin katalog önbelleği ardından yenilenir."
+    }
+  },
+  "customerDisplay": {
+    "title": "Müşteri ekranı",
+    "description": "Müşteri ekranında sipariş yokken karşılama metnini veya görsel/video reklam listesini göster.",
+    "enabled": "Boştayken reklamları göster",
+    "rotationInterval": "Görsel süresi (saniye)",
+    "rotationHint": "Her görselin ekranda kalma süresi. Videolar bitince ilerler.",
+    "pickMedia": "Görsel veya video ekle",
+    "mediaHint": "PNG, JPEG, GIF, WebP veya yaygın video biçimleri. Dosya başına en fazla {{size}}.",
+    "noMedia": "Henüz medya yüklenmedi.",
+    "remove": "Kaldır",
+    "updated": "Müşteri ekranı ayarları güncellendi",
+    "saveDescription": "Müşteri ekranı ayarlarını kaydet",
+    "loadFailed": "Müşteri ekranı ayarları yüklenemedi",
+    "saveFailed": "Müşteri ekranı ayarları kaydedilemedi",
+    "tooLarge": "Dosya maksimum boyutu aşıyor: {{size}}.",
+    "invalidType": "Bir görsel veya video dosyası kullanın."
   }
 }

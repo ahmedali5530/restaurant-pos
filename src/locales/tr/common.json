@@ -165,7 +165,8 @@
     "multipleMatches": "Seçilen sütunlarla birden fazla kayıt eşleşti.",
     "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz.",
     "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}.",
-    "ambiguousDishNumber": "\"{{number}}\" numarası birden fazla üründe var. Doğru ürün için id (menu_item:…) veya benzersiz ad verin."
+    "ambiguousDishNumber": "\"{{number}}\" numarası birden fazla üründe var. Doğru ürün için id (menu_item:…) veya benzersiz ad verin.",
+    "ambiguousMatch": "{{key}} ile birden fazla kayıt eşleşiyor. Doğru kaydı güncellemek için id verin."
   },
   "loading": "Yükleniyor...",
   "dataImport": {
@@ -261,12 +262,13 @@
       "listUsers": "Tüm POS kullanıcılarını listele",
       "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster",
       "howToPurchase": "Envanter satın alma kaydını nasıl oluştururum?",
-      "cleanseCsv": "AI Import için dağınık bir CSV ekleyip temizleyin"
+      "cleanseCsv": "AI Import için dağınık bir CSV ekleyip temizleyin",
+      "analyzeCsv": "CSV ekleyip asistanın analiz etmesini isteyin"
     },
     "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
     "passwordWillBeSet": "Onaylandığında şifre ayarlanacak",
     "cleanseTitle": "İçe aktarma dosyasını temizle",
-    "attachFile": "CSV/Excel ekle",
+    "attachFile": "Dosya ekle",
     "cleanseDomain": "İçe aktarma alanı",
     "cleanseRun": "Temizle ve CSV hazırla",
     "cleanseDownload": "Düzeltilmiş CSV indir",
@@ -300,6 +302,30 @@
       "scheduled_shifts": "Scheduled shifts",
       "time_entries": "Attendance",
       "accounts": "Chart of accounts"
-    }
+    },
+    "attachTitle": "CSV/Excel/PDF/görüntü ekle",
+    "fileMode": "Dosya ile ne yapılsın",
+    "fileModeCleanse": "İçe aktarım için temizle",
+    "fileModeAnalyze": "Sohbette analiz et",
+    "analyzeHint": "Önizleme hazırlayın (CSV/Excel metni veya PDF/görüntü sayfaları), sonra sohbette sorun.",
+    "analyzePrepare": "Sorular için hazırla",
+    "analyzeReady": "{{file}} hazır (önizlemede {{rows}} satır). Sorunuzu aşağıya yazın.",
+    "analyzeUserLabel": "[Dosya: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} hazır ({{pages}} sayfa görüntüsü). Sorunuzu aşağıya yazın.",
+    "personaLabel": "Kişilik",
+    "deepResearch": "Derin araştırma",
+    "deepResearchHint": "Daha güçlü analiz profili, daha dolu istemler, daha fazla araç döngüsü ve dış gerçekler için web araması.",
+    "personas": {
+      "analyst": "Analist",
+      "analystHint": "KPI widget’lı net raporlar",
+      "audit": "Denetim",
+      "auditHint": "Şüpheci ve sert — kötü rakamlar için",
+      "brief": "Kısa",
+      "briefHint": "Kısa operasyon cevapları",
+      "guide": "Rehber",
+      "guideHint": "Ekranlar ve akışlar için sabırlı yardım"
+    },
+    "settingsTitle": "Asistan ayarları",
+    "analyzeAttached": "{{file}} hazır — aşağıya sorun"
   }
 }

@@ -280,7 +280,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_suppliers",
-      description: "Inventory suppliers.",
+      description: "Inventory suppliers (rows include id for propose_update_*/propose_delete_*).",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
     },
   },
@@ -288,7 +288,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_locations",
-      description: "Inventory stock locations.",
+      description: "Inventory stock locations (rows include id for propose_update_*/propose_delete_*).",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number", default: 50}}},
     },
   },
@@ -308,6 +308,26 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
       parameters: dateOnly,
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_table_changefeed",
+      description:
+        "SHOW CHANGES for allowlisted FOH/Manage tables (menu_item, order, …). Always call when user asks for changefeed — not for normal reports.",
+      parameters: {
+        type: "object",
+        properties: {
+          table: {type: "string"},
+          since: {type: "string"},
+          limit: {type: "number"},
+          record_id: {type: "string"},
+          compact: {type: "boolean"},
+        },
+        required: ["table"],
+      },
+    },
+  },
+
   {
     type: "function",
     function: {
@@ -541,7 +561,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_staff",
-      description: "List staff for name lookup.",
+      description: "List staff for name lookup (rows include id for propose_update_*/propose_delete_*).",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
     },
   },
@@ -549,7 +569,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_categories",
-      description: "List menu categories.",
+      description: "List menu categories (rows include id for propose_update_*/propose_delete_*).",
       parameters: {type: "object", properties: {limit: {type: "number"}}},
     },
   },
@@ -557,7 +577,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_menu_items",
-      description: "List active menu products with id/number/name (not recipes). Prefer id for propose_update_dishes.",
+      description: "List active menu products with id/number/name (not recipes). Prefer id for propose_update_dishes / propose_delete_dishes.",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
     },
   },
@@ -587,7 +607,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_items",
-      description: "List inventory items for lookup.",
+      description: "List inventory items for lookup (rows include id for propose_update_*/propose_delete_*).",
       parameters: {type: "object", properties: {search: {type: "string"}, limit: {type: "number"}}},
     },
   },
@@ -843,7 +863,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_accounts",
-      description: "Chart of accounts lookup.",
+      description: "Chart of accounts lookup (rows include id for propose_update_*/propose_delete_*).",
       parameters: {
         type: "object",
         properties: {

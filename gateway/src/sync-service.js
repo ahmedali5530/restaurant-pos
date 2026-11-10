@@ -22,6 +22,8 @@ const SNAPSHOT_TABLES = [
   'order_type',
   'category',
   'menu_item',
+  // Dish photos (menu_item.dish_photo → document.content)
+  'document',
   'modifier_group',
   'modifier',
   'menu_item_modifier_group',
@@ -81,14 +83,14 @@ function parseSnapshotDuration(raw, fallback) {
  * served by SurrealDB reports, not the terminal cache.
  *
  * Env (gateway):
- * - POS_SNAPSHOT_OPERATIONAL_DURATION — default `3d` (on-prem LAN often `12h`)
+ * - POS_SNAPSHOT_OPERATIONAL_DURATION — default `1d` (keep open checks + last day)
  * - POS_SNAPSHOT_COUPON_REDEMPTION_DURATION — default `90d` (on-prem often `7d`)
  *
  * @param {NodeJS.ProcessEnv} [env]
  */
 function resolveSnapshotDurations(env = process.env) {
   return {
-    operational: parseSnapshotDuration(env.POS_SNAPSHOT_OPERATIONAL_DURATION, '3d'),
+    operational: parseSnapshotDuration(env.POS_SNAPSHOT_OPERATIONAL_DURATION, '1d'),
     couponRedemption: parseSnapshotDuration(
       env.POS_SNAPSHOT_COUPON_REDEMPTION_DURATION,
       '90d',
@@ -482,13 +484,14 @@ async function push(db, body) {
       }
       if (result.status === 'accepted') {
         accepted.push(op.operationId);
-        if (result.invoiceNumber != null) {
+        if (result.invoiceNumber != null || result.autoId != null) {
           assignments.push({
             operationId: op.operationId,
             aggregateId: String(op.aggregateId || op.payload?.recordId || ''),
-            invoiceNumber: result.invoiceNumber,
+            ...(result.invoiceNumber != null ? { invoiceNumber: result.invoiceNumber } : {}),
             ...(result.invoiceDisplay ? { invoiceDisplay: result.invoiceDisplay } : {}),
             ...(result.invoicePrefix ? { invoicePrefix: result.invoicePrefix } : {}),
+            ...(result.autoId != null ? { autoId: result.autoId } : {}),
           });
         }
       } else {

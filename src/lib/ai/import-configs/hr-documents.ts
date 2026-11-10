@@ -2,6 +2,10 @@ import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import type {TFunc, WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -41,6 +45,7 @@ async function resolveLeaveTypeId(db: ImportDbLike, name: string) {
 
 export function createPositionImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "code", type: "string", required: true},
     {name: "name", type: "string", required: true},
     {name: "department", type: "string", description: "Department name"},
@@ -80,9 +85,22 @@ export function createPositionImportConfig({db, t}: {db: ImportDbLike; t: TFunc}
       }
 
       const rowData = {code};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({column: "code", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.positions, conditions, {softDelete: false});
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.positions, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({
+            column: "code",
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.positions, conditions, {softDelete: false});
+        },
+      });
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
@@ -99,6 +117,7 @@ export function createPositionImportConfig({db, t}: {db: ImportDbLike; t: TFunc}
 
 export function createCostCenterImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "code", type: "string", required: true},
     {name: "name", type: "string", required: true},
     {name: "is_active", type: "boolean"},
@@ -120,9 +139,22 @@ export function createCostCenterImportConfig({db, t}: {db: ImportDbLike; t: TFun
 
       const payload = {code, name, is_active: record.values.is_active !== false};
       const rowData = {code};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({column: "code", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.cost_centers, conditions, {softDelete: false});
+      const idRaw = String(record.values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.cost_centers, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({
+            column: "code",
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.cost_centers, conditions, {softDelete: false});
+        },
+      });
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

@@ -128,8 +128,8 @@ export const KitchenOrder = ({
       <div className={
         cn(
           "flex justify-between p-2 rounded-t-xl",
-          diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700 kitchen-late-order',
-          diff >= 60 && 'bg-danger-200 text-danger-700 kitchen-delayed-order',
+          diff >= 30 && diff <= 59 && 'bg-warning-200 text-warning-700',
+          diff >= 60 && 'bg-danger-200 text-danger-700',
           !(diff >= 30) && isNew && 'bg-primary-100 text-primary-800',
         )
       }>
@@ -146,8 +146,11 @@ export const KitchenOrder = ({
               {[order?.order_type?.name, getInvoiceNumber(order)].filter(Boolean).join(' / ')}
             </span>
             {stageStart && (
-              <span className="text-lg font-bold">
+              <span className="text-lg font-bold inline-flex items-center gap-2">
                 <Countdown time={stageStart} />
+                {diff >= 30 && (
+                  <span className="inline-block size-2 rounded-full bg-current" aria-hidden />
+                )}
               </span>
             )}
           </div>

@@ -4,7 +4,7 @@
  * domain operations that the gateway replays into SurrealDB (ADR 0001).
  */
 import { getPosStoreDatabase } from './db.ts';
-import { ensureTerminalIdentity, pendingCodeFromPolicy, recordId } from './identity.ts';
+import { ensureTerminalIdentity, recordId } from './identity.ts';
 import { hydrateOrderForTaxRecompute } from './catalog.ts';
 import {
   buildOrderItemRows,
@@ -1017,7 +1017,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
           invoice_number: invoiceNumber,
           invoice_display: minted.invoiceDisplay,
           invoice_prefix: minted.invoicePrefix,
-          local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+          local_invoice_code: undefined,
           auto_id: group.autoId,
           items: childItemIds,
           split: index + 1,
@@ -1204,7 +1204,7 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
         invoice_number: invoiceNumber,
         invoice_display: invoiceDisplay,
         invoice_prefix: invoicePrefix,
-        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+        local_invoice_code: undefined,
         auto_id: input.autoId,
         items: movedIds,
         tags: withTag(first.tags, 'Merged'),

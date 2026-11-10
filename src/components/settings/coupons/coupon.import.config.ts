@@ -1,6 +1,10 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches, writeCsvImportRow} from "@/utils/csv-import.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {recordToString} from "@/api/reports/shared/records.ts";
@@ -22,6 +26,7 @@ async function resolveRefByName(db: ImportDbLike, table: string, name: string): 
 
 export function createCouponImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "code", label: t("admin:columns.code"), type: "string", required: true},
     {name: "description", label: t("admin:columns.description"), type: "string", optional: true},
     {name: "coupon_type", label: t("admin:columns.couponType"), type: "string", required: true},
@@ -102,9 +107,22 @@ export function createCouponImportConfig({db, t}: {db: ImportDbLike; t: TFunc}):
       };
 
       const rowData = {code};
-      assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "code", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.coupons, conditions);
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.coupons, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({
+            column: "code",
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.coupons, conditions);
+        },
+      });
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,
         table: Tables.coupons,

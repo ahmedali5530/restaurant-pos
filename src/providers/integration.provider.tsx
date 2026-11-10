@@ -90,7 +90,7 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     let mounted = true;
-    let queueTimer: ReturnType<typeof setInterval> | undefined;
+    let queueTimer: ReturnType<typeof setTimeout> | undefined;
 
     const refreshProviderStates = async () => {
       let enabledIds: string[] = [];
@@ -160,14 +160,31 @@ export const IntegrationProvider = ({ children }: PropsWithChildren) => {
       }
     });
 
-    queueTimer = setInterval(() => {
-      void manager.processQueue();
-    }, 1200);
+    const IDLE_MS = 15_000;
+    const BUSY_MS = 1_200;
+    const arm = (delay: number) => {
+      if (queueTimer) clearTimeout(queueTimer);
+      queueTimer = setTimeout(() => { void tick(); }, delay);
+    };
+    const tick = async () => {
+      if (!mounted) return;
+      let job: unknown = null;
+      try {
+        job = await manager.processQueue();
+      } catch (error) {
+        console.warn('Integration queue tick failed', error);
+      }
+      if (!mounted) return;
+      arm(job ? BUSY_MS : IDLE_MS);
+    };
+    const stopWake = manager.onQueueWork(() => arm(BUSY_MS));
+    arm(BUSY_MS);
 
     return () => {
       mounted = false;
+      stopWake();
       if (queueTimer) {
-        clearInterval(queueTimer);
+        clearTimeout(queueTimer);
       }
       void publishApplicationShutdown(manager).finally(() => {
         void manager.shutdown();

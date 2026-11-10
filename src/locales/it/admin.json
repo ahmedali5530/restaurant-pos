@@ -433,7 +433,7 @@
     "printModeText": "Testo (ESC/POS)",
     "printModeRaster": "Raster (immagine)",
     "paperWidthMm": "Larghezza carta",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Larghezza fisica della carta per raster e centratura immagini (58mm = 384 punti, 72mm = 512 punti, 80mm = 576 punti).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Soglia raster",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Limite di vendita (questo piatto)",
     "kraItemClsCd": "Codice classificazione articolo KRA",
     "kraTaxTyCd": "Tipo imposta KRA (A–E)",
-    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA."
+    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA.",
+    "showOrderType": "Mostra tipo ordine",
+    "showCustomer": "Mostra cliente",
+    "showTableName": "Mostra nome tavolo",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostra totale articolo",
+    "accumulateSameItems": "Accumula articoli uguali",
+    "accumulateSameItemsHint": "Unisci piatti identici (stessi modificatori e note) in una riga con quantità combinata."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Fiscale ordini",
       "reports.expense": "Spese",
       "reports.activity": "Attività",
+      "reports.changefeed": "Changefeed tabelle",
       "reports.product_mix_weekly": "Product mix settimanale",
       "reports.product_mix_summary": "Riepilogo product mix",
       "reports.products_hourly": "Prodotti orari",
@@ -835,7 +843,11 @@
       "reports": "Report",
       "inventory": "Inventario",
       "settings": "Impostazioni",
-      "admin.catalog_publish": "Pubblica catalogo"
+      "admin.catalog_publish": "Pubblica catalogo",
+      "settings.backup": "Backup impostazioni",
+      "settings.restore": "Ripristino impostazioni",
+      "settings.database": "Backup database",
+      "settings.customer_display": "Display cliente"
     }
   },
   "discountEngine": {

@@ -225,19 +225,6 @@
       "caption": "Teclado virtual."
     },
     {
-      "id": "table-selection",
-      "title": "Selección de mesa",
-      "intro": "Si está habilitada, el personal elige mesa antes de pedir. Si está deshabilitada, se oculta el paso de planta en este terminal (útil en servicio rápido).",
-      "steps": [
-        "Abra Selección de mesa.",
-        "Pulse el botón para activar o desactivar en este dispositivo.",
-        "El cambio se aplica de inmediato."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Mostrar u ocultar selección de mesa.",
-      "note": "La captura de documentación requiere la selección de mesa habilitada."
-    },
-    {
       "id": "inventory",
       "title": "Ajustes de inventario",
       "intro": "Comportamiento global de inventario: libro mayor, lotes/caducidad, coste, descuentos/impuestos de compra y valores por defecto. Usado con módulos de inventario activos.",

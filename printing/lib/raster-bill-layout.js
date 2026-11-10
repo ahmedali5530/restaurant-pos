@@ -2,7 +2,7 @@
 
 const {
   formatMoney,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
 } = require('./receipt-helpers');
 const { formatDiscountMinimalPrint } = require('./bill-layout');
@@ -58,17 +58,24 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   }
 
   rc.lineLeftRight(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
-  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  if (tableLeft || orderTypeRight) {
+    rc.lineLeftRight(tableLeft, orderTypeRight);
+  }
   rc.lineLeftRight(`${cashierLabel}: ${bill.userName || '-'}`, '');
-  if (customerName) rc.fixedLine(`${customerLabel}: ${String(customerName)}`, { align: 'left' });
-  if (phone) rc.fixedLine(`${phoneLabel}: ${String(phone)}`, { align: 'left' });
-  if (address) rc.fixedLine(`${addressLabel}: ${String(address).slice(0, 40)}`, { align: 'left' });
   if (deliveryTime) rc.fixedLine(`${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   rc.divider();
 
-  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
   (bill.items || []).forEach((it) => {
-    rc.fixedLine(buildItemRowString(it, cfg), { align: 'left' });
+    buildItemRowStrings(it, cfg).forEach((row) => {
+      rc.fixedLine(row, { align: 'left', wrap: false });
+    });
     if (Array.isArray(it.modifierLines) && it.modifierLines.length) {
       it.modifierLines.forEach((line) => {
         if (!line || line.name == null) return;
@@ -104,7 +111,7 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
     rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
   }
-  (bill.extras || []).forEach((e) => {
+  (bill.extras || []).filter((e) => e && Number(e.value) !== 0).forEach((e) => {
     rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -136,11 +143,19 @@ function paintBillLayoutRaster(rc, bill, config, opts) {
 
   if (notes) {
     rc.divider();
-    rc.fixedLine(`${notesLabel}: ${String(notes).slice(0, 48)}`, { align: 'left' });
+    rc.fixedLine(`${notesLabel}: ${String(notes)}`, { align: 'left' });
   }
   if (thankYou) {
     rc.feed(1);
     rc.centered(String(thankYou), { size: 'normal' });
+  }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    rc.divider();
+    if (customerName) rc.fixedLine(`${customerLabel}: ${String(customerName)}`, { align: 'left' });
+    if (phone) rc.fixedLine(`${phoneLabel}: ${String(phone)}`, { align: 'left' });
+    if (address) rc.fixedLine(`${addressLabel}: ${String(address)}`, { align: 'left' });
   }
 }
 

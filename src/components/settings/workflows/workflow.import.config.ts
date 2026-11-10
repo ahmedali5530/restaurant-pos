@@ -1,6 +1,7 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
+import {optionalIdField, resolveUpdateMatchesByIdOrLegacy} from "@/lib/data-import/match-by-id.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches} from "@/utils/csv-import.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {StringRecordId} from "surrealdb";
@@ -14,6 +15,7 @@ type StageInput = {name?: string; kitchen_name?: string; kitchen?: string};
 
 export function createWorkflowImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "name", label: t("admin:columns.name"), type: "string", required: true},
     {
       name: "stages",
@@ -48,9 +50,19 @@ export function createWorkflowImportConfig({db, t}: {db: ImportDbLike; t: TFunc}
       if (!stages.length) throw new Error(t("forms.addAtLeastOneStage"));
 
       const rowData = {name};
-      assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.workflows, conditions);
+      const idRaw = String(record.values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.workflows, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "name", value}));
+          return findCsvImportMatches(db, Tables.workflows, conditions);
+        },
+      });
 
       let workflowId: unknown;
       if (ctx.mode !== "create" && existing.length === 1) {

@@ -6,7 +6,7 @@ import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState}
 import {OrderTimes} from "@/components/orders/order.times.tsx";
 import {calculateOrderTotal} from "@/lib/cart.ts";
 import {computeOrderPaymentTotals} from "@/lib/order-payment-totals.ts";
-import {cn, toRecordId, withCurrency} from "@/lib/utils.ts";
+import {cn, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {OrderPaymentReceiving} from "@/components/orders/payment/order.payment.receiving.tsx";
 import {OrderPaymentTax} from "@/components/orders/payment/order.payment.tax.tsx";
 import {Tax} from "@/api/model/tax.ts";
@@ -30,9 +30,22 @@ import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
-import {getInvoiceNumber, getOrderFilteredItems} from "@/lib/order.ts";
-import {useAtom} from "jotai";
-import {appPage, appSettings} from "@/store/jotai.ts";
+import {
+  getInvoiceNumber,
+  getOrderFilteredItems,
+  isCashPaymentType,
+  recomputeDraftPaymentsForTotal,
+} from "@/lib/order.ts";
+import {useAtom, useAtomValue} from "jotai";
+import {appPage, appSettings, appState, skipFinalPrintOnPayment} from "@/store/jotai.ts";
+import {
+  acquireCustomerDisplayPaymentLock,
+  buildCustomerDisplaySnapshot,
+  publishCustomerDisplayIdle,
+  publishCustomerDisplaySnapshot,
+  upsertCustomerDisplayToSurreal,
+} from "@/lib/customer-display.ts";
+import {ensureTerminalIdentity} from "@/infrastructure/pos-store/identity.ts";
 import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
 import {isExtraApplicable as extraMatchesContext} from "@/infrastructure/pos-store/catalog.ts";
@@ -71,6 +84,7 @@ export const OrderPayment = ({
 
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
+  const [skipFinalPrint] = useAtom(skipFinalPrintOnPayment);
 
   // Parent often passes a snapshot taken before gateway mint; keep invoice fields live.
   const [order, setOrder] = useState(orderProp);
@@ -341,6 +355,147 @@ export const OrderPayment = ({
   }, [order, isInitialized]);
 
   const total = paymentTotals.total;
+  const cart = useAtomValue(appState).cart;
+  const taxes = useAtomValue(appSettings).taxes;
+  const settledRef = useRef(false);
+  const cartRef = useRef(cart);
+  const orderRef = useRef(order);
+  const taxesRef = useRef(taxes);
+  cartRef.current = cart;
+  orderRef.current = order;
+  taxesRef.current = taxes;
+
+  const displayTerminalIdRef = useRef<string | null>(null);
+  const displayUpsertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dbRef = useRef(db);
+  dbRef.current = db;
+
+  // Customer display: lock cart publisher while payment is open; clear on close/settle.
+  useEffect(() => {
+    const release = acquireCustomerDisplayPaymentLock();
+    return () => {
+      if (displayUpsertTimerRef.current) {
+        clearTimeout(displayUpsertTimerRef.current);
+        displayUpsertTimerRef.current = null;
+      }
+
+      // Unlock first (publisher may republish), then publish the intentional
+      // idle/thank-you/cart snapshot so it wins as the last write.
+      release();
+
+      const liveLen = (cartRef.current ?? []).filter((line) => !line.deleted_at).length;
+      let snapshot;
+      if (settledRef.current || liveLen === 0) {
+        snapshot = publishCustomerDisplayIdle({thankYou: settledRef.current});
+      } else {
+        snapshot = buildCustomerDisplaySnapshot(cartRef.current, {
+          taxes: taxesRef.current,
+          order: orderRef.current,
+        });
+        publishCustomerDisplaySnapshot(snapshot);
+      }
+
+      const terminalId = displayTerminalIdRef.current;
+      if (terminalId) {
+        void upsertCustomerDisplayToSurreal(dbRef.current, snapshot, terminalId);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void ensureTerminalIdentity()
+      .then((identity) => {
+        if (!cancelled) {
+          displayTerminalIdRef.current = identity.terminalId;
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) {
+      return;
+    }
+    const snapshot = buildCustomerDisplaySnapshot(cart, {
+      // Orders-screen Pay Now has no menu cart — lines come from `order.items`.
+      order,
+      paymentLive: {
+        itemsTotal,
+        taxAmount: paymentTotals.taxAmount,
+        taxName: tax?.name ?? order.tax?.name,
+        taxRate: safeNumber(tax?.rate ?? order.tax?.rate),
+        discountTotal: paymentTotals.discountTotal,
+        discountLines: paymentTotals.discountLines.map((line) => ({
+          name: line.name,
+          appliedAmount: line.appliedAmount,
+          appliedRate: line.appliedRate,
+          valueType: line.valueType,
+        })),
+        couponAmount,
+        couponLabel: coupon?.name ?? coupon?.code,
+        serviceChargeAmount,
+        serviceCharge,
+        serviceChargeType,
+        tipAmount,
+        tip,
+        tipType,
+        extras: Object.entries(extras)
+          .filter(([, value]) => Number(value) !== 0)
+          .map(([name, value]) => ({name, value: Number(value) || 0})),
+        total,
+      },
+    });
+    publishCustomerDisplaySnapshot(snapshot);
+
+    if (displayUpsertTimerRef.current) {
+      clearTimeout(displayUpsertTimerRef.current);
+    }
+    displayUpsertTimerRef.current = setTimeout(() => {
+      const terminalId = displayTerminalIdRef.current;
+      if (!terminalId) {
+        return;
+      }
+      void upsertCustomerDisplayToSurreal(dbRef.current, snapshot, terminalId);
+    }, 150);
+
+    return () => {
+      if (displayUpsertTimerRef.current) {
+        clearTimeout(displayUpsertTimerRef.current);
+        displayUpsertTimerRef.current = null;
+      }
+    };
+  }, [
+    isInitialized,
+    cart,
+    order,
+    itemsTotal,
+    paymentTotals.taxAmount,
+    paymentTotals.discountTotal,
+    paymentTotals.discountLines,
+    tax,
+    order.tax,
+    couponAmount,
+    coupon,
+    serviceChargeAmount,
+    serviceCharge,
+    serviceChargeType,
+    tipAmount,
+    tip,
+    tipType,
+    extras,
+    total,
+  ]);
+
+  // Keep draft tenders aligned when discount/tip/service/extras change after tender.
+  // Cash amounts stay sticky; exact (card) amounts waterfall to the new due.
+  useEffect(() => {
+    if (!isInitialized) return;
+    setPaymentTypes((prev) => recomputeDraftPaymentsForTotal(prev, total));
+  }, [total, isInitialized]);
 
   const resolvePayable = useCallback((taxOverride?: Tax | null, paymentTypeId?: string) => {
     return computeOrderPaymentTotals(order, {
@@ -536,12 +691,20 @@ export const OrderPayment = ({
   const onPayment = (opts?: { settled?: boolean }) => {
     // After settle the order is Paid — do not flush draft/tax again (blocks modal close).
     if (opts?.settled) {
+      settledRef.current = true;
       onClose();
     } else {
       void closeModal();
     }
 
     setTimeout(() => {
+      if (skipFinalPrint) {
+        const hasCashTender = paymentTypes.some((p) => isCashPaymentType(p.payment_type));
+        if (hasCashTender) {
+          void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: page?.user?.id});
+        }
+        return;
+      }
       void print();
     }, 300)
   }
@@ -746,15 +909,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tax && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Tax), {
-                module: 'orders.apply_tax',
-                description: 'Apply tax',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Tax)}>
               <div>
                 {tax
                   ? t('tabs.taxWithRate', {name: tax.name, rate: tax.rate})
@@ -771,15 +926,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Discount && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Discount), {
-                module: 'orders.apply_discount',
-                description: 'Apply discount',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Discount)}>
               <div>
                 {t('tabs.discount')}{' '}
                 {cartTotals.discountLines.length > 0 && `(${cartTotals.discountLines.length})`}{' '}
@@ -815,15 +962,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions['Service Charges'] && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions['Service Charges']), {
-                module: 'orders.apply_service_charges',
-                description: 'Apply service charges',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions['Service Charges'])}>
               <div>{t('tabs.serviceCharges', {
                 value: serviceCharge,
                 unit: serviceChargeType === DiscountType.Percent ? '%' : ''
@@ -839,15 +978,7 @@ export const OrderPayment = ({
                 "flex justify-between p-3 cursor-pointer",
                 mode === PaymentOptions.Tip && 'bg-neutral-900 text-warning'
               )
-            } onClick={() => {
-              protectAction(() => setMode(PaymentOptions.Tip), {
-                module: 'orders.apply_tips',
-                description: 'Apply tips',
-                payload: {
-                  order: order.id.toString()
-                }
-              });
-            }}>
+            } onClick={() => setMode(PaymentOptions.Tip)}>
               <div>{t('tabs.tip', {value: tip, unit: tipType === DiscountType.Percent ? '%' : ''})} <FontAwesomeIcon
                 icon={faPencil}/></div>
               <div className="text-right">{withCurrency(tipAmount)}</div>
@@ -900,7 +1031,16 @@ export const OrderPayment = ({
         </div>
         <div className="bg-surface-elevated rounded-xl flex flex-col p-3 h-[calc(100vh_-_120px_-_var(--app-toolbar-h))]" data-testid="payment-adjust-panel">
           {mode === PaymentOptions.Tax && (
-            <OrderPaymentTax tax={tax} setTax={setTax}/>
+            <OrderPaymentTax
+              tax={tax}
+              setTax={(next) => {
+                protectAction(() => setTax(next), {
+                  module: 'orders.apply_tax',
+                  description: 'Apply tax',
+                  payload: {order: order.id.toString()},
+                });
+              }}
+            />
           )}
           {mode === PaymentOptions.Discount && (
             <OrderPaymentDiscountEngine
@@ -908,8 +1048,14 @@ export const OrderPayment = ({
               discountLines={discountLines.filter(l => l.applicationType === 'manual')}
               automaticLines={cartTotals.discountLines.filter(l => l.applicationType === 'automatic')}
               onApply={(manualLines) => {
-                const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
-                setDiscountLines([...autoLines, ...manualLines]);
+                protectAction(() => {
+                  const autoLines = cartTotals.discountLines.filter(l => l.applicationType === 'automatic');
+                  setDiscountLines([...autoLines, ...manualLines]);
+                }, {
+                  module: 'orders.apply_discount',
+                  description: 'Apply discount',
+                  payload: {order: order.id.toString()},
+                });
               }}
             />
           )}
@@ -929,10 +1075,35 @@ export const OrderPayment = ({
               setServiceChargeType={setServiceChargeType}
               serviceChargeType={serviceChargeType}
               order={order}
+              onCommit={(nextCharge, nextType) => {
+                protectAction(() => {
+                  setServiceCharge(nextCharge);
+                  setServiceChargeType(nextType);
+                }, {
+                  module: 'orders.apply_service_charges',
+                  description: 'Apply service charges',
+                  payload: {order: order.id.toString()},
+                });
+              }}
             />
           )}
           {mode === PaymentOptions.Tip && (
-            <OrderPaymentTip tip={tip} setTip={setTip} tipType={tipType} setTipType={setTipType}/>
+            <OrderPaymentTip
+              tip={tip}
+              setTip={setTip}
+              tipType={tipType}
+              setTipType={setTipType}
+              onCommit={(nextTip, nextType) => {
+                protectAction(() => {
+                  setTipType(nextType);
+                  setTip(nextTip);
+                }, {
+                  module: 'orders.apply_tips',
+                  description: 'Apply tips',
+                  payload: {order: order.id.toString()},
+                });
+              }}
+            />
           )}
           {mode === PaymentOptions.Notes && (
             <OrderPaymentNotes setNotes={setNotes} notes={notes}/>

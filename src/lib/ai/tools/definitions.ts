@@ -349,7 +349,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_suppliers",
-      description: "List inventory suppliers by name (for purchase proposals).",
+      description: "List inventory suppliers by name (for purchase proposals). Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {
@@ -363,7 +363,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_locations",
-      description: "List inventory stock locations (stores, kitchens, etc.).",
+      description: "List inventory stock locations (stores, kitchens, etc.). Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {
@@ -392,6 +392,46 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "get_table_changefeed",
+      description:
+        "On-demand Surreal SHOW CHANGES for allowlisted tables (FOH + Manage catalog). "
+        + "ALWAYS call this when the user asks for changefeed / mutation history / table DB changes "
+        + "(including menu_item, dishes, category, order, order_void, etc.) — do not say the tool is missing. "
+        + "Returns every feed event (CREATE/UPDATE/DELETE and SCHEMA define_table) — report event_count, "
+        + "data_mutation_count, and schema_event_count. Do not omit SCHEMA rows when summarizing. "
+        + "Leave compact=false unless the user asks for net-per-record only. "
+        + "Never use for normal sales/inventory reports. Retention ~14 days after the feed was enabled.",
+      parameters: {
+        type: "object",
+        properties: {
+          table: {
+            type: "string",
+            description: "Table name or alias (e.g. menu_item, dishes, order, order_void, category, customer)",
+          },
+          since: {
+            type: "string",
+            description:
+              "Versionstamp digits (prefer) or ISO datetime AFTER the feed was enabled. Default: 0 (start of retained feed). Do not pass yesterday if the feed was just enabled.",
+          },
+          limit: {type: "number", default: 50, description: "Max SHOW CHANGES entries (1–200)"},
+          record_id: {
+            type: "string",
+            description: "Optional record id substring filter (e.g. order:abc)",
+          },
+          compact: {
+            type: "boolean",
+            description:
+              "Default false. When true, collapse CREATE/UPDATE/DELETE to the latest per record_id (SCHEMA rows kept). Prefer false so counts match the DB UI.",
+          },
+        },
+        required: ["table"],
+      },
+    },
+  },
+
   {
     type: "function",
     function: {
@@ -834,7 +874,8 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_accounts",
-      description: "List chart of accounts. Filter by headType, customerOnly, supplierOnly, or search. Read-only.",
+      description: "List chart of accounts. Filter by headType, customerOnly, supplierOnly, or search. Read-only. "
+        + "Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over code/name).",
       parameters: {
         type: "object",
         properties: {
@@ -891,7 +932,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_staff",
-      description: "List staff/users for name-to-ID resolution.",
+      description: "List staff/users for name-to-ID resolution. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {search: {type: "string"}, limit: {type: "number", default: 50}},
@@ -902,7 +943,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_categories",
-      description: "List menu categories.",
+      description: "List menu categories. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name).",
       parameters: {
         type: "object",
         properties: {limit: {type: "number", default: 50}},
@@ -915,7 +956,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
       name: "list_menu_items",
       description:
         "List all active menu products/dishes in the catalog (includes id, number, name, price). "
-        + "Use the returned id with propose_update_dishes — dish numbers can be duplicated. "
+        + "Use the returned id with propose_update_dishes / propose_delete_dishes — dish numbers can be duplicated. "
         + "Does NOT return recipe ingredients — use get_dish_recipe for that.",
       parameters: {
         type: "object",
@@ -972,7 +1013,7 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_inventory_items",
-      description: "List inventory items for name-to-ID resolution.",
+      description: "List inventory items for name-to-ID resolution. Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name/code).",
       parameters: {
         type: "object",
         properties: {search: {type: "string"}, limit: {type: "number", default: 50}},

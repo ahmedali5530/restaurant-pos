@@ -36,6 +36,7 @@ import {
   openCustomerDisplayWindow,
   useCustomerDisplayPublisher,
 } from "@/hooks/useCustomerDisplayPublisher.ts";
+import {useDB} from "@/api/db/db.ts";
 
 type AddDishOpts = {
   fractionalQty?: boolean;
@@ -47,6 +48,7 @@ type AddDishOpts = {
 
 export const QuickOrder = () => {
   const {t} = useTranslation(["quick-order", "navigation", "closing", "menu"]);
+  const db = useDB();
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
@@ -95,14 +97,11 @@ export const QuickOrder = () => {
     [enforce, soldFor, state.cart, settings.dishes, t],
   );
 
-  // Seed tableless context for createOrderWithItems (no table).
+  // Tableless cart context only — do not flip Menu floor/table preferences.
   useEffect(() => {
     setState((prev) => ({
       ...prev,
-      showFloor: false,
-      showPersons: false,
       table: undefined,
-      hideTableSelection: true,
       posMode: prev.posMode ?? "retail",
       floor: prev.floor ?? settings.floors[0],
       orderType: prev.orderType ?? settings.order_types[0],
@@ -397,7 +396,7 @@ export const QuickOrder = () => {
   };
 
   const openCustomerDisplay = () => {
-    openCustomerDisplayWindow(state.cart, settings.taxes);
+    void openCustomerDisplayWindow(state.cart, settings.taxes, db);
   };
 
   return (

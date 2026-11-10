@@ -47,7 +47,6 @@ export interface AppStateInterface {
   seats: string[]
   seat?: string
   switchTable?: boolean
-  hideTableSelection?: boolean
   /** Device POS shell: restaurant (floors/tables) or retail quick-order */
   posMode?: 'restaurant' | 'retail'
   /** Sale-limit enforcement on FOH (default on; set false to disable). Sold-out always blocks. */
@@ -197,6 +196,14 @@ export const systemPrinterSettings = atomWithStorage<SystemPrinterSettings>(
   'system-printers',
   defaultSystemPrinterSettings,
   createJSONStorage<SystemPrinterSettings>(),
+  {getOnInit: true}
+);
+
+/** Terminal-scoped: skip final receipt after payment (this browser). */
+export const skipFinalPrintOnPayment = atomWithStorage<boolean>(
+  'skip-final-print-on-payment',
+  false,
+  createJSONStorage<boolean>(),
   {getOnInit: true}
 );
 

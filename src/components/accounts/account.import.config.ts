@@ -6,6 +6,10 @@ import type {
   ImportRecord,
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -26,6 +30,7 @@ export function createAccountImportConfig({
   onResult?: (result: "created" | "updated") => void;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "code", label: t("accounts:import.fields.code"), type: "string", required: true, aliases: ["Code"]},
     {name: "name", label: t("accounts:import.fields.name"), type: "string", required: true, aliases: ["Name"]},
     {name: "group_code", label: t("accounts:import.fields.groupCode"), type: "string", required: true, aliases: ["Group code", "Group"]},
@@ -102,24 +107,30 @@ export function createAccountImportConfig({
         notes,
       };
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const unsupported = ["group_code", "parent_code"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (unsupported.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "is_active") return {column: "is_active", value: parseImportBool(value)};
-        if (field === "normal_balance") return {column: "normal_balance", value: value.toLowerCase()};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.accounts, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (unsupported.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "is_active") return {column: "is_active", value: parseImportBool(value)};
+            if (field === "normal_balance") return {column: "normal_balance", value: value.toLowerCase()};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.accounts, conditions, {softDelete: false});
+        },
       });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.accounts, conditions, {softDelete: false});
 
       const result = await writeCsvImportRow(db as any, {
         mode: ctx.mode,

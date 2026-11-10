@@ -8,6 +8,10 @@ import type {
 } from "@/lib/data-import/types.ts";
 import {findBestSmartMatch} from "@/lib/data-import/fuzzy.ts";
 import {requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -56,6 +60,7 @@ export function createInventoryItemImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "name", label: t("inventory:columns.name"), type: "string", required: true, aliases: ["Name"]},
     {name: "code", label: t("inventory:columns.code"), type: "string", required: true, aliases: ["Code", "SKU"]},
     {
@@ -270,27 +275,33 @@ export function createInventoryItemImportConfig({
       if (item_types?.length) payload.item_types = item_types;
 
       const rowData: Record<string, string> = {name, code};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const unsupported = ["category", "locations", "suppliers", "item_types", "reorder_levels"];
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (unsupported.includes(field)) {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        if (field === "price" || field === "average_price") {
-          return {column: field, value: Number(value)};
-        }
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.inventory_items, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (unsupported.includes(field)) {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            if (field === "price" || field === "average_price") {
+              return {column: field, value: Number(value)};
+            }
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.inventory_items, conditions, {
+            softDelete: true,
+          });
+        },
       });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.inventory_items, conditions, {
-              softDelete: true,
-            });
 
       if (existing.length === 1) {
         const [currentRows] = await db.query(

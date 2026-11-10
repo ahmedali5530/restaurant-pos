@@ -33,6 +33,38 @@ describe('resolveMenuAwareData priority', () => {
     });
 
     expect(result.categories.map((c) => c.name)).toEqual(['Shown', 'Default']);
+    // Dish linked only to a hidden category must not appear on FOH / Quick Order.
+    expect(result.dishes.map((d) => d.name)).toEqual(['One', 'Three']);
+  });
+
+  it('keeps dishes that also belong to a visible category', () => {
+    const result = resolveMenuAwareData({
+      categories: [
+        { id: 'category:shown', name: 'Shown', priority: 1, show_in_menu: true } as any,
+        { id: 'category:hidden', name: 'Hidden', priority: 2, show_in_menu: false } as any,
+      ],
+      dishes: [
+        {
+          id: 'menu_item:both',
+          name: 'Both',
+          priority: 1,
+          categories: [
+            { id: 'category:shown', name: 'Shown', show_in_menu: true },
+            { id: 'category:hidden', name: 'Hidden', show_in_menu: false },
+          ],
+        } as any,
+        {
+          id: 'menu_item:hidden-only',
+          name: 'HiddenOnly',
+          priority: 2,
+          categories: [{ id: 'category:hidden', name: 'Hidden', show_in_menu: false }],
+        } as any,
+      ],
+      menus: [],
+    });
+
+    expect(result.dishes.map((d) => d.name)).toEqual(['Both']);
+    expect(result.categories.map((c) => c.name)).toEqual(['Shown']);
   });
 
   it('sorts dishes and categories by priority when no timed menu is active', () => {

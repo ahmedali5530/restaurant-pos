@@ -1,7 +1,7 @@
 import {DateTime} from "luxon";
 import {Tables} from "@/api/db/tables.ts";
 import {Setting} from "@/api/model/setting.ts";
-import {DateInput, toJsDate} from "@/lib/datetime.ts";
+import {DateInput, getAppTimezone, toJsDate} from "@/lib/datetime.ts";
 
 export const CLOSING_CYCLE_KEY = "closing_cycle";
 
@@ -65,7 +65,8 @@ export const getActiveClosingWindowFromConfig = (
   config: ClosingCycleConfig,
   now: Date = new Date()
 ): ClosingCycleWindow => {
-  const nowDt = DateTime.fromJSDate(now);
+  const timezone = getAppTimezone();
+  const nowDt = DateTime.fromJSDate(now, {zone: timezone});
 
   const startToday = nowDt.set({
     hour: config.startHour,
@@ -155,7 +156,7 @@ export const getLastCycleEndTime = (
 };
 
 export const formatClosingCycleTime = (date: Date): string => {
-  return DateTime.fromJSDate(date).toLocaleString(DateTime.TIME_SIMPLE);
+  return DateTime.fromJSDate(date, {zone: getAppTimezone()}).toLocaleString(DateTime.TIME_SIMPLE);
 };
 
 export const getClosingCycleKey = (window: ClosingCycleWindow): string => {
@@ -208,9 +209,10 @@ export const getAutoCloseCycleState = (
   config: ClosingCycleConfig,
   now: Date = new Date()
 ): AutoCloseCycleState => {
-  const nowDt = DateTime.fromJSDate(now);
+  const timezone = getAppTimezone();
+  const nowDt = DateTime.fromJSDate(now, {zone: timezone});
   const pointerWindow = getActiveClosingWindowFromConfig(config, now);
-  const pointerStart = DateTime.fromJSDate(pointerWindow.date_from);
+  const pointerStart = DateTime.fromJSDate(pointerWindow.date_from, {zone: timezone});
 
   // Between cycles: pointer already moved to the next start, but "now" is still before it.
   if (nowDt < pointerStart) {
@@ -292,6 +294,21 @@ export const loadClosingCycleConfig = async (db: DBLike): Promise<{
   ) as [Setting[] | undefined];
 
   const setting = rows?.[0] ?? null;
+  return {
+    setting,
+    config: closingCycleConfigFromSetting(setting),
+  };
+};
+
+/** PosStore catalog settings — no Surreal round-trip (reports DateRange, FOH). */
+export const loadClosingCycleConfigFromCatalog = async (): Promise<{
+  setting: Setting | null;
+  config: ClosingCycleConfig;
+}> => {
+  const {getCatalogTable} = await import("@/infrastructure/pos-store/catalog.ts");
+  const rows = await getCatalogTable<Setting>(Tables.settings);
+  const setting =
+    rows.find((row) => row?.key === CLOSING_CYCLE_KEY && row?.is_global === true) ?? null;
   return {
     setting,
     config: closingCycleConfigFromSetting(setting),

@@ -1,7 +1,7 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
-import {DENOMINATION_COINS, DENOMINATION_NOTES, formatNumber, toRecordId, withCurrency, safeNumber} from "@/lib/utils.ts";
+import {DENOMINATION_COINS, DENOMINATION_NOTES, toRecordId, withCurrency, safeNumber} from "@/lib/utils.ts";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPlus, faPrint, faSave, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
@@ -50,6 +50,7 @@ import {
   fetchSelfOrderClosing,
   SelfOrderClosingSummary,
 } from "@/lib/self-order-closing.ts";
+import {buildClosingPrintRows as buildClosingPrintTableRows} from "@/lib/closing-print.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -530,90 +531,24 @@ export const Closing = () => {
     setExpenses(prev => prev.filter(expense => expense.id !== id));
   };
 
-  const buildClosingPrintRows = () => {
-    return [
-      [{text: `CLOSING SUMMARY (${today})`, align: "CENTER", width: 1, style: "B"}],
-      [{text: closingWindowLabel, align: "LEFT", width: 1}],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Previous float", align: "LEFT", width: 0.6}, {
-        text: formatNumber(previousDayBalance),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Cash sales", align: "LEFT", width: 0.6}, {
-        text: formatNumber(totalSystemCash),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Petty cash in", align: "LEFT", width: 0.6}, {
-        text: formatNumber(pettyCash),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Expenses", align: "LEFT", width: 0.6}, {
-        text: formatNumber(totalExpenses),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Cash drop", align: "LEFT", width: 0.6}, {
-        text: formatNumber(cashDrop),
-        align: "RIGHT",
-        width: 0.4
-      }],
-      [{text: "Expected in drawer", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(expectedInDrawer),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Counted cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalCash),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Over / short", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(overShort),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: "Cash left for next shift", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(drawerFloat),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Terminal Cash", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Amount",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...computedTerminalCash.map(terminal => ([
-        {text: terminal.terminal_name, align: "LEFT", width: 0.6},
-        {text: formatNumber(terminal.cash_amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: " ", align: "LEFT", width: 1}],
-      [{text: "Non-cash (system)", align: "LEFT", width: 0.6, style: "B"}, {
-        text: "Batch",
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-      ...batchTotals.map(row => ([
-        {text: `${row.payment_type_name} (${formatNumber(row.system_amount)})`, align: "LEFT", width: 0.6},
-        {text: formatNumber(row.batch_amount), align: "RIGHT", width: 0.4}
-      ])),
-      [{text: "Other Payments", align: "LEFT", width: 0.6, style: "B"}, {
-        text: formatNumber(totalOtherPayments),
-        align: "RIGHT",
-        width: 0.4,
-        style: "B"
-      }],
-    ];
-  };
+  const buildClosingPrintRows = () =>
+    buildClosingPrintTableRows({
+      titleDate: today,
+      closingWindowLabel,
+      closedByLabel,
+      previousDayBalance,
+      pettyCash,
+      cashDrop,
+      totalExpenses,
+      totalCash,
+      totalSystemCash,
+      drawerFloat,
+      terminals: computedTerminalCash,
+      denominations: terminalDenominations,
+      expenses,
+      batchTotals,
+      shiftRecap,
+    });
 
   const saveClosing = async (complete = false) => {
     if (isReadOnly) {
@@ -713,6 +648,17 @@ export const Closing = () => {
       }
 
       toast.success(complete ? t("toast:closing.completed") : t("toast:closing.savedDraft"));
+
+      // Complete always prints the closing summary; keep the Print button for reprints.
+      if (complete) {
+        try {
+          await printClosing();
+        } catch (error) {
+          console.error("Auto print closing failed", error);
+          toast.error(t("toast:closing.printFailed"));
+        }
+      }
+
       await refreshClosingWindow();
       await loadClosingData();
     } catch (error) {
@@ -965,20 +911,6 @@ export const Closing = () => {
             </div>
             <div className="mt-4 p-4 bg-surface rounded-lg text-foreground space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted">{t("closing:totals.cashSales")}</span>
-                <span className="font-semibold">{withCurrency(totalSystemCash)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted">{t("closing:totals.expectedInDrawer")}</span>
-                <span className="font-semibold">{withCurrency(expectedInDrawer)}</span>
-              </div>
-              <div
-                className={`flex justify-between text-lg font-semibold ${overShort === 0 ? "text-foreground" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}
-              >
-                <span>{t("closing:totals.overShort")}</span>
-                <span>{withCurrency(overShort)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
                 <span className="text-muted">{t("closing:totals.cashLeftNextShift")}</span>
                 <span className="font-semibold">{withCurrency(drawerFloat)}</span>
               </div>
@@ -1001,16 +933,7 @@ export const Closing = () => {
 
           <div className="bg-surface-elevated rounded-lg shadow-md p-6 mb-8" data-testid="closing-payment-types-section">
             <h2 className="text-xl font-semibold mb-4">{t("closing:sections.paymentTypesSummary")}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {paymentSummaries.filter(ps => isCashPaymentType(ps.payment_type)).map((ps) => (
-                <div key={String(ps.payment_type.id)} className="border rounded-lg p-4">
-                  <div className="text-sm font-medium mb-1">{ps.payment_type.name}</div>
-                  <div className="text-lg font-semibold tabular-nums">{withCurrency(ps.amount)}</div>
-                  <div className="text-xs text-muted mt-1">{t("closing:labels.cashSystemTotal")}</div>
-                </div>
-              ))}
-            </div>
-            <h3 className="text-lg font-semibold mt-6 mb-3">{t("closing:sections.nonCashBatch")}</h3>
+            <h3 className="text-lg font-semibold mb-3">{t("closing:sections.nonCashBatch")}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {batchTotals.map((row) => {
                 const diff = row.batch_amount - row.system_amount;
@@ -1229,18 +1152,8 @@ export const Closing = () => {
                 <div className="text-xl font-semibold">{withCurrency(previousDayBalance)}</div>
               </div>
               <div>
-                <div className="text-sm text-muted">{t("closing:totals.expectedInDrawer")}</div>
-                <div className="text-xl font-semibold">{withCurrency(expectedInDrawer)}</div>
-              </div>
-              <div>
                 <div className="text-sm text-muted">{t("closing:totals.countedCash")}</div>
                 <div className="text-xl font-semibold">{withCurrency(totalCash)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted">{t("closing:totals.overShort")}</div>
-                <div className={`text-xl font-semibold ${overShort === 0 ? "" : overShort > 0 ? "text-success-800" : "text-danger-800"}`}>
-                  {withCurrency(overShort)}
-                </div>
               </div>
               <div>
                 <div className="text-sm text-muted">{t("closing:totals.otherPayments")}</div>

@@ -4,6 +4,11 @@ import type {AiReportFormat} from "@/lib/ai.report.storage.ts";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {AiReportToolDomain} from "@/lib/ai/tools/categories.ts";
 import {AI_ASSISTANT_PERSONA} from "@/lib/ai/assistant-config.ts";
+import {
+  DEEP_RESEARCH_PROMPT,
+  resolveAssistantPersona,
+  type AssistantPersonaId,
+} from "@/lib/ai/assistant-personas.ts";
 
 export {AI_ASSISTANT_PERSONA};
 
@@ -18,29 +23,50 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 };
 const CURRENCY_SYMBOL = CURRENCY_SYMBOLS[APP_CURRENCY] ?? APP_CURRENCY;
 
+const KPI_WIDGET_INSTRUCTIONS = `KPI widgets (highlight headline numbers):
+- For 1–6 key figures (totals, rates, counts that deserve attention), emit a fenced \`\`\`kpi block BEFORE tables/lists.
+- Prefer JSON array form:
+\`\`\`kpi
+[
+  {"label":"Net sales","value":"Rs 12,500","tone":"danger","hint":"-12% vs yesterday"},
+  {"label":"Orders","value":"142","tone":"neutral"}
+]
+\`\`\`
+- tone must be one of: neutral, success, warning, danger, info. Use danger/warning for bad figures, success for healthy ones.
+- Pipe fallback also works: Label | Value | tone | optional hint
+- Still use markdown tables for multi-row detail (top dishes, line items). Do not put long rankings only in KPI widgets.`;
+
 const FORMAT_INSTRUCTIONS: Record<AiReportFormat, string> = {
   table: `Output format: TABLE
-- Structure the final report using markdown tables for all structured data (dishes, metrics, comparisons, rankings).
+- Lead with KPI widgets for headline metrics that deserve attention (see KPI widgets rules).
+- Structure the rest using markdown tables for structured data (dishes, comparisons, rankings).
 - Use headings for sections and markdown tables with clear column headers for rows of data.
 - Prefer tables over bullet lists when presenting multiple items with columns.
-- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.`,
+- Add an **Insights** section with 2–4 actionable observations grounded only in tool results.
+${KPI_WIDGET_INSTRUCTIONS}`,
   list: `Output format: LIST
-- Structure the final report using markdown bullet lists and numbered lists.
+- Lead with KPI widgets for headline metrics when useful (see KPI widgets rules).
+- Structure the rest using markdown bullet lists and numbered lists.
 - Use headings for sections and lists for items, metrics, and comparisons.
-- Do not use markdown tables in the final answer.`,
+- Do not use markdown tables in the final answer.
+${KPI_WIDGET_INSTRUCTIONS}`,
   chart: `Output format: CHART
 - You MUST call render_chart at least once with data from prior tool results before giving the final answer.
 - Provide only a short markdown summary (2–4 sentences) of key findings — no bullet lists, no tables, no ranked lists in prose.
+- You may still emit a small \`\`\`kpi block for 1–4 headline numbers alongside the summary.
 - Reference each chart by title in the summary (e.g. "See chart: Daily Net Sales").
 - Use line charts for trends/time series, bar charts for rankings/comparisons, pie charts for proportions.
-- If you fetched time-series or weekly sales data, always render it as a line chart.`,
+- If you fetched time-series or weekly sales data, always render it as a line chart.
+${KPI_WIDGET_INSTRUCTIONS}`,
   analysis: `Output format: ANALYSIS
+- Lead with KPI widgets for the most important figures (see KPI widgets rules).
 - Structure the response with these sections:
   ## Key Findings
   ## Trends
   ## Recommendations
 - Add an **Insights** section with 2–4 actionable observations grounded only in tool results.
-- Never invent trends not supported by the data.`,
+- Never invent trends not supported by the data.
+${KPI_WIDGET_INSTRUCTIONS}`,
 };
 
 export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
@@ -64,7 +90,8 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
 - Specific order id / "everything about this order": get_order_detail (items[].dishName are the dishes — never infer dishes from tracking alone; include fiscals + prints). Include a markdown link to /reports/order-receipt?id={order.id}.
 - Void/cancel/comp reasons: get_void_and_cancel_summary. Prep delays: get_prep_times_by_order_type, get_kitchen_station_delays.
 - Cash audit: get_cash_settlement_audit. Expenses: ${Tables.closings}. Activity/tracking: ${Tables.tracking} via get_activity_log.
-- Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).`,
+- Fraud/suspicious prompts: start with get_voids, get_staff_accountability_metrics, get_cash_settlement_audit. Call get_activity_log only when needed (large payloads — use narrow dates and limit).
+- Database changefeed / SHOW CHANGES / mutation history: ALWAYS call get_table_changefeed when the user explicitly asks (menu_item, order, category, …). Never say the tool is unavailable — call it; the result lists allowlisted tables if needed. Report event_count and include SCHEMA define_table rows when present (they count toward the DB feed total). Leave compact=false unless asked. ~14d retention after CHANGEFEED was enabled. Never call it for normal sales, inventory, or order list questions.`,
   labor: `- Staff sessions: ${Tables.time_entries} (active = clock_out is NONE).
 - Hourly labor % vs sales: get_hourly_labor_vs_sales (use phrase last Friday or peak hours).
 - Labor reports: get_labor_dashboard_snapshot, get_daily_labor_cost, get_overtime_report, etc.
@@ -91,11 +118,15 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   chart: `- Call render_chart with data from prior tool results before the final answer.`,
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.
 - Dish ingredients / recipe lines: get_dish_recipe (one dish via name/number/id; omit filters for catalog; countsOnly for dish→recipe counts; onlyMissingIngredients for dishes with no recipe; onlyWithIngredients=false to compare). Never invent ingredients; never use propose_create_dish_ingredients for read-only questions.`,
-  manage: `- Manage configuration (not sales totals): use list_* tools for floors, tables, discounts, taxes, users, roles, menus, kitchens, coupons, workflows, printers, shifts, etc.
-- For "tables on X floor": call list_tables with floor_name. For BXGY or scoped discounts: list_discounts, list_categories, list_menu_items first, then propose_create_discounts.
-- Modifier group option prices (sizes/toppings): use propose_update_modifier_groups with group + modifier + price — never propose_update_dishes (that changes the base menu item).
-- Kitchen dish routing: call get_kitchen_detail first, then propose_update_kitchens with items_add / items_remove (or items to replace all). Never change dish price for kitchen assignment.
-- Dish workflow routing: propose_update_dishes with workflow + stage_overrides (JSON stage→kitchen map).
+  manage: `- Manage configuration (not sales totals): use list_* for browse, then get_*_detail for linked graphs before propose_update_*.
+- Floors/tables: list_tables with floor_name; get_table_detail for categories/order/payment scoping before propose_update_tables.
+- Dishes: get_dish_detail for categories/tax/workflow/stage_overrides/modifier edges (not recipes — use get_dish_recipe). list_dish_modifiers before propose_*_dish_modifiers.
+- Discounts: list_discounts for overview; get_discount_detail for targets/BXGY/schedules before propose_update_discounts. For create: list_categories / list_menu_items first.
+- Coupons/extras: get_coupon_detail / get_extra_detail for targets and scoping before updates.
+- Roles: list_roles then get_role_detail (modules) before propose_update_roles.
+- Printers/print settings/tips: get_printer_detail; get_print_settings before propose_update_print_settings; get_tip_distribution before propose_update_tip_distribution (not get_tips sales totals).
+- Modifier group option prices: propose_update_modifier_groups with group + modifier + price — never propose_update_dishes for option prices.
+- Kitchen dish routing: get_kitchen_detail then propose_update_kitchens with items_add / items_remove (or items to replace all).
 - For changes: use propose_* tools — never claim tools are missing when list_* or propose_* appear in your tool list.`,
 };
 
@@ -154,8 +185,11 @@ const FULL_WORKFLOW = `Workflow:
 const buildDateContextBlock = () =>
   `Current business date (${getAppTimezone()}): ${getBusinessDateContext()}.`;
 
-export const getAiReportCorePrompt = (format: AiReportFormat = "table"): string =>
-  `${AI_ASSISTANT_PERSONA} Use tools to fetch live data — never guess numbers.
+export const getAiReportCorePrompt = (
+  format: AiReportFormat = "table",
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string =>
+  `${personaPrompt} Use tools to fetch live data — never guess numbers.
 
 ${buildDateContextBlock()}
 Date format for tool parameters: ${QUERY_DATE_FORMAT}. Currency: ${APP_CURRENCY} (${CURRENCY_SYMBOL}).
@@ -168,13 +202,17 @@ Rules:
 
 ${FORMAT_INSTRUCTIONS[format]}`;
 
-const buildCompactPrompt = (format: AiReportFormat, domains: AiReportToolDomain[]): string => {
+const buildCompactPrompt = (
+  format: AiReportFormat,
+  domains: AiReportToolDomain[],
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string => {
   const snippets = domains
     .map(domain => DOMAIN_PROMPT_SNIPPETS[domain])
     .filter(Boolean)
     .join("\n");
 
-  return `${getAiReportCorePrompt(format)}
+  return `${getAiReportCorePrompt(format, personaPrompt)}
 
 Domain hints:
 ${snippets}`;
@@ -182,8 +220,11 @@ ${snippets}`;
 
 
 
-const buildFullPrompt = (format: AiReportFormat): string =>
-  `${AI_ASSISTANT_PERSONA} You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
+const buildFullPrompt = (
+  format: AiReportFormat,
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
+): string =>
+  `${personaPrompt} You help managers understand sales, inventory, and operations using real data from their point-of-sale system.
 
 ${buildDateContextBlock()}
 ${FULL_DATABASE_CONTEXT}
@@ -204,14 +245,15 @@ export const getAiReportSystemPrompt = (
   format: AiReportFormat = "table",
   domains: AiReportToolDomain[] = [],
   compact = false,
+  personaPrompt: string = AI_ASSISTANT_PERSONA,
 ): string => {
   if (compact && domains.length > 0) {
-    return buildCompactPrompt(format, domains);
+    return buildCompactPrompt(format, domains, personaPrompt);
   }
   if (compact) {
-    return getAiReportCorePrompt(format);
+    return getAiReportCorePrompt(format, personaPrompt);
   }
-  return buildFullPrompt(format);
+  return buildFullPrompt(format, personaPrompt);
 };
 
 
@@ -234,6 +276,7 @@ export const AI_ASSISTANT_WRITE_RULES = [
   "After calling a propose_* tool, stop and wait; do not call it again or assume it was applied.",
   "Call at most one propose_* tool per assistant turn (you may include many rows in that one call). After the user confirms or cancels, continue with the next propose_* if needed (e.g. category, then dishes, then modifier groups).",
   "Creating dishes with modifier groups: (1) propose_create_dishes for the menu items and prices, (2) propose_create_modifier_groups with one row per option (group + modifier + price), (3) propose_create_dish_modifiers to attach each group to each dish (required vs optional flags). Do not use propose_import_smart_menu unless the user asks to import a full menu structure / smart menu.",
+  "For ALL updates and deletes (propose_update_* / propose_delete_*): call the matching list_* (or get_*) read tool first and pass the record id from its rows. Prefer the record id over business keys; use name, number, code or login only as a fallback when no id is available. Business keys can be duplicated or ambiguous, ids cannot.",
   "When updating dishes, call list_menu_items (or get_dish_recipe) first and pass id into propose_update_dishes. Dish numbers are not always unique — do not match updates by number alone when id is available.",
   "propose_import_smart_menu record_type values are only: dish, size_option, addon_option, dish_link, nested_override — never modifier_group.",
   "For bulk changes, call propose_* with every affected row — the user reviews each row before confirming.",
@@ -255,6 +298,10 @@ export type AiAssistantGuideContext = {
   language?: string;
   pathname?: string;
   suggestedChapter?: string | null;
+  personaId?: AssistantPersonaId | string | null;
+  deepResearch?: boolean;
+  /** Pre-formatted logged-in user block (no credentials). */
+  userContextBlock?: string | null;
 };
 
 /**
@@ -268,7 +315,15 @@ export const getAiAssistantSystemPrompt = (
   writeToolNames: string[] = [],
   guideContext: AiAssistantGuideContext = {},
 ): string => {
-  const reportPrompt = getAiReportSystemPrompt("table", domains, compact);
+  const persona = resolveAssistantPersona(guideContext.personaId);
+  // Deep research uses the full workflow/domain context even if the profile is compact.
+  const effectiveCompact = guideContext.deepResearch ? false : compact;
+  const reportPrompt = getAiReportSystemPrompt(
+    "table",
+    domains,
+    effectiveCompact,
+    persona.prompt,
+  );
   const writeToolsBlock = writeToolNames.length
     ? [
       "You are NOT read-only when write tools are listed below.",
@@ -293,19 +348,27 @@ export const getAiAssistantSystemPrompt = (
   const guideSection = guideHints.join(" ");
 
   const importCleanseHint =
-    "To fix a messy import CSV/Excel, the user attaches a file in the assistant and picks an import domain; "
-    + "they download a corrected CSV and import it on the matching AI Import screen. "
-    + "You do not invent CSV contents — summarize issues when a cleanse result is provided.";
+    "Attached files (CSV/Excel/PDF/image): the user chooses Cleanse (import domain → corrected CSV for AI Import) "
+    + "or Analyze. Spreadsheet analyze includes a text preview; PDF/image analyze includes page images — "
+    + "read those images and answer from what is visible; do not invent unseen content. "
+    + "When a cleanse summary is posted, summarize those issues; do not invent CSV contents.";
 
-  if (compact) {
+  const deepSection = guideContext.deepResearch ? DEEP_RESEARCH_PROMPT : null;
+  const userSection = guideContext.userContextBlock?.trim() || null;
+
+  if (effectiveCompact) {
     return [
-      `${AI_ASSISTANT_PERSONA} You help managers using real data from their point-of-sale system.`,
+      `${persona.prompt} You help managers using real data from their point-of-sale system.`,
+      userSection,
       reportPrompt,
       writeSection,
       guideSection,
       importCleanseHint,
-    ].join("\n\n");
+      deepSection,
+    ].filter(Boolean).join("\n\n");
   }
 
-  return `${reportPrompt}\n\n${writeSection}\n\n${guideSection}\n\n${importCleanseHint}`;
+  return [userSection, reportPrompt, writeSection, guideSection, importCleanseHint, deepSection]
+    .filter(Boolean)
+    .join("\n\n");
 };

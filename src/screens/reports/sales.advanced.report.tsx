@@ -9,7 +9,7 @@ import {Menu} from "@/api/model/menu.ts";
 import {OrderVoid} from "@/api/model/order_void.ts";
 import {formatNumber, safeNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
-import {getOrderAmountDueFromPayments, getOrderFilteredItems, getOrderPaymentTotals, getOrderRounding, getOrderSettlementFigures, type OrderPaymentTotals} from "@/lib/order.ts";
+import {getOrderPaymentTotals} from "@/lib/order.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 import { useShowInclusivePrices } from "@/hooks/useShowInclusivePrices.ts";
@@ -25,6 +25,11 @@ import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 import {getRowBranchId} from "@/api/reports/shared/branch-scope.ts";
 import {buildBranchInsideCondition} from "@/api/reports/shared/query.ts";
+import {orderReceiptUrl} from "@/routes/posr.ts";
+import {
+  calculateAdvancedSalesOrderTotals,
+  exportAdvancedSalesExcel,
+} from "@/screens/reports/sales.advanced.export.ts";
 
 const ORDER_ROW_HEIGHT = 56;
 const ITEMS_ROW_BASE_HEIGHT = 48;
@@ -422,8 +427,25 @@ export const SalesAdvancedReport = () => {
     );
   }
 
+  const handleExportExcel = () => {
+    exportAdvancedSalesExcel({
+      orders,
+      orderVoids,
+      filters: {
+        showMenuItems: filters.showMenuItems,
+        showDetails: filters.showDetails,
+      },
+      showInclusive,
+      fileName: "advanced-sales.xlsx",
+    });
+  };
+
   return (
-    <ReportsLayout title={t('titles.salesAdvanced')} subtitle={subtitle}>
+    <ReportsLayout
+      title={t('titles.salesAdvanced')}
+      subtitle={subtitle}
+      onExportExcel={handleExportExcel}
+    >
       <BranchBreakdown
         enabled={branchScope.isByBranch}
         rows={orders}
@@ -567,49 +589,17 @@ const SalesAdvancedBody = ({
       ? rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
       : 0;
 
-  const getOrderPaymentBreakdown = (paymentTotals: OrderPaymentTotals): string => {
+  const calculateOrderTotals = (order: Order) => {
+    const totals = calculateAdvancedSalesOrderTotals(order);
+    const paymentTotals = getOrderPaymentTotals(order);
     const paymentMap = new Map<string, number>(Object.entries(paymentTotals.nonCashBreakdown));
     paymentMap.set('Cash', (paymentMap.get('Cash') ?? 0) + paymentTotals.cashAmount);
-
-    if (paymentMap.size === 0) return '-';
-
-    return Array.from(paymentMap.entries())
-      .map(([name, amount]) => `${name}: ${withCurrency(amount)}`)
-      .join(', ');
-  };
-
-  const calculateOrderTotals = (order: Order) => {
-    const figures = getOrderSettlementFigures(order);
-    const filteredItems = getOrderFilteredItems(order);
-    const itemsCount = safeNumber(
-      filteredItems.reduce((sum, item) => sum + safeNumber(item?.quantity), 0)
-    );
-    const covers = safeNumber(order.covers);
-    const paymentTotals = getOrderPaymentTotals(order);
-    const amountCollected = paymentTotals.amountCollected;
-    const amountDue = getOrderAmountDueFromPayments(order);
-    const changeDue = paymentTotals.change;
-    const paymentBreakdown = getOrderPaymentBreakdown(paymentTotals);
-    const net = safeNumber(amountCollected - figures.serviceCharges - figures.tax);
-    const rounding = getOrderRounding(order);
-
-    return {
-      itemsCount,
-      covers,
-      salePriceWithoutTax: figures.itemsTotal,
-      taxes: figures.tax,
-      tips: figures.tips,
-      amountDue,
-      serviceCharges: figures.serviceCharges,
-      discounts: safeNumber(figures.lineDiscounts + figures.cartDiscount),
-      coupons: figures.couponDiscount,
-      net,
-      rounding,
-      amountCollected,
-      amountCollectedForDetail: paymentTotals.totalReceivedWithChange,
-      changeDue,
-      paymentBreakdown,
-    };
+    const paymentBreakdown = paymentMap.size === 0
+      ? '-'
+      : Array.from(paymentMap.entries())
+        .map(([name, amount]) => `${name}: ${withCurrency(amount)}`)
+        .join(', ');
+    return {...totals, paymentBreakdown};
   };
 
   const totals = useMemo(() => {
@@ -698,8 +688,34 @@ const SalesAdvancedBody = ({
           <div>{dateStr}</div>
           <div className="text-muted">{timeStr}</div>
         </td>
-        <td className="py-3 px-3 text-sm text-foreground">{order.auto_id}</td>
-        <td className="py-3 px-3 text-sm text-foreground">{order.invoice_number}</td>
+        <td className="py-3 px-3 text-sm text-foreground">
+          <a
+            href={orderReceiptUrl({
+              id: order.id,
+              orderId: order.auto_id,
+              invoice: order.invoice_number,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono font-semibold text-primary underline print:no-underline print:text-foreground"
+          >
+            {order.auto_id}
+          </a>
+        </td>
+        <td className="py-3 px-3 text-sm text-foreground">
+          <a
+            href={orderReceiptUrl({
+              id: order.id,
+              orderId: order.auto_id,
+              invoice: order.invoice_number,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-mono font-semibold text-primary underline print:no-underline print:text-foreground"
+          >
+            {order.invoice_number}
+          </a>
+        </td>
         <td className="py-3 px-3 text-sm text-foreground">{orderTakerName}</td>
         <td className="py-3 px-3 text-sm text-foreground">{cashierName}</td>
         <td className="py-3 px-3 text-sm text-foreground">{tableName}</td>

@@ -4,7 +4,8 @@
     "nextDate": "التاريخ التالي",
     "printSummary": "طباعة الملخص",
     "productMixReport": "تقرير خليط المنتجات",
-    "serverSales": "مبيعات الخادم"
+    "serverSales": "مبيعات الخادم",
+    "printMinimalSummary": "طباعة الملخص المختصر"
   },
   "security": {
     "printSummaryDescription": "طباعة الملخص",
@@ -12,7 +13,8 @@
     "productMixDescription": "تقرير خليط المنتجات",
     "productMixModule": "تقرير خليط المنتجات",
     "serverSalesDescription": "مبيعات الخادم",
-    "serverSalesModule": "مبيعات الخادم"
+    "serverSalesModule": "مبيعات الخادم",
+    "printMinimalSummaryDescription": "طباعة الملخص المختصر"
   },
   "unknown": {
     "user": "غير معروف",
@@ -30,22 +32,28 @@
       "settlementCashier": "3. التسوية والصندوق",
       "operationalControls": "4. الضوابط التشغيلية",
       "productMix": "5. خليط المنتجات",
-      "paymentTypes": "6. أنواع الدفع",
-      "taxesBreakdown": "7. تفصيل الضرائب",
-      "discountsBreakdown": "8. تفصيل الخصومات",
-      "extrasBreakdown": "9. تفصيل الإضافات",
-      "couponsBreakdown": "10. تفصيل القسائم"
+      "paymentTypes": "8. أنواع الدفع",
+      "taxesBreakdown": "9. تفصيل الضرائب",
+      "discountsBreakdown": "10. تفصيل الخصومات",
+      "extrasBreakdown": "12. تفصيل الإضافات",
+      "couponsBreakdown": "13. تفصيل القسائم",
+      "orderTypes": "6. المبيعات حسب نوع الطلب",
+      "orderTakers": "7. المبيعات حسب آخذ الطلب",
+      "tipsBreakdown": "11. الإكراميات"
     },
     "subtitles": {
       "surchargesTaxes": "الرسوم الإضافية والضرائب المحصّلة (من الطلبات؛ تُحسب عادةً على الصافي بعد الخصم).",
       "settlementCashier": "عرض درج النقد.",
       "operationalControls": "إشارات التدقيق (الإلغاءات منفصلة عن إجمالي المبيعات).",
       "productMix": "الفئات مجمّعة مع الأطباق وإضافاتها.",
-      "paymentTypes": "المبلغ المحصّل مقسّماً حسب طريقة الدفع.",
+      "paymentTypes": "المبلغ المحصّل وعدد الدفعات حسب طريقة الدفع (% من الإجمالي المستحق).",
       "taxesBreakdown": "مكوّنات الضريبة المحصّلة من الطلبات.",
       "discountsBreakdown": "خطط الخصم المطبّقة في هذه الفترة.",
       "extrasBreakdown": "تفصيل الإضافات على مستوى الطلب.",
-      "couponsBreakdown": "القسائم المستبدلة وقيمها."
+      "couponsBreakdown": "القسائم المستبدلة وقيمها.",
+      "orderTypes": "المبلغ المستحق (قبل الإكراميات) وعدد الطلبات حسب النوع.",
+      "orderTakers": "المبلغ المستحق (قبل الإكراميات) وعدد الطلبات حسب آخذ الطلب.",
+      "tipsBreakdown": "مبلغ الإكرامية وعدد الطلبات ذات الإكرامية."
     },
     "rows": {
       "exclusiveSales": "المبيعات الحصرية",
@@ -97,7 +105,9 @@
       "averageCover": "المبلغ المستحق (قبل الإكراميات) ÷ عدد الضيوف.",
       "ordersChecks": "عدد الفواتير/الطلبات المغلقة.",
       "averageOrderCheck": "المبلغ المستحق (قبل الإكراميات) ÷ عدد الطلبات.",
-      "roundingLegacy": "المبلغ المحصّل - المبلغ المستحق"
+      "roundingLegacy": "المبلغ المحصّل - المبلغ المستحق",
+      "coversWithAverage": "عدد الضيوف والمبلغ المستحق (قبل الإكراميات) ÷ عدد الضيوف.",
+      "ordersChecksWithAverage": "عدد الطلبات/الفواتير والمبلغ المستحق (قبل الإكراميات) ÷ الطلبات."
     },
     "columns": {
       "item": "الصنف",
@@ -111,7 +121,9 @@
       "noTaxRows": "لا توجد صفوف ضريبة لهذا التاريخ.",
       "noDiscountRows": "لا توجد صفوف خصم لهذا التاريخ.",
       "noExtras": "لم يُعثر على إضافات لهذا التاريخ.",
-      "noCoupons": "لا يوجد استخدام قسائم لهذا التاريخ."
+      "noCoupons": "لا يوجد استخدام قسائم لهذا التاريخ.",
+      "noOrderTypes": "لا توجد بيانات لأنواع الطلبات لهذا التاريخ.",
+      "noOrderTakers": "لا توجد بيانات لآخذ الطلب لهذا التاريخ."
     },
     "footer": "التسلسل: إجمالي المبيعات → الخصومات → صافي المبيعات → رسوم الخدمة → الضرائب → الإكراميات → الإجمالي الكلي → المحصّل. يُجمّع خليط المنتجات حسب الفئة مع الأطباق المتداخلة داخلها.",
     "legacy": {
@@ -127,7 +139,18 @@
       "averageCover": "متوسط الضيف",
       "ordersChecks": "الطلبات/الفواتير",
       "averageOrderCheck": "متوسط الطلب/الفاتورة"
-    }
+    },
+    "unknownOrderType": "نوع طلب غير معروف",
+    "unknownTaker": "غير معروف",
+    "windowRange": "الفترة: {{range}}",
+    "sectionsMinimal": {
+      "salesRevenue": "1. إيرادات المبيعات",
+      "surchargesTaxes": "2. الرسوم الإضافية والضرائب",
+      "settlementCashier": "3. التسوية والصندوق",
+      "operationalControls": "4. الضوابط التشغيلية",
+      "paymentTypes": "5. أنواع الدفع"
+    },
+    "productMixTitle": "خليط المنتجات — {{date}}"
   },
   "clock": {
     "title": "ساعة الحضور",

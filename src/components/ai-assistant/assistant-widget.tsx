@@ -11,6 +11,7 @@ import {
   faCompress,
   faCircleQuestion,
   faDownload,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
@@ -37,7 +38,17 @@ import {
   downloadCleanseCsv,
   type CleanseResultPayload,
 } from "@/components/ai-assistant/assistant-cleanse-panel.tsx";
+import {AssistantSettingsModal} from "@/components/ai-assistant/assistant-settings-modal.tsx";
+import {
+  formatAnalyzeUserMessage,
+  type AssistantFilePreview,
+} from "@/lib/ai/assistant-file-preview.ts";
 import {AI_ASSISTANT_NAME} from "@/lib/ai/assistant-config.ts";
+import type {AssistantPersonaId} from "@/lib/ai/assistant-personas.ts";
+import {
+  loadAssistantPreferences,
+  saveAssistantPreferences,
+} from "@/lib/ai/assistant-preferences.ts";
 import {isAssistantWidgetPath} from "@/lib/ai/assistant-widget-visibility.ts";
 import {buildAssistantContextHistory} from "@/lib/ai/assistant-conversation-context.ts";
 import {LOGIN} from "@/routes/posr.ts";
@@ -48,6 +59,10 @@ import {
   saveAssistantConversation,
   type AssistantDisplayEntry,
 } from "@/lib/ai/assistant-conversation.storage.ts";
+import {
+  formatAssistantUserContext,
+  resolveAssistantUserContext,
+} from "@/lib/ai/assistant-user-context.ts";
 
 const EXPANDED_STORAGE_KEY = "ai-assistant-expanded";
 const AUTO_EXPAND_MIN_LENGTH = 800;
@@ -98,6 +113,10 @@ export function AiAssistantWidget() {
   const [hydrated, setHydrated] = useState(false);
   const [completionPulse, setCompletionPulse] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [analyzePreview, setAnalyzePreview] = useState<AssistantFilePreview | null>(null);
+  const [personaId, setPersonaId] = useState<AssistantPersonaId>("analyst");
+  const [deepResearch, setDeepResearch] = useState(false);
 
   const assistantName = AI_ASSISTANT_NAME;
 
@@ -118,6 +137,10 @@ export function AiAssistantWidget() {
       return;
     }
 
+    const prefs = loadAssistantPreferences(userId);
+    setPersonaId(prefs.personaId);
+    setDeepResearch(prefs.deepResearch);
+
     let cancelled = false;
     setHydrated(false);
 
@@ -137,6 +160,11 @@ export function AiAssistantWidget() {
       cancelled = true;
     };
   }, [userId]);
+
+  useEffect(() => {
+    if (!userId) return;
+    saveAssistantPreferences(userId, {personaId, deepResearch});
+  }, [userId, personaId, deepResearch]);
 
   useEffect(() => {
     if (!userId || !hydrated) return;
@@ -221,6 +249,7 @@ export function AiAssistantWidget() {
     setHistory([]);
     setPending(null);
     setError(null);
+    setAnalyzePreview(null);
     void clearAssistantConversation(userId);
   }, [entries.length, history.length, loading, userId]);
 
@@ -254,23 +283,43 @@ export function AiAssistantWidget() {
     const trimmed = prompt.trim();
     if (!trimmed || loading) return;
 
+    const modelPrompt = analyzePreview
+      ? formatAnalyzeUserMessage(trimmed, analyzePreview)
+      : trimmed;
+    const userImageUrls = analyzePreview?.imageUrls ?? [];
+    const displayContent = analyzePreview
+      ? t("common:aiAssistant.analyzeUserLabel", {
+          file: analyzePreview.fileName,
+          question: trimmed,
+          defaultValue: "[File: {{file}}]\n{{question}}",
+        })
+      : trimmed;
+
+    // History stores text only — never persist large vision data URLs.
     const conversationHistory = buildAssistantContextHistory([
       ...entries,
-      {role: "user", content: trimmed},
+      {role: "user", content: modelPrompt},
     ]);
 
-    setEntries(prev => [...prev, {role: "user", content: trimmed}]);
+    setEntries(prev => [...prev, {role: "user", content: displayContent}]);
     setPrompt("");
+    setAnalyzePreview(null);
     setLoading(true);
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {
+      const userContext = await resolveAssistantUserContext(db, user);
+      const userContextBlock = formatAssistantUserContext(userContext);
+      const result = await runAiAssistantAgent(db, t, modelPrompt, {
         allowedModules,
         writeContext,
         language: i18n.language,
         pathname: location.pathname,
         conversationHistory,
+        userImageUrls: userImageUrls.length ? userImageUrls : undefined,
+        personaId,
+        deepResearch,
+        userContextBlock,
       });
       applyResult(result);
     } catch (err) {
@@ -332,6 +381,8 @@ export function AiAssistantWidget() {
           writeContext,
           language: i18n.language,
           pathname: location.pathname,
+          personaId,
+          deepResearch,
         },
       );
       applyResult(result);
@@ -345,6 +396,8 @@ export function AiAssistantWidget() {
             writeContext,
             language: i18n.language,
             pathname: location.pathname,
+            personaId,
+            deepResearch,
           },
         );
         applyResult(result);
@@ -373,6 +426,8 @@ export function AiAssistantWidget() {
           writeContext,
           language: i18n.language,
           pathname: location.pathname,
+          personaId,
+          deepResearch,
         },
       );
       applyResult(result);
@@ -419,6 +474,18 @@ export function AiAssistantWidget() {
           {t("common:aiAssistant.title", {name: assistantName})}
         </span>
         <div className="flex shrink-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            aria-label={t("common:aiAssistant.settingsTitle", {defaultValue: "Assistant settings"})}
+            title={t("common:aiAssistant.settingsTitle", {defaultValue: "Assistant settings"})}
+            className={cn(
+              "text-muted hover:text-foreground",
+              (deepResearch || personaId !== "analyst") && "text-warning-600",
+            )}
+          >
+            <FontAwesomeIcon icon={faGear} />
+          </button>
           <button
             type="button"
             onClick={() => setShowExamples(prev => !prev)}
@@ -569,6 +636,8 @@ export function AiAssistantWidget() {
         allowedModules={allowedModules}
         pathname={location.pathname}
         disabled={loading || !!pending}
+        analyzePreview={analyzePreview}
+        onAnalyzeReady={setAnalyzePreview}
         onCleansed={handleCleansed}
         onError={message => setError(message || null)}
       />
@@ -601,6 +670,16 @@ export function AiAssistantWidget() {
           {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send")}
         </Button>
       </div>
+
+      <AssistantSettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        disabled={loading || !!pending}
+        personaId={personaId}
+        onPersonaChange={setPersonaId}
+        deepResearch={deepResearch}
+        onDeepResearchChange={setDeepResearch}
+      />
     </div>
   );
 }

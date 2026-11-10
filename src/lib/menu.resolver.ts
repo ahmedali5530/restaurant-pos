@@ -138,6 +138,23 @@ export const isCategoryShownOnMenu = (category: Category | null | undefined): bo
   return category?.show_in_menu !== false;
 };
 
+/**
+ * Keep dishes with no categories, or at least one category shown on the menu.
+ * Nested dish.categories often omit show_in_menu — resolve via the catalog
+ * category list (visibleIds).
+ */
+export const isDishShownOnMenu = (
+  dish: Dish | null | undefined,
+  visibleCategoryIds?: Set<string>,
+): boolean => {
+  const cats = dish?.categories ?? [];
+  if (cats.length === 0) return true;
+  if (visibleCategoryIds) {
+    return cats.some((category) => visibleCategoryIds.has(category.id.toString()));
+  }
+  return cats.some((category) => isCategoryShownOnMenu(category));
+};
+
 const resolveMenuCategories = (categories: Category[], dishes: Dish[]): Category[] => {
   const categoryIds = new Set<string>();
   dishes.forEach((dish) => {
@@ -165,7 +182,12 @@ export const resolveMenuAwareData = ({
   const safeCategories = [...(categories ?? [])]
     .filter(isCategoryShownOnMenu)
     .sort(sortByPriorityName);
-  const safeDishes = [...(dishes ?? [])].sort(sortByPriorityName);
+  const visibleCategoryIds = new Set(
+    safeCategories.map((category) => category.id.toString()),
+  );
+  const safeDishes = [...(dishes ?? [])]
+    .filter((dish) => isDishShownOnMenu(dish, visibleCategoryIds))
+    .sort(sortByPriorityName);
   const normalizedMenus = normalizeMenus(menus);
   const activeMenus = normalizedMenus.filter((menu) => isMenuActiveNow(menu, now));
   if (activeMenus.length === 0) {
@@ -205,7 +227,7 @@ export const resolveMenuAwareData = ({
         : undefined);
     // Prefer catalog dish (has live available / sale limit) over nested menu snapshot.
     const dish = resolveMenuDish(base, data.menuItem, data.menuName);
-    if (!dish) {
+    if (!dish || !isDishShownOnMenu(dish, visibleCategoryIds)) {
       return;
     }
 

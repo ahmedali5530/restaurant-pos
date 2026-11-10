@@ -433,7 +433,7 @@
     "printModeText": "Tekst (ESC/POS)",
     "printModeRaster": "Raster (afbeelding)",
     "paperWidthMm": "Papierbreedte",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Fysieke papierbreedte voor raster en beeldcentrering (58mm = 384 dots, 72mm = 512 dots, 80mm = 576 dots).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Rasterdrempel",
@@ -469,7 +469,14 @@
     "modifierOptionSaleLimit": "Verkooplimiet (dit gerecht)",
     "kraItemClsCd": "KRA-artikelklassecode",
     "kraTaxTyCd": "KRA-belastingtype (A–E)",
-    "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken."
+    "kraFiscalHint": "Optionele Kenia-eTIMS-overschrijvingen. Laat leeg om de KRA-providerstandaarden te gebruiken.",
+    "showOrderType": "Besteltype tonen",
+    "showCustomer": "Klant tonen",
+    "showTableName": "Tafelnaam tonen",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Artikeltotaal tonen",
+    "accumulateSameItems": "Zelfde artikelen samentellen",
+    "accumulateSameItemsHint": "Identieke gerechten (zelfde modifiers en notities) samenvoegen tot één regel met gecombineerde hoeveelheid."
   },
   "dishView": {
     "detailsTitle": "Gerechtdetails",
@@ -628,6 +635,7 @@
       "reports.order_fiscal": "Bestelling fiscaal",
       "reports.expense": "Uitgaven",
       "reports.activity": "Activiteit",
+      "reports.changefeed": "Tabel-changefeed",
       "reports.product_mix_weekly": "Productmix wekelijks",
       "reports.product_mix_summary": "Productmixoverzicht",
       "reports.products_hourly": "Producten per uur",
@@ -835,7 +843,11 @@
       "reports": "Rapporten",
       "inventory": "Voorraad",
       "settings": "Instellingen",
-      "admin.catalog_publish": "Catalogus publiceren"
+      "admin.catalog_publish": "Catalogus publiceren",
+      "settings.backup": "Instellingenback-up",
+      "settings.restore": "Instellingen herstellen",
+      "settings.database": "Databaseback-up",
+      "settings.customer_display": "Klantenscherm"
     }
   },
   "discountEngine": {

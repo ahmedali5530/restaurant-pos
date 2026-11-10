@@ -15,10 +15,12 @@ interface Props {
   serviceChargeType: DiscountType
 
   order: Order
+  /** When set, OK commits through this (PIN-protected) instead of setters directly. */
+  onCommit?: (serviceCharge: number, serviceChargeType: DiscountType) => void
 }
 
 export const OrderPaymentServiceCharges = ({
-  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order
+  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order, onCommit
 }: Props) => {
   const {t} = useTranslation(['payment', 'common']);
   const [settings] = useAtom(appSettings);
@@ -30,7 +32,7 @@ export const OrderPaymentServiceCharges = ({
     3, 5, 12
   ]);
 
-  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0];
+  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const serviceChargeSetting = useMemo(() => {
     return (settings.settings ?? []).find(
@@ -119,33 +121,37 @@ export const OrderPaymentServiceCharges = ({
             </Button>
           ))}
         </div>
-        <div className="flex gap-3 flex-wrap">
-          {keyboardKeys.map((item, index) => (
+        <div className="text-2xl text-center" data-testid="payment-service-charges-draft-value">
+          {draftServiceChargeType === DiscountType.Percent
+            ? `${draftServiceCharge}%`
+            : withCurrency(draftServiceCharge)}
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {keyboardKeys.map((item) => (
             <Button
-              className="w-[70px]"
-              variant="primary"
-              key={index}
+              key={String(item)}
+              size="xl"
               flat
-              disabled={item === ''}
+              variant="primary"
               onClick={() => {
-                if (item === '') return;
                 setDraftServiceChargeType(DiscountType.Fixed);
-                setDraftServiceCharge(Number(`${draftServiceChargeType === DiscountType.Fixed ? draftServiceCharge : ''}${item}`));
+                setDraftServiceCharge((prev) => {
+                  const base = draftServiceChargeType === DiscountType.Fixed ? String(prev) : '';
+                  return Number(`${base}${item}`);
+                });
               }}
-              size="lg"
             >
               {item}
             </Button>
           ))}
           <Button
-            className="w-[70px]"
-            variant="danger"
+            size="xl"
             flat
+            variant="primary"
             onClick={() => {
               setDraftServiceCharge(0);
               setDraftServiceChargeType(DiscountType.Fixed);
             }}
-            size="lg"
           >
             C
           </Button>
@@ -159,6 +165,10 @@ export const OrderPaymentServiceCharges = ({
           className="w-full"
           data-testid="payment-service-charges-apply"
           onClick={() => {
+            if (onCommit) {
+              onCommit(draftServiceCharge, draftServiceChargeType);
+              return;
+            }
             setServiceCharge(draftServiceCharge);
             setServiceChargeType(draftServiceChargeType);
           }}

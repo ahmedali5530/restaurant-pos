@@ -7,7 +7,7 @@ import {
   INVENTORY,
   LOGIN,
   REPORTS,
-  REPORTS_AI, SETTINGS,
+  REPORTS_AI, SETTINGS, SUMMARY,
   TIP_DISTRIBUTION,
 } from "@/routes/posr.ts";
 
@@ -25,6 +25,7 @@ export const isAssistantWidgetPath = (pathname: string): boolean => {
   if (pathname === ACCOUNTS) return true;
   if (pathname === INTEGRATIONS) return true;
   if (pathname === SETTINGS) return true;
+  if (pathname === SUMMARY) return true;
 
   if (pathname === INVENTORY || pathname.startsWith(`${INVENTORY}/`)) return true;
 
