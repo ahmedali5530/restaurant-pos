@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-10',
+    title: 'Split orders: drag items on desktop',
+    items: [
+      'Dragging dishes between split checks works in POSR Desktop. The window no longer captures those drags as file drops.',
+    ],
+  },
+  {
     date: '2026-11-08',
     title: 'Payment: card amounts follow total changes',
     items: [
