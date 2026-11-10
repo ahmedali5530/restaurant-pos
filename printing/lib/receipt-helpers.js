@@ -495,6 +495,21 @@ function formatMoney(amount, symbol) {
 }
 
 /**
+ * Replace fancy punctuation that thermal printers garble (mostly dash-like glyphs).
+ * Keeps letters from other languages intact.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function toPrinterText(value) {
+  return String(value ?? '')
+    .replace(/[\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-')
+    .replace(/\u2026/g, '...')
+    .replace(/[\u00B7\u2022\u2219]/g, '-')
+    .replace(/\u2192/g, '->')
+    .replace(/\u00D7/g, 'x');
+}
+
+/**
  * Print one line: label left, value right using fixed-width padding.
  * @param {Object} printer - escpos Printer
  * @param {string} left
@@ -548,7 +563,12 @@ function printLineLeftRight(printer, left, right, opts) {
   const size = options.size || [1, 1];
   const [w, h] = size;
   const textSize = w === 2 && h === 2 ? 'large' : (w !== 1 || h !== 1 ? 'medium' : 'normal');
+  // Font B (~9x17) is smaller than Font A; column strings stay Font-A width for alignment.
+  const useFontB = options.font === 'B' || options.small === true;
   hardResetLayout(printer);
+  if (useFontB && typeof printer.font === 'function') {
+    printer.font('B');
+  }
   if (textSize !== 'normal') applyTextSize(printer, textSize);
   if (options.style === 'bold-underline') printer.style('bu');
   else if (options.style === 'bold') printer.style('b');
@@ -1724,6 +1744,7 @@ module.exports = {
   formatDividerLine,
   formatCenteredHardwareLine,
   printLineLeftRight,
+  toPrinterText,
   sendCashDrawerPulse,
   printFiscalQrRow,
   printFiscalLogoThenQrFallback,

@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-10',
+    title: 'Server sales uses closing-cycle orders',
+    items: [
+      'Server Sales print now totals guests, checks, and sales from the same closing-cycle order window as Summary — no clock-in/out attendance filter.',
+    ],
+  },
+  {
     date: '2026-11-09',
     title: 'Catalog Sync now removes HQ deletes',
     items: [
