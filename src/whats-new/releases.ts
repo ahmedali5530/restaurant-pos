@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-09',
+    title: 'Absolute invoice and auto_id from gateway',
+    items: [
+      'New checks no longer show a random 6-character placeholder — the UI waits for the gateway invoice number when online, or shows a pending dash offline until sync.',
+      'auto_id is minted by the gateway on order create (shared sequence across tills), so local reserved-block jumps are gone.',
+    ],
+  },
+  {
     date: '2026-11-08',
     title: 'Payment: card amounts follow total changes',
     items: [

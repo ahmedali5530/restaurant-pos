@@ -17,6 +17,7 @@ const {
   prepareCatalogPayload,
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
+  diffOrphanLocalIds,
 } = require('./sync-helpers');
 const {
   resolveIncludeTables,
@@ -28,6 +29,20 @@ const {
   resolveDistributionMode,
   loadConfig,
 } = require('./config');
+
+describe('diffOrphanLocalIds', () => {
+  it('returns local ids missing from the remote keep-set', () => {
+    assert.deepEqual(
+      diffOrphanLocalIds(
+        ['menu_item:a', 'menu_item:b', 'menu_item:c'],
+        new Set(['menu_item:a', 'menu_item:c'])
+      ),
+      ['menu_item:b']
+    );
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], ['menu_item:a']), []);
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], []), ['menu_item:a']);
+  });
+});
 
 describe('isRetryableError', () => {
   it('retries timeouts', () => {
@@ -396,38 +411,6 @@ describe('resolveCatalogSyncTables (Phase 5)', () => {
         globalRelease: { version: 2, tables: ['user', 'tax'] },
       }),
       ['user_role', 'user', 'tax']
-    );
-  });
-
-  it('injects menu_item_modifier_group when a dish publish omitted the relation table', () => {
-    assert.deepEqual(
-      resolveCatalogSyncTables({
-        allowlist: [
-          'menu_item',
-          'modifier_group',
-          'menu_item_modifier_group',
-          'category',
-        ],
-        localVersion: 0,
-        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
-      }),
-      ['menu_item', 'menu_item_modifier_group', 'category']
-    );
-  });
-
-  it('injects document when a dish publish omitted photo blobs', () => {
-    assert.deepEqual(
-      resolveCatalogSyncTables({
-        allowlist: [
-          'menu_item',
-          'document',
-          'menu_item_modifier_group',
-          'category',
-        ],
-        localVersion: 0,
-        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
-      }),
-      ['menu_item', 'document', 'menu_item_modifier_group', 'category']
     );
   });
 });

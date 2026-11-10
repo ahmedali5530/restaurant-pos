@@ -94,13 +94,15 @@ async function numberSeriesForPolicy(): Promise<NumberSeries[]> {
   try {
     const row = await posStore.getGlobalSetting(NUMBER_POLICY_KEY);
     const policy = normalizeNumberPolicy(row?.values ?? row?.payload?.values);
+    // Invoice pools only for terminal/hybrid mint. auto_id is always
+    // gateway-minted on CREATE — never refill local auto_id blocks.
     if (policyUsesLocalInvoicePool(policy)) {
-      return ['invoice', 'auto_id'];
+      return ['invoice'];
     }
   } catch {
-    // Default: gateway mint — no invoice pool.
+    // Default: gateway mint — no local number pools.
   }
-  return ['auto_id'];
+  return [];
 }
 
 let syncInFlight: Promise<void> | null = null;
@@ -294,6 +296,59 @@ export class TerminalSyncService {
           });
       }, SYNC_WAKE_DEBOUNCE_MS);
     });
+  }
+
+  /**
+   * Force-push once, then poll Dexie until absolute invoice (+ optional auto_id).
+   * Does not hammer /sync — at most one retry push if assignments are still missing.
+   */
+  async awaitOrderNumbers(
+    orderId: string,
+    options?: { timeoutMs?: number; requireAutoId?: boolean },
+  ): Promise<boolean> {
+    const timeoutMs = options?.timeoutMs ?? 15_000;
+    // Invoice is the user-facing absolute number; auto_id is optional unless asked.
+    const requireAutoId = options?.requireAutoId === true;
+    const key = orderId.includes(':') ? orderId : `order:${orderId}`;
+    const deadline = Date.now() + timeoutMs;
+
+    const hasNumbers = async (): Promise<boolean> => {
+      const row = await posStore.getOrder(key).catch(() => null);
+      if (!row) return false;
+      const hasInvoice =
+        (typeof row.invoice_display === 'string' && row.invoice_display.trim().length > 0)
+        || (row.invoice_number != null && Number.isFinite(Number(row.invoice_number)));
+      if (!hasInvoice) return false;
+      if (!requireAutoId) return true;
+      return row.auto_id != null && Number.isFinite(Number(row.auto_id));
+    };
+
+    if (await hasNumbers()) return true;
+
+    try {
+      await this.synchronize({ force: true });
+    } catch {
+      // Concurrent sync may still land assignments — keep polling Dexie.
+    }
+
+    if (await hasNumbers()) return true;
+
+    // One delayed retry covers the case where CREATE landed in the outbox after
+    // a racing drain of an empty batch. Never re-sync on every poll tick.
+    let retried = false;
+    while (Date.now() < deadline) {
+      if (await hasNumbers()) return true;
+      await new Promise<void>((resolve) => setTimeout(resolve, 150));
+      if (!retried && Date.now() >= deadline - timeoutMs + 1_500) {
+        retried = true;
+        try {
+          await this.synchronize({ force: true });
+        } catch {
+          // ignore
+        }
+      }
+    }
+    return hasNumbers();
   }
 
   async initialize(online: boolean): Promise<void> {
@@ -664,12 +719,16 @@ export class TerminalSyncService {
       }
     }
 
-    if (options?.required) {
-      const autoIdLeft = await posStore.countReservedNumbers('auto_id');
-      if (autoIdLeft === 0) {
+    // auto_id is gateway-minted on CREATE — no local pool to require.
+    if (options?.required && seriesList.includes('invoice')) {
+      const invoiceLeft = await posStore.countReservedNumbers(
+        'invoice',
+        getBusinessDayUnixRange().day,
+      );
+      if (invoiceLeft === 0) {
         throw lastError instanceof Error
           ? lastError
-          : new Error('No reserved receipt numbers after refill — check the gateway');
+          : new Error('No reserved invoice numbers after refill — check the gateway');
       }
     }
   }

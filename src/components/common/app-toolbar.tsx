@@ -234,6 +234,7 @@ export function AppToolbar() {
       className="fixed bottom-0 left-0 right-0 z-[9990] flex h-[var(--app-toolbar-h)] items-center justify-between gap-3 border-t border-border bg-surface-elevated px-4 pointer-events-auto"
       data-testid="app-toolbar"
       data-app-toolbar
+      data-react-aria-top-layer="true"
       style={{ height: APP_TOOLBAR_HEIGHT }}
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">
