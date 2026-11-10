@@ -665,10 +665,20 @@ export const OrderPayment = ({
   };
 
   const print = async () => {
-    const o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
+    let o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
     if (!o) {
       toast.error(t('payment:errors.createOrder'));
       return;
+    }
+    // If order-level tax is set but amount hasn't landed yet (fast settle race), recompute once.
+    const taxRef = o.tax != null ? String((o.tax as any)?.id ?? o.tax) : '';
+    if (taxRef && !(Number(o.tax_amount) > 0)) {
+      await posStore.recomputeOrderTaxes(String(order.id)).catch(() => undefined);
+      o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
+      if (!o) {
+        toast.error(t('payment:errors.createOrder'));
+        return;
+      }
     }
     const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id).catch(() => []);
 
@@ -1115,6 +1125,7 @@ export const OrderPayment = ({
             total={total}
             resolvePayable={resolvePayable}
             onComplete={onPayment}
+            flushDraft={flushOrderProgress}
             extras={extras}
             setTax={setTax}
             discountAmount={cartTotals.discountTotal}
