@@ -76,12 +76,12 @@ export const CartItem = ({item, index}: Props) => {
     <>
       <div
         className={cn(
-          "flex flex-col rounded-2xl gap-1 cursor-pointer select-none px-2 text-foreground",
+          "flex flex-col gap-1 cursor-pointer select-none px-2 text-foreground border-b-2",
           item.isSelected
             ? 'bg-neutral-300 dark:bg-neutral-700'
             : item.isHold
               ? 'bg-warning-100 dark:bg-warning-900/50'
-              : 'bg-canvas',
+              : '',
         )}
         onClick={() => {
           if (item.deleted_at === undefined && (item.newOrOld === 'new' || item.isHold)) {
@@ -100,20 +100,7 @@ export const CartItem = ({item, index}: Props) => {
       >
         <div className="flex">
           {item.newOrOld === MenuItemType.old && (
-            <>
-              <span className="p-2 px-3 justify-center items-center">{item.quantity} &times;</span>
-              {/*{item.deleted_at === undefined && (*/}
-              {/*  <IconTooltipButton label={t('common:actions.remove')}*/}
-              {/*    flat*/}
-              {/*   */}
-              {/*    variant={'danger'}*/}
-              {/*    onClick={() => {*/}
-              {/*      deleteOrderItem(item)*/}
-              {/*    }}*/}
-              {/*  ><FontAwesomeIcon icon={faTrash}/></IconTooltipButton>*/}
-              {/*)}*/}
-
-            </>
+            <span className="p-2 px-3 justify-center items-center">{item.quantity} &times;</span>
           )}
           <div className={
             cn(
@@ -153,6 +140,7 @@ export const CartItem = ({item, index}: Props) => {
                     }
                     trySetQuantity(next);
                   }}
+                  placeholder={item.dish.name}
                   className="!w-[60px] !border-0 !bg-surface-elevated !rounded-none text-center"
                 />
                 <IconTooltipButton
