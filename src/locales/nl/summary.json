@@ -99,7 +99,7 @@
       "amountCollected": "Toegepaste betalingstotalen per methode (exclusief teruggegeven wisselgeld).",
       "rounding": "Geïnd bedrag − eindtotaal (verschuldigd); over/tekort t.o.v. berekend verschuldigd.",
       "changeVariance": "Contant betaald in overschot van toegepaste betalingsbedragen.",
-      "voids": "Waarde van regels verwijderd na invoer (niet in brutoverkoop hierboven).",
+      "voids": "Waarde van geannuleerde regels op deze bedrijfsdag (inclusief volledig geannuleerde rekeningen; niet in brutoverkoop hierboven).",
       "refunds": "Retouren van negatieve betalingen of geannuleerde bonnen.",
       "covers": "Aantal gasten (pax).",
       "averageCover": "Verschuldigd bedrag (vóór fooi) ÷ couverts.",

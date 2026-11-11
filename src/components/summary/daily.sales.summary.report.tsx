@@ -1,20 +1,21 @@
 import {useMemo, type ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Order, OrderStatus} from '@/api/model/order.ts';
+import type {OrderVoid} from '@/api/model/order_void.ts';
 import {formatNumber, withCurrency} from '@/lib/utils.ts';
 import {
   aggregateOrderDiscountBreakdown,
-  getOrderFilteredItems,
   getOrderPaymentTotalsForOrder,
   getOrderRounding,
   getOrderSettlementFigures,
 } from '@/lib/order.ts';
-import {calculateOrderItemPrice} from '@/lib/cart.ts';
 import {getOrdersTaxBreakdown} from '@/lib/tax-calculator.ts';
-import {aggregateDailyCategoryMix} from '@/api/reports/sales/aggregate.ts';
+import {aggregateDailyCategoryMix, sumOrderVoidAmounts} from '@/api/reports/sales/aggregate.ts';
 
 interface Props {
   orders: Order[];
+  /** Void rows for the same business window (includes cancelled whole checks). */
+  orderVoids?: OrderVoid[];
   date: string;
   /** Inclusive wall-clock range label for the query window (cycle or calendar). */
   windowRange?: string | null;
@@ -68,7 +69,7 @@ function Section({
 }
 
 /** Active lines + extras only (no tax, service, tips); voided / refunded / suspended lines excluded. */
-function useDailySalesFigures(orders: Order[] | undefined) {
+function useDailySalesFigures(orders: Order[] | undefined, orderVoids: OrderVoid[] | undefined) {
   const {t} = useTranslation('summary');
   return useMemo(() => {
     const list = orders ?? [];
@@ -133,15 +134,8 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       );
     }, 0);
 
-    const voids = list.reduce((sum, order) => {
-      const allItems = order.items ?? [];
-      const filtered = getOrderFilteredItems(order);
-      const voidedItems = allItems.filter(item => !filtered.some(f => f.id === item.id));
-      return (
-        sum +
-        voidedItems.reduce((itemSum, item) => itemSum + safeNumber(calculateOrderItemPrice(item)), 0)
-      );
-    }, 0);
+    // Prefer order_void rows so fully cancelled checks (not Paid) still count.
+    const voids = sumOrderVoidAmounts(orderVoids);
 
     const covers = list.reduce((sum, order) => sum + safeNumber(order.covers), 0);
     const ordersCount = list.length;
@@ -300,12 +294,12 @@ function useDailySalesFigures(orders: Order[] | undefined) {
       orderTakers,
       categoryMix,
     };
-  }, [orders, t]);
+  }, [orders, orderVoids, t]);
 }
 
-export function DailySalesSummaryReport({orders, date, windowRange}: Props) {
+export function DailySalesSummaryReport({orders, orderVoids, date, windowRange}: Props) {
   const {t} = useTranslation('summary');
-  const f = useDailySalesFigures(orders);
+  const f = useDailySalesFigures(orders, orderVoids);
 
   return (
     <div className="mb-6 select-none">

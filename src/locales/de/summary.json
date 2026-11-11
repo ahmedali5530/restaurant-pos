@@ -99,7 +99,7 @@
       "amountCollected": "Angewendete Zahlungssummen nach Methode (ohne zurückgegebenes Wechselgeld).",
       "rounding": "Eingezogener Betrag − Gesamtsumme (fällig); Über-/Unterschuss gegenüber berechnetem Fälligkeitsbetrag.",
       "changeVariance": "Bar gegeben über angewendete Zahlungsbeträge hinaus.",
-      "voids": "Wert der nach Erfassung entfernten Positionen (nicht im Bruttoumsatz oben).",
+      "voids": "Wert stornierter Positionen an diesem Geschäftstag (inkl. komplett stornierter Checks; nicht im Bruttoumsatz oben).",
       "refunds": "Rückgaben aus negativen Zahlungen oder stornierten Rechnungen.",
       "covers": "Gästeanzahl.",
       "averageCover": "Fälliger Betrag (vor Trinkgeld) ÷ Gäste.",

@@ -14,6 +14,7 @@
     "notOwner": "Questo ordine è aperto su un altro terminale",
     "numbersExhausted": "Nessun ID ordine riservato disponibile offline — riconnettiti per continuare",
     "invoicePendingSync": "Il numero fattura è in attesa di sincronizzazione — attendi che l'ordine sia online prima dell'invio fiscale",
+    "itemsPendingSync": "Gli articoli dell'ordine sono ancora in sincronizzazione — attendi un momento e riprova il pagamento così il fiscale riceve tutte le righe",
     "fiscalFailed": "Invio fiscale non riuscito",
     "fireFailed": "Impossibile inviare gli articoli in attesa"
   },

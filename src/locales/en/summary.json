@@ -102,7 +102,7 @@
       "amountCollected": "Applied payment totals by method (excludes change returned).",
       "rounding": "Amount collected − grand total (due); over/short vs calculated due.",
       "changeVariance": "Cash tendered in excess of applied payment amounts.",
-      "voids": "Value of lines removed after ring (not in gross sales above).",
+      "voids": "Value of voided lines in this business day (includes cancelled whole checks; not in gross sales above).",
       "refunds": "Returns from negative payments or cancelled checks.",
       "covers": "Guest count (pax).",
       "averageCover": "Amount due (before tips) ÷ covers.",

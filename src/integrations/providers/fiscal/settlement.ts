@@ -8,7 +8,7 @@ import {
 import { getIntegrationProviderConfig } from '@/integrations/configuration/configuration-store.ts';
 import { ORDER_PAYMENT_FETCHES, parseOrderQueryResult } from '@/api/model/order.ts';
 import {
-  listOrderFiscalSubmissions,
+  findCompletedFiscalSubmission,
   persistFiscalSubmissionsForOrder,
   resolveFiscalQrcodeForPrint,
   resolveFiscalQrcodesForPrint,
@@ -18,6 +18,10 @@ import {
   FiscalQrPrintItem,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
 import { toRecordId } from '@/lib/utils.ts';
+import { posStore } from '@/infrastructure/pos-store/pos-store.ts';
+import { getPosStoreDatabase } from '@/infrastructure/pos-store/db.ts';
+import { terminalSyncService } from '@/infrastructure/sync/sync-service.ts';
+import type { DomainOperation } from '@/infrastructure/pos-store/types.ts';
 
 type DbLike = {
   query: <R extends unknown[] = any[]>(sql: string, parameters?: Record<string, unknown>) => Promise<R>;
@@ -34,10 +38,121 @@ const withReceiptLogos = async (
   );
 };
 
+const asRecordArray = <T>(value: unknown): T[] => {
+  if (Array.isArray(value)) return value as T[];
+  if (value == null) return [];
+  return [value as T];
+};
+
+const recordKey = (value: unknown): string => {
+  if (value == null) return '';
+  if (typeof value === 'object' && value !== null && 'id' in value) {
+    return String((value as { id: unknown }).id ?? '');
+  }
+  return String(value);
+};
+
+/** True when an outbox op still needs to push this order's lines / header. */
+export const isOutboxRelatedToOrder = (
+  operation: DomainOperation | undefined,
+  orderId: string,
+): boolean => {
+  if (!operation) return false;
+  const key = String(toRecordId(orderId));
+  if (String(operation.aggregateId) === key) return true;
+
+  const payload = (operation.payload ?? {}) as Record<string, unknown>;
+  if (recordKey(payload.orderId) === key || recordKey(payload.recordId) === key) {
+    return true;
+  }
+
+  const childItems = asRecordArray<Record<string, unknown>>(payload.items);
+  if (childItems.some((item) => recordKey(item?.order) === key)) {
+    return true;
+  }
+
+  return false;
+};
+
+const countPendingOutboxForOrder = async (orderId: string): Promise<number> => {
+  const pending = await posStore.getPendingOutbox();
+  return pending.filter((row) => isOutboxRelatedToOrder(row.operation, orderId)).length;
+};
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Force-drain Dexie→Surreal outbox ops for this order so pre-settle fiscal
+ * reads the latest items (addons included) from Surreal.
+ */
+export const ensureOrderSyncedForFiscal = async (
+  orderId: string,
+  options?: { maxPasses?: number },
+): Promise<{ ok: boolean; pendingRelated: number }> => {
+  const key = String(toRecordId(orderId));
+  const maxPasses = options?.maxPasses ?? 4;
+
+  for (let pass = 0; pass < maxPasses; pass += 1) {
+    const pendingRelated = await countPendingOutboxForOrder(key);
+    await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
+    if (pendingRelated === 0) {
+      // One more pass after a quiet outbox catches gateway append / pull catch-up.
+      if (pass === 0) {
+        await sleep(100);
+        await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
+      }
+      return { ok: true, pendingRelated: 0 };
+    }
+    await sleep(150);
+  }
+
+  const pendingRelated = await countPendingOutboxForOrder(key);
+  return { ok: pendingRelated === 0, pendingRelated };
+};
+
+/** Local active item ids that are still missing from a Surreal fiscal snapshot. */
+export const listMissingLocalFiscalItemIds = async (
+  orderId: string,
+  surrealOrder: Order | undefined,
+): Promise<string[]> => {
+  if (!surrealOrder) return [];
+  const key = String(toRecordId(orderId));
+  const local = (await getPosStoreDatabase().orderItems.where('order').equals(key).toArray()).filter(
+    (item) => !item.deleted_at && item.is_refunded !== true && item.is_suspended !== true,
+  );
+  const remoteIds = new Set(
+    asRecordArray<unknown>(surrealOrder.items)
+      .map((item) => recordKey(item))
+      .filter(Boolean),
+  );
+  return local.map((item) => String(item.id)).filter((id) => !remoteIds.has(id));
+};
+
+/**
+ * Load order for fiscal from Surreal. Prefers `order_item WHERE order = …`
+ * over `order.items` FETCH alone so gateway append lag cannot drop addons.
+ */
 export const loadOrderForFiscal = async (db: DbLike, orderId: string): Promise<Order | undefined> => {
+  const orderRecordId = String(toRecordId(orderId));
   const fetches = ORDER_PAYMENT_FETCHES.join(', ');
-  const result = await db.query(`SELECT * FROM ONLY ${orderId} FETCH ${fetches}`);
-  return parseOrderQueryResult(result);
+  const result = await db.query(`SELECT * FROM ONLY ${orderRecordId} FETCH ${fetches}`);
+  const order = parseOrderQueryResult(result);
+  if (!order) return undefined;
+
+  try {
+    const [itemRows] = await db.query(
+      `SELECT * FROM order_item WHERE order = $order FETCH item, item.categories, taxes, modifiers`,
+      { order: orderRecordId },
+    );
+    const fromTable = asRecordArray<Order['items'][number]>(itemRows).filter((item) => item != null);
+    if (fromTable.length > 0) {
+      order.items = fromTable;
+    }
+  } catch (error) {
+    console.warn('Fiscal item hydrate via order_item failed; using FETCH items', error);
+  }
+
+  return order;
 };
 
 export const persistFiscalSettlement = async (
@@ -72,8 +187,11 @@ export const runFiscalSettlementForOrder = async (
   order: Order
 ): Promise<FiscalSettlementResult> => {
   const getConfig = (providerId: string) => getIntegrationProviderConfig(db, providerId);
-  const result = await submitFiscalInvoices(manager, order, { getConfig });
-  if (Object.keys(result.resultsByProvider).length === 0) {
+  const result = await submitFiscalInvoices(manager, order, { getConfig, db });
+  const shouldPersist = Object.values(result.resultsByProvider).some(
+    (row) => row.status === 'completed' || row.status === 'failed',
+  );
+  if (!shouldPersist) {
     return result;
   }
   return persistFiscalSettlement(db, order.id, result);
@@ -110,13 +228,7 @@ export const hasCompletedFiscalSubmission = async (
   orderId: unknown,
   providerId: string
 ): Promise<boolean> => {
-  const rows = await listOrderFiscalSubmissions(db, orderId);
-  return rows.some(
-    (row) =>
-      row.provider_id === providerId &&
-      row.status === 'completed' &&
-      Boolean(row.qrcode || row.invoice_number)
-  );
+  return Boolean(await findCompletedFiscalSubmission(db, orderId, providerId));
 };
 
 /**
@@ -146,6 +258,7 @@ export const retryFiscalSubmissionForOrder = async (
   const getConfig = (id: string) => getIntegrationProviderConfig(db, id);
   const result = await submitFiscalInvoices(manager, order, {
     getConfig,
+    db,
     providerIds: [providerId],
   });
 

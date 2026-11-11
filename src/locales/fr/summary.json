@@ -99,7 +99,7 @@
       "amountCollected": "Totaux des paiements appliqués par mode (hors monnaie rendue).",
       "rounding": "Montant encaissé − total général (dû) ; excédent/manque par rapport au dû calculé.",
       "changeVariance": "Espèces remises en excès des montants de paiement appliqués.",
-      "voids": "Valeur des lignes supprimées après saisie (non incluse dans les ventes brutes ci-dessus).",
+      "voids": "Valeur des lignes annulées pour ce jour d'activité (y compris les additions entièrement annulées ; non incluse dans les ventes brutes ci-dessus).",
       "refunds": "Retours issus de paiements négatifs ou de tickets annulés.",
       "covers": "Nombre de couverts.",
       "averageCover": "Montant dû (avant pourboires) ÷ couverts.",

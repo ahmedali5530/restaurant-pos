@@ -14,6 +14,7 @@
     "notOwner": "Bu sipariş başka bir terminalde açık",
     "numbersExhausted": "Çevrimdışı ayrılmış sipariş kimliği kalmadı — devam etmek için yeniden bağlanın",
     "invoicePendingSync": "Fatura numarası senkron bekliyor — mali gönderimden önce siparişin çevrimiçi olmasını bekleyin",
+    "itemsPendingSync": "Sipariş kalemleri hâlâ senkronize ediliyor — biraz bekleyip ödemeyi yeniden deneyin; böylece maliye her satırı alır",
     "fiscalFailed": "Mali gönderim başarısız",
     "fireFailed": "Bekletilen ürünler gönderilemedi"
   },

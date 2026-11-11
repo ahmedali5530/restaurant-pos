@@ -99,7 +99,7 @@
       "amountCollected": "Totales de pago aplicados por método (excluye cambio devuelto).",
       "rounding": "Importe cobrado − gran total (adeudado); exceso/déficit vs. adeudado calculado.",
       "changeVariance": "Efectivo entregado en exceso de los importes de pago aplicados.",
-      "voids": "Valor de líneas eliminadas después del registro (no en ventas brutas arriba).",
+      "voids": "Valor de líneas anuladas en este día comercial (incluye cheques cancelados por completo; no en ventas brutas arriba).",
       "refunds": "Devoluciones de pagos negativos o cuentas canceladas.",
       "covers": "Cantidad de comensales (pax).",
       "averageCover": "Importe adeudado (antes de propinas) ÷ cubiertos.",

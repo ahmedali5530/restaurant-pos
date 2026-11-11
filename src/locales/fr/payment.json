@@ -14,6 +14,7 @@
     "notOwner": "Cette commande est ouverte sur un autre terminal",
     "numbersExhausted": "Plus d'identifiants de commande réservés hors ligne — reconnectez-vous pour continuer",
     "invoicePendingSync": "Le numéro de facture est en attente de synchronisation — attendez que la commande soit en ligne avant l'envoi fiscal",
+    "itemsPendingSync": "Les articles de la commande sont encore en synchronisation — attendez un instant et réessayez le paiement pour que le fiscal reçoive toutes les lignes",
     "fiscalFailed": "Échec de l'envoi fiscal",
     "fireFailed": "Impossible d'envoyer les articles en attente"
   },
