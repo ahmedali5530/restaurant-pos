@@ -442,5 +442,15 @@
     "saveFailed": "No se pudo guardar la configuración de pantalla del cliente",
     "tooLarge": "El archivo supera el tamaño máximo de {{size}}.",
     "invalidType": "Use un archivo de imagen o video."
+  },
+  "dishCommentTags": {
+    "title": "Etiquetas de comentarios de platos",
+    "description": "Frases rápidas para el teclado en pantalla al añadir comentarios a platos del carrito (por ejemplo «Sin tomate» o «Sin cebolla»). Escribe una frase y pulsa Enter para añadirla como etiqueta.",
+    "tagsLabel": "Etiquetas de comentario",
+    "placeholder": "Escribe una frase y pulsa Enter",
+    "createTag": "Añadir «{{tag}}»",
+    "noOptions": "Escribe para añadir una etiqueta de comentario",
+    "updated": "Etiquetas de comentarios de platos actualizadas",
+    "saveDescription": "Guardar etiquetas de comentarios de platos"
   }
 }

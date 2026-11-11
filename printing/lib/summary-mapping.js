@@ -455,9 +455,37 @@ function formatNum(n) {
   return Number.isFinite(x) ? String(Math.round(x)) : '0';
 }
 
+/** Fixed mix columns so qty/total/% stay aligned across rows (right half = 21 cols). */
+const MIX_QTY_W = 4;
+const MIX_TOTAL_W = 11;
+const MIX_SHARE_W = 4;
+
+function padLeftCol(str, len) {
+  const s = String(str ?? '');
+  if (s.length > len) return s.slice(-len);
+  return ' '.repeat(len - s.length) + s;
+}
+
+/**
+ * Fixed-width product-mix right columns: Qty | Total | %.
+ * Pass empty share for modifier rows so qty/total stay in the same columns.
+ * @param {unknown} qty
+ * @param {unknown} total
+ * @param {unknown} [share]
+ * @returns {string}
+ */
+function formatMixRightColumns(qty, total, share) {
+  return [
+    padLeftCol(qty, MIX_QTY_W),
+    padLeftCol(total, MIX_TOTAL_W),
+    padLeftCol(share, MIX_SHARE_W),
+  ].join(' ');
+}
+
 module.exports = {
   computeSummary,
   formatNum,
+  formatMixRightColumns,
   getFilteredItems,
   getVoidedItems,
   itemLineTotal,

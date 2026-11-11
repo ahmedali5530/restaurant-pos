@@ -1,4 +1,9 @@
-import {normalizeQueryDate, parseDateRangeWithPhrase, resolveNaturalDateRange} from "@/api/reports/shared/filters.ts";
+import {
+  ensureAiClosingCycleConfig,
+  normalizeQueryDate,
+  parseDateRangeWithPhrase,
+  resolveNaturalDateRange,
+} from "@/api/reports/shared/filters.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getDishRecipe, getProductMix, getSalesSummary, getTopSellingDishes, getUnsoldProducts, listMenuItems} from "@/api/reports/sales";
 import {getDiscountSummary} from "@/api/reports/sales/discounts.ts";
@@ -153,16 +158,13 @@ export const executeAiReportTool = async (
   args: Record<string, unknown>,
   context: ExecuteToolContext = {charts: []},
 ): Promise<unknown> => {
+  // Warm closing-cycle cache so phrase → window matches Summary / Server Sales.
+  await ensureAiClosingCycleConfig();
+
   switch (toolName) {
     case "resolve_date_range": {
       const phrase = String(args.phrase ?? "");
-      let closingCycleConfig = null;
-      try {
-        const {loadClosingCycleConfigFromCatalog} = await import("@/lib/closing-cycle.ts");
-        closingCycleConfig = (await loadClosingCycleConfigFromCatalog()).config;
-      } catch {
-        // fall back to calendar day when catalog is unavailable
-      }
+      const closingCycleConfig = await ensureAiClosingCycleConfig();
       return resolveNaturalDateRange({phrase, closingCycleConfig});
     }
 

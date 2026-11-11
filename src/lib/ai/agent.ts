@@ -1,4 +1,4 @@
-import {parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
+import {ensureAiClosingCycleConfig, parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
@@ -136,6 +136,8 @@ export const runAiReportAgent = async (
   if (!trimmedPrompt) {
     throw new Error("Prompt cannot be empty.");
   }
+
+  await ensureAiClosingCycleConfig();
 
   const format = options.format ?? "table";
   const task = resolveAiTask(format);

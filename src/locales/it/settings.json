@@ -442,5 +442,15 @@
     "saveFailed": "Salvataggio impostazioni display cliente non riuscito",
     "tooLarge": "Il file supera la dimensione massima di {{size}}.",
     "invalidType": "Usa un file immagine o video."
+  },
+  "dishCommentTags": {
+    "title": "Tag commenti piatti",
+    "description": "Frasi rapide per la tastiera sullo schermo quando aggiungi commenti ai piatti del carrello (ad es. «Senza pomodoro» o «Senza cipolla»). Digita una frase e premi Invio per aggiungerla come tag.",
+    "tagsLabel": "Tag commento",
+    "placeholder": "Digita una frase e premi Invio",
+    "createTag": "Aggiungi «{{tag}}»",
+    "noOptions": "Digita per aggiungere un tag commento",
+    "updated": "Tag commenti piatti aggiornati",
+    "saveDescription": "Salva tag commenti piatti"
   }
 }

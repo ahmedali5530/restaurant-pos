@@ -421,16 +421,6 @@ export const QuickOrder = () => {
                     : t("quick-order:scan.ready")}
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                icon={faDisplay}
-                onClick={openCustomerDisplay}
-                data-testid="quick-order-open-customer-display"
-              >
-                {t("quick-order:customerDisplay.open")}
-              </Button>
             </div>
             <div>
               <Input

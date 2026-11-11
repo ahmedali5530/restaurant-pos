@@ -9,6 +9,7 @@ import {
 } from "@/lib/openai.service.ts";
 import {buildAnalyzeContentParts} from "@/lib/ai/assistant-file-preview.ts";
 import {isLocalAiReportCompactMode} from "@/lib/ai/config.ts";
+import {ensureAiClosingCycleConfig} from "@/api/reports/shared/filters.ts";
 import {getAiAssistantSystemPrompt} from "@/lib/ai/schema.ts";
 import {executeAiReportTool, type ExecuteToolContext} from "@/lib/ai/tools/executor.ts";
 import {canUseWriteTool} from "@/lib/ai/tools/write-permissions.ts";
@@ -283,6 +284,9 @@ export async function runAiAssistantAgent(
   if (!trimmed) {
     throw new Error("Prompt is empty.");
   }
+
+  // Load closing-cycle window before prompt + tools so "today" matches reports.
+  await ensureAiClosingCycleConfig();
 
   const deepResearch = Boolean(options.deepResearch);
   const imageUrls = (options.userImageUrls ?? []).filter(Boolean);

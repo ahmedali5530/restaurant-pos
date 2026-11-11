@@ -8,25 +8,39 @@ const {
   printVatLine,
   feedBottomMargin,
   printPrintingTimestamp,
+  toPrinterText,
 } = require('../lib/receipt-helpers');
-const { computeSummary, formatNum } = require('../lib/summary-mapping');
+const { computeSummary, formatNum, formatMixRightColumns } = require('../lib/summary-mapping');
 
 function pct(x, of) {
   const n = Number(of);
   return Number.isFinite(n) && n > 0 ? (Number(x) / n) * 100 : 0;
 }
 
+function qtyBracket(count) {
+  if (count == null) return '';
+  return ` (${formatNum(count)})`;
+}
+
 function sect(printer, title) {
   printer.drawLine();
-  printer.align('ct').style('bu').text(title).style('normal');
+  printer.align('ct').style('bu').text(toPrinterText(title)).style('normal');
   printer.align('lt');
+}
+
+function printText(printer, text) {
+  printer.text(toPrinterText(text));
 }
 
 function printMixRow(printer, left, qty, total, share, sym, options = {}) {
   const { bold = false, indent = 0 } = options;
   const pad = ' '.repeat(indent);
-  const label = `${pad}${String(left).slice(0, 22)}`;
-  const right = `${formatNum(qty)}  ${formatMoney(total, sym)}  ${formatNum(share)}%`;
+  const label = toPrinterText(`${pad}${String(left).slice(0, 22)}`);
+  const right = formatMixRightColumns(
+    formatNum(qty),
+    formatMoney(total, sym),
+    `${formatNum(share)}%`
+  );
   if (bold) {
     printer.style('b');
   }
@@ -36,16 +50,35 @@ function printMixRow(printer, left, qty, total, share, sym, options = {}) {
   }
 }
 
+function printModifierRow(printer, modifier, exclusiveSales, dishIndent = 2) {
+  const depth = Number.isFinite(Number(modifier.depth)) ? Math.max(1, Number(modifier.depth)) : 1;
+  // Nest under the dish name: dish uses dishIndent spaces; each depth adds 2 more.
+  const indent = dishIndent + depth * 2;
+  const pad = ' '.repeat(indent);
+  const label = toPrinterText(`${pad}- ${String(modifier.name || '').slice(0, 20)}`);
+  const modTotal = safeNumber(modifier.price) * safeNumber(modifier.quantity);
+  const right = formatMixRightColumns(
+    formatNum(modifier.quantity),
+    formatNum(modifier.price),
+    `${formatNum(pct(modTotal, exclusiveSales))}%`
+  );
+  printLineLeftRight(printer, label, right, { small: true });
+}
+
 function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
   const itemLabel = L.item || 'Item';
-  const mixHeader = L.mixHeaderQtyTotal || 'Qty   Total   %';
-  printLineLeftRight(printer, itemLabel, mixHeader);
+  printLineLeftRight(
+    printer,
+    toPrinterText(itemLabel),
+    formatMixRightColumns('Qty', 'Total', '%')
+  );
   if (!categoryMix || categoryMix.length === 0) {
-    printer.text(L.noCategoryData || 'No category data for this date.');
+    printText(printer, L.noCategoryData || 'No category data for this date.');
     return;
   }
 
   const ex = exclusiveSales;
+  const dishIndent = 2;
   categoryMix.forEach((category) => {
     printMixRow(
       printer,
@@ -65,18 +98,11 @@ function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
         dish.total,
         pct(dish.total, ex),
         sym,
-        { indent: 2 }
+        { indent: dishIndent }
       );
 
       (dish.modifiers || []).forEach((modifier) => {
-        const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
-        const indent = 2 + depth * 2;
-        const modLabel = `- ${modifier.name}`;
-        printLineLeftRight(
-          printer,
-          `${' '.repeat(indent)}${String(modLabel).slice(0, 20)}`,
-          `${formatNum(modifier.quantity)}  ${formatNum(modifier.price)}`
-        );
+        printModifierRow(printer, modifier, ex, dishIndent);
       });
     });
   });
@@ -85,24 +111,26 @@ function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
 function printPaymentTypes(printer, paymentTypes, grandTotalDue, sym, line, L) {
   const rows = (paymentTypes || []).filter((payment) => safeNumber(payment.total) > 0);
   if (rows.length === 0) {
-    printer.text(L.noPaymentData || 'No payment data for this date.');
+    printText(printer, L.noPaymentData || 'No payment data for this date.');
     return;
   }
   rows.forEach((payment) => {
     const share = formatNum(pct(payment.total, grandTotalDue)) + '%';
-    const count = payment.count != null ? ` x${formatNum(payment.count)}` : '';
-    line(payment.name, `${formatMoney(payment.total, sym)}${count}  ${share}`);
+    line(
+      `${payment.name}${qtyBracket(payment.count)}`,
+      `${formatMoney(payment.total, sym)}  ${share}`
+    );
   });
 }
 
 function printSaleGroups(printer, rows, emptyLabel, line, sym) {
   if (!rows || rows.length === 0) {
-    printer.text(emptyLabel);
+    printText(printer, emptyLabel);
     return;
   }
   rows.forEach((row) => {
     line(
-      `${row.name} (${formatNum(row.ordersCount)})`,
+      `${row.name}${qtyBracket(row.ordersCount)}`,
       formatMoney(row.total, sym)
     );
   });
@@ -110,13 +138,15 @@ function printSaleGroups(printer, rows, emptyLabel, line, sym) {
 
 function printTaxesBreakdown(printer, taxesList, taxCollected, sym, line, L) {
   if (!taxesList || taxesList.length === 0) {
-    printer.text(L.noTaxRows || 'No tax rows for this date.');
+    printText(printer, L.noTaxRows || 'No tax rows for this date.');
     return;
   }
   taxesList.forEach((tax) => {
     const share = formatNum(pct(tax.total, taxCollected)) + '%';
-    const count = tax.count != null ? ` x${formatNum(tax.count)}` : '';
-    line(`${tax.name}%`, `${formatMoney(tax.total, sym)}${count}  ${share}`);
+    line(
+      `${tax.name}%${qtyBracket(tax.count)}`,
+      `${formatMoney(tax.total, sym)}  ${share}`
+    );
   });
 }
 
@@ -139,13 +169,13 @@ function safeNumber(value) {
 }
 
 function printSummaryHeader(printer, s, L) {
-  const titleTemplate = L.summaryTitle || 'Daily sales summary — {{date}}';
-  const title = titleTemplate.replace('{{date}}', s.date);
+  const titleTemplate = L.summaryTitle || 'Daily sales summary - {{date}}';
+  const title = toPrinterText(titleTemplate.replace('{{date}}', s.date));
 
   printer.align('ct').style('bu').text(title).style('normal');
   if (s.windowRange) {
     const rangeTemplate = L.windowRange || 'Period: {{range}}';
-    printer.align('ct').text(rangeTemplate.replace('{{range}}', String(s.windowRange)));
+    printer.align('ct').text(toPrinterText(rangeTemplate.replace('{{range}}', String(s.windowRange))));
   }
   printer.align('lt');
   printer.drawLine();
@@ -195,7 +225,7 @@ function printMinimalDailySalesSummary(printer, data, cfg) {
     timezone: cfg.timezone,
     locale: cfg.locale,
   });
-  const line = (left, right) => printLineLeftRight(printer, left, right);
+  const line = (left, right) => printLineLeftRight(printer, toPrinterText(left), toPrinterText(right));
 
   printSummaryHeader(printer, s, L);
   printSalesRevenue(printer, s, sym, line, L, L.minimalSalesRevenue || '1. Sales revenue');
@@ -236,12 +266,12 @@ function printProductMixSummary(printer, data, cfg) {
     locale: cfg.locale,
   });
 
-  const titleTemplate = L.productMixTitle || 'Product mix — {{date}}';
-  const title = titleTemplate.replace('{{date}}', s.date);
+  const titleTemplate = L.productMixTitle || 'Product mix - {{date}}';
+  const title = toPrinterText(titleTemplate.replace('{{date}}', s.date));
   printer.align('ct').style('bu').text(title).style('normal');
   if (s.windowRange) {
     const rangeTemplate = L.windowRange || 'Period: {{range}}';
-    printer.align('ct').text(rangeTemplate.replace('{{range}}', String(s.windowRange)));
+    printer.align('ct').text(toPrinterText(rangeTemplate.replace('{{range}}', String(s.windowRange))));
   }
   printer.align('lt');
   printer.drawLine();
@@ -270,7 +300,7 @@ function printDailySalesSummary(printer, data, cfg) {
     timezone: cfg.timezone,
     locale: cfg.locale,
   });
-  const line = (left, right) => printLineLeftRight(printer, left, right);
+  const line = (left, right) => printLineLeftRight(printer, toPrinterText(left), toPrinterText(right));
 
   printSummaryHeader(printer, s, L);
   printSalesRevenue(printer, s, sym, line, L);
@@ -309,39 +339,45 @@ function printDailySalesSummary(printer, data, cfg) {
 
   sect(printer, L.discountsBreakdown || '10. Discounts breakdown');
   if (!s.discountsList || s.discountsList.length === 0) {
-    printer.text(L.noDiscountRows || 'No discount rows for this date.');
+    printText(printer, L.noDiscountRows || 'No discount rows for this date.');
   } else {
     s.discountsList.forEach((discount) => {
       const share = formatNum(pct(discount.total, s.discounts)) + '%';
-      const count = discount.count != null ? ` x${formatNum(discount.count)}` : '';
-      line(discount.name, `${formatMoney(discount.total, sym)}${count}  ${share}`);
+      line(
+        `${discount.name}${qtyBracket(discount.count)}`,
+        `${formatMoney(discount.total, sym)}  ${share}`
+      );
     });
   }
 
   sect(printer, L.tipsBreakdown || '11. Tips');
   line(
-    L.tips || 'Tips',
-    `${formatMoney(s.tips, sym)} x${formatNum(s.tipsCount || 0)}`
+    `${L.tips || 'Tips'}${qtyBracket(s.tipsCount || 0)}`,
+    formatMoney(s.tips, sym)
   );
 
   sect(printer, L.extrasBreakdown || '12. Extras breakdown');
   if (!s.extrasList || s.extrasList.length === 0) {
-    printer.text(L.noExtras || 'No extras found for this date.');
+    printText(printer, L.noExtras || 'No extras found for this date.');
   } else {
     s.extrasList.forEach((extra) => {
       const share = formatNum(pct(extra.total, s.totalExtras)) + '%';
-      const count = extra.count != null ? ` x${formatNum(extra.count)}` : '';
-      line(extra.name, `${formatMoney(extra.total, sym)}${count}  ${share}`);
+      line(
+        `${extra.name}${qtyBracket(extra.count)}`,
+        `${formatMoney(extra.total, sym)}  ${share}`
+      );
     });
   }
 
   sect(printer, L.couponsBreakdown || '13. Coupons breakdown');
   if (!s.couponsList || s.couponsList.length === 0) {
-    printer.text(L.noCoupons || 'No coupon usage for this date.');
+    printText(printer, L.noCoupons || 'No coupon usage for this date.');
   } else {
     s.couponsList.forEach((coupon) => {
-      const count = coupon.count != null ? ` x${formatNum(coupon.count)}` : '';
-      line(coupon.name, `${formatMoney(coupon.total, sym)}${count}`);
+      line(
+        `${coupon.name}${qtyBracket(coupon.count)}`,
+        formatMoney(coupon.total, sym)
+      );
     });
   }
 

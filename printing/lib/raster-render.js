@@ -19,10 +19,11 @@ const {
   buildItemRowStrings,
   buildItemHeaderString,
   wrapReceiptText,
+  toPrinterText,
   STORE_LOGO_BOX_PX,
 } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
-const { computeSummary, formatNum } = require('./summary-mapping');
+const { computeSummary, formatNum, formatMixRightColumns } = require('./summary-mapping');
 const { ensureRasterFonts } = require('./raster-fonts');
 const { getRasterMetrics, calibrateMetrics, buildCtxFont } = require('./raster-metrics');
 const { paintBillLayoutRaster } = require('./raster-bill-layout');
@@ -32,7 +33,17 @@ const { testSlipContent } = require('./test-print-content');
 
 function lineHeightForSize(metrics, size) {
   if (size === 'large') return metrics.lineHeightLarge;
+  if (size === 'small') {
+    return Math.max(8, Math.round(metrics.lineHeightNormal * 0.78));
+  }
   return metrics.lineHeightNormal;
+}
+
+function fontPxForSize(metrics, size) {
+  if (size === 'small') {
+    return Math.max(8, Math.round(metrics.normalFontPx * 0.78));
+  }
+  return metrics.normalFontPx;
 }
 
 function scaleForSize(metrics, size) {
@@ -125,7 +136,7 @@ class ReceiptCanvas {
     const o = opts || {};
     this._pushText({
       text: formatLineLeftRight(left, right, o),
-      size: 'normal',
+      size: o.size || (o.small ? 'small' : 'normal'),
       style: o.style,
       align: 'left',
     });
@@ -190,7 +201,7 @@ class ReceiptCanvas {
       const underline = style === 'bold-underline';
       const align = op.align || 'left';
       const { x: scaleX, y: scaleY } = scaleForSize(metrics, size);
-      const fontPx = metrics.normalFontPx;
+      const fontPx = fontPxForSize(metrics, size);
       const cols = metrics.printerWidth;
       // Layout cells span the full printable width (Mike42/ESC a character grid).
       // Glyph font may be slightly smaller (−4px) but still sits in these cells.
@@ -719,6 +730,11 @@ function pct(x, of) {
   return Number.isFinite(n) && n > 0 ? (Number(x) / n) * 100 : 0;
 }
 
+function qtyBracket(count) {
+  if (count == null) return '';
+  return ` (${formatNum(count)})`;
+}
+
 async function renderSummaryRaster(data, config) {
   const cfg = normalizeConfig(config || {});
   const L = cfg.labels || {};
@@ -736,17 +752,17 @@ async function renderSummaryRaster(data, config) {
   const isProductMix = data && data.variant === 'product_mix';
   const isMinimal = data && data.variant === 'minimal';
   const titleTemplate = isProductMix
-    ? (L.productMixTitle || 'Product mix — {{date}}')
-    : (L.summaryTitle || 'Daily sales summary — {{date}}');
-  rc.centered(titleTemplate.replace('{{date}}', s.date), { size: 'normal', style: 'bold-underline' });
+    ? (L.productMixTitle || 'Product mix - {{date}}')
+    : (L.summaryTitle || 'Daily sales summary - {{date}}');
+  rc.centered(toPrinterText(titleTemplate.replace('{{date}}', s.date)), { size: 'normal', style: 'bold-underline' });
   if (s.windowRange) {
     const rangeTemplate = L.windowRange || 'Period: {{range}}';
-    rc.centered(rangeTemplate.replace('{{range}}', String(s.windowRange)), { size: 'normal' });
+    rc.centered(toPrinterText(rangeTemplate.replace('{{range}}', String(s.windowRange))), { size: 'normal' });
   }
   rc.divider();
   const sect = (t) => {
     rc.divider();
-    rc.centered(t, { size: 'normal', style: 'bold-underline' });
+    rc.centered(toPrinterText(t), { size: 'normal', style: 'bold-underline' });
   };
   const salesTitle = isMinimal
     ? (L.minimalSalesRevenue || '1. Sales revenue')
@@ -766,49 +782,70 @@ async function renderSummaryRaster(data, config) {
 
   const paintTaxesBreakdown = () => {
     if (!s.taxesList || s.taxesList.length === 0) {
-      rc.fixedLine(L.noTaxRows || 'No tax rows for this date.', { align: 'left' });
+      rc.fixedLine(toPrinterText(L.noTaxRows || 'No tax rows for this date.'), { align: 'left' });
       return;
     }
     s.taxesList.forEach((tax) => {
       const share = `${formatNum(pct(tax.total, s.taxCollected))}%`;
-      const count = tax.count != null ? ` x${formatNum(tax.count)}` : '';
-      rc.lineLeftRight(`${tax.name}%`, `${formatMoney(tax.total, sym)}${count}  ${share}`);
+      rc.lineLeftRight(
+        toPrinterText(`${tax.name}%${qtyBracket(tax.count)}`),
+        `${formatMoney(tax.total, sym)}  ${share}`
+      );
     });
   };
 
   const paintPaymentTypes = () => {
     (s.paymentTypes || []).filter((p) => Number(p.total) > 0).forEach((p) => {
       const share = `${formatNum(pct(p.total, s.grandTotalDue))}%`;
-      const count = p.count != null ? ` x${formatNum(p.count)}` : '';
-      rc.lineLeftRight(String(p.name || ''), `${formatMoney(p.total, sym)}${count}  ${share}`);
+      rc.lineLeftRight(
+        toPrinterText(`${String(p.name || '')}${qtyBracket(p.count)}`),
+        `${formatMoney(p.total, sym)}  ${share}`
+      );
     });
   };
 
   const paintProductMix = () => {
     const ex = s.exclusiveSales;
+    const dishIndent = 2;
     if (!s.categoryMix || s.categoryMix.length === 0) {
-      rc.fixedLine(L.noCategoryData || 'No category data for this date.', { align: 'left' });
+      rc.fixedLine(toPrinterText(L.noCategoryData || 'No category data for this date.'), { align: 'left' });
       return;
     }
+    rc.lineLeftRight(
+      toPrinterText(L.item || 'Item'),
+      formatMixRightColumns('Qty', 'Total', '%')
+    );
     s.categoryMix.forEach((category) => {
-      const catShare = `${formatNum(pct(category.total, ex))}%`;
       rc.lineLeftRight(
-        String(category.name),
-        `${formatNum(category.quantity)}  ${formatMoney(category.total, sym)}  ${catShare}`,
+        toPrinterText(String(category.name)),
+        formatMixRightColumns(
+          formatNum(category.quantity),
+          formatMoney(category.total, sym),
+          `${formatNum(pct(category.total, ex))}%`
+        ),
         { style: 'bold' }
       );
       (category.dishes || []).forEach((dish) => {
-        const dishShare = `${formatNum(pct(dish.total, ex))}%`;
         rc.lineLeftRight(
-          `  ${String(dish.name)}`,
-          `${formatNum(dish.quantity)}  ${formatMoney(dish.total, sym)}  ${dishShare}`
+          toPrinterText(`${' '.repeat(dishIndent)}${String(dish.name)}`),
+          formatMixRightColumns(
+            formatNum(dish.quantity),
+            formatMoney(dish.total, sym),
+            `${formatNum(pct(dish.total, ex))}%`
+          )
         );
         (dish.modifiers || []).forEach((modifier) => {
-          const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
-          const indent = '  '.repeat(1 + Math.max(0, depth));
+          const depth = Number.isFinite(Number(modifier.depth)) ? Math.max(1, Number(modifier.depth)) : 1;
+          const indent = ' '.repeat(dishIndent + depth * 2);
+          const modTotal = Number(modifier.price || 0) * Number(modifier.quantity || 0);
           rc.lineLeftRight(
-            `${indent}- ${String(modifier.name)}`,
-            `${formatNum(modifier.quantity)}  ${formatNum(modifier.price)}`
+            toPrinterText(`${indent}- ${String(modifier.name || '')}`),
+            formatMixRightColumns(
+              formatNum(modifier.quantity),
+              formatNum(modifier.price),
+              `${formatNum(pct(modTotal, ex))}%`
+            ),
+            { small: true }
           );
         });
       });
@@ -819,37 +856,37 @@ async function renderSummaryRaster(data, config) {
     paintProductMix();
   } else {
   sect(salesTitle);
-  rc.lineLeftRight(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym));
-  rc.lineLeftRight(L.extras || 'Extras', formatMoney(s.totalExtras, sym));
-  rc.lineLeftRight(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym));
-  rc.lineLeftRight(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym));
-  rc.lineLeftRight(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym));
-  rc.lineLeftRight(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym));
-  rc.lineLeftRight(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym));
-  rc.lineLeftRight(L.netSales || 'Net sales', formatMoney(s.netSales, sym));
+  rc.lineLeftRight(toPrinterText(L.exclusiveSales || 'Exclusive sales'), formatMoney(s.exclusiveSales, sym));
+  rc.lineLeftRight(toPrinterText(L.extras || 'Extras'), formatMoney(s.totalExtras, sym));
+  rc.lineLeftRight(toPrinterText(L.grossSales || 'Gross sales'), formatMoney(s.grossSales, sym));
+  rc.lineLeftRight(toPrinterText(L.itemDiscounts || 'Item discounts'), formatMoney(s.itemDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.subtotalDiscounts || 'Subtotal discounts'), formatMoney(s.subtotalDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.couponDiscounts || 'Coupon discounts'), formatMoney(s.couponDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.discountsMinus || '(-) Discounts'), formatMoney(s.discounts, sym));
+  rc.lineLeftRight(toPrinterText(L.netSales || 'Net sales'), formatMoney(s.netSales, sym));
   sect(surchargesTitle);
-  rc.lineLeftRight(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym));
-  rc.lineLeftRight(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym));
-  rc.lineLeftRight(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym), { style: 'bold-underline' });
+  rc.lineLeftRight(toPrinterText(L.serviceCharges || 'Service charges'), formatMoney(s.serviceCharges, sym));
+  rc.lineLeftRight(toPrinterText(L.taxes || 'Taxes'), formatMoney(s.taxCollected, sym));
+  rc.lineLeftRight(toPrinterText(L.totalRevenue || 'Total revenue'), formatMoney(s.totalRevenue, sym), { style: 'bold-underline' });
   if (isMinimal) {
     paintTaxesBreakdown();
   }
   sect(settlementTitle);
-  rc.lineLeftRight(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym));
-  rc.lineLeftRight(L.tips || 'Tips', formatMoney(s.tips, sym));
-  rc.lineLeftRight(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym), { style: 'bold-underline' });
-  rc.lineLeftRight(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym));
-  rc.lineLeftRight(L.rounding || 'Rounding', formatMoney(s.rounding, sym));
-  rc.lineLeftRight(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym));
+  rc.lineLeftRight(toPrinterText(L.amountDueBeforeTips || 'Amount due (before tips)'), formatMoney(s.amountDue, sym));
+  rc.lineLeftRight(toPrinterText(L.tips || 'Tips'), formatMoney(s.tips, sym));
+  rc.lineLeftRight(toPrinterText(L.grandTotalDue || 'Grand total (due)'), formatMoney(s.grandTotalDue, sym), { style: 'bold-underline' });
+  rc.lineLeftRight(toPrinterText(L.amountCollected || 'Amount collected'), formatMoney(s.amountCollected, sym));
+  rc.lineLeftRight(toPrinterText(L.rounding || 'Rounding'), formatMoney(s.rounding, sym));
+  rc.lineLeftRight(toPrinterText(L.changeVariance || 'Change / variance'), formatMoney(s.changeGiven, sym));
   sect(opsTitle);
-  rc.lineLeftRight(L.voids || 'Voids', formatMoney(s.voids, sym));
-  rc.lineLeftRight(L.refunds || 'Refunds', formatMoney(s.refunds, sym));
+  rc.lineLeftRight(toPrinterText(L.voids || 'Voids'), formatMoney(s.voids, sym));
+  rc.lineLeftRight(toPrinterText(L.refunds || 'Refunds'), formatMoney(s.refunds, sym));
   rc.lineLeftRight(
-    L.covers || 'Covers',
+    toPrinterText(L.covers || 'Covers'),
     `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`
   );
   rc.lineLeftRight(
-    L.ordersChecks || 'Orders / checks',
+    toPrinterText(L.ordersChecks || 'Orders / checks'),
     `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`
   );
   if (isMinimal) {
@@ -861,14 +898,14 @@ async function renderSummaryRaster(data, config) {
   sect(L.orderTypes || '6. Sale by order type');
   (s.orderTypes || []).forEach((entry) => {
     rc.lineLeftRight(
-      `${entry.name} (${formatNum(entry.ordersCount)})`,
+      toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
       formatMoney(entry.total, sym)
     );
   });
   sect(L.orderTakers || '7. Sale by order taker');
   (s.orderTakers || []).forEach((entry) => {
     rc.lineLeftRight(
-      `${entry.name} (${formatNum(entry.ordersCount)})`,
+      toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
       formatMoney(entry.total, sym)
     );
   });
@@ -877,7 +914,7 @@ async function renderSummaryRaster(data, config) {
   }
   }
   if (cfg.showVatNumber && cfg.vatNumber) {
-    rc.centered(`${cfg.vatName}: ${cfg.vatNumber}`, { size: 'normal' });
+    rc.centered(toPrinterText(`${cfg.vatName}: ${cfg.vatNumber}`), { size: 'normal' });
   }
   paintSections(rc, cfg.footerSections);
   const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);

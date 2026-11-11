@@ -14,6 +14,24 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-11',
+    title: 'Dish comment quick tags',
+    items: [
+      'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
+      'The AI assistant resolves today/yesterday and other relative phrases with the restaurant closing-cycle window (same bounds as Summary), so it no longer pulls midnight–midnight data when a cycle is enabled.',
+      'Payment service charges now use the same percent/fixed toggle, quick amounts, and keypad as tips — keypad no longer forces a fixed amount.',
+      'Summary keeps the loading spinner when you change the day until the new report has finished rendering, so prior-day totals never linger under the new date.',
+    ],
+  },
+  {
+    date: '2026-11-10',
+    title: 'Assistant in the app toolbar',
+    items: [
+      'The AI assistant opens from the bottom toolbar between the unit converter and sync indicator (floating button remains only when the toolbar is hidden).',
+      'Server Sales print now totals guests, checks, and sales from the same closing-cycle order window as Summary — no clock-in/out attendance filter.',
+    ],
+  },
+  {
     date: '2026-11-09',
     title: 'Catalog Sync now removes HQ deletes',
     items: [

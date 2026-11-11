@@ -442,5 +442,15 @@
     "saveFailed": "Müşteri ekranı ayarları kaydedilemedi",
     "tooLarge": "Dosya maksimum boyutu aşıyor: {{size}}.",
     "invalidType": "Bir görsel veya video dosyası kullanın."
+  },
+  "dishCommentTags": {
+    "title": "Yemek yorum etiketleri",
+    "description": "Sepetteki yemeklere yorum eklerken ekran klavyesinde kullanılacak hızlı ifadeler (ör. “Domates istemiyorum” veya “Soğan istemiyorum”). Bir ifade yazıp Enter’a basarak etiket olarak ekleyin.",
+    "tagsLabel": "Yorum etiketleri",
+    "placeholder": "Bir ifade yazın ve Enter’a basın",
+    "createTag": "“{{tag}}” ekle",
+    "noOptions": "Yorum etiketi eklemek için yazın",
+    "updated": "Yemek yorum etiketleri güncellendi",
+    "saveDescription": "Yemek yorum etiketlerini kaydet"
   }
 }

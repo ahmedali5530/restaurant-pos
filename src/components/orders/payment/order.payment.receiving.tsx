@@ -78,6 +78,8 @@ interface Props {
   notes: string
   coupon?: Coupon
   couponAmount?: number
+  /** Flush React draft (tax/tip/extras) to Dexie before settle — avoids fast-tender races. */
+  flushDraft?: () => Promise<void>
 }
 
 type ContentProps = Props & {
@@ -128,6 +130,7 @@ const OrderPaymentReceivingContent = ({
   serviceChargeType,
   notes,
   coupon,
+  flushDraft,
   couponAmount,
   selectedAmount,
   setSelectedAmount,
@@ -261,6 +264,13 @@ const OrderPaymentReceivingContent = ({
         name,
         value: extras[name],
       }));
+
+      // Draft save is debounced via React effects — flush so tax/tip/extras/coupon/
+      // discounts land in Dexie before Paid. Fail settle if flush fails; continuing
+      // would print a final bill missing those lines.
+      if (flushDraft) {
+        await flushDraft();
+      }
 
       // Local-first settlement: Dexie commit + outbox (CREATE_PAYMENT×n, MERGE order,
       // REPLACE taxes/extras, coupon + redemption). Works offline; drains when back.
@@ -657,9 +667,25 @@ const OrderPaymentReceivingContent = ({
                       payload: { order: order.id.toString() },
                       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
                       doPrint: async () => {
-                        const full = await fetchOrderFull(db, order.id);
+                        // Flush draft first so payment-type auto-tax is on the order for the bill.
+                        if (flushDraft) {
+                          await flushDraft().catch(() => undefined);
+                        }
+                        let full = await fetchOrderFull(db, order.id);
                         if (!full) {
                           throw new Error('Failed to load order for temp bill print');
+                        }
+                        const taxRef = full.tax != null
+                          ? String((full.tax as any)?.id ?? full.tax)
+                          : (tax?.id ? String(tax.id) : '');
+                        if (taxRef && !(Number(full.tax_amount) > 0)) {
+                          await posStore.recomputeOrderTaxes(String(order.id), {
+                            extraPatch: { tax: taxRef },
+                          }).catch(() => undefined);
+                          full = await fetchOrderFull(db, order.id);
+                          if (!full) {
+                            throw new Error('Failed to load order for temp bill print');
+                          }
                         }
                         await dispatchPrint(db, PRINT_TYPE.presale_bill, {
                           order: full,

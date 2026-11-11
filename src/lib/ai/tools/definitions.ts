@@ -3,11 +3,12 @@ import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
 import {AI_HR_READ_TOOLS} from "@/lib/ai/tools/hr-tool-definitions.ts";
 
 const dateRangeProps = {
-  startDate: {type: "string", description: "Optional start datetime in DB format"},
-  endDate: {type: "string", description: "Optional end datetime in DB format"},
+  startDate: {type: "string", description: "Optional start datetime in DB format (prefer phrase so closing-cycle windows apply)"},
+  endDate: {type: "string", description: "Optional end datetime in DB format (prefer phrase so closing-cycle windows apply)"},
   phrase: {
     type: "string",
-    description: 'Optional date phrase such as "today", "yesterday", "this week". Use when startDate/endDate are not set.',
+    description:
+      'Optional date phrase such as "today", "yesterday", "this week". Prefer over startDate/endDate — resolved with the restaurant closing-cycle window when enabled.',
   },
 };
 
@@ -16,7 +17,8 @@ export const AI_REPORT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "resolve_date_range",
-      description: "Convert a natural language date phrase into startDate and endDate for database queries. Always use this (or pass phrase to data tools) for relative dates like today, this month, last week — never guess dates.",
+      description:
+        "Convert a natural language date phrase into startDate and endDate for database queries, using the restaurant closing-cycle window when enabled (same bounds as Summary). Always use this (or pass phrase to data tools) for relative dates like today, this month, last week — never guess calendar midnight dates.",
       parameters: {
         type: "object",
         properties: {
