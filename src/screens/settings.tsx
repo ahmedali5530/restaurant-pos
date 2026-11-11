@@ -20,6 +20,7 @@ import {TranslateReceiptsSettingsCard} from "@/components/user_settings/translat
 import {ItemsVisibilityConfig} from "@/components/user_settings/items_visibility_config.tsx";
 import {ShowInclusivePricesSettingsCard} from "@/components/user_settings/show_inclusive_prices.tsx";
 import {CurrencySymbolSettingsCard} from "@/components/user_settings/currency_symbol.tsx";
+import {DishCommentTagsSettingsCard} from "@/components/user_settings/dish_comment_tags.tsx";
 import {InventorySettingsCard} from "@/components/user_settings/inventory_settings.tsx";
 import {WhatsNewSettingsCard} from "@/components/user_settings/whats_new.tsx";
 import {SessionSecuritySettingsCard} from "@/components/user_settings/session_security.tsx";
@@ -69,6 +70,7 @@ export const Settings = () => {
         <MasonryItem><AutoClockOutSettingsCard /></MasonryItem>
         <MasonryItem><ShowInclusivePricesSettingsCard /></MasonryItem>
         <MasonryItem><CurrencySymbolSettingsCard /></MasonryItem>
+        <MasonryItem><DishCommentTagsSettingsCard /></MasonryItem>
         <MasonryItem><TouchSettings /></MasonryItem>
         {__BUILD_MODULE_quick__ && (
           <MasonryItem><PosModeSettings /></MasonryItem>

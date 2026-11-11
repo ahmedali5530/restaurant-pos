@@ -442,5 +442,15 @@
     "saveFailed": "Klantenscherm-instellingen opslaan mislukt",
     "tooLarge": "Bestand overschrijdt de maximale grootte van {{size}}.",
     "invalidType": "Gebruik een afbeeldings- of videobestand."
+  },
+  "dishCommentTags": {
+    "title": "Gerechtcommentaar-tags",
+    "description": "Snelle zinnen voor het schermtoetsenbord bij het toevoegen van commentaar aan winkelwagen-gerechten (bijv. „Geen tomaat“ of „Geen ui“). Typ een zin en druk op Enter om deze als tag toe te voegen.",
+    "tagsLabel": "Commentaar-tags",
+    "placeholder": "Typ een zin en druk op Enter",
+    "createTag": "„{{tag}}“ toevoegen",
+    "noOptions": "Typ om een commentaar-tag toe te voegen",
+    "updated": "Gerechtcommentaar-tags bijgewerkt",
+    "saveDescription": "Gerechtcommentaar-tags opslaan"
   }
 }

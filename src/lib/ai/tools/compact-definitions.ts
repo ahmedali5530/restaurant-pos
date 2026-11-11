@@ -19,7 +19,7 @@ export const AI_REPORT_COMPACT_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "resolve_date_range",
-      description: "Convert date phrase to startDate/endDate.",
+      description: "Convert date phrase to startDate/endDate (closing-cycle aware).",
       parameters: {
         type: "object",
         properties: {phrase: {type: "string"}},

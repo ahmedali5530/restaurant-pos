@@ -7,6 +7,15 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-11',
+    title: 'Dish comment quick tags',
+    items: [
+      'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
+      'The AI assistant resolves today/yesterday and other relative phrases with the restaurant closing-cycle window (same bounds as Summary), so it no longer pulls midnight–midnight data when a cycle is enabled.',
+      'Payment service charges now use the same percent/fixed toggle, quick amounts, and keypad as tips — keypad no longer forces a fixed amount.',
+    ],
+  },
+  {
     date: '2026-11-10',
     title: 'Assistant in the app toolbar',
     items: [
