@@ -8,11 +8,22 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-11',
+    title: 'FOH upload recovers stuck changefeed cursors',
+    items: [
+      'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) is still behind that cursor — or has newer mutations — Sync re-backfills. Covers lead-table stalls and cursors jumped ahead of the tip, not only 14-day retention holes.',
+    ],
+  },
+  {
+    date: '2026-11-11',
     title: 'Dish comment quick tags',
     items: [
       'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
       'The AI assistant resolves today/yesterday and other relative phrases with the restaurant closing-cycle window (same bounds as Summary), so it no longer pulls midnight–midnight data when a cycle is enabled.',
       'Payment service charges now use the same percent/fixed toggle, quick amounts, and keypad as tips — keypad no longer forces a fixed amount.',
+      'Summary keeps the loading spinner when you change the day until the new report has finished rendering, so prior-day totals never linger under the new date.',
+      'Fiscal (PRA/FBR) pre-settle now force-syncs pending Dexie order items to Surreal and hydrates lines from order_item before posting, so addons are not omitted from the authority invoice.',
+      'Fiscal settle, offline queue retry, and manual retry skip re-POST when integration_order_fiscal already has a completed invoice/QR for that order and provider.',
+      'Daily Summary voids now come from order_void for the business day (same source as the Voids report), so fully cancelled checks appear there too.',
     ],
   },
   {

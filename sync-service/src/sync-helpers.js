@@ -78,6 +78,20 @@ function sinceLiteral(value) {
 }
 
 /**
+ * Datetime SINCE literal inside the usual 14d CHANGEFEED window.
+ * Used to probe for mutations when a versionstamp cursor is past retention
+ * (Surreal returns [] for too-old stamps, including the lead table whose
+ * cursor equals process feedHighWater so relative probes cannot fire).
+ */
+function retentionProbeSinceLiteral(nowMs = Date.now(), lookbackMs = 7 * 24 * 60 * 60 * 1000) {
+  const ms = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const lookback = Number.isFinite(lookbackMs) && lookbackMs > 0
+    ? lookbackMs
+    : 7 * 24 * 60 * 60 * 1000;
+  return sinceLiteral(new Date(ms - lookback).toISOString());
+}
+
+/**
  * Extract create/update/delete mutations from a SHOW CHANGES batch entry.
  * Returns { action, recordId, value? } or null for define_table / noise.
  */
@@ -483,6 +497,7 @@ module.exports = {
   tableNameFromRecordId,
   jsonSafe,
   sinceLiteral,
+  retentionProbeSinceLiteral,
   shouldApplyCatalogRow,
   stripUserSecrets,
   prepareCatalogPayload,

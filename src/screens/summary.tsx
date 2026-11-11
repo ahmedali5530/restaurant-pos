@@ -1,7 +1,8 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Order as OrderModel, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
+import type {OrderVoid} from "@/api/model/order_void.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {DateValue} from "react-aria-components";
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -74,11 +75,22 @@ export const Summary = () => {
 
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [orders, setOrders] = useState<OrderModel[]>([]);
+  const [orderVoids, setOrderVoids] = useState<OrderVoid[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [isReportPending, startReportTransition] = useTransition();
+  const fetchGenerationRef = useRef(0);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
   const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
   const [cycleConfigReady, setCycleConfigReady] = useState(false);
+
+  /** Hide stale figures as soon as the selected business day changes. */
+  const selectDate = useCallback((next: DateValue | ((prev: DateValue) => DateValue)) => {
+    setLoading(true);
+    setOrders([]);
+    setOrderVoids([]);
+    setDate(next);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,39 +149,79 @@ export const Summary = () => {
     if (!cycleConfigReady || !reportWindow) {
       return;
     }
+    const generation = ++fetchGenerationRef.current;
     setLoading(true);
-    const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
+    try {
+      const startIso = reportWindow.date_from.toISOString();
+      const endIso = reportWindow.date_to.toISOString();
+      const voidEndOp = 'exclusiveEnd' in reportWindow && reportWindow.exclusiveEnd ? '<' : '<=';
+      const voidsQuery = `
+        SELECT * FROM ${Tables.order_voids}
+        WHERE created_at >= $start
+          AND created_at ${voidEndOp} $end
+        ORDER BY created_at ASC
+        FETCH items, items.item, items.modifiers, items.taxes, items.tax_mode
+      `;
 
-    setOrders(listQuery as OrderModel[]);
-    setLoading(false);
+      const [ordersResult, voidsResult] = await Promise.all([
+        db.query(ordersQb.queryString, ordersQb.parameters),
+        db.query(voidsQuery, {start: startIso, end: endIso}),
+      ]);
+      const listQuery = ordersResult?.[0];
+      const voidRows = voidsResult?.[0];
+      if (generation !== fetchGenerationRef.current) {
+        return;
+      }
+      // Keep the spinner up through the heavy DailySalesSummaryReport commit.
+      startReportTransition(() => {
+        setOrders(listQuery as OrderModel[]);
+        setOrderVoids((Array.isArray(voidRows) ? voidRows : []) as OrderVoid[]);
+        setLoading(false);
+      });
+    } catch (error) {
+      if (generation !== fetchGenerationRef.current) {
+        return;
+      }
+      console.warn('Failed to load summary orders', error);
+      startReportTransition(() => {
+        setOrders([]);
+        setOrderVoids([]);
+        setLoading(false);
+      });
+    }
   }, [cycleConfigReady, reportWindow, ordersQb.queryString, ordersQb.parameters]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
 
+  const showReportLoading = isLoading || isReportPending;
+
   const handlePrintSummary = useCallback(() => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
       orders,
+      orderVoids,
       date: date.toString(),
       windowRange: reportWindowLabel ?? undefined,
     }, {userId: page?.user?.id});
-  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
+  }, [db, orders, orderVoids, date, page?.user?.id, reportWindowLabel]);
 
   const handlePrintMinimalSummary = useCallback(() => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
       orders,
+      orderVoids,
       date: date.toString(),
       windowRange: reportWindowLabel ?? undefined,
       variant: 'minimal',
     }, {userId: page?.user?.id});
-  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
+  }, [db, orders, orderVoids, date, page?.user?.id, reportWindowLabel]);
 
   const handlePrintProductMix = useCallback(() => {
     setIsPrintingMix(true);
     try {
       void dispatchPrint(db, PRINT_TYPE.summary, {
         orders,
+        orderVoids,
         date: date.toString(),
         windowRange: reportWindowLabel ?? undefined,
         variant: 'product_mix',
@@ -177,7 +229,7 @@ export const Summary = () => {
     } finally {
       setIsPrintingMix(false);
     }
-  }, [db, orders, date, page?.user?.id, reportWindowLabel]);
+  }, [db, orders, orderVoids, date, page?.user?.id, reportWindowLabel]);
 
   const handlePrintServerSales = useCallback(async () => {
     setIsPrintingServerSales(true);
@@ -268,7 +320,7 @@ export const Summary = () => {
           <div className="flex justify-center items-center flex-col flex-1">
             <div className="w-[450px]" data-testid="summary-calendar">
               <Calendar
-                onChange={setDate}
+                onChange={selectDate}
                 value={date}
                 maxValue={today(getLocalTimeZone())}
               />
@@ -277,22 +329,14 @@ export const Summary = () => {
               <Button
                 icon={faArrowLeft} size="lg" variant="primary" filled
                 onClick={() => {
-                  setDate(prevState => {
-                    return prevState.subtract({
-                      days: 1
-                    })
-                  })
+                  selectDate(prevState => prevState.subtract({days: 1}));
                 }}
               >
                 {t("summary:screen.previousDate")}</Button>
               <Button
                 rightIcon={faArrowRight} size="lg" variant="primary" filled
                 onClick={() => {
-                  setDate(prevState => {
-                    return prevState.add({
-                      days: 1
-                    })
-                  })
+                  selectDate(prevState => prevState.add({days: 1}));
                 }}
               >
                 {t("summary:screen.nextDate")}</Button>
@@ -347,18 +391,22 @@ export const Summary = () => {
             </div>
           </div>
           <ScrollContainer className="max-h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
-            {isLoading ? (
-              <div className="flex h-screen w-full justify-center items-center flex-1">
+            {showReportLoading ? (
+              <div
+                className="flex h-screen w-full justify-center items-center flex-1 flex-col gap-4"
+                data-testid="summary-report-loading"
+                aria-busy="true"
+              >
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>
+                <p className="text-sm text-muted">{t("summary:screen.loadingSaleData")}</p>
               </div>
             ) : (
-              <>
-                <DailySalesSummaryReport
-                  orders={orders}
-                  date={date.toString()}
-                  windowRange={reportWindowLabel}
-                />
-              </>
+              <DailySalesSummaryReport
+                orders={orders}
+                orderVoids={orderVoids}
+                date={date.toString()}
+                windowRange={reportWindowLabel}
+              />
             )}
           </ScrollContainer>
         </div>

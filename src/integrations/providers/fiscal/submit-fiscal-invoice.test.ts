@@ -66,4 +66,38 @@ describe('submitFiscalInvoices providerIds filter', () => {
     expect(result.resultsByProvider).toEqual({});
     expect(manager.executeImmediate).not.toHaveBeenCalled();
   });
+
+  it('skips authority POST when a completed fiscal row already exists', async () => {
+    const executeImmediate = vi.fn();
+    const manager = {
+      getEnabledProvidersByCategory: () => [praManifest],
+      executeImmediate,
+    } as unknown as IntegrationManager;
+
+    const db = {
+      query: vi.fn(async () => [[
+        {
+          provider_id: 'provider:pra',
+          status: 'completed',
+          invoice_number: '198081FJPT52538296',
+          qrcode: '198081FJPT52538296',
+          code: 100,
+        },
+      ]]),
+      create: vi.fn(),
+      merge: vi.fn(),
+    };
+
+    const result = await submitFiscalInvoices(manager, order, {
+      getConfig: async () => ({ qrPriority: 50 }),
+      db: db as any,
+      providerIds: ['provider:pra'],
+    });
+
+    expect(executeImmediate).not.toHaveBeenCalled();
+    expect(result.resultsByProvider['provider:pra']?.status).toBe('skipped');
+    expect(result.resultsByProvider['provider:pra']?.error).toBe('already_completed');
+    expect(result.resultsByProvider['provider:pra']?.invoiceNumber).toBe('198081FJPT52538296');
+    expect(result.qrcode).toBe('198081FJPT52538296');
+  });
 });

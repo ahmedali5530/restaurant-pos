@@ -18,6 +18,7 @@ const {
   tableNameFromRecordId,
   jsonSafe,
   sinceLiteral,
+  retentionProbeSinceLiteral,
 } = require('./sync-helpers');
 
 function isRecordIdString(value) {
@@ -645,52 +646,123 @@ class SyncManager {
 
   /**
    * Surreal returns [] for SHOW CHANGES when the cursor is older than retention
-   * (no error). Detect that silent gap via (a) mutations still visible near the
-   * process high-water stamp, or (b) a cursor that has not advanced for longer
-   * than half the feed retention while other tables keep moving.
+   * (no error). Detect that silent gap via:
+   * (a) mutations still visible near the process high-water stamp (lagging tables),
+   * (b) a cursor idle >7d while behind other feeds,
+   * (c) datetime probe inside the 14d window — covers the *lead* table whose
+   *     cursor equals feedHighWater so (a)/(b) cannot fire (stuck order upload).
    */
   async assertCursorInsideRetention(tableName, cursor) {
     if (cursor == null || cursor === 0 || cursor === '0') return;
-    if (this.feedHighWater == null) return;
-    if (compareVersionstamp(this.feedHighWater, cursor) <= 0) return;
 
     const limit = this.config.changeLimit || 100;
-    const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(this.feedHighWater)} LIMIT ${Number(limit) || 100};`;
-    let result;
+
+    // (a)+(b) relative to other tables' cursors
+    if (
+      this.feedHighWater != null
+      && compareVersionstamp(this.feedHighWater, cursor) > 0
+    ) {
+      const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(this.feedHighWater)} LIMIT ${Number(limit) || 100};`;
+      try {
+        const result = await withTimeout(
+          this.source.query(sql),
+          20000,
+          `SHOW CHANGES.probe(${tableName})`
+        );
+        const probe = normalizeShowChangesResult(result);
+        for (const entry of probe) {
+          this.noteFeedHighWater(entry && entry.versionstamp);
+        }
+        const newer = entriesAfterCursor(probe, cursor);
+        if (newer.length) {
+          throw new Error(
+            `changefeed cursor outside retention (silent gap): table=${tableName} cursor=${versionstampForStorage(cursor)} highWater=${versionstampForStorage(this.feedHighWater)}`
+          );
+        }
+      } catch (error) {
+        if (isChangefeedRetentionError(error)) throw error;
+        this.logger.warn('Stale-cursor probe failed', {
+          table: tableName,
+          error: error.message || String(error),
+        });
+      }
+
+      const state = this.ensureTableState(tableName);
+      const updatedMs = Date.parse(state.cursorUpdatedAt || '');
+      const staleMs = 7 * 24 * 60 * 60 * 1000;
+      if (Number.isFinite(updatedMs) && Date.now() - updatedMs >= staleMs) {
+        throw new Error(
+          `changefeed cursor outside retention (silent gap, idle cursor): table=${tableName} cursor=${versionstampForStorage(cursor)} updatedAt=${state.cursorUpdatedAt}`
+        );
+      }
+    }
+
+    // (c) Page a recent datetime window forward to the tip. A single LIMIT from
+    // ~7d ago only returns the *oldest* changes (misses new orders when the
+    // cursor is only hours stale). Walk until empty / cap.
     try {
-      result = await withTimeout(
-        this.source.query(sql),
-        20000,
-        `SHOW CHANGES.probe(${tableName})`
-      );
+      await this.assertRecentFeedAheadOfCursor(tableName, cursor, limit);
     } catch (error) {
       if (isChangefeedRetentionError(error)) throw error;
-      this.logger.warn('Stale-cursor probe failed', {
+      this.logger.warn('Datetime stale-cursor probe failed', {
         table: tableName,
         error: error.message || String(error),
       });
-      return;
     }
+  }
 
-    const probe = normalizeShowChangesResult(result);
-    for (const entry of probe) {
-      this.noteFeedHighWater(entry && entry.versionstamp);
-    }
-    const newer = entriesAfterCursor(probe, cursor);
-    if (newer.length) {
-      throw new Error(
-        `changefeed cursor outside retention (silent gap): table=${tableName} cursor=${versionstampForStorage(cursor)} highWater=${versionstampForStorage(this.feedHighWater)}`
+  /**
+   * Walk SHOW CHANGES from a datetime inside retention up to the tip (paged).
+   * Throws silent-gap if any entry is newer than cursor, or if the tip itself
+   * is still below cursor (cursor jumped ahead of the live feed).
+   */
+  async assertRecentFeedAheadOfCursor(tableName, cursor, limit) {
+    const pageSize = Math.max(Number(limit) || 100, 100);
+    let since = retentionProbeSinceLiteral();
+    let probeTip = null;
+    let sawEntry = false;
+    let lastSeen = null;
+
+    for (let page = 0; page < 50; page += 1) {
+      const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${pageSize};`;
+      const result = await withTimeout(
+        this.source.query(sql),
+        20000,
+        `SHOW CHANGES.probeDate(${tableName},${page})`
       );
+      const batch = normalizeShowChangesResult(result);
+      // SINCE is inclusive — drop the stamp we already consumed on the prior page.
+      const forward = lastSeen == null
+        ? batch
+        : batch.filter((entry) => entry && compareVersionstamp(entry.versionstamp, lastSeen) > 0);
+      if (!forward.length) break;
+
+      sawEntry = true;
+      const newer = entriesAfterCursor(forward, cursor);
+      for (const entry of forward) {
+        this.noteFeedHighWater(entry && entry.versionstamp);
+        probeTip = nextCursorVersionstamp(probeTip, entry && entry.versionstamp);
+      }
+      if (newer.length) {
+        throw new Error(
+          `changefeed cursor outside retention (silent gap, datetime probe): table=${tableName} cursor=${versionstampForStorage(cursor)} probeEntries=${newer.length}`
+        );
+      }
+
+      const lastStamp = forward[forward.length - 1] && forward[forward.length - 1].versionstamp;
+      if (lastStamp == null) break;
+      lastSeen = lastStamp;
+      since = sinceLiteral(lastStamp);
+      if (forward.length < pageSize) break;
     }
 
-    // Quiet table whose cursor is behind other feeds and older than ~7d (half of
-    // the usual 14d CHANGEFEED window) — history for that stamp is gone.
-    const state = this.ensureTableState(tableName);
-    const updatedMs = Date.parse(state.cursorUpdatedAt || '');
-    const staleMs = 7 * 24 * 60 * 60 * 1000;
-    if (Number.isFinite(updatedMs) && Date.now() - updatedMs >= staleMs) {
+    if (
+      sawEntry
+      && probeTip != null
+      && compareVersionstamp(cursor, probeTip) > 0
+    ) {
       throw new Error(
-        `changefeed cursor outside retention (silent gap, idle cursor): table=${tableName} cursor=${versionstampForStorage(cursor)} updatedAt=${state.cursorUpdatedAt}`
+        `changefeed cursor ahead of live tip (silent gap, cursor ahead): table=${tableName} cursor=${versionstampForStorage(cursor)} tip=${versionstampForStorage(probeTip)}`
       );
     }
   }

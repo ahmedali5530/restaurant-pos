@@ -94,7 +94,8 @@ const calculateOrderAmountDue = (order: Order): number => {
   return getOrderAmountDueFromPayments(order);
 };
 
-const calculateVoidEntryAmount = (entry: OrderVoid): number => {
+/** Amount for one order_void row (voided lines × void quantity). */
+export const calculateVoidEntryAmount = (entry: OrderVoid): number => {
   const quantity = safeNumber(entry?.quantity || 1);
   const voidItems = (entry?.items ?? []).filter(Boolean);
   return voidItems.reduce((sum, item) => {
@@ -105,6 +106,9 @@ const calculateVoidEntryAmount = (entry: OrderVoid): number => {
     return sum + safeNumber(lineAmount);
   }, 0);
 };
+
+export const sumOrderVoidAmounts = (orderVoids: OrderVoid[] | undefined): number =>
+  (orderVoids ?? []).reduce((sum, entry) => sum + calculateVoidEntryAmount(entry), 0);
 
 const collectCategories = (item: {item?: {categories?: unknown[]; name?: string}; category?: string}) => {
   if (!item?.item) {

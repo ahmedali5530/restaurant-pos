@@ -99,7 +99,7 @@
       "amountCollected": "Totali pagamento applicati per metodo (escluso resto restituito).",
       "rounding": "Importo incassato − totale generale (dovuto); eccedenza/carenza rispetto al dovuto calcolato.",
       "changeVariance": "Contanti versati in eccesso rispetto agli importi pagamento applicati.",
-      "voids": "Valore righe rimosse dopo inserimento (non nelle vendite lorde sopra).",
+      "voids": "Valore delle righe annullate in questo giorno operativo (include conti interamente annullati; non nelle vendite lorde sopra).",
       "refunds": "Resi da pagamenti negativi o conti annullati.",
       "covers": "Numero ospiti (coperti).",
       "averageCover": "Importo dovuto (prima delle mance) ÷ coperti.",
