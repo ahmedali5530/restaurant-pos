@@ -442,5 +442,15 @@
     "saveFailed": "Kundendisplay-Einstellungen konnten nicht gespeichert werden",
     "tooLarge": "Datei überschreitet die maximale Größe von {{size}}.",
     "invalidType": "Bitte eine Bild- oder Videodatei verwenden."
+  },
+  "dishCommentTags": {
+    "title": "Gerichtskommentar-Tags",
+    "description": "Schnellphrasen für die Bildschirmtastatur beim Hinzufügen von Kommentaren zu Warenkorbgerichten (z. B. „Ohne Tomate“ oder „Ohne Zwiebel“). Phrase eingeben und Enter drücken, um sie als Tag hinzuzufügen.",
+    "tagsLabel": "Kommentar-Tags",
+    "placeholder": "Kommentarphrase eingeben und Enter drücken",
+    "createTag": "„{{tag}}“ hinzufügen",
+    "noOptions": "Tippen, um einen Kommentar-Tag hinzuzufügen",
+    "updated": "Gerichtskommentar-Tags aktualisiert",
+    "saveDescription": "Gerichtskommentar-Tags speichern"
   }
 }

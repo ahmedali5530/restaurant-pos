@@ -442,5 +442,15 @@
     "saveFailed": "Falha ao salvar configurações da tela do cliente",
     "tooLarge": "O arquivo excede o tamanho máximo de {{size}}.",
     "invalidType": "Use um arquivo de imagem ou vídeo."
+  },
+  "dishCommentTags": {
+    "title": "Tags de comentário de pratos",
+    "description": "Frases rápidas para o teclado na tela ao adicionar comentários a pratos do carrinho (por exemplo “Sem tomate” ou “Sem cebola”). Digite uma frase e pressione Enter para adicioná-la como tag.",
+    "tagsLabel": "Tags de comentário",
+    "placeholder": "Digite uma frase e pressione Enter",
+    "createTag": "Adicionar “{{tag}}”",
+    "noOptions": "Digite para adicionar uma tag de comentário",
+    "updated": "Tags de comentário de pratos atualizadas",
+    "saveDescription": "Salvar tags de comentário de pratos"
   }
 }

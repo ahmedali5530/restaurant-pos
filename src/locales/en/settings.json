@@ -442,5 +442,15 @@
     "saveFailed": "Failed to save customer display settings",
     "tooLarge": "File exceeds the maximum size of {{size}}.",
     "invalidType": "Use an image or video file."
+  },
+  "dishCommentTags": {
+    "title": "Dish comment tags",
+    "description": "Quick phrases for the on-screen keyboard when adding comments to cart dishes (for example “No tomato” or “No onion”). Type a phrase and press Enter to add it as a tag.",
+    "tagsLabel": "Comment tags",
+    "placeholder": "Type a comment phrase and press Enter",
+    "createTag": "Add “{{tag}}”",
+    "noOptions": "Type to add a comment tag",
+    "updated": "Dish comment tags updated",
+    "saveDescription": "Save dish comment tags"
   }
 }

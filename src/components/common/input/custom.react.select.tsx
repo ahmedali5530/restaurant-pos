@@ -6,6 +6,7 @@ import Select, {
   StylesConfig,
   type Theme,
 } from "react-select";
+import CreatableSelect from "react-select/creatable";
 import Spinner from "@/assets/images/spinner.svg";
 import {useTheme} from "@/providers/theme.provider.tsx";
 import type {BrandPalette} from "@/lib/theme.ts";
@@ -188,16 +189,26 @@ function TopLayerMenuPortal(props: ComponentProps<typeof selectComponents.MenuPo
   );
 }
 
+type ReactSelectProps<
+  Option,
+  IsMulti extends boolean = false,
+  Group extends GroupBase<Option> = GroupBase<Option>
+> = Props<Option, IsMulti, Group> & {
+  /** Use creatable multi/single select (type to add new options). */
+  creatable?: boolean;
+};
+
 export function ReactSelect<
   Option,
   IsMulti extends boolean = false,
   Group extends GroupBase<Option> = GroupBase<Option>
->(props: Props<Option, IsMulti, Group>) {
+>(props: ReactSelectProps<Option, IsMulti, Group>) {
   const {
     styles: stylesProp,
     components: componentsProp,
     menuPortalTarget: menuPortalTargetProp,
     isMulti,
+    creatable = false,
     ...restProps
   } = props;
 
@@ -213,9 +224,10 @@ export function ReactSelect<
       : defaultMenuPortalTarget;
 
   const BaseMenuPortal = componentsProp?.MenuPortal ?? selectComponents.MenuPortal;
+  const SelectComponent = creatable ? CreatableSelect : Select;
 
   return (
-    <Select
+    <SelectComponent
       closeMenuOnSelect={!isMulti}
       {...restProps}
       isMulti={isMulti}

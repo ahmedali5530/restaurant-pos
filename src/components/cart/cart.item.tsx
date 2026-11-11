@@ -13,6 +13,8 @@ import {useTranslation} from "react-i18next";
 import {IconTooltipButton} from "@/components/common/input/icon.tooltip.button.tsx";
 import {canAddDishQty, dishSoldMapAtom, soldFromMap, withLiveAvailability,} from "@/lib/dish-availability.ts";
 import {toast} from "sonner";
+import {useDB} from "@/api/db/db.ts";
+import {loadDishCommentTags} from "@/api/model/dish_comment_tags.ts";
 
 interface Props {
   item: MenuItem
@@ -21,6 +23,7 @@ interface Props {
 
 export const CartItem = ({item, index}: Props) => {
   const {t} = useTranslation(['cart', 'common', 'menu']);
+  const db = useDB();
   const [state, setState] = useAtom(appState);
   const [settings] = useAtom(appSettings);
   const [soldMap] = useAtom(dishSoldMapAtom);
@@ -66,6 +69,7 @@ export const CartItem = ({item, index}: Props) => {
   const [isModifiersOpen, setModifiersOpen] = useState(false);
   const [isCommentKeyboardOpen, setCommentKeyboardOpen] = useState(false);
   const [commentText, setCommentText] = useState(item.comments || "");
+  const [commentTags, setCommentTags] = useState<string[]>([]);
 
   const hasOldItems = useMemo(() => {
     return state.cart.filter(item => item.newOrOld === MenuItemType.old && item.isSelected).length > 0
@@ -206,6 +210,9 @@ export const CartItem = ({item, index}: Props) => {
                   onClick={() => {
                     setCommentText(item.comments || "");
                     setCommentKeyboardOpen(true);
+                    void loadDishCommentTags(db)
+                      .then(setCommentTags)
+                      .catch(() => setCommentTags([]));
                   }}
                   className="!rounded-none"
                 >
@@ -277,6 +284,7 @@ export const CartItem = ({item, index}: Props) => {
           placeholder={t('seats.addComment')}
           value={commentText}
           onChange={(v) => setCommentText(v)}
+          quickWords={commentTags}
         />
       )}
     </>

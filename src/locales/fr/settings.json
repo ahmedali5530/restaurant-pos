@@ -442,5 +442,15 @@
     "saveFailed": "Échec de l'enregistrement des paramètres de l'écran client",
     "tooLarge": "Le fichier dépasse la taille maximale de {{size}}.",
     "invalidType": "Utilisez un fichier image ou vidéo."
+  },
+  "dishCommentTags": {
+    "title": "Tags de commentaires de plats",
+    "description": "Phrases rapides pour le clavier à l’écran lors de l’ajout de commentaires aux plats du panier (par ex. « Sans tomate » ou « Sans oignon »). Saisissez une phrase et appuyez sur Entrée pour l’ajouter comme tag.",
+    "tagsLabel": "Tags de commentaire",
+    "placeholder": "Saisissez une phrase et appuyez sur Entrée",
+    "createTag": "Ajouter « {{tag}} »",
+    "noOptions": "Saisissez pour ajouter un tag de commentaire",
+    "updated": "Tags de commentaires de plats mis à jour",
+    "saveDescription": "Enregistrer les tags de commentaires de plats"
   }
 }

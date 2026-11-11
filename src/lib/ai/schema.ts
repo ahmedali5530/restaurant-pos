@@ -153,8 +153,8 @@ const FULL_DATABASE_CONTEXT = `Database context:
 const FULL_WORKFLOW = `Workflow:
 1. Call the appropriate data tool for the question domain (sales, inventory, operations).
 2. Date range is optional. If the user does not mention a time period, omit startDate and endDate to query all available data.
-3. For relative time periods ("today", "this month", "last week", etc.): call resolve_date_range with the phrase, OR pass phrase directly to data tools — never invent startDate/endDate yourself.
-4. Anchor all relative dates to the current business date provided above (e.g. "this month" means the current calendar month, not a past year).
+3. For relative time periods ("today", "this month", "last week", etc.): call resolve_date_range with the phrase, OR pass phrase directly to data tools — never invent startDate/endDate yourself. When closing cycle is enabled (see business date context), those phrases map to the restaurant business window (e.g. 06:00→next-day 05:59), not calendar midnight.
+4. Anchor all relative dates to the current business date / closing-cycle window provided above (e.g. "this month" means the current calendar month under that cycle, not a past year).
 5. For sales/consumption trend forecasts: always call get_time_series first, then forecast_sales or forecast_inventory. Never project from memory.
 5a. For inventory needed / this Friday / what should I buy / restock: call forecast_inventory_need only. Report last same-weekday actual, on-hand, adjusted need, suggestedPurchaseQty, and context (holidays, weather, prompt events). Do not create a purchase order. Pass localEvents from the prompt; never invent. If weather is missing, say so from warnings.
 5b. For how many staff / headcount needed: call forecast_staff_need only. Report last same-weekday hours/headcount vs recommended vs scheduled. Pass localEvents from the prompt; never invent.
@@ -196,7 +196,7 @@ Date format for tool parameters: ${runtimeDateTimeFormat()}. Currency: ${APP_CUR
 
 Rules:
 - Each request is standalone: you only receive the current user message, not earlier chat. Answer only that question — never merge or repeat results from other topics the user may have asked before in the UI.
-- For relative dates, call resolve_date_range or pass phrase to tools — do not compute startDate/endDate from memory.
+- For relative dates, call resolve_date_range or pass phrase to tools — do not compute startDate/endDate from memory (tools apply closing-cycle bounds when enabled).
 - Use tool results for all numbers. Explain tool errors plainly.
 - Answer clearly with specific figures from tool output.
 

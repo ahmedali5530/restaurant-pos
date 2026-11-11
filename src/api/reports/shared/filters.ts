@@ -3,10 +3,39 @@ import {getAppTimezone} from "@/lib/datetime.ts";
 import type {BranchScopeParams, BranchView} from "@/api/reports/shared/branch-scope.ts";
 import type {DateRangeFilter} from "@/api/reports/shared/types.ts";
 import type {ClosingCycleConfig} from "@/lib/closing-cycle.ts";
+import {isClosingCycleEnabled} from "@/lib/closing-cycle.ts";
 import {formatReportRangeForQuery} from "@/lib/kitchen/business-date.ts";
 import { runtimeDateTimeFormat, runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 /** Luxon format for query parameter values (matches report date pickers). */
+
+/** Short-lived closing-cycle cache so AI phrase → window stays consistent across tools. */
+let aiClosingCycleCache: {config: ClosingCycleConfig | null; at: number} | null = null;
+const AI_CLOSING_CYCLE_CACHE_MS = 60_000;
+
+/** Load (and cache) closing-cycle config for AI date resolution / prompts. */
+export const ensureAiClosingCycleConfig = async (): Promise<ClosingCycleConfig | null> => {
+  if (aiClosingCycleCache && Date.now() - aiClosingCycleCache.at < AI_CLOSING_CYCLE_CACHE_MS) {
+    return aiClosingCycleCache.config;
+  }
+  try {
+    const {loadClosingCycleConfigFromCatalog} = await import("@/lib/closing-cycle.ts");
+    const {config} = await loadClosingCycleConfigFromCatalog();
+    aiClosingCycleCache = {config, at: Date.now()};
+    return config;
+  } catch {
+    aiClosingCycleCache = {config: null, at: Date.now()};
+    return null;
+  }
+};
+
+export const getCachedAiClosingCycleConfig = (): ClosingCycleConfig | null =>
+  aiClosingCycleCache?.config ?? null;
+
+/** Test helper — clear AI closing-cycle cache. */
+export const resetAiClosingCycleConfigCache = (): void => {
+  aiClosingCycleCache = null;
+};
 
 const rangeForDays = (
   config: ClosingCycleConfig | null | undefined,
@@ -46,16 +75,35 @@ export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(runtimeDateT
 
 const getNow = () => DateTime.now().setZone(getAppTimezone());
 
+const formatCycleClock = (config: ClosingCycleConfig): string => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(config.startHour)}:${pad(config.startMinute)}-${pad(config.endHour)}:${pad(config.endMinute)}`;
+};
+
 /** Human-readable anchor date for AI system prompts. */
-export const getBusinessDateContext = (): string => {
+export const getBusinessDateContext = (
+  closingCycleConfig: ClosingCycleConfig | null = getCachedAiClosingCycleConfig(),
+): string => {
   const now = getNow();
   const dateFormat = runtimeDateFormat();
 
-  return [
+  const parts = [
     `Today is ${now.toFormat("cccc, MMMM d, yyyy")} (${now.toFormat(dateFormat)})`,
     `current month is ${now.toFormat("MMMM yyyy")}`,
     `current year is ${now.year}`,
-  ].join("; ");
+  ];
+
+  if (closingCycleConfig && isClosingCycleEnabled(closingCycleConfig)) {
+    const todayWindow = rangeForDays(closingCycleConfig, now, now);
+    parts.push(
+      `closing cycle is enabled (${formatCycleClock(closingCycleConfig)}); "today" means ${todayWindow.startDate} → ${todayWindow.endDate} (not midnight-midnight)`,
+    );
+    parts.push(
+      'prefer phrase="today"/"yesterday"/… or resolve_date_range so tools use the closing-cycle window — do not invent calendar midnight dates',
+    );
+  }
+
+  return parts.join("; ");
 };
 
 /** Normalize a date string from AI or user input into the query parameter format. */
@@ -86,14 +134,16 @@ export const normalizeQueryDate = (value: string): string => {
 
 export const resolveNaturalDateRange = ({
   phrase,
-  closingCycleConfig = null,
+  closingCycleConfig,
 }: {
   phrase: string;
   closingCycleConfig?: ClosingCycleConfig | null;
 }): DateRangeFilter => {
   const normalized = phrase.trim().toLowerCase();
   const now = getNow();
-  const cfg = closingCycleConfig;
+  // Explicit null disables cycle; undefined falls back to the AI cache (warmed by ensureAiClosingCycleConfig).
+  const cfg =
+    closingCycleConfig === undefined ? getCachedAiClosingCycleConfig() : closingCycleConfig;
 
   if (normalized === "today" || normalized.includes("today")) {
     return rangeForDays(cfg, now, now);
@@ -245,6 +295,7 @@ export const parseHourRangeFromPhrase = (
 /** Merge explicit dates with an optional natural-language phrase when dates are omitted. */
 export const parseDateRangeWithPhrase = (
   args: {startDate?: unknown; endDate?: unknown; phrase?: unknown},
+  closingCycleConfig?: ClosingCycleConfig | null,
 ): DateRangeFilter => {
   const hasStart = args.startDate !== undefined && args.startDate !== null && String(args.startDate).trim() !== "";
   const hasEnd = args.endDate !== undefined && args.endDate !== null && String(args.endDate).trim() !== "";
@@ -261,8 +312,22 @@ export const parseDateRangeWithPhrase = (
   }
 
   if (args.phrase) {
-    return resolveNaturalDateRange({phrase: String(args.phrase)});
+    return resolveNaturalDateRange({
+      phrase: String(args.phrase),
+      closingCycleConfig,
+    });
   }
 
   return {};
+};
+
+/**
+ * Same as parseDateRangeWithPhrase, but warms the closing-cycle cache first so
+ * "today"/relative phrases map to the restaurant business window.
+ */
+export const parseAiDateRange = async (
+  args: {startDate?: unknown; endDate?: unknown; phrase?: unknown},
+): Promise<DateRangeFilter> => {
+  const closingCycleConfig = await ensureAiClosingCycleConfig();
+  return parseDateRangeWithPhrase(args, closingCycleConfig);
 };
