@@ -8,6 +8,13 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-11',
+    title: 'FOH upload recovers stuck changefeed cursors',
+    items: [
+      'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) is still behind that cursor — or has newer mutations — Sync re-backfills. Covers lead-table stalls and cursors jumped ahead of the tip, not only 14-day retention holes.',
+    ],
+  },
+  {
+    date: '2026-11-11',
     title: 'Dish comment quick tags',
     items: [
       'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
