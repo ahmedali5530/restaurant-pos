@@ -13,6 +13,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
       'The AI assistant resolves today/yesterday and other relative phrases with the restaurant closing-cycle window (same bounds as Summary), so it no longer pulls midnight–midnight data when a cycle is enabled.',
       'Payment service charges now use the same percent/fixed toggle, quick amounts, and keypad as tips — keypad no longer forces a fixed amount.',
+      'Summary keeps the loading spinner when you change the day until the new report has finished rendering, so prior-day totals never linger under the new date.',
     ],
   },
   {

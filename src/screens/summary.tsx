@@ -1,7 +1,7 @@
 import {Layout} from "@/screens/partials/layout.tsx";
 import {Order as OrderModel, ORDER_FETCHES, OrderStatus} from "@/api/model/order.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useRef, useState, useTransition} from "react";
 import {DateValue} from "react-aria-components";
 import {getLocalTimeZone, today} from "@internationalized/date";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -75,10 +75,19 @@ export const Summary = () => {
   const [date, setDate] = useState<DateValue>(today(getLocalTimeZone()));
   const [orders, setOrders] = useState<OrderModel[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [isReportPending, startReportTransition] = useTransition();
+  const fetchGenerationRef = useRef(0);
   const [isPrintingMix, setIsPrintingMix] = useState(false);
   const [isPrintingServerSales, setIsPrintingServerSales] = useState(false);
   const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
   const [cycleConfigReady, setCycleConfigReady] = useState(false);
+
+  /** Hide stale figures as soon as the selected business day changes. */
+  const selectDate = useCallback((next: DateValue | ((prev: DateValue) => DateValue)) => {
+    setLoading(true);
+    setOrders([]);
+    setDate(next);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,16 +146,35 @@ export const Summary = () => {
     if (!cycleConfigReady || !reportWindow) {
       return;
     }
+    const generation = ++fetchGenerationRef.current;
     setLoading(true);
-    const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
-
-    setOrders(listQuery as OrderModel[]);
-    setLoading(false);
+    try {
+      const [listQuery] = await db.query(ordersQb.queryString, ordersQb.parameters);
+      if (generation !== fetchGenerationRef.current) {
+        return;
+      }
+      // Keep the spinner up through the heavy DailySalesSummaryReport commit.
+      startReportTransition(() => {
+        setOrders(listQuery as OrderModel[]);
+        setLoading(false);
+      });
+    } catch (error) {
+      if (generation !== fetchGenerationRef.current) {
+        return;
+      }
+      console.warn('Failed to load summary orders', error);
+      startReportTransition(() => {
+        setOrders([]);
+        setLoading(false);
+      });
+    }
   }, [cycleConfigReady, reportWindow, ordersQb.queryString, ordersQb.parameters]);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  const showReportLoading = isLoading || isReportPending;
 
   const handlePrintSummary = useCallback(() => {
     void dispatchPrint(db, PRINT_TYPE.summary, {
@@ -268,7 +296,7 @@ export const Summary = () => {
           <div className="flex justify-center items-center flex-col flex-1">
             <div className="w-[450px]" data-testid="summary-calendar">
               <Calendar
-                onChange={setDate}
+                onChange={selectDate}
                 value={date}
                 maxValue={today(getLocalTimeZone())}
               />
@@ -277,22 +305,14 @@ export const Summary = () => {
               <Button
                 icon={faArrowLeft} size="lg" variant="primary" filled
                 onClick={() => {
-                  setDate(prevState => {
-                    return prevState.subtract({
-                      days: 1
-                    })
-                  })
+                  selectDate(prevState => prevState.subtract({days: 1}));
                 }}
               >
                 {t("summary:screen.previousDate")}</Button>
               <Button
                 rightIcon={faArrowRight} size="lg" variant="primary" filled
                 onClick={() => {
-                  setDate(prevState => {
-                    return prevState.add({
-                      days: 1
-                    })
-                  })
+                  selectDate(prevState => prevState.add({days: 1}));
                 }}
               >
                 {t("summary:screen.nextDate")}</Button>
@@ -347,18 +367,21 @@ export const Summary = () => {
             </div>
           </div>
           <ScrollContainer className="max-h-[calc(100vh_-_30px_-_var(--app-toolbar-h))] overflow-y-auto flex-1 flex-basis-[500px] py-10 select-none" data-testid="summary-report">
-            {isLoading ? (
-              <div className="flex h-screen w-full justify-center items-center flex-1">
+            {showReportLoading ? (
+              <div
+                className="flex h-screen w-full justify-center items-center flex-1 flex-col gap-4"
+                data-testid="summary-report-loading"
+                aria-busy="true"
+              >
                 <FontAwesomeIcon icon={faSpinner} spin size="5x"/>
+                <p className="text-sm text-muted">{t("summary:screen.loadingSaleData")}</p>
               </div>
             ) : (
-              <>
-                <DailySalesSummaryReport
-                  orders={orders}
-                  date={date.toString()}
-                  windowRange={reportWindowLabel}
-                />
-              </>
+              <DailySalesSummaryReport
+                orders={orders}
+                date={date.toString()}
+                windowRange={reportWindowLabel}
+              />
             )}
           </ScrollContainer>
         </div>
