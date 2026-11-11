@@ -18,6 +18,8 @@ const {
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
   diffOrphanLocalIds,
+  retentionProbeSinceLiteral,
+  sinceLiteral,
 } = require('./sync-helpers');
 const {
   resolveIncludeTables,
@@ -41,6 +43,14 @@ describe('diffOrphanLocalIds', () => {
     );
     assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], ['menu_item:a']), []);
     assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], []), ['menu_item:a']);
+  });
+});
+
+describe('retentionProbeSinceLiteral', () => {
+  it('emits a Surreal datetime SINCE literal about 7d back', () => {
+    const lit = retentionProbeSinceLiteral(Date.parse('2026-11-11T12:00:00.000Z'));
+    assert.equal(lit, sinceLiteral('2026-11-04T12:00:00.000Z'));
+    assert.match(lit, /^d"/);
   });
 });
 
