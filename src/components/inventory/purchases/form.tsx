@@ -1420,8 +1420,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   isLoading={postingAfterSave}
                   disabled={postingAfterSave}
                   onClick={() => {
-                    setPostingAfterSave(true);
-                    void handleSubmit((values) => onSubmit(values, { postAfterSave: true }))();
+                    void handleSubmit((values) => {
+                      setPostingAfterSave(true);
+                      return onSubmit(values, { postAfterSave: true });
+                    })();
                   }}
                 >
                   Save &amp; Post

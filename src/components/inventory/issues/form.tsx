@@ -44,16 +44,41 @@ import { InventoryDocumentStatusBadge } from "@/components/inventory/common/docu
 import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { ensureLocationForKitchen, toLocationRecordId } from "@/lib/inventory/location.service.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
-import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
+import {formatInventoryNumber, withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 import {
   lineEnteredDefaults,
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
-import { toRecordId } from "@/lib/utils.ts";
+import { toRecordId, safeNumber } from "@/lib/utils.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createIssueImportConfig} from "@/components/inventory/issues/issue.import.config.ts";
+import {getLastPurchaseUnitCostOrNull} from "@/lib/inventory/last.purchase.price.ts";
+import {lineAmount} from "@/lib/inventory/line.cost.ts";
+
+/** Convert entered qty × stock-unit price into a money amount for display. */
+function issueLineMoney(opts: {
+  quantity?: number | string | null;
+  price?: number | string | null;
+  enteredUom?: string | null;
+  stockUom?: string | null;
+}): number {
+  const qty = safeNumber(opts.quantity);
+  const price = safeNumber(opts.price);
+  if (!qty || !price) return 0;
+  try {
+    const stock = convertQuantityOnlyLine({
+      enteredQuantity: qty,
+      enteredUom: opts.enteredUom || opts.stockUom,
+      stockUom: opts.stockUom || opts.enteredUom,
+      stockUnitPrice: price,
+    });
+    return lineAmount(stock.price, stock.quantity);
+  } catch {
+    return lineAmount(price, qty);
+  }
+}
 
 interface InventoryIssueItemFormValue {
   location: { label: string; value: string } | null;
@@ -199,6 +224,8 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     name: "items"
   });
   const [rowNetQuantities, setRowNetQuantities] = useState<Record<number, number | undefined>>({});
+  /** Last purchase unit cost per line index (null = none / not loaded). */
+  const [lastPrices, setLastPrices] = useState<Record<number, number | null>>({});
   const netQuantityCacheRef = useRef<Record<string, number>>({});
   const createEmptyItem = useCallback(() => ({
     location: null,
@@ -213,7 +240,60 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   const resetInventoryState = useCallback(() => {
     netQuantityCacheRef.current = {};
     setRowNetQuantities({});
+    setLastPrices({});
   }, [setRowNetQuantities]);
+
+  const loadLastPurchaseHint = useCallback(
+    async (index: number, itemId: string | null | undefined) => {
+      if (!itemId) {
+        setLastPrices((prev) => ({...prev, [index]: null}));
+        return null;
+      }
+      try {
+        const last = await getLastPurchaseUnitCostOrNull(db, itemId);
+        setLastPrices((prev) => ({...prev, [index]: last}));
+        return last;
+      } catch {
+        setLastPrices((prev) => ({...prev, [index]: null}));
+        return null;
+      }
+    },
+    // db omitted from deps — including it re-creates this callback and can re-trigger form resets.
+    []
+  );
+
+  const applyIssuePriceOptions = useCallback(
+    async (index: number, itemId: string | null | undefined, catalog?: InventoryItem | null) => {
+      if (!itemId) {
+        setLastPrices((prev) => ({...prev, [index]: null}));
+        setValue(`items.${index}.price`, 0);
+        return;
+      }
+
+      const last = await loadLastPurchaseHint(index, itemId);
+
+      const itemPrice =
+        catalog?.price != null && Number.isFinite(Number(catalog.price))
+          ? Number(catalog.price)
+          : null;
+      const averagePrice =
+        catalog?.average_price != null && Number.isFinite(Number(catalog.average_price))
+          ? Number(catalog.average_price)
+          : null;
+
+      // Prefer last purchase, then catalog item price, then average — never invent a value.
+      const preferred =
+        last != null && last > 0
+          ? last
+          : itemPrice != null && itemPrice > 0
+            ? itemPrice
+            : averagePrice != null && averagePrice > 0
+              ? averagePrice
+              : last ?? itemPrice ?? averagePrice ?? 0;
+      setValue(`items.${index}.price`, preferred);
+    },
+    [loadLastPurchaseHint, setValue]
+  );
 
   const fetchNetQuantityForLocation = useCallback(async (itemId: string, locationId: string) => {
     return fetchNetQuantity(db, itemId, locationId);
@@ -325,7 +405,26 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
     return () => {
       cancelled = true;
     };
+    // Intentionally omit db / loadLastPurchaseHint — they must not re-reset the form.
   }, [data, open, reset, resetInventoryState, createEmptyItem]);
+
+  // Load last-purchase hints for an existing document without resetting form values.
+  useEffect(() => {
+    if (!open || !data?.id || !data.items?.length) return;
+    let cancelled = false;
+    const lines = data.items;
+    void (async () => {
+      for (let index = 0; index < lines.length; index++) {
+        const item = lines[index];
+        const itemId = item.item?.id ? recordIdToString(item.item.id) : null;
+        if (!itemId || cancelled) continue;
+        await loadLastPurchaseHint(index, itemId);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, data?.id, loadLastPurchaseHint]);
 
   useEffect(() => {
     if (!open || data?.id) {
@@ -820,18 +919,13 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                           onChange={(option) => {
                             field.onChange(option);
                             const catalog = itemsList.find((it) => it.id.toString() === option?.value);
-                            if (catalog) {
-                              const catalogPrice = catalog.price || catalog.average_price || 0;
-                              if (catalogPrice > 0) {
-                                setValue(`items.${index}.price`, catalogPrice);
-                              }
-                              if (catalog.uom) {
-                                setValue(
-                                  `items.${index}.entered_uom`,
-                                  normalizeUom(catalog.uom) ?? catalog.uom
-                                );
-                              }
+                            if (catalog?.uom) {
+                              setValue(
+                                `items.${index}.entered_uom`,
+                                normalizeUom(catalog.uom) ?? catalog.uom
+                              );
                             }
+                            void applyIssuePriceOptions(index, option?.value, catalog);
                           }}
                           options={rowItemOptions}
                           isLoading={loadingItems}
@@ -881,6 +975,107 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       </p>
                     )}
                   </div>
+                  <div className="flex-1 self-start min-w-[140px]">
+                    {(() => {
+                      const selectedItemId = watchedItems?.[index]?.item?.value;
+                      const catalog = selectedItemId
+                        ? itemsList.find((it) => String(it.id) === String(selectedItemId))
+                        : undefined;
+                      const stockUom =
+                        normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+                      const priceLabel = stockUom
+                        ? t("forms.pricePerUom", {
+                            uom: stockUom,
+                            defaultValue: `Price / ${stockUom}`,
+                          })
+                        : t("columns.price");
+                      const rowMoney = issueLineMoney({
+                        quantity: watchedItems?.[index]?.quantity,
+                        price: watchedItems?.[index]?.price,
+                        enteredUom: watchedItems?.[index]?.entered_uom || stockUom,
+                        stockUom,
+                      });
+                      const itemPrice =
+                        catalog?.price != null && Number.isFinite(Number(catalog.price))
+                          ? Number(catalog.price)
+                          : null;
+                      const averagePrice =
+                        catalog?.average_price != null &&
+                        Number.isFinite(Number(catalog.average_price))
+                          ? Number(catalog.average_price)
+                          : null;
+                      const last = lastPrices[index];
+                      const uomSuffix = stockUom ? `/${stockUom}` : "";
+
+                      return (
+                        <>
+                          <Controller
+                            name={`items.${index}.price`}
+                            control={control}
+                            render={({field}) => (
+                              <Input
+                                label={priceLabel}
+                                type="number"
+                                value={field.value as number | string | undefined}
+                                onChange={field.onChange}
+                                error={get(errors, ["items", index, "price", "message"])}
+                                disabled={!rowLocationId || !selectedItemId}
+                              />
+                            )}
+                          />
+                          {selectedItemId &&
+                            (itemPrice != null || averagePrice != null || last != null) && (
+                            <div className="mt-1 text-xs text-muted flex flex-wrap gap-x-2 gap-y-0.5">
+                              {itemPrice != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, itemPrice)}
+                                >
+                                  {t("forms.itemPrice", {defaultValue: "Item"})}:{" "}
+                                  {withInventoryCurrency(itemPrice)}
+                                  {uomSuffix}
+                                </button>
+                              )}
+                              {last != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, last)}
+                                >
+                                  {t("forms.lastPrice", {defaultValue: "Last"})}:{" "}
+                                  {withInventoryCurrency(last)}
+                                  {uomSuffix}
+                                </button>
+                              )}
+                              {averagePrice != null && (
+                                <button
+                                  type="button"
+                                  className="underline hover:text-foreground"
+                                  onClick={() => setValue(`items.${index}.price`, averagePrice)}
+                                >
+                                  {t("forms.averagePrice", {defaultValue: "Avg"})}:{" "}
+                                  {withInventoryCurrency(averagePrice)}
+                                  {uomSuffix}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {selectedItemId && rowMoney > 0 && (
+                            <p className="text-xs text-muted mt-1">
+                              {t("columns.total")}: {withInventoryCurrency(rowMoney)}
+                              {stockUom
+                                ? ` · ${t("forms.stockUomHint", {
+                                    uom: stockUom,
+                                    defaultValue: `Stock: ${stockUom}`,
+                                  })}`
+                                : ""}
+                            </p>
+                          )}
+                        </>
+                      );
+                    })()}
+                  </div>
                   <div className="flex-1">
                     <InputField
                       name={`items.${index}.comments`}
@@ -902,7 +1097,16 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
               </div>
               );
             })}
-            <InventoryFormLineTotal control={control} name="items" />
+            <InventoryFormLineTotal
+              control={control}
+              name="items"
+              resolveStockUom={(line) => {
+                const catalog = itemsList.find(
+                  (it) => String(it.id) === String(line?.item?.value)
+                );
+                return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+              }}
+            />
           </fieldset>
         </div>
 
@@ -919,8 +1123,10 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                 isLoading={postingAfterSave}
                 disabled={postingAfterSave}
                 onClick={() => {
-                  setPostingAfterSave(true);
-                  void handleSubmit((values) => onSubmit(values, { postAfterSave: true }))();
+                  void handleSubmit((values) => {
+                    setPostingAfterSave(true);
+                    return onSubmit(values, { postAfterSave: true });
+                  })();
                 }}
               >
                 Save &amp; Post

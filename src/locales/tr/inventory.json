@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Ürün kategorilerini YZ ile içe aktar",
     "smartImportLocationsTitle": "Konumları YZ ile içe aktar",
     "lastPrice": "Son",
-    "itemPrice": "Kalem"
+    "itemPrice": "Kalem",
+    "averagePrice": "Ort.",
+    "pricePerUom": "Fiyat / {{uom}}",
+    "stockUomHint": "Stok: {{uom}}"
   },
   "validation": {
     "required": "Bu alan zorunludur",

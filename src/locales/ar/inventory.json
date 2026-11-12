@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "استيراد بالذكاء الاصطناعي لفئات الأصناف",
     "smartImportLocationsTitle": "استيراد بالذكاء الاصطناعي للمواقع",
     "lastPrice": "آخر",
-    "itemPrice": "الصنف"
+    "itemPrice": "الصنف",
+    "averagePrice": "متوسط",
+    "pricePerUom": "السعر / {{uom}}",
+    "stockUomHint": "المخزون: {{uom}}"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

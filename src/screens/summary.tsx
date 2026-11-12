@@ -152,20 +152,25 @@ export const Summary = () => {
     const generation = ++fetchGenerationRef.current;
     setLoading(true);
     try {
+      // Same wall-clock window as paid orders — cast params as datetime (bare
+      // ISO strings do not match Surreal datetime fields and return 0 voids).
       const startIso = reportWindow.date_from.toISOString();
       const endIso = reportWindow.date_to.toISOString();
       const voidEndOp = 'exclusiveEnd' in reportWindow && reportWindow.exclusiveEnd ? '<' : '<=';
       const voidsQuery = `
         SELECT * FROM ${Tables.order_voids}
-        WHERE created_at >= $start
-          AND created_at ${voidEndOp} $end
+        WHERE created_at >= <datetime>$start
+          AND created_at ${voidEndOp} <datetime>$end
         ORDER BY created_at ASC
-        FETCH items, items.item, items.modifiers, items.taxes, items.tax_mode
+        FETCH items, items.item, items.modifiers, items.taxes, items.tax_mode, order_item, order_item.item
       `;
 
       const [ordersResult, voidsResult] = await Promise.all([
         db.query(ordersQb.queryString, ordersQb.parameters),
-        db.query(voidsQuery, {start: startIso, end: endIso}),
+        db.query(voidsQuery, {start: startIso, end: endIso}).catch((voidError) => {
+          console.warn('Failed to load summary voids', voidError);
+          return [[]];
+        }),
       ]);
       const listQuery = ordersResult?.[0];
       const voidRows = voidsResult?.[0];
@@ -174,7 +179,7 @@ export const Summary = () => {
       }
       // Keep the spinner up through the heavy DailySalesSummaryReport commit.
       startReportTransition(() => {
-        setOrders(listQuery as OrderModel[]);
+        setOrders((Array.isArray(listQuery) ? listQuery : []) as OrderModel[]);
         setOrderVoids((Array.isArray(voidRows) ? voidRows : []) as OrderVoid[]);
         setLoading(false);
       });
