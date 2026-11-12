@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-12',
+    title: 'Inventory line totals use stock units',
+    items: [
+      'Purchase, purchase order, issue, purchase return, issue return, waste, and adjustment lines show per-row totals with price/cost per stock unit; entered units (e.g. grams vs KG) convert before multiplying.',
+    ],
+  },
+  {
     date: '2026-11-11',
     title: 'Issue line price choices',
     items: [

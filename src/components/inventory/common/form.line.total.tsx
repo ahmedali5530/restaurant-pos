@@ -59,11 +59,29 @@ export const InventoryFormLineTotal = ({
 };
 
 interface PricedProps {
-  lines: PurchaseTotalLine[] | null | undefined;
+  lines: PurchaseTotalLine[] | QuantityOnlyTotalLine[] | null | undefined;
   className?: string;
+  /**
+   * When provided, price is per stock unit and qty is converted from
+   * entered_uom → stock UOM before totaling.
+   */
+  resolveStockUom?: (line: QuantityOnlyTotalLine, index: number) => string | null | undefined;
 }
 
 /** Live total from precomputed priced lines (e.g. price resolved from linked purchase/issue). */
-export const InventoryFormPricedLineTotal = ({lines, className}: PricedProps) => {
-  return <LineTotalDisplay total={itemsSubtotal(lines)} className={className} />;
+export const InventoryFormPricedLineTotal = ({
+  lines,
+  className,
+  resolveStockUom,
+}: PricedProps) => {
+  const total = useMemo(() => {
+    if (resolveStockUom) {
+      return itemsSubtotalQuantityOnly(
+        lines as QuantityOnlyTotalLine[] | undefined,
+        resolveStockUom
+      );
+    }
+    return itemsSubtotal(lines);
+  }, [lines, resolveStockUom]);
+  return <LineTotalDisplay total={total} className={className} />;
 };

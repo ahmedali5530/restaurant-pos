@@ -2,8 +2,7 @@ import {DateRangePicker} from "@/components/common/antd/date.range.picker.tsx";
 import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {DateTime} from "luxon";
-import { Dayjs } from "dayjs";
-import dayjs from "dayjs";
+import type {Dayjs} from "dayjs";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import {
   type ClosingCycleConfig,
@@ -137,21 +136,10 @@ export function DateRange({
             required={isRequired}
             value={customRange}
             onChange={(nextValue) => {
-              if (!nextValue || !nextValue[0] || !nextValue[1]) {
-                setCustomRange(nextValue);
-                return;
-              }
-              const startKey = nextValue[0].format("YYYY-MM-DD");
-              const endKey = nextValue[1].format("YYYY-MM-DD");
-              const {startDate, endDate} = formatReportRangeForQuery(cycleConfig, startKey, endKey);
-              const zone = getAppTimezone();
-              const fmt = import.meta.env.VITE_DATE_TIME_FORMAT as string;
-              const startDt = DateTime.fromFormat(startDate, fmt, {zone});
-              const endDt = DateTime.fromFormat(endDate, fmt, {zone});
-              setCustomRange([
-                dayjs(startDt.isValid ? startDt.toISO() : nextValue[0].toISOString()),
-                dayjs(endDt.isValid ? endDt.toISO() : nextValue[1].toISOString()),
-              ]);
+              // Keep the exact wall times the user picked. Remapping through
+              // formatReportRangeForQuery (business-day / closing-cycle windows)
+              // was bumping the end date by +1 day (e.g. 11th 23:59 → 12th 23:59).
+              setCustomRange(nextValue);
             }}
           />
         </div>

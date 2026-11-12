@@ -548,6 +548,7 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
 
   const closeModal = () => {
     onClose();
+    setPostingAfterSave(false);
     resetInventoryState();
     reset({
       invoice_number: 1,
@@ -586,19 +587,19 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
   };
 
   const onSubmit = async (values: any, options?: { postAfterSave?: boolean }) => {
-    if (data?.id) {
-      const deps = await getDependencies(db, "issue", String(data.id));
-      if (deps.length > 0) {
-        toast.error(formatDependencyMessage("issue", deps));
-        return;
-      }
-      if (!canEdit(data.status)) {
-        toast.error("Posted documents cannot be edited");
-        return;
-      }
-    }
-
     try {
+      if (data?.id) {
+        const deps = await getDependencies(db, "issue", String(data.id));
+        if (deps.length > 0) {
+          toast.error(formatDependencyMessage("issue", deps));
+          return;
+        }
+        if (!canEdit(data.status)) {
+          toast.error("Posted documents cannot be edited");
+          return;
+        }
+      }
+
       const hasAvailableStock = await validateAvailableStock(values);
       if (!hasAvailableStock) {
         toast.error(t('toast:inventory.itemsExceedQuantity'));
@@ -885,7 +886,19 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
             {fields.map((field, index) => {
               const rowLocationId = watchedItems?.[index]?.location?.value;
               const rowItemOptions = getItemOptionsForLocation(rowLocationId);
-              
+              const selectedItemId = watchedItems?.[index]?.item?.value;
+              const catalogForRow = selectedItemId
+                ? itemsList.find((it) => String(it.id) === String(selectedItemId))
+                : undefined;
+              const stockUomForRow =
+                normalizeUom(catalogForRow?.uom) ?? catalogForRow?.uom ?? null;
+              const rowMoney = issueLineMoney({
+                quantity: watchedItems?.[index]?.quantity,
+                price: watchedItems?.[index]?.price,
+                enteredUom: watchedItems?.[index]?.entered_uom || stockUomForRow,
+                stockUom: stockUomForRow,
+              });
+
               return (
               <div className="flex flex-col mb-3" key={field.id}>
                 <div className="flex gap-3">
@@ -977,24 +990,14 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                   </div>
                   <div className="flex-1 self-start min-w-[140px]">
                     {(() => {
-                      const selectedItemId = watchedItems?.[index]?.item?.value;
-                      const catalog = selectedItemId
-                        ? itemsList.find((it) => String(it.id) === String(selectedItemId))
-                        : undefined;
-                      const stockUom =
-                        normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+                      const catalog = catalogForRow;
+                      const stockUom = stockUomForRow;
                       const priceLabel = stockUom
                         ? t("forms.pricePerUom", {
                             uom: stockUom,
                             defaultValue: `Price / ${stockUom}`,
                           })
                         : t("columns.price");
-                      const rowMoney = issueLineMoney({
-                        quantity: watchedItems?.[index]?.quantity,
-                        price: watchedItems?.[index]?.price,
-                        enteredUom: watchedItems?.[index]?.entered_uom || stockUom,
-                        stockUom,
-                      });
                       const itemPrice =
                         catalog?.price != null && Number.isFinite(Number(catalog.price))
                           ? Number(catalog.price)
@@ -1061,17 +1064,6 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                               )}
                             </div>
                           )}
-                          {selectedItemId && rowMoney > 0 && (
-                            <p className="text-xs text-muted mt-1">
-                              {t("columns.total")}: {withInventoryCurrency(rowMoney)}
-                              {stockUom
-                                ? ` · ${t("forms.stockUomHint", {
-                                    uom: stockUom,
-                                    defaultValue: `Stock: ${stockUom}`,
-                                  })}`
-                                : ""}
-                            </p>
-                          )}
                         </>
                       );
                     })()}
@@ -1083,6 +1075,14 @@ export const InventoryIssueForm = ({open, onClose, data}: Props) => {
                       label={t('forms.comments')}
                     />
                   </div>
+                  {selectedItemId && rowMoney > 0 && (
+                    <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                      <div className="text-muted">{t("columns.total")}</div>
+                      <div className="font-semibold text-foreground">
+                        {withInventoryCurrency(rowMoney)}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex-0 self-end">
                     <IconTooltipButton label={t('common:actions.remove')}
                       type="button"
