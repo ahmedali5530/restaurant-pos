@@ -249,7 +249,9 @@
     "branchesHelp": "Laat leeg om alle vestigingen op te nemen waartoe je toegang hebt.",
     "branchView": "Weergave",
     "branchViewCombined": "Gecombineerd",
-    "branchViewByBranch": "Per vestiging"
+    "branchViewByBranch": "Per vestiging",
+    "taxPercent": "Belastingpercentage",
+    "paymentTypes": "Betaalwijzen"
   },
   "datePresets": {
     "today": "Vandaag",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Deze provider heeft al een geslaagde fiscale inzending voor de bestelling.",
     "retryInvoicePending": "Factuurnummer is nog niet klaar — probeer opnieuw na sync.",
     "retryOrderNotFound": "Bestelling niet gevonden voor fiscale herpoging.",
-    "retryProviderDisabled": "Fiscale provider is uitgeschakeld."
+    "retryProviderDisabled": "Fiscale provider is uitgeschakeld.",
+    "byTax": "Per belasting",
+    "byPaymentType": "Per betaalwijze",
+    "noTax": "Geen belasting"
   },
   "empty": {
     "noDiscountTypes": "Geen kortingstypes voor geselecteerd bereik.",

@@ -4,9 +4,44 @@ import {DateRange} from "@/components/reports/filters/date.range.tsx";
 import {Button} from "@/components/common/input/button.tsx";
 import {ReactSelect} from "@/components/common/input/custom.react.select.tsx";
 import {BranchScopeFilter} from "@/components/reports/filters/branch.scope.filter.tsx";
+import useApi, {SettingsData} from "@/api/db/use.api.ts";
+import {Tables} from "@/api/db/tables.ts";
+import {Tax} from "@/api/model/tax.ts";
+import {PaymentType} from "@/api/model/payment_type.ts";
+
+const toOption = <T extends {id?: any}>(item: T | undefined, label: string) => {
+  if (!item?.id) {
+    return null;
+  }
+
+  const value =
+    typeof item.id === "string" ? item.id : item.id.toString?.() ?? String(item.id);
+
+  return {
+    label,
+    value,
+  };
+};
+
+const notNull = <T,>(value: T | null | undefined): value is T =>
+  value !== null && value !== undefined;
 
 export const OrderFiscalFilter = () => {
   const {t} = useTranslation('reports');
+  const {data: taxesData, isLoading: loadingTaxes} = useApi<SettingsData<Tax>>(
+    Tables.taxes,
+    [],
+    ['name asc'],
+    0,
+    9999,
+  );
+  const {data: paymentTypesData, isLoading: loadingPaymentTypes} = useApi<SettingsData<PaymentType>>(
+    Tables.payment_types,
+    [],
+    ['name asc'],
+    0,
+    9999,
+  );
 
   const providerOptions = [
     {label: 'FBR', value: 'provider:fbr'},
@@ -55,6 +90,41 @@ export const OrderFiscalFilter = () => {
               isClearable
               className="w-full"
               options={statusOptions}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="order-fiscal-taxes" className="form-label">{t('filters.taxPercent')}</label>
+          <div className="w-full">
+            <ReactSelect
+              id="order-fiscal-taxes"
+              name="taxes[]"
+              isMulti
+              isClearable
+              isLoading={loadingTaxes}
+              className="w-full"
+              placeholder={t('filters.selectSpecificTaxes')}
+              options={(taxesData?.data || [])
+                .map(tax => toOption(tax, `${tax.name} (${tax.rate}%)`))
+                .filter(notNull)}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label htmlFor="order-fiscal-payment-types" className="form-label">{t('filters.paymentTypes')}</label>
+          <div className="w-full">
+            <ReactSelect
+              id="order-fiscal-payment-types"
+              name="payment_types[]"
+              isMulti
+              isClearable
+              isLoading={loadingPaymentTypes}
+              className="w-full"
+              options={(paymentTypesData?.data || [])
+                .map(paymentType => toOption(paymentType, paymentType.name))
+                .filter(notNull)}
             />
           </div>
         </div>
