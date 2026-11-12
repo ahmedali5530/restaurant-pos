@@ -249,7 +249,9 @@
     "branchesHelp": "Erişiminiz olan tüm şubeleri dahil etmek için boş bırakın.",
     "branchView": "Görünüm",
     "branchViewCombined": "Birleşik",
-    "branchViewByBranch": "Şubeye göre"
+    "branchViewByBranch": "Şubeye göre",
+    "taxPercent": "Vergi yüzdesi",
+    "paymentTypes": "Ödeme türleri"
   },
   "datePresets": {
     "today": "Bugün",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Bu sağlayıcının sipariş için zaten başarılı bir mali gönderimi var.",
     "retryInvoicePending": "Fatura numarası henüz hazır değil — senkronizasyondan sonra tekrar deneyin.",
     "retryOrderNotFound": "Mali yeniden deneme için sipariş bulunamadı.",
-    "retryProviderDisabled": "Mali sağlayıcı devre dışı."
+    "retryProviderDisabled": "Mali sağlayıcı devre dışı.",
+    "byTax": "Vergiye göre",
+    "byPaymentType": "Ödeme türüne göre",
+    "noTax": "Vergisiz"
   },
   "empty": {
     "noDiscountTypes": "Seçilen aralık için indirim türü yok.",

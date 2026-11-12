@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-11',
+    title: 'Issue line price choices',
+    items: [
+      'Inventory issues show a unit price field with one-tap choices for item price, last purchase price, and average price instead of silently assuming catalog cost.',
+      'Issue price is always per the item stock unit (e.g. /KG); line totals convert entered units like grams before multiplying so 500g at 700/KG is 350, not 350000.',
+    ],
+  },
+  {
+    date: '2026-11-11',
     title: 'FOH upload recovers stuck changefeed cursors',
     items: [
       'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) is still behind that cursor — or has newer mutations — Sync re-backfills. Covers lead-table stalls and cursors jumped ahead of the tip, not only 14-day retention holes.',
@@ -24,6 +32,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Fiscal (PRA/FBR) pre-settle now force-syncs pending Dexie order items to Surreal and hydrates lines from order_item before posting, so addons are not omitted from the authority invoice.',
       'Fiscal settle, offline queue retry, and manual retry skip re-POST when integration_order_fiscal already has a completed invoice/QR for that order and provider.',
       'Daily Summary voids now come from order_void for the business day (same source as the Voids report), so fully cancelled checks appear there too.',
+      'Order Fiscal report can filter by tax percent and payment type, with tax-wise and payment-type overviews plus matching columns in the detail table.',
     ],
   },
   {

@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "AI Import item categories",
     "smartImportLocationsTitle": "AI Import locations",
     "lastPrice": "Last",
-    "itemPrice": "Item"
+    "itemPrice": "Item",
+    "averagePrice": "Avg",
+    "pricePerUom": "Price / {{uom}}",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "adjustment": {
     "reasons": {

@@ -140,9 +140,16 @@ function getVoidedItems(order) {
 function calculateVoidEntryAmount(entry) {
   const quantity = safeNumber(entry?.quantity || 1);
   const voidItems = (entry?.items || []).filter(Boolean);
-  return voidItems.reduce((sum, item) => {
-    return sum + safeNumber(itemLineTotal({ ...(item || {}), quantity }));
-  }, 0);
+  if (voidItems.length > 0) {
+    return voidItems.reduce((sum, item) => {
+      return sum + safeNumber(itemLineTotal({ ...(item || {}), quantity }));
+    }, 0);
+  }
+  const single = entry?.order_item;
+  if (single && typeof single === 'object') {
+    return safeNumber(itemLineTotal({ ...single, quantity }));
+  }
+  return 0;
 }
 
 function normalizeOrdersList(props) {

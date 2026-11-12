@@ -1,6 +1,12 @@
+import {useMemo} from "react";
 import {Control, useWatch} from "react-hook-form";
 import {useTranslation} from "react-i18next";
-import {itemsSubtotal, PurchaseTotalLine} from "@/lib/inventory/purchase.totals.ts";
+import {
+  itemsSubtotal,
+  itemsSubtotalQuantityOnly,
+  PurchaseTotalLine,
+  QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
 import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 interface DisplayProps {
@@ -28,12 +34,28 @@ interface LiveProps {
   control: Control<any>;
   name?: string;
   className?: string;
+  /**
+   * When provided, price is treated as per stock unit and qty is converted from
+   * entered_uom → stock UOM before totaling (issues / quantity-only docs).
+   */
+  resolveStockUom?: (line: QuantityOnlyTotalLine, index: number) => string | null | undefined;
 }
 
 /** Live qty × price total from form line fields (price on each row). */
-export const InventoryFormLineTotal = ({control, name = "items", className}: LiveProps) => {
+export const InventoryFormLineTotal = ({
+  control,
+  name = "items",
+  className,
+  resolveStockUom,
+}: LiveProps) => {
   const lines = useWatch({control, name}) as PurchaseTotalLine[] | undefined;
-  return <LineTotalDisplay total={itemsSubtotal(lines)} className={className} />;
+  const total = useMemo(() => {
+    if (resolveStockUom) {
+      return itemsSubtotalQuantityOnly(lines as QuantityOnlyTotalLine[] | undefined, resolveStockUom);
+    }
+    return itemsSubtotal(lines);
+  }, [lines, resolveStockUom]);
+  return <LineTotalDisplay total={total} className={className} />;
 };
 
 interface PricedProps {

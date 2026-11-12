@@ -253,7 +253,9 @@
     "branchesHelp": "Leave empty to include every branch you can access.",
     "branchView": "View",
     "branchViewCombined": "Combined",
-    "branchViewByBranch": "By branch"
+    "branchViewByBranch": "By branch",
+    "taxPercent": "Tax percent",
+    "paymentTypes": "Payment types"
   },
   "datePresets": {
     "today": "Today",
@@ -724,7 +726,10 @@
     "alreadyCompleted": "This provider already has a successful fiscal submission for the order.",
     "retryInvoicePending": "Invoice number is not ready yet — try again after sync.",
     "retryOrderNotFound": "Order not found for fiscal retry.",
-    "retryProviderDisabled": "Fiscal provider is disabled."
+    "retryProviderDisabled": "Fiscal provider is disabled.",
+    "byTax": "By tax",
+    "byPaymentType": "By payment type",
+    "noTax": "No tax"
   },
   "empty": {
     "noDiscountTypes": "No discount types for selected range.",

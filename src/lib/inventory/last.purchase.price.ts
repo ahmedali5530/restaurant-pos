@@ -71,6 +71,30 @@ const queryLastPurchaseLine = async (
 };
 
 /**
+ * Last purchase unit cost for an item, or null when none exists.
+ * Prefers same-supplier match when supplierId is set, then any supplier.
+ * Does not fall back to catalog prices.
+ */
+export const getLastPurchaseUnitCostOrNull = async (
+  db: DbLike,
+  itemId: string,
+  options: {
+    supplierId?: string | null;
+  } = {},
+): Promise<number | null> => {
+  if (options.supplierId) {
+    const withSupplier = resolveLinePrice(
+      await queryLastPurchaseLine(db, itemId, options.supplierId),
+    );
+    if (withSupplier != null) {
+      return withSupplier;
+    }
+  }
+
+  return resolveLinePrice(await queryLastPurchaseLine(db, itemId));
+};
+
+/**
  * Last posted purchase unit cost for an item.
  * Prefers same-supplier match when supplierId is set, then any supplier,
  * then catalog average_price || price.
@@ -83,20 +107,11 @@ export const getLastPurchasePrice = async (
     catalog?: CatalogFallback;
   } = {},
 ): Promise<number> => {
-  if (options.supplierId) {
-    const withSupplier = resolveLinePrice(
-      await queryLastPurchaseLine(db, itemId, options.supplierId),
-    );
-    if (withSupplier != null) {
-      return withSupplier;
-    }
-  }
-
-  const anySupplier = resolveLinePrice(
-    await queryLastPurchaseLine(db, itemId),
-  );
-  if (anySupplier != null) {
-    return anySupplier;
+  const last = await getLastPurchaseUnitCostOrNull(db, itemId, {
+    supplierId: options.supplierId,
+  });
+  if (last != null) {
+    return last;
   }
 
   return resolveCatalogUnitCost(options.catalog);
