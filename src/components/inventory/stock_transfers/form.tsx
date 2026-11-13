@@ -169,7 +169,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: {errors},
     reset,
     watch,
     setValue,
@@ -183,6 +183,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
       items: [{item: null, quantity: 1}],
     },
   });
+  const [saving, setSaving] = useState(false);
 
   const watchedFromLocation = watch("fromLocation");
   const watchedItems = useWatch({control, name: "items"});
@@ -299,6 +300,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
   const catalogItems = (items?.data ?? []) as InventoryItem[];
 
   const onSubmit = async (values: any) => {
+    setSaving(true);
     try {
       const payload = {
         type: "location" as const,
@@ -384,6 +386,8 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           ? error.message
           : t("stockTransfer.saveFailed")
       );
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -549,7 +553,7 @@ export const StockTransferForm = ({open, onClose, data}: Props) => {
           <Button type="button" variant="secondary" onClick={onClose}>
             {t("stockTransfer.cancel")}
           </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
+          <Button type="submit" variant="primary" isLoading={saving} disabled={saving}>
             {data ? t("stockTransfer.save") : t("stockTransfer.create")}
           </Button>
         </div>

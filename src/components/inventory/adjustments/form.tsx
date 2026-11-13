@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as yup from "yup";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "sonner";
 import useApi, { SettingsData } from "@/api/db/use.api.ts";
@@ -35,10 +35,17 @@ import { DataImportModal } from "@/components/common/data-import/data-import-mod
 import { createAdjustmentImportConfig } from "@/components/inventory/adjustments/adjustment.import.config.ts";
 import { convertQuantityOnlyLine } from "@/lib/inventory/unit.convert.ts";
 import {
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
+import { InventoryFormPricedLineTotal } from "@/components/inventory/common/form.line.total.tsx";
+import { withInventoryCurrency } from "@/lib/inventory/rounding.ts";
+import {
   lineEnteredDefaults,
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import { normalizeUom } from "@/utils/inventoryUom.ts";
+import { safeNumber } from "@/lib/utils.ts";
 type Option = { label: string; value: string };
 
 interface FormValues {
@@ -118,7 +125,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
     reload: reloadLocations,
   } = useInventoryLocations(open);
 
-  const { control, handleSubmit, reset, getValues, setValue, watch, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, reset, getValues, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
       invoice_number: 1,
@@ -130,6 +137,29 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
   });
 
   const { fields, append, remove, update } = useFieldArray({ control, name: "items" });
+  const watchedItems = useWatch({ control, name: "items" });
+  const itemsList = (items?.data ?? []) as InventoryItem[];
+
+  const resolveAdjustmentStockUom = useCallback(
+    (line: QuantityOnlyTotalLine) => {
+      const catalog = itemsList.find(
+        (it) => recordIdToString(it.id) === String(line?.item?.value)
+      );
+      return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+    },
+    [itemsList]
+  );
+
+  const pricedLines = useMemo(
+    () =>
+      (watchedItems ?? []).map((line) => ({
+        item: line.item,
+        quantity: Math.abs(safeNumber(line.quantity_change)),
+        entered_uom: line.entered_uom,
+        price: safeNumber(line.unit_cost),
+      })),
+    [watchedItems]
+  );
 
   const [importModal, setImportModal] = useState(false);
   const adjustmentImportConfig = useMemo(
@@ -396,9 +426,32 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
               </div>
             )}
           </div>
-          {fields.map((field, index) => (
+          {fields.map((field, index) => {
+            const selectedItemId = watchedItems?.[index]?.item?.value;
+            const catalogForRow = selectedItemId
+              ? itemsList.find((it) => recordIdToString(it.id) === String(selectedItemId))
+              : undefined;
+            const stockUomForRow =
+              normalizeUom(catalogForRow?.uom) ?? catalogForRow?.uom ?? null;
+            const costLabel = stockUomForRow
+              ? t("forms.pricePerUom", {
+                  uom: stockUomForRow,
+                  defaultValue: `Price / ${stockUomForRow}`,
+                })
+              : t("columns.unitCost");
+            const priced = pricedLines[index];
+            const rowMoney = quantityOnlyLineAmount(
+              {
+                quantity: priced?.quantity,
+                price: priced?.price,
+                entered_uom: priced?.entered_uom || stockUomForRow,
+              },
+              stockUomForRow
+            );
+
+            return (
             <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
-              <div className="col-span-4">
+              <div className="col-span-3">
                 <Controller
                   name={`items.${index}.item`}
                   control={control}
@@ -408,7 +461,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                       value={f.value}
                       onChange={(option) => {
                         f.onChange(option);
-                        const catalog = (items?.data ?? []).find(
+                        const catalog = itemsList.find(
                           (it) => recordIdToString(it.id) === option?.value
                         );
                         if (catalog?.uom) {
@@ -429,11 +482,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                   control={control}
                   quantityName={`items.${index}.quantity_change`}
                   uomName={`items.${index}.entered_uom`}
-                  stockUom={
-                    (items?.data ?? []).find(
-                      (it) => recordIdToString(it.id) === watch(`items.${index}.item`)?.value
-                    )?.uom
-                  }
+                  stockUom={catalogForRow?.uom}
                   quantityLabel={t("columns.quantityChange")}
                   errors={errors}
                   disabled={locked}
@@ -445,6 +494,7 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                   control={control}
                   type="number"
                   step="any"
+                  label={costLabel}
                   placeholder={t("columns.unitCost")}
                   disabled={locked}
                 />
@@ -457,6 +507,14 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                   disabled={locked}
                 />
               </div>
+              {rowMoney > 0 && (
+                <div className="col-span-1 self-end text-right pb-1">
+                  <div className="text-muted text-sm">{t("columns.total")}</div>
+                  <div className="font-semibold text-foreground">
+                    {withInventoryCurrency(rowMoney)}
+                  </div>
+                </div>
+              )}
               <div className="col-span-1">
                 {!locked && fields.length > 1 && (
                   <IconTooltipButton label={t('common:actions.remove')} type="button" variant="danger" onClick={() => remove(index)}>
@@ -465,7 +523,12 @@ export const InventoryAdjustmentForm = ({ open, onClose, data }: Props) => {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
+          <InventoryFormPricedLineTotal
+            lines={pricedLines}
+            resolveStockUom={resolveAdjustmentStockUom}
+          />
         </div>
 
         {!locked && (

@@ -38,18 +38,25 @@ import { useInventoryLocations } from "@/hooks/useInventoryLocations.ts";
 import { useInventorySettings } from "@/hooks/useInventorySettings.ts";
 import { fetchNetQuantity } from "@/utils/inventory.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
-import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
+import {
+  formatInventoryNumber,
+  roundInventory,
+  withInventoryCurrency,
+} from "@/lib/inventory/rounding.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createWasteImportConfig} from "@/components/inventory/wastes/waste.import.config.ts";
 import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
 import {
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
+import {
   lineEnteredDefaults,
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
-import { roundInventory } from "@/lib/inventory/rounding.ts";
 
 type SelectOption = { label: string; value: string } | null;
 
@@ -87,7 +94,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordroundInventory(db,
+      const isUnique = await isUniqueRecordNumber(db,
         Tables.inventory_wastes,
         "invoice_number",
         value,
@@ -207,6 +214,16 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
   const itemsList = (items?.data ?? []) as (InventoryItem & { locations?: InventoryLocation[] })[];
 
+  const resolveWasteStockUom = useCallback(
+    (line: QuantityOnlyTotalLine) => {
+      const catalog = itemsList.find(
+        (ci) => String(ci.id) === String(line?.item?.value)
+      );
+      return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+    },
+    [itemsList]
+  );
+
   const pricedLines = useMemo(
     () =>
       (watchedItems ?? []).map((line) => {
@@ -225,7 +242,12 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
           resolveCatalogUnitCost(catalogItem) ||
           Number(catalogItem?.price) ||
           0;
-        return {quantity: line.quantity, price};
+        return {
+          item: line.item,
+          quantity: line.quantity,
+          entered_uom: line.entered_uom,
+          price,
+        };
       }),
     [watchedItems, itemsList, expiredLots, data?.items],
   );
@@ -598,7 +620,6 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
       const inventoryValue = roundInventory(
         values.items.reduce((sum, item) => {
-          const qty = Number(item.quantity || 0);
           const catalogItem = itemsList.find((ci) => String(ci.id) === String(item.item?.value));
           const expiredLot = item.purchase_item_id
             ? expiredLots.find((lot) => String(lot.id) === String(item.purchase_item_id))
@@ -608,7 +629,18 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
             resolveCatalogUnitCost(catalogItem) ||
             Number(catalogItem?.price) ||
             0;
-          return sum + qty * price;
+          const stockUom = normalizeUom(catalogItem?.uom) ?? catalogItem?.uom ?? null;
+          return (
+            sum +
+            quantityOnlyLineAmount(
+              {
+                quantity: item.quantity,
+                price,
+                entered_uom: item.entered_uom || stockUom,
+              },
+              stockUom
+            )
+          );
         }, 0)
       );
       if (inventoryValue > 0) {
@@ -839,6 +871,16 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
 
             {fields.map((field, index) => {
               const availableQuantity = rowNetQuantities[index];
+              const priced = pricedLines[index];
+              const stockUomForRow = resolveWasteStockUom(priced ?? {});
+              const rowMoney = quantityOnlyLineAmount(
+                {
+                  quantity: priced?.quantity,
+                  price: priced?.price,
+                  entered_uom: priced?.entered_uom || stockUomForRow,
+                },
+                stockUomForRow
+              );
 
               return (
                 <div className="flex flex-col mb-3" key={field.id}>
@@ -888,6 +930,14 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                         label={t('forms.comments')}
                       />
                     </div>
+                    {rowMoney > 0 && (
+                      <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                        <div className="text-muted">{t("columns.total")}</div>
+                        <div className="font-semibold text-foreground">
+                          {withInventoryCurrency(rowMoney)}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex-0 self-end">
                       <IconTooltipButton label={t('common:actions.remove')}
                         type="button"
@@ -901,7 +951,10 @@ export const InventoryWasteForm = ({open, onClose, data}: Props) => {
                 </div>
               );
             })}
-            <InventoryFormPricedLineTotal lines={pricedLines} />
+            <InventoryFormPricedLineTotal
+              lines={pricedLines}
+              resolveStockUom={resolveWasteStockUom}
+            />
           </fieldset>
         </div>
 
