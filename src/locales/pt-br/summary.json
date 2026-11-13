@@ -99,7 +99,7 @@
       "amountCollected": "Totais de pagamento aplicados por forma (exclui troco devolvido).",
       "rounding": "Valor recebido − total geral (devido); sobra/falta em relação ao devido calculado.",
       "changeVariance": "Dinheiro entregue em excesso dos valores de pagamento aplicados.",
-      "voids": "Valor de linhas removidas após lançamento (não nas vendas brutas acima).",
+      "voids": "Valor das linhas canceladas neste dia comercial (inclui contas totalmente canceladas; não nas vendas brutas acima).",
       "refunds": "Devoluções de pagamentos negativos ou comandas canceladas.",
       "covers": "Número de clientes (pax).",
       "averageCover": "Valor devido (antes das gorjetas) ÷ coberturas.",

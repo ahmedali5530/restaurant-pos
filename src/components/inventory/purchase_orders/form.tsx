@@ -33,7 +33,11 @@ import {DataImportModal} from "@/components/common/data-import/data-import-modal
 import {createPurchaseOrderImportConfig} from "@/components/inventory/purchase_orders/purchase-order.import.config.ts";
 import {getLastPurchasePrice} from "@/lib/inventory/last.purchase.price.ts";
 import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
-import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
 import {
   lineEnteredDefaults,
   QuantityUomFields,
@@ -43,6 +47,7 @@ import {normalizeUom} from "@/utils/inventoryUom.ts";
 interface PurchaseOrderItemFormValue {
   item: { label: string; value: string } | null;
   quantity: number | string;
+  /** Unit price in the item stock UOM; converted on save with qty */
   price?: number | string;
   entered_uom?: string;
   supplier?: { label: string; value: string } | null;
@@ -124,7 +129,7 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
     data: items,
     fetchData: fetchItems,
     isFetching: loadingItems,
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none', 'array::any(item_types, "raw")'], [], 0, 9999, ['suppliers'], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none and array::any(item_types, "raw")'], [], 0, 9999, ['suppliers'], {
     enabled: false
   });
 
@@ -244,7 +249,8 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
             value: item.item.id
           },
           quantity: entered.quantity || 1,
-          price: entered.price,
+          // Prefer stock-unit price; entered_price was commercial-era.
+          price: Number(item.price ?? entered.price ?? 0),
           entered_uom: entered.entered_uom,
           supplier: item.supplier ? {
             label: item.supplier.name,
@@ -352,12 +358,11 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
         values.items.map(async (item) => {
           const catalog = catalogItems.find((it) => String(it.id) === String(item.item?.value));
           const stockUom = catalog?.uom ?? item.entered_uom;
-          const stock = toStockLine({
+          const stock = convertQuantityOnlyLine({
             enteredQuantity: Number(item.quantity),
             enteredUom: item.entered_uom || stockUom,
             stockUom,
-            enteredPrice: Number(item.price ?? 0),
-            mode: "commercial",
+            stockUnitPrice: Number(item.price ?? 0),
           });
           const [created] = await db.create(Tables.inventory_purchase_order_items, {
             purchase_order: toRecordId(orderIdString),
@@ -366,7 +371,6 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
             price: stock.price,
             entered_quantity: stock.entered_quantity,
             entered_uom: stock.entered_uom,
-            entered_price: stock.entered_price,
             supplier: item.supplier ? toRecordId(item.supplier.value) : undefined,
           });
 
@@ -539,6 +543,25 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                 const rowSupplierOptions = selectedRowItemId
                   ? itemSuppliersMap[selectedRowItemId] ?? []
                   : supplierOptions;
+                const catalogForRow = selectedRowItemId
+                  ? itemsList.find((it) => String(it.id) === String(selectedRowItemId))
+                  : undefined;
+                const stockUomForRow =
+                  normalizeUom(catalogForRow?.uom) ?? catalogForRow?.uom ?? null;
+                const priceLabel = stockUomForRow
+                  ? t("forms.pricePerUom", {
+                      uom: stockUomForRow,
+                      defaultValue: `Price / ${stockUomForRow}`,
+                    })
+                  : t("columns.price");
+                const rowMoney = quantityOnlyLineAmount(
+                  {
+                    quantity: watchedItems?.[index]?.quantity,
+                    price: watchedItems?.[index]?.price,
+                    entered_uom: watchedItems?.[index]?.entered_uom || stockUomForRow,
+                  },
+                  stockUomForRow
+                );
 
                 return (
                   <div className="flex flex-col gap-3 mb-3" key={rowField.id}>
@@ -580,12 +603,10 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         control={control}
                         quantityName={`items.${index}.quantity`}
                         uomName={`items.${index}.entered_uom`}
-                        stockUom={
-                          itemsList.find((it) => String(it.id) === String(selectedRowItemId))?.uom
-                        }
+                        stockUom={catalogForRow?.uom}
                         errors={errors}
                       />
-                      <div className="flex-1 self-end">
+                      <div className="flex-1 self-start">
                         <div>
                           <label className="block text-sm text-muted mb-1">
                             {t('forms.previousPrice')}
@@ -597,14 +618,14 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                           </div>
                         </div>
                       </div>
-                      <div className="flex-1 self-end">
+                      <div className="flex-1 self-start">
                         <div>
                           <Controller
                             name={`items.${index}.price`}
                             control={control}
                             render={({field}) => (
                               <Input
-                                label={t('columns.price')}
+                                label={priceLabel}
                                 type="number"
                                 value={field.value as number | string | undefined}
                                 onChange={field.onChange}
@@ -631,6 +652,14 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                         />
                         <InputError error={get(errors, ["items", index, "supplier", "message"])}/>
                       </div>
+                      {selectedRowItemId && rowMoney > 0 && (
+                        <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                          <div className="text-muted">{t("columns.total")}</div>
+                          <div className="font-semibold text-foreground">
+                            {withInventoryCurrency(rowMoney)}
+                          </div>
+                        </div>
+                      )}
                       <div className="flex-0 self-end">
                         <IconTooltipButton label={t('common:actions.remove')}
                           type="button"
@@ -645,7 +674,16 @@ export const InventoryPurchaseOrderForm = ({open, onClose, data}: Props) => {
                   </div>
                 );
               })}
-              <InventoryFormLineTotal control={control} name="items" />
+              <InventoryFormLineTotal
+                control={control}
+                name="items"
+                resolveStockUom={(line: QuantityOnlyTotalLine) => {
+                  const catalog = itemsList.find(
+                    (it) => String(it.id) === String(line?.item?.value)
+                  );
+                  return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+                }}
+              />
             </fieldset>
           </div>
 

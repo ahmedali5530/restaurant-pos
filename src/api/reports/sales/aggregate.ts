@@ -94,17 +94,36 @@ const calculateOrderAmountDue = (order: Order): number => {
   return getOrderAmountDueFromPayments(order);
 };
 
-const calculateVoidEntryAmount = (entry: OrderVoid): number => {
+/** Amount for one order_void row (voided lines × void quantity). */
+export const calculateVoidEntryAmount = (entry: OrderVoid): number => {
   const quantity = safeNumber(entry?.quantity || 1);
   const voidItems = (entry?.items ?? []).filter(Boolean);
-  return voidItems.reduce((sum, item) => {
-    const lineAmount = calculateOrderItemPrice({
-      ...(item ?? {}),
-      quantity,
-    } as Parameters<typeof calculateOrderItemPrice>[0]);
-    return sum + safeNumber(lineAmount);
-  }, 0);
+  if (voidItems.length > 0) {
+    return voidItems.reduce((sum, item) => {
+      const lineAmount = calculateOrderItemPrice({
+        ...(item ?? {}),
+        quantity,
+      } as Parameters<typeof calculateOrderItemPrice>[0]);
+      return sum + safeNumber(lineAmount);
+    }, 0);
+  }
+
+  // Legacy / partial FETCH: single order_item link instead of items[].
+  const single = entry?.order_item;
+  if (single && typeof single === 'object') {
+    return safeNumber(
+      calculateOrderItemPrice({
+        ...(single as object),
+        quantity,
+      } as Parameters<typeof calculateOrderItemPrice>[0]),
+    );
+  }
+
+  return 0;
 };
+
+export const sumOrderVoidAmounts = (orderVoids: OrderVoid[] | undefined): number =>
+  (orderVoids ?? []).reduce((sum, entry) => sum + calculateVoidEntryAmount(entry), 0);
 
 const collectCategories = (item: {item?: {categories?: unknown[]; name?: string}; category?: string}) => {
   if (!item?.item) {

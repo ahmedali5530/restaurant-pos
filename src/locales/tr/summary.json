@@ -99,7 +99,7 @@
       "amountCollected": "Yönteme göre uygulanan ödeme toplamları (iade edilen para üstü hariç).",
       "rounding": "Tahsil edilen tutar − genel toplam (ödenecek); hesaplanan borca göre fazla/eksik.",
       "changeVariance": "Uygulanan ödeme tutarlarını aşan nakit ödeme.",
-      "voids": "Giriş sonrası kaldırılan satırların değeri (yukarıdaki brüt satışlarda değil).",
+      "voids": "Bu iş günündeki iptal satırlarının değeri (tamamen iptal edilen adisyonlar dahil; yukarıdaki brüt satışlarda değil).",
       "refunds": "Negatif ödemelerden veya iptal edilen adisyonlardan iadeler.",
       "covers": "Misafir sayısı (kişi).",
       "averageCover": "Ödenecek tutar (bahşiş öncesi) ÷ kişi sayısı.",

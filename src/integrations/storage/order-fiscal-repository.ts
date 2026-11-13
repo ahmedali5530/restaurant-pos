@@ -83,6 +83,21 @@ export const listOrderFiscalSubmissions = async (
   return Array.isArray(rows) ? rows : [];
 };
 
+/** Latest completed submission with a fiscal invoice/QR for this order + provider. */
+export const findCompletedFiscalSubmission = async (
+  db: FiscalSubmissionDbClient,
+  orderId: unknown,
+  providerId: string
+): Promise<OrderFiscalSubmission | undefined> => {
+  const rows = await listOrderFiscalSubmissions(db, orderId);
+  return rows.find(
+    (row) =>
+      row.provider_id === providerId &&
+      row.status === 'completed' &&
+      Boolean(row.qrcode || row.invoice_number)
+  );
+};
+
 export const createOrderFiscalSubmission = async (
   db: FiscalSubmissionDbClient,
   input: CreateOrderFiscalSubmissionInput
@@ -224,6 +239,10 @@ export const persistFiscalSubmissionsForOrder = async (
   const created: OrderFiscalSubmission[] = [];
 
   for (const [providerId, result] of Object.entries(resultsByProvider)) {
+    // Do not insert another row when submit was skipped as already completed.
+    if (result.status === 'skipped' && result.error === 'already_completed') {
+      continue;
+    }
     const row = await createOrderFiscalSubmission(db, {
       orderId,
       providerId,

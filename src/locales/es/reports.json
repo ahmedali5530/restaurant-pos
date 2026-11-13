@@ -249,7 +249,9 @@
     "branchesHelp": "Déjelo vacío para incluir todas las sucursales a las que tiene acceso.",
     "branchView": "Vista",
     "branchViewCombined": "Combinada",
-    "branchViewByBranch": "Por sucursal"
+    "branchViewByBranch": "Por sucursal",
+    "taxPercent": "Porcentaje de impuesto",
+    "paymentTypes": "Tipos de pago"
   },
   "datePresets": {
     "today": "Hoy",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Este proveedor ya tiene un envío fiscal exitoso para el pedido.",
     "retryInvoicePending": "El número de factura aún no está listo — inténtelo de nuevo tras la sincronización.",
     "retryOrderNotFound": "Pedido no encontrado para el reintento fiscal.",
-    "retryProviderDisabled": "El proveedor fiscal está deshabilitado."
+    "retryProviderDisabled": "El proveedor fiscal está deshabilitado.",
+    "byTax": "Por impuesto",
+    "byPaymentType": "Por tipo de pago",
+    "noTax": "Sin impuesto"
   },
   "empty": {
     "noDiscountTypes": "No hay tipos de descuento para el rango seleccionado.",

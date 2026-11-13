@@ -34,7 +34,11 @@ import {calendarDateToDate, dateToCalendarDate, getToday} from "@/utils/date.ts"
 import {Switch} from "@/components/common/input/switch.tsx";
 import {documentCreatedAtFromDateValue, toJsDate} from "@/lib/datetime.ts";
 import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
-import {computePurchaseTotals} from "@/lib/inventory/purchase.totals.ts";
+import {
+  computePurchaseTotals,
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
 import {InventoryFormLineTotal} from "@/components/inventory/common/form.line.total.tsx";
 import {Checkbox} from "@/components/common/input/checkbox.tsx";
 import { postDocument } from "@/lib/inventory/posting.service.ts";
@@ -58,7 +62,7 @@ import type {
   PurchaseInventoryTreatment,
 } from "@/api/model/inventory_purchase.ts";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
-import {toStockLine} from "@/lib/inventory/unit.convert.ts";
+import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
 import {
   lineEnteredDefaults,
   QuantityUomFields,
@@ -73,7 +77,7 @@ interface PurchaseItemFormValue {
   /** Entered quantity (may be in entered_uom, converted on save) */
   quantity: number | string;
   requested?: number | string;
-  /** Entered price per entered_uom */
+  /** Unit price in the item stock UOM (e.g. /KG); converted on save with qty */
   price: number | string;
   entered_uom?: string;
   base_quantity: number | string;
@@ -325,7 +329,25 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       ),
     [discountValue, shippingValue, extrasValues]
   );
-  const purchaseTotals = computePurchaseTotals(itemsValues, taxRateValue, mergedExtrasForTotals);
+  const itemsList: (InventoryItem & {
+    suppliers?: { id: string; name: string }[];
+    locations?: InventoryLocation[];
+  })[] = (items?.data as any) ?? [];
+
+  const resolvePurchaseStockUom = React.useCallback(
+    (line: QuantityOnlyTotalLine) => {
+      const catalog = itemsList.find((it) => String(it.id) === String(line?.item?.value));
+      return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+    },
+    [itemsList]
+  );
+
+  const purchaseTotals = computePurchaseTotals(
+    itemsValues,
+    taxRateValue,
+    mergedExtrasForTotals,
+    {resolveStockUom: resolvePurchaseStockUom}
+  );
   const selectedPurchaseOrderId = selectedPurchaseOrder?.value;
   const isPurchaseOrderSelected = Boolean(selectedPurchaseOrderId);
   const isManualMethod = method?.value === "manual";
@@ -386,7 +408,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         : null,
       quantity: (orderItem as any).entered_quantity ?? orderItem.quantity ?? 1,
       requested: orderItem.quantity ?? undefined,
-      price: (orderItem as any).entered_price ?? orderItem.price ?? orderItem.item?.price ?? 0,
+      price: orderItem.price ?? orderItem.item?.price ?? 0,
       entered_uom: (orderItem as any).entered_uom ?? orderItem.item?.uom ?? "",
       base_quantity: 1,
       expiry_date: null,
@@ -477,7 +499,8 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
           } : null,
           quantity: entered.quantity || 1,
           requested: item.requested ?? undefined,
-          price: entered.price,
+          // Prefer stock-unit price (catalog/ledger); entered_price was commercial-era.
+          price: Number(item.price ?? entered.price ?? 0),
           entered_uom: entered.entered_uom,
           base_quantity: 1,
           expiry_date: item.expiry_date ? dateToCalendarDate(item.expiry_date) : null,
@@ -519,6 +542,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
 
   const closeModal = () => {
     onClose();
+    setPostingAfterSave(false);
     setSyncedPurchaseOrderId(undefined);
     setShowAdditionalCosts(false);
     reset({
@@ -568,29 +592,38 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
   };
 
   const onSubmit = async (values: any, options?: { postAfterSave?: boolean }) => {
-    if (data?.id) {
-      const deps = await getDependencies(db, "purchase", String(data.id));
-      if (deps.length > 0) {
-        toast.error(formatDependencyMessage("purchase", deps));
-        return;
-      }
-      if (!canEdit(data.status)) {
-        toast.error("Posted documents cannot be edited");
-        return;
-      }
-    }
-
     try {
+      if (data?.id) {
+        const deps = await getDependencies(db, "purchase", String(data.id));
+        if (deps.length > 0) {
+          toast.error(formatDependencyMessage("purchase", deps));
+          return;
+        }
+        if (!canEdit(data.status)) {
+          toast.error("Posted documents cannot be edited");
+          return;
+        }
+      }
+
       const documentRefs = await convertFilesToDocuments(values.documents);
       const extrasPayload = mergePurchaseExtrasForSave({
         discount: values.discount,
         shipping: values.shipping,
         advanced: values.extras,
       });
+      const catalogForTotals: InventoryItem[] = (items?.data as any) ?? [];
       const totals = computePurchaseTotals(
         values.items,
         values.tax_rate,
-        extrasForInvoiceTotals(extrasPayload)
+        extrasForInvoiceTotals(extrasPayload),
+        {
+          resolveStockUom: (line) => {
+            const catalog = catalogForTotals.find(
+              (it) => String(it.id) === String(line?.item?.value)
+            );
+            return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+          },
+        }
       );
 
       const payload = {
@@ -642,12 +675,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
         values.items.map(async (item) => {
           const catalog = catalogItems.find((it) => String(it.id) === String(item.item?.value));
           const stockUom = catalog?.uom ?? item.entered_uom;
-          const stock = toStockLine({
+          const stock = convertQuantityOnlyLine({
             enteredQuantity: Number(item.quantity),
             enteredUom: item.entered_uom || stockUom,
             stockUom,
-            enteredPrice: Number(item.price),
-            mode: "commercial",
+            stockUnitPrice: Number(item.price),
           });
 
           const [created] = await db.create(Tables.inventory_purchase_items, {
@@ -657,7 +689,6 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
             price: stock.price,
             entered_quantity: stock.entered_quantity,
             entered_uom: stock.entered_uom,
-            entered_price: stock.entered_price,
             base_quantity: 1,
             expiry_date: item.expiry_date ? calendarDateToDate(item.expiry_date) : undefined,
             manufacturing_date: item.manufacturing_date ? calendarDateToDate(item.manufacturing_date) : undefined,
@@ -724,11 +755,6 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
       setPostingAfterSave(false);
     }
   };
-
-  const itemsList: (InventoryItem & {
-    suppliers?: { id: string; name: string }[];
-    locations?: InventoryLocation[];
-  })[] = (items?.data as any) ?? [];
 
   const itemOptions = itemsList.map(item => ({
     label: `${item.name}-${item.code}`,
@@ -963,6 +989,20 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                     ? itemLocationsMap[selectedItemId]
                     : globalLocationOptions;
 
+                const catalogForRow = selectedItemId
+                  ? itemsList.find((it) => it.id === selectedItemId)
+                  : undefined;
+                const stockUomForRow =
+                  normalizeUom(catalogForRow?.uom) ?? catalogForRow?.uom ?? null;
+                const rowMoney = quantityOnlyLineAmount(
+                  {
+                    quantity: itemsValues?.[index]?.quantity,
+                    price: itemsValues?.[index]?.price,
+                    entered_uom: itemsValues?.[index]?.entered_uom || stockUomForRow,
+                  },
+                  stockUomForRow
+                );
+
                 return (
                   <div className="flex flex-col gap-3 mb-4 border border-border rounded-lg p-3" key={field.id}>
                     <div className="flex gap-3 flex-wrap">
@@ -1023,7 +1063,7 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         />
                         <InputError error={get(errors, ["items", index, "item", "message"])}/>
                       </div>
-                      <div className="flex-1 self-end min-w-[100px]">
+                      <div className="flex-1 self-start min-w-[100px]">
                         <Controller
                           name={`items.${index}.requested`}
                           control={control}
@@ -1050,46 +1090,65 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                         errors={errors}
                         disabled={isCsvMethod || isPurchaseOrderMethod}
                       />
-                      <div className="flex-1 min-w-[140px]">
-                        <Controller
-                          name={`items.${index}.price`}
-                          control={control}
-                          render={({field}) => (
-                            <Input
-                              label={t('columns.price')}
-                              type="number"
-                              value={field.value as number | string}
-                              onChange={field.onChange}
-                              error={get(errors, ["items", index, "price", "message"])}
-                            />
-                          )}
-                        />
+                      <div className="flex-1 self-start min-w-[140px]">
                         {(() => {
-                          const catalog = itemsList.find((it) => it.id === selectedItemId);
-                          const itemPrice = catalog?.price != null ? Number(catalog.price) : null;
+                          const catalog = catalogForRow;
+                          const stockUom = stockUomForRow;
+                          const priceLabel = stockUom
+                            ? t("forms.pricePerUom", {
+                                uom: stockUom,
+                                defaultValue: `Price / ${stockUom}`,
+                              })
+                            : t("columns.price");
+                          const itemPrice =
+                            catalog?.price != null && Number.isFinite(Number(catalog.price))
+                              ? Number(catalog.price)
+                              : null;
                           const last = lastPrices[index];
-                          if (itemPrice == null && last == null) return null;
+                          const uomSuffix = stockUom ? `/${stockUom}` : "";
+
                           return (
-                            <div className="mt-1 text-xs text-muted flex flex-wrap gap-x-2 gap-y-0.5">
-                              {last != null && (
-                                <button
-                                  type="button"
-                                  className="underline hover:text-foreground"
-                                  onClick={() => setValue(`items.${index}.price`, last)}
-                                >
-                                  {t("forms.lastPrice", {defaultValue: "Last"})}: {withInventoryCurrency(last)}
-                                </button>
+                            <>
+                              <Controller
+                                name={`items.${index}.price`}
+                                control={control}
+                                render={({field}) => (
+                                  <Input
+                                    label={priceLabel}
+                                    type="number"
+                                    value={field.value as number | string}
+                                    onChange={field.onChange}
+                                    error={get(errors, ["items", index, "price", "message"])}
+                                  />
+                                )}
+                              />
+                              {(itemPrice != null || last != null) && (
+                                <div className="mt-1 text-xs text-muted flex flex-wrap gap-x-2 gap-y-0.5">
+                                  {last != null && (
+                                    <button
+                                      type="button"
+                                      className="underline hover:text-foreground"
+                                      onClick={() => setValue(`items.${index}.price`, last)}
+                                    >
+                                      {t("forms.lastPrice", {defaultValue: "Last"})}:{" "}
+                                      {withInventoryCurrency(last)}
+                                      {uomSuffix}
+                                    </button>
+                                  )}
+                                  {itemPrice != null && (
+                                    <button
+                                      type="button"
+                                      className="underline hover:text-foreground"
+                                      onClick={() => setValue(`items.${index}.price`, itemPrice)}
+                                    >
+                                      {t("forms.itemPrice", {defaultValue: "Item"})}:{" "}
+                                      {withInventoryCurrency(itemPrice)}
+                                      {uomSuffix}
+                                    </button>
+                                  )}
+                                </div>
                               )}
-                              {itemPrice != null && (
-                                <button
-                                  type="button"
-                                  className="underline hover:text-foreground"
-                                  onClick={() => setValue(`items.${index}.price`, itemPrice)}
-                                >
-                                  {t("forms.itemPrice", {defaultValue: "Item"})}: {withInventoryCurrency(itemPrice)}
-                                </button>
-                              )}
-                            </div>
+                            </>
                           );
                         })()}
                       </div>
@@ -1106,6 +1165,14 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                           )}
                         />
                       </div>
+                      {selectedItemId && rowMoney > 0 && (
+                        <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                          <div className="text-muted">{t("columns.total")}</div>
+                          <div className="font-semibold text-foreground">
+                            {withInventoryCurrency(rowMoney)}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-3">
@@ -1194,7 +1261,11 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   </div>
                 );
               })}
-              <InventoryFormLineTotal control={control} name="items" />
+              <InventoryFormLineTotal
+                control={control}
+                name="items"
+                resolveStockUom={resolvePurchaseStockUom}
+              />
             </fieldset>
 
             <div className="flex flex-wrap gap-3 items-end">
@@ -1420,8 +1491,10 @@ export const InventoryPurchaseForm = ({open, onClose, data}: Props) => {
                   isLoading={postingAfterSave}
                   disabled={postingAfterSave}
                   onClick={() => {
-                    setPostingAfterSave(true);
-                    void handleSubmit((values) => onSubmit(values, { postAfterSave: true }))();
+                    void handleSubmit((values) => {
+                      setPostingAfterSave(true);
+                      return onSubmit(values, { postAfterSave: true });
+                    })();
                   }}
                 >
                   Save &amp; Post

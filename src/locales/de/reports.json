@@ -249,7 +249,9 @@
     "branchesHelp": "Leer lassen, um alle Filialen einzubeziehen, auf die Sie Zugriff haben.",
     "branchView": "Ansicht",
     "branchViewCombined": "Kombiniert",
-    "branchViewByBranch": "Nach Filiale"
+    "branchViewByBranch": "Nach Filiale",
+    "taxPercent": "Steuerprozent",
+    "paymentTypes": "Zahlungsarten"
   },
   "datePresets": {
     "today": "Heute",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Für diesen Anbieter gibt es bereits eine erfolgreiche Fiskalübermittlung für die Bestellung.",
     "retryInvoicePending": "Rechnungsnummer noch nicht bereit — nach Sync erneut versuchen.",
     "retryOrderNotFound": "Bestellung für Fiskal-Retry nicht gefunden.",
-    "retryProviderDisabled": "Fiskalanbieter ist deaktiviert."
+    "retryProviderDisabled": "Fiskalanbieter ist deaktiviert.",
+    "byTax": "Nach Steuer",
+    "byPaymentType": "Nach Zahlungsart",
+    "noTax": "Keine Steuer"
   },
   "empty": {
     "noDiscountTypes": "Keine Rabattarten für den ausgewählten Zeitraum.",

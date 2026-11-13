@@ -34,7 +34,9 @@ import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import { fetchOrderFull } from "@/lib/order-fetch.ts";
 import {
+  ensureOrderSyncedForFiscal,
   fiscalShouldBlockBeforePaid,
+  listMissingLocalFiscalItemIds,
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
@@ -200,8 +202,10 @@ const OrderPaymentReceivingContent = ({
       let fiscalOrderSnapshot: Order | undefined;
       let settledOrder = order;
       try {
+        // Always push pending Dexie order/item ops before Surreal fiscal read so
+        // addons (e.g. water added minutes earlier) are present on the authority payload.
+        const syncState = await ensureOrderSyncedForFiscal(String(settledOrder.id));
         if (settledOrder.invoice_number == null) {
-          await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
           const local = await posStore.getOrder(String(settledOrder.id));
           if (local?.invoice_number != null) {
             settledOrder = { ...settledOrder, invoice_number: local.invoice_number } as Order;
@@ -215,6 +219,14 @@ const OrderPaymentReceivingContent = ({
               ...fiscalOrderSnapshot,
               invoice_number: settledOrder.invoice_number,
             };
+          }
+          const missingItems = await listMissingLocalFiscalItemIds(
+            String(settledOrder.id),
+            fiscalOrderSnapshot,
+          );
+          if (!syncState.ok || missingItems.length > 0) {
+            toast.error(t('errors.itemsPendingSync'));
+            return;
           }
         }
       } catch (fiscalCheckError) {
@@ -245,7 +257,9 @@ const OrderPaymentReceivingContent = ({
             toast.error(
               preResult.blockedCode === 'INVOICE_PENDING'
                 ? t('errors.invoicePendingSync')
-                : (preResult.blockedError ?? t('errors.fiscalFailed')),
+                : preResult.blockedCode === 'ITEMS_PENDING_SYNC'
+                  ? t('errors.itemsPendingSync')
+                  : (preResult.blockedError ?? t('errors.fiscalFailed')),
             );
             return;
           }
@@ -349,12 +363,13 @@ const OrderPaymentReceivingContent = ({
           await terminalSyncService.synchronize().catch(() => undefined);
 
           if (!blockBeforePaid) {
-            const settledOrder = await loadOrderForFiscal(db, orderId);
-            if (settledOrder) {
+            await ensureOrderSyncedForFiscal(orderId);
+            const settledForFiscal = await loadOrderForFiscal(db, orderId);
+            if (settledForFiscal) {
               const fiscalResult = await runFiscalSettlementForOrder(
                 integrationManager,
                 db,
-                settledOrder
+                settledForFiscal
               );
               if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
                 toast.warning('Some fiscal providers failed; check Integrations queue');

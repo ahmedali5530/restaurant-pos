@@ -14,6 +14,7 @@
     "notOwner": "Deze bestelling is open op een andere terminal",
     "numbersExhausted": "Geen gereserveerde order-ID's meer offline — maak opnieuw verbinding om door te gaan",
     "invoicePendingSync": "Factuurnummer wacht op synchronisatie — wacht tot de bestelling online is voordat je fiscaal verzendt",
+    "itemsPendingSync": "Orderregels synchroniseren nog — wacht even en probeer betalen opnieuw zodat fiscal elke regel krijgt",
     "fiscalFailed": "Fiscale verzending mislukt",
     "fireFailed": "Kon de vastgehouden items niet doorsturen"
   },

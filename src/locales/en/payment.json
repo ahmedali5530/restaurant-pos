@@ -14,6 +14,7 @@
     "notOwner": "This order is open on another terminal",
     "numbersExhausted": "No reserved order IDs left offline — reconnect to continue",
     "invoicePendingSync": "Invoice number is pending sync — wait until the order is online before fiscal submit",
+    "itemsPendingSync": "Order items are still syncing — wait a moment and try payment again so fiscal gets every line",
     "fiscalFailed": "Fiscal submission failed",
     "fireFailed": "Could not fire the held items"
   },

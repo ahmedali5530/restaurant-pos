@@ -137,6 +137,21 @@ function getVoidedItems(order) {
   );
 }
 
+function calculateVoidEntryAmount(entry) {
+  const quantity = safeNumber(entry?.quantity || 1);
+  const voidItems = (entry?.items || []).filter(Boolean);
+  if (voidItems.length > 0) {
+    return voidItems.reduce((sum, item) => {
+      return sum + safeNumber(itemLineTotal({ ...(item || {}), quantity }));
+    }, 0);
+  }
+  const single = entry?.order_item;
+  if (single && typeof single === 'object') {
+    return safeNumber(itemLineTotal({ ...single, quantity }));
+  }
+  return 0;
+}
+
 function normalizeOrdersList(props) {
   const raw = props && props.orders;
   if (Array.isArray(raw)) return raw;
@@ -227,15 +242,18 @@ function computeSummary(props) {
     );
   }, 0);
 
-  const voids = list.reduce((sum, order) => {
-    const allItems = order.items || [];
-    const filtered = getFilteredItems(order);
-    const voidedItems = allItems.filter((item) => !filtered.some((f) => f.id === item.id));
-    return (
-      sum +
-      voidedItems.reduce((itemSum, item) => itemSum + safeNumber(itemLineTotal(item)), 0)
-    );
-  }, 0);
+  // Prefer order_void rows (cancelled whole checks); fall back to Paid-order item diff.
+  const voids = Array.isArray(props?.orderVoids)
+    ? props.orderVoids.reduce((sum, entry) => sum + calculateVoidEntryAmount(entry), 0)
+    : list.reduce((sum, order) => {
+        const allItems = order.items || [];
+        const filtered = getFilteredItems(order);
+        const voidedItems = allItems.filter((item) => !filtered.some((f) => f.id === item.id));
+        return (
+          sum +
+          voidedItems.reduce((itemSum, item) => itemSum + safeNumber(itemLineTotal(item)), 0)
+        );
+      }, 0);
 
   const covers = list.reduce((sum, order) => sum + safeNumber(order.covers), 0);
   const ordersCount = list.length;
