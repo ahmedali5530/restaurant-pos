@@ -7,10 +7,17 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-13',
+    title: 'FOH upload stops re-backfill loops',
+    items: [
+      'Post-backfill watermarks use each table’s own changefeed tip (not another table’s high-water). A cursor ahead of its tip snaps down instead of clearing and re-uploading every row HQ already has.',
+    ],
+  },
+  {
     date: '2026-11-11',
     title: 'FOH upload recovers stuck changefeed cursors',
     items: [
-      'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) is still behind that cursor — or has newer mutations — Sync re-backfills. Covers lead-table stalls and cursors jumped ahead of the tip, not only 14-day retention holes.',
+      'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) has newer mutations, Sync re-backfills. Covers lead-table stalls, not only 14-day retention holes.',
     ],
   },
   {

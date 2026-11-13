@@ -80,6 +80,17 @@ describe('isRetryableError', () => {
       true
     );
   });
+
+  it('does not treat cursor-ahead as a retention re-backfill', () => {
+    assert.equal(
+      isChangefeedRetentionError(
+        new Error(
+          'changefeed cursor ahead of live tip (silent gap, cursor ahead): table=order_item cursor=2 tip=1'
+        )
+      ),
+      false
+    );
+  });
 });
 
 describe('parseChangeMutation', () => {

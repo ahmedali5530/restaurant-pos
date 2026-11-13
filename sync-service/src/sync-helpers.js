@@ -56,6 +56,10 @@ async function withRetry(task, options = {}) {
 function isChangefeedRetentionError(error) {
   const message = error && error.message ? String(error.message) : String(error || '');
   if (/Parse error/i.test(message)) return false;
+  // Cursor ahead of this table's tip is fixed by snapping down — never re-backfill
+  // (that re-uploaded HQ-complete tables in a loop when watermark borrowed
+  // another table's high-water).
+  if (/cursor ahead of live tip/i.test(message)) return false;
   // Surreal often returns an empty SHOW CHANGES batch for a cursor older than
   // retention instead of an explicit error — sync-manager synthesizes
   // "silent gap" when a recent high-water probe still sees mutations.
