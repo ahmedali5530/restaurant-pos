@@ -11,6 +11,7 @@ export const RELEASES: ReleaseNotes[] = [
     title: 'FOH upload stops re-backfill loops',
     items: [
       'Post-backfill watermarks use each table’s own changefeed tip (not another table’s high-water). A cursor ahead of its tip snaps down instead of clearing and re-uploading every row HQ already has.',
+      'Silent-gap detection no longer compares a table to another table’s high-water (that kept re-backfilling order_item_kitchen and starving order). Gaps are confirmed on that table’s own recent feed only.',
     ],
   },
   {
