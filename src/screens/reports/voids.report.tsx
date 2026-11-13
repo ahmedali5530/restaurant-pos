@@ -21,6 +21,7 @@ import {
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import { runtimeDateFormat, runtimeTimeFormat } from "@/lib/runtime-config.ts";
 import {useReportBranchScope} from "@/hooks/useReportBranchScope.ts";
 import {BranchBreakdown} from "@/components/reports/branch.breakdown.tsx";
 
@@ -462,8 +463,8 @@ const VoidsReportBody = ({
                 ) : (
                   orderVoids.map((voidItem) => {
                     const date = toLuxonDateTime(voidItem.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
-                    const timeStr = date.toFormat(import.meta.env.VITE_TIME_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
+                    const timeStr = date.toFormat(runtimeTimeFormat());
                     const managerName = voidItem.deleted_by 
                       ? `${voidItem.deleted_by.first_name ?? ''} ${voidItem.deleted_by.last_name ?? ''}`.trim() || voidItem.deleted_by.login || 'Unknown'
                       : 'Unknown';

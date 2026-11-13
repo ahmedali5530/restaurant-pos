@@ -1,4 +1,6 @@
 export const LOGIN = '/';
+export const DESKTOP_SETUP = '/desktop-setup';
+export const DESKTOP_LOGS = '/desktop-logs';
 export const MENU = '/menu';
 export const QUICK = '/quick';
 export const ORDERS = '/orders';

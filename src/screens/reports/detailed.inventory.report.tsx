@@ -8,6 +8,7 @@ import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {fetchLedgerMovements} from "@/lib/inventory/ledger.service.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
 type InventoryTransaction = {
@@ -274,7 +275,7 @@ export const DetailedInventoryReport = () => {
               transactions.map((transaction, index) => (
                 <tr key={`${transaction.date}-${transaction.item}-${transaction.type}-${index}`}>
                   <td className="py-4 pl-6 pr-3 text-sm text-foreground">
-                    {transaction.date ? toLuxonDateTime(transaction.date).toFormat(import.meta.env.VITE_DATE_FORMAT) : ""}
+                    {transaction.date ? toLuxonDateTime(transaction.date).toFormat(runtimeDateFormat()) : ""}
                   </td>
                   <td className="py-4 px-3 text-sm font-medium text-foreground">
                     {formatInventoryItemLabel(transaction.item, transaction.itemCode, "")}

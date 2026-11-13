@@ -1,5 +1,6 @@
 import { ReactNode, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router";
 import { Button } from "@/components/common/input/button.tsx";
 import {
   faPrint,
@@ -17,6 +18,8 @@ import {
 import * as XLSX from "xlsx";
 import { DateTime } from "luxon";
 import { DocumentTitle } from "@/components/common/document-title.tsx";
+import { runtimeDateTimeFormat } from "@/lib/runtime-config.ts";
+import { inlineReportBackTarget, isInlineReport } from "@/lib/inline-report.ts";
 
 export interface ReportsLayoutProps {
   /** Report title */
@@ -68,8 +71,11 @@ export const ReportsLayout = ({
 }: ReportsLayoutProps) => {
   const { t } = useTranslation('reports');
   const { t: tNav } = useTranslation('navigation');
+  const { t: tCommon } = useTranslation('common');
+  const navigate = useNavigate();
+  const inline = isInlineReport();
   const reportRef = useRef<HTMLDivElement>(null);
-  const [generatedAt] = useState(DateTime.now().toFormat(import.meta.env.VITE_DATE_TIME_FORMAT));
+  const [generatedAt] = useState(DateTime.now().toFormat(runtimeDateTimeFormat()));
 
   const handlePrint = () => {
     if (onPrint) {
@@ -143,6 +149,20 @@ export const ReportsLayout = ({
       {/* Action Buttons */}
       <div className="flex items-center justify-between gap-3 p-4 bg-surface-elevated shadow-sm border-b print:hidden">
         <div className="flex items-center gap-2">
+          {inline && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const target = inlineReportBackTarget();
+                if (target === -1) navigate(-1);
+                else navigate(target);
+              }}
+              icon={faChevronLeft}
+              size="sm"
+            >
+              {tCommon('actions.back')}
+            </Button>
+          )}
           <Button
             variant="primary"
             onClick={handlePrint}

@@ -1,18 +1,11 @@
-import { getSessionToken, invalidateGatewaySession } from '@/lib/session.ts';
+import { getGatewayBaseUrl, getSessionToken, invalidateGatewaySession } from '@/lib/session.ts';
 import {
   POS_SCHEMA_VERSION,
   POS_SYNC_PROTOCOL_VERSION,
   type DomainOperation,
 } from '@/infrastructure/pos-store/types.ts';
 
-const gatewayBase = () => {
-  const fromEnv = (import.meta as any).env?.VITE_GATEWAY_URL;
-  if (fromEnv) return String(fromEnv).replace(/\/$/, '');
-  if (typeof window !== 'undefined') {
-    return `${window.location.protocol}//${window.location.hostname}:3142`;
-  }
-  return 'http://127.0.0.1:3142';
-};
+const gatewayBase = () => getGatewayBaseUrl() || 'http://127.0.0.1:3142';
 
 /** Default HTTP timeout — prevents sync UI from hanging forever. */
 const SYNC_FETCH_TIMEOUT_MS = 45_000;

@@ -4,6 +4,8 @@ import {
   isGatewayAuthEnabled,
   withGatewayWsToken,
 } from '@/lib/session.ts';
+import { runtimeDbWebsocketUrl } from '@/lib/runtime-config.ts';
+import { desktopLoopback } from '@/lib/session.ts';
 
 export const DB_REST_API = import.meta.env.VITE_DB_WEBDOCKET as string | undefined;
 
@@ -26,7 +28,8 @@ export const withApi = (path: string) => {
 };
 
 export function resolveDbWebsocketUrl(): string {
-  const base = DB_REST_API || '';
+  const raw = runtimeDbWebsocketUrl() || DB_REST_API || '';
+  const base = desktopLoopback(raw);
   if (!isGatewayAuthEnabled()) {
     return base;
   }

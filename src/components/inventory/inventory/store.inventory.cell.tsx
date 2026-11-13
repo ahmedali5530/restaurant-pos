@@ -7,6 +7,7 @@ import {Button} from "@/components/common/input/button.tsx";
 import {toAppBusinessDate, toLuxonDateTime} from "@/lib/datetime";
 import {getReorderLevelForStore, isBelowReorderLevel} from "@/utils/inventory.ts";
 import {lineAmount, resolveCatalogUnitCost} from "@/lib/inventory/line.cost.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 import {shouldShowBusinessDate} from "@/lib/inventory/quantity.display.ts";
 import {
   formatInventoryNumber,
@@ -346,7 +347,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string; item
                       <td>
                         {unifiedItem.created_at
                           ? toLuxonDateTime(unifiedItem.created_at).toFormat(
-                              import.meta.env.VITE_DATE_FORMAT
+                              runtimeDateFormat()
                             )
                           : ""}
                         {showBiz && (
@@ -416,7 +417,7 @@ export const StoreInventoryCell = ({locationId, item}: {locationId: string; item
                                 <td>
                                   {splitItem.created_at
                                     ? toLuxonDateTime(splitItem.created_at).toFormat(
-                                        import.meta.env.VITE_DATE_FORMAT
+                                        runtimeDateFormat()
                                       )
                                     : splitItem.created_at}
                                 </td>

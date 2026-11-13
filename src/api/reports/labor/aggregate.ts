@@ -35,6 +35,7 @@ import type {
   ScheduleRosterResult,
   ScheduledVsActualRow,
 } from '@/api/reports/labor/shared/types.ts';
+import { runtimeDateTimeFormat } from '@/lib/runtime-config.ts';
 
 const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100;
 
@@ -727,7 +728,7 @@ const parseRosterBound = (value: string) => {
   const timezone = getAppTimezone();
   const fromFormat = DateTime.fromFormat(
     value,
-    import.meta.env.VITE_DATE_TIME_FORMAT as string,
+    runtimeDateTimeFormat(),
     {zone: timezone},
   );
   if (fromFormat.isValid) {

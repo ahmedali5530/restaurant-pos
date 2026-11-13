@@ -471,6 +471,8 @@ async function renderTempRaster(data, config) {
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
     accumulateSameItems: !!cfg.accumulateSameItems,
   });
@@ -497,6 +499,8 @@ async function renderFinalRaster(data, config) {
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
     accumulateSameItems: !!cfg.accumulateSameItems,
   });
@@ -523,6 +527,8 @@ async function renderDeliveryRaster(data, config) {
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
     showInclusivePrices: !!cfg.showInclusivePrices,
     accumulateSameItems: !!cfg.accumulateSameItems,
   });
@@ -552,6 +558,8 @@ async function renderRefundRaster(data, config) {
     showInclusivePrices: !!cfg.showInclusivePrices,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const width = resolvePaperWidthPx(cfg);
   const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
@@ -591,29 +599,29 @@ async function renderRefundRaster(data, config) {
     const name = (it.name || it.title || '').slice(0, 28);
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    rc.lineLeftRight(`${name} x${qty}`, formatMoney(lineTotal, sym));
+    rc.lineLeftRight(`${name} x${qty}`, formatMoney(lineTotal, sym, cfg));
   });
   rc.divider();
 
-  rc.lineLeftRight(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym));
+  rc.lineLeftRight(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym, cfg));
   if (bill.tax != null && Number(bill.tax) !== 0) {
-    rc.lineLeftRight(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym));
+    rc.lineLeftRight(`${taxLabel} (${bill.taxLabel || taxLabel})`, formatMoney(bill.tax, sym, cfg));
   }
   if (bill.discount && bill.discountAmount != null && Number(bill.discountAmount) !== 0) {
-    rc.lineLeftRight(discountLabel, formatMoney(bill.discountAmount, sym));
+    rc.lineLeftRight(discountLabel, formatMoney(bill.discountAmount, sym, cfg));
   }
   if (bill.serviceChargeLabel && bill.serviceChargeAmount != null && Number(bill.serviceChargeAmount) !== 0) {
-    rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
+    rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym, cfg));
   }
   (bill.extras || []).forEach((e) => {
     if (!e || Number(e.value) === 0) return;
-    rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym));
+    rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym, cfg));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
-    rc.lineLeftRight(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym));
+    rc.lineLeftRight(bill.tipLabel || tipLabel, formatMoney(bill.tipAmount, sym, cfg));
   }
   rc.divider();
-  rc.lineLeftRight(refundTotalLabel, formatMoney(bill.total, sym), { style: 'bold-underline' });
+  rc.lineLeftRight(refundTotalLabel, formatMoney(bill.total, sym, cfg), { style: 'bold-underline' });
 
   if (cfg.showVatNumber && cfg.vatNumber) {
     rc.centered(`${cfg.vatName}: ${cfg.vatNumber}`, { size: 'normal' });
@@ -688,7 +696,7 @@ async function renderKitchenRaster(data, config) {
     table: data.table ? String(data.table.name || '') + String(data.table.number || '') : '',
     orderType: getOrderType(order),
     orderTaker: getOrderUserName(order),
-    createdAt: getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale }),
+    createdAt: getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale, dateFormat: cfg.dateFormat, timeFormat: cfg.timeFormat }),
     labels: L,
     showOrderType: cfg.showOrderType !== false,
     showTableName: cfg.showTableName !== false,
@@ -743,6 +751,8 @@ async function renderSummaryRaster(data, config) {
     ...(data || {}),
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const width = resolvePaperWidthPx(cfg);
   const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
@@ -789,7 +799,7 @@ async function renderSummaryRaster(data, config) {
       const share = `${formatNum(pct(tax.total, s.taxCollected))}%`;
       rc.lineLeftRight(
         toPrinterText(`${tax.name}%${qtyBracket(tax.count)}`),
-        `${formatMoney(tax.total, sym)}  ${share}`
+        `${formatMoney(tax.total, sym, cfg)}  ${share}`
       );
     });
   };
@@ -799,7 +809,7 @@ async function renderSummaryRaster(data, config) {
       const share = `${formatNum(pct(p.total, s.grandTotalDue))}%`;
       rc.lineLeftRight(
         toPrinterText(`${String(p.name || '')}${qtyBracket(p.count)}`),
-        `${formatMoney(p.total, sym)}  ${share}`
+        `${formatMoney(p.total, sym, cfg)}  ${share}`
       );
     });
   };
@@ -820,7 +830,7 @@ async function renderSummaryRaster(data, config) {
         toPrinterText(String(category.name)),
         formatMixRightColumns(
           formatNum(category.quantity),
-          formatMoney(category.total, sym),
+          formatMoney(category.total, sym, cfg),
           `${formatNum(pct(category.total, ex))}%`
         ),
         { style: 'bold' }
@@ -830,7 +840,7 @@ async function renderSummaryRaster(data, config) {
           toPrinterText(`${' '.repeat(dishIndent)}${String(dish.name)}`),
           formatMixRightColumns(
             formatNum(dish.quantity),
-            formatMoney(dish.total, sym),
+            formatMoney(dish.total, sym, cfg),
             `${formatNum(pct(dish.total, ex))}%`
           )
         );
@@ -856,38 +866,38 @@ async function renderSummaryRaster(data, config) {
     paintProductMix();
   } else {
   sect(salesTitle);
-  rc.lineLeftRight(toPrinterText(L.exclusiveSales || 'Exclusive sales'), formatMoney(s.exclusiveSales, sym));
-  rc.lineLeftRight(toPrinterText(L.extras || 'Extras'), formatMoney(s.totalExtras, sym));
-  rc.lineLeftRight(toPrinterText(L.grossSales || 'Gross sales'), formatMoney(s.grossSales, sym));
-  rc.lineLeftRight(toPrinterText(L.itemDiscounts || 'Item discounts'), formatMoney(s.itemDiscounts, sym));
-  rc.lineLeftRight(toPrinterText(L.subtotalDiscounts || 'Subtotal discounts'), formatMoney(s.subtotalDiscounts, sym));
-  rc.lineLeftRight(toPrinterText(L.couponDiscounts || 'Coupon discounts'), formatMoney(s.couponDiscounts, sym));
-  rc.lineLeftRight(toPrinterText(L.discountsMinus || '(-) Discounts'), formatMoney(s.discounts, sym));
-  rc.lineLeftRight(toPrinterText(L.netSales || 'Net sales'), formatMoney(s.netSales, sym));
+  rc.lineLeftRight(toPrinterText(L.exclusiveSales || 'Exclusive sales'), formatMoney(s.exclusiveSales, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.extras || 'Extras'), formatMoney(s.totalExtras, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.grossSales || 'Gross sales'), formatMoney(s.grossSales, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.itemDiscounts || 'Item discounts'), formatMoney(s.itemDiscounts, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.subtotalDiscounts || 'Subtotal discounts'), formatMoney(s.subtotalDiscounts, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.couponDiscounts || 'Coupon discounts'), formatMoney(s.couponDiscounts, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.discountsMinus || '(-) Discounts'), formatMoney(s.discounts, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.netSales || 'Net sales'), formatMoney(s.netSales, sym, cfg));
   sect(surchargesTitle);
-  rc.lineLeftRight(toPrinterText(L.serviceCharges || 'Service charges'), formatMoney(s.serviceCharges, sym));
-  rc.lineLeftRight(toPrinterText(L.taxes || 'Taxes'), formatMoney(s.taxCollected, sym));
-  rc.lineLeftRight(toPrinterText(L.totalRevenue || 'Total revenue'), formatMoney(s.totalRevenue, sym), { style: 'bold-underline' });
+  rc.lineLeftRight(toPrinterText(L.serviceCharges || 'Service charges'), formatMoney(s.serviceCharges, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.taxes || 'Taxes'), formatMoney(s.taxCollected, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.totalRevenue || 'Total revenue'), formatMoney(s.totalRevenue, sym, cfg), { style: 'bold-underline' });
   if (isMinimal) {
     paintTaxesBreakdown();
   }
   sect(settlementTitle);
-  rc.lineLeftRight(toPrinterText(L.amountDueBeforeTips || 'Amount due (before tips)'), formatMoney(s.amountDue, sym));
-  rc.lineLeftRight(toPrinterText(L.tips || 'Tips'), formatMoney(s.tips, sym));
-  rc.lineLeftRight(toPrinterText(L.grandTotalDue || 'Grand total (due)'), formatMoney(s.grandTotalDue, sym), { style: 'bold-underline' });
-  rc.lineLeftRight(toPrinterText(L.amountCollected || 'Amount collected'), formatMoney(s.amountCollected, sym));
-  rc.lineLeftRight(toPrinterText(L.rounding || 'Rounding'), formatMoney(s.rounding, sym));
-  rc.lineLeftRight(toPrinterText(L.changeVariance || 'Change / variance'), formatMoney(s.changeGiven, sym));
+  rc.lineLeftRight(toPrinterText(L.amountDueBeforeTips || 'Amount due (before tips)'), formatMoney(s.amountDue, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.tips || 'Tips'), formatMoney(s.tips, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.grandTotalDue || 'Grand total (due)'), formatMoney(s.grandTotalDue, sym, cfg), { style: 'bold-underline' });
+  rc.lineLeftRight(toPrinterText(L.amountCollected || 'Amount collected'), formatMoney(s.amountCollected, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.rounding || 'Rounding'), formatMoney(s.rounding, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.changeVariance || 'Change / variance'), formatMoney(s.changeGiven, sym, cfg));
   sect(opsTitle);
-  rc.lineLeftRight(toPrinterText(L.voids || 'Voids'), formatMoney(s.voids, sym));
-  rc.lineLeftRight(toPrinterText(L.refunds || 'Refunds'), formatMoney(s.refunds, sym));
+  rc.lineLeftRight(toPrinterText(L.voids || 'Voids'), formatMoney(s.voids, sym, cfg));
+  rc.lineLeftRight(toPrinterText(L.refunds || 'Refunds'), formatMoney(s.refunds, sym, cfg));
   rc.lineLeftRight(
     toPrinterText(L.covers || 'Covers'),
-    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`
+    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym, cfg)}`
   );
   rc.lineLeftRight(
     toPrinterText(L.ordersChecks || 'Orders / checks'),
-    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`
+    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym, cfg)}`
   );
   if (isMinimal) {
     sect(paymentsTitle);
@@ -899,14 +909,14 @@ async function renderSummaryRaster(data, config) {
   (s.orderTypes || []).forEach((entry) => {
     rc.lineLeftRight(
       toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
-      formatMoney(entry.total, sym)
+      formatMoney(entry.total, sym, cfg)
     );
   });
   sect(L.orderTakers || '7. Sale by order taker');
   (s.orderTakers || []).forEach((entry) => {
     rc.lineLeftRight(
       toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
-      formatMoney(entry.total, sym)
+      formatMoney(entry.total, sym, cfg)
     );
   });
   sect(L.paymentTypes || '8. Payment types');

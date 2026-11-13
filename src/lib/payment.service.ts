@@ -1,10 +1,19 @@
-import { authHeaders } from "@/lib/session.ts";
+import { authHeaders, desktopLoopback } from "@/lib/session.ts";
+import { runtimePaymentServerUrl } from "@/lib/runtime-config.ts";
 
 export const PAYMENT_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_SERVER_URL as string) || "http://localhost:3133";
 
 export const PAYMENT_CALLBACK_SERVER_URL =
   (import.meta.env.VITE_PAYMENT_CALLBACK_SERVER_URL as string) || PAYMENT_SERVER_URL;
+
+function paymentBaseUrl(): string {
+  return desktopLoopback(runtimePaymentServerUrl() || PAYMENT_SERVER_URL).replace(/\/$/, "");
+}
+
+function paymentCallbackBaseUrl(): string {
+  return desktopLoopback(runtimePaymentServerUrl() || PAYMENT_CALLBACK_SERVER_URL).replace(/\/$/, "");
+}
 
 import type { GatewayId } from "@/lib/payment/gateway-catalog.ts";
 
@@ -76,7 +85,7 @@ async function requestJson<T>(
   payload: Record<string, unknown>,
   options?: { idempotencyKey?: string }
 ): Promise<T> {
-  const res = await fetch(`${PAYMENT_SERVER_URL.replace(/\/$/, "")}${path}`, {
+  const res = await fetch(`${paymentBaseUrl()}${path}`, {
     method: "POST",
     headers: authHeaders({
       ...(options?.idempotencyKey ? { "x-idempotency-key": options.idempotencyKey } : {}),
@@ -144,7 +153,7 @@ export async function fetchWebhookPaymentResult(
   gateway: GatewayType,
   orderId: string,
 ): Promise<VerifyPaymentResponse | null> {
-  const base = PAYMENT_CALLBACK_SERVER_URL.replace(/\/$/, "");
+  const base = paymentCallbackBaseUrl();
   const orderKey = normalizeOrderKeyForUrl(orderId);
   const res = await fetch(`${base}/webhooks/${gateway}/${orderKey}`, {
     headers: authHeaders(),
@@ -228,7 +237,7 @@ export async function saveGatewayCredentials(
 ): Promise<SaveGatewayCredentialsResponse> {
   const id = normalizePaymentTypeIdForUrl(paymentTypeId);
   const res = await fetch(
-    `${PAYMENT_SERVER_URL.replace(/\/$/, "")}/payments/credentials/${id}`,
+    `${paymentBaseUrl()}/payments/credentials/${id}`,
     {
       method: "POST",
       headers: authHeaders({ "Content-Type": "application/json" }),
@@ -269,7 +278,7 @@ export async function removeGatewayCredentials(
 ): Promise<RemoveGatewayCredentialsResponse> {
   const id = normalizePaymentTypeIdForUrl(paymentTypeId);
   const res = await fetch(
-    `${PAYMENT_SERVER_URL.replace(/\/$/, "")}/payments/credentials/${id}`,
+    `${paymentBaseUrl()}/payments/credentials/${id}`,
     {
       method: "DELETE",
       headers: authHeaders(),

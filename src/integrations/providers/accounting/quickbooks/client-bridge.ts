@@ -4,9 +4,10 @@
  */
 
 import { getSessionToken } from '@/lib/session.ts';
+import { apiServerUrl } from '@/lib/api.service.ts';
 import { MasterDataImport, AccountingRemoteAdapter, ChangeSet } from '@/integrations/accounting/external/types.ts';
 
-const API_BASE = import.meta.env.VITE_API_SERVER_URL + '/integrations/qbo';
+const apiBase = () => `${apiServerUrl()}/integrations/qbo`;
 
 async function apiFetch<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getSessionToken();
@@ -18,7 +19,7 @@ async function apiFetch<T = any>(path: string, options: RequestInit = {}): Promi
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${apiBase()}${path}`, {
     ...options,
     headers,
   });

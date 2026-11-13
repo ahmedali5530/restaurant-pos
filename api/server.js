@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 // Layered env loading: committed `.env` holds non-secret defaults; local
 // `.env.local` (gitignored) holds real credentials and overrides `.env`.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
+// Process env (Tauri supervisor) must win over any packaged .env.local.
+dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: false });
 
 /**
  * Expand ${VAR} references in process.env (dotenv does not do this by itself).
@@ -77,7 +78,15 @@ app.use(
     // cross-origin request). Same-origin / non-browser callers (no Origin
     // header) are still accepted.
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      let lanUi = false;
+      if (origin) {
+        try {
+          lanUi = new URL(origin).port === '5173';
+        } catch {
+          lanUi = false;
+        }
+      }
+      if (!origin || allowedOrigins.includes(origin) || lanUi) {
         return callback(null, true);
       }
       return callback(new Error(`Origin ${origin} is not allowed by API_ALLOWED_ORIGINS`));

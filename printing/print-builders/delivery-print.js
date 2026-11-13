@@ -21,6 +21,8 @@ function build(printer, data = {}, config = {}) {
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
 
   return printReceiptHeader(printer, cfg).then(() => {

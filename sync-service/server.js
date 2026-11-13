@@ -6,7 +6,8 @@ const dotenv = require('dotenv');
 // `.env` holds defaults; `.env.local` (gitignored) holds real values and overrides `.env`.
 // Do not use override against process.env so Docker Compose injected vars still win.
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: true });
+// Process env (Tauri supervisor) must win over any packaged .env.local.
+dotenv.config({ path: path.resolve(__dirname, '.env.local'), override: false });
 
 const express = require('express');
 const { loadConfig } = require('./src/config');
@@ -34,7 +35,7 @@ async function main() {
   // Settings UI (Vite) calls /stats and /catalog/sync-now from the browser.
   const allowedOrigins = String(
     process.env.SYNC_ALLOWED_ORIGINS
-      || 'http://localhost:5173,http://127.0.0.1:5173'
+      || 'http://localhost:5173,http://127.0.0.1:5173,http://tauri.localhost,https://tauri.localhost'
   )
     .split(',')
     .map((s) => s.trim())
@@ -42,7 +43,8 @@ async function main() {
 
   app.use((req, res, next) => {
     const origin = req.get('origin');
-    if (origin && allowedOrigins.includes(origin)) {
+    const lanUi = origin && (() => { try { return new URL(origin).port === '5173'; } catch { return false; } })();
+    if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*') || lanUi)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Vary', 'Origin');
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Sync-Stats-Secret');
