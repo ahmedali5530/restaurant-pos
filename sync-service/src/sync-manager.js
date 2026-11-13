@@ -612,31 +612,75 @@ class SyncManager {
   }
 
   async readFeedWatermark(tableName) {
-    let stamp = 0;
+    // Use this table's own feed tip only. Borrowing process-wide feedHighWater
+    // from busier tables (e.g. order_print) parked quieter tables' cursors
+    // ahead of their tip → empty SHOW CHANGES → "cursor ahead" → re-backfill
+    // forever (re-uploading rows HQ already has).
+    let stamp = null;
     try {
-      // SINCE 0 returns from the start of the feed; take the last stamp as watermark.
-      // After retention truncates history, SINCE 0 is often empty or ends below
-      // other tables' cursors — always raise to the process-wide high water so
-      // the post-backfill cursor stays inside the live window (avoids a
-      // re-backfill loop on quiet tables).
-      const result = await this.source.query(
-        `SHOW CHANGES FOR TABLE ${tableName} SINCE 0 LIMIT 1000;`
-      );
-      const entries = normalizeShowChangesResult(result);
-      if (entries.length) {
-        stamp = entries[entries.length - 1].versionstamp ?? 0;
-        this.noteFeedHighWater(stamp);
-      }
+      stamp = await this.readTableFeedTip(tableName);
     } catch (error) {
-      this.logger.warn('Could not read feed watermark; starting from 0 after backfill', {
+      this.logger.warn('Could not read feed tip for watermark; trying SINCE 0', {
         table: tableName,
         error: error.message || String(error),
       });
     }
-    if (this.feedHighWater != null) {
-      stamp = nextCursorVersionstamp(stamp, this.feedHighWater);
+    if (stamp == null) {
+      try {
+        const result = await this.source.query(
+          `SHOW CHANGES FOR TABLE ${tableName} SINCE 0 LIMIT 1000;`
+        );
+        const entries = normalizeShowChangesResult(result);
+        if (entries.length) {
+          stamp = entries[entries.length - 1].versionstamp ?? null;
+        }
+      } catch (error) {
+        this.logger.warn('Could not read feed watermark; starting from 0 after backfill', {
+          table: tableName,
+          error: error.message || String(error),
+        });
+      }
     }
-    return stamp;
+    if (stamp != null) this.noteFeedHighWater(stamp);
+    return stamp != null ? stamp : 0;
+  }
+
+  /**
+   * Newest versionstamp visible on this table's changefeed (paged from a
+   * datetime inside the usual 14d window). null when the feed is empty.
+   */
+  async readTableFeedTip(tableName, limit = 100) {
+    const pageSize = Math.max(Number(limit) || 100, 100);
+    let since = retentionProbeSinceLiteral();
+    let tip = null;
+    let lastSeen = null;
+
+    for (let page = 0; page < 50; page += 1) {
+      const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${pageSize};`;
+      const result = await withTimeout(
+        this.source.query(sql),
+        20000,
+        `SHOW CHANGES.tip(${tableName},${page})`
+      );
+      const batch = normalizeShowChangesResult(result);
+      const forward = lastSeen == null
+        ? batch
+        : batch.filter((entry) => entry && compareVersionstamp(entry.versionstamp, lastSeen) > 0);
+      if (!forward.length) break;
+
+      for (const entry of forward) {
+        this.noteFeedHighWater(entry && entry.versionstamp);
+        tip = nextCursorVersionstamp(tip, entry && entry.versionstamp);
+      }
+
+      const lastStamp = forward[forward.length - 1] && forward[forward.length - 1].versionstamp;
+      if (lastStamp == null) break;
+      lastSeen = lastStamp;
+      since = sinceLiteral(lastStamp);
+      if (forward.length < pageSize) break;
+    }
+
+    return tip;
   }
 
   noteFeedHighWater(versionstamp) {
@@ -713,8 +757,9 @@ class SyncManager {
 
   /**
    * Walk SHOW CHANGES from a datetime inside retention up to the tip (paged).
-   * Throws silent-gap if any entry is newer than cursor, or if the tip itself
-   * is still below cursor (cursor jumped ahead of the live feed).
+   * Throws silent-gap if any entry is newer than cursor (true hole).
+   * If the cursor sits ahead of this table's tip (usually after a watermark was
+   * borrowed from another table), snap down — do not re-backfill (that looped).
    */
   async assertRecentFeedAheadOfCursor(tableName, cursor, limit) {
     const pageSize = Math.max(Number(limit) || 100, 100);
@@ -722,6 +767,7 @@ class SyncManager {
     let probeTip = null;
     let sawEntry = false;
     let lastSeen = null;
+    let newerCount = 0;
 
     for (let page = 0; page < 50; page += 1) {
       const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${pageSize};`;
@@ -738,15 +784,10 @@ class SyncManager {
       if (!forward.length) break;
 
       sawEntry = true;
-      const newer = entriesAfterCursor(forward, cursor);
+      newerCount += entriesAfterCursor(forward, cursor).length;
       for (const entry of forward) {
         this.noteFeedHighWater(entry && entry.versionstamp);
         probeTip = nextCursorVersionstamp(probeTip, entry && entry.versionstamp);
-      }
-      if (newer.length) {
-        throw new Error(
-          `changefeed cursor outside retention (silent gap, datetime probe): table=${tableName} cursor=${versionstampForStorage(cursor)} probeEntries=${newer.length}`
-        );
       }
 
       const lastStamp = forward[forward.length - 1] && forward[forward.length - 1].versionstamp;
@@ -756,14 +797,23 @@ class SyncManager {
       if (forward.length < pageSize) break;
     }
 
+    if (newerCount > 0) {
+      throw new Error(
+        `changefeed cursor outside retention (silent gap, datetime probe): table=${tableName} cursor=${versionstampForStorage(cursor)} probeEntries=${newerCount}`
+      );
+    }
+
     if (
       sawEntry
       && probeTip != null
       && compareVersionstamp(cursor, probeTip) > 0
     ) {
-      throw new Error(
-        `changefeed cursor ahead of live tip (silent gap, cursor ahead): table=${tableName} cursor=${versionstampForStorage(cursor)} tip=${versionstampForStorage(probeTip)}`
-      );
+      this.logger.warn('Changefeed cursor ahead of live tip; snapping down (no re-backfill)', {
+        table: tableName,
+        cursor: versionstampForStorage(cursor),
+        tip: versionstampForStorage(probeTip),
+      });
+      await this.saveCursor(tableName, { versionstamp: probeTip });
     }
   }
 
