@@ -7,6 +7,13 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-14',
+    title: 'AI shows table name and number',
+    items: [
+      'AI Assistant and AI Report now show floor tables as name+number (e.g. T5), matching the POS — not the name alone.',
+    ],
+  },
+  {
     date: '2026-11-13',
     title: 'FOH upload stops re-backfill loops',
     items: [

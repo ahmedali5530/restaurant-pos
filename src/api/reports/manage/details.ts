@@ -1,5 +1,5 @@
 import {Tables} from "@/api/db/tables.ts";
-import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {formatFloorTableLabel, recordIdToString} from "@/api/reports/shared/records.ts";
 import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {toRecordId} from "@/lib/utils.ts";
@@ -275,20 +275,25 @@ export const getTableDetail = async (db: DbClient, options: NameOrIdOptions & {n
     payment_types?: Array<{name?: string}>;
   }>(await db.query(query, params));
 
-  return rows.map(row => ({
-    id: recordIdToString(row.id),
-    name: row.name ?? "",
-    number: String(row.number ?? ""),
-    ask_for_covers: row.ask_for_covers ?? false,
-    background: row.background ?? "",
-    color: row.color ?? "",
-    priority: row.priority ?? 0,
-    floor_id: row.floor?.id ? recordIdToString(row.floor.id) : "",
-    floor_name: row.floor?.name ?? "",
-    categories: nameList(row.categories),
-    order_types: nameList(row.order_types),
-    payment_types: nameList(row.payment_types),
-  }));
+  return rows.map(row => {
+    const name = row.name ?? "";
+    const number = String(row.number ?? "");
+    return {
+      id: recordIdToString(row.id),
+      name,
+      number,
+      label: formatFloorTableLabel({name, number}),
+      ask_for_covers: row.ask_for_covers ?? false,
+      background: row.background ?? "",
+      color: row.color ?? "",
+      priority: row.priority ?? 0,
+      floor_id: row.floor?.id ? recordIdToString(row.floor.id) : "",
+      floor_name: row.floor?.name ?? "",
+      categories: nameList(row.categories),
+      order_types: nameList(row.order_types),
+      payment_types: nameList(row.payment_types),
+    };
+  });
 };
 
 export const getDiscountDetail = async (db: DbClient, options: NameOrIdOptions = {}) => {
@@ -450,11 +455,16 @@ export const getExtraDetail = async (db: DbClient, options: NameOrIdOptions = {}
     apply_to_all: row.apply_to_all ?? false,
     delivery: row.delivery ?? false,
     priority: row.priority ?? 0,
-    tables: (row.tables ?? []).map(t => ({
-      id: recordIdToString(t.id),
-      name: t.name ?? "",
-      number: String(t.number ?? ""),
-    })),
+    tables: (row.tables ?? []).map(t => {
+      const name = t.name ?? "";
+      const number = String(t.number ?? "");
+      return {
+        id: recordIdToString(t.id),
+        name,
+        number,
+        label: formatFloorTableLabel({name, number}),
+      };
+    }),
     payment_types: (row.payment_types ?? []).map(p => ({
       id: recordIdToString(p.id),
       name: p.name ?? "",

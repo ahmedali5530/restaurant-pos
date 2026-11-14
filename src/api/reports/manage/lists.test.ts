@@ -13,5 +13,6 @@ describe("listTables", () => {
     const rows = await listTables(db as any, {floor_name: "delivery"});
     expect(rows).toHaveLength(1);
     expect(rows[0].floor_name).toBe("Delivery");
+    expect(rows[0].label).toBe("T11");
   });
 });
