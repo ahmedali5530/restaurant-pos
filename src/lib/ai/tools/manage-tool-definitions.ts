@@ -29,7 +29,7 @@ export const AI_MANAGE_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_tables",
-      description: "List tables (id, name, number, floor). Use get_table_detail for categories/order/payment scoping."
+      description: "List tables (id, name, number, label=name+number, floor). Always show label to the user (e.g. T5), not name alone. Use get_table_detail for categories/order/payment scoping."
         + ID_NOTE,
       parameters: {
         type: "object",
@@ -45,8 +45,8 @@ export const AI_MANAGE_READ_TOOLS: OpenAIToolDefinition[] = [
     function: {
       name: "get_table_detail",
       description:
-        "Get table layout detail including floor, categories, order types, payment types, and covers flag. "
-        + "Use before propose_update_tables.",
+        "Get table layout detail including floor, categories, order types, payment types, covers flag, "
+        + "and label (name+number). Always show label to the user. Use before propose_update_tables.",
       parameters: {
         type: "object",
         properties: {

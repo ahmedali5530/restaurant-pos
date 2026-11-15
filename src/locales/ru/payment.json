@@ -138,5 +138,15 @@
     "payWithCard": "Оплатить картой",
     "payWithRazorpay": "Оплатить через Razorpay"
   },
-  "invoiceAssigning": "Заказ сохранён — номер счёта ещё назначается…"
+  "invoiceAssigning": "Заказ сохранён — номер счёта ещё назначается…",
+  "quickCheckout": {
+    "complete": "Завершить",
+    "fullPayment": "Полная оплата",
+    "amount": "Сумма",
+    "payable": "К оплате",
+    "change": "Сдача",
+    "noPaymentTypes": "Типы оплаты не настроены",
+    "remoteRequiresFull": "Для этого типа оплаты нужен полный экран оплаты",
+    "amountTooLow": "Сумма должна покрывать итог к оплате"
+  }
 }

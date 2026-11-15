@@ -19,9 +19,11 @@ import {loadDishCommentTags} from "@/api/model/dish_comment_tags.ts";
 interface Props {
   item: MenuItem
   index: number
+  /** When false (quick order), skip select-to-act highlighting / toggles. */
+  selectable?: boolean
 }
 
-export const CartItem = ({item, index}: Props) => {
+export const CartItem = ({item, index, selectable = true}: Props) => {
   const {t} = useTranslation(['cart', 'common', 'menu']);
   const db = useDB();
   const [state, setState] = useAtom(appState);
@@ -80,14 +82,18 @@ export const CartItem = ({item, index}: Props) => {
     <>
       <div
         className={cn(
-          "flex flex-col gap-1 cursor-pointer select-none px-2 text-foreground border-b-2",
-          item.isSelected
+          "flex flex-col gap-1 select-none px-2 text-foreground border-b-2",
+          selectable ? "cursor-pointer" : "cursor-default",
+          selectable && item.isSelected
             ? 'bg-neutral-300 dark:bg-neutral-700'
             : item.isHold
               ? 'bg-warning-100 dark:bg-warning-900/50'
               : '',
         )}
         onClick={() => {
+          if (!selectable) {
+            return;
+          }
           if (item.deleted_at === undefined && (item.newOrOld === 'new' || item.isHold)) {
             setState(prev => ({
               ...prev,

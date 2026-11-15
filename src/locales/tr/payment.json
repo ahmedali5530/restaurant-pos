@@ -138,5 +138,15 @@
     "payWithCard": "Kartla öde",
     "payWithRazorpay": "Razorpay ile öde"
   },
-  "invoiceAssigning": "Sipariş kaydedildi — fatura numarası hâlâ atanıyor…"
+  "invoiceAssigning": "Sipariş kaydedildi — fatura numarası hâlâ atanıyor…",
+  "quickCheckout": {
+    "complete": "Tamamla",
+    "fullPayment": "Tam ödeme",
+    "amount": "Tutar",
+    "payable": "Ödenecek",
+    "change": "Para üstü",
+    "noPaymentTypes": "Ödeme türü yapılandırılmamış",
+    "remoteRequiresFull": "Bu ödeme türü tam ödeme ekranını gerektirir",
+    "amountTooLow": "Tutar ödenecek toplamı karşılamalı"
+  }
 }

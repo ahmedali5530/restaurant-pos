@@ -8,7 +8,7 @@ import type {OrderFiscalSubmission} from "@/api/model/order_fiscal_submission.ts
 import type {OrderPrint} from "@/api/model/order_print.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
-import {recordIdToString, toQueryRecordId} from "@/api/reports/shared/records.ts";
+import {formatFloorTableLabel, recordIdToString, toQueryRecordId} from "@/api/reports/shared/records.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getFiscalProviderLabel} from "@/integrations/storage/order-fiscal-repository.ts";
 import {calculateOrderItemPrice} from "@/lib/cart.ts";
@@ -786,6 +786,7 @@ export const getOrderDetail = async (
   const figures = getOrderSettlementFigures(order);
   const table = order.table as {name?: string; number?: string | number} | undefined;
   const floor = (order as {floor?: {name?: string}}).floor;
+  const tableLabel = formatFloorTableLabel(table);
 
   const result: OrderDetailResult = {
     found: true,
@@ -800,7 +801,7 @@ export const getOrderDetail = async (
       server: personName(order.user as any),
       cashier: personName(order.cashier as any),
       customer: personName(order.customer as any) || (order.customer as {name?: string} | undefined)?.name,
-      table: table?.name || (table?.number != null ? String(table.number) : undefined),
+      table: tableLabel || undefined,
       floor: floor?.name,
       orderType: order.order_type?.name,
       covers: order.covers,

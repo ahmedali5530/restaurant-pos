@@ -26,14 +26,16 @@ export const QuickOrderCart = () => {
     [cartItems],
   );
 
+  /** Keep scan armed on payment chrome only — never on the cart list (breaks drag-scroll). */
   const keepScanFocus = (event: MouseEvent | PointerEvent) => {
     const target = event.target as HTMLElement | null;
-    // Allow real text inputs (qty field) to take focus when tapped.
     if (target?.closest("input, textarea, select, [contenteditable='true']")) {
       return;
     }
-    // React Aria usePress breaks if pointerdown default is prevented
     if (target?.closest(".react-aria-Button, [data-rac]")) {
+      return;
+    }
+    if (target?.closest(".indiana-scroll-container")) {
       return;
     }
     event.preventDefault();
@@ -48,23 +50,21 @@ export const QuickOrderCart = () => {
       <div
         className="flex-1 min-h-0 overflow-hidden"
         data-testid="quick-order-cart-items"
-        onMouseDown={keepScanFocus}
-        onPointerDown={keepScanFocus}
       >
         {cartItems.length === 0 ? (
           <div className="flex items-center justify-center h-full px-4 text-center text-muted">
             {t("cart.empty")}
           </div>
         ) : (
-          <ScrollContainer className="h-full gap-[4px] flex flex-col select-none px-1">
+          <ScrollContainer className="h-full gap-[4px] flex flex-col select-none px-1 indiana-scroll-container">
             {newItems.map((item, index) => (
-              <CartItem item={item} key={item.id} index={index} />
+              <CartItem item={item} key={item.id} index={index} selectable={false} />
             ))}
             {newItems.length > 0 && oldItems.length > 0 && (
               <div className="h-[3px] bg-neutral-900 my-2 rounded-full" />
             )}
             {oldItems.map((item, index) => (
-              <CartItem item={item} key={item.id} index={index} />
+              <CartItem item={item} key={item.id} index={index} selectable={false} />
             ))}
           </ScrollContainer>
         )}

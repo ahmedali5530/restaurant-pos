@@ -138,5 +138,15 @@
     "payWithCard": "Payer par carte",
     "payWithRazorpay": "Payer avec Razorpay"
   },
-  "invoiceAssigning": "Commande enregistrée — numéro de facture encore en cours d'attribution…"
+  "invoiceAssigning": "Commande enregistrée — numéro de facture encore en cours d'attribution…",
+  "quickCheckout": {
+    "complete": "Terminer",
+    "fullPayment": "Paiement complet",
+    "amount": "Montant",
+    "payable": "À payer",
+    "change": "Monnaie",
+    "noPaymentTypes": "Aucun type de paiement configuré",
+    "remoteRequiresFull": "Ce type de paiement nécessite l’écran de paiement complet",
+    "amountTooLow": "Le montant doit couvrir le total à payer"
+  }
 }

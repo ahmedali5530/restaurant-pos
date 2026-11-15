@@ -119,7 +119,7 @@ export const DOMAIN_PROMPT_SNIPPETS: Record<AiReportToolDomain, string> = {
   lookup: `- Use list_staff, list_categories, list_menu_items, or list_inventory_items for name-to-ID resolution.
 - Dish ingredients / recipe lines: get_dish_recipe (one dish via name/number/id; omit filters for catalog; countsOnly for dish→recipe counts; onlyMissingIngredients for dishes with no recipe; onlyWithIngredients=false to compare). Never invent ingredients; never use propose_create_dish_ingredients for read-only questions.`,
   manage: `- Manage configuration (not sales totals): use list_* for browse, then get_*_detail for linked graphs before propose_update_*.
-- Floors/tables: list_tables with floor_name; get_table_detail for categories/order/payment scoping before propose_update_tables.
+- Floors/tables: list_tables with floor_name; get_table_detail for categories/order/payment scoping before propose_update_tables. When showing a floor table to the user, use label (name+number, e.g. T5) — never name alone.
 - Dishes: get_dish_detail for categories/tax/workflow/stage_overrides/modifier edges (not recipes — use get_dish_recipe). list_dish_modifiers before propose_*_dish_modifiers.
 - Discounts: list_discounts for overview; get_discount_detail for targets/BXGY/schedules before propose_update_discounts. For create: list_categories / list_menu_items first.
 - Coupons/extras: get_coupon_detail / get_extra_detail for targets and scoping before updates.

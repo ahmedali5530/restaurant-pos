@@ -1,5 +1,5 @@
 import {Tables} from "@/api/db/tables.ts";
-import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {formatFloorTableLabel, recordIdToString} from "@/api/reports/shared/records.ts";
 import {unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 
@@ -59,10 +59,13 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
   return rows
     .map(row => {
       const floor = row.floor_name ?? row.floor?.name ?? "";
+      const name = row.name ?? "";
+      const number = String(row.number ?? "");
       return {
         id: recordIdToString(row.id),
-        name: row.name ?? "",
-        number: String(row.number ?? ""),
+        name,
+        number,
+        label: formatFloorTableLabel({name, number}),
         floor_name: floor,
       };
     })
@@ -72,6 +75,7 @@ export const listTables = async (db: DbClient, options: TableListOptions = {}) =
       return (
         matchesSearch(row.name, search)
         || matchesSearch(row.number, search)
+        || matchesSearch(row.label, search)
         || matchesSearch(row.floor_name, search)
       );
     });

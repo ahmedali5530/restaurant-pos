@@ -1,7 +1,7 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {Order} from "@/api/model/order.ts";
 import {ORDER_FETCHES, ORDER_PAYMENT_FETCHES, OrderStatus} from "@/api/model/order.ts";
-import {recordToString} from "@/api/reports/shared/records.ts";
+import {formatFloorTableLabel, recordToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderFigures} from "@/api/reports/sales/aggregate.ts";
@@ -83,6 +83,7 @@ const formatOrderRow = (order: Order) => {
   const table = order.table as {name?: string; number?: string | number} | undefined;
   const orderType = order.order_type as {name?: string} | undefined;
   const jsDate = toJsDate(order.created_at as Parameters<typeof toJsDate>[0]);
+  const tableLabel = formatFloorTableLabel(table);
 
   return {
     orderId: recordToString(order.id),
@@ -97,7 +98,7 @@ const formatOrderRow = (order: Order) => {
     rider: delivery?.rider
       ? `${delivery.rider.first_name ?? ""} ${delivery.rider.last_name ?? ""}`.trim()
       : undefined,
-    table: table?.name ?? (table?.number != null ? String(table.number) : undefined),
+    table: tableLabel || undefined,
     orderType: orderType?.name,
     itemCount: getOrderFilteredItems(order).length,
     covers: safeNumber(order.covers),
