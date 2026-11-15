@@ -135,5 +135,15 @@
     "paymentReceived": "Pagamento {{gateway}} ricevuto.",
     "payWithCard": "Paga con carta",
     "payWithRazorpay": "Paga con Razorpay"
+  },
+  "quickCheckout": {
+    "complete": "Completa",
+    "fullPayment": "Pagamento completo",
+    "amount": "Importo",
+    "payable": "Da pagare",
+    "change": "Resto",
+    "noPaymentTypes": "Nessun tipo di pagamento configurato",
+    "remoteRequiresFull": "Questo tipo di pagamento richiede la schermata di pagamento completa",
+    "amountTooLow": "L’importo deve coprire il totale dovuto"
   }
 }

@@ -135,5 +135,15 @@
     "paymentReceived": "تم استلام دفع {{gateway}}.",
     "payWithCard": "الدفع بالبطاقة",
     "payWithRazorpay": "الدفع عبر Razorpay"
+  },
+  "quickCheckout": {
+    "complete": "إتمام",
+    "fullPayment": "دفع كامل",
+    "amount": "المبلغ",
+    "payable": "المستحق",
+    "change": "الباقي",
+    "noPaymentTypes": "لا توجد أنواع دفع مُعدّة",
+    "remoteRequiresFull": "نوع الدفع هذا يتطلب شاشة الدفع الكاملة",
+    "amountTooLow": "يجب أن يغطي المبلغ الإجمالي المستحق"
   }
 }

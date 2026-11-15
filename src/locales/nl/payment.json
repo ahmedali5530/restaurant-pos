@@ -135,5 +135,15 @@
     "paymentReceived": "{{gateway}}-betaling ontvangen.",
     "payWithCard": "Betalen met kaart",
     "payWithRazorpay": "Betalen met Razorpay"
+  },
+  "quickCheckout": {
+    "complete": "Afronden",
+    "fullPayment": "Volledige betaling",
+    "amount": "Bedrag",
+    "payable": "Te betalen",
+    "change": "Wisselgeld",
+    "noPaymentTypes": "Geen betaalwijzen geconfigureerd",
+    "remoteRequiresFull": "Deze betaalwijze vereist het volledige betalingsscherm",
+    "amountTooLow": "Het bedrag moet het te betalen totaal dekken"
   }
 }

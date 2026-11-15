@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-10-27',
+    title: 'Quick Order minimal checkout',
+    items: [
+      'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',
+      'Full payment still opens the existing payment screen for split tenders, coupons, tips, and remote gateways.',
+    ],
+  },
+  {
+    date: '2026-10-27',
     title: 'Update dish costs from inventory prices',
     items: [
       'Settings → Dishes has Update costs from items: with confirmation, unlocked recipe lines take the current inventory item price and each dish cost is recalculated (price-locked lines stay as they are).',
