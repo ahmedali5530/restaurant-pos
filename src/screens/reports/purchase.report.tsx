@@ -15,6 +15,7 @@ import {
 } from "@/api/reports/shared/query.ts";
 import {extrasTotal} from "@/lib/inventory/purchase.totals.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 import {purchaseReportQuantity} from "@/lib/inventory/unit.convert.ts";
 
 interface ReportFilters {
@@ -261,7 +262,7 @@ export const PurchaseReport = () => {
                 ) : (
                   purchases.flatMap(purchase => {
                     const date = toLuxonDateTime(purchase.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
                     const createdByName = purchase.created_by
                       ? `${purchase.created_by.first_name ?? ''} ${purchase.created_by.last_name ?? ''}`.trim() || purchase.created_by.login || 'Unknown'
                       : 'Unknown';

@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
       ...buildModuleDefines,
     },
     server: {
+      port: 5173,
+      strictPort: true,
+      host: '127.0.0.1',
       proxy: {
         '/self-order': { target: gatewayTarget, changeOrigin: true },
         '/customer-display-api': { target: gatewayTarget, changeOrigin: true },

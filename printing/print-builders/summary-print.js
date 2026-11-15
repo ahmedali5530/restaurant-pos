@@ -32,13 +32,13 @@ function printText(printer, text) {
   printer.text(toPrinterText(text));
 }
 
-function printMixRow(printer, left, qty, total, share, sym, options = {}) {
+function printMixRow(printer, left, qty, total, share, sym, options = {}, cfg) {
   const { bold = false, indent = 0 } = options;
   const pad = ' '.repeat(indent);
   const label = toPrinterText(`${pad}${String(left).slice(0, 22)}`);
   const right = formatMixRightColumns(
     formatNum(qty),
-    formatMoney(total, sym),
+    formatMoney(total, sym, cfg),
     `${formatNum(share)}%`
   );
   if (bold) {
@@ -65,7 +65,7 @@ function printModifierRow(printer, modifier, exclusiveSales, dishIndent = 2) {
   printLineLeftRight(printer, label, right, { small: true });
 }
 
-function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
+function printProductMix(printer, categoryMix, exclusiveSales, sym, L, cfg) {
   const itemLabel = L.item || 'Item';
   printLineLeftRight(
     printer,
@@ -87,7 +87,8 @@ function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
       category.total,
       pct(category.total, ex),
       sym,
-      { bold: true }
+      { bold: true },
+      cfg
     );
 
     (category.dishes || []).forEach((dish) => {
@@ -98,7 +99,8 @@ function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
         dish.total,
         pct(dish.total, ex),
         sym,
-        { indent: dishIndent }
+        { indent: dishIndent },
+        cfg
       );
 
       (dish.modifiers || []).forEach((modifier) => {
@@ -108,7 +110,7 @@ function printProductMix(printer, categoryMix, exclusiveSales, sym, L) {
   });
 }
 
-function printPaymentTypes(printer, paymentTypes, grandTotalDue, sym, line, L) {
+function printPaymentTypes(printer, paymentTypes, grandTotalDue, sym, line, L, cfg) {
   const rows = (paymentTypes || []).filter((payment) => safeNumber(payment.total) > 0);
   if (rows.length === 0) {
     printText(printer, L.noPaymentData || 'No payment data for this date.');
@@ -118,12 +120,12 @@ function printPaymentTypes(printer, paymentTypes, grandTotalDue, sym, line, L) {
     const share = formatNum(pct(payment.total, grandTotalDue)) + '%';
     line(
       `${payment.name}${qtyBracket(payment.count)}`,
-      `${formatMoney(payment.total, sym)}  ${share}`
+      `${formatMoney(payment.total, sym, cfg)}  ${share}`
     );
   });
 }
 
-function printSaleGroups(printer, rows, emptyLabel, line, sym) {
+function printSaleGroups(printer, rows, emptyLabel, line, sym, cfg) {
   if (!rows || rows.length === 0) {
     printText(printer, emptyLabel);
     return;
@@ -131,12 +133,12 @@ function printSaleGroups(printer, rows, emptyLabel, line, sym) {
   rows.forEach((row) => {
     line(
       `${row.name}${qtyBracket(row.ordersCount)}`,
-      formatMoney(row.total, sym)
+      formatMoney(row.total, sym, cfg)
     );
   });
 }
 
-function printTaxesBreakdown(printer, taxesList, taxCollected, sym, line, L) {
+function printTaxesBreakdown(printer, taxesList, taxCollected, sym, line, L, cfg) {
   if (!taxesList || taxesList.length === 0) {
     printText(printer, L.noTaxRows || 'No tax rows for this date.');
     return;
@@ -145,21 +147,21 @@ function printTaxesBreakdown(printer, taxesList, taxCollected, sym, line, L) {
     const share = formatNum(pct(tax.total, taxCollected)) + '%';
     line(
       `${tax.name}%${qtyBracket(tax.count)}`,
-      `${formatMoney(tax.total, sym)}  ${share}`
+      `${formatMoney(tax.total, sym, cfg)}  ${share}`
     );
   });
 }
 
-function printOperationalControls(printer, s, sym, line, L) {
-  line(L.voids || 'Voids', formatMoney(s.voids, sym));
-  line(L.refunds || 'Refunds', formatMoney(s.refunds, sym));
+function printOperationalControls(printer, s, sym, line, L, cfg) {
+  line(L.voids || 'Voids', formatMoney(s.voids, sym, cfg));
+  line(L.refunds || 'Refunds', formatMoney(s.refunds, sym, cfg));
   line(
     L.covers || 'Covers',
-    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`
+    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym, cfg)}`
   );
   line(
     L.ordersChecks || 'Orders / checks',
-    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`
+    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym, cfg)}`
   );
 }
 
@@ -181,40 +183,40 @@ function printSummaryHeader(printer, s, L) {
   printer.drawLine();
 }
 
-function printSalesRevenue(printer, s, sym, line, L, sectionTitle) {
+function printSalesRevenue(printer, s, sym, line, L, sectionTitle, cfg) {
   sect(printer, sectionTitle || L.salesRevenue || '1. Sales revenue');
-  line(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym));
-  line(L.extras || 'Extras', formatMoney(s.totalExtras, sym));
-  line(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym));
-  line(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym));
-  line(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym));
-  line(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym));
-  line(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym));
-  line(L.netSales || 'Net sales', formatMoney(s.netSales, sym));
+  line(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym, cfg));
+  line(L.extras || 'Extras', formatMoney(s.totalExtras, sym, cfg));
+  line(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym, cfg));
+  line(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym, cfg));
+  line(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym, cfg));
+  line(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym, cfg));
+  line(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym, cfg));
+  line(L.netSales || 'Net sales', formatMoney(s.netSales, sym, cfg));
 }
 
-function printSurchargesTaxes(printer, s, sym, line, L, sectionTitle, includeBreakdown) {
+function printSurchargesTaxes(printer, s, sym, line, L, sectionTitle, includeBreakdown, cfg) {
   sect(printer, sectionTitle || L.surchargesTaxes || '2. Surcharges and taxes');
-  line(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym));
-  line(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym));
+  line(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym, cfg));
+  line(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym, cfg));
   printer.style('bu');
-  line(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym));
+  line(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym, cfg));
   printer.style('normal');
   if (includeBreakdown) {
-    printTaxesBreakdown(printer, s.taxesList, s.taxCollected, sym, line, L);
+    printTaxesBreakdown(printer, s.taxesList, s.taxCollected, sym, line, L, cfg);
   }
 }
 
-function printSettlementCashier(printer, s, sym, line, L, sectionTitle) {
+function printSettlementCashier(printer, s, sym, line, L, sectionTitle, cfg) {
   sect(printer, sectionTitle || L.settlementCashier || '3. Settlement and cashier');
-  line(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym));
-  line(L.tips || 'Tips', formatMoney(s.tips, sym));
+  line(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym, cfg));
+  line(L.tips || 'Tips', formatMoney(s.tips, sym, cfg));
   printer.style('bu');
-  line(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym));
+  line(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym, cfg));
   printer.style('normal');
-  line(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym));
-  line(L.rounding || 'Rounding', formatMoney(s.rounding, sym));
-  line(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym));
+  line(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym, cfg));
+  line(L.rounding || 'Rounding', formatMoney(s.rounding, sym, cfg));
+  line(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym, cfg));
 }
 
 function printMinimalDailySalesSummary(printer, data, cfg) {
@@ -224,11 +226,13 @@ function printMinimalDailySalesSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const line = (left, right) => printLineLeftRight(printer, toPrinterText(left), toPrinterText(right));
 
   printSummaryHeader(printer, s, L);
-  printSalesRevenue(printer, s, sym, line, L, L.minimalSalesRevenue || '1. Sales revenue');
+  printSalesRevenue(printer, s, sym, line, L, L.minimalSalesRevenue || '1. Sales revenue', cfg);
   printSurchargesTaxes(
     printer,
     s,
@@ -236,7 +240,8 @@ function printMinimalDailySalesSummary(printer, data, cfg) {
     line,
     L,
     L.minimalSurchargesTaxes || '2. Surcharges and taxes',
-    true
+    true,
+    cfg
   );
   printSettlementCashier(
     printer,
@@ -244,12 +249,13 @@ function printMinimalDailySalesSummary(printer, data, cfg) {
     sym,
     line,
     L,
-    L.minimalSettlementCashier || '3. Settlement and cashier'
+    L.minimalSettlementCashier || '3. Settlement and cashier',
+    cfg
   );
   sect(printer, L.minimalOperationalControls || '4. Operational controls');
-  printOperationalControls(printer, s, sym, line, L);
+  printOperationalControls(printer, s, sym, line, L, cfg);
   sect(printer, L.minimalPaymentTypes || '5. Payment types');
-  printPaymentTypes(printer, s.paymentTypes, s.grandTotalDue, sym, line, L);
+  printPaymentTypes(printer, s.paymentTypes, s.grandTotalDue, sym, line, L, cfg);
 
   printVatLine(printer, cfg);
   feedBottomMargin(printer, cfg);
@@ -264,6 +270,8 @@ function printProductMixSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
 
   const titleTemplate = L.productMixTitle || 'Product mix - {{date}}';
@@ -275,7 +283,7 @@ function printProductMixSummary(printer, data, cfg) {
   }
   printer.align('lt');
   printer.drawLine();
-  printProductMix(printer, s.categoryMix, s.exclusiveSales, sym, L);
+  printProductMix(printer, s.categoryMix, s.exclusiveSales, sym, L, cfg);
 
   printVatLine(printer, cfg);
   feedBottomMargin(printer, cfg);
@@ -299,19 +307,21 @@ function printDailySalesSummary(printer, data, cfg) {
     ...data,
     timezone: cfg.timezone,
     locale: cfg.locale,
+    dateFormat: cfg.dateFormat,
+    timeFormat: cfg.timeFormat,
   });
   const line = (left, right) => printLineLeftRight(printer, toPrinterText(left), toPrinterText(right));
 
   printSummaryHeader(printer, s, L);
-  printSalesRevenue(printer, s, sym, line, L);
-  printSurchargesTaxes(printer, s, sym, line, L, undefined, false);
-  printSettlementCashier(printer, s, sym, line, L);
+  printSalesRevenue(printer, s, sym, line, L, undefined, cfg);
+  printSurchargesTaxes(printer, s, sym, line, L, undefined, false, cfg);
+  printSettlementCashier(printer, s, sym, line, L, undefined, cfg);
 
   sect(printer, L.operationalControls || '4. Operational controls');
-  printOperationalControls(printer, s, sym, line, L);
+  printOperationalControls(printer, s, sym, line, L, cfg);
 
   sect(printer, L.productMix || '5. Product mix');
-  printProductMix(printer, s.categoryMix, s.exclusiveSales, sym, L);
+  printProductMix(printer, s.categoryMix, s.exclusiveSales, sym, L, cfg);
 
   sect(printer, L.orderTypes || '6. Sale by order type');
   printSaleGroups(
@@ -319,7 +329,8 @@ function printDailySalesSummary(printer, data, cfg) {
     s.orderTypes,
     L.noOrderTypes || 'No order type data for this date.',
     line,
-    sym
+    sym,
+    cfg
   );
 
   sect(printer, L.orderTakers || '7. Sale by order taker');
@@ -328,14 +339,15 @@ function printDailySalesSummary(printer, data, cfg) {
     s.orderTakers,
     L.noOrderTakers || 'No order taker data for this date.',
     line,
-    sym
+    sym,
+    cfg
   );
 
   sect(printer, L.paymentTypes || '8. Payment types');
-  printPaymentTypes(printer, s.paymentTypes, s.grandTotalDue, sym, line, L);
+  printPaymentTypes(printer, s.paymentTypes, s.grandTotalDue, sym, line, L, cfg);
 
   sect(printer, L.taxesBreakdown || '9. Taxes breakdown');
-  printTaxesBreakdown(printer, s.taxesList, s.taxCollected, sym, line, L);
+  printTaxesBreakdown(printer, s.taxesList, s.taxCollected, sym, line, L, cfg);
 
   sect(printer, L.discountsBreakdown || '10. Discounts breakdown');
   if (!s.discountsList || s.discountsList.length === 0) {
@@ -345,7 +357,7 @@ function printDailySalesSummary(printer, data, cfg) {
       const share = formatNum(pct(discount.total, s.discounts)) + '%';
       line(
         `${discount.name}${qtyBracket(discount.count)}`,
-        `${formatMoney(discount.total, sym)}  ${share}`
+        `${formatMoney(discount.total, sym, cfg)}  ${share}`
       );
     });
   }
@@ -353,7 +365,7 @@ function printDailySalesSummary(printer, data, cfg) {
   sect(printer, L.tipsBreakdown || '11. Tips');
   line(
     `${L.tips || 'Tips'}${qtyBracket(s.tipsCount || 0)}`,
-    formatMoney(s.tips, sym)
+    formatMoney(s.tips, sym, cfg)
   );
 
   sect(printer, L.extrasBreakdown || '12. Extras breakdown');
@@ -364,7 +376,7 @@ function printDailySalesSummary(printer, data, cfg) {
       const share = formatNum(pct(extra.total, s.totalExtras)) + '%';
       line(
         `${extra.name}${qtyBracket(extra.count)}`,
-        `${formatMoney(extra.total, sym)}  ${share}`
+        `${formatMoney(extra.total, sym, cfg)}  ${share}`
       );
     });
   }
@@ -376,7 +388,7 @@ function printDailySalesSummary(printer, data, cfg) {
     s.couponsList.forEach((coupon) => {
       line(
         `${coupon.name}${qtyBracket(coupon.count)}`,
-        formatMoney(coupon.total, sym)
+        formatMoney(coupon.total, sym, cfg)
       );
     });
   }

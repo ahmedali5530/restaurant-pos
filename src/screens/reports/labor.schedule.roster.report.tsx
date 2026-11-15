@@ -6,6 +6,7 @@ import {useDB} from '@/api/db/db.ts';
 import {parseDateRangeFromParams} from '@/api/reports/shared/filters.ts';
 import {getScheduleRoster} from '@/api/reports/labor';
 import type {ScheduleRosterResult} from '@/api/reports/labor/shared/types.ts';
+import { runtimeDateFormat } from '@/lib/runtime-config.ts';
 
 export const LaborScheduleRosterReport = () => {
   const {t} = useTranslation('reports');
@@ -50,7 +51,7 @@ export const LaborScheduleRosterReport = () => {
   }, [filters.startDate, filters.endDate, filters.scheduleId]);
 
   const subtitle = filters.startDate && filters.endDate ? `${filters.startDate} to ${filters.endDate}` : undefined;
-  const dateFormat = (import.meta.env.VITE_DATE_FORMAT as string | undefined) || 'dd MMM yyyy';
+  const dateFormat = runtimeDateFormat();
 
   return (
     <ReportsLayout title={t('titles.scheduleRoster')} subtitle={subtitle}>

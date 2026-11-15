@@ -51,6 +51,7 @@ import {
   SelfOrderClosingSummary,
 } from "@/lib/self-order-closing.ts";
 import {buildClosingPrintRows as buildClosingPrintTableRows} from "@/lib/closing-print.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const DEFAULT_TERMINALS: TerminalCash[] = [
   {terminal_id: "terminal_1", terminal_name: "Terminal 1", cash_amount: 0},
@@ -134,7 +135,7 @@ export const Closing = () => {
   const [notes, setNotes] = useState<string>("");
   const [selfOrders, setSelfOrders] = useState<{ summary: SelfOrderClosingSummary } | null>(null);
 
-  const today = LuxonDateTime.now().toFormat(import.meta.env.VITE_DATE_FORMAT);
+  const today = LuxonDateTime.now().toFormat(runtimeDateFormat());
   const closingWindowLabel = useMemo(() => {
     const start = LuxonDateTime.fromJSDate(closingWindow.date_from).toFormat("dd LLL yyyy, hh:mm a");
     const end = LuxonDateTime.fromJSDate(closingWindow.date_to).toFormat("dd LLL yyyy, hh:mm a");

@@ -10,6 +10,7 @@ const { getUserRoleModules } = require('./auth.service');
 const {
   hasDatabaseBackupAccess,
   surrealHttpEndpoint,
+  resolveSurrealBin,
   maxUploadBytes,
 } = require('./backup.helpers');
 
@@ -25,8 +26,14 @@ function surrealCliConfig() {
   }
   // Remote WS export against SurrealKV returns "Backups are not supported".
   // Always use HTTP for CLI export/import.
+  const bin = resolveSurrealBin({
+    bin: process.env.SURREAL_BIN || '',
+    execDir: path.dirname(process.execPath),
+    entries: (dir) => fs.readdirSync(dir),
+    exists: (file) => fs.existsSync(file),
+  });
   return {
-    bin: process.env.SURREAL_BIN || '/surreal',
+    bin,
     endpoint: surrealHttpEndpoint(),
     user,
     pass,
@@ -82,50 +89,51 @@ function formatSurrealCliError(command, code, stderr) {
   return `surreal ${command} exited with code ${code}`;
 }
 
-/** @param {'export'|'import'} command @param {string} filePath */
-function spawnSurreal(command, filePath) {
-  const cfg = surrealCliConfig();
-  const child = spawn(
-    cfg.bin,
-    [
-      // Keep error/warn so "builder error" and auth failures reach stderr.
-      '--log',
-      'error',
-      command,
-      '--endpoint',
-      cfg.endpoint,
-      '--username',
-      cfg.user,
-      '--password',
-      cfg.pass,
-      '--namespace',
-      cfg.namespace,
-      '--database',
-      cfg.database,
-      filePath,
-    ],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
-  );
-  return child;
-}
-
 function runSurrealToFile(command, filePath) {
   return new Promise((resolve, reject) => {
-    const child = spawnSurreal(command, filePath);
-    let stderr = '';
-    child.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-      if (stderr.length > 8000) stderr = stderr.slice(-8000);
-    });
+    const cfg = surrealCliConfig();
+    const child = spawn(
+      cfg.bin,
+      [
+        '--log',
+        'error',
+        command,
+        '--endpoint',
+        cfg.endpoint,
+        '--username',
+        cfg.user,
+        '--password',
+        cfg.pass,
+        '--namespace',
+        cfg.namespace,
+        '--database',
+        cfg.database,
+        filePath,
+      ],
+      { stdio: ['ignore', 'pipe', 'pipe'] },
+    );
+    let output = '';
+    const capture = (chunk) => {
+      output += chunk.toString();
+      if (output.length > 8000) output = output.slice(-8000);
+    };
+    child.stdout.on('data', capture);
+    child.stderr.on('data', capture);
     child.on('error', (err) => {
+      if (err && err.code === 'ENOENT') {
+        const missing = new Error(`Surreal CLI not found at ${cfg.bin}`);
+        missing.status = 500;
+        reject(missing);
+        return;
+      }
       reject(err);
     });
     child.on('close', (code) => {
       if (code === 0) {
-        resolve({ stderr });
+        resolve({ stderr: output });
         return;
       }
-      const err = new Error(formatSurrealCliError(command, code, stderr));
+      const err = new Error(formatSurrealCliError(command, code, output));
       err.status = 500;
       reject(err);
     });

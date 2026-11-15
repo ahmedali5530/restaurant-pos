@@ -1,6 +1,7 @@
 'use strict';
 
 const os = require('os');
+const { createWinSpoolDevice, isLibusbUnsupported } = require('./winspool');
 
 /**
  * Modern node-usb exports EventEmitter on `usb.usb`, while escpos-usb calls `usb.on`.
@@ -74,17 +75,70 @@ function listVisibleUsbIds() {
  * @param {Object} config - { vid?: number|string, pid?: number|string }
  * @returns {Object} escpos USB adapter (device) with open, write, close
  */
+function useWindowsQueue(device, vid, pid) {
+  const spool = createWinSpoolDevice({ vid, pid });
+  device.write = (data, callback) => spool.write(data, callback);
+  device.close = (callback) => spool.close(callback);
+  return spool;
+}
+
+function wrapWithWindowsQueue(device, vid, pid) {
+  const originalOpen = device.open.bind(device);
+  device.open = function open(callback) {
+    let settled = false;
+    const finish = (err) => {
+      if (settled) return;
+      settled = true;
+      callback && callback(err || null);
+    };
+    const failOver = (err) => {
+      if (!isLibusbUnsupported(err)) {
+        finish(err);
+        return;
+      }
+      console.warn(
+        `[print] direct USB open failed (${err && err.message ? err.message : err}); using the Windows printer queue`
+      );
+      try {
+        device.close(() => {});
+      } catch (_) {
+        // libusb never finished opening
+      }
+      const spool = useWindowsQueue(device, vid, pid);
+      spool.open((openErr) => finish(openErr));
+    };
+    try {
+      return originalOpen((err) => {
+        if (err) {
+          failOver(err);
+          return;
+        }
+        finish(null);
+      });
+    } catch (err) {
+      failOver(err);
+      return device;
+    }
+  };
+  return device;
+}
+
 function createDevice(config = {}) {
   const vid = parseUsbId(config.vid);
   const pid = parseUsbId(config.pid);
 
   try {
-    if (vid != null && pid != null) {
-      return new USB(vid, pid);
+    const device = vid != null && pid != null ? new USB(vid, pid) : new USB();
+    if (os.platform() === 'win32' && vid != null && pid != null) {
+      return wrapWithWindowsQueue(device, vid, pid);
     }
-    return new USB();
+    return device;
   } catch (err) {
     const msg = err && err.message ? err.message : String(err);
+    if (os.platform() === 'win32' && vid != null && pid != null && /can not find printer/i.test(msg)) {
+      console.warn(`[print] libusb cannot see USB ${vid.toString(16)}:${pid.toString(16)}; using the Windows printer queue`);
+      return createWinSpoolDevice({ vid, pid });
+    }
     if (/can not find printer/i.test(msg)) {
       const ids =
         vid != null && pid != null
@@ -96,7 +150,7 @@ function createDevice(config = {}) {
         : ' libusb sees no USB devices.';
       const hint =
         os.platform() === 'win32'
-          ? `${seenHint} On Windows, WinUSB (Zadig) or UsbDK is required for USB ESC/POS — the normal Windows printer driver is not enough. Set VID/PID, then install WinUSB for that device.`
+          ? `${seenHint} Install the printer in Windows Settings so POSR can use that queue, or set VID/PID.`
           : `${seenHint} Check the USB printer is connected and powered; set VID/PID if auto-detect fails.`;
       throw new Error(`Can not find printer${ids}.${hint}`);
     }

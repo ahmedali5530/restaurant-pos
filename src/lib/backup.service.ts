@@ -1,3 +1,4 @@
+import {isTauriDesktop, saveExportFile} from "@/lib/desktop.ts";
 import {authHeaders, getGatewayBaseUrl} from "@/lib/session.ts";
 
 export class BackupHttpError extends Error {
@@ -14,8 +15,8 @@ function backupBaseUrl(): string {
   return `${getGatewayBaseUrl()}/backup`;
 }
 
-/** Download full-database `.surql` export from the gateway. */
-export async function downloadDatabaseBackup(): Promise<void> {
+/** Download full-database `.surql` export from the gateway. False when the save window is cancelled. */
+export async function downloadDatabaseBackup(): Promise<boolean> {
   const headers = authHeaders();
   headers.delete("Content-Type");
 
@@ -35,17 +36,25 @@ export async function downloadDatabaseBackup(): Promise<void> {
     throw new BackupHttpError(res.status, message);
   }
 
-  const blob = await res.blob();
+  const text = await res.text();
   const disposition = res.headers.get("content-disposition") || "";
   const match = /filename="?([^";]+)"?/i.exec(disposition);
   const filename = match?.[1] || `posr-database-${new Date().toISOString().replace(/[:.]/g, "-")}.surql`;
 
+  if (isTauriDesktop()) {
+    return saveExportFile(filename, "surql", text);
+  }
+
+  const blob = new Blob([text], {type: "text/plain;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = filename;
+  document.body.appendChild(anchor);
   anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
+  return true;
 }
 
 /** Upload a `.surql` file to the gateway for import. */

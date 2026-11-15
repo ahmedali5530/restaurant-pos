@@ -1,4 +1,5 @@
 import {recordIdToString} from "@/api/reports/shared/records.ts";
+import {isTauriDesktop, saveExportFile} from "@/lib/desktop.ts";
 import type {AppPageInterface, AppStateInterface} from "@/store/jotai.ts";
 import type {AppTextDirection} from "@/lib/languages.ts";
 import type {AppBrandId, AppThemePreference, BrandPalette} from "@/lib/theme.ts";
@@ -191,17 +192,27 @@ export function parseSettingsBackupFile(raw: unknown): SettingsBackupFile {
   };
 }
 
-export function downloadSettingsBackupJson(file: SettingsBackupFile, filename?: string): void {
-  const blob = new Blob([JSON.stringify(file, null, 2)], {
-    type: "application/json;charset=utf-8",
-  });
+/** True when the file was saved. False when the desktop save window is cancelled. */
+export async function downloadSettingsBackupJson(
+  file: SettingsBackupFile,
+  filename?: string,
+): Promise<boolean> {
+  const text = JSON.stringify(file, null, 2);
+  const stamp = (file.exportedAt || new Date().toISOString()).replace(/[:.]/g, "-");
+  const name = filename ?? `posr-settings-${stamp}.json`;
+  if (isTauriDesktop()) {
+    return saveExportFile(name, "json", text);
+  }
+  const blob = new Blob([text], {type: "application/json;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  const stamp = (file.exportedAt || new Date().toISOString()).replace(/[:.]/g, "-");
-  anchor.download = filename ?? `posr-settings-${stamp}.json`;
+  anchor.download = name;
+  document.body.appendChild(anchor);
   anchor.click();
+  anchor.remove();
   URL.revokeObjectURL(url);
+  return true;
 }
 
 export async function fetchAllSettingRows(db: SettingsBackupDb): Promise<any[]> {

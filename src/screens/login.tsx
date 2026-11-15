@@ -9,8 +9,11 @@ import { DbNotReadyError, useDB } from "@/api/db/db.ts";
 import { useDatabase } from "@/hooks/useDatabase.ts";
 import { User } from "@/api/model/user.ts";
 import {useNavigate, useLocation} from "react-router";
-import {QUICK} from "@/routes/posr.ts";
+import {DESKTOP_SETUP, DESKTOP_LOGS, QUICK} from "@/routes/posr.ts";
+import {getDesktopStatus, isTauriDesktop, type DesktopStatus} from "@/lib/desktop.ts";
+import {DesktopZoomControls} from "@/components/desktop/desktop-zoom.tsx";
 import {getDefaultAppPath} from "@/lib/build-modules.ts";
+import {getCachedRuntimeConfig} from "@/lib/runtime-config.ts";
 import { Modal } from "@/components/common/react-aria/modal.tsx";
 import { Button } from "@/components/common/input/button.tsx";
 import { Tables } from "@/api/db/tables.ts";
@@ -63,6 +66,7 @@ export const Login = () => {
   const { t } = useTranslation('auth');
   const { t: tCommon } = useTranslation('common');
   const gatewayAuth = isGatewayAuthEnabled();
+  const centralHost = getCachedRuntimeConfig()?.centralHost || '';
 
   const [code, setCode] = useState('');
   const [loginMethod, setLoginMethod] = useState<LoginMethod>(getDefaultLoginMethod);
@@ -75,9 +79,35 @@ export const Login = () => {
   const [pendingUser, setPendingUser] = useState<User | null>(null);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [brandLogo, setBrandLogo] = useState<string | null>(null);
+  const [desktopStatus, setDesktopStatus] = useState<DesktopStatus | null>(null);
 
   const navigation = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (!isTauriDesktop()) return;
+    let cancelled = false;
+    (async () => {
+      // Sidecars and schema migrations finish before this command can succeed.
+      // Keep asking so a slow first start still opens the import screen.
+      for (let attempt = 0; attempt < 180 && !cancelled; attempt++) {
+        try {
+          const status = await getDesktopStatus();
+          if (cancelled) return;
+          setDesktopStatus(status);
+          if (status?.needsSetup) {
+            navigation(DESKTOP_SETUP, { replace: true });
+          }
+          return;
+        } catch {
+          await sleep(1000);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigation]);
 
   useEffect(() => {
     let cancelled = false;
@@ -199,26 +229,38 @@ export const Login = () => {
   });
 
   const showLoginFailureToast = (result?: GatewayLoginResponse) => {
+    const logsHint = isTauriDesktop()
+      ? tCommon('desktopLogs.loginHint', {
+          defaultValue: 'Open Desktop logs (gateway) for details.',
+        })
+      : undefined;
+
     if (result?.status === 429 || result?.retryAfterMs != null) {
       const minutes = formatRetryMinutes(result.retryAfterMs, result.lockoutMs);
       const message = result.code === 'rate_limited_ip'
         ? t('login.rateLimitedIp', { minutes, defaultValue: `Too many login attempts. Try again in ${minutes} minute(s).` })
         : t('login.rateLimited', { minutes, defaultValue: `Too many login attempts. Try again in ${minutes} minute(s).` });
-      toast.error(message);
+      toast.error(message, { description: logsHint });
       return;
     }
 
     const lockoutPolicy = gatewayAuth ? getLockoutPolicyMessage() : undefined;
+    const detail = [result?.error, result?.code ? `(${result.code})` : null, result?.status ? `HTTP ${result.status}` : null]
+      .filter(Boolean)
+      .join(' ');
 
     if (result?.attemptsRemaining != null && result.attemptsRemaining > 0) {
       toast.error(t('login.invalidCredentialsWithAttempts', {
         count: result.attemptsRemaining,
         defaultValue: `Invalid username or password. ${result.attemptsRemaining} attempt(s) remaining before lockout.`,
-      }), { description: lockoutPolicy });
+      }), { description: [lockoutPolicy, detail, logsHint].filter(Boolean).join(' ') });
       return;
     }
 
-    toast.error(t('login.invalidCredentials'), { description: lockoutPolicy });
+    toast.error(
+      detail || t('login.invalidCredentials'),
+      { description: [lockoutPolicy, logsHint].filter(Boolean).join(' ') },
+    );
   };
 
   const handleLoginFailure = (result?: GatewayLoginResponse) => {
@@ -307,6 +349,17 @@ export const Login = () => {
         return await checkLoginLegacy(login, pass, method);
       } catch (err) {
         console.error(err);
+        const message = err instanceof Error ? err.message : String(err);
+        toast.error(t('login.networkError', {
+          defaultValue: 'Login request failed',
+        }), {
+          description: [
+            message,
+            isTauriDesktop()
+              ? tCommon('desktopLogs.loginHint', { defaultValue: 'Open Desktop logs (gateway) for details.' })
+              : null,
+          ].filter(Boolean).join(' — '),
+        });
         denyLogin();
         return false;
       } finally {
@@ -434,6 +487,23 @@ export const Login = () => {
         <div className="relative isolate flex-1 flex justify-center items-center flex-col gap-8 px-4 py-10 overflow-hidden">
           <LoginAurora />
           <h4 className="text-4xl text-neutral-100">{t('login.title')}</h4>
+          <DesktopZoomControls className="text-neutral-100" />
+          {isTauriDesktop() && desktopStatus && (
+            <div className="text-sm text-neutral-300 flex flex-col items-center gap-1">
+              <span>
+                {centralHost
+                  ? `Central terminal: ${centralHost} · Gateway: ${desktopStatus.gatewayReady ? 'up' : 'down'}`
+                  : `Surreal: ${desktopStatus.surrealReady ? 'up' : 'down'} · Gateway: ${desktopStatus.gatewayReady ? 'up' : 'down'}`}
+              </span>
+              <button
+                type="button"
+                className="underline text-neutral-200"
+                onClick={() => navigation(DESKTOP_LOGS)}
+              >
+                {tCommon('desktopLogs.openLink', { defaultValue: 'Open desktop logs' })}
+              </button>
+            </div>
+          )}
           <div className="flex gap-3">
             <button
               type="button"

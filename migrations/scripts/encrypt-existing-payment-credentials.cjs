@@ -53,11 +53,11 @@ if (!DB_USER || !DB_PASS) {
 
 // Load the encryption module from the payments service (same code path the
 // runtime uses — guarantees the ciphertext format matches).
-const cryptoMod = require(path.resolve(
-  __dirname,
-  '..',
-  '..',
-  'payments',
+const paymentsRoot = process.env.PAYMENTS_ROOT
+  ? path.resolve(process.env.PAYMENTS_ROOT)
+  : path.resolve(__dirname, '..', '..', 'payments');
+const cryptoMod = require(path.join(
+  paymentsRoot,
   'src',
   'lib',
   'payment-credential.crypto.js'

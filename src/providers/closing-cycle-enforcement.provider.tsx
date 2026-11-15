@@ -9,6 +9,7 @@ import {
 } from "@/lib/closing.guard.ts";
 import { CLOSING } from "@/routes/posr.ts";
 import {useTranslation} from "react-i18next";
+import { browserReportsOnline } from "@/lib/desktop-connectivity.ts";
 
 const CHECK_INTERVAL_MS = 30_000;
 export const CYCLE_ENDED_TOAST_ID = "closing-cycle-ended";
@@ -54,8 +55,7 @@ export const ClosingCycleEnforcementProvider: React.FC<ClosingCycleEnforcementPr
       try {
         // Prefer PosStore for cycle windows; only hit Surreal when online so
         // day-closing completion can be verified.
-        const online =
-          typeof navigator === "undefined" ? true : navigator.onLine;
+        const online = browserReportsOnline();
         const state = online
           ? await getClosingEnforcementState(dbRef.current)
           : await getClosingEnforcementStateLocal();

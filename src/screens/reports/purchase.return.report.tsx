@@ -15,6 +15,7 @@ import {
   buildRecordInsideCondition,
 } from "@/api/reports/shared/query.ts";
 import {inventoryPrintUrl} from "@/routes/posr.ts";
+import { runtimeDateFormat } from "@/lib/runtime-config.ts";
 
 const safeNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -210,7 +211,7 @@ export const PurchaseReturnReport = () => {
                 ) : (
                   purchaseReturns.flatMap(purchaseReturn => {
                     const date = toLuxonDateTime(purchaseReturn.created_at);
-                    const dateStr = date.toFormat(import.meta.env.VITE_DATE_FORMAT);
+                    const dateStr = date.toFormat(runtimeDateFormat());
                     const locationName = purchaseReturn.location?.name || 'N/A';
                     const createdByName = purchaseReturn.created_by
                       ? `${purchaseReturn.created_by.first_name ?? ''} ${purchaseReturn.created_by.last_name ?? ''}`.trim() || purchaseReturn.created_by.login || 'Unknown'
