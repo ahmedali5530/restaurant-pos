@@ -12,6 +12,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Post-backfill watermarks use each table’s own changefeed tip (not another table’s high-water). A cursor ahead of its tip snaps down instead of clearing and re-uploading every row HQ already has.',
       'Silent-gap detection no longer compares a table to another table’s high-water (that kept re-backfilling order_item_kitchen and starving order). Gaps are confirmed on that table’s own recent feed only.',
+      'When versionstamp SINCE is empty but the tip still has a few newer mutations, Sync applies a datetime catch-up instead of clearing the cursor and SELECT re-backfilling (full re-backfill only if the cursor has been idle over 24 hours).',
     ],
   },
   {

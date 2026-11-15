@@ -729,10 +729,10 @@ class SyncManager {
   }
 
   /**
-   * Surreal returns [] for SHOW CHANGES when the cursor is older than retention
-   * (no error). Detect holes from THIS table's feed only — never from another
-   * table's high-water (that false-triggered endless order_item_kitchen
-   * re-backfills while order starved).
+   * When versionstamp SINCE returns empty, check this table's datetime feed.
+   * Near-tip races used to throw "silent gap" and full SELECT re-backfill
+   * (probeEntries=1..10) — that starved order. Prefer datetime catch-up apply.
+   * Full re-backfill only if the cursor has been idle >24h and the tip is ahead.
    */
   async assertCursorInsideRetention(tableName, cursor) {
     if (cursor == null || cursor === 0 || cursor === '0') return;
@@ -750,9 +750,9 @@ class SyncManager {
 
   /**
    * Walk this table's recent feed to the tip.
-   * - Newer mutations than cursor while SINCE cursor was empty → silent gap → re-backfill.
-   * - Cursor ahead of a fully-walked tip → snap down (no re-backfill).
-   * - Incomplete walks never snap (avoids pulling a healthy cursor backwards).
+   * - Newer mutations while versionstamp SINCE was empty → datetime catch-up
+   *   (or idle-24h re-backfill), never a hair-trigger full SELECT.
+   * - Cursor ahead of a fully-walked tip → snap down.
    */
   async assertRecentFeedAheadOfCursor(tableName, cursor) {
     const lookbacks = [
@@ -781,7 +781,6 @@ class SyncManager {
     }
 
     if (newerCount > 0) {
-      // Race guard: a row may have landed between the empty tail read and this walk.
       const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(cursor)} LIMIT 100;`;
       const result = await withTimeout(
         this.source.query(sql),
@@ -789,11 +788,28 @@ class SyncManager {
         `SHOW CHANGES.recheck(${tableName})`
       );
       const recheck = entriesAfterCursor(normalizeShowChangesResult(result), cursor);
-      if (recheck.length) return;
+      if (recheck.length) {
+        await this.applyChangeEntries(tableName, recheck);
+        return;
+      }
 
-      throw new Error(
-        `changefeed cursor outside retention (silent gap, datetime probe): table=${tableName} cursor=${versionstampForStorage(cursor)} probeEntries=${newerCount}`
-      );
+      const state = this.ensureTableState(tableName);
+      const updatedMs = Date.parse(state.cursorUpdatedAt || '');
+      const idleMs = 24 * 60 * 60 * 1000;
+      if (Number.isFinite(updatedMs) && Date.now() - updatedMs >= idleMs) {
+        throw new Error(
+          `changefeed cursor outside retention (silent gap, idle cursor): table=${tableName} cursor=${versionstampForStorage(cursor)} updatedAt=${state.cursorUpdatedAt} tip=${versionstampForStorage(probeTip)}`
+        );
+      }
+
+      this.logger.warn('Versionstamp SINCE empty but tip ahead; datetime catch-up (no re-backfill)', {
+        table: tableName,
+        cursor: versionstampForStorage(cursor),
+        tip: versionstampForStorage(probeTip),
+        probeEntries: newerCount,
+      });
+      await this.tailTableFromDatetime(tableName, cursor);
+      return;
     }
 
     if (
@@ -811,6 +827,65 @@ class SyncManager {
     }
   }
 
+  /**
+   * Apply SHOW CHANGES using a datetime SINCE when versionstamp SINCE returned
+   * nothing but the live tip is still ahead (Surreal quirk / race).
+   */
+  async tailTableFromDatetime(tableName, cursor) {
+    const lookbacks = [
+      60 * 60 * 1000,
+      24 * 60 * 60 * 1000,
+      7 * 24 * 60 * 60 * 1000,
+    ];
+    let appliedAny = false;
+
+    for (const lookbackMs of lookbacks) {
+      const size = 1000;
+      let since = retentionProbeSinceLiteral(Date.now(), lookbackMs);
+      let lastSeen = null;
+      let caughtUpInWindow = false;
+
+      for (let page = 0; page < 100; page += 1) {
+        const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${size};`;
+        const result = await withTimeout(
+          this.source.query(sql),
+          20000,
+          `SHOW CHANGES.dtCatchUp(${tableName},${page})`
+        );
+        const batch = normalizeShowChangesResult(result);
+        const forward = lastSeen == null
+          ? batch
+          : batch.filter((entry) => entry && compareVersionstamp(entry.versionstamp, lastSeen) > 0);
+        if (!forward.length) {
+          caughtUpInWindow = true;
+          break;
+        }
+
+        const newer = entriesAfterCursor(forward, cursor);
+        if (newer.length) {
+          await this.applyChangeEntries(tableName, newer);
+          appliedAny = true;
+          cursor = this.ensureTableState(tableName).versionstamp;
+        }
+
+        const lastStamp = forward[forward.length - 1] && forward[forward.length - 1].versionstamp;
+        if (lastStamp == null) {
+          caughtUpInWindow = true;
+          break;
+        }
+        lastSeen = lastStamp;
+        since = sinceLiteral(lastStamp);
+        if (forward.length < size) {
+          caughtUpInWindow = true;
+          break;
+        }
+      }
+
+      if (appliedAny && caughtUpInWindow && lookbackMs === lookbacks[0]) break;
+      if (appliedAny && caughtUpInWindow) break;
+    }
+  }
+
   async selectPage(tableName, limit, start) {
     // Table name is allowlisted in config — interpolate safely.
     const result = await withRetry(
@@ -823,45 +898,17 @@ class SyncManager {
     return normalizeSelectPage(result);
   }
 
-  async tailTable(tableName) {
+  async applyChangeEntries(tableName, entries) {
+    if (!entries || !entries.length) return;
     const state = this.ensureTableState(tableName);
-    const since = state.versionstamp != null ? state.versionstamp : 0;
-    const limit = this.config.changeLimit;
-    // SHOW CHANGES does not accept bound parameters for SINCE / LIMIT.
-    const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(since)} LIMIT ${Number(limit) || 100};`;
-
-    let result;
-    try {
-      result = await withRetry(
-        () => this.source.query(sql),
-        { label: `SHOW CHANGES(${tableName})`, timeoutMs: 20000, retries: 3 }
-      );
-    } catch (error) {
-      if (isChangefeedRetentionError(error)) throw error;
-      throw error;
-    }
-
-    const rawEntries = normalizeShowChangesResult(result);
-    for (const entry of rawEntries) {
-      this.noteFeedHighWater(entry && entry.versionstamp);
-    }
-
-    const entries = entriesAfterCursor(rawEntries, since);
-    if (!entries.length) {
-      await this.assertCursorInsideRetention(tableName, since);
-      return;
-    }
-
     const { operations, lastVersionstamp } = compactChangeBatch(entries);
     if (!operations.length) {
-      // Feed advanced with only define_table / noise — still move the cursor.
       if (lastVersionstamp != null) {
         await this.saveCursor(tableName, { versionstamp: lastVersionstamp });
       }
       return;
     }
 
-    // Apply in order; block the table cursor on the first failure.
     let appliedStamp = state.versionstamp;
     for (const op of operations) {
       const recordId = recordIdKey(op.recordId);
@@ -893,13 +940,44 @@ class SyncManager {
       }
     }
 
-    // If the batch ended with noise after the last mutation, catch up to lastVersionstamp.
     if (lastVersionstamp != null) {
       const advanced = nextCursorVersionstamp(state.versionstamp, lastVersionstamp);
       if (advanced !== state.versionstamp) {
         await this.saveCursor(tableName, { versionstamp: advanced });
       }
     }
+  }
+
+  async tailTable(tableName) {
+    const state = this.ensureTableState(tableName);
+    const since = state.versionstamp != null ? state.versionstamp : 0;
+    const limit = this.config.changeLimit;
+    // SHOW CHANGES does not accept bound parameters for SINCE / LIMIT.
+    const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(since)} LIMIT ${Number(limit) || 100};`;
+
+    let result;
+    try {
+      result = await withRetry(
+        () => this.source.query(sql),
+        { label: `SHOW CHANGES(${tableName})`, timeoutMs: 20000, retries: 3 }
+      );
+    } catch (error) {
+      if (isChangefeedRetentionError(error)) throw error;
+      throw error;
+    }
+
+    const rawEntries = normalizeShowChangesResult(result);
+    for (const entry of rawEntries) {
+      this.noteFeedHighWater(entry && entry.versionstamp);
+    }
+
+    const entries = entriesAfterCursor(rawEntries, since);
+    if (!entries.length) {
+      await this.assertCursorInsideRetention(tableName, since);
+      return;
+    }
+
+    await this.applyChangeEntries(tableName, entries);
   }
 
   async applyOperation(tableName, op) {
