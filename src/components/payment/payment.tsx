@@ -27,22 +27,36 @@ import {DiscountType} from "@/api/model/discount.ts";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
+import {QuickCheckout} from "@/components/payment/quick-checkout.tsx";
+import {isRemotePaymentType} from "@/components/orders/payment/remote";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
+import type {PaymentType} from "@/api/model/payment_type.ts";
 import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {
+  resolvePaymentTypeTax,
+  resolveQuickCheckoutPayable,
+} from "@/lib/payment-type-tax.ts";
 import {useAtom} from "jotai";
 import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import {faCancel, faCheck, faCreditCard} from "@fortawesome/free-solid-svg-icons";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {nanoid} from "nanoid";
 
 type PaymentVariant = 'restaurant' | 'quick';
 
 interface PaymentProps {
   variant?: PaymentVariant
 }
+
+const formatPayableAmount = (value: number): string => {
+  const n = Math.round((Number(value) || 0) * 100) / 100;
+  return Number.isFinite(n) ? String(n) : "0";
+};
 
 export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const {t} = useTranslation(["payment", "toast", "menu"]);
@@ -52,6 +66,7 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const {protectAction} = useSecurity();
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const isQuick = variant === 'quick';
 
@@ -61,6 +76,9 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
   const [paymentOrder, setPaymentOrder] = useState<Order>();
+  const [selectedPaymentTypeId, setSelectedPaymentTypeId] = useState<string | null>(null);
+  const [quickAmount, setQuickAmount] = useState("0");
+  const quickAmountTouchedRef = useRef(false);
 
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
@@ -74,6 +92,59 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
   const cartItemCount = useMemo(() => {
     return state.cart.filter(item => !item.deleted_at).length;
+  }, [state.cart]);
+
+  const quickPaymentTypes = useMemo(() => {
+    return (settings.payment_types ?? []).filter((pt) => !pt?.deleted_at);
+  }, [settings.payment_types]);
+
+  const selectedPaymentType = useMemo(() => {
+    if (!selectedPaymentTypeId) {
+      return null;
+    }
+    return (
+      quickPaymentTypes.find((pt) => String(pt.id) === selectedPaymentTypeId) ?? null
+    );
+  }, [quickPaymentTypes, selectedPaymentTypeId]);
+
+  const quickPayable = useMemo(() => {
+    return resolveQuickCheckoutPayable(state.cart, selectedPaymentType);
+  }, [state.cart, selectedPaymentType]);
+
+  // Default to first payment type; keep selection if still in the list.
+  useEffect(() => {
+    if (!isQuick) {
+      return;
+    }
+    if (!quickPaymentTypes.length) {
+      setSelectedPaymentTypeId(null);
+      return;
+    }
+    const stillValid =
+      selectedPaymentTypeId &&
+      quickPaymentTypes.some((pt) => String(pt.id) === selectedPaymentTypeId);
+    if (!stillValid) {
+      setSelectedPaymentTypeId(String(quickPaymentTypes[0].id));
+      quickAmountTouchedRef.current = false;
+    }
+  }, [isQuick, quickPaymentTypes, selectedPaymentTypeId]);
+
+  // Sync amount to payable unless the cashier edited it.
+  useEffect(() => {
+    if (!isQuick) {
+      return;
+    }
+    if (!quickAmountTouchedRef.current) {
+      setQuickAmount(formatPayableAmount(quickPayable));
+    }
+  }, [isQuick, quickPayable]);
+
+  const selectQuickPaymentType = useCallback((paymentType: PaymentType) => {
+    setSelectedPaymentTypeId(String(paymentType.id));
+    quickAmountTouchedRef.current = false;
+    setQuickAmount(
+      formatPayableAmount(resolveQuickCheckoutPayable(state.cart, paymentType)),
+    );
   }, [state.cart]);
 
   // PosStore hydrate first; Surreal FETCH only for orders Dexie has never seen.
@@ -624,6 +695,101 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     }
   }
 
+  const completeQuickCheckout = async () => {
+    if (!isQuick || !selectedPaymentType) {
+      return;
+    }
+    if (state.cart.length === 0 || orderTakingBlocked || isLoading) {
+      return;
+    }
+    if (isRemotePaymentType(selectedPaymentType)) {
+      toast.message(t("payment:quickCheckout.remoteRequiresFull"));
+      await openPayment();
+      return;
+    }
+
+    const amount = Number(quickAmount);
+    const payable = quickPayable;
+    if (!Number.isFinite(amount) || amount <= 0 || amount + 0.0001 < payable) {
+      toast.error(t("payment:quickCheckout.amountTooLow"));
+      return;
+    }
+
+    await protectAction(
+      async () => {
+        if (createInFlightRef.current) {
+          return;
+        }
+        setLoading(true);
+        try {
+          const isExistingOrderOnly =
+            state?.order?.id !== "new" && !hasNewCartItems() && !hasOrderTypeChange();
+
+          let orderId: unknown = state?.order?.id;
+          if (!isExistingOrderOnly) {
+            const result = await createOrder();
+            if (!result || result === "busy") {
+              return;
+            }
+            orderId = result?.id;
+            if (Array.isArray(result) && result[0]?.id) {
+              orderId = result[0].id;
+            }
+            // createOrder clears loading in its finally — keep the strip busy through settle.
+            setLoading(true);
+            createInFlightRef.current = true;
+          } else {
+            createInFlightRef.current = true;
+          }
+
+          if (!orderId || orderId === "new") {
+            throw new Error(t("payment:errors.createOrder"));
+          }
+
+          const tax = resolvePaymentTypeTax(selectedPaymentType);
+          await posStore.settleOrder({
+            orderId: String(orderId),
+            payments: [
+              {
+                id: `order_payment:${nanoid()}`,
+                paymentTypeId: String(selectedPaymentType.id),
+                amount,
+                payable,
+                comments: null,
+              },
+            ],
+            cashierId: page?.user?.id ? String(page.user.id) : null,
+            taxId: tax?.id ? String(tax.id) : null,
+            tip: 0,
+            tipAmount: 0,
+            tipType: DiscountType.Fixed,
+            serviceCharge: 0,
+            serviceChargeAmount: 0,
+            serviceChargeType: DiscountType.Fixed,
+            notes: "",
+            discountAmount: 0,
+          });
+
+          void terminalSyncService.synchronize().catch(() => undefined);
+          quickAmountTouchedRef.current = false;
+          await reset();
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : t("payment:errors.createOrder");
+          console.error(error);
+          toast.error(message);
+        } finally {
+          setLoading(false);
+          createInFlightRef.current = false;
+        }
+      },
+      {
+        module: "orders.complete",
+        description: "Complete quick order",
+      },
+    );
+  };
+
   const cancel = async () => {
     setState(prev => ({
       ...prev,
@@ -654,18 +820,43 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
-          <div className="flex gap-3 mt-3">
-            {!isQuick && (
+          {isQuick ? (
+            <div className="mt-3">
+              <QuickCheckout
+                paymentTypes={quickPaymentTypes}
+                selectedPaymentTypeId={selectedPaymentTypeId}
+                onSelectPaymentType={selectQuickPaymentType}
+                amount={quickAmount}
+                onAmountChange={(value) => {
+                  quickAmountTouchedRef.current = true;
+                  setQuickAmount(value);
+                }}
+                payable={quickPayable}
+                disabled={state.cart.length === 0 || orderTakingBlocked}
+                isLoading={isLoading}
+                onComplete={() => {
+                  void completeQuickCheckout();
+                }}
+                onFullPayment={() => {
+                  void openPayment();
+                }}
+                onCancel={() => {
+                  void cancel();
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex gap-3 mt-3">
               <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
                       disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
                       data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            )}
-            <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
-                    data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
-            <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
-                    disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
-          </div>
+              <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
+                      disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                      data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
+              <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
+                      disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
+            </div>
+          )}
         </div>
       </div>
       {paymentOpen && paymentOrder && (

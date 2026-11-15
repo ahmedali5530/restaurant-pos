@@ -138,5 +138,15 @@
     "payWithCard": "Betalen met kaart",
     "payWithRazorpay": "Betalen met Razorpay"
   },
-  "invoiceAssigning": "Bestelling opgeslagen — factuurnummer wordt nog toegekend…"
+  "invoiceAssigning": "Bestelling opgeslagen — factuurnummer wordt nog toegekend…",
+  "quickCheckout": {
+    "complete": "Afronden",
+    "fullPayment": "Volledige betaling",
+    "amount": "Bedrag",
+    "payable": "Te betalen",
+    "change": "Wisselgeld",
+    "noPaymentTypes": "Geen betaalwijzen geconfigureerd",
+    "remoteRequiresFull": "Deze betaalwijze vereist het volledige betalingsscherm",
+    "amountTooLow": "Het bedrag moet het te betalen totaal dekken"
+  }
 }

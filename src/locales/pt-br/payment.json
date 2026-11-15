@@ -138,5 +138,15 @@
     "payWithCard": "Pagar com cartão",
     "payWithRazorpay": "Pagar com Razorpay"
   },
-  "invoiceAssigning": "Pedido salvo — número da fatura ainda sendo atribuído…"
+  "invoiceAssigning": "Pedido salvo — número da fatura ainda sendo atribuído…",
+  "quickCheckout": {
+    "complete": "Concluir",
+    "fullPayment": "Pagamento completo",
+    "amount": "Valor",
+    "payable": "A pagar",
+    "change": "Troco",
+    "noPaymentTypes": "Nenhum tipo de pagamento configurado",
+    "remoteRequiresFull": "Este tipo de pagamento precisa da tela de pagamento completa",
+    "amountTooLow": "O valor deve cobrir o total a pagar"
+  }
 }

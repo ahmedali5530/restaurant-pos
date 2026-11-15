@@ -7,6 +7,14 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-15',
+    title: 'Quick Order minimal checkout',
+    items: [
+      'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',
+      'Full payment still opens the existing payment screen for split tenders, coupons, tips, and remote gateways.',
+    ],
+  },
+  {
     date: '2026-11-14',
     title: 'AI shows table name and number',
     items: [

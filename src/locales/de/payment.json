@@ -138,5 +138,15 @@
     "payWithCard": "Mit Karte bezahlen",
     "payWithRazorpay": "Mit Razorpay bezahlen"
   },
-  "invoiceAssigning": "Bestellung gespeichert — Rechnungsnummer wird noch vergeben…"
+  "invoiceAssigning": "Bestellung gespeichert — Rechnungsnummer wird noch vergeben…",
+  "quickCheckout": {
+    "complete": "Abschließen",
+    "fullPayment": "Vollständige Zahlung",
+    "amount": "Betrag",
+    "payable": "Zu zahlen",
+    "change": "Wechselgeld",
+    "noPaymentTypes": "Keine Zahlungsarten konfiguriert",
+    "remoteRequiresFull": "Diese Zahlungsart erfordert den vollständigen Zahlungsbildschirm",
+    "amountTooLow": "Der Betrag muss den zu zahlenden Gesamtbetrag decken"
+  }
 }
