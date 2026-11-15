@@ -6,6 +6,7 @@ type QueueExecutor = (job: IntegrationQueueJob) => Promise<void>;
 
 export class IntegrationQueueEngine {
   private readonly retryEngine: RetryEngine;
+  private readonly workListeners = new Set<() => void>();
 
   constructor(
     private readonly store: QueueStore,
@@ -19,6 +20,17 @@ export class IntegrationQueueEngine {
     });
   }
 
+  onWork(listener: () => void): () => void {
+    this.workListeners.add(listener);
+    return () => {
+      this.workListeners.delete(listener);
+    };
+  }
+
+  private emitWork() {
+    for (const listener of this.workListeners) listener();
+  }
+
   async enqueue(input: Omit<IntegrationQueueJob, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'attempts'>) {
     if (input.dedupeKey) {
       const duplicate = await this.store.findByDedupeKey(input.dedupeKey);
@@ -27,6 +39,7 @@ export class IntegrationQueueEngine {
         duplicate &&
         (duplicate.status === 'Pending' || duplicate.status === 'Running' || duplicate.status === 'Waiting')
       ) {
+        this.emitWork();
         return duplicate;
       }
     }
@@ -41,6 +54,7 @@ export class IntegrationQueueEngine {
       updatedAt: now,
     };
     await this.store.save(job);
+    this.emitWork();
     return job;
   }
 

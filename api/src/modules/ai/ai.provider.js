@@ -8,7 +8,7 @@ const { resolveProfile, buildHeaders } = require('./ai.profiles');
  * profile key/URL/model from env. Returns the raw upstream response for the browser.
  * Messages are passed through unchanged (including vision image_url parts).
  */
-async function chatCompletion({ task, messages, tools, response_format }) {
+async function chatCompletion({ task, messages, tools, response_format, reasoning_effort, extra }) {
   const profile = resolveProfile(task);
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -27,6 +27,14 @@ async function chatCompletion({ task, messages, tools, response_format }) {
   if (response_format && typeof response_format === 'object') {
     body.response_format = response_format;
   }
+  // Optional deep-research / reasoning hints for providers that support them
+  // (OpenAI o-series reasoning_effort, some gateways' thinking flags).
+  if (typeof reasoning_effort === 'string' && reasoning_effort.trim()) {
+    body.reasoning_effort = reasoning_effort.trim();
+  }
+  if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
+    Object.assign(body, extra);
+  }
 
   logger.debug('ai', 'forwarding chat completion', {
     task: profile.task || null,
@@ -34,6 +42,7 @@ async function chatCompletion({ task, messages, tools, response_format }) {
     model: profile.model,
     messages: messages.length,
     tools: Array.isArray(tools) ? tools.length : 0,
+    reasoning_effort: body.reasoning_effort || null,
   });
 
   const upstream = await fetch(profile.url, {

@@ -1777,6 +1777,7 @@ export type KitchenReconciliationReportFilters = {
   startDate?: string | null;
   endDate?: string | null;
   locationIds?: string[];
+  itemIds?: string[];
   /** @deprecated ignored — use locationIds */
   kitchenIds?: string[];
   statuses?: KitchenReconciliationStatus[];
@@ -1801,6 +1802,13 @@ export const listKitchenReconciliationsForReport = async (
     conditions.push("status IN $statuses");
     params.statuses = filters.statuses;
   }
+  if (filters.locationIds && filters.locationIds.length > 0) {
+    conditions.push("location INSIDE $locationIds");
+    params.locationIds = filters.locationIds.map((id) =>
+      toQueryRecordId(toFullRecordIdString(id, Tables.inventory_locations) || id, Tables.inventory_locations)
+    );
+  }
+  // kitchenIds is deprecated and intentionally ignored
 
   const [rows] = await db.query(
     `
@@ -1812,34 +1820,28 @@ export const listKitchenReconciliationsForReport = async (
     params
   );
 
-  let reconciliations = unwrapRows<KitchenReconciliation>(rows);
-
-  if (filters.locationIds && filters.locationIds.length > 0) {
-    const locationIdSet = new Set(
-      filters.locationIds.map((id) => toFullRecordIdString(id, Tables.inventory_locations))
-    );
-    reconciliations = reconciliations.filter((reconciliation) => {
-      const locationId = toFullRecordIdString(
-        reconciliation.location,
-        Tables.inventory_locations
-      );
-      return locationIdSet.has(locationId);
-    });
-  }
-  // kitchenIds is deprecated and intentionally ignored
+  const reconciliations = unwrapRows<KitchenReconciliation>(rows);
 
   if (reconciliations.length === 0) return [];
 
   const reconciliationIds = reconciliations.map((reconciliation) =>
     toReconciliationRecordId(reconciliation.id)
   );
+  const itemConditions = ["reconciliation IN $ids"];
+  const itemParams: Record<string, unknown> = {ids: reconciliationIds};
+  if (filters.itemIds && filters.itemIds.length > 0) {
+    itemConditions.push("item INSIDE $itemIds");
+    itemParams.itemIds = filters.itemIds.map((id) =>
+      toInventoryItemRecordId(id)
+    );
+  }
   const [itemRows] = await db.query(
     `
       SELECT * FROM ${Tables.kitchen_reconciliation_items}
-      WHERE reconciliation IN $ids
+      WHERE ${itemConditions.join(" AND ")}
       FETCH item
     `,
-    {ids: reconciliationIds}
+    itemParams
   );
 
   const itemsByReconciliation = new Map<string, KitchenReconciliationItem[]>();
@@ -1851,11 +1853,18 @@ export const listKitchenReconciliationsForReport = async (
     itemsByReconciliation.set(reconciliationId, list);
   });
 
-  return reconciliations.map((reconciliation) => {
+  const mapped = reconciliations.map((reconciliation) => {
     const id = toFullRecordIdString(reconciliation.id, Tables.kitchen_reconciliations);
     return {
       ...reconciliation,
       items: itemsByReconciliation.get(id) ?? [],
     };
   });
+
+  // When item filter is set, drop reconciliations with no matching lines.
+  if (filters.itemIds && filters.itemIds.length > 0) {
+    return mapped.filter((reconciliation) => (reconciliation.items?.length ?? 0) > 0);
+  }
+
+  return mapped;
 };

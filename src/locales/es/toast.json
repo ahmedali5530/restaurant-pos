@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "No se pudo generar el siguiente número de factura",
     "unableGenerateReturnNumber": "No se pudo generar el siguiente número de devolución",
     "unableGeneratePoNumber": "No se pudo generar el siguiente número de OC",
-    "itemsExceedQuantity": "Uno o más artículos superan la cantidad disponible"
+    "itemsExceedQuantity": "Uno o más artículos superan la cantidad disponible",
+    "itemDeactivated": "{{name}} está en uso y se desactivó.",
+    "itemDeleted": "{{name}} eliminado correctamente.",
+    "itemDeleteFailed": "No se pudo eliminar {{name}}."
   },
   "delivery": {
     "settingsSaved": "Configuración de entrega guardada correctamente",

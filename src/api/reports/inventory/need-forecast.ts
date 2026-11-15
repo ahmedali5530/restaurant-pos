@@ -93,7 +93,7 @@ export const forecastInventoryNeed = async (
       code?: string;
       uom?: string;
       reorder_levels?: Record<string, number>;
-    }>(await db.query(`SELECT id, name, code, uom, reorder_levels FROM ${Tables.inventory_items}`)),
+    }>(await db.query(`SELECT id, name, code, uom, reorder_levels FROM ${Tables.inventory_items} WHERE deleted_at = none`)),
     fetchLedgerNetsByStore(db as any),
   ]);
 

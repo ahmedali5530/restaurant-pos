@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importación IA de ingredientes",
     "smartImportModifierGroups": "Importación IA de grupos de modificadores",
     "smartImportMenuStructure": "Importar estructura del menú con IA",
-    "syncDishCosts": "Actualizar costos desde ítems"
+    "syncDishCosts": "Actualizar costos desde ítems",
+    "menuTree": "Árbol del menú"
   },
   "delete": {
     "dish": "Eliminar artículo {{name}}",
@@ -432,7 +433,7 @@
     "printModeText": "Texto (ESC/POS)",
     "printModeRaster": "Ráster (imagen)",
     "paperWidthMm": "Ancho del papel",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Tamaño físico del papel para raster y centrado de imagen (58mm = 384 puntos, 72mm = 512 puntos, 80mm = 576 puntos).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Umbral ráster",
@@ -465,7 +466,17 @@
     "modifierOptionAvailability": "Disponibilidad del modificador (este plato)",
     "modifierOptionAvailable": "Disponible para este plato",
     "modifierOptionAvailableHint": "Deje los valores por defecto para usar la disponibilidad global. Desactive o ponga un límite solo para este plato.",
-    "modifierOptionSaleLimit": "Límite de venta (este plato)"
+    "modifierOptionSaleLimit": "Límite de venta (este plato)",
+    "kraItemClsCd": "Código de clase de artículo KRA",
+    "kraTaxTyCd": "Tipo de impuesto KRA (A–E)",
+    "kraFiscalHint": "Anulaciones opcionales de eTIMS de Kenia. Déjelo en blanco para usar los valores predeterminados del proveedor KRA.",
+    "showOrderType": "Mostrar tipo de pedido",
+    "showCustomer": "Mostrar cliente",
+    "showTableName": "Mostrar nombre de mesa",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostrar total del artículo",
+    "accumulateSameItems": "Acumular artículos iguales",
+    "accumulateSameItemsHint": "Combinar platos idénticos (mismos modificadores y notas) en una línea con cantidad acumulada."
   },
   "dishView": {
     "detailsTitle": "Detalles del plato",
@@ -624,6 +635,7 @@
       "reports.order_fiscal": "Fiscal de pedidos",
       "reports.expense": "Gastos",
       "reports.activity": "Actividad",
+      "reports.changefeed": "Changefeed de tablas",
       "reports.product_mix_weekly": "Mezcla de productos semanal",
       "reports.product_mix_summary": "Resumen de mezcla de productos",
       "reports.products_hourly": "Productos por hora",
@@ -831,7 +843,11 @@
       "reports": "Informes",
       "inventory": "Inventario",
       "settings": "Ajustes",
-      "admin.catalog_publish": "Publicar catálogo"
+      "admin.catalog_publish": "Publicar catálogo",
+      "settings.backup": "Copia de configuración",
+      "settings.restore": "Restaurar configuración",
+      "settings.database": "Copia de base de datos",
+      "settings.customer_display": "Pantalla del cliente"
     }
   },
   "discountEngine": {
@@ -1168,5 +1184,45 @@
     "empty": "No hay platos en esta categoría",
     "available": "Disponible",
     "unavailable": "Agotado"
+  },
+  "menuTree": {
+    "title": "Árbol del menú",
+    "search": "Buscar",
+    "searchPlaceholder": "Filtrar por nombre…",
+    "expandAll": "Expandir todo",
+    "collapseAll": "Contraer todo",
+    "expand": "Expandir",
+    "collapse": "Contraer",
+    "loading": "Cargando árbol del menú…",
+    "empty": "No hay elementos de menú para mostrar.",
+    "uncategorized": "Sin categoría",
+    "required": "Obligatorio",
+    "hidden": "Oculto",
+    "hiddenFromMenu": "Oculto en el menú",
+    "kind": {
+      "category": "Categoría",
+      "dish": "Plato",
+      "modifierGroup": "Grupo de modificadores",
+      "modifier": "Modificador",
+      "uncategorized": "Sin categoría"
+    },
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "fit": "Ajustar a la pantalla",
+    "panHint": "Arrastra para mover · rueda para zoom"
+  },
+  "printers": {
+    "testPrint": "Impresión de prueba",
+    "testPrintAccess": "Impresión de prueba {{name}}",
+    "testPrintOk": "Impreso. El servidor envió el comprobante de prueba a {{name}}{{address}}.",
+    "testPrintError": "Error del servidor de impresión para {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Error desconocido del servidor de impresión",
+    "slip": {
+      "title": "IMPRESION DE PRUEBA",
+      "name": "Nombre",
+      "type": "Tipo",
+      "address": "Dirección",
+      "ok": "Si puede leer esto, la impresora está conectada."
+    }
   }
 }

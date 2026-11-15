@@ -1,8 +1,13 @@
 'use strict';
 
-const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp, wrapReceiptText, STORE_LOGO_BOX_PX } = require('./receipt-helpers');
+const { formatMoney, normalizeConfig, normalizeSections, formatPrintingTimestamp, wrapReceiptText, toPrinterText, STORE_LOGO_BOX_PX } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
 const { computeSummary, formatNum } = require('./summary-mapping');
+
+function qtyBracket(count) {
+  if (count == null) return '';
+  return ` (${formatNum(count)})`;
+}
 
 /**
  * Single-discount header: "Discount (10% Summer Sale)" — value before name.
@@ -168,6 +173,7 @@ function renderBillToHtml(bill, config, opts) {
     title = L.bill || 'Bill',
     address,
     phone,
+    customerName,
     notes,
     thankYou,
     showPayments = false,
@@ -176,6 +182,7 @@ function renderBillToHtml(bill, config, opts) {
   } = opts || {};
 
   const invoiceLabel = L.invoice || 'Invoice#';
+  const customerLabel = L.customer || 'Customer';
   const addressLabel = L.address || 'Address';
   const phoneLabel = L.phone || 'Phone';
   const itemsLabel = L.items || 'Items';
@@ -203,17 +210,35 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(`<div class="center">${escapeHtml(cfg.vatName + ': ' + cfg.vatNumber)}</div>`);
   }
   parts.push(row(`${invoiceLabel} ${bill.orderId || ''}`, bill.date || ''));
-  parts.push(row(bill.table || '', bill.userName || ''));
-  if (address) parts.push(`<div class="row"><span>${escapeHtml(addressLabel)}: ${escapeHtml(String(address).slice(0, 40))}</span></div>`);
-  if (phone) parts.push(`<div class="row"><span>${escapeHtml(phoneLabel)}: ${escapeHtml(String(phone))}</span></div>`);
+  const orderTypeLabel = L.orderType || 'Order Type';
+  const tableLabel = L.table || 'Table';
+  const cashierLabel = L.cashier || 'Cashier';
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  if (tableLeft || orderTypeRight) {
+    parts.push(row(tableLeft, orderTypeRight));
+  }
+  parts.push(row(`${cashierLabel}: ${bill.userName || '-'}`, ''));
   parts.push('<hr/>');
 
-  // Items
+  // Items (wrap long dish names; qty/total on last name line)
   (bill.items || []).forEach((it) => {
-    const name = (it.name || it.title || '').slice(0, 28);
+    const fullName = String(it.name || it.title || '').trim() || '-';
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym)));
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      if (isLast) {
+        parts.push(row(`${nameLine} x${qty}`, formatMoney(lineTotal, sym)));
+      } else {
+        parts.push(`<div class="row"><span>${escapeHtml(nameLine)}</span><span></span></div>`);
+      }
+    });
   });
   parts.push('<hr/>');
 
@@ -238,6 +263,7 @@ function renderBillToHtml(bill, config, opts) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -264,11 +290,27 @@ function renderBillToHtml(bill, config, opts) {
 
   if (notes) {
     parts.push('<hr/>');
-    parts.push(`<div class="row"><span>${escapeHtml(notesLabel)}: ${escapeHtml(String(notes).slice(0, 48))}</span></div>`);
+    wrapReceiptText(`${notesLabel}: ${String(notes)}`, 'normal').forEach((line) => {
+      parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
+    });
   }
   if (thankYou) {
     parts.push(`<div class="center thankyou">${escapeHtml(thankYou)}</div>`);
   }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    parts.push('<hr/>');
+    const pushWrapped = (label, value) => {
+      wrapReceiptText(`${label}: ${String(value)}`, 'normal').forEach((line) => {
+        parts.push(`<div class="row"><span>${escapeHtml(line)}</span></div>`);
+      });
+    };
+    if (customerName) pushWrapped(customerLabel, customerName);
+    if (phone) pushWrapped(phoneLabel, phone);
+    if (address) pushWrapped(addressLabel, address);
+  }
+
   const fiscalHtml = renderFiscalQrToHtml(opts && opts.qrcodes, opts && opts.qrcode);
   if (fiscalHtml) parts.push(fiscalHtml);
   const footerSections = renderSectionsToHtml(cfg.footerSections);
@@ -307,125 +349,197 @@ function renderSummaryToHtml(data, config) {
     timezone: cfg.timezone,
     locale: cfg.locale,
   });
-  const row = (a, b) => `<div class="row"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`;
-  const sect = (t) => `<div class="sect">${escapeHtml(t)}</div>`;
+  const row = (a, b) => `<div class="row"><span>${escapeHtml(toPrinterText(a))}</span><span>${escapeHtml(toPrinterText(b))}</span></div>`;
+  const sect = (t) => `<div class="sect">${escapeHtml(toPrinterText(t))}</div>`;
   const ex = s.exclusiveSales;
-  const titleTemplate = L.summaryTitle || 'Daily sales summary — {{date}}';
-  const title = titleTemplate.replace('{{date}}', s.date);
+  const isProductMix = data && data.variant === 'product_mix';
+  const isMinimal = data && data.variant === 'minimal';
+  const titleTemplate = isProductMix
+    ? (L.productMixTitle || 'Product mix - {{date}}')
+    : (L.summaryTitle || 'Daily sales summary - {{date}}');
+  const title = toPrinterText(titleTemplate.replace('{{date}}', s.date));
+  const windowRangeLine = s.windowRange
+    ? toPrinterText((L.windowRange || 'Period: {{range}}').replace('{{range}}', String(s.windowRange)))
+    : '';
 
   const parts = [];
   const brandingHeader = renderBrandingHeader(cfg);
   if (brandingHeader) parts.push(brandingHeader);
   parts.push(`<div class="title">${escapeHtml(title)}</div>`);
+  if (windowRangeLine) {
+    parts.push(`<div class="center muted">${escapeHtml(windowRangeLine)}</div>`);
+  }
+  const salesTitle = isMinimal
+    ? (L.minimalSalesRevenue || '1. Sales revenue')
+    : (L.salesRevenue || '1. Sales revenue');
+  const surchargesTitle = isMinimal
+    ? (L.minimalSurchargesTaxes || '2. Surcharges and taxes')
+    : (L.surchargesTaxes || '2. Surcharges and taxes');
+  const settlementTitle = isMinimal
+    ? (L.minimalSettlementCashier || '3. Settlement and cashier')
+    : (L.settlementCashier || '3. Settlement and cashier');
+  const opsTitle = isMinimal
+    ? (L.minimalOperationalControls || '4. Operational controls')
+    : (L.operationalControls || '4. Operational controls');
+  const paymentsTitle = isMinimal
+    ? (L.minimalPaymentTypes || '5. Payment types')
+    : (L.paymentTypes || '8. Payment types');
+
+  const pushTaxesBreakdown = () => {
+    if (!s.taxesList || s.taxesList.length === 0) {
+      parts.push(`<p class="muted">${escapeHtml(L.noTaxRows || 'No tax rows for this date.')}</p>`);
+      return;
+    }
+    s.taxesList.forEach((tax) => {
+      const p = formatNum(pct(tax.total, s.taxCollected)) + '%';
+      parts.push(row(`${tax.name}%${qtyBracket(tax.count)}`, `${formatMoney(tax.total, sym)}  ${p}`));
+    });
+  };
+
+  const pushPaymentTypes = () => {
+    if (!s.paymentTypes || s.paymentTypes.length === 0) {
+      parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noPaymentData || 'No payment data for this date.'))}</p>`);
+      return;
+    }
+    s.paymentTypes.forEach((payment) => {
+      const p = formatNum(pct(payment.total, s.grandTotalDue)) + '%';
+      parts.push(row(`${payment.name}${qtyBracket(payment.count)}`, `${formatMoney(payment.total, sym)}  ${p}`));
+    });
+  };
+
+  const pushProductMix = () => {
+    parts.push(
+      `<div class="row4"><span>${escapeHtml(toPrinterText(L.item || 'Item'))}</span><span>${escapeHtml(toPrinterText(L.qty || 'Qty'))}</span><span>${escapeHtml(toPrinterText(L.total || 'Total'))}</span><span>Share</span></div>`
+    );
+    if (!s.categoryMix || s.categoryMix.length === 0) {
+      parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noCategoryData || 'No category data for this date.'))}</p>`);
+      return;
+    }
+    const dishIndentPx = 12;
+    s.categoryMix.forEach((category) => {
+      const catShare = formatNum(pct(category.total, ex)) + '%';
+      parts.push(
+        `<div class="row4 bold"><span>${escapeHtml(toPrinterText(String(category.name)))}</span><span>${formatNum(category.quantity)}</span><span>${escapeHtml(formatMoney(category.total, sym))}</span><span>${escapeHtml(catShare)}</span></div>`
+      );
+      (category.dishes || []).forEach((dish) => {
+        const dishShare = formatNum(pct(dish.total, ex)) + '%';
+        parts.push(
+          `<div class="row4"><span style="padding-left:${dishIndentPx}px">${escapeHtml(toPrinterText(String(dish.name)))}</span><span>${formatNum(dish.quantity)}</span><span>${escapeHtml(formatMoney(dish.total, sym))}</span><span>${escapeHtml(dishShare)}</span></div>`
+        );
+        (dish.modifiers || []).forEach((modifier) => {
+          const depth = Number.isFinite(Number(modifier.depth)) ? Math.max(1, Number(modifier.depth)) : 1;
+          const pl = dishIndentPx + depth * 12;
+          const modTotal = Number(modifier.price || 0) * Number(modifier.quantity || 0);
+          const modShare = formatNum(pct(modTotal, ex)) + '%';
+          parts.push(
+            `<div class="row4 mod"><span style="padding-left:${pl}px">- ${escapeHtml(toPrinterText(String(modifier.name || '')))}</span><span>${formatNum(modifier.quantity)}</span><span>${formatNum(modifier.price)}</span><span>${escapeHtml(modShare)}</span></div>`
+          );
+        });
+      });
+    });
+  };
+
+  if (isProductMix) {
+    parts.push('<hr/>');
+    pushProductMix();
+  } else {
   parts.push('<hr/>');
-  parts.push(sect(L.salesRevenue || '1. Sales revenue'));
+  parts.push(sect(salesTitle));
   parts.push(row(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym)));
   parts.push(row(L.extras || 'Extras', formatMoney(s.totalExtras, sym)));
   parts.push(row(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym)));
   parts.push(row(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym)));
   parts.push(row(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym)));
   parts.push(row(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym)));
-  parts.push(row(L.discountsMinus || '(−) Discounts', formatMoney(s.discounts, sym)));
+  parts.push(row(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym)));
   parts.push(row(L.netSales || 'Net sales', formatMoney(s.netSales, sym)));
   parts.push('<hr/>');
-  parts.push(sect(L.surchargesTaxes || '2. Surcharges and taxes'));
+  parts.push(sect(surchargesTitle));
   parts.push(row(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym)));
   parts.push(row(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym)));
-  parts.push(`<div class="row bold"><span>${escapeHtml(L.totalRevenue || 'Total revenue')}</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(toPrinterText(L.totalRevenue || 'Total revenue'))}</span><span>${escapeHtml(formatMoney(s.totalRevenue, sym))}</span></div>`);
+  if (isMinimal) {
+    pushTaxesBreakdown();
+  }
   parts.push('<hr/>');
-  parts.push(sect(L.settlementCashier || '3. Settlement and cashier'));
+  parts.push(sect(settlementTitle));
   parts.push(row(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym)));
   parts.push(row(L.tips || 'Tips', formatMoney(s.tips, sym)));
-  parts.push(`<div class="row bold"><span>${escapeHtml(L.grandTotalDue || 'Grand total (due)')}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
+  parts.push(`<div class="row bold"><span>${escapeHtml(toPrinterText(L.grandTotalDue || 'Grand total (due)'))}</span><span>${escapeHtml(formatMoney(s.grandTotalDue, sym))}</span></div>`);
   parts.push(row(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym)));
   parts.push(row(L.rounding || 'Rounding', formatMoney(s.rounding, sym)));
   parts.push(row(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym)));
   parts.push('<hr/>');
-  parts.push(sect(L.operationalControls || '4. Operational controls'));
+  parts.push(sect(opsTitle));
   parts.push(row(L.voids || 'Voids', formatMoney(s.voids, sym)));
   parts.push(row(L.refunds || 'Refunds', formatMoney(s.refunds, sym)));
-  parts.push(row(L.covers || 'Covers', formatNum(s.covers)));
-  parts.push(row(L.averageCover || 'Average cover', formatMoney(s.averageCover, sym)));
-  parts.push(row(L.ordersChecks || 'Orders / checks', formatNum(s.ordersCount)));
-  parts.push(row(L.averageOrderCheck || 'Average order / check', formatMoney(s.averageOrderCheck, sym)));
+  parts.push(row(L.covers || 'Covers', `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`));
+  parts.push(row(L.ordersChecks || 'Orders / checks', `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`));
+  if (isMinimal) {
+    parts.push('<hr/>');
+    parts.push(sect(paymentsTitle));
+    pushPaymentTypes();
+  } else {
   parts.push('<hr/>');
   parts.push(sect(L.productMix || '5. Product mix'));
-  parts.push(
-    `<div class="row4"><span>${escapeHtml(L.item || 'Item')}</span><span>${escapeHtml(L.qty || 'Qty')}</span><span>${escapeHtml(L.total || 'Total')}</span><span>Share</span></div>`
-  );
-  if (!s.categoryMix || s.categoryMix.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noCategoryData || 'No category data for this date.')}</p>`);
+  pushProductMix();
+  parts.push('<hr/>');
+  parts.push(sect(L.orderTypes || '6. Sale by order type'));
+  if (!s.orderTypes || s.orderTypes.length === 0) {
+    parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noOrderTypes || 'No order type data for this date.'))}</p>`);
   } else {
-    s.categoryMix.forEach((category) => {
-      const catShare = formatNum(pct(category.total, ex)) + '%';
-      parts.push(
-        `<div class="row4 boldish"><span>${escapeHtml(String(category.name))}</span><span>${formatNum(category.quantity)}</span><span>${escapeHtml(formatMoney(category.total, sym))}</span><span>${escapeHtml(catShare)}</span></div>`
-      );
-      (category.dishes || []).forEach((dish) => {
-        const dishShare = formatNum(pct(dish.total, ex)) + '%';
-        parts.push(
-          `<div class="row4"><span class="pl">${escapeHtml(String(dish.name))}</span><span>${formatNum(dish.quantity)}</span><span>${escapeHtml(formatMoney(dish.total, sym))}</span><span>${escapeHtml(dishShare)}</span></div>`
-        );
-        (dish.modifiers || []).forEach((modifier) => {
-          const depth = Number.isFinite(Number(modifier.depth)) ? Number(modifier.depth) : 1;
-          const pl = Math.min(48, 8 + depth * 12);
-          parts.push(
-            `<div class="row4 mod"><span style="padding-left:${pl}px">- ${escapeHtml(String(modifier.name))}</span><span>${formatNum(modifier.quantity)}</span><span>${formatNum(modifier.price)}</span><span></span></div>`
-          );
-        });
-      });
+    s.orderTypes.forEach((entry) => {
+      parts.push(row(`${entry.name}${qtyBracket(entry.ordersCount)}`, formatMoney(entry.total, sym)));
     });
   }
   parts.push('<hr/>');
-  parts.push(sect(L.paymentTypes || '6. Payment types'));
-  if (!s.paymentTypes || s.paymentTypes.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noPaymentData || 'No payment data for this date.')}</p>`);
+  parts.push(sect(L.orderTakers || '7. Sale by order taker'));
+  if (!s.orderTakers || s.orderTakers.length === 0) {
+    parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noOrderTakers || 'No order taker data for this date.'))}</p>`);
   } else {
-    s.paymentTypes.forEach((payment) => {
-      const p = formatNum(pct(payment.total, s.amountDue)) + '%';
-      parts.push(
-        row(payment.name, `${formatMoney(payment.total, sym)}  ${p}`)
-      );
+    s.orderTakers.forEach((entry) => {
+      parts.push(row(`${entry.name}${qtyBracket(entry.ordersCount)}`, formatMoney(entry.total, sym)));
     });
   }
   parts.push('<hr/>');
-  parts.push(sect(L.taxesBreakdown || '7. Taxes breakdown'));
-  if (!s.taxesList || s.taxesList.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noTaxRows || 'No tax rows for this date.')}</p>`);
-  } else {
-    s.taxesList.forEach((tax) => {
-      const p = formatNum(pct(tax.total, s.taxCollected)) + '%';
-      parts.push(row(`${tax.name}%`, `${formatMoney(tax.total, sym)}  ${p}`));
-    });
-  }
+  parts.push(sect(L.paymentTypes || '8. Payment types'));
+  pushPaymentTypes();
   parts.push('<hr/>');
-  parts.push(sect(L.discountsBreakdown || '8. Discounts breakdown'));
+  parts.push(sect(L.taxesBreakdown || '9. Taxes breakdown'));
+  pushTaxesBreakdown();
+  parts.push('<hr/>');
+  parts.push(sect(L.discountsBreakdown || '10. Discounts breakdown'));
   if (!s.discountsList || s.discountsList.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noDiscountRows || 'No discount rows for this date.')}</p>`);
+    parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noDiscountRows || 'No discount rows for this date.'))}</p>`);
   } else {
     s.discountsList.forEach((discount) => {
       const p = formatNum(pct(discount.total, s.discounts)) + '%';
-      parts.push(row(discount.name, `${formatMoney(discount.total, sym)}  ${p}`));
+      parts.push(row(`${discount.name}${qtyBracket(discount.count)}`, `${formatMoney(discount.total, sym)}  ${p}`));
     });
   }
   parts.push('<hr/>');
-  parts.push(sect(L.extrasBreakdown || '9. Extras breakdown'));
+  parts.push(sect(L.tipsBreakdown || '11. Tips'));
+  parts.push(row(`${L.tips || 'Tips'}${qtyBracket(s.tipsCount || 0)}`, formatMoney(s.tips, sym)));
+  parts.push('<hr/>');
+  parts.push(sect(L.extrasBreakdown || '12. Extras breakdown'));
   if (!s.extrasList || s.extrasList.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noExtras || 'No extras found for this date.')}</p>`);
+    parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noExtras || 'No extras found for this date.'))}</p>`);
   } else {
     s.extrasList.forEach((extra) => {
       const p = formatNum(pct(extra.total, s.totalExtras)) + '%';
-      parts.push(row(extra.name, `${formatMoney(extra.total, sym)}  ${p}`));
+      parts.push(row(`${extra.name}${qtyBracket(extra.count)}`, `${formatMoney(extra.total, sym)}  ${p}`));
     });
   }
   parts.push('<hr/>');
-  parts.push(sect(L.couponsBreakdown || '10. Coupons breakdown'));
+  parts.push(sect(L.couponsBreakdown || '13. Coupons breakdown'));
   if (!s.couponsList || s.couponsList.length === 0) {
-    parts.push(`<p class="muted">${escapeHtml(L.noCoupons || 'No coupon usage for this date.')}</p>`);
+    parts.push(`<p class="muted">${escapeHtml(toPrinterText(L.noCoupons || 'No coupon usage for this date.'))}</p>`);
   } else {
     s.couponsList.forEach((coupon) => {
-      parts.push(row(coupon.name, formatMoney(coupon.total, sym)));
+      parts.push(row(`${coupon.name}${qtyBracket(coupon.count)}`, formatMoney(coupon.total, sym)));
     });
+  }
+  }
   }
   if (cfg.showVatNumber && cfg.vatNumber) {
     parts.push('<hr/>');
@@ -502,10 +616,12 @@ function renderKitchenToHtml(data, config) {
   if (orderBannerLine) {
     parts.push(`<div class="center bold">${escapeHtml(orderBannerLine)}</div>`);
   }
-  if (table || orderType) {
+  const showOrderType = cfg.showOrderType !== false;
+  const showTableName = cfg.showTableName !== false;
+  if ((showTableName && table) || (showOrderType && orderType)) {
     parts.push(
-      `<div class="row"><span>${table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
-        `<span>${orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
+      `<div class="row"><span>${showTableName && table ? `Table: ${escapeHtml(table)}` : ''}</span>` +
+        `<span>${showOrderType && orderType ? `Order Type: ${escapeHtml(orderType)}` : ''}</span></div>`
     );
   }
   if (orderTaker || createdAt) {
@@ -517,10 +633,20 @@ function renderKitchenToHtml(data, config) {
   parts.push('<hr/>');
   items.forEach((it) => {
     const dish = it.item || it.dish || {};
-    const name = (dish.name || dish.title || '').slice(0, 28);
+    const fullName = String(dish.name || dish.title || '').trim() || '-';
     const qty = it.quantity != null ? it.quantity : 1;
-    parts.push(`<div class="row"><span>${escapeHtml(name)} x${qty}</span></div>`);
-    if (it.comments) parts.push(`<div class="indent">>> ${escapeHtml(String(it.comments).slice(0, 26))}</div>`);
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      parts.push(
+        `<div class="row"><span>${escapeHtml(nameLine)}${isLast ? ` x${qty}` : ''}</span></div>`,
+      );
+    });
+    if (it.comments) {
+      wrapReceiptText(`>> ${String(it.comments)}`, 'normal').forEach((line) => {
+        parts.push(`<div class="indent">${escapeHtml(line)}</div>`);
+      });
+    }
   });
   parts.push(`<div class="center" style="margin-top:8px">${escapeHtml(formatPrintingTimestamp(cfg))}</div>`);
   return `<!DOCTYPE html>
@@ -586,10 +712,18 @@ function renderRefundToHtml(data, config) {
   parts.push(row(`${refundDateLabel}: ${bill.refundDate || ''}`, ''));
   parts.push('<hr/>');
   (bill.items || []).forEach((it) => {
-    const name = (it.name || it.title || '').slice(0, 28);
+    const fullName = String(it.name || it.title || '').trim() || '-';
     const qty = it.qty != null ? it.qty : 1;
     const lineTotal = it.total != null ? Number(it.total) : (it.price || 0) * qty;
-    parts.push(row(`${name} x${qty}`, formatMoney(lineTotal, sym)));
+    const nameLines = wrapReceiptText(fullName, 'normal', 28);
+    nameLines.forEach((nameLine, index) => {
+      const isLast = index === nameLines.length - 1;
+      if (isLast) {
+        parts.push(row(`${nameLine} x${qty}`, formatMoney(lineTotal, sym)));
+      } else {
+        parts.push(`<div class="row"><span>${escapeHtml(nameLine)}</span><span></span></div>`);
+      }
+    });
   });
   parts.push('<hr/>');
   parts.push(row(`${itemsLabel} (${bill.itemsCount || 0})`, formatMoney(bill.itemsTotal, sym)));
@@ -603,6 +737,7 @@ function renderRefundToHtml(data, config) {
     parts.push(row(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym)));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     parts.push(row(e.name || extraLabel, formatMoney(e.value, sym)));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -649,6 +784,9 @@ function renderPreview(printType, data, config) {
     });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
+      customerName: bill.customerName || undefined,
+      phone: bill.phone || undefined,
+      address: bill.address || undefined,
       notes: bill.note || undefined,
       showPayments: false,
       showChange: false,
@@ -670,6 +808,9 @@ function renderPreview(printType, data, config) {
     });
     return renderBillToHtml(bill, cfg, {
       title: bill.title,
+      customerName: bill.customerName || undefined,
+      phone: bill.phone || undefined,
+      address: bill.address || undefined,
       thankYou: bill.thankYou,
       showPayments: true,
       showChange: true,

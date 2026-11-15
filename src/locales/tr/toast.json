@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Sonraki fatura numarası oluşturulamadı",
     "unableGenerateReturnNumber": "Sonraki iade numarası oluşturulamadı",
     "unableGeneratePoNumber": "Sonraki PO numarası oluşturulamadı",
-    "itemsExceedQuantity": "Bir veya daha fazla ürün mevcut miktarı aşıyor"
+    "itemsExceedQuantity": "Bir veya daha fazla ürün mevcut miktarı aşıyor",
+    "itemDeactivated": "{{name}} kullanımda ve pasifleştirildi.",
+    "itemDeleted": "{{name}} başarıyla silindi.",
+    "itemDeleteFailed": "{{name}} silinemedi."
   },
   "delivery": {
     "settingsSaved": "Teslimat ayarları başarıyla kaydedildi",

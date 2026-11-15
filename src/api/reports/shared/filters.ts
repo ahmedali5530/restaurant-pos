@@ -2,9 +2,53 @@ import {DateTime} from "luxon";
 import {getAppTimezone} from "@/lib/datetime.ts";
 import type {BranchScopeParams, BranchView} from "@/api/reports/shared/branch-scope.ts";
 import type {DateRangeFilter} from "@/api/reports/shared/types.ts";
+import type {ClosingCycleConfig} from "@/lib/closing-cycle.ts";
+import {isClosingCycleEnabled} from "@/lib/closing-cycle.ts";
+import {formatReportRangeForQuery} from "@/lib/kitchen/business-date.ts";
 
 /** Luxon format for query parameter values (matches report date pickers). */
 const QUERY_DATE_TIME_FORMAT = import.meta.env.VITE_DATE_TIME_FORMAT as string;
+
+/** Short-lived closing-cycle cache so AI phrase → window stays consistent across tools. */
+let aiClosingCycleCache: {config: ClosingCycleConfig | null; at: number} | null = null;
+const AI_CLOSING_CYCLE_CACHE_MS = 60_000;
+
+/** Load (and cache) closing-cycle config for AI date resolution / prompts. */
+export const ensureAiClosingCycleConfig = async (): Promise<ClosingCycleConfig | null> => {
+  if (aiClosingCycleCache && Date.now() - aiClosingCycleCache.at < AI_CLOSING_CYCLE_CACHE_MS) {
+    return aiClosingCycleCache.config;
+  }
+  try {
+    const {loadClosingCycleConfigFromCatalog} = await import("@/lib/closing-cycle.ts");
+    const {config} = await loadClosingCycleConfigFromCatalog();
+    aiClosingCycleCache = {config, at: Date.now()};
+    return config;
+  } catch {
+    aiClosingCycleCache = {config: null, at: Date.now()};
+    return null;
+  }
+};
+
+export const getCachedAiClosingCycleConfig = (): ClosingCycleConfig | null =>
+  aiClosingCycleCache?.config ?? null;
+
+/** Test helper — clear AI closing-cycle cache. */
+export const resetAiClosingCycleConfigCache = (): void => {
+  aiClosingCycleCache = null;
+};
+
+const rangeForDays = (
+  config: ClosingCycleConfig | null | undefined,
+  start: DateTime,
+  end: DateTime,
+): DateRangeFilter => {
+  const {startDate, endDate} = formatReportRangeForQuery(
+    config,
+    start.toFormat("yyyy-MM-dd"),
+    end.toFormat("yyyy-MM-dd"),
+  );
+  return {startDate, endDate};
+};
 
 export const parseMultiFilter = (params: URLSearchParams, name: string): string[] => {
   return [
@@ -31,16 +75,35 @@ export const formatDateTimeForQuery = (dt: DateTime) => dt.toFormat(QUERY_DATE_T
 
 const getNow = () => DateTime.now().setZone(getAppTimezone());
 
+const formatCycleClock = (config: ClosingCycleConfig): string => {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(config.startHour)}:${pad(config.startMinute)}-${pad(config.endHour)}:${pad(config.endMinute)}`;
+};
+
 /** Human-readable anchor date for AI system prompts. */
-export const getBusinessDateContext = (): string => {
+export const getBusinessDateContext = (
+  closingCycleConfig: ClosingCycleConfig | null = getCachedAiClosingCycleConfig(),
+): string => {
   const now = getNow();
   const dateFormat = import.meta.env.VITE_DATE_FORMAT as string;
 
-  return [
+  const parts = [
     `Today is ${now.toFormat("cccc, MMMM d, yyyy")} (${now.toFormat(dateFormat)})`,
     `current month is ${now.toFormat("MMMM yyyy")}`,
     `current year is ${now.year}`,
-  ].join("; ");
+  ];
+
+  if (closingCycleConfig && isClosingCycleEnabled(closingCycleConfig)) {
+    const todayWindow = rangeForDays(closingCycleConfig, now, now);
+    parts.push(
+      `closing cycle is enabled (${formatCycleClock(closingCycleConfig)}); "today" means ${todayWindow.startDate} → ${todayWindow.endDate} (not midnight-midnight)`,
+    );
+    parts.push(
+      'prefer phrase="today"/"yesterday"/… or resolve_date_range so tools use the closing-cycle window — do not invent calendar midnight dates',
+    );
+  }
+
+  return parts.join("; ");
 };
 
 /** Normalize a date string from AI or user input into the query parameter format. */
@@ -69,83 +132,62 @@ export const normalizeQueryDate = (value: string): string => {
   throw new Error(`Could not parse date: "${value}". Expected format like ${QUERY_DATE_TIME_FORMAT}.`);
 };
 
-export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFilter => {
+export const resolveNaturalDateRange = ({
+  phrase,
+  closingCycleConfig,
+}: {
+  phrase: string;
+  closingCycleConfig?: ClosingCycleConfig | null;
+}): DateRangeFilter => {
   const normalized = phrase.trim().toLowerCase();
   const now = getNow();
+  // Explicit null disables cycle; undefined falls back to the AI cache (warmed by ensureAiClosingCycleConfig).
+  const cfg =
+    closingCycleConfig === undefined ? getCachedAiClosingCycleConfig() : closingCycleConfig;
 
   if (normalized === "today" || normalized.includes("today")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now, now);
   }
 
   if (normalized === "yesterday" || normalized.includes("yesterday")) {
     const day = now.minus({days: 1});
-    return {
-      startDate: formatDateTimeForQuery(day.startOf("day")),
-      endDate: formatDateTimeForQuery(day.endOf("day")),
-    };
+    return rangeForDays(cfg, day, day);
   }
 
   if (normalized === "this week" || normalized.includes("this week")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("week")),
-      endDate: formatDateTimeForQuery(now.endOf("week")),
-    };
+    return rangeForDays(cfg, now.startOf("week"), now.endOf("week"));
   }
 
   if (normalized === "last week" || normalized.includes("last week")) {
     const week = now.minus({weeks: 1});
-    return {
-      startDate: formatDateTimeForQuery(week.startOf("week")),
-      endDate: formatDateTimeForQuery(week.endOf("week")),
-    };
+    return rangeForDays(cfg, week.startOf("week"), week.endOf("week"));
   }
 
   if (normalized === "this month" || normalized.includes("this month")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("month")),
-      endDate: formatDateTimeForQuery(now.endOf("month")),
-    };
+    return rangeForDays(cfg, now.startOf("month"), now.endOf("month"));
   }
 
   if (normalized === "last month" || normalized.includes("last month")) {
     const month = now.minus({months: 1});
-    return {
-      startDate: formatDateTimeForQuery(month.startOf("month")),
-      endDate: formatDateTimeForQuery(month.endOf("month")),
-    };
+    return rangeForDays(cfg, month.startOf("month"), month.endOf("month"));
   }
 
   if (normalized === "this year" || normalized.includes("this year")) {
-    return {
-      startDate: formatDateTimeForQuery(now.startOf("year")),
-      endDate: formatDateTimeForQuery(now.endOf("year")),
-    };
+    return rangeForDays(cfg, now.startOf("year"), now.endOf("year"));
   }
 
   if (normalized === "last 7 days" || normalized.includes("last 7 days") || normalized.includes("past 7 days")) {
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: 6}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: 6}), now);
   }
 
   if (normalized === "last 30 days" || normalized.includes("last 30 days") || normalized.includes("past 30 days")) {
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: 29}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: 29}), now);
   }
 
   const lastDaysMatch = normalized.match(/(?:last|past)\s+(\d+)\s+days?/);
   if (lastDaysMatch) {
     const days = Math.max(1, Number(lastDaysMatch[1]));
-    return {
-      startDate: formatDateTimeForQuery(now.minus({days: days - 1}).startOf("day")),
-      endDate: formatDateTimeForQuery(now.endOf("day")),
-    };
+    return rangeForDays(cfg, now.minus({days: days - 1}), now);
   }
 
   const quarterMatch = normalized.match(/q([1-4])\s*(\d{4})?/);
@@ -154,13 +196,10 @@ export const resolveNaturalDateRange = ({phrase}: {phrase: string}): DateRangeFi
     const year = quarterMatch[2] ? Number(quarterMatch[2]) : now.year;
     const startMonth = (quarter - 1) * 3 + 1;
     const start = DateTime.fromObject({year, month: startMonth, day: 1}, {zone: getAppTimezone()});
-    return {
-      startDate: formatDateTimeForQuery(start.startOf("month")),
-      endDate: formatDateTimeForQuery(start.plus({months: 2}).endOf("month")),
-    };
+    return rangeForDays(cfg, start.startOf("month"), start.plus({months: 2}).endOf("month"));
   }
 
-  const weekdayRange = resolveWeekdayPhrase(normalized, now);
+  const weekdayRange = resolveWeekdayPhrase(normalized, now, cfg);
   if (weekdayRange) {
     return weekdayRange;
   }
@@ -188,7 +227,11 @@ const WEEKDAY_NAMES: Record<string, number> = {
   sun: 7,
 };
 
-const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilter | null => {
+const resolveWeekdayPhrase = (
+  normalized: string,
+  now: DateTime,
+  config: ClosingCycleConfig | null | undefined,
+): DateRangeFilter | null => {
   const match = normalized.match(/\b(last|this)\s+(monday|mon|tuesday|tue|tues|wednesday|wed|thursday|thu|thur|thurs|friday|fri|saturday|sat|sunday|sun)\b/);
   if (!match) {
     return null;
@@ -204,10 +247,7 @@ const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilte
     const daysBack = (now.weekday - weekday + 7) % 7;
     const offset = daysBack === 0 ? 7 : daysBack;
     const target = now.minus({days: offset});
-    return {
-      startDate: formatDateTimeForQuery(target.startOf("day")),
-      endDate: formatDateTimeForQuery(target.endOf("day")),
-    };
+    return rangeForDays(config, target, target);
   }
 
   const startOfWeek = now.startOf("week");
@@ -215,10 +255,7 @@ const resolveWeekdayPhrase = (normalized: string, now: DateTime): DateRangeFilte
   if (target > now.endOf("day")) {
     target = target.minus({weeks: 1});
   }
-  return {
-    startDate: formatDateTimeForQuery(target.startOf("day")),
-    endDate: formatDateTimeForQuery(target.endOf("day")),
-  };
+  return rangeForDays(config, target, target);
 };
 
 /** Default peak dining hours in business timezone (7 PM – 9 PM). */
@@ -258,6 +295,7 @@ export const parseHourRangeFromPhrase = (
 /** Merge explicit dates with an optional natural-language phrase when dates are omitted. */
 export const parseDateRangeWithPhrase = (
   args: {startDate?: unknown; endDate?: unknown; phrase?: unknown},
+  closingCycleConfig?: ClosingCycleConfig | null,
 ): DateRangeFilter => {
   const hasStart = args.startDate !== undefined && args.startDate !== null && String(args.startDate).trim() !== "";
   const hasEnd = args.endDate !== undefined && args.endDate !== null && String(args.endDate).trim() !== "";
@@ -274,8 +312,22 @@ export const parseDateRangeWithPhrase = (
   }
 
   if (args.phrase) {
-    return resolveNaturalDateRange({phrase: String(args.phrase)});
+    return resolveNaturalDateRange({
+      phrase: String(args.phrase),
+      closingCycleConfig,
+    });
   }
 
   return {};
+};
+
+/**
+ * Same as parseDateRangeWithPhrase, but warms the closing-cycle cache first so
+ * "today"/relative phrases map to the restaurant business window.
+ */
+export const parseAiDateRange = async (
+  args: {startDate?: unknown; endDate?: unknown; phrase?: unknown},
+): Promise<DateRangeFilter> => {
+  const closingCycleConfig = await ensureAiClosingCycleConfig();
+  return parseDateRangeWithPhrase(args, closingCycleConfig);
 };

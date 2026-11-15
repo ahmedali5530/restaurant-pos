@@ -1,15 +1,37 @@
 import {DateRangePicker} from "@/components/common/antd/date.range.picker.tsx";
-import {useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import { useTranslation } from 'react-i18next';
 import {DateTime} from "luxon";
-import { Dayjs } from "dayjs";
+import type {Dayjs} from "dayjs";
 import {getAppTimezone} from "@/lib/datetime.ts";
+import {
+  type ClosingCycleConfig,
+  loadClosingCycleConfigFromCatalog,
+} from "@/lib/closing-cycle.ts";
+import {formatReportRangeForQuery} from "@/lib/kitchen/business-date.ts";
 
 interface DateRangeProps {
   startName?: string;
   endName?: string;
   label?: string;
   isRequired?: boolean;
+}
+
+function businessDateKey(dt: DateTime): string {
+  return dt.toFormat("yyyy-MM-dd");
+}
+
+function buildPresetRange(
+  config: ClosingCycleConfig | null,
+  startDay: DateTime,
+  endDay: DateTime,
+): [string, string] {
+  const {startDate, endDate} = formatReportRangeForQuery(
+    config,
+    businessDateKey(startDay),
+    businessDateKey(endDay),
+  );
+  return [startDate, endDate];
 }
 
 export function DateRange({
@@ -19,25 +41,66 @@ export function DateRange({
   isRequired = false,
 }: DateRangeProps) {
   const { t } = useTranslation('reports');
+  const [cycleConfig, setCycleConfig] = useState<ClosingCycleConfig | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadClosingCycleConfigFromCatalog()
+      .then(({config}) => {
+        if (!cancelled) setCycleConfig(config);
+      })
+      .catch(() => {
+        if (!cancelled) setCycleConfig(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const now = () => DateTime.now().setZone(getAppTimezone());
-  const todayStart = now().startOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT);
-  const todayEnd = now().endOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT);
-  const dates = {
-    "Today": `${todayStart}to${todayEnd}`,
-    "Yesterday": `${now().minus({'day': 1}).startOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({'day': 1}).endOf("day").toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This week": `${now().startOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last week": `${now().minus({week: 1}).startOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({week: 1}).endOf('week').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This month": `${now().startOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last month": `${now().minus({month: 1}).startOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({month: 1}).endOf('month').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "This year": `${now().startOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().endOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "Last year": `${now().minus({year: 1}).startOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}to${now().minus({year: 1}).endOf('year').toFormat(import.meta.env.VITE_DATE_TIME_FORMAT)}`,
-    "All time": "to",
-    "Custom": "CUS"
-  }
+
+  const dates = useMemo(() => {
+    const n = now();
+    return {
+      "Today": buildPresetRange(cycleConfig, n, n).join("to"),
+      "Yesterday": buildPresetRange(cycleConfig, n.minus({day: 1}), n.minus({day: 1})).join("to"),
+      "This week": buildPresetRange(cycleConfig, n.startOf("week"), n.endOf("week")).join("to"),
+      "Last week": buildPresetRange(
+        cycleConfig,
+        n.minus({week: 1}).startOf("week"),
+        n.minus({week: 1}).endOf("week"),
+      ).join("to"),
+      "This month": buildPresetRange(cycleConfig, n.startOf("month"), n.endOf("month")).join("to"),
+      "Last month": buildPresetRange(
+        cycleConfig,
+        n.minus({month: 1}).startOf("month"),
+        n.minus({month: 1}).endOf("month"),
+      ).join("to"),
+      "This year": buildPresetRange(cycleConfig, n.startOf("year"), n.endOf("year")).join("to"),
+      "Last year": buildPresetRange(
+        cycleConfig,
+        n.minus({year: 1}).startOf("year"),
+        n.minus({year: 1}).endOf("year"),
+      ).join("to"),
+      "All time": "to",
+      "Custom": "CUS",
+    };
+  }, [cycleConfig]);
+
+  const todayPreset = useMemo(
+    () => buildPresetRange(cycleConfig, now(), now()),
+    [cycleConfig],
+  );
 
   const [isCustom, setCustom] = useState(false);
-  const [preset, setPreset] = useState([todayStart, todayEnd]);
+  const [preset, setPreset] = useState<[string, string]>(todayPreset);
   const [customRange, setCustomRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
+
+  useEffect(() => {
+    if (!isCustom) {
+      setPreset(todayPreset);
+    }
+  }, [todayPreset, isCustom]);
 
   return (
     <div className="flex flex-col w-full">
@@ -49,14 +112,14 @@ export function DateRange({
           if(value[0] === 'CUS') {
             setCustom(true);
           }else {
-            setPreset(value);
+            setPreset([value[0] || '', value[1] || '']);
             setCustom(false);
           }
         }}
         className="form-control self-center"
       >
         {Object.keys(dates).map(item => (
-          <option key={item} value={dates[item]}>{item}</option>
+          <option key={item} value={dates[item as keyof typeof dates]}>{item}</option>
         ))}
       </select>
       {!isCustom && (
@@ -73,12 +136,14 @@ export function DateRange({
             required={isRequired}
             value={customRange}
             onChange={(nextValue) => {
+              // Keep the exact wall times the user picked. Remapping through
+              // formatReportRangeForQuery (business-day / closing-cycle windows)
+              // was bumping the end date by +1 day (e.g. 11th 23:59 → 12th 23:59).
               setCustomRange(nextValue);
             }}
           />
         </div>
       )}
-
     </div>
   );
 }

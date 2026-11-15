@@ -82,5 +82,18 @@
     "retryInvoicePending": "Le numéro de facture n'est pas encore prêt — réessayez après la synchronisation.",
     "retryOrderNotFound": "Commande introuvable pour la nouvelle tentative fiscale.",
     "retryProviderDisabled": "Le fournisseur est désactivé."
-  }
+  },
+  "initializeDevice": "Initialiser l'appareil",
+  "reinitializeDevice": "Réinitialiser l'appareil",
+  "initializingDevice": "Initialisation…",
+  "registerItems": "Enregistrer les articles",
+  "registeringItems": "Enregistrement des articles…",
+  "resetDevice": "Réinitialiser les clés de l'appareil",
+  "deviceReady": "Appareil initialisé",
+  "deviceNotInitialized": "Appareil non initialisé",
+  "deviceInitHint": "Enregistrez d'abord les identifiants, puis initialisez pour recevoir la clé de communication de KRA.",
+  "deviceReadyHint": "Clé de communication enregistrée. Enregistrez les plats et articles d'inventaire dans eTIMS lorsque vous êtes prêt.",
+  "deviceInitialized": "Appareil KRA initialisé",
+  "deviceReset": "Clés de l'appareil KRA effacées",
+  "itemsRegistered": "Articles enregistrés dans KRA eTIMS"
 }

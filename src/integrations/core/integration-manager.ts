@@ -324,6 +324,15 @@ export class IntegrationManager {
       const config = await this.configLoader(providerId);
       const runtime = parseFiscalRuntimeConfig(config);
       if (!runtime.offlineBuffering) return;
+
+      // Skip queueing a fiscal invoice retry when Surreal already has a completed QR.
+      if (request.action === 'invoiceSubmission') {
+        const order = (request.payload as { order?: { id?: unknown } } | undefined)?.order;
+        if (order?.id && (await this.hasCompletedFiscalSubmission(providerId, order.id))) {
+          return;
+        }
+      }
+
       // Plain JSON so RecordId/DateTime survive IndexedDB structured clone.
       const payload = JSON.parse(JSON.stringify(request.payload ?? {})) as Record<string, unknown>;
       await this.queue.enqueue({
@@ -366,6 +375,10 @@ export class IntegrationManager {
     }
   }
 
+  onQueueWork(listener: () => void): () => void {
+    return this.queue.onWork(listener);
+  }
+
   async processQueue() {
     return this.queue.processNext(async (job) => {
       if (!this.isProviderEnabled(job.providerId)) {
@@ -380,6 +393,20 @@ export class IntegrationManager {
 
       const provider = this.registry.get(job.providerId);
       if (!provider?.execute) throw new ProviderNotFoundError(job.providerId);
+
+      // Dedupe offline retries: if settle already wrote a completed fiscal row, drop the job.
+      if (job.action === 'invoiceSubmission') {
+        const order = (job.payload as { order?: { id?: unknown } } | undefined)?.order;
+        if (order?.id && (await this.hasCompletedFiscalSubmission(job.providerId, order.id))) {
+          await this.auditLogger.log({
+            action: 'Response',
+            providerId: job.providerId,
+            payload: { jobId: job.id, skipped: 'already_completed' },
+          });
+          return;
+        }
+      }
+
       const response = await provider.execute(
         {
           action: job.action,
@@ -406,6 +433,22 @@ export class IntegrationManager {
     });
   }
 
+  private async hasCompletedFiscalSubmission(
+    providerId: string,
+    orderId: unknown,
+  ): Promise<boolean> {
+    const db = this.dbLoader?.();
+    if (!db) return false;
+    try {
+      const { findCompletedFiscalSubmission } = await import(
+        '@/integrations/storage/order-fiscal-repository.ts'
+      );
+      return Boolean(await findCompletedFiscalSubmission(db, orderId, providerId));
+    } catch {
+      return false;
+    }
+  }
+
   /**
    * When offline fiscal buffering eventually succeeds, write a completed
    * integration_order_fiscal row so reports/print QR catch up.
@@ -416,7 +459,7 @@ export class IntegrationManager {
     payload: Record<string, unknown>,
     response: IntegrationExecutionResponse
   ) {
-    if (action !== 'invoiceSubmission') return;
+    if (action !== 'invoiceSubmission' && action !== 'creditNote') return;
 
     const provider = this.registry.get(providerId);
     if (!provider || provider.getManifest().category !== 'fiscal') return;
@@ -432,14 +475,17 @@ export class IntegrationManager {
       persistFiscalSubmissionsForOrder,
     } = await import('@/integrations/storage/order-fiscal-repository.ts');
 
-    const existing = await listOrderFiscalSubmissions(db, order.id);
-    const alreadyCompleted = existing.some(
-      (row) =>
-        row.provider_id === providerId &&
-        row.status === 'completed' &&
-        Boolean(row.qrcode || row.invoice_number)
-    );
-    if (alreadyCompleted) return;
+    // Sales: skip if a completed QR already exists. Credit notes always append a new row.
+    if (action === 'invoiceSubmission') {
+      const existing = await listOrderFiscalSubmissions(db, order.id);
+      const alreadyCompleted = existing.some(
+        (row) =>
+          row.provider_id === providerId &&
+          row.status === 'completed' &&
+          Boolean(row.qrcode || row.invoice_number)
+      );
+      if (alreadyCompleted) return;
+    }
 
     const config = await this.configLoader(providerId);
     const runtime = parseFiscalRuntimeConfig(config);

@@ -1,13 +1,13 @@
 import {
   ACCOUNTS,
   ADMIN,
-  CLOCK,
+  CLOCK, CLOSING,
   HR,
   INTEGRATIONS,
   INVENTORY,
-  LOGIN,
+  LOGIN, ORDERS,
   REPORTS,
-  REPORTS_AI,
+  REPORTS_AI, SETTINGS, SUMMARY,
   TIP_DISTRIBUTION,
 } from "@/routes/posr.ts";
 
@@ -24,6 +24,10 @@ export const isAssistantWidgetPath = (pathname: string): boolean => {
   if (pathname === TIP_DISTRIBUTION) return true;
   if (pathname === ACCOUNTS) return true;
   if (pathname === INTEGRATIONS) return true;
+  if (pathname === SETTINGS) return true;
+  if (pathname === SUMMARY) return true;
+  if (pathname === CLOSING) return true;
+  if (pathname === ORDERS) return true;
 
   if (pathname === INVENTORY || pathname.startsWith(`${INVENTORY}/`)) return true;
 

@@ -6,7 +6,20 @@
   "thankYou": "Спасибо!",
   "thankYouHint": "Ждём вас снова",
   "qty": "Кол-во {{count}}",
+  "colItem": "Позиция",
+  "colQty": "Кол-во",
+  "colPrice": "Цена",
+  "colTotal": "Итого",
   "total": "Итого",
   "items": "Позиции ({{count}})",
-  "totalWithTax": "Итого с {{name}} {{rate}}%"
+  "totalWithTax": "Итого с {{name}} {{rate}}%",
+  "adjTax": "{{name}}",
+  "adjTaxNamed": "{{name}} {{rate}}%",
+  "adjDiscount": "Скидка ({{name}})",
+  "adjCoupon": "Купон ({{name}})",
+  "adjService": "Сервисный сбор ({{value}}{{unit}})",
+  "adjServicePlain": "Сервисный сбор",
+  "adjTip": "Чаевые",
+  "adjTipPercent": "Чаевые %",
+  "adjExtra": "Доплата"
 }

@@ -172,9 +172,10 @@ export async function pushOperations(input: {
     assignments?: Array<{
       operationId: string;
       aggregateId: string;
-      invoiceNumber: number;
+      invoiceNumber?: number;
       invoiceDisplay?: string;
       invoicePrefix?: string;
+      autoId?: number;
     }>;
     conflicts: Array<{ operationId: string; code: string; message: string }>;
   }>('/sync/push', {

@@ -25,7 +25,9 @@ export type ImportIssueCode =
   | "auto_corrected"
   | "low_confidence"
   | "duplicate"
-  | "custom";
+  | "custom"
+  /** Cross-field / DB checks from onValidateRecords (e.g. UOM vs stock unit). */
+  | "cross_field";
 
 export type ImportIssue = {
   field?: string;
@@ -187,6 +189,15 @@ export type ImportConfiguration = {
    * When set, replaces the default resolveReferences pass.
    */
   onResolveReferences?: (
+    config: ImportConfiguration,
+    records: ImportRecord[],
+    options?: {signal?: AbortSignal}
+  ) => Promise<void>;
+  /**
+   * Optional extra validation after refs resolve and field-level checks.
+   * Push issues with code `cross_field` (cleared automatically on re-validate).
+   */
+  onValidateRecords?: (
     config: ImportConfiguration,
     records: ImportRecord[],
     options?: {signal?: AbortSignal}

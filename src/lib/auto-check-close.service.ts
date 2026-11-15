@@ -21,6 +21,8 @@ import { IntegrationManager } from "@/integrations/core/integration-manager.ts";
 import {
   fiscalShouldBlockBeforePaid,
   getFiscalQrcodesForOrderPrint,
+  ensureOrderSyncedForFiscal,
+  listMissingLocalFiscalItemIds,
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
@@ -294,13 +296,26 @@ export async function closeOpenChecks(options: {
       if (integrationManager) {
         const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
         if (blockBeforePaid) {
+          const syncState = await ensureOrderSyncedForFiscal(String(fullOrder.id));
+          const fiscalOrder = await loadOrderForFiscal(db, String(fullOrder.id));
+          const missingItems = await listMissingLocalFiscalItemIds(
+            String(fullOrder.id),
+            fiscalOrder,
+          );
+          if (!syncState.ok || missingItems.length > 0 || !fiscalOrder) {
+            skipped += 1;
+            continue;
+          }
           const fiscalResult = await runFiscalSettlementForOrder(
             integrationManager,
             db,
-            fullOrder
+            fiscalOrder,
           );
           if (fiscalResult.blocked) {
-            if (fiscalResult.blockedCode === 'INVOICE_PENDING') {
+            if (
+              fiscalResult.blockedCode === 'INVOICE_PENDING'
+              || fiscalResult.blockedCode === 'ITEMS_PENDING_SYNC'
+            ) {
               skipped += 1;
               continue;
             }
@@ -314,6 +329,7 @@ export async function closeOpenChecks(options: {
       if (integrationManager) {
         const blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
         if (!blockBeforePaid) {
+          await ensureOrderSyncedForFiscal(String(fullOrder.id));
           const settled = await loadOrderForFiscal(db, String(fullOrder.id));
           if (settled) {
             await runFiscalSettlementForOrder(integrationManager, db, settled);

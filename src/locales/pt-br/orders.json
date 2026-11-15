@@ -13,7 +13,13 @@
       "address": "End.",
       "secondaryAddress": "End. secundário",
       "points": "Pontos"
-    }
+    },
+    "save": "Salvar",
+    "remove": "Remover do pedido",
+    "saved": "Cliente salvo",
+    "saveFailed": "Não foi possível salvar o cliente",
+    "attachFailed": "Não foi possível vincular o cliente a este pedido",
+    "removeFailed": "Não foi possível remover o cliente deste pedido"
   },
   "filters": {
     "status": "Selecionar status do pedido",

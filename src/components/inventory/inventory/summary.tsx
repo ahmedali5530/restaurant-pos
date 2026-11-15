@@ -13,7 +13,7 @@ import {withInventoryCurrency} from "@/lib/inventory/rounding.ts";
 
 export const InventorySummary = () => {
   const { t } = useTranslation('inventory');
-  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
+  const loadHook = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 10, ['category', 'suppliers', 'locations', 'stores']);
   const {
     data: locations
   } = useApi<SettingsData<InventoryLocation>>(

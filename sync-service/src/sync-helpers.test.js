@@ -17,6 +17,9 @@ const {
   prepareCatalogPayload,
   resolveCatalogSyncTables,
   pickWinningCatalogRelease,
+  diffOrphanLocalIds,
+  retentionProbeSinceLiteral,
+  sinceLiteral,
 } = require('./sync-helpers');
 const {
   resolveIncludeTables,
@@ -28,6 +31,28 @@ const {
   resolveDistributionMode,
   loadConfig,
 } = require('./config');
+
+describe('diffOrphanLocalIds', () => {
+  it('returns local ids missing from the remote keep-set', () => {
+    assert.deepEqual(
+      diffOrphanLocalIds(
+        ['menu_item:a', 'menu_item:b', 'menu_item:c'],
+        new Set(['menu_item:a', 'menu_item:c'])
+      ),
+      ['menu_item:b']
+    );
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], ['menu_item:a']), []);
+    assert.deepEqual(diffOrphanLocalIds(['menu_item:a'], []), ['menu_item:a']);
+  });
+});
+
+describe('retentionProbeSinceLiteral', () => {
+  it('emits a Surreal datetime SINCE literal about 7d back', () => {
+    const lit = retentionProbeSinceLiteral(Date.parse('2026-11-11T12:00:00.000Z'));
+    assert.equal(lit, sinceLiteral('2026-11-04T12:00:00.000Z'));
+    assert.match(lit, /^d"/);
+  });
+});
 
 describe('isRetryableError', () => {
   it('retries timeouts', () => {
@@ -48,6 +73,23 @@ describe('isRetryableError', () => {
 
   it('detects retention gaps', () => {
     assert.equal(isChangefeedRetentionError(new Error('cursor outside retention window')), true);
+    assert.equal(
+      isChangefeedRetentionError(
+        new Error('changefeed cursor outside retention (silent gap): table=order_void')
+      ),
+      true
+    );
+  });
+
+  it('does not treat cursor-ahead as a retention re-backfill', () => {
+    assert.equal(
+      isChangefeedRetentionError(
+        new Error(
+          'changefeed cursor ahead of live tip (silent gap, cursor ahead): table=order_item cursor=2 tip=1'
+        )
+      ),
+      false
+    );
   });
 });
 
@@ -268,22 +310,28 @@ describe('catalog row filter and secrets', () => {
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b1'), true);
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1', 'b3'] }, 'b2'), false);
     assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: [] }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: null }, 'b1'), true);
+    assert.equal(shouldApplyCatalogRow({ name: 'U', branch_ids: ['b1 '] }, 'b1'), true);
   });
 
-  it('strips user secrets', () => {
+  it('strips user secrets and drops non-SCHEMAFULL user fields', () => {
     const cleaned = prepareCatalogPayload('user', {
-      name: 'Sam',
+      first_name: 'Sam',
       password: 'secret',
       pin: '1234',
       password_hash: 'x',
+      branch_id: 'store-a',
+      extra_cloud_field: 'nope',
     });
-    assert.equal(cleaned.name, 'Sam');
+    assert.equal(cleaned.first_name, 'Sam');
     assert.equal(cleaned.password, undefined);
     assert.equal(cleaned.pin, undefined);
+    assert.equal(cleaned.branch_id, undefined);
+    assert.equal(cleaned.extra_cloud_field, undefined);
     assert.equal(stripUserSecrets({ pin: '1' }).pin, undefined);
     const dish = prepareCatalogPayload('menu_item', { name: 'Wings', price: 1 });
     assert.deepEqual(dish.categories, []);
-    const user = prepareCatalogPayload('user', { name: 'A', password: 'x' });
+    const user = prepareCatalogPayload('user', { first_name: 'A', password: 'x' });
     assert.deepEqual(user.roles, []);
     assert.equal(user.password, undefined);
 

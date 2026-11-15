@@ -168,7 +168,8 @@
     "smartImportIngredients": "Importazione IA ingredienti",
     "smartImportModifierGroups": "Importazione IA gruppi modificatori",
     "smartImportMenuStructure": "Importa struttura menu con IA",
-    "syncDishCosts": "Aggiorna costi dagli articoli"
+    "syncDishCosts": "Aggiorna costi dagli articoli",
+    "menuTree": "Albero del menu"
   },
   "delete": {
     "dish": "Elimina articolo {{name}}",
@@ -432,7 +433,7 @@
     "printModeText": "Testo (ESC/POS)",
     "printModeRaster": "Raster (immagine)",
     "paperWidthMm": "Larghezza carta",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Larghezza fisica della carta per raster e centratura immagini (58mm = 384 punti, 72mm = 512 punti, 80mm = 576 punti).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Soglia raster",
@@ -465,7 +466,17 @@
     "modifierOptionAvailability": "Disponibilità modificatore (questo piatto)",
     "modifierOptionAvailable": "Disponibile per questo piatto",
     "modifierOptionAvailableHint": "Lascia i valori predefiniti per la disponibilità globale. Disattiva o imposta un limite solo per questo piatto.",
-    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)"
+    "modifierOptionSaleLimit": "Limite di vendita (questo piatto)",
+    "kraItemClsCd": "Codice classificazione articolo KRA",
+    "kraTaxTyCd": "Tipo imposta KRA (A–E)",
+    "kraFiscalHint": "Override eTIMS Kenya opzionali. Lascia vuoto per usare i valori predefiniti del provider KRA.",
+    "showOrderType": "Mostra tipo ordine",
+    "showCustomer": "Mostra cliente",
+    "showTableName": "Mostra nome tavolo",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Mostra totale articolo",
+    "accumulateSameItems": "Accumula articoli uguali",
+    "accumulateSameItemsHint": "Unisci piatti identici (stessi modificatori e note) in una riga con quantità combinata."
   },
   "dishView": {
     "detailsTitle": "Dettagli piatto",
@@ -624,6 +635,7 @@
       "reports.order_fiscal": "Fiscale ordini",
       "reports.expense": "Spese",
       "reports.activity": "Attività",
+      "reports.changefeed": "Changefeed tabelle",
       "reports.product_mix_weekly": "Product mix settimanale",
       "reports.product_mix_summary": "Riepilogo product mix",
       "reports.products_hourly": "Prodotti orari",
@@ -831,7 +843,11 @@
       "reports": "Report",
       "inventory": "Inventario",
       "settings": "Impostazioni",
-      "admin.catalog_publish": "Pubblica catalogo"
+      "admin.catalog_publish": "Pubblica catalogo",
+      "settings.backup": "Backup impostazioni",
+      "settings.restore": "Ripristino impostazioni",
+      "settings.database": "Backup database",
+      "settings.customer_display": "Display cliente"
     }
   },
   "discountEngine": {
@@ -1168,5 +1184,45 @@
     "empty": "Nessun piatto in questa categoria",
     "available": "Disponibile",
     "unavailable": "Esaurito"
+  },
+  "menuTree": {
+    "title": "Albero del menu",
+    "search": "Cerca",
+    "searchPlaceholder": "Filtra per nome…",
+    "expandAll": "Espandi tutto",
+    "collapseAll": "Comprimi tutto",
+    "expand": "Espandi",
+    "collapse": "Comprimi",
+    "loading": "Caricamento albero del menu…",
+    "empty": "Nessuna voce di menu da mostrare.",
+    "uncategorized": "Senza categoria",
+    "required": "Obbligatorio",
+    "hidden": "Nascosto",
+    "hiddenFromMenu": "Nascosto nel menu",
+    "kind": {
+      "category": "Categoria",
+      "dish": "Piatto",
+      "modifierGroup": "Gruppo modificatori",
+      "modifier": "Modificatore",
+      "uncategorized": "Senza categoria"
+    },
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "fit": "Adatta allo schermo",
+    "panHint": "Trascina per spostare · rotella per zoom"
+  },
+  "printers": {
+    "testPrint": "Stampa di prova",
+    "testPrintAccess": "Stampa di prova {{name}}",
+    "testPrintOk": "Stampato. Il server ha inviato lo scontrino di prova a {{name}}{{address}}.",
+    "testPrintError": "Errore del server di stampa per {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Errore sconosciuto del server di stampa",
+    "slip": {
+      "title": "STAMPA DI PROVA",
+      "name": "Nome",
+      "type": "Tipo",
+      "address": "Indirizzo",
+      "ok": "Se riesci a leggere questo, la stampante è connessa."
+    }
   }
 }

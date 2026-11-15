@@ -9,7 +9,10 @@ import {
   pickPreferredFiscalQr,
   parseFiscalRuntimeConfig,
 } from '@/integrations/providers/fiscal/shared/runtime-config.ts';
-import { getFiscalProviderPrintDescription } from '@/integrations/storage/order-fiscal-repository.ts';
+import {
+  findCompletedFiscalSubmission,
+  getFiscalProviderPrintDescription,
+} from '@/integrations/storage/order-fiscal-repository.ts';
 import { nowSurrealDateTime, toJsDate } from '@/lib/datetime.ts';
 
 export {
@@ -39,7 +42,7 @@ export interface FiscalSettlementResult {
   resultsByProvider: Record<string, FiscalSubmissionRecord>;
   blocked: boolean;
   blockedError?: string;
-  blockedCode?: 'INVOICE_PENDING';
+  blockedCode?: 'INVOICE_PENDING' | 'ITEMS_PENDING_SYNC';
 }
 
 type ConfigDb = Parameters<typeof getIntegrationProviderConfig>[0];
@@ -103,6 +106,7 @@ export const submitFiscalInvoices = async (
     (options?.db
       ? (providerId: string) => getIntegrationProviderConfig(options.db!, providerId)
       : async () => ({}));
+  const submissionDb = options?.db;
 
   const resultsByProvider: Record<string, FiscalSubmissionRecord> = {};
   const successMap: Record<
@@ -137,6 +141,33 @@ export const submitFiscalInvoices = async (
     const runtime = parseFiscalRuntimeConfig(config);
     const blockOnFailure = runtime.blockSettlementOnFailure;
     const receiptLogo = getFiscalProviderReceiptLogo(config);
+
+    // Local dedupe: never re-POST when integration_order_fiscal already has a completed QR.
+    if (submissionDb && order.id) {
+      const existing = await findCompletedFiscalSubmission(submissionDb, order.id, providerId);
+      if (existing) {
+        const invoiceNumber = existing.invoice_number ?? existing.qrcode ?? undefined;
+        const qrcode = existing.qrcode ?? existing.invoice_number ?? undefined;
+        resultsByProvider[providerId] = {
+          invoiceNumber: invoiceNumber ?? undefined,
+          code: existing.code ?? undefined,
+          status: 'skipped',
+          error: 'already_completed',
+          submittedAt,
+          requestPayload: existing.request_payload,
+          responsePayload: existing.response_payload,
+          qrPriority: existing.qr_priority ?? runtime.qrPriority,
+        };
+        successMap[providerId] = {
+          invoiceNumber: invoiceNumber ?? undefined,
+          qrcode: qrcode ?? undefined,
+          success: Boolean(qrcode || invoiceNumber),
+          qrPriority: existing.qr_priority ?? runtime.qrPriority,
+          ...(receiptLogo ? { logo: receiptLogo } : {}),
+        };
+        continue;
+      }
+    }
 
     try {
       const response: IntegrationExecutionResponse<{

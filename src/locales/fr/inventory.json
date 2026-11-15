@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Import IA des catégories d'articles",
     "smartImportLocationsTitle": "Import IA des emplacements",
     "lastPrice": "Dernier",
-    "itemPrice": "Article"
+    "itemPrice": "Article",
+    "averagePrice": "Moy.",
+    "pricePerUom": "Prix / {{uom}}",
+    "stockUomHint": "Stock : {{uom}}"
   },
   "validation": {
     "required": "Ce champ est obligatoire",
@@ -669,5 +672,9 @@
     "toast": {
       "saved": "Unité {{code}} enregistrée"
     }
+  },
+  "delete": {
+    "itemTitle": "Supprimer {{name}}",
+    "itemMessage": "S'il n'est pas utilisé, l'article sera supprimé. S'il n'apparaît que dans des recettes de plats, ces lignes seront aussi supprimées. S'il a un historique de stock ou des documents, il sera désactivé."
   }
 }

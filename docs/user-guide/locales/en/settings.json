@@ -225,19 +225,6 @@
       "caption": "On-screen keyboard toggle card."
     },
     {
-      "id": "table-selection",
-      "title": "Table selection",
-      "intro": "When table selection is enabled, staff pick a floor table before ordering (dine-in). When disabled, the floor step is hidden on this terminal (useful for quick service).",
-      "steps": [
-        "Open the Table selection card.",
-        "Tap the button to enable or disable table selection for this device.",
-        "The change applies immediately on this browser."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Table selection hide/show for this terminal.",
-      "note": "Documentation capture requires table selection enabled (visible floors and tables)."
-    },
-    {
       "id": "inventory",
       "title": "Inventory settings",
       "intro": "Global inventory behavior: ledger, batch/expiry, costing method, purchase discounts/taxes, and allocation defaults. Mostly used when inventory modules are active.",

@@ -50,12 +50,12 @@ export async function resolveInventoryItem(
   if (!key) return null;
   const fetchClause = fetch ? ` FETCH ${fetch}` : "";
   const [byCode] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE code = $key LIMIT 1${fetchClause}`,
+    `SELECT * FROM ${Tables.inventory_items} WHERE code = $key AND deleted_at = none LIMIT 1${fetchClause}`,
     {key}
   );
   if (byCode?.length) return byCode[0];
   const [byName] = await db.query(
-    `SELECT * FROM ${Tables.inventory_items} WHERE string::lowercase(name) = string::lowercase($key) LIMIT 1${fetchClause}`,
+    `SELECT * FROM ${Tables.inventory_items} WHERE string::lowercase(name) = string::lowercase($key) AND deleted_at = none LIMIT 1${fetchClause}`,
     {key}
   );
   return byName?.[0] ?? null;

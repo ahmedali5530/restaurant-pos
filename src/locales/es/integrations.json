@@ -82,5 +82,18 @@
     "retryInvoicePending": "El número de factura aún no está listo — inténtelo de nuevo tras la sincronización.",
     "retryOrderNotFound": "Pedido no encontrado para el reintento fiscal.",
     "retryProviderDisabled": "El proveedor está deshabilitado."
-  }
+  },
+  "initializeDevice": "Inicializar dispositivo",
+  "reinitializeDevice": "Reinicializar dispositivo",
+  "initializingDevice": "Inicializando…",
+  "registerItems": "Registrar artículos",
+  "registeringItems": "Registrando artículos…",
+  "resetDevice": "Restablecer claves del dispositivo",
+  "deviceReady": "Dispositivo inicializado",
+  "deviceNotInitialized": "Dispositivo no inicializado",
+  "deviceInitHint": "Guarde las credenciales primero y luego inicialice para recibir la clave de comunicación de KRA.",
+  "deviceReadyHint": "Clave de comunicación guardada. Registre platos y artículos de inventario en eTIMS cuando esté listo.",
+  "deviceInitialized": "Dispositivo KRA inicializado",
+  "deviceReset": "Claves del dispositivo KRA borradas",
+  "itemsRegistered": "Artículos registrados en KRA eTIMS"
 }

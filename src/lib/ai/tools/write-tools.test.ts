@@ -96,18 +96,56 @@ describe("buildWriteProposal", () => {
     expect(db.merge).not.toHaveBeenCalled();
   });
 
-  it("propose_update_dishes: missing match field (number) is blocking in the preview, not just at commit", async () => {
+  it("propose_update_dishes: missing id and number is blocking in the preview", async () => {
     const db = makeDb();
     const proposal = await buildWriteProposal(
       "propose_update_dishes",
-      {dishes: [{price: 11}]}, // no `number` — nothing to match against
+      {dishes: [{price: 11}]}, // no id or number — nothing to match against
       {db, t},
     );
 
     expect(proposal.hasBlockingErrors).toBe(true);
     expect(
-      proposal.records[0].issues.some(i => i.field === "number" && i.severity === "error"),
+      proposal.records[0].issues.some(
+        i => (i.field === "id" || i.field === "number") && i.severity === "error",
+      ),
     ).toBe(true);
+  });
+
+  it("propose_update_dishes: matches by id when number is duplicated", async () => {
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string, vars?: Record<string, any>) => {
+        if (sql.includes("WHERE id = $id") || (sql.includes("id = $id") && vars?.id)) {
+          return [[{
+            id: "menu_item:abc",
+            name: "Club Sandwich",
+            number: "1",
+            priority: 0,
+            price: 9,
+            cost: 3,
+            categories: [{id: "category:1", name: "Sandwiches"}],
+            tax: null,
+          }]];
+        }
+        if (sql.includes("category")) return [[{id: "category:1", name: "Sandwiches"}]];
+        if (sql.includes("tax")) return [[]];
+        return [[]];
+      }),
+      create: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      insert: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      merge: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+    };
+
+    const proposal = await buildWriteProposal(
+      "propose_update_dishes",
+      {dishes: [{id: "menu_item:abc", price: 12.5}]},
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+    expect(proposal.records[0].values.id).toBe("menu_item:abc");
+    expect(proposal.records[0].values.number).toBe("1");
+    expect(proposal.records[0].values.price).toBe(12.5);
   });
 
   it("propose_update_dishes: a partial patch (price only) is NOT blocked by name/categories required checks", async () => {
@@ -147,6 +185,52 @@ describe("buildWriteProposal", () => {
     expect(proposal.hasBlockingErrors).toBe(false);
     expect(proposal.records[0].values.name).toBe("Existing Dish"); // fell back to existing
     expect(proposal.records[0].values.price).toBe(12.5); // AI's change applied
+  });
+
+  it("propose_update_inventory_items: matches by id and keeps a new code", async () => {
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("inventory_item") && sql.includes("id = $id")) {
+          return [[{
+            id: "inventory_item:1",
+            name: "Flour",
+            code: "OLD-CODE",
+            uom: "KG",
+            price: 2,
+            average_price: 2,
+            category: {id: "inventory_categories:1", name: "Dry"},
+            locations: [{id: "inventory_locations:1", name: "Main"}],
+            suppliers: [{id: "inventory_suppliers:1", name: "ACME"}],
+            item_types: ["raw"],
+            reorder_levels: {},
+          }]];
+        }
+        if (sql.includes("inventory_categor")) {
+          return [[{id: "inventory_categories:1", name: "Dry"}]];
+        }
+        if (sql.includes("inventory_location") || sql.includes("store")) {
+          return [[{id: "inventory_locations:1", name: "Main"}]];
+        }
+        if (sql.includes("supplier")) {
+          return [[{id: "inventory_suppliers:1", name: "ACME"}]];
+        }
+        return [[]];
+      }),
+      create: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      insert: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+      merge: vi.fn(async () => { throw new Error("must never write during proposal build"); }),
+    };
+
+    const proposal = await buildWriteProposal(
+      "propose_update_inventory_items",
+      {inventory_items: [{id: "inventory_item:1", code: "NEW-CODE"}]},
+      {db, t},
+    );
+
+    expect(proposal.hasBlockingErrors).toBe(false);
+    expect(proposal.records[0].values.id).toBe("inventory_item:1");
+    expect(proposal.records[0].values.code).toBe("NEW-CODE");
+    expect(proposal.records[0].values.name).toBe("Flour");
   });
 
   it("rejects unknown tool names", async () => {

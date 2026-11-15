@@ -57,7 +57,7 @@ export const KitchenReconciliationFilter = () => {
 
   const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(
     Tables.inventory_items,
-    [],
+    ["deleted_at = none"],
     ["name asc"],
     0,
     9999

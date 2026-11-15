@@ -9,18 +9,6 @@ import {computeLine, computeTotals} from "@/lib/kitchen/reconciliation.calculati
 import {listKitchenReconciliationsForReport} from "@/lib/kitchen/reconciliation.service.ts";
 import {formatInventoryNumber} from "@/lib/inventory/rounding.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {Tables} from "@/api/db/tables.ts";
-
-const toFullRecordIdString = (value: unknown, table: string): string => {
-  if (!value) return "";
-  const raw =
-    typeof value === "object" && value !== null && "toString" in value
-      ? (value as {toString(): string}).toString()
-      : typeof value === "string"
-        ? value
-        : String(value);
-  return raw.includes(":") ? raw : `${table}:${raw}`;
-};
 
 interface ReportFilters {
   startDate?: string | null;
@@ -79,27 +67,13 @@ export const KitchenReconciliationReport = () => {
         setLoading(true);
         setError(null);
 
-        let rows = await listKitchenReconciliationsForReport(dbRef.current, {
+        const rows = await listKitchenReconciliationsForReport(dbRef.current, {
           startDate: filters.startDate,
           endDate: filters.endDate,
           locationIds: filters.locationIds.length > 0 ? filters.locationIds : undefined,
+          itemIds: filters.itemIds.length > 0 ? filters.itemIds : undefined,
           statuses: filters.statusIds.length > 0 ? filters.statusIds : undefined,
         });
-
-        if (filters.itemIds.length > 0) {
-          const itemIdSet = new Set(
-            filters.itemIds.map((id) => toFullRecordIdString(id, Tables.inventory_items))
-          );
-          rows = rows
-            .map((reconciliation) => ({
-              ...reconciliation,
-              items: reconciliation.items?.filter((line) => {
-                const itemId = toFullRecordIdString(line.item?.id ?? line.item, Tables.inventory_items);
-                return itemIdSet.has(itemId);
-              }),
-            }))
-            .filter((reconciliation) => (reconciliation.items?.length ?? 0) > 0);
-        }
 
         setReconciliations(rows);
       } catch (err) {

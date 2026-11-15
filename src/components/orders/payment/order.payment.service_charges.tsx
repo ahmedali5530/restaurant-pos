@@ -15,10 +15,12 @@ interface Props {
   serviceChargeType: DiscountType
 
   order: Order
+  /** When set, OK commits through this (PIN-protected) instead of setters directly. */
+  onCommit?: (serviceCharge: number, serviceChargeType: DiscountType) => void
 }
 
 export const OrderPaymentServiceCharges = ({
-  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order
+  serviceCharge, setServiceCharge, serviceChargeType, setServiceChargeType, order, onCommit
 }: Props) => {
   const {t} = useTranslation(['payment', 'common']);
   const [settings] = useAtom(appSettings);
@@ -27,10 +29,13 @@ export const OrderPaymentServiceCharges = ({
   const defaultAppliedRef = useRef(false);
 
   const [quickPercentOptions, setQuickPercentOptions] = useState([
-    3, 5, 12
+    3, 5, 12, 15, 20,
+  ]);
+  const [quickFixedOptions, setQuickFixedOptions] = useState([
+    50, 100, 500, 1000,
   ]);
 
-  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '', 0];
+  const keyboardKeys = [1, 2, 3, 4, 5, 6, 7, 8, 9, '.', 0];
 
   const serviceChargeSetting = useMemo(() => {
     return (settings.settings ?? []).find(
@@ -63,12 +68,21 @@ export const OrderPaymentServiceCharges = ({
       return;
     }
 
+    if (defaultFromSettings.type === DiscountType.Fixed) {
+      setQuickFixedOptions(prev => {
+        const optionsSet = new Set(prev);
+        optionsSet.add(defaultFromSettings.value);
+        return Array.from(optionsSet);
+      });
+      return;
+    }
+
     setQuickPercentOptions(prev => {
       const optionsSet = new Set(prev);
       optionsSet.add(defaultFromSettings.value);
       return Array.from(optionsSet);
     });
-  }, [defaultFromSettings.value]);
+  }, [defaultFromSettings.type, defaultFromSettings.value]);
 
   const allowServiceCharges = order.order_type?.allow_service_charges === true;
 
@@ -102,11 +116,35 @@ export const OrderPaymentServiceCharges = ({
         >
           {t('serviceCharges.noServiceCharge')}
         </Button>
-        <div className="flex gap-5 flex-wrap">
+        <div className="input-group">
+          <Button
+            size="lg"
+            variant="primary"
+            active={draftServiceChargeType === DiscountType.Percent}
+            onClick={() => setDraftServiceChargeType(DiscountType.Percent)}
+            className="min-w-[150px] flex-1"
+          >
+            {t('discountType.percent')}
+          </Button>
+          <Button
+            size="lg"
+            variant="primary"
+            active={draftServiceChargeType === DiscountType.Fixed}
+            onClick={() => setDraftServiceChargeType(DiscountType.Fixed)}
+            className="min-w-[150px] flex-1"
+          >
+            {t('discountType.fixed')}
+          </Button>
+        </div>
+      </div>
+
+      {draftServiceChargeType === DiscountType.Percent && (
+        <div className="flex flex-wrap gap-3 mb-3 justify-center">
           {quickPercentOptions.map(item => (
             <Button
-              className="min-w-[150px]"
+              className="min-w-[100px]"
               variant="primary"
+              flat
               active={draftServiceCharge === item && draftServiceChargeType === DiscountType.Percent}
               onClick={() => {
                 setDraftServiceCharge(item);
@@ -119,53 +157,78 @@ export const OrderPaymentServiceCharges = ({
             </Button>
           ))}
         </div>
-        <div className="flex gap-3 flex-wrap">
-          {keyboardKeys.map((item, index) => (
+      )}
+
+      {draftServiceChargeType === DiscountType.Fixed && (
+        <div className="flex flex-wrap gap-3 mb-3 justify-center">
+          {quickFixedOptions.map(item => (
             <Button
-              className="w-[70px]"
+              className="min-w-[100px]"
               variant="primary"
-              key={index}
               flat
-              disabled={item === ''}
+              active={draftServiceCharge === item && draftServiceChargeType === DiscountType.Fixed}
               onClick={() => {
-                if (item === '') return;
+                setDraftServiceCharge(item);
                 setDraftServiceChargeType(DiscountType.Fixed);
-                setDraftServiceCharge(Number(`${draftServiceChargeType === DiscountType.Fixed ? draftServiceCharge : ''}${item}`));
               }}
+              key={item}
               size="lg"
             >
               {item}
             </Button>
           ))}
-          <Button
-            className="w-[70px]"
-            variant="danger"
-            flat
-            onClick={() => {
-              setDraftServiceCharge(0);
-              setDraftServiceChargeType(DiscountType.Fixed);
-            }}
-            size="lg"
-          >
-            C
-          </Button>
         </div>
+      )}
+
+      <div className="text-2xl text-center mb-3" data-testid="payment-service-charges-draft-value">
+        {draftServiceChargeType === DiscountType.Percent
+          ? `${draftServiceCharge}%`
+          : withCurrency(draftServiceCharge)}
       </div>
-      <div>
+
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        {keyboardKeys.map((item) => (
+          <Button
+            key={String(item)}
+            size="xl"
+            flat
+            variant="primary"
+            onClick={() => {
+              setDraftServiceCharge((prev) => Number(`${prev.toString()}${item}`));
+            }}
+          >
+            {item}
+          </Button>
+        ))}
         <Button
+          size="xl"
+          flat
           variant="primary"
-          filled
-          size="lg"
-          className="w-full"
-          data-testid="payment-service-charges-apply"
           onClick={() => {
-            setServiceCharge(draftServiceCharge);
-            setServiceChargeType(draftServiceChargeType);
+            setDraftServiceCharge(0);
           }}
         >
-          {t('common:actions.ok')}
+          C
         </Button>
       </div>
+
+      <Button
+        variant="success"
+        filled
+        size="lg"
+        className="w-full"
+        data-testid="payment-service-charges-apply"
+        onClick={() => {
+          if (onCommit) {
+            onCommit(draftServiceCharge, draftServiceChargeType);
+            return;
+          }
+          setServiceCharge(draftServiceCharge);
+          setServiceChargeType(draftServiceChargeType);
+        }}
+      >
+        {t('common:actions.ok')}
+      </Button>
     </div>
   );
 };

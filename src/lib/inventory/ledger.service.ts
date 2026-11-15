@@ -227,6 +227,8 @@ export type FetchLedgerMovementsOpts = {
   /** @deprecated alias for locationId */
   storeId?: string;
   itemId?: string;
+  /** Prefer for multi-item report filters (uses INSIDE). */
+  itemIds?: string[];
   from?: string;
   to?: string;
   referenceTypes?: string[];
@@ -249,9 +251,16 @@ export const fetchLedgerMovements = async (
     conditions.push("inventory_location = $location");
     params.location = toLocationRecordId(recordIdToString(locId) || locId);
   }
-  if (opts.itemId) {
+  const itemIds = [
+    ...(opts.itemIds ?? []),
+    ...(opts.itemId ? [opts.itemId] : []),
+  ].filter(Boolean);
+  if (itemIds.length === 1) {
     conditions.push("inventory_item = $item");
-    params.item = toItemRecordId(opts.itemId);
+    params.item = toItemRecordId(itemIds[0]);
+  } else if (itemIds.length > 1) {
+    conditions.push("inventory_item INSIDE $items");
+    params.items = itemIds.map((id) => toItemRecordId(id));
   }
   if (opts.from) {
     const from = toBusinessDateBound(opts.from);

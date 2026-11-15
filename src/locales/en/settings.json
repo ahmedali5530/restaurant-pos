@@ -145,10 +145,6 @@
     "saved": "Menu settings saved",
     "saveFailed": "Failed to save menu settings"
   },
-  "tableSelection": {
-    "title": "Hide table selection from menu",
-    "description": "Skip table selection and open the menu directly. Only applies to this device. Suitable for takeaway based ordering"
-  },
   "autoCheckClose": {
     "title": "Auto check close",
     "description": "Automatically close open table checks at closing cycle end time. Delivery orders are excluded. A warning appears 1 minute before close.",
@@ -339,7 +335,7 @@
       "pool": "Pros: works fully offline with reserved ints. Cons: the 200-block jump problem; fiscal-unsafe.",
       "hybrid": "Pros: offline creates still get ints. Cons: leftover reserved numbers become holes after reconnect.",
       "fiscal_plus_posr": "Pros: POS display plus authority fiscal number. Cons: two numbers on a receipt is an evasion risk — show fiscal when present.",
-      "provider_defined": "Pros: POSR stores what FBR/PRA return. Cons: not a POSR minter — use with fiscal integrations."
+      "provider_defined": "Pros: POSR stores what FBR/PRA/KRA return. Cons: not a POSR minter — use with fiscal integrations."
     }
   },
   "catalogSync": {
@@ -393,5 +389,68 @@
     "priceDivisor": "Price divisor (minor→major)",
     "layoutHint": "Layout: {{example}}",
     "resetDefaults": "Reset to defaults (keep enabled)"
+  },
+  "backup": {
+    "title": "Backup and restore",
+    "description": "Export or restore app settings and this browser’s preferences, or the full database.",
+    "offline": "Cannot run backup or restore while offline",
+    "offlineHint": "Available when connected to the server",
+    "settings": {
+      "title": "Settings",
+      "description": "App settings from the database plus this browser’s language, appearance, touch keyboard, and POS mode. Open orders and cart stay unchanged.",
+      "export": "Export settings",
+      "restore": "Restore settings",
+      "exportDescription": "Export settings backup",
+      "restoreDescription": "Restore settings from backup",
+      "exported": "Settings backup downloaded",
+      "exportFailed": "Failed to export settings",
+      "restored": "Settings restored",
+      "restoreFailed": "Failed to restore settings",
+      "invalidFile": "This file is not a valid settings backup",
+      "confirmTitle": "Restore settings?",
+      "confirmMessage": "Replace all app settings with this file and apply language, appearance, touch, and POS mode on this browser? Open orders and cart stay unchanged."
+    },
+    "database": {
+      "title": "Full database",
+      "description": "Download or restore the entire Surreal database (.surql), including orders, inventory, catalog, and settings. Records in the file overwrite matching rows; rows only on the live database are kept.",
+      "export": "Export database",
+      "restore": "Restore database",
+      "exportDescription": "Export full database backup",
+      "restoreDescription": "Restore full database from backup",
+      "exported": "Database backup downloaded",
+      "exportFailed": "Failed to export database",
+      "restored": "Database restored",
+      "restoreFailed": "Failed to restore database",
+      "forbidden": "You do not have permission for database backup",
+      "confirmTitle": "Restore full database?",
+      "confirmMessage": "Import this .surql file into the live database. Records in the file overwrite matching rows; records that exist only in the live database are kept. Catalog cache on this terminal will refresh afterward."
+    }
+  },
+  "customerDisplay": {
+    "title": "Customer display",
+    "description": "When the customer display has no order, show welcome text or a rotating advertisement playlist of images and videos.",
+    "enabled": "Show advertisements when idle",
+    "rotationInterval": "Image rotation (seconds)",
+    "rotationHint": "How long each image stays on screen. Videos advance when they finish playing.",
+    "pickMedia": "Add images or videos",
+    "mediaHint": "PNG, JPEG, GIF, WebP, or common video formats. Max {{size}} per file.",
+    "noMedia": "No media uploaded yet.",
+    "remove": "Remove",
+    "updated": "Customer display settings updated",
+    "saveDescription": "Save customer display settings",
+    "loadFailed": "Failed to load customer display settings",
+    "saveFailed": "Failed to save customer display settings",
+    "tooLarge": "File exceeds the maximum size of {{size}}.",
+    "invalidType": "Use an image or video file."
+  },
+  "dishCommentTags": {
+    "title": "Dish comment tags",
+    "description": "Quick phrases for the on-screen keyboard when adding comments to cart dishes (for example “No tomato” or “No onion”). Type a phrase and press Enter to add it as a tag.",
+    "tagsLabel": "Comment tags",
+    "placeholder": "Type a comment phrase and press Enter",
+    "createTag": "Add “{{tag}}”",
+    "noOptions": "Type to add a comment tag",
+    "updated": "Dish comment tags updated",
+    "saveDescription": "Save dish comment tags"
   }
 }

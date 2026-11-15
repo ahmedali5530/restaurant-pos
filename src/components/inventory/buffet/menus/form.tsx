@@ -1,4 +1,4 @@
-import {useEffect, useMemo} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
 import {Controller, useFieldArray, useForm} from "react-hook-form";
@@ -102,7 +102,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
     control,
     handleSubmit,
     reset,
-    formState: {errors, isSubmitting},
+    formState: {errors},
   } = useForm<BuffetMenuFormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
@@ -114,6 +114,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
       items: [{recipe: null, perGuestQty: 1}],
     },
   });
+  const [saving, setSaving] = useState(false);
 
   const {fields, append, remove} = useFieldArray({control, name: "items"});
 
@@ -155,6 +156,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
       })),
     };
 
+    setSaving(true);
     try {
       if (data?.id) {
         await updateBuffetMenu(db, recordToString(data.id)!, payload);
@@ -166,6 +168,8 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
       onClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("buffet.menuSaveFailed"));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -276,7 +280,7 @@ export const BuffetMenuForm = ({open, onClose, data}: Props) => {
           <Button type="button" variant="neutral" onClick={onClose}>
             {t("common:actions.cancel")}
           </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+          <Button type="submit" variant="primary" isLoading={saving} disabled={saving}>
             {t("common:actions.save")}
           </Button>
         </div>

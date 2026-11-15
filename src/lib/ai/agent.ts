@@ -1,4 +1,4 @@
-import {parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
+import {ensureAiClosingCycleConfig, parseDateRangeWithPhrase} from "@/api/reports/shared/filters.ts";
 import type {DbClient} from "@/api/reports/shared/types.ts";
 import {getOrders} from "@/api/reports/operations/orders.ts";
 import {getOrderDetail} from "@/api/reports/operations/order-detail.ts";
@@ -56,6 +56,9 @@ import {
 } from "@/lib/ai/demand-query.ts";
 import {tryInventoryOperationFastPath} from "@/lib/ai/inventory-operation-fast-path.ts";
 import {tryEmployeeDetailFastPath} from "@/lib/ai/employee-fast-path.ts";
+import {tryChangefeedFastPath} from "@/lib/ai/changefeed-fast-path.ts";
+import {isChangefeedPrompt} from "@/lib/ai/changefeed-query.ts";
+import {formatChangefeedAsAnswer} from "@/api/reports/operations/changefeed.ts";
 import {forecastInventoryNeed} from "@/api/reports/inventory/need-forecast.ts";
 import {forecastStaffNeed} from "@/api/reports/labor/staff-need.ts";
 import {forecastFromPoints} from "@/lib/ai/forecast.ts";
@@ -134,6 +137,8 @@ export const runAiReportAgent = async (
     throw new Error("Prompt cannot be empty.");
   }
 
+  await ensureAiClosingCycleConfig();
+
   const format = options.format ?? "table";
   const task = resolveAiTask(format);
   const compact = isLocalAiReportCompactMode(task);
@@ -148,7 +153,7 @@ export const runAiReportAgent = async (
 
   const toolsUsed: AiReportAgentResult["toolsUsed"] = [];
   const charts: AiChartSpec[] = [];
-  const context = {charts};
+  const context = {charts, allowedModules: options.allowedModules ?? []};
   const toolResults: Array<{name: string; result: unknown}> = [];
 
   const finish = (answer: string): AiReportAgentResult => {
@@ -157,6 +162,32 @@ export const runAiReportAgent = async (
     }
     return {answer, toolsUsed, charts: dedupeCharts(charts), orderRefs: collectOrderRefs(toolResults)};
   };
+
+  if (isChangefeedPrompt(trimmedPrompt)) {
+    try {
+      const changefeedFastPath = await tryChangefeedFastPath(db, trimmedPrompt, {
+        onToolStart: options.onToolStart,
+        allowedModules: options.allowedModules ?? [],
+      });
+      if (changefeedFastPath) {
+        toolsUsed.push({name: changefeedFastPath.toolName, args: changefeedFastPath.args});
+        if (changefeedFastPath.result != null) {
+          toolResults.push({name: changefeedFastPath.toolName, result: changefeedFastPath.result});
+        }
+        const answer = changefeedFastPath.directAnswer?.trim()
+          || formatChangefeedAsAnswer(changefeedFastPath.result as any).trim()
+          || "Changefeed query returned no usable result. Try: `pull changefeed for menu_item`.";
+        return finish(answer);
+      }
+      return finish(
+        "Changefeed query returned no usable result. Try: `pull changefeed for menu_item`.",
+      );
+    } catch (err) {
+      return finish(
+        `Changefeed query failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
 
   const inventoryFastPath = await tryInventoryOperationFastPath(db, trimmedPrompt, {
     onToolStart: options.onToolStart,

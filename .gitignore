@@ -30,6 +30,7 @@ cert
 posr.db
 posr.db1
 
+database
 database/clog
 database/manifest
 database/sstables

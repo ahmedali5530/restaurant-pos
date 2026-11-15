@@ -92,6 +92,17 @@ export function PosStoreProvider({ children }: { children: ReactNode }) {
   );
 }
 
+let projectedEpoch = -1;
+let projectedHash = '';
+
+function hashText(text: string): string {
+  let hash = 5381;
+  for (let i = 0; i < text.length; i += 1) {
+    hash = ((hash << 5) + hash) ^ text.charCodeAt(i);
+  }
+  return (hash >>> 0).toString(16);
+}
+
 export async function refreshCatalogIntoSettings(
   setAppSettings: (updater: (prev: AppSettingsInterface) => AppSettingsInterface) => void,
 ): Promise<void> {
@@ -105,6 +116,14 @@ export async function refreshCatalogIntoSettings(
   if (epoch !== posStore.getCatalogEpoch()) return;
   const after = await posStore.getSyncCursor();
   if (!after.catalogReady && !after.hydrated) return;
+
+  if (epoch !== projectedEpoch) {
+    projectedEpoch = epoch;
+    projectedHash = '';
+  }
+  const hash = hashText(JSON.stringify(catalog));
+  if (hash === projectedHash) return;
+  projectedHash = hash;
 
   setAppSettings((prev) => mergeHydratedCatalogIntoSettings(prev, catalog));
 }

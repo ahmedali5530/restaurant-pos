@@ -14,6 +14,7 @@
     "notOwner": "Questo ordine è aperto su un altro terminale",
     "numbersExhausted": "Nessun ID ordine riservato disponibile offline — riconnettiti per continuare",
     "invoicePendingSync": "Il numero fattura è in attesa di sincronizzazione — attendi che l'ordine sia online prima dell'invio fiscale",
+    "itemsPendingSync": "Gli articoli dell'ordine sono ancora in sincronizzazione — attendi un momento e riprova il pagamento così il fiscale riceve tutte le righe",
     "fiscalFailed": "Invio fiscale non riuscito",
     "fireFailed": "Impossibile inviare gli articoli in attesa"
   },
@@ -93,7 +94,8 @@
     "exactCardAmount": "Aggiunto importo esatto per pagamento con carta",
     "tempAlreadyPrinted": "Preconto già stampato",
     "alreadyClosed": "Questo ordine è già chiuso.",
-    "notOwner": "Questo ordine è gestito da un altro terminale."
+    "notOwner": "Questo ordine è gestito da un altro terminale.",
+    "skipFinalPrint": "Salta scontrino finale"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",
@@ -136,6 +138,7 @@
     "payWithCard": "Paga con carta",
     "payWithRazorpay": "Paga con Razorpay"
   },
+  "invoiceAssigning": "Ordine salvato — numero fattura ancora in assegnazione…",
   "quickCheckout": {
     "complete": "Completa",
     "fullPayment": "Pagamento completo",

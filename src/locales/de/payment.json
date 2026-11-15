@@ -14,6 +14,7 @@
     "notOwner": "Diese Bestellung ist auf einem anderen Terminal geöffnet",
     "numbersExhausted": "Offline sind keine reservierten Bestell-IDs mehr verfügbar — verbinden Sie sich erneut, um fortzufahren",
     "invoicePendingSync": "Die Rechnungsnummer wartet auf die Synchronisierung — warten Sie, bis die Bestellung online ist, bevor Sie fiskalisch senden",
+    "itemsPendingSync": "Bestellpositionen werden noch synchronisiert — bitte kurz warten und die Zahlung erneut versuchen, damit die Fiskalisierung alle Zeilen erhält",
     "fiscalFailed": "Fiskalische Übermittlung fehlgeschlagen",
     "fireFailed": "Zurückgehaltene Artikel konnten nicht gesendet werden"
   },
@@ -93,7 +94,8 @@
     "exactCardAmount": "Exakter Betrag für Kartenzahlung hinzugefügt",
     "tempAlreadyPrinted": "Zwischenrechnung bereits gedruckt",
     "alreadyClosed": "Diese Bestellung ist bereits abgeschlossen.",
-    "notOwner": "Diese Bestellung wird von einem anderen Terminal bearbeitet."
+    "notOwner": "Diese Bestellung wird von einem anderen Terminal bearbeitet.",
+    "skipFinalPrint": "Abschlussbeleg überspringen"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remote)",
@@ -136,6 +138,7 @@
     "payWithCard": "Mit Karte bezahlen",
     "payWithRazorpay": "Mit Razorpay bezahlen"
   },
+  "invoiceAssigning": "Bestellung gespeichert — Rechnungsnummer wird noch vergeben…",
   "quickCheckout": {
     "complete": "Abschließen",
     "fullPayment": "Vollständige Zahlung",

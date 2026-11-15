@@ -186,6 +186,8 @@ export const callOpenAIChat = async ({
   tools,
   task,
   responseFormat,
+  reasoningEffort,
+  extra,
   signal,
 }: {
   messages: OpenAIChatMessage[];
@@ -193,6 +195,10 @@ export const callOpenAIChat = async ({
   task?: AiTask;
   /** Optional OpenAI-compatible response_format (e.g. json_object). */
   responseFormat?: OpenAIResponseFormat;
+  /** Deep research: forwarded when the upstream model supports it (e.g. o-series). */
+  reasoningEffort?: "low" | "medium" | "high" | string;
+  /** Extra OpenAI-compatible body fields (provider-specific thinking flags). */
+  extra?: Record<string, unknown>;
   signal?: AbortSignal;
 }): Promise<OpenAIChatResponse> => {
   const response = await fetch(apiUrl(CHAT_COMPLETIONS_PATH), {
@@ -203,6 +209,8 @@ export const callOpenAIChat = async ({
       tools,
       ...(task ? {task} : {}),
       ...(responseFormat ? {response_format: responseFormat} : {}),
+      ...(reasoningEffort ? {reasoning_effort: reasoningEffort} : {}),
+      ...(extra && Object.keys(extra).length ? {extra} : {}),
     }),
     signal,
   });

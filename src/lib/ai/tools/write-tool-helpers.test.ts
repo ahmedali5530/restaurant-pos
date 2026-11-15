@@ -27,7 +27,10 @@ describe("buildWriteToolDefinitionsFromFields", () => {
     expect(createItems.items.required).toContain("name");
 
     const updateItems = tools[1].function.parameters?.properties?.categories as any;
-    expect(updateItems.items.required).toContain("name");
+    // Updates accept id OR match fields (validated in flagMissingMatchFields, not JSON required).
+    expect(updateItems.items.required).toBeUndefined();
+    expect(updateItems.items.properties).toHaveProperty("id");
+    expect(updateItems.items.properties).toHaveProperty("name");
   });
 
   it("returns only create tool when updateToolName is omitted", () => {
@@ -49,11 +52,36 @@ describe("createMergeUpdatePatchesByMatchFields", () => {
   it("merges existing row values into update patches", async () => {
     const merge = createMergeUpdatePatchesByMatchFields("categories", ["name"], {softDelete: false});
     const db: ImportDbLike = {
-      query: vi.fn(async () => [[{name: "Pizza", priority: 5, show_in_menu: true}]]),
+      query: vi.fn(async () => [[{id: "categories:1", name: "Pizza", priority: 5, show_in_menu: true}]]),
     };
 
     const merged = await merge(db, [{name: "Pizza", priority: 10}]);
-    expect(merged[0]).toEqual({name: "Pizza", priority: 10, show_in_menu: true});
+    expect(merged[0]).toEqual({
+      id: "categories:1",
+      name: "Pizza",
+      priority: 10,
+      show_in_menu: true,
+    });
+  });
+
+  it("merges by id and keeps a changed business key from the patch", async () => {
+    const merge = createMergeUpdatePatchesByMatchFields("inventory_item", ["code"], {
+      softDelete: true,
+    });
+    const db: ImportDbLike = {
+      query: vi.fn(async (sql: string) => {
+        expect(sql).toContain("id = $id");
+        return [[{id: "inventory_item:1", name: "Flour", code: "OLD", uom: "KG"}]];
+      }),
+    };
+
+    const merged = await merge(db, [{id: "inventory_item:1", code: "NEW"}]);
+    expect(merged[0]).toMatchObject({
+      id: "inventory_item:1",
+      name: "Flour",
+      code: "NEW",
+      uom: "KG",
+    });
   });
 
   it("returns patch unchanged when no match row exists", async () => {

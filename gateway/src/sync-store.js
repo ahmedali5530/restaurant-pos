@@ -537,6 +537,38 @@ async function allocateInvoiceNumber(db, payload, data, terminalId) {
   return { invoiceNumber: next, invoiceDisplay, invoicePrefix };
 }
 
+/**
+ * Global sequential auto_id (same counter as /sync/reserve-numbers for series
+ * auto_id). One-at-a-time mint on CREATE avoids multi-till block gaps.
+ */
+async function allocateAutoId(db) {
+  const counterId = toRecord('sync_number_counter', 'auto_id');
+  let counter = first(await db.query(`SELECT * FROM $id`, { id: counterId }));
+  if (!counter) {
+    let seed = 0;
+    try {
+      const row = first(
+        await db.query(`SELECT math::max(auto_id) AS max FROM order GROUP ALL`),
+      );
+      const max = Number(row?.max);
+      if (Number.isFinite(max) && max > 0) seed = Math.floor(max);
+    } catch {
+      seed = 0;
+    }
+    await db.query(
+      `CREATE $id SET series = $series, scope_id = $scopeId, value = $seed, updated_at = time::now()`,
+      { id: counterId, series: 'auto_id', scopeId: 'global', seed },
+    );
+    counter = { value: seed };
+  }
+  const next = Number(counter.value || 0) + 1;
+  await db.query(`UPDATE $id SET value = $next, updated_at = time::now()`, {
+    id: counterId,
+    next,
+  });
+  return next;
+}
+
 async function findAcceptedOperation(db, operationId) {
   return first(
     await db.query(
@@ -621,12 +653,15 @@ async function applyOperation(db, op, terminalId, scopeId) {
     let invoiceNumber = null;
     let invoiceDisplay = null;
     let invoicePrefix = null;
+    let autoId = null;
     if (acceptedType === 'CREATE_RECORD' && acceptedTable === 'order') {
       const existing = await loadOrder(db, String(op.payload?.recordId || op.aggregateId || ''));
       const n = Number(existing?.invoice_number);
       if (Number.isFinite(n) && n > 0) invoiceNumber = n;
       if (existing?.invoice_display) invoiceDisplay = String(existing.invoice_display);
       if (existing?.invoice_prefix) invoicePrefix = String(existing.invoice_prefix);
+      const a = Number(existing?.auto_id);
+      if (Number.isFinite(a) && a > 0) autoId = Math.floor(a);
     }
     return {
       status: 'accepted',
@@ -634,6 +669,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
       ...(invoiceNumber != null ? { invoiceNumber } : {}),
       ...(invoiceDisplay ? { invoiceDisplay } : {}),
       ...(invoicePrefix ? { invoicePrefix } : {}),
+      ...(autoId != null ? { autoId } : {}),
     };
   }
 
@@ -652,6 +688,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
   let assignedInvoiceNumber = null;
   let assignedInvoiceDisplay = null;
   let assignedInvoicePrefix = null;
+  let assignedAutoId = null;
 
   // Ownership is enforced only while offline. Online, any terminal may open/mutate.
   if (!isKitchenOp(type) && ownerOrderId && OWNER_GATED_OPS.includes(type)) {
@@ -732,6 +769,9 @@ async function applyOperation(db, op, terminalId, scopeId) {
       assignedInvoiceNumber = invoiceNumber;
       assignedInvoiceDisplay = invoiceDisplay;
       assignedInvoicePrefix = invoicePrefix;
+      // Always gateway-mint auto_id so tills share one sequence (no local blocks).
+      const autoId = await allocateAutoId(db);
+      assignedAutoId = autoId;
       if (payload.data && typeof payload.data === 'object') {
         // Never persist Dexie-only fields on SCHEMAFULL order.
         delete payload.data.local_invoice_code;
@@ -739,6 +779,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
         payload.data.invoice_number = invoiceNumber;
         payload.data.invoice_display = invoiceDisplay;
         if (invoicePrefix) payload.data.invoice_prefix = invoicePrefix;
+        payload.data.auto_id = autoId;
       }
       const data = toSurrealRecord(
         'order',
@@ -747,6 +788,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
           invoice_number: invoiceNumber,
           invoice_display: invoiceDisplay,
           ...(invoicePrefix ? { invoice_prefix: invoicePrefix } : {}),
+          auto_id: autoId,
           items: writtenItemIds.length
             ? writtenItemIds.map((id) => String(id))
             : (payload.data?.items ?? []),
@@ -917,6 +959,7 @@ async function applyOperation(db, op, terminalId, scopeId) {
     ...(assignedInvoiceNumber != null ? { invoiceNumber: assignedInvoiceNumber } : {}),
     ...(assignedInvoiceDisplay ? { invoiceDisplay: assignedInvoiceDisplay } : {}),
     ...(assignedInvoicePrefix ? { invoicePrefix: assignedInvoicePrefix } : {}),
+    ...(assignedAutoId != null ? { autoId: assignedAutoId } : {}),
   };
 }
 

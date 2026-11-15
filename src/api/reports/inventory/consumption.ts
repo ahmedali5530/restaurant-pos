@@ -401,14 +401,103 @@ const documentLineCost = (docs: Array<{items?: Array<{quantity?: number; price?:
     }, 0);
   }, 0);
 
+export type SaleVsConsumptionItemRow = {
+  itemId: string;
+  name: string;
+  code?: string;
+  uom?: string;
+  purchasedQty: number;
+  purchasedCost: number;
+  issuedQty: number;
+  issuedCost: number;
+  consumedQty: number;
+  consumedCost: number;
+  qtyVariance: number;
+  costVariance: number;
+};
+
+type DocLineItem = {
+  quantity?: number;
+  price?: number;
+  item?: {
+    id?: unknown;
+    name?: string;
+    code?: string;
+    uom?: string;
+    average_price?: number;
+  } | string | null;
+};
+
+type DocWithLines = {items?: DocLineItem[]};
+
+type ItemAgg = {
+  itemId: string;
+  name: string;
+  code?: string;
+  uom?: string;
+  averagePrice: number;
+  purchasedQty: number;
+  purchasedCost: number;
+  issuedQty: number;
+  issuedCost: number;
+  consumedQty: number;
+};
+
+const accumulateDocLines = (
+  docs: DocWithLines[],
+  target: Map<string, ItemAgg>,
+  kind: "purchase" | "issue",
+) => {
+  docs.forEach((doc) => {
+    (doc.items || []).forEach((line) => {
+      const rawItem = line.item;
+      if (!rawItem || typeof rawItem === "string") return;
+      const itemId = recordToString(rawItem.id ?? rawItem);
+      if (!itemId) return;
+      const key = normalizeKey(itemId);
+      const qty = safeNumber(line.quantity);
+      const cost = qty * safeNumber(line.price);
+      let row = target.get(key);
+      if (!row) {
+        row = {
+          itemId,
+          name: rawItem.name || "Unknown",
+          code: rawItem.code,
+          uom: rawItem.uom,
+          averagePrice: safeNumber(rawItem.average_price),
+          purchasedQty: 0,
+          purchasedCost: 0,
+          issuedQty: 0,
+          issuedCost: 0,
+          consumedQty: 0,
+        };
+        target.set(key, row);
+      } else {
+        if (!row.code && rawItem.code) row.code = rawItem.code;
+        if (!row.uom && rawItem.uom) row.uom = rawItem.uom;
+        if (!row.averagePrice && rawItem.average_price != null) {
+          row.averagePrice = safeNumber(rawItem.average_price);
+        }
+      }
+      if (kind === "purchase") {
+        row.purchasedQty += qty;
+        row.purchasedCost += cost;
+      } else {
+        row.issuedQty += qty;
+        row.issuedCost += cost;
+      }
+    });
+  });
+};
+
 /**
- * Sale vs Consumption report totals (sales, recipe consumption, issuance, purchases).
+ * Sale vs Consumption report totals + per-item purchase / issue / theoretical consumption.
  */
 export const getSaleVsConsumptionReport = async (
   db: DbClient,
   options: DateRangeFilter & {limit?: number} = {},
 ) => {
-  const limit = options.limit ?? 30;
+  const limit = options.limit;
   const {conditions, params} = buildCreatedAtDateConditions(options);
 
   const [orders, issues, purchases, consumption] = await Promise.all([
@@ -416,19 +505,19 @@ export const getSaleVsConsumptionReport = async (
       ...options,
       fetches: SALES_SUMMARY_FETCHES,
     }),
-    unwrapQueryResult<{items?: Array<{quantity?: number; price?: number}>}>(
+    unwrapQueryResult<DocWithLines>(
       await db.query(
         `SELECT * FROM ${Tables.inventory_issues}
          ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-         FETCH items`,
+         FETCH items, items.item`,
         params,
       ),
     ),
-    unwrapQueryResult<{items?: Array<{quantity?: number; price?: number}>}>(
+    unwrapQueryResult<DocWithLines>(
       await db.query(
         `SELECT * FROM ${Tables.inventory_purchases}
          ${conditions.length ? `WHERE ${conditions.join(" AND ")}` : ""}
-         FETCH items`,
+         FETCH items, items.item`,
         params,
       ),
     ),
@@ -444,9 +533,66 @@ export const getSaleVsConsumptionReport = async (
   const issuanceProfit = saleTotal - issuanceTotal;
   const purchaseProfit = saleTotal - purchaseTotal;
 
-  const topItems = [...consumption.byItem]
-    .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, limit);
+  const byKey = new Map<string, ItemAgg>();
+  accumulateDocLines(purchases, byKey, "purchase");
+  accumulateDocLines(issues, byKey, "issue");
+
+  consumption.byItem.forEach((item) => {
+    const key = normalizeKey(item.id);
+    let row = byKey.get(key);
+    if (!row) {
+      row = {
+        itemId: item.id,
+        name: item.name,
+        code: item.code,
+        uom: item.uom,
+        averagePrice: item.quantity > 0 ? item.costAverage / item.quantity : 0,
+        purchasedQty: 0,
+        purchasedCost: 0,
+        issuedQty: 0,
+        issuedCost: 0,
+        consumedQty: 0,
+      };
+      byKey.set(key, row);
+    } else {
+      if (!row.code && item.code) row.code = item.code;
+      if (!row.uom && item.uom) row.uom = item.uom;
+      if (!row.averagePrice && item.quantity > 0) {
+        row.averagePrice = item.costAverage / item.quantity;
+      }
+    }
+    row.consumedQty += item.quantity;
+  });
+
+  let byItem: SaleVsConsumptionItemRow[] = Array.from(byKey.values()).map((row) => {
+    const periodUnit =
+      row.purchasedQty > 0 ? row.purchasedCost / row.purchasedQty : row.averagePrice;
+    const consumedCost = row.consumedQty * periodUnit;
+    return {
+      itemId: row.itemId,
+      name: row.name,
+      code: row.code,
+      uom: row.uom,
+      purchasedQty: row.purchasedQty,
+      purchasedCost: row.purchasedCost,
+      issuedQty: row.issuedQty,
+      issuedCost: row.issuedCost,
+      consumedQty: row.consumedQty,
+      consumedCost,
+      qtyVariance: row.issuedQty - row.consumedQty,
+      costVariance: row.issuedCost - consumedCost,
+    };
+  });
+
+  byItem.sort((a, b) => {
+    const varCmp = Math.abs(b.qtyVariance) - Math.abs(a.qtyVariance);
+    if (varCmp !== 0) return varCmp;
+    return b.consumedQty - a.consumedQty;
+  });
+
+  if (limit != null && limit > 0) {
+    byItem = byItem.slice(0, limit);
+  }
 
   return {
     saleTotal,
@@ -459,11 +605,7 @@ export const getSaleVsConsumptionReport = async (
     purchaseTotal,
     purchaseProfit,
     purchaseProfitPercent: saleTotal > 0 ? (purchaseProfit / saleTotal) * 100 : 0,
-    byItem: topItems.map((item) => ({
-      name: item.name,
-      consumed: item.quantity,
-      costAverage: item.costAverage,
-    })),
+    byItem,
     orderCount: orders.length,
   };
 };

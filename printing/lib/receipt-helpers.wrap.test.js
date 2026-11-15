@@ -32,6 +32,32 @@ test('wrapReceiptText hard-breaks oversized tokens', () => {
   assert.equal(lines[1].length, 8);
 });
 
+test('wrapReceiptText accepts custom maxWidth for item name columns', () => {
+  const name = 'Grilled Chicken Caesar Salad With Extra Dressing';
+  const lines = wrapReceiptText(name, 'normal', 22);
+  assert.ok(lines.length > 1);
+  lines.forEach((line) => assert.ok(line.length <= 22, `line too long: ${line}`));
+});
+
+test('buildItemRowStrings wraps long dish names and keeps totals on last line', () => {
+  const { buildItemRowStrings } = require('./receipt-helpers');
+  const rows = buildItemRowStrings(
+    {
+      name: 'Very Long Dish Name That Definitely Exceeds Twenty Two Columns',
+      qty: 2,
+      price: 10,
+      total: 20,
+    },
+    { showItemName: true, showItemQuantity: true, showItemPrice: true, showItemTotal: true, decimal_place: 0 },
+  );
+  assert.ok(rows.length > 1);
+  rows.forEach((row) => assert.ok(row.length <= 42, `row too long: ${row.length}`));
+  const last = rows[rows.length - 1];
+  assert.match(last, /2/);
+  assert.match(last, /20/);
+  assert.ok(!rows[0].trimEnd().endsWith('20') || rows.length === 1);
+});
+
 test('normalizeSections keeps full text and image dimensions', () => {
   const [section] = normalizeSections([
     {

@@ -6,7 +6,7 @@ const {
   printVatLine,
   feedBottomMargin,
   printFooterSections,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   printModifierLines,
   printCenteredText,
@@ -99,17 +99,24 @@ function printBillLayout(printer, bill, config, opts) {
   const checkClosedLabel = L.checkClosed || 'Check Closed';
 
   printLineLeftRight(printer, `${invoiceLabel} ${bill.orderId || ''}`, bill.date || '');
-  printLineLeftRight(printer, `${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  if (tableLeft || orderTypeRight) {
+    printLineLeftRight(printer, tableLeft, orderTypeRight);
+  }
   printLineLeftRight(printer, `${cashierLabel}: ${bill.userName || '-'}`, '');
-  if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
-  if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
-  if (address) printFixedLine(printer, `${addressLabel}: ${String(address).slice(0, 40)}`, { align: 'left' });
   if (deliveryTime) printFixedLine(printer, `${deliveryTimeLabel}: ${String(deliveryTime)}`, { align: 'left' });
   printDivider(printer);
 
-  printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
+  printFixedLine(printer, buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
   (bill.items || []).forEach((it) => {
-    printFixedLine(printer, buildItemRowString(it, cfg), { align: 'left' });
+    buildItemRowStrings(it, cfg).forEach((row) => {
+      printFixedLine(printer, row, { align: 'left', wrap: false });
+    });
     printModifierLines(printer, it.modifierLines);
   });
   printDivider(printer);
@@ -139,6 +146,7 @@ function printBillLayout(printer, bill, config, opts) {
     printLineLeftRight(printer, bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     printLineLeftRight(printer, e.name || extraLabel, formatMoney(e.value, sym));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -171,11 +179,19 @@ function printBillLayout(printer, bill, config, opts) {
 
   if (notes) {
     printDivider(printer);
-    printFixedLine(printer, `${notesLabel}: ${String(notes).slice(0, 48)}`, { align: 'left' });
+    printFixedLine(printer, `${notesLabel}: ${String(notes)}`, { align: 'left' });
   }
   if (thankYou) {
     printer.feed(1);
     printCenteredText(printer, thankYou);
+  }
+
+  // Customer after settlement block, immediately before custom footer sections
+  if (cfg.showCustomer !== false && (customerName || phone || address)) {
+    printDivider(printer);
+    if (customerName) printFixedLine(printer, `${customerLabel}: ${String(customerName)}`, { align: 'left' });
+    if (phone) printFixedLine(printer, `${phoneLabel}: ${String(phone)}`, { align: 'left' });
+    if (address) printFixedLine(printer, `${addressLabel}: ${String(address)}`, { align: 'left' });
   }
 
   const qrItems = normalizeQrItems(qrcodes, qrcode);

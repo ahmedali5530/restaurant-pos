@@ -17,6 +17,10 @@ export interface Dish extends ID, Name, Priority {
   barcode?: string | null
   /** Extra barcodes (case, sleeve, alt UPCs); scanned codes match any of these */
   barcodes?: string[] | null
+  /** Optional KRA eTIMS item classification code (10 digits); blank uses provider default */
+  kra_item_cls_cd?: string | null
+  /** Optional KRA eTIMS tax type (A–E); blank uses rate mapping / provider default */
+  kra_tax_ty_cd?: string | null
   /** When false, dish is sold out (86). Missing/true = sellable. */
   available?: boolean | null
   /** Optional sale limit; null/undefined = unlimited. Counted since available_qty_set_at. */

@@ -38,7 +38,7 @@ const STATUS_OPTIONS = Object.values(PurchaseOrderStatus).map(status => ({
 export const PurchaseOrderFilter = () => {
   const { t } = useTranslation('reports');
   const {data: suppliersData, isLoading: loadingSuppliers} = useApi<SettingsData<InventorySupplier>>(Tables.inventory_suppliers, [], ['name asc'], 0, 9999);
-  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
+  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], ['name asc'], 0, 9999);
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
 
   return (

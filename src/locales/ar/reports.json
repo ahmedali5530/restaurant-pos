@@ -249,7 +249,9 @@
     "branchesHelp": "اتركه فارغًا لتضمين كل الفروع التي يمكنك الوصول إليها.",
     "branchView": "العرض",
     "branchViewCombined": "مجمّع",
-    "branchViewByBranch": "حسب الفرع"
+    "branchViewByBranch": "حسب الفرع",
+    "taxPercent": "نسبة الضريبة",
+    "paymentTypes": "أنواع الدفع"
   },
   "datePresets": {
     "today": "اليوم",
@@ -394,7 +396,16 @@
     "menu": "قائمة",
     "issue": "صرف",
     "employee": "الموظف",
-    "turnTime": "وقت الالتفاف (دقيقة)"
+    "turnTime": "وقت الالتفاف (دقيقة)",
+    "metric": "المقياس",
+    "purchasedQty": "كمية المشتريات",
+    "purchasedCost": "تكلفة المشتريات",
+    "issuedQty": "كمية الصرف",
+    "issuedCost": "تكلفة الصرف",
+    "consumedQty": "كمية الاستهلاك",
+    "consumedCost": "تكلفة الاستهلاك",
+    "qtyVariance": "فرق الكمية",
+    "costVariance": "فرق التكلفة"
   },
   "labels": {
     "modifiers": "الإضافات",
@@ -603,7 +614,15 @@
     "selfOrdersHint": "مدفوعة عبر الإنترنت من الضيوف على طاولاتهم — ليست ضمن درج النقد أو دفعة البطاقات أعلاه.",
     "selfOrdersTotal": "مدفوع عبر الإنترنت",
     "selfOrdersTestWarning": "{{count}} طلب تجريبي ({{amount}}) — لم يتم تحصيل أي مبلغ لها.",
-    "testPayment": "تجريبي"
+    "testPayment": "تجريبي",
+    "saleVsConsumption": "المبيعات مقابل الاستهلاك",
+    "saleVsIssuance": "المبيعات مقابل المخزون (الصرف)",
+    "saleVsPurchase": "المبيعات مقابل المشتريات",
+    "saleTotal": "إجمالي المبيعات",
+    "purchaseTotal": "إجمالي المشتريات",
+    "profitPercent": "نسبة الربح",
+    "byItem": "حسب الصنف",
+    "qtyVarianceHelp": "فرق الكمية = المصروف − استهلاك الوصفة (الموجب يعني صرفًا أعلى من الوصفة). تكلفة الاستهلاك تستخدم متوسط سعر الشراء للفترة إن وُجدت مشتريات، وإلا متوسط سعر الكتالوج."
   },
   "metrics": {
     "gross": "إجمالي",
@@ -703,13 +722,18 @@
     "alreadyCompleted": "لدى هذا المزود بالفعل إرسال ضريبي ناجح لهذا الطلب.",
     "retryInvoicePending": "رقم الفاتورة غير جاهز بعد — حاول مرة أخرى بعد المزامنة.",
     "retryOrderNotFound": "لم يتم العثور على الطلب لإعادة المحاولة الضريبية.",
-    "retryProviderDisabled": "مزود الضريبة معطل."
+    "retryProviderDisabled": "مزود الضريبة معطل.",
+    "byTax": "حسب الضريبة",
+    "byPaymentType": "حسب نوع الدفع",
+    "noTax": "بدون ضريبة"
   },
   "empty": {
     "noDiscountTypes": "لا توجد أنواع خصم للنطاق المحدد.",
     "noDiscountsByUsers": "لا توجد خصومات حسب المستخدمين للنطاق المحدد.",
     "noDiscountRows": "لا توجد صفوف خصم للنطاق المحدد.",
     "noEmployeeSales": "لا توجد بيانات مبيعات حسب الموظفين",
-    "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد"
+    "noScheduleRoster": "لا توجد مناوبات مجدولة للنطاق المحدد",
+    "noData": "لا توجد بيانات",
+    "noItemActivity": "لا يوجد نشاط شراء أو صرف أو استهلاك وصفات للنطاق المحدد."
   }
 }

@@ -32,7 +32,7 @@ const notNull = <T,>(value: T | null | undefined): value is T =>
 export const IssueReturnFilter = () => {
   const { t } = useTranslation('reports');
   const {data: locationsData, isLoading: loadingLocations} = useApi<SettingsData<InventoryLocation>>(Tables.inventory_locations, [], ['name asc'], 0, 9999);
-  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], ['name asc'], 0, 9999);
+  const {data: itemsData, isLoading: loadingItems} = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], ['name asc'], 0, 9999);
   const {data: usersData, isLoading: loadingUsers} = useApi<SettingsData<User>>(Tables.users, [], ['first_name asc'], 0, 9999);
 
   return (

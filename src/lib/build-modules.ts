@@ -17,6 +17,7 @@ import {
   MENU,
   ORDER_DISPLAY,
   ORDERS,
+  QUICK,
   REPORTS,
   SETTINGS,
   SUMMARY,
@@ -74,6 +75,11 @@ export function isTopLevelBuildModuleEnabled(id: TopLevelBuildModule): boolean {
       return topLevelFlag(
         typeof __BUILD_MODULE_menu__ !== 'undefined' ? __BUILD_MODULE_menu__ : undefined,
         'menu',
+      );
+    case 'quick':
+      return topLevelFlag(
+        typeof __BUILD_MODULE_quick__ !== 'undefined' ? __BUILD_MODULE_quick__ : undefined,
+        'quick',
       );
     case 'orders':
       return topLevelFlag(
@@ -156,6 +162,7 @@ export function isTopLevelBuildModuleEnabled(id: TopLevelBuildModule): boolean {
 
 const HOME_CANDIDATES: { path: string; module: TopLevelBuildModule }[] = [
   { path: MENU, module: 'menu' },
+  { path: QUICK, module: 'quick' },
   { path: ORDERS, module: 'orders' },
   { path: SUMMARY, module: 'summary' },
   { path: KITCHEN, module: 'kitchen' },

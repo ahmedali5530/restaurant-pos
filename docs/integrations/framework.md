@@ -308,18 +308,20 @@ Tables:
 
 - `provider:fbr`
 - `provider:pra`
+- `provider:kra` (Kenya KRA eTIMS)
 - `provider:internal-accounting`
 
-Both are fiscal providers with manifest-driven configuration and shared framework contracts.
+Fiscal providers use manifest-driven configuration and shared framework contracts.
 
 ### Provider-specific adapters (important)
 
 Config parsing, invoice serialization, auth headers, and response parsing are **not** generic across authorities.
 
 - Pakistan FBR/PRA share [`src/integrations/providers/fiscal/pk-fbr-pra/`](src/integrations/providers/fiscal/pk-fbr-pra/) (`serializePkFiscalInvoice`, `parsePkFiscalProviderConfig`, `submitPkFiscalInvoiceRequest`).
+- Kenya KRA eTIMS lives in [`src/integrations/providers/fiscal/kra/`](src/integrations/providers/fiscal/kra/) (own config/serialize/submit; OSCU cloud or VSCU local). Do **not** extend the PK adapter for KRA.
 - Shared across all fiscal providers: settlement orchestration + junction QR storage + [`parseFiscalRuntimeConfig`](src/integrations/providers/fiscal/shared/runtime-config.ts) (`offlineBuffering`, `blockSettlementOnFailure`, timeout only).
 - Settlement only requires `IntegrationExecutionResponse.data` shaped as `{ invoiceNumber?, qrcode?, code?, request?, response? }`.
-- Future authorities (ZATCA, Kenya KRA/eTIMS) must add their own folder under `providers/fiscal/` with their own config/serialize/submit — do not extend the PK adapter.
+- Future authorities (e.g. ZATCA) must add their own folder under `providers/fiscal/` — do not extend the PK or KRA adapters.
 
 ### Fiscal settlement and final-print QR
 
@@ -327,15 +329,17 @@ When one or more fiscal providers are **enabled**, order settlement submits invo
 
 1. `OrderPaymentReceiving.closeOrder` (and auto-check-close) calls `submitFiscalInvoices`.
 2. Each enabled fiscal provider runs `executeImmediate` with action `invoiceSubmission`.
-3. FBR/PRA serialize the Pakistan JSON payload and POST with `Authorization: Bearer <bearerToken>`.
-4. Success requires authority `Code == 100`; `InvoiceNumber` is stored and used as QR.
-5. Successful submissions each contribute a printable QR; `qrPriority` controls print order (higher first). PRA defaults to `100`, FBR to `50`. One row may still be marked `selected_for_print` for bookkeeping.
+3. FBR/PRA serialize the Pakistan JSON payload and POST with `Authorization: Bearer <bearerToken>`. KRA serializes eTIMS sales JSON and POSTs with `tin` / `bhfId` / `cmcKey` headers through the same `/fiscal/invoice` proxy.
+4. FBR/PRA success requires authority `Code == 100`; `InvoiceNumber` is stored and used as QR. KRA success requires `resultCd == "000"`; QR is the eTIMS receipt verify URL using `intrlData`.
+5. Successful submissions each contribute a printable QR; `qrPriority` controls print order (higher first). PRA defaults to `100`, FBR/KRA to `50`. One row may still be marked `selected_for_print` for bookkeeping.
 6. Each attempt is stored as a row in `integration_order_fiscal` (junction), including `qr_priority`.
 7. Final bill print resolves all successful QRs via `resolveFiscalQrcodesForPrint` (latest completed per provider, sorted by `qr_priority`) with provider authority labels, and passes `qrcodes` into `dispatchPrint` / `final-print.js`.
 
 Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 - `integration_order_fiscal`: `order`, `provider_id`, `invoice_number`, `qrcode`, `status`, `code`, `error`, `selected_for_print`, `qr_priority`, `request_payload`, `response_payload`, `submitted_at`
 - Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to mark a preferred submission for bookkeeping; all successful QRs still print.
+
+KRA also uses `integration_kra_counter` (TIN + branch sequences for `invcNo` / stock `sarNo` / item codes) and `integration_entity_mapping` for registered item codes. Device init (`connect`) and item registration (`sync`) run from Integrations → Configuration. Credit notes fire on `SaleRefunded` / paid `OrderCancelled` via `handleEvent`. Stock IO follows sales and `InventoryPosted` / `InventoryReversed` for purchase, purchase return, waste, and adjustment documents.
 
 ### Pakistan FBR/PRA config fields
 
@@ -354,6 +358,19 @@ Line items also send compulsory FBR/PRA `ItemCode` (dish `number`, else dish/ord
 | `punjabMode` (FBR only) | Line `TotalAmount = Quantity × SaleValue` |
 
 FBR also requires `sellerNtn`. USIN uses `order.invoice_number`.
+
+### Kenya KRA eTIMS config fields
+
+| Field | Purpose |
+|-------|---------|
+| `mode` | `oscu` (KRA cloud) or `vscu` (local control unit) |
+| `apiBaseUrl` | OSCU `https://etims-api[-sbx].kra.go.ke/etims-api` or VSCU `http://127.0.0.1:…` |
+| `tin` / `bhfId` / `dvcSrlNo` | Taxpayer PIN, 2-char branch, device serial |
+| `cmcKey` | Communication key from Initialize Device |
+| `itemClsCd` / `taxTyCd` | Default item class and tax type (dishes may override) |
+| `pkgUnitCd` / `qtyUnitCd` / `itemTyCd` | Used when minting KRA item codes (`KE2NTU0000001`) |
+
+VSCU on another LAN host (or Docker host gateway) must be listed in `FISCAL_ALLOWED_UPSTREAMS`. Docker cannot reach the host via `localhost` inside the API container.
 
 ### Manager APIs
 

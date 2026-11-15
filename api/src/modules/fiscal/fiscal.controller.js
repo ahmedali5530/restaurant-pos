@@ -45,17 +45,46 @@ function isHttpUrl(value) {
  *
  * When FISCAL_ALLOWED_UPSTREAMS is set (comma-separated hostnames or exact
  * origins), only those hosts may be proxied. When unset, we default to the
- * known Pakistan fiscal authorities (FBR + PRA) and the loopback dev proxy.
- * Set FISCAL_ALLOWED_UPSTREAMS explicitly in production to match your region.
+ * known Pakistan (FBR + PRA) and Kenya (KRA eTIMS) fiscal authorities plus
+ * the loopback VSCU/dev proxy. Set FISCAL_ALLOWED_UPSTREAMS explicitly in
+ * production to match your region.
+ *
+ * A VSCU on another LAN host must be listed in FISCAL_ALLOWED_UPSTREAMS.
+ * Docker cannot reach the host via localhost inside the container — use
+ * host.docker.internal or the host LAN IP and allow-list that hostname.
  */
 const DEFAULT_FISCAL_UPSTREAMS = [
   'ims.fbr.gov.pk',        // Pakistan FBR Live
   'fwbs.fbr.gov.pk',       // Pakistan FBR Sandbox
   'ebirfiler.fbropen.gov.pk', // legacy FBR sandbox
   'prs.punjab.gov.pk',     // Pakistan PRA (Punjab Revenue Authority)
+  'etims-api.kra.go.ke',    // Kenya KRA eTIMS OSCU production
+  'etims-api-sbx.kra.go.ke', // Kenya KRA eTIMS OSCU sandbox
   'localhost',
   '127.0.0.1',
 ];
+
+/** Only these header names may be forwarded to upstream (KRA eTIMS). */
+const ALLOWED_UPSTREAM_HEADER_KEYS = new Set(['tin', 'bhfid', 'cmckey']);
+
+function pickKraUpstreamHeaders(rawHeaders) {
+  if (!rawHeaders || typeof rawHeaders !== 'object' || Array.isArray(rawHeaders)) {
+    return null;
+  }
+  const out = {};
+  for (const [key, value] of Object.entries(rawHeaders)) {
+    if (typeof key !== 'string' || typeof value !== 'string') continue;
+    const normalized = key.trim().toLowerCase();
+    if (!ALLOWED_UPSTREAM_HEADER_KEYS.has(normalized)) continue;
+    const trimmed = value.trim();
+    if (!trimmed) continue;
+    // Preserve canonical casing expected by KRA.
+    if (normalized === 'tin') out.tin = trimmed;
+    else if (normalized === 'bhfid') out.bhfId = trimmed;
+    else if (normalized === 'cmckey') out.cmcKey = trimmed;
+  }
+  return Object.keys(out).length ? out : null;
+}
 
 function getFiscalAllowList() {
   const raw = process.env.FISCAL_ALLOWED_UPSTREAMS || '';
@@ -210,21 +239,39 @@ async function proxyInvoice(req, res, next) {
       );
     }
 
-    if (typeof bearerToken !== 'string' || !bearerToken.trim()) {
-      return sendError(res, 400, 'bearerToken is required');
+    const kraHeaders = pickKraUpstreamHeaders(body.headers);
+    const hasBearer = typeof bearerToken === 'string' && Boolean(bearerToken.trim());
+    // FBR/PRA require Bearer; KRA eTIMS uses tin/bhfId/cmcKey headers instead.
+    if (!hasBearer && !kraHeaders) {
+      return sendError(
+        res,
+        400,
+        'bearerToken is required (or KRA headers tin, bhfId, cmcKey)',
+        {
+          hint:
+            'Pakistan FBR/PRA: send bearerToken. Kenya KRA: send headers: { tin, bhfId, cmcKey }.',
+        }
+      );
     }
     if (payload === undefined || payload === null || typeof payload !== 'object' || Array.isArray(payload)) {
       return sendError(res, 400, 'payload must be a JSON object');
+    }
+
+    const upstreamHeaders = {
+      'Content-Type': 'application/json',
+    };
+    if (hasBearer) {
+      upstreamHeaders.Authorization = `Bearer ${bearerToken.trim()}`;
+    }
+    if (kraHeaders) {
+      Object.assign(upstreamHeaders, kraHeaders);
     }
 
     let upstream;
     try {
       upstream = await fetch(url, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${bearerToken}`,
-          'Content-Type': 'application/json',
-        },
+        headers: upstreamHeaders,
         body: JSON.stringify(payload),
       });
     } catch (err) {
@@ -268,5 +315,6 @@ module.exports = {
   isUpstreamAllowed,
   getFiscalAllowList,
   pickUpstreamUrl,
+  pickKraUpstreamHeaders,
   resolveRequestBody,
 };

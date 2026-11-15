@@ -2,8 +2,9 @@ import {Modal} from "@/components/common/react-aria/modal.tsx";
 import {Dish} from "@/api/model/dish.ts";
 import React, {useEffect, useMemo, useState} from "react";
 import {useDB} from "@/api/db/db.ts";
+import {toRecordId} from "@/lib/utils.ts";
 import {Tables} from "@/api/db/tables.ts";
-import {detectMimeType} from "@/utils/files.ts";
+import {detectMimeType, toUint8Array} from "@/utils/files.ts";
 import defaultImage from "@/assets/images/default-image.png";
 import {useTranslation} from 'react-i18next';
 import {withCurrency} from "@/lib/utils.ts";
@@ -137,13 +138,20 @@ export const DishView = ({
 
     const resolveDishPhoto = async () => {
       try {
-        if (data?.photo instanceof ArrayBuffer) {
-          const mimeType = detectMimeType(data.photo, "image/png");
-          objectUrl = URL.createObjectURL(new Blob([data.photo], {type: mimeType}));
-          if (!cancelled) {
-            setImageSrc(objectUrl);
+        if (data?.photo != null) {
+          try {
+            const bytes = toUint8Array(data.photo);
+            if (bytes.byteLength > 0) {
+              const mimeType = detectMimeType(bytes, "image/png");
+              objectUrl = URL.createObjectURL(new Blob([bytes], {type: mimeType}));
+              if (!cancelled) {
+                setImageSrc(objectUrl);
+              }
+              return;
+            }
+          } catch {
+            // fall through to dish_photo
           }
-          return;
         }
 
         const dishPhotoId = data?.dish_photo?.toString();
@@ -152,16 +160,27 @@ export const DishView = ({
           return;
         }
 
-        const [photo] = await db.query(`SELECT * FROM ONLY ${dishPhotoId}`);
-        if (!photo?.content || !(photo.content instanceof ArrayBuffer)) {
+        const [photo] = await db.query(`SELECT * FROM ONLY $id`, {
+          id: toRecordId(dishPhotoId),
+        });
+        const row = Array.isArray(photo) ? photo[0] : photo;
+        if (row?.content == null) {
           if (!cancelled) {
             setImageSrc(defaultImage);
           }
           return;
         }
 
-        const mimeType = detectMimeType(photo.content, "image/png");
-        objectUrl = URL.createObjectURL(new Blob([photo.content], {type: mimeType}));
+        const bytes = toUint8Array(row.content);
+        if (!bytes.byteLength) {
+          if (!cancelled) {
+            setImageSrc(defaultImage);
+          }
+          return;
+        }
+
+        const mimeType = detectMimeType(bytes, row.type || "image/png");
+        objectUrl = URL.createObjectURL(new Blob([bytes], {type: mimeType}));
         if (!cancelled) {
           setImageSrc(objectUrl);
         }

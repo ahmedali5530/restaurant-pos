@@ -16,21 +16,34 @@ const {
   formatLineLeftRight,
   formatDividerLine,
   formatCenteredHardwareLine,
-  buildItemRowString,
+  buildItemRowStrings,
   buildItemHeaderString,
   wrapReceiptText,
+  toPrinterText,
   STORE_LOGO_BOX_PX,
 } = require('./receipt-helpers');
 const { mapOrderToTemp, mapOrderToFinal, mapOrderToDelivery, mapOrderToRefund } = require('./order-mapping');
-const { computeSummary, formatNum } = require('./summary-mapping');
+const { computeSummary, formatNum, formatMixRightColumns } = require('./summary-mapping');
 const { ensureRasterFonts } = require('./raster-fonts');
 const { getRasterMetrics, calibrateMetrics, buildCtxFont } = require('./raster-metrics');
 const { paintBillLayoutRaster } = require('./raster-bill-layout');
 const { paintKotHeaderRaster } = require('./raster-kot-layout');
+const { formatTableCustomLines, normalizeTableRows } = require('./table-layout');
+const { testSlipContent } = require('./test-print-content');
 
 function lineHeightForSize(metrics, size) {
   if (size === 'large') return metrics.lineHeightLarge;
+  if (size === 'small') {
+    return Math.max(8, Math.round(metrics.lineHeightNormal * 0.78));
+  }
   return metrics.lineHeightNormal;
+}
+
+function fontPxForSize(metrics, size) {
+  if (size === 'small') {
+    return Math.max(8, Math.round(metrics.normalFontPx * 0.78));
+  }
+  return metrics.normalFontPx;
 }
 
 function scaleForSize(metrics, size) {
@@ -89,11 +102,33 @@ class ReceiptCanvas {
 
   fixedLine(text, opts) {
     const o = opts || {};
+    const size = o.size || 'normal';
+    const wrap = o.wrap !== false;
+    const lines = wrap
+      ? wrapReceiptText(text, size, o.maxWidth)
+      : [String(text == null ? '' : text)];
+    lines.forEach((line) => {
+      this._pushText({
+        text: formatFixedLine(line, o),
+        size,
+        style: o.style,
+        align: 'left',
+      });
+    });
+  }
+
+  /**
+   * Pre-padded table row. Column spaces are already in the string, so it must
+   * not be re-aligned or clipped to the hardware line width.
+   */
+  rawLine(text, opts) {
+    const o = opts || {};
     this._pushText({
-      text: formatFixedLine(text, o),
+      text: String(text == null ? '' : text),
       size: o.size || 'normal',
       style: o.style,
       align: 'left',
+      raw: true,
     });
   }
 
@@ -101,7 +136,7 @@ class ReceiptCanvas {
     const o = opts || {};
     this._pushText({
       text: formatLineLeftRight(left, right, o),
-      size: 'normal',
+      size: o.size || (o.small ? 'small' : 'normal'),
       style: o.style,
       align: 'left',
     });
@@ -166,7 +201,7 @@ class ReceiptCanvas {
       const underline = style === 'bold-underline';
       const align = op.align || 'left';
       const { x: scaleX, y: scaleY } = scaleForSize(metrics, size);
-      const fontPx = metrics.normalFontPx;
+      const fontPx = fontPxForSize(metrics, size);
       const cols = metrics.printerWidth;
       // Layout cells span the full printable width (Mike42/ESC a character grid).
       // Glyph font may be slightly smaller (−4px) but still sits in these cells.
@@ -175,7 +210,9 @@ class ReceiptCanvas {
       ctx.save();
       ctx.font = buildCtxFont(false, fontPx, family);
 
-      const maxChars = Math.max(1, Math.floor(cols / scaleX));
+      const maxChars = op.raw
+        ? String(op.text || '').length
+        : Math.max(1, Math.floor(cols / scaleX));
       const text = String(op.text || '').slice(0, maxChars);
       const usedCols = text.length * scaleX;
 
@@ -435,9 +472,13 @@ async function renderTempRaster(data, config) {
     timezone: cfg.timezone,
     locale: cfg.locale,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
+    customerName: bill.customerName || undefined,
+    phone: bill.phone || undefined,
+    address: bill.address || undefined,
     notes: bill.note || undefined,
     showPayments: false,
     showChange: false,
@@ -457,9 +498,13 @@ async function renderFinalRaster(data, config) {
     timezone: cfg.timezone,
     locale: cfg.locale,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
+    customerName: bill.customerName || undefined,
+    phone: bill.phone || undefined,
+    address: bill.address || undefined,
     thankYou: bill.thankYou,
     showPayments: true,
     showChange: true,
@@ -479,6 +524,7 @@ async function renderDeliveryRaster(data, config) {
     timezone: cfg.timezone,
     locale: cfg.locale,
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
   });
   return renderBillRaster(bill, cfg, {
     title: bill.title,
@@ -528,7 +574,15 @@ async function renderRefundRaster(data, config) {
 
   rc.centered(refundReceiptLabel, { size: 'normal', style: 'bold-underline' });
   rc.lineLeftRight(`${originalInvoiceLabel} ${bill.originalOrderId || ''}`, '');
-  rc.lineLeftRight(`${tableLabel}: ${bill.table || '-'}`, `${orderTypeLabel}: ${bill.orderType || '-'}`);
+  const tableLeft = cfg.showTableName !== false
+    ? `${tableLabel}: ${bill.table || '-'}`
+    : '';
+  const orderTypeRight = cfg.showOrderType !== false && bill.orderType
+    ? `${orderTypeLabel}: ${bill.orderType}`
+    : '';
+  if (tableLeft || orderTypeRight) {
+    rc.lineLeftRight(tableLeft, orderTypeRight);
+  }
   rc.lineLeftRight(`${cashierLabel}: ${bill.userName || '-'}`, '');
   rc.lineLeftRight(`${refundDateLabel}: ${bill.refundDate || ''}`, '');
   rc.divider();
@@ -552,6 +606,7 @@ async function renderRefundRaster(data, config) {
     rc.lineLeftRight(bill.serviceChargeLabel, formatMoney(bill.serviceChargeAmount, sym));
   }
   (bill.extras || []).forEach((e) => {
+    if (!e || Number(e.value) === 0) return;
     rc.lineLeftRight(e.name || extraLabel, formatMoney(e.value, sym));
   });
   if (bill.tipAmount != null && Number(bill.tipAmount) !== 0) {
@@ -573,6 +628,34 @@ async function renderRefundRaster(data, config) {
   return rc.toPng();
 }
 
+async function renderTestRaster(data, config) {
+  const cfg = normalizeConfig(config || {});
+  const width = resolvePaperWidthPx(cfg);
+  const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
+  const slip = testSlipContent(data);
+  const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
+  if (topFeed) rc.feed(topFeed);
+
+  slip.titleLines.forEach((line) => {
+    rc.centered(line, { size: 'normal', style: 'bold' });
+  });
+  rc.divider();
+  slip.rowLines.forEach((line) => {
+    rc.fixedLine(line, { align: 'left' });
+  });
+  if (slip.rowLines.length) rc.feed(1);
+  slip.okLines.forEach((line) => {
+    rc.centered(line, { size: 'normal' });
+  });
+
+  const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
+  if (bottomFeed) rc.feed(bottomFeed);
+  rc.feed(1);
+  rc.centered(formatPrintingTimestamp(cfg), { size: 'normal' });
+  rc.feed(3);
+  return rc.toPng();
+}
+
 async function renderKitchenRaster(data, config) {
   const cfg = normalizeConfig(config || {});
   const order = data && data.order;
@@ -580,9 +663,10 @@ async function renderKitchenRaster(data, config) {
   const {
     getOrderId,
     getOrderCreatedAt,
-    getOrderItemModifierLines,
     getOrderUserName,
     getOrderType,
+    mapOrderItemToPrintRow,
+    accumulatePrintItems,
   } = require('./order-mapping');
   const width = resolvePaperWidthPx(cfg);
   const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
@@ -606,22 +690,22 @@ async function renderKitchenRaster(data, config) {
     orderTaker: getOrderUserName(order),
     createdAt: getOrderCreatedAt(order, { timezone: cfg.timezone, locale: cfg.locale }),
     labels: L,
+    showOrderType: cfg.showOrderType !== false,
+    showTableName: cfg.showTableName !== false,
   });
 
-  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold' });
-  const items = Array.isArray(data.items) ? data.items : [];
-  items.forEach((it) => {
-    const dish = it.item || it.dish || {};
-    const row = {
-      name: dish.name || dish.title || '',
-      qty: it.quantity != null ? it.quantity : 1,
-      price: Number(it.price || 0),
-      total: Number(it.price || 0) * (it.quantity != null ? it.quantity : 1),
-      modifierLines: getOrderItemModifierLines(it),
-    };
-    rc.fixedLine(buildItemRowString(row, cfg), { align: 'left' });
-    if (it.comments) {
-      rc.fixedLine(` >> ${String(it.comments).slice(0, 26)}`, { align: 'left' });
+  rc.fixedLine(buildItemHeaderString(cfg), { align: 'left', style: 'bold', wrap: false });
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const printItems = (() => {
+    const rows = rawItems.map((it) => mapOrderItemToPrintRow(it, false));
+    return cfg.accumulateSameItems ? accumulatePrintItems(rows) : rows;
+  })();
+  printItems.forEach((row) => {
+    buildItemRowStrings(row, cfg).forEach((line) => {
+      rc.fixedLine(line, { align: 'left', wrap: false });
+    });
+    if (row.notes) {
+      rc.fixedLine(` >> ${String(row.notes)}`, { align: 'left' });
     }
     if (Array.isArray(row.modifierLines)) {
       row.modifierLines.forEach((line) => {
@@ -646,6 +730,11 @@ function pct(x, of) {
   return Number.isFinite(n) && n > 0 ? (Number(x) / n) * 100 : 0;
 }
 
+function qtyBracket(count) {
+  if (count == null) return '';
+  return ` (${formatNum(count)})`;
+}
+
 async function renderSummaryRaster(data, config) {
   const cfg = normalizeConfig(config || {});
   const L = cfg.labels || {};
@@ -660,68 +749,172 @@ async function renderSummaryRaster(data, config) {
   const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
   if (topFeed) rc.feed(topFeed);
   paintBranding(rc, cfg);
-  const titleTemplate = L.summaryTitle || 'Daily sales summary — {{date}}';
-  rc.centered(titleTemplate.replace('{{date}}', s.date), { size: 'normal', style: 'bold-underline' });
+  const isProductMix = data && data.variant === 'product_mix';
+  const isMinimal = data && data.variant === 'minimal';
+  const titleTemplate = isProductMix
+    ? (L.productMixTitle || 'Product mix - {{date}}')
+    : (L.summaryTitle || 'Daily sales summary - {{date}}');
+  rc.centered(toPrinterText(titleTemplate.replace('{{date}}', s.date)), { size: 'normal', style: 'bold-underline' });
+  if (s.windowRange) {
+    const rangeTemplate = L.windowRange || 'Period: {{range}}';
+    rc.centered(toPrinterText(rangeTemplate.replace('{{range}}', String(s.windowRange))), { size: 'normal' });
+  }
   rc.divider();
   const sect = (t) => {
     rc.divider();
-    rc.centered(t, { size: 'normal', style: 'bold-underline' });
+    rc.centered(toPrinterText(t), { size: 'normal', style: 'bold-underline' });
   };
-  sect(L.salesRevenue || '1. Sales revenue');
-  rc.lineLeftRight(L.exclusiveSales || 'Exclusive sales', formatMoney(s.exclusiveSales, sym));
-  rc.lineLeftRight(L.extras || 'Extras', formatMoney(s.totalExtras, sym));
-  rc.lineLeftRight(L.grossSales || 'Gross sales', formatMoney(s.grossSales, sym));
-  rc.lineLeftRight(L.itemDiscounts || 'Item discounts', formatMoney(s.itemDiscounts, sym));
-  rc.lineLeftRight(L.subtotalDiscounts || 'Subtotal discounts', formatMoney(s.subtotalDiscounts, sym));
-  rc.lineLeftRight(L.couponDiscounts || 'Coupon discounts', formatMoney(s.couponDiscounts, sym));
-  rc.lineLeftRight(L.discountsMinus || '(-) Discounts', formatMoney(s.discounts, sym));
-  rc.lineLeftRight(L.netSales || 'Net sales', formatMoney(s.netSales, sym));
-  sect(L.surchargesTaxes || '2. Surcharges and taxes');
-  rc.lineLeftRight(L.serviceCharges || 'Service charges', formatMoney(s.serviceCharges, sym));
-  rc.lineLeftRight(L.taxes || 'Taxes', formatMoney(s.taxCollected, sym));
-  rc.lineLeftRight(L.totalRevenue || 'Total revenue', formatMoney(s.totalRevenue, sym), { style: 'bold-underline' });
-  sect(L.settlementCashier || '3. Settlement and cashier');
-  rc.lineLeftRight(L.amountDueBeforeTips || 'Amount due (before tips)', formatMoney(s.amountDue, sym));
-  rc.lineLeftRight(L.tips || 'Tips', formatMoney(s.tips, sym));
-  rc.lineLeftRight(L.grandTotalDue || 'Grand total (due)', formatMoney(s.grandTotalDue, sym), { style: 'bold-underline' });
-  rc.lineLeftRight(L.amountCollected || 'Amount collected', formatMoney(s.amountCollected, sym));
-  rc.lineLeftRight(L.rounding || 'Rounding', formatMoney(s.rounding, sym));
-  rc.lineLeftRight(L.changeVariance || 'Change / variance', formatMoney(s.changeGiven, sym));
-  sect(L.operationalControls || '4. Operational controls');
-  rc.lineLeftRight(L.voids || 'Voids', formatMoney(s.voids, sym));
-  rc.lineLeftRight(L.refunds || 'Refunds', formatMoney(s.refunds, sym));
-  rc.lineLeftRight(L.covers || 'Covers', formatNum(s.covers));
-  rc.lineLeftRight(L.averageCover || 'Average cover', formatMoney(s.averageCover, sym));
-  rc.lineLeftRight(L.ordersChecks || 'Orders / checks', formatNum(s.ordersCount));
-  rc.lineLeftRight(L.averageOrderCheck || 'Average order / check', formatMoney(s.averageOrderCheck, sym));
-  sect(L.productMix || '5. Product mix');
-  const ex = s.exclusiveSales;
-  if (!s.categoryMix || s.categoryMix.length === 0) {
-    rc.fixedLine(L.noCategoryData || 'No category data for this date.', { align: 'left' });
-  } else {
-    s.categoryMix.forEach((category) => {
-      const catShare = `${formatNum(pct(category.total, ex))}%`;
+  const salesTitle = isMinimal
+    ? (L.minimalSalesRevenue || '1. Sales revenue')
+    : (L.salesRevenue || '1. Sales revenue');
+  const surchargesTitle = isMinimal
+    ? (L.minimalSurchargesTaxes || '2. Surcharges and taxes')
+    : (L.surchargesTaxes || '2. Surcharges and taxes');
+  const settlementTitle = isMinimal
+    ? (L.minimalSettlementCashier || '3. Settlement and cashier')
+    : (L.settlementCashier || '3. Settlement and cashier');
+  const opsTitle = isMinimal
+    ? (L.minimalOperationalControls || '4. Operational controls')
+    : (L.operationalControls || '4. Operational controls');
+  const paymentsTitle = isMinimal
+    ? (L.minimalPaymentTypes || '5. Payment types')
+    : (L.paymentTypes || '8. Payment types');
+
+  const paintTaxesBreakdown = () => {
+    if (!s.taxesList || s.taxesList.length === 0) {
+      rc.fixedLine(toPrinterText(L.noTaxRows || 'No tax rows for this date.'), { align: 'left' });
+      return;
+    }
+    s.taxesList.forEach((tax) => {
+      const share = `${formatNum(pct(tax.total, s.taxCollected))}%`;
       rc.lineLeftRight(
-        String(category.name),
-        `${formatNum(category.quantity)}  ${formatMoney(category.total, sym)}  ${catShare}`,
-        { style: 'bold-underline' }
+        toPrinterText(`${tax.name}%${qtyBracket(tax.count)}`),
+        `${formatMoney(tax.total, sym)}  ${share}`
+      );
+    });
+  };
+
+  const paintPaymentTypes = () => {
+    (s.paymentTypes || []).filter((p) => Number(p.total) > 0).forEach((p) => {
+      const share = `${formatNum(pct(p.total, s.grandTotalDue))}%`;
+      rc.lineLeftRight(
+        toPrinterText(`${String(p.name || '')}${qtyBracket(p.count)}`),
+        `${formatMoney(p.total, sym)}  ${share}`
+      );
+    });
+  };
+
+  const paintProductMix = () => {
+    const ex = s.exclusiveSales;
+    const dishIndent = 2;
+    if (!s.categoryMix || s.categoryMix.length === 0) {
+      rc.fixedLine(toPrinterText(L.noCategoryData || 'No category data for this date.'), { align: 'left' });
+      return;
+    }
+    rc.lineLeftRight(
+      toPrinterText(L.item || 'Item'),
+      formatMixRightColumns('Qty', 'Total', '%')
+    );
+    s.categoryMix.forEach((category) => {
+      rc.lineLeftRight(
+        toPrinterText(String(category.name)),
+        formatMixRightColumns(
+          formatNum(category.quantity),
+          formatMoney(category.total, sym),
+          `${formatNum(pct(category.total, ex))}%`
+        ),
+        { style: 'bold' }
       );
       (category.dishes || []).forEach((dish) => {
-        const dishShare = `${formatNum(pct(dish.total, ex))}%`;
         rc.lineLeftRight(
-          `  ${String(dish.name)}`,
-          `${formatNum(dish.quantity)}  ${formatMoney(dish.total, sym)}  ${dishShare}`
+          toPrinterText(`${' '.repeat(dishIndent)}${String(dish.name)}`),
+          formatMixRightColumns(
+            formatNum(dish.quantity),
+            formatMoney(dish.total, sym),
+            `${formatNum(pct(dish.total, ex))}%`
+          )
         );
+        (dish.modifiers || []).forEach((modifier) => {
+          const depth = Number.isFinite(Number(modifier.depth)) ? Math.max(1, Number(modifier.depth)) : 1;
+          const indent = ' '.repeat(dishIndent + depth * 2);
+          const modTotal = Number(modifier.price || 0) * Number(modifier.quantity || 0);
+          rc.lineLeftRight(
+            toPrinterText(`${indent}- ${String(modifier.name || '')}`),
+            formatMixRightColumns(
+              formatNum(modifier.quantity),
+              formatNum(modifier.price),
+              `${formatNum(pct(modTotal, ex))}%`
+            ),
+            { small: true }
+          );
+        });
       });
     });
+  };
+
+  if (isProductMix) {
+    paintProductMix();
+  } else {
+  sect(salesTitle);
+  rc.lineLeftRight(toPrinterText(L.exclusiveSales || 'Exclusive sales'), formatMoney(s.exclusiveSales, sym));
+  rc.lineLeftRight(toPrinterText(L.extras || 'Extras'), formatMoney(s.totalExtras, sym));
+  rc.lineLeftRight(toPrinterText(L.grossSales || 'Gross sales'), formatMoney(s.grossSales, sym));
+  rc.lineLeftRight(toPrinterText(L.itemDiscounts || 'Item discounts'), formatMoney(s.itemDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.subtotalDiscounts || 'Subtotal discounts'), formatMoney(s.subtotalDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.couponDiscounts || 'Coupon discounts'), formatMoney(s.couponDiscounts, sym));
+  rc.lineLeftRight(toPrinterText(L.discountsMinus || '(-) Discounts'), formatMoney(s.discounts, sym));
+  rc.lineLeftRight(toPrinterText(L.netSales || 'Net sales'), formatMoney(s.netSales, sym));
+  sect(surchargesTitle);
+  rc.lineLeftRight(toPrinterText(L.serviceCharges || 'Service charges'), formatMoney(s.serviceCharges, sym));
+  rc.lineLeftRight(toPrinterText(L.taxes || 'Taxes'), formatMoney(s.taxCollected, sym));
+  rc.lineLeftRight(toPrinterText(L.totalRevenue || 'Total revenue'), formatMoney(s.totalRevenue, sym), { style: 'bold-underline' });
+  if (isMinimal) {
+    paintTaxesBreakdown();
   }
-  sect(L.paymentTypes || '6. Payment types');
-  (s.paymentTypes || []).filter((p) => Number(p.total) > 0).forEach((p) => {
-    const share = `${formatNum(pct(p.total, s.amountDue))}%`;
-    rc.lineLeftRight(String(p.name || ''), `${formatMoney(p.total, sym)}  ${share}`);
+  sect(settlementTitle);
+  rc.lineLeftRight(toPrinterText(L.amountDueBeforeTips || 'Amount due (before tips)'), formatMoney(s.amountDue, sym));
+  rc.lineLeftRight(toPrinterText(L.tips || 'Tips'), formatMoney(s.tips, sym));
+  rc.lineLeftRight(toPrinterText(L.grandTotalDue || 'Grand total (due)'), formatMoney(s.grandTotalDue, sym), { style: 'bold-underline' });
+  rc.lineLeftRight(toPrinterText(L.amountCollected || 'Amount collected'), formatMoney(s.amountCollected, sym));
+  rc.lineLeftRight(toPrinterText(L.rounding || 'Rounding'), formatMoney(s.rounding, sym));
+  rc.lineLeftRight(toPrinterText(L.changeVariance || 'Change / variance'), formatMoney(s.changeGiven, sym));
+  sect(opsTitle);
+  rc.lineLeftRight(toPrinterText(L.voids || 'Voids'), formatMoney(s.voids, sym));
+  rc.lineLeftRight(toPrinterText(L.refunds || 'Refunds'), formatMoney(s.refunds, sym));
+  rc.lineLeftRight(
+    toPrinterText(L.covers || 'Covers'),
+    `${formatNum(s.covers)} / ${formatMoney(s.averageCover, sym)}`
+  );
+  rc.lineLeftRight(
+    toPrinterText(L.ordersChecks || 'Orders / checks'),
+    `${formatNum(s.ordersCount)} / ${formatMoney(s.averageOrderCheck, sym)}`
+  );
+  if (isMinimal) {
+    sect(paymentsTitle);
+    paintPaymentTypes();
+  } else {
+  sect(L.productMix || '5. Product mix');
+  paintProductMix();
+  sect(L.orderTypes || '6. Sale by order type');
+  (s.orderTypes || []).forEach((entry) => {
+    rc.lineLeftRight(
+      toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
+      formatMoney(entry.total, sym)
+    );
   });
+  sect(L.orderTakers || '7. Sale by order taker');
+  (s.orderTakers || []).forEach((entry) => {
+    rc.lineLeftRight(
+      toPrinterText(`${entry.name}${qtyBracket(entry.ordersCount)}`),
+      formatMoney(entry.total, sym)
+    );
+  });
+  sect(L.paymentTypes || '8. Payment types');
+  paintPaymentTypes();
+  }
+  }
   if (cfg.showVatNumber && cfg.vatNumber) {
-    rc.centered(`${cfg.vatName}: ${cfg.vatNumber}`, { size: 'normal' });
+    rc.centered(toPrinterText(`${cfg.vatName}: ${cfg.vatNumber}`), { size: 'normal' });
   }
   paintSections(rc, cfg.footerSections);
   const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
@@ -739,6 +932,38 @@ async function renderSummaryRaster(data, config) {
  * @param {Object} config
  * @returns {Promise<Buffer[]>}
  */
+async function renderTableRaster(data, config) {
+  const cfg = normalizeConfig(config || {});
+  const width = resolvePaperWidthPx(cfg);
+  const rc = new ReceiptCanvas(width, { threshold: cfg.rasterThreshold });
+  const topFeed = Math.max(0, Number(cfg.topMargin) || 0);
+  if (topFeed) rc.feed(topFeed);
+  paintBranding(rc, cfg);
+
+  const rows = normalizeTableRows(data);
+  const defaultSize = Array.isArray(data && data.size) ? data.size : [1, 1];
+  rows.forEach((row) => {
+    if (!row || !Array.isArray(row.cells) || row.cells.length === 0) return;
+    const size = Array.isArray(row.size) ? row.size : defaultSize;
+    formatTableCustomLines(row.cells, {
+      printerWidth: rc.metrics.printerWidth,
+      size,
+    }).forEach((line) => {
+      rc.rawLine(line.text, { style: line.style, size: line.size });
+    });
+  });
+
+  paintSections(rc, cfg.footerSections);
+  const bottomFeed = Math.max(0, Number(cfg.bottomMargin) || 0);
+  if (bottomFeed) rc.feed(bottomFeed);
+  const extraFeed = Math.max(0, parseInt(data && data.feed, 10) || 0);
+  if (extraFeed) rc.feed(extraFeed);
+  rc.feed(1);
+  rc.centered(formatPrintingTimestamp(cfg), { size: 'normal' });
+  rc.feed(3);
+  return rc.toPng();
+}
+
 async function renderRasterPngs(printType, data, config) {
   const cfg = normalizeConfig(config || {});
   const t = String(printType || (data && data.printType) || 'final').toLowerCase();
@@ -750,6 +975,8 @@ async function renderRasterPngs(printType, data, config) {
   else if (t === 'refund') png = await renderRefundRaster(data, cfg);
   else if (t === 'kitchen') png = await renderKitchenRaster(data, cfg);
   else if (t === 'summary') png = await renderSummaryRaster(data, cfg);
+  else if (t === 'table') png = await renderTableRaster(data, cfg);
+  else if (t === 'test') png = await renderTestRaster(data, cfg);
   else {
     const err = new Error(`Raster not supported for print type: ${t}`);
     err.code = 'RASTER_UNSUPPORTED';
@@ -784,4 +1011,5 @@ module.exports = {
   renderRefundRaster,
   renderKitchenRaster,
   renderSummaryRaster,
+  renderTestRaster,
 };

@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "ИИ-импорт категорий товаров",
     "smartImportLocationsTitle": "ИИ-импорт локаций",
     "lastPrice": "Последняя",
-    "itemPrice": "Товар"
+    "itemPrice": "Товар",
+    "averagePrice": "Сред.",
+    "pricePerUom": "Цена / {{uom}}",
+    "stockUomHint": "Склад: {{uom}}"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -669,5 +672,9 @@
     "toast": {
       "saved": "Единица {{code}} сохранена"
     }
+  },
+  "delete": {
+    "itemTitle": "Удалить {{name}}",
+    "itemMessage": "Неиспользуемый товар будет удалён. Если он только в рецептах блюд, эти строки тоже удалятся. При истории склада или документах товар будет деактивирован."
   }
 }

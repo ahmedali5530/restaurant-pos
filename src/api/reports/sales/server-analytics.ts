@@ -82,15 +82,13 @@ export const getServerTicketTimes = async (
   options: DateRangeFilter & {limit?: number; dineInOnly?: boolean},
 ) => {
   const limit = options.limit ?? 3;
-  const orders = await fetchPaidOrders(db, {
+  const scopedOrders = await fetchPaidOrders(db, {
     startDate: options.startDate,
     endDate: options.endDate,
+    branchIds: options.branchIds,
     fetches: ["user", "table", "order_type", "payments", "payments.payment_type", "items", "items.taxes", "items.tax_mode", "tax", "order_taxes", "order_taxes.tax"],
+    tableRequired: options.dineInOnly === true,
   });
-
-  const scopedOrders = options.dineInOnly
-    ? orders.filter(order => hasTable(order))
-    : orders;
 
   const byUser = new Map<string, {
     userName: string;

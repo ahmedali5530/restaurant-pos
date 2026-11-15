@@ -8,6 +8,7 @@ import {formatInventoryItemLabel} from "@/lib/inventory/item.label.ts";
 import { toJsDate, toLuxonDateTime } from "@/lib/datetime.ts";
 import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {fetchLedgerMovements} from "@/lib/inventory/ledger.service.ts";
+import {toRecordId} from "@/lib/utils.ts";
 
 type InventoryTransaction = {
   date: string;
@@ -47,6 +48,10 @@ const REFERENCE_TYPE_LABEL: Record<string, string> = {
   adjustment: "Adjustment",
 };
 
+const LABEL_TO_REFERENCE_TYPE: Record<string, string> = Object.fromEntries(
+  Object.entries(REFERENCE_TYPE_LABEL).map(([key, label]) => [label, key]),
+);
+
 const parseFilters = () => {
   const params = new URLSearchParams(window.location.search);
   const startDate = params.get("start") || params.get("start");
@@ -78,13 +83,28 @@ export const DetailedInventoryReport = () => {
         setLoading(true);
         setError(null);
 
+        const referenceTypes = filters.types
+          .map((label) => LABEL_TO_REFERENCE_TYPE[label] || label)
+          .filter(Boolean);
+
+        const itemsQuery =
+          filters.itemIds.length > 0
+            ? `SELECT id, name, code, uom, category FROM ${Tables.inventory_items} WHERE id INSIDE $itemIds FETCH category`
+            : `SELECT id, name, code, uom, category FROM ${Tables.inventory_items} FETCH category`;
+        const itemsParams =
+          filters.itemIds.length > 0
+            ? {itemIds: filters.itemIds.map((id) => toRecordId(id))}
+            : {};
+
         const [movements, itemsResult, locationsResult] = await Promise.all([
           fetchLedgerMovements(db, {
             from: filters.startDate ?? undefined,
             to: filters.endDate ?? undefined,
             excludeReversals: true,
+            itemIds: filters.itemIds.length > 0 ? filters.itemIds : undefined,
+            referenceTypes: referenceTypes.length > 0 ? referenceTypes : undefined,
           }),
-          db.query(`SELECT id, name, code, uom, category FROM ${Tables.inventory_items} FETCH category`),
+          db.query(itemsQuery, itemsParams),
           db.query(`SELECT id, name FROM ${Tables.inventory_locations}`),
         ]);
 
@@ -107,7 +127,7 @@ export const DetailedInventoryReport = () => {
 
         type Row = InventoryTransaction & { signedChange: number };
 
-        let allTransactions: Row[] = movements.map((row) => {
+        const allTransactions: Row[] = movements.map((row) => {
           const itemKey = recordIdToString(row.inventory_item) || row.inventory_item;
           const locationKey = recordIdToString(row.inventory_location) || row.inventory_location;
           const item = itemByKey.get(itemKey) || itemByKey.get(normalizeId(itemKey));
@@ -133,20 +153,6 @@ export const DetailedInventoryReport = () => {
             signedChange: qty,
           };
         });
-
-        if (filters.itemIds.length > 0) {
-          const normalizedFilterIds = new Set(filters.itemIds.map(normalizeId));
-          allTransactions = allTransactions.filter((transaction) => {
-            const normalizedItemId = normalizeId(transaction.itemId);
-            return normalizedFilterIds.has(normalizedItemId) || normalizedFilterIds.has(transaction.itemId);
-          });
-        }
-
-        if (filters.types.length > 0) {
-          allTransactions = allTransactions.filter((transaction) =>
-            filters.types.includes(transaction.type)
-          );
-        }
 
         allTransactions.sort((a, b) => {
           const dateA = toJsDate(a.date).getTime();

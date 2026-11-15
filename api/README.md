@@ -206,23 +206,35 @@ Auth headers follow the profile `AUTH` setting (`bearer`, `api-key`, or `none`).
 
 ### `POST /fiscal/invoice`
 
-Proxies a Pakistan FBR/PRA fiscal invoice POST so the browser never calls the
-authority URL directly (avoids CORS). Credentials and upstream URL come from
-Integrations settings on the client; the API only forwards the hop.
+Proxies a fiscal authority POST (Pakistan FBR/PRA or Kenya KRA eTIMS) so the
+browser never calls the authority URL directly (avoids CORS). Credentials and
+upstream URL come from Integrations settings on the client; the API only
+forwards the hop. Upstream hosts must be on the SSRF allow-list
+(`FISCAL_ALLOWED_UPSTREAMS` / defaults).
 
-Request:
+Pakistan FBR/PRA request:
 
 ```json
 {
-  "url": "https://authority.example/invoice",
+  "url": "https://ims.fbr.gov.pk/api/Live/PostData/",
   "bearerToken": "…",
   "payload": { }
 }
 ```
 
-Response: the upstream status code and JSON body (e.g. `{ "Code": 100, "InvoiceNumber": "…" }`).
+Kenya KRA eTIMS request (no bearer — only `tin` / `bhfId` / `cmcKey` headers are forwarded):
+
+```json
+{
+  "url": "https://etims-api-sbx.kra.go.ke/etims-api/saveTrnsSalesOsdc",
+  "headers": { "tin": "P000000000B", "bhfId": "00", "cmcKey": "…" },
+  "payload": { }
+}
+```
+
+Response: the upstream status code and JSON body (e.g. FBR `{ "Code": 100, "InvoiceNumber": "…" }` or KRA `{ "resultCd": "000", "data": { … } }`).
 On network failure to the authority, `{ success: false, error }` with status `502`.
-Validation failures return `400`.
+Validation failures return `400`. A VSCU on another host must be added to `FISCAL_ALLOWED_UPSTREAMS` (Docker cannot use `localhost` for the host machine).
 
 ## Adding a new module
 

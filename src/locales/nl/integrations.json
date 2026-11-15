@@ -79,5 +79,18 @@
     "retryInvoicePending": "Factuurnummer is nog niet klaar — probeer opnieuw na sync.",
     "retryOrderNotFound": "Bestelling niet gevonden voor fiscale herpoging.",
     "retryProviderDisabled": "Provider is uitgeschakeld."
-  }
+  },
+  "initializeDevice": "Apparaat initialiseren",
+  "reinitializeDevice": "Apparaat opnieuw initialiseren",
+  "initializingDevice": "Initialiseren…",
+  "registerItems": "Artikelen registreren",
+  "registeringItems": "Artikelen registreren…",
+  "resetDevice": "Apparaatsleutels resetten",
+  "deviceReady": "Apparaat geïnitialiseerd",
+  "deviceNotInitialized": "Apparaat niet geïnitialiseerd",
+  "deviceInitHint": "Sla eerst de referenties op en initialiseer daarna om de communicatiesleutel van KRA te ontvangen.",
+  "deviceReadyHint": "Communicatiesleutel opgeslagen. Registreer gerechten en voorraadartikelen bij eTIMS wanneer klaar.",
+  "deviceInitialized": "KRA-apparaat geïnitialiseerd",
+  "deviceReset": "KRA-apparaatsleutels gewist",
+  "itemsRegistered": "Artikelen geregistreerd bij KRA eTIMS"
 }

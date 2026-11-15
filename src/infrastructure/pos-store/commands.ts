@@ -2,7 +2,6 @@ import { getPosStoreDatabase } from './db.ts';
 import {
   ensureTerminalIdentity,
   nextOperationIdentity,
-  pendingCodeFromPolicy,
   recordId,
 } from './identity.ts';
 import { assertCashierOwner, canStealOrder } from './ownership.ts';
@@ -195,8 +194,7 @@ export async function ensureLocalOrder(source: {
     id: key,
     status: String(source.order?.status ?? 'In Progress'),
     invoice_number: source.order?.invoice_number,
-    local_invoice_code: source.order?.local_invoice_code
-      ?? (source.order?.invoice_number == null ? pendingCodeFromPolicy() : undefined),
+    local_invoice_code: source.order?.local_invoice_code || undefined,
     invoice_display: source.order?.invoice_display,
     invoice_prefix: source.order?.invoice_prefix,
     auto_id: source.order?.auto_id,
@@ -473,6 +471,41 @@ export async function createCustomer(input: Record<string, any>): Promise<Custom
   return customer;
 }
 
+/** Update an existing local customer and enqueue MERGE_RECORD for sync. */
+export async function updateCustomer(input: Record<string, any>): Promise<CustomerRecord> {
+  const db = getPosStoreDatabase();
+  const createdAt = nowIso();
+  if (input.id == null || String(input.id).trim() === '') {
+    throw new PosStoreError('INVALID_ARGUMENT', 'Customer id is required to update');
+  }
+  const id = recordId('customer', String(input.id));
+  const existing = await db.customers.get(id);
+  const { id: _ignored, ...rest } = input;
+  const customer: CustomerRecord = {
+    ...(existing ?? {}),
+    ...rest,
+    id,
+    name: String(input.name ?? existing?.name ?? ''),
+    tags: Array.isArray(input.tags)
+      ? input.tags
+      : Array.isArray(existing?.tags)
+        ? existing.tags
+        : [],
+  };
+  await db.transaction('rw', [db.customers, db.domainOperations, db.syncOutbox, db.identity], async () => {
+    await db.customers.put(customer);
+    await enqueue({
+      aggregateType: 'customer',
+      aggregateId: id,
+      operationType: 'MERGE_RECORD',
+      payload: { table: 'customer', recordId: id, data: customer },
+      createdAt,
+    });
+  });
+  notifyWrite();
+  return customer;
+}
+
 // ---------------------------------------------------------------------------
 // Table locks (floor_table.is_locked / locked_by / locked_at)
 // ---------------------------------------------------------------------------
@@ -510,33 +543,55 @@ async function writeTableLock(
   return row;
 }
 
-export function lockTable(tableId: string, lockedBy: string | null): Promise<TableLockRecord> {
-  return writeTableLock(tableId, {
+/** How often a held lock is pushed. Local beats stay off the network. */
+const HEARTBEAT_PUBLISH_MS = 60_000;
+const lastLockPublishAt = new Map<string, number>();
+
+function noteLockPublished(id: string) {
+  lastLockPublishAt.set(id, Date.now());
+}
+
+function requestLockPublish() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('posr-lock-heartbeat'));
+}
+
+export async function lockTable(tableId: string, lockedBy: string | null): Promise<TableLockRecord> {
+  const row = await writeTableLock(tableId, {
     is_locked: true,
     locked_by: lockedBy ?? null,
     locked_at: nowIso(),
   });
+  noteLockPublished(row.id);
+  return row;
 }
 
-export function unlockTable(tableId: string): Promise<TableLockRecord> {
-  return writeTableLock(tableId, { is_locked: false, locked_by: null, locked_at: null });
+export async function unlockTable(tableId: string): Promise<TableLockRecord> {
+  const row = await writeTableLock(tableId, { is_locked: false, locked_by: null, locked_at: null });
+  lastLockPublishAt.delete(row.id);
+  return row;
 }
 
 /**
  * Refresh `locked_at` for a held table. No-ops if the lock was already
  * released — the check runs inside the same transaction as the write so a
  * concurrent unlock cannot be overwritten by a late heartbeat.
+ *
+ * Most beats only touch the local lock row. A publish (outbox + sync wake)
+ * happens about once a minute so other terminals can still drop a dead lock,
+ * without a full sync and a UI refresh on every beat.
  */
 export async function heartbeatTableLock(tableId: string): Promise<TableLockRecord | null> {
   const db = getPosStoreDatabase();
   const id = tableId.includes(':') ? tableId : `floor_table:${tableId}`;
   const createdAt = nowIso();
+  const publish = Date.now() - (lastLockPublishAt.get(id) ?? 0) >= HEARTBEAT_PUBLISH_MS;
   let result: TableLockRecord | null = null;
   let wrote = false;
 
   await db.transaction(
     'rw',
-    [db.tableLocks, db.catalog, db.domainOperations, db.syncOutbox, db.identity],
+    [db.tableLocks, db.domainOperations, db.syncOutbox, db.identity],
     async () => {
       const existing = await db.tableLocks.get(id);
       if (!existing?.is_locked) {
@@ -551,26 +606,24 @@ export async function heartbeatTableLock(tableId: string): Promise<TableLockReco
       };
       const row: TableLockRecord = { id, ...lock, updated_at: createdAt };
       await db.tableLocks.put(row);
-      const catalog = await db.catalog.get(id);
-      if (catalog) {
-        await db.catalog.put({
-          ...catalog,
-          payload: { ...catalog.payload, ...lock },
+      if (publish) {
+        await enqueue({
+          aggregateType: 'floor_table',
+          aggregateId: id,
+          operationType: 'MERGE_RECORD',
+          payload: { table: 'floor_table', recordId: id, data: lock },
+          createdAt,
         });
       }
-      await enqueue({
-        aggregateType: 'floor_table',
-        aggregateId: id,
-        operationType: 'MERGE_RECORD',
-        payload: { table: 'floor_table', recordId: id, data: lock },
-        createdAt,
-      });
       result = row;
       wrote = true;
     },
   );
 
-  if (wrote) notifyWrite();
+  if (wrote && publish) {
+    noteLockPublished(id);
+    requestLockPublish();
+  }
   return result;
 }
 
@@ -621,14 +674,8 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
       let invoiceNumber = input.invoiceNumber;
       let invoiceDisplay: string | undefined;
       let invoicePrefix: string | undefined;
-      let autoId = input.autoId;
-      if (autoId == null) {
-        try {
-          autoId = await consumeNumberInTx(db, 'auto_id');
-        } catch {
-          autoId = undefined;
-        }
-      }
+      // auto_id is gateway-minted on CREATE push — leave unset until assignment.
+      const autoId = input.autoId;
       if (invoiceNumber == null && useLocalPool) {
         try {
           await adoptOrDiscardInTx(db, 'invoice', allocateScope.businessDay);
@@ -655,7 +702,8 @@ export async function createOrderWithItems(input: CreateOrderInput): Promise<{
         invoice_number: invoiceNumber,
         invoice_display: invoiceDisplay,
         invoice_prefix: invoicePrefix,
-        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+        // No random local codes — UI shows Pending until gateway assignment.
+        local_invoice_code: undefined,
         auto_id: autoId,
         covers: input.covers ?? 1,
         floor: input.floorId ?? null,

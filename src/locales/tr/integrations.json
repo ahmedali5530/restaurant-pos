@@ -79,5 +79,18 @@
     "retryInvoicePending": "Fatura numarası henüz hazır değil — senkronizasyondan sonra tekrar deneyin.",
     "retryOrderNotFound": "Mali yeniden deneme için sipariş bulunamadı.",
     "retryProviderDisabled": "Sağlayıcı devre dışı."
-  }
+  },
+  "initializeDevice": "Cihazı başlat",
+  "reinitializeDevice": "Cihazı yeniden başlat",
+  "initializingDevice": "Başlatılıyor…",
+  "registerItems": "Ürünleri kaydet",
+  "registeringItems": "Ürünler kaydediliyor…",
+  "resetDevice": "Cihaz anahtarlarını sıfırla",
+  "deviceReady": "Cihaz başlatıldı",
+  "deviceNotInitialized": "Cihaz başlatılmadı",
+  "deviceInitHint": "Önce kimlik bilgilerini kaydedin, ardından KRA iletişim anahtarını almak için başlatın.",
+  "deviceReadyHint": "İletişim anahtarı saklandı. Hazır olduğunuzda yemekleri ve stok kalemlerini eTIMS'e kaydedin.",
+  "deviceInitialized": "KRA cihazı başlatıldı",
+  "deviceReset": "KRA cihaz anahtarları temizlendi",
+  "itemsRegistered": "Ürünler KRA eTIMS'e kaydedildi"
 }

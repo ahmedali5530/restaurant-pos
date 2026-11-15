@@ -25,7 +25,10 @@
     "unableGenerateInvoiceNumber": "Impossibile generare il prossimo numero fattura",
     "unableGenerateReturnNumber": "Impossibile generare il prossimo numero reso",
     "unableGeneratePoNumber": "Impossibile generare il prossimo numero ordine di acquisto",
-    "itemsExceedQuantity": "Uno o più articoli superano la quantità disponibile"
+    "itemsExceedQuantity": "Uno o più articoli superano la quantità disponibile",
+    "itemDeactivated": "{{name}} è in uso ed è stato disattivato.",
+    "itemDeleted": "{{name}} eliminato correttamente.",
+    "itemDeleteFailed": "Impossibile eliminare {{name}}."
   },
   "delivery": {
     "settingsSaved": "Impostazioni consegna salvate con successo",

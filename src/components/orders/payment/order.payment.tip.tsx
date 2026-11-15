@@ -2,6 +2,7 @@ import { DiscountType } from "@/api/model/discount.ts";
 import { Button } from "@/components/common/input/button.tsx";
 import React, { useEffect, useState } from "react";
 import {useTranslation} from "react-i18next";
+import { withCurrency } from "@/lib/utils.ts";
 
 interface Props {
   tip: number;
@@ -9,10 +10,12 @@ interface Props {
 
   tipType: DiscountType;
   setTipType: (type: DiscountType) => void;
+  /** When set, OK commits through this (PIN-protected) instead of setTip/setTipType directly. */
+  onCommit?: (tip: number, tipType: DiscountType) => void;
 }
 
 export const OrderPaymentTip = ({
-  setTip, tipType, tip, setTipType
+  setTip, tipType, tip, setTipType, onCommit
 }: Props) => {
   const {t} = useTranslation('payment');
   const [draftTip, setDraftTip] = useState<number>(tip);
@@ -88,6 +91,12 @@ export const OrderPaymentTip = ({
         </div>
       )}
 
+      <div className="text-2xl text-center mb-3" data-testid="payment-tip-draft-value">
+        {draftTipType === DiscountType.Percent
+          ? `${draftTip}%`
+          : withCurrency(draftTip)}
+      </div>
+
       <div className="grid grid-cols-3 gap-3 mb-3">
         {keyboardKeys.map(item => (
           <Button key={item} size="xl" flat variant="primary" onClick={() => {
@@ -109,6 +118,10 @@ export const OrderPaymentTip = ({
         size="lg"
         data-testid="payment-ok"
         onClick={() => {
+          if (onCommit) {
+            onCommit(draftTip, draftTipType);
+            return;
+          }
           setTipType(draftTipType);
           setTip(draftTip);
         }}

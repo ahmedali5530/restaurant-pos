@@ -55,7 +55,7 @@ export const MenuCart = () => {
             }}>{t('seats.deleteSeat')}</Button>
           </div>
         )}
-        <ScrollContainer className="h-full gap-[4px] flex flex-col select-none">
+        <ScrollContainer className="h-full gap-1 flex flex-col select-none px-3">
           {newItems.map((item, index) => (
             <CartItem item={item} key={index} index={index}/>
           ))}

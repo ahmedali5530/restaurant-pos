@@ -56,6 +56,10 @@ const entryMatchesPrompt = (
     return true;
   }
 
+  // Smart menu import is OCR/structure-only — never offer it just because
+  // write-intent + sales/manage domains matched (avoids false "Menu Structure" proposals).
+  if (entry.configId === "smart_menu") return false;
+
   if (options.hasWriteIntent && entryMatchesDomains(entry, options.activeDomains)) {
     return true;
   }
@@ -63,10 +67,36 @@ const entryMatchesPrompt = (
   return false;
 };
 
-const isDishRelationPrompt = (prompt: string): boolean =>
-  isModifierGroupOptionPrompt(prompt)
-  || (/\bmodifier\b/i.test(prompt) && !/\b(?:menu\s+)?(?:dish|dishes)\b/i.test(prompt))
-  || (/\bingredient\b/i.test(prompt) && /\bdish\b/i.test(prompt));
+/**
+ * True when the user is creating/updating menu dishes themselves (not only
+ * attaching modifiers/ingredients to an existing dish).
+ */
+export const isDishCreateOrUpdatePrompt = (prompt: string): boolean => {
+  const text = prompt.trim();
+  if (!text) return false;
+  if (!/\b(?:menu\s+)?(?:dish|dishes|menu\s+items?)\b/i.test(text)) return false;
+  return /\b(add|create|new|update|change|set|price|rename)\b/i.test(text);
+};
+
+/**
+ * Prompts that should NOT offer propose_*_dishes (modifier option prices,
+ * recipe lines, etc.). Combined "create dishes with modifier groups" still
+ * offers dish tools via {@link isDishCreateOrUpdatePrompt}.
+ */
+const isDishRelationPrompt = (prompt: string): boolean => {
+  if (/\bingredient\b/i.test(prompt) && /\bdish\b/i.test(prompt)) return true;
+
+  if (isModifierGroupOptionPrompt(prompt)) {
+    // "Create two menu dishes … and a modifier group" must keep dish tools.
+    if (isDishCreateOrUpdatePrompt(prompt)) return false;
+    return true;
+  }
+
+  if (/\bmodifier\b/i.test(prompt) && !/\b(?:menu\s+)?(?:dish|dishes)\b/i.test(prompt)) {
+    return true;
+  }
+  return false;
+};
 
 export const isModifierGroupOptionPrompt = (prompt: string): boolean => {
   const text = prompt.trim();
@@ -133,6 +163,8 @@ export const listPermittedWriteTools = (
   const matched: OpenAIToolDefinition[] = [];
   for (const entry of WRITE_TOOL_REGISTRY) {
     if (entry.configId === "dishes" && isDishRelationPrompt(prompt)) continue;
+    // Keep smart menu keyword-gated even in the "all permitted" fallback.
+    if (entry.configId === "smart_menu" && !entry.keywords.test(prompt)) continue;
     appendPermittedToolsForEntry(entry, allowedModules, matched);
   }
   return matched;

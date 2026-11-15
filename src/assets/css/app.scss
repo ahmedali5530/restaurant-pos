@@ -976,18 +976,6 @@ table th {
   syntax: "<angle>";
 }
 
-/**
- * To animate the gradient, we set the custom property to 1 full
- * rotation. The animation starts at the default value of `0deg`.
- */
-@keyframes bg-angle-spin {
-  to {
-    --bg-angle: 360deg;
-  }
-}
-
-
-
 @keyframes category-gradient {
   0% {
     background-position: 0 50%;
@@ -1140,18 +1128,6 @@ table th {
   inset -4px -4px 8px color-mix(in srgb, var(--btn-color) 80%, white);
 }
 
-.kitchen-late-order{
-  animation-name: blink;
-  animation-timing-function: linear;
-  animation-duration: 1s;
-  animation-iteration-count: infinite;
-}
-.kitchen-delayed-order{
-  animation-name: blink;
-  animation-timing-function: linear;
-  animation-duration: 350ms;
-  animation-iteration-count: infinite;
-}
 .kitchen-new-order{
   animation: kitchen-new-pulse 1.2s ease-in-out 3;
 }
@@ -1174,21 +1150,6 @@ table th {
   }
   50% {
     background-color: rgb(var(--primary) / 0.28);
-  }
-}
-
-@keyframes blink {
-  0% {
-    transform-origin: top;
-    transform: scale(1);
-  }
-  80%{
-    transform-origin: top;
-    transform: scale(0.95);
-  }
-  100%{
-    transform-origin: top;
-    transform: scale(1);
   }
 }
 

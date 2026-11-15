@@ -1,6 +1,6 @@
 import {useAtom} from "jotai";
 import {appAlert, appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
-import {CSSProperties, useCallback, useEffect, useMemo, useState} from "react";
+import {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Button} from "@/components/common/input/button.tsx";
 import {cn} from "@/lib/utils.ts";
 import {Tables} from "@/api/db/tables.ts";
@@ -44,14 +44,27 @@ export const FloorLayout = () => {
   const [ordersHydrated, setOrdersHydrated] = useState(false);
   const [syncPhase, setSyncPhase] = useState(() => getSyncStatus().phase);
 
+  const catalogSnapRef = useRef('');
   const loadCatalog = useCallback(async () => {
     try {
       const cursor = await posStore.getSyncCursor();
+      const catalog = await posStore.loadHydratedCatalog();
+      const nextFloors = Array.isArray(catalog.floors) ? catalog.floors : [];
+      const nextTables = Array.isArray(catalog.tables) ? catalog.tables : [];
+      const snap = [
+        cursor.catalogReady ? 1 : 0,
+        cursor.hydrated ? 1 : 0,
+        nextFloors.map((floor: any) => `${floor?.id}:${floor?.name ?? ''}`).join(','),
+        nextTables.map((table: any) =>
+          `${table?.id}:${table?.is_locked ? 1 : 0}:${table?.locked_by ?? ''}:${table?.x}:${table?.y}:${table?.width}:${table?.height}:${table?.name ?? ''}:${table?.number ?? ''}:${table?.background ?? ''}`,
+        ).join(','),
+      ].join('|');
+      if (snap === catalogSnapRef.current) return;
+      catalogSnapRef.current = snap;
       setCatalogReady(!!cursor.catalogReady || !!cursor.hydrated);
       setOrdersHydrated(!!cursor.hydrated);
-      const catalog = await posStore.loadHydratedCatalog();
-      setCatalogFloors(Array.isArray(catalog.floors) ? catalog.floors : []);
-      setCatalogTables(Array.isArray(catalog.tables) ? catalog.tables : []);
+      setCatalogFloors(nextFloors);
+      setCatalogTables(nextTables);
     } catch {
       // Keep last good snapshot; jotai fallback still available.
     }
@@ -64,22 +77,22 @@ export const FloorLayout = () => {
   useEffect(() => {
     const onCatalogReady = () => { void loadCatalog(); };
     const onOrdersUpdated = () => { void loadCatalog(); };
+    const onLocks = () => { void loadCatalog(); };
     window.addEventListener('posr-catalog-ready', onCatalogReady);
     window.addEventListener('posr-operational-orders-updated', onOrdersUpdated);
     window.addEventListener('posr-posstore-write', onOrdersUpdated);
+    window.addEventListener('posr-table-locks-updated', onLocks);
     return () => {
       window.removeEventListener('posr-catalog-ready', onCatalogReady);
       window.removeEventListener('posr-operational-orders-updated', onOrdersUpdated);
       window.removeEventListener('posr-posstore-write', onOrdersUpdated);
+      window.removeEventListener('posr-table-locks-updated', onLocks);
     };
   }, [loadCatalog]);
 
   useEffect(() => subscribeSyncStatus((s) => {
-    setSyncPhase(s.phase);
-    if (s.phase === 'idle' || s.phase === 'syncing') {
-      void loadCatalog();
-    }
-  }), [loadCatalog]);
+    setSyncPhase((prev) => (prev === s.phase ? prev : s.phase));
+  }), []);
 
   const floors = useMemo(() => {
     if (catalogFloors && catalogFloors.length > 0) return catalogFloors;
@@ -146,9 +159,9 @@ export const FloorLayout = () => {
     }
     const byId = new Map<string, TableLockRecord>(tableLocks.map((lock) => [String(lock.id), lock]));
 
-    setSettings(prev => ({
-      ...prev,
-      tables: prev.tables.map((cachedTable) => {
+    setSettings(prev => {
+      let changed = false;
+      const tables = (prev.tables ?? []).map((cachedTable) => {
         const lock = byId.get(String(cachedTable.id));
         if (!lock) {
           return cachedTable;
@@ -156,25 +169,27 @@ export const FloorLayout = () => {
         if (
           cachedTable.is_locked === lock.is_locked
           && String(cachedTable.locked_by ?? '') === String(lock.locked_by ?? '')
-          && String(cachedTable.locked_at ?? '') === String(lock.locked_at ?? '')
         ) {
           return cachedTable;
         }
+        changed = true;
         return {
           ...cachedTable,
           is_locked: lock.is_locked,
           locked_at: lock.locked_at as any,
           locked_by: lock.locked_by ?? undefined,
         };
-      })
-    }));
+      });
+      if (!changed) return prev;
+      return { ...prev, tables };
+    });
   }
 
   const runLiveQuery = async () => {
     const result = await db.live(Tables.orders, function () {
       // Dexie first — do not wait on sync before refreshing the floor grid.
       void refreshOrders();
-      void terminalSyncService.synchronize().catch(() => undefined);
+      void terminalSyncService.scheduleSynchronize();
     });
     return result;
   }
@@ -184,7 +199,7 @@ export const FloorLayout = () => {
   const runTablesLiveQuery = async () => {
     const result = await db.live(Tables.tables, function () {
       void fetchTables();
-      void terminalSyncService.synchronize().catch(() => undefined);
+      void terminalSyncService.scheduleSynchronize();
     });
     return result;
   }
@@ -228,11 +243,14 @@ export const FloorLayout = () => {
       void fetchTables();
       void refreshOrders();
     };
+    const onLocks = () => { void fetchTables(); };
     window.addEventListener('posr-posstore-write', onLocalWrite);
     window.addEventListener('posr-operational-orders-updated', onLocalWrite);
+    window.addEventListener('posr-table-locks-updated', onLocks);
     return () => {
       window.removeEventListener('posr-posstore-write', onLocalWrite);
       window.removeEventListener('posr-operational-orders-updated', onLocalWrite);
+      window.removeEventListener('posr-table-locks-updated', onLocks);
     };
   }, [refreshOrders]);
 
@@ -477,10 +495,11 @@ export const FloorLayout = () => {
         orderType: orderTypeFromOrder ?? availableOrderTypes[0]
       }));
 
+      // Keep catalog order_types global — MenuHeader filters from state.table.order_types
+      // so catalog refresh cannot flash the full list over table-attached types.
       setSettings(prev => ({
         ...prev,
         categories: item.categories?.length > 0 ? item.categories : categories,
-        order_types: item.order_types?.length > 0 ? item.order_types : orderTypes,
         payment_types: item.payment_types?.length > 0 ? item.payment_types : paymentTypes,
       }));
 

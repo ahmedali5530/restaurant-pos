@@ -13,7 +13,13 @@
       "address": "Dir.",
       "secondaryAddress": "Dir. secundaria",
       "points": "Puntos"
-    }
+    },
+    "save": "Guardar",
+    "remove": "Quitar del pedido",
+    "saved": "Cliente guardado",
+    "saveFailed": "No se pudo guardar el cliente",
+    "attachFailed": "No se pudo asociar el cliente a este pedido",
+    "removeFailed": "No se pudo quitar el cliente de este pedido"
   },
   "filters": {
     "status": "Seleccionar estado del pedido",

@@ -14,10 +14,11 @@ import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useAtom} from "jotai";
-import {appAlert, appPage, appSettings} from "@/store/jotai.ts";
+import {appAlert, appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
+import {Switch} from "@/components/common/input/switch.tsx";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {calculateChangeDue} from "@/lib/cart.ts";
+import {getDraftPaymentChangeDisplay, isCardPaymentType} from "@/lib/order.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {
@@ -33,7 +34,9 @@ import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import { fetchOrderFull } from "@/lib/order-fetch.ts";
 import {
+  ensureOrderSyncedForFiscal,
   fiscalShouldBlockBeforePaid,
+  listMissingLocalFiscalItemIds,
   loadOrderForFiscal,
   runFiscalSettlementForOrder,
 } from "@/integrations/providers/fiscal/settlement.ts";
@@ -77,6 +80,8 @@ interface Props {
   notes: string
   coupon?: Coupon
   couponAmount?: number
+  /** Flush React draft (tax/tip/extras) to Dexie before settle — avoids fast-tender races. */
+  flushDraft?: () => Promise<void>
 }
 
 type ContentProps = Props & {
@@ -127,6 +132,7 @@ const OrderPaymentReceivingContent = ({
   serviceChargeType,
   notes,
   coupon,
+  flushDraft,
   couponAmount,
   selectedAmount,
   setSelectedAmount,
@@ -137,6 +143,7 @@ const OrderPaymentReceivingContent = ({
   const {protectAction} = useSecurity();
   const { manager: integrationManager } = useIntegrationManager();
   const [page] = useAtom(appPage);
+  const [skipFinalPrint, setSkipFinalPrint] = useAtom(skipFinalPrintOnPayment);
   const [tempPrinted, setTempPrinted] = useState(false);
 
   useEffect(() => {
@@ -195,8 +202,10 @@ const OrderPaymentReceivingContent = ({
       let fiscalOrderSnapshot: Order | undefined;
       let settledOrder = order;
       try {
+        // Always push pending Dexie order/item ops before Surreal fiscal read so
+        // addons (e.g. water added minutes earlier) are present on the authority payload.
+        const syncState = await ensureOrderSyncedForFiscal(String(settledOrder.id));
         if (settledOrder.invoice_number == null) {
-          await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
           const local = await posStore.getOrder(String(settledOrder.id));
           if (local?.invoice_number != null) {
             settledOrder = { ...settledOrder, invoice_number: local.invoice_number } as Order;
@@ -210,6 +219,14 @@ const OrderPaymentReceivingContent = ({
               ...fiscalOrderSnapshot,
               invoice_number: settledOrder.invoice_number,
             };
+          }
+          const missingItems = await listMissingLocalFiscalItemIds(
+            String(settledOrder.id),
+            fiscalOrderSnapshot,
+          );
+          if (!syncState.ok || missingItems.length > 0) {
+            toast.error(t('errors.itemsPendingSync'));
+            return;
           }
         }
       } catch (fiscalCheckError) {
@@ -240,7 +257,9 @@ const OrderPaymentReceivingContent = ({
             toast.error(
               preResult.blockedCode === 'INVOICE_PENDING'
                 ? t('errors.invoicePendingSync')
-                : (preResult.blockedError ?? t('errors.fiscalFailed')),
+                : preResult.blockedCode === 'ITEMS_PENDING_SYNC'
+                  ? t('errors.itemsPendingSync')
+                  : (preResult.blockedError ?? t('errors.fiscalFailed')),
             );
             return;
           }
@@ -259,6 +278,13 @@ const OrderPaymentReceivingContent = ({
         name,
         value: extras[name],
       }));
+
+      // Draft save is debounced via React effects — flush so tax/tip/extras/coupon/
+      // discounts land in Dexie before Paid. Fail settle if flush fails; continuing
+      // would print a final bill missing those lines.
+      if (flushDraft) {
+        await flushDraft();
+      }
 
       // Local-first settlement: Dexie commit + outbox (CREATE_PAYMENT×n, MERGE order,
       // REPLACE taxes/extras, coupon + redemption). Works offline; drains when back.
@@ -337,12 +363,13 @@ const OrderPaymentReceivingContent = ({
           await terminalSyncService.synchronize().catch(() => undefined);
 
           if (!blockBeforePaid) {
-            const settledOrder = await loadOrderForFiscal(db, orderId);
-            if (settledOrder) {
+            await ensureOrderSyncedForFiscal(orderId);
+            const settledForFiscal = await loadOrderForFiscal(db, orderId);
+            if (settledForFiscal) {
               const fiscalResult = await runFiscalSettlementForOrder(
                 integrationManager,
                 db,
-                settledOrder
+                settledForFiscal
               );
               if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
                 toast.warning('Some fiscal providers failed; check Integrations queue');
@@ -432,9 +459,12 @@ const OrderPaymentReceivingContent = ({
     return payments.reduce((prev, item) => prev + item.amount, 0)
   }, [payments])
 
-  const changeDue = useMemo(() => {
-    return calculateChangeDue(tendered, total);
-  }, [total, tendered]);
+  const changeDisplay = useMemo(
+    () => getDraftPaymentChangeDisplay(payments, total),
+    [payments, total],
+  );
+  /** Negative = remaining; positive = cash change only (exact tenders never invent change). */
+  const changeDue = changeDisplay.displayAmount;
 
   const addPayment = async (amount: string | number, paymentType: PaymentType, payable: number) => {
     if (amount.toString().length === 0) {
@@ -449,7 +479,7 @@ const OrderPaymentReceivingContent = ({
     // Compute change due relative to this payable (may include tax for selected payment type)
     const localChangeDue = tendered - payable;
 
-    if (paymentType.type === 'Card' && localChangeDue >= 0) {
+    if (isCardPaymentType(paymentType) && localChangeDue >= 0) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -460,7 +490,7 @@ const OrderPaymentReceivingContent = ({
       return;
     }
 
-    if (paymentType.type === 'Card' && Number(amount) > Number(-1 * localChangeDue)) {
+    if (isCardPaymentType(paymentType) && Number(amount) > Number(-1 * localChangeDue)) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -527,7 +557,10 @@ const OrderPaymentReceivingContent = ({
             changeDue > 0 && 'text-success-700'
           )
         }>
-          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
+          {changeDisplay.isRemaining ? t('receiving.remaining') : t('receiving.change')}:{' '}
+          <span className="">
+            {withCurrency(changeDisplay.isRemaining ? changeDisplay.remaining : changeDisplay.change)}
+          </span>
         </div>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
@@ -619,6 +652,16 @@ const OrderPaymentReceivingContent = ({
                 C
               </Button>
             </div>
+            <div className="mb-3" data-testid="payment-skip-final-print">
+              <div>
+                <Switch
+                  checked={skipFinalPrint}
+                  onChange={(e) => setSkipFinalPrint(e.target.checked)}
+                >
+                  {t('receiving.skipFinalPrint')}
+                </Switch>
+              </div>
+            </div>
             <div className="flex gap-5" data-testid="payment-finish-actions">
               <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">
                 <Button
@@ -639,9 +682,25 @@ const OrderPaymentReceivingContent = ({
                       payload: { order: order.id.toString() },
                       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
                       doPrint: async () => {
-                        const full = await fetchOrderFull(db, order.id);
+                        // Flush draft first so payment-type auto-tax is on the order for the bill.
+                        if (flushDraft) {
+                          await flushDraft().catch(() => undefined);
+                        }
+                        let full = await fetchOrderFull(db, order.id);
                         if (!full) {
                           throw new Error('Failed to load order for temp bill print');
+                        }
+                        const taxRef = full.tax != null
+                          ? String((full.tax as any)?.id ?? full.tax)
+                          : (tax?.id ? String(tax.id) : '');
+                        if (taxRef && !(Number(full.tax_amount) > 0)) {
+                          await posStore.recomputeOrderTaxes(String(order.id), {
+                            extraPatch: { tax: taxRef },
+                          }).catch(() => undefined);
+                          full = await fetchOrderFull(db, order.id);
+                          if (!full) {
+                            throw new Error('Failed to load order for temp bill print');
+                          }
                         }
                         await dispatchPrint(db, PRINT_TYPE.presale_bill, {
                           order: full,

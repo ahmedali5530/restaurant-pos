@@ -159,7 +159,7 @@ export const DishBulkForm = ({ open, onClose, data }: Props) => {
     data: inventoryItems,
     fetchData: fetchInventoryItems,
     isFetching: loadingInventoryItems
-  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, [], [], 0, 99999, ["category"], {
+  } = useApi<SettingsData<InventoryItem>>(Tables.inventory_items, ['deleted_at = none'], [], 0, 99999, ["category"], {
     enabled: false
   });
 

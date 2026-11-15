@@ -9,6 +9,7 @@ vi.mock("@/lib/datetime.ts", () => ({
 }));
 
 import {
+  AI_ASSISTANT_CONTEXT_RULES,
   AI_ASSISTANT_GUIDE_RULES,
   AI_ASSISTANT_WRITE_RULES,
   getAiAssistantSystemPrompt,
@@ -21,6 +22,8 @@ describe("getAiAssistantSystemPrompt", () => {
 
     expect(prompt).toContain("Your name is");
     expect(prompt).toContain(AI_ASSISTANT_WRITE_RULES);
+    expect(prompt).toContain(AI_ASSISTANT_CONTEXT_RULES);
+    expect(prompt).toContain("LATEST user message");
     expect(prompt).toContain("propose_*");
     expect(prompt).toContain("get_sales_summary");
   });
@@ -71,4 +74,14 @@ describe("getAiAssistantSystemPrompt", () => {
     expect(prompt).toContain("/inventory");
     expect(prompt).toContain("es");
   });
+
+  it("includes logged-in user personalization block when provided", () => {
+    const prompt = getAiAssistantSystemPrompt(["sales"], true, [], {
+      userContextBlock:
+        "## Logged-in user (personalize to this person)\nYou are talking to **Ada Lovelace**.",
+    });
+    expect(prompt).toContain("Ada Lovelace");
+    expect(prompt).toContain("Logged-in user");
+  });
 });
+

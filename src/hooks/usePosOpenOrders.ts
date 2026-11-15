@@ -8,6 +8,27 @@ export type { HydratedOrder };
 
 const OPEN_ORDERS_REFRESH_DEBOUNCE_MS = 150;
 
+function orderFingerprint(list: HydratedOrder[]): string {
+  let hash = 5381;
+  for (const order of list) {
+    const items = Array.isArray(order.items) ? order.items : [];
+    const piece = [
+      order.id,
+      order.status,
+      order.updated_at ?? '',
+      items.length,
+      order.payments?.length ?? 0,
+      items.map((item: any) =>
+        `${item?.id}:${item?.quantity}:${item?.price}:${item?.deleted_at ?? ''}`,
+      ).join(','),
+    ].join('|');
+    for (let i = 0; i < piece.length; i += 1) {
+      hash = ((hash << 5) + hash) ^ piece.charCodeAt(i);
+    }
+  }
+  return `${list.length}:${hash >>> 0}`;
+}
+
 /**
  * Open orders from PosStore — same path online and offline. Orders are
  * hydrated into the FETCH shape the floor/order screens expect.
@@ -19,14 +40,14 @@ export function usePosOpenOrders() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refresh = useCallback(async () => {
-    setLoading(true);
     try {
       const [list, identity] = await Promise.all([
         posStore.getOpenOrdersHydrated(),
         ensureTerminalIdentity(),
       ]);
-      setOrders(list);
-      setTerminalId(identity.terminalId);
+      const nextKey = orderFingerprint(list);
+      setOrders((prev) => (orderFingerprint(prev) === nextKey ? prev : list));
+      setTerminalId((prev) => (prev === identity.terminalId ? prev : identity.terminalId));
     } finally {
       setLoading(false);
     }

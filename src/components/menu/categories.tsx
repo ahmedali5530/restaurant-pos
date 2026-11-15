@@ -45,7 +45,7 @@ export const MenuCategories = () => {
   } as CSSProperties;
 
   return (
-    <div data-testid="menu-categories">
+    <div data-testid="menu-categories" className="min-w-0 w-full">
       <ScrollContainer className="flex flex-row gap-1 p-1" mouseScroll>
         {categories.map((item, index) => (
           <button

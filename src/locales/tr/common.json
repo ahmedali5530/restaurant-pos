@@ -164,7 +164,9 @@
     "recordNotFound": "Güncellenecek eşleşen kayıt bulunamadı.",
     "multipleMatches": "Seçilen sütunlarla birden fazla kayıt eşleşti.",
     "unsupportedMatchField": "\"{{field}}\" sütununda eşleme yapılamaz.",
-    "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}."
+    "fileTooLarge": "Dosya çok büyük. Maksimum boyut {{max}}.",
+    "ambiguousDishNumber": "\"{{number}}\" numarası birden fazla üründe var. Doğru ürün için id (menu_item:…) veya benzersiz ad verin.",
+    "ambiguousMatch": "{{key}} ile birden fazla kayıt eşleşiyor. Doğru kaydı güncellemek için id verin."
   },
   "loading": "Yükleniyor...",
   "dataImport": {
@@ -227,7 +229,11 @@
         "nested_override": "İç içe fiyat"
       }
     },
-    "ingredientMustExist": "Mevcut bir stok kalemi adı veya koduyla tam eşleşmelidir (büyük/küçük harf duyarsız). Çözülmezse listeden seçin."
+    "ingredientMustExist": "Mevcut bir stok kalemi adı veya koduyla tam eşleşmelidir (büyük/küçük harf duyarsız). Çözülmezse listeden seçin.",
+    "unknownUom": "Bilinmeyen birim \"{{uom}}\"",
+    "incompatibleUom": "\"{{entered}}\" birimi stok birimi \"{{stock}}\" birimine dönüştürülemez{{item}}",
+    "missingItemStockUom": "Malzemenin stok birimi yok; \"{{uom}}\" doğrulanamıyor",
+    "recipeCostExceedsPrice": "\"{{dish}}\" için reçete maliyeti {{recipeCost}}, ürün fiyatı {{price}} değerini aşıyor"
   },
   "aiAssistant": {
     "open": "{{name}}'i aç",
@@ -255,9 +261,71 @@
       "addDish": "x TL'ye yeni Margherita yemeği ekle",
       "listUsers": "Tüm POS kullanıcılarını listele",
       "inventoryStock": "Yeniden sipariş seviyesinin altındaki stokları göster",
-      "howToPurchase": "Envanter satın alma kaydını nasıl oluştururum?"
+      "howToPurchase": "Envanter satın alma kaydını nasıl oluştururum?",
+      "cleanseCsv": "AI Import için dağınık bir CSV ekleyip temizleyin",
+      "analyzeCsv": "CSV ekleyip asistanın analiz etmesini isteyin"
     },
     "unknownConfig": "Önizleme için bilinmeyen içe aktarma yapılandırması.",
-    "passwordWillBeSet": "Onaylandığında şifre ayarlanacak"
+    "passwordWillBeSet": "Onaylandığında şifre ayarlanacak",
+    "cleanseTitle": "İçe aktarma dosyasını temizle",
+    "attachFile": "Dosya ekle",
+    "cleanseDomain": "İçe aktarma alanı",
+    "cleanseRun": "Temizle ve CSV hazırla",
+    "cleanseDownload": "Düzeltilmiş CSV indir",
+    "cleanseDomains": {
+      "dishes": "Dishes",
+      "dish_ingredients": "Dish ingredients",
+      "dish_modifier_groups": "Dish modifiers",
+      "categories": "Menu categories",
+      "tables": "Tables",
+      "floors": "Floors",
+      "taxes": "Taxes",
+      "order_types": "Order types",
+      "payment_types": "Payment types",
+      "discounts": "Discounts",
+      "modifier_groups": "Modifier groups",
+      "kitchens": "Kitchens",
+      "extras": "Extras",
+      "coupons": "Coupons",
+      "menus": "Menus",
+      "workflows": "Workflows",
+      "printers": "Printers",
+      "users": "Users",
+      "roles": "Roles",
+      "shifts": "Shifts",
+      "inventory_items": "Inventory items",
+      "inventory_categories": "Inventory categories",
+      "inventory_suppliers": "Suppliers",
+      "inventory_locations": "Locations",
+      "employees": "Employees",
+      "departments": "Departments",
+      "scheduled_shifts": "Scheduled shifts",
+      "time_entries": "Attendance",
+      "accounts": "Chart of accounts"
+    },
+    "attachTitle": "CSV/Excel/PDF/görüntü ekle",
+    "fileMode": "Dosya ile ne yapılsın",
+    "fileModeCleanse": "İçe aktarım için temizle",
+    "fileModeAnalyze": "Sohbette analiz et",
+    "analyzeHint": "Önizleme hazırlayın (CSV/Excel metni veya PDF/görüntü sayfaları), sonra sohbette sorun.",
+    "analyzePrepare": "Sorular için hazırla",
+    "analyzeReady": "{{file}} hazır (önizlemede {{rows}} satır). Sorunuzu aşağıya yazın.",
+    "analyzeUserLabel": "[Dosya: {{file}}]\n{{question}}",
+    "analyzeReadyVision": "{{file}} hazır ({{pages}} sayfa görüntüsü). Sorunuzu aşağıya yazın.",
+    "personaLabel": "Kişilik",
+    "deepResearch": "Derin araştırma",
+    "deepResearchHint": "Daha güçlü analiz profili, daha dolu istemler, daha fazla araç döngüsü ve dış gerçekler için web araması.",
+    "personas": {
+      "analyst": "Analist",
+      "analystHint": "KPI widget’lı net raporlar",
+      "audit": "Denetim",
+      "auditHint": "Şüpheci ve sert — kötü rakamlar için",
+      "brief": "Kısa",
+      "briefHint": "Kısa operasyon cevapları",
+      "guide": "Rehber",
+      "guideHint": "Ekranlar ve akışlar için sabırlı yardım"
+    },
+    "settingsTitle": "Asistan ayarları",
+    "analyzeAttached": "{{file}} hazır — aşağıya sorun"
   }
 }

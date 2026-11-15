@@ -15,11 +15,13 @@ const { normalizeConfig, getEngine } = (() => {
   return { normalizeConfig: helpers.normalizeConfig, getEngine: engines.getEngine };
 })();
 
-test('paperWidthMmToPx maps 58→384 and 80→576', () => {
+test('paperWidthMmToPx maps 58→384, 72→512, and 80→576', () => {
   assert.equal(paperWidthMmToPx(58), 384);
+  assert.equal(paperWidthMmToPx(72), 512);
   assert.equal(paperWidthMmToPx(80), 576);
   assert.equal(paperWidthMmToPx(70), null);
   assert.equal(PAPER_WIDTH_DOTS[58], 384);
+  assert.equal(PAPER_WIDTH_DOTS[72], 512);
   assert.equal(PAPER_WIDTH_DOTS[80], 576);
 });
 
@@ -61,6 +63,10 @@ test('normalizeConfig applies paperWidthMm to paperWidthPx', () => {
   assert.equal(cfg58.paperWidthPx, 384);
   assert.equal(cfg58.printMode, 'text');
   assert.equal(cfg58.rasterThreshold, 180);
+
+  const cfg72 = normalizeConfig({ paperWidthMm: 72 });
+  assert.equal(cfg72.paperWidthMm, 72);
+  assert.equal(cfg72.paperWidthPx, 512);
 
   const cfg80 = normalizeConfig({ paperWidthMm: 80, printMode: 'raster', rasterThreshold: 200 });
   assert.equal(cfg80.paperWidthPx, 576);

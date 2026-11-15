@@ -40,6 +40,6 @@
                           theme('colors.danger.500')
           )
           border-box;
-  animation: bg-angle-spin var(--duration) infinite linear;
+  --bg-angle: 120deg;
 }
 

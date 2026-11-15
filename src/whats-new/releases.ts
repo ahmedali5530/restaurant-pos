@@ -7,11 +7,460 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
-    date: '2026-10-27',
+    date: '2026-11-15',
     title: 'Quick Order minimal checkout',
     items: [
       'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',
       'Full payment still opens the existing payment screen for split tenders, coupons, tips, and remote gateways.',
+    ],
+  },
+  {
+    date: '2026-11-14',
+    title: 'AI shows table name and number',
+    items: [
+      'AI Assistant and AI Report now show floor tables as name+number (e.g. T5), matching the POS — not the name alone.',
+    ],
+  },
+  {
+    date: '2026-11-13',
+    title: 'FOH upload stops re-backfill loops',
+    items: [
+      'Post-backfill watermarks use each table’s own changefeed tip (not another table’s high-water). A cursor ahead of its tip snaps down instead of clearing and re-uploading every row HQ already has.',
+      'Silent-gap detection no longer compares a table to another table’s high-water (that kept re-backfilling order_item_kitchen and starving order). Gaps are confirmed on that table’s own recent feed only.',
+    ],
+  },
+  {
+    date: '2026-11-12',
+    title: 'Inventory line totals use stock units',
+    items: [
+      'Purchase, purchase order, issue, purchase return, issue return, waste, and adjustment lines show per-row totals with price/cost per stock unit; entered units (e.g. grams vs KG) convert before multiplying.',
+    ],
+  },
+  {
+    date: '2026-11-11',
+    title: 'Issue line price choices',
+    items: [
+      'Inventory issues show a unit price field with one-tap choices for item price, last purchase price, and average price instead of silently assuming catalog cost.',
+      'Issue price is always per the item stock unit (e.g. /KG); line totals convert entered units like grams before multiplying so 500g at 700/KG is 350, not 350000.',
+    ],
+  },
+  {
+    date: '2026-11-11',
+    title: 'FOH upload recovers stuck changefeed cursors',
+    items: [
+      'When SHOW CHANGES since the upload cursor returns empty but the live feed tip (walked from a recent datetime) has newer mutations, Sync re-backfills. Covers lead-table stalls, not only 14-day retention holes.',
+    ],
+  },
+  {
+    date: '2026-11-11',
+    title: 'Dish comment quick tags',
+    items: [
+      'Settings can store reusable dish-comment phrases as tags; they appear as one-tap chips on the cart comment keyboard.',
+      'The AI assistant resolves today/yesterday and other relative phrases with the restaurant closing-cycle window (same bounds as Summary), so it no longer pulls midnight–midnight data when a cycle is enabled.',
+      'Payment service charges now use the same percent/fixed toggle, quick amounts, and keypad as tips — keypad no longer forces a fixed amount.',
+      'Summary keeps the loading spinner when you change the day until the new report has finished rendering, so prior-day totals never linger under the new date.',
+      'Fiscal (PRA/FBR) pre-settle now force-syncs pending Dexie order items to Surreal and hydrates lines from order_item before posting, so addons are not omitted from the authority invoice.',
+      'Fiscal settle, offline queue retry, and manual retry skip re-POST when integration_order_fiscal already has a completed invoice/QR for that order and provider.',
+      'Daily Summary voids now come from order_void for the business day (same source as the Voids report), so fully cancelled checks appear there too.',
+      'Order Fiscal report can filter by tax percent and payment type, with tax-wise and payment-type overviews plus matching columns in the detail table.',
+    ],
+  },
+  {
+    date: '2026-11-10',
+    title: 'Assistant in the app toolbar',
+    items: [
+      'The AI assistant opens from the bottom toolbar between the unit converter and sync indicator (floating button remains only when the toolbar is hidden).',
+      'Server Sales print now totals guests, checks, and sales from the same closing-cycle order window as Summary — no clock-in/out attendance filter.',
+    ],
+  },
+  {
+    date: '2026-11-09',
+    title: 'Catalog Sync now removes HQ deletes',
+    items: [
+      'Settings → Sync now keeps the catalog down-cursor and replays the master 14-day changefeed after the SELECT backfill, so dishes and other catalog rows hard-deleted at HQ are removed from the branch database. If the cursor is older than retention, Sync now reconciles local ids against the master page set instead. Reload cache afterward so the terminal PosStore drops the ghosts.',
+    ],
+  },
+  {
+    date: '2026-11-09',
+    title: 'Absolute invoice and auto_id from gateway',
+    items: [
+      'New checks no longer show a random 6-character placeholder — the UI waits for the gateway invoice number when online, or shows a pending dash offline until sync.',
+      'auto_id is minted by the gateway on order create (shared sequence across tills), so local reserved-block jumps are gone.',
+    ],
+  },
+  {
+    date: '2026-11-08',
+    title: 'Payment: card amounts follow total changes',
+    items: [
+      'After discount, tip, service, delivery, or extras change the check total, local card (exact) draft payments auto-adjust — last card first when there are several — so the screen no longer shows false change due.',
+      'Cash tenders stay sticky for over-tender; gateway-captured remote payments are not rewritten. Change is shown only for cash over-tender.',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Receipts: item totals, extras, and accumulate lines',
+    items: [
+      'Temp/final/KOT line totals now multiply modifier prices by dish quantity (matching the cart).',
+      'Extras with a zero amount are omitted from printed bills.',
+      'Admin → Prints has “Accumulate same items” to merge identical dish+modifier lines into one qty on that receipt type (default: separate).',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Customer display idle advertisements',
+    items: [
+      'Idle ads on the customer display load through the pairing URL (gateway) so the playlist shows when the check is empty — including second browsers without a Surreal login.',
+      'Fixed the “Show advertisements when idle” switch so it saves true/false correctly.',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Order customer: remove and edit',
+    items: [
+      'Customer modal can remove the attached customer from the open check, and edit existing customers (save updates the customer record; attach still binds them to the order).',
+    ],
+  },
+  {
+    date: '2026-11-06',
+    title: 'Menu stays table-based; Quick Order is the counter path',
+    items: [
+      'Removed the “Hide table selection” settings toggle — the main Menu always uses floors/tables. Counter / barcode ordering is Quick Order (and POS mode retail).',
+      'Customer display opens from the bottom app toolbar instead of the crowded menu header row.',
+      'When a table has attached order types, the menu keeps showing those types (and selects the first if none is selected) instead of flashing back to the full catalog after sync.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Closing print: denominations for every terminal',
+    items: [
+      'Closing slip print lists cash denominations (or entered total) for each recorded terminal, plus expenses, payment Manual/System/Diff, and shift summary — matching the cash closing summary layout.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer display idle ads and clear after payment',
+    items: [
+      'Closing or settling Pay Now clears the customer display (thank-you briefly after pay) instead of leaving the previous check stuck on screen.',
+      'Settings → Customer display (permission-gated) can enable an idle image/video playlist for advertisement when no order is shown.',
+      'Opening the customer display copies a pairing URL (?terminal=&pair=) that another browser can open without logging in — it polls the gateway instead of connecting to Surreal.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer display: modifiers, prices, and Tauri sync',
+    items: [
+      'Customer display shows each line in a borderless Item / Qty / Price / Total table, including indented modifiers under dishes.',
+      'Opening the display pairs with this terminal via ?terminal=; Surreal keeps a logged-in browser window in sync with the Tauri POS cart (same-browser BroadcastChannel still works).',
+      'When a check is open (or Pay Now is open), the display also shows tax, discounts, coupons, service charges, extras, and tip so the grand total matches the cart footer.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: '72 mm paper width',
+    items: [
+      'Print settings and printer overrides can select 72 mm paper (512-dot raster width) in addition to 58 mm and 80 mm.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Minimal Summary print and compact ops rows',
+    items: [
+      'Summary operational controls show covers and average cover on one line, and orders/checks with average check on one line (screen and print).',
+      'Print minimal summary prints a shorter slip: sales revenue, surcharges and taxes with tax breakdown, settlement and cashier, operational controls, and payment types.',
+      'Product Mix Report prints the same category → dish → modifier layout as the daily summary product mix section, with bold category names.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Closing-cycle Summary, Orders, and reports',
+    items: [
+      'When the closing cycle is enabled, Summary, Orders, Closing, cash closing report, and report date filters (including Today/Yesterday presets) use the cycle window (e.g. 06:00–05:59) instead of midnight–midnight.',
+      'Payment tenders refresh their payable when discounts, tips, service charges, or extras change after tender, so Summary amount collected stays accurate; payment-type shares use grand total due (including tips).',
+      'Daily Summary (and its print) adds sale by order type and order taker, plus counts for payment types, taxes, discounts, tips, and extras.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    title: 'Customer details before receipt footer',
+    items: [
+      'Temp and final bills print customer name, phone, and address after payments/change/notes, immediately before the custom footer sections.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Show table name on receipts',
+    items: [
+      'Print settings can show or hide the table name on bills and kitchen tickets (on by default), alongside order type and customer.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Dish photos after HQ Sync now',
+    items: [
+      'Catalog Sync now downloads dish photo documents with dishes, refreshes the local photo cache when sync finishes, and decodes Surreal/Uint8Array blobs so menu tiles show pictures instead of the placeholder.',
+      'Refresh catalog also reloads dish photos (no full Reload cache required for pictures).',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Quick Order, receipts, and Summary polish',
+    items: [
+      'HQ Sync now removes dish modifier groups that were deleted at headquarters so store menus stay in sync.',
+      'Quick Order hides dishes that only belong to categories turned off for the menu, matching the main menu, and the category strip slides like the main menu again.',
+      'The quantity keypad replaces the default 1 on the first digit, and clicking outside the quantity dialog cancels without adding the item.',
+      'Print settings can show or hide order type and customer on receipts (on by default).',
+      'Summary uses the closing-cycle time window for the selected business day, and server sales only counts completed clock-in/out shifts and orders taken during those shifts.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Assistant knows who you are',
+    items: [
+      'The floating assistant receives your name, role, shift, clock status, and linked HR employee (department, position, manager) — never login or passwords — so answers can be personalized.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Terminals stay cooler while idle',
+    items: [
+      'An open table still holds its lock, and a terminal that crashes still gives the table up on its own (within a few minutes). Heartbeats stay on the device and sync about once a minute instead of driving a full sync every 10 seconds.',
+      'Kitchen tickets that run long keep their warning colors without the card scaling continuously.',
+    ],
+  },
+  {
+    date: '2026-11-04',
+    title: 'Assistant on-demand table changefeed',
+    items: [
+      'Ask the assistant explicitly for a table changefeed / mutation history to pull Surreal SHOW CHANGES for allowlisted FOH and Manage tables (orders, voids, menu_item/dishes, categories, modifiers, etc.).',
+      'Gated by Roles → Reports → Table Changefeed (`reports.changefeed`); the parent Reports group or AI Report also grants access.',
+      'Normal sales and inventory reports stay dormant — changefeed is not loaded unless you ask for it (about 14 days retention after the feed is enabled).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Order voids upload to HQ again',
+    items: [
+      'Branch sync recovers when a quiet FOH table’s changefeed cursor ages past Surreal retention (Surreal returns an empty SHOW CHANGES batch instead of an error). Order voids, refunds, and similar tables re-backfill and resume uploading to HQ.',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Receipt text wraps instead of cutting off',
+    items: [
+      'Long receipt lines (customer address, dish names, notes, custom header/footer text, and similar) wrap onto the next line instead of being truncated.',
+    ],
+  },
+
+  {
+    date: '2026-11-03',
+    title: 'Customer details after totals on receipts',
+    items: [
+      'Temp and final sale receipts print customer name, phone, and address after the totals block (instead of under the cashier line).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Product Mix Summary matches Daily Summary',
+    items: [
+      'Reports → Product Mix Summary now uses the same Category → Dish → Modifier layout and figures as the Product Mix section on Daily Sales Summary (Item / Qty / Total / Share %).',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Assistant Manage linked details',
+    items: [
+      'Manage list tools now return richer scalars (rates, tax links, printer connection, shift, option ids).',
+      'New detail tools expose linked graphs before updates: dishes/modifiers, tables, discounts, coupons, extras, roles (modules), printers, print settings, and tip distribution.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Tip and service charge draft display',
+    items: [
+      'Tip and service charge panels now show the value you are typing (percent or amount), matching the discount panel.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Auto-print day closing',
+    items: [
+      'Completing a day closing now prints the closing summary automatically. Use Print Closing afterward if you need another copy.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Customer on temp and final receipts',
+    items: [
+      'Temp and final receipts now show the attached customer name, phone, and address when the order has a customer.',
+      'Attaching a customer after an order is already punched now links that customer on the order immediately (not only in the cart header), including when creating a new customer.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'First-punch kitchen KOT',
+    items: [
+      'The first kitchen ticket after punching an order now prints selected modifiers and waits briefly for the real order number instead of the temporary local code.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Assistant personas and deep research',
+    items: [
+      'Choose an assistant personality: Analyst (default), Audit (suspicious/scolding), Brief (short ops answers), or Guide (patient how-tos) — saved per user.',
+      'Deep research toggles the stronger analysis profile, fuller prompts, more tool loops, optional model reasoning_effort, and a web_search tool for public/external facts (not live POS numbers).',
+      'Personality and deep research live under the header gear icon so they no longer crowd the chat footer; file attach/cleanse/analyze stays on the main assistant UI.',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Assistant analyze PDF and images',
+    items: [
+      'Attach PDF or images in the AI assistant Analyze mode (alongside CSV/Excel). Pages are sent as vision images so you can ask what is on the document; PDFs are capped to the first few pages.',
+    ],
+  },
+  {
+    date: '2026-11-03',
+    title: 'Advanced Sales export keeps items under each order',
+    items: [
+      'When Show menu items is on, Advanced Sales Excel lists each order row then its line items directly below on the same Orders sheet (full order columns plus item qty/price/discount/total).',
+    ],
+  },
+  {
+    date: '2026-11-02',
+    title: 'Advanced Sales Excel export fixes',
+    items: [
+      'Advanced Sales Excel export now includes every order (not only the virtualized on-screen rows), with menu items under each order when Show menu items is on.',
+      'Order # and Invoice # link to the printable receipt in Advanced Sales and Sales Dashboard (and as Excel hyperlinks in the export).',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant KPI widgets',
+    items: [
+      'Assistant answers can highlight key numbers as colored KPI cards (via a ```kpi block) instead of burying them only in tables — bad figures use warning/danger tones; detail tables still work for rankings.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant personality',
+    items: [
+      'The AI assistant replies like a suspicious, blunt fifty-something who asks why you want this or that — and scolds hard whenever sales, waste, discounts, or other figures look bad — while still pulling real data and completing proposals.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant file cleanse or analyze',
+    items: [
+      'Attach a CSV/Excel in the AI assistant and choose Cleanse for import (corrected CSV download) or Analyze in chat — then ask questions about a capped preview of the file.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant updates prefer record id',
+    items: [
+      'AI assistant create/update/delete matching prefers the Surreal record id from list_* tools for inventory items, tables, employees, users, master data, and dish links — business keys (code, number, name, login) remain as fallback.',
+      'Inventory item codes (and other mutable keys) can be corrected in an update when you pass the row id, without losing the record.',
+      'Ambiguous business-key matches now ask for id instead of updating the wrong row.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Backup and restore',
+    items: [
+      'Settings includes Backup and restore: export or restore app settings (plus this browser’s language, appearance, touch keyboard, and POS mode) as a JSON file.',
+      'With the Database backup permission, you can download or import a full Surreal .surql dump (same format as the nightly backups). Rows in the file overwrite matches; rows only on the live database are kept.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Payment print, apply PIN, closing cash',
+    items: [
+      'Payment has a Skip final receipt switch that this terminal remembers. When on, completing payment does not print the final bill; a cash tender still opens the drawer.',
+      'Applying tax, discount, service charge, or tip on the payment screen asks for a manager PIN when the signed-in user does not have that module (opening the panel no longer asks).',
+      'Day closing no longer shows cash sales (system), expected in drawer, cash system payment cards, or over/short on screen or on the closing print.',
+    ],
+  },
+  {
+    date: '2026-11-01',
+    title: 'Assistant table name/number split',
+    items: [
+      'Creating tables via the assistant no longer doubles labels like F1F1: name is the prefix (F) and number is digits (1); identical full labels are split automatically.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'HQ user catalog download',
+    items: [
+      'Sync now reliably downloads HQ-published users (and keeps branch_ids scoping in JS). Fragile Surreal WHERE filters on branch_id/branch_ids no longer drop the whole user table.',
+      'Creating a user with Branches left on “All branches (shared)” no longer fails — empty selection omits branch_ids (Surreal NONE) instead of writing null.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'Quick Order as its own build module',
+    items: [
+      'Quick Order is no longer tied to the floor Menu build flag. Use VITE_APP_MODULES_EXCLUDE=quick to omit the /quick screen, sidebar entry, POS mode card, and scale barcode settings while keeping the restaurant menu.',
+      'HQ exclude lists that previously dropped menu must also list quick, because excluding menu alone no longer removes Quick Order.',
+    ],
+  },
+  {
+    date: '2026-10-31',
+    title: 'Printer connectivity test',
+    items: [
+      'Manage → Printers has a test-print button on each printer. It sends a short slip to that printer so you can confirm the connection.',
+      'The printer row keeps the result: Printed when the server finished sending the slip, or the print server error (HTTP status and message) when it did not.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Menu tree on Dishes',
+    items: [
+      'Manage → Dishes includes a Menu tree button that opens a full-width SVG map: categories branch into dishes, then modifier groups and modifiers (including nested groups), with zoom, pan, and fit-to-screen.',
+    ],
+  },
+  {
+    date: '2026-10-30',
+    title: 'Kenya KRA eTIMS fiscalization',
+    items: [
+      'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
+      'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
+      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Sale vs Consumption by item',
+    items: [
+      'Sale vs Consumption now lists each inventory item’s purchased, issued, and recipe-implied consumed qty/cost for the selected dates, with qty and cost variance (issued − consumed).',
+    ],
+  },
+  {
+    date: '2026-10-29',
+    title: 'Inventory item soft delete',
+    items: [
+      'Inventory → Items can delete an item: unused items are removed; items only on dish recipes remove those recipe lines then delete; items with stock/documents/production history are deactivated (hidden from pickers) instead.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Assistant CSV cleanse and chat context',
+    items: [
+      'Attach a messy CSV/Excel in the AI assistant, pick an import domain (dishes, inventory, HR, accounts, and other AI Import screens), then download a corrected CSV to import on that screen.',
+      'Inventory item import no longer includes base quantity (unused after UOM conversion); UOM cleanse still maps synonyms and rejects pack-size numbers as units.',
+      'Confirming an assistant create/update preview no longer fails when the model requested several tools at once (missing tool-result messages after tool_calls).',
+      'Creating dishes with modifier groups uses dish / modifier-group / dish-link tools instead of AI Import Menu Structure (avoids invalid Row type “modifier_group”).',
+      'Dish ingredient (recipe) cleanse/import flags unknown dishes, unresolved ingredients, entered UOMs that cannot convert to the item stock unit (e.g. L vs KG), and warns when recipe food cost exceeds the dish selling price.',
+      'Assistant dish updates prefer matching by dish id from list_menu_items (numbers can be duplicated); duplicate numbers require id or a unique name.',
+      'The assistant keeps recent conversation as context for follow-ups, without re-running older requests.',
+    ],
+  },
+  {
+    date: '2026-10-28',
+    title: 'Faster reports for long date ranges',
+    items: [
+      'Report filters (taxes, discounts, categories, menu items, payments, shifts, locations, and more) are applied in the database instead of after loading every matching order.',
+      'Sales Dashboard loads paid KPIs and open delivery orders in separate queries so multi-month ranges no longer pull every order status into the browser.',
+      'Product Mix Summary, detailed inventory, kitchen reconciliation, and AI/ops helpers (discounts, cash audit, tips, dine-in analytics) follow the same push-down pattern.',
     ],
   },
   {
@@ -110,6 +559,7 @@ export const RELEASES: ReleaseNotes[] = [
       'Ask “show me dishes with their ingredients” to list dishes that have recipes configured, each with its ingredient lines.',
       'Ask which dishes have no ingredients (or compare with vs without recipes) so you can fill missing recipes in Settings → Dishes.',
       'Ask for dish → recipe counts (e.g. “dish name -> number of recipes”) to audit every dish’s recipe line count without ingredient detail.',
+
     ],
   },
   {
@@ -218,10 +668,18 @@ export const RELEASES: ReleaseNotes[] = [
     ],
   },
   {
+    date: '2026-11-01',
+    title: 'One-day order cache retention',
+    items: [
+      'Gateway snapshot defaults to open checks plus the last 1 day of settled orders (POS_SNAPSHOT_OPERATIONAL_DURATION=1d).',
+      'Tills automatically prune closed Dexie orders older than 1 day on sync — identity and invoice/auto_id pools stay intact, so Reload cache is not required to shrink a bloated IndexedDB.',
+    ],
+  },
+  {
     date: '2026-10-06',
     title: 'Lean on-prem snapshot window',
     items: [
-      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 3d / 90d).',
+      'Gateway env POS_SNAPSHOT_OPERATIONAL_DURATION and POS_SNAPSHOT_COUPON_REDEMPTION_DURATION control how much settled order history is copied into each till on Reload cache / first sync (defaults 1d / 90d).',
       'On-prem LAN sites can set 12h and 7d for a much smaller Dexie warmup while keeping open checks, outbox push/pull, and multi-till sync.',
     ],
   },

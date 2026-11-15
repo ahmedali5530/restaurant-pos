@@ -224,6 +224,10 @@ export class PosStore {
     return commands.createCustomer(input);
   }
 
+  updateCustomer(input: Record<string, any>) {
+    return commands.updateCustomer(input);
+  }
+
   recordOrderPrint(input: Parameters<typeof commands.recordOrderPrint>[0]) {
     return commands.recordOrderPrint(input);
   }
@@ -358,6 +362,15 @@ export class PosStore {
 
   pruneGhostOperationalOrders() {
     return catalog.pruneGhostOperationalOrders();
+  }
+
+  /** Drop settled Dexie orders older than 1d (default); keeps identity/catalog/numbers. */
+  pruneStaleOperationalOrders(options?: {
+    olderThanMs?: number;
+    limit?: number;
+    silent?: boolean;
+  }) {
+    return catalog.pruneStaleOperationalOrders(options);
   }
 
   /** Open orders in the legacy FETCH shape (items.item, user, table, order_type…). */
@@ -500,9 +513,10 @@ export class PosStore {
   async applyInvoiceAssignments(
     assignments: Array<{
       aggregateId?: string;
-      invoiceNumber: number;
+      invoiceNumber?: number;
       invoiceDisplay?: string;
       invoicePrefix?: string;
+      autoId?: number;
     }>,
   ): Promise<void> {
     if (!assignments.length) return;
@@ -510,24 +524,34 @@ export class PosStore {
     await db.transaction('rw', db.orders, async () => {
       for (const assignment of assignments) {
         const raw = String(assignment.aggregateId || '');
-        if (!raw || !Number.isFinite(Number(assignment.invoiceNumber))) continue;
+        if (!raw) continue;
+        const hasInvoice = Number.isFinite(Number(assignment.invoiceNumber));
+        const hasAutoId = Number.isFinite(Number(assignment.autoId));
+        if (!hasInvoice && !hasAutoId) continue;
         const key = raw.includes(':') ? raw : `order:${raw}`;
         const existing = await db.orders.get(key);
         if (!existing) continue;
         await db.orders.put({
           ...existing,
-          invoice_number: Number(assignment.invoiceNumber),
+          ...(hasInvoice
+            ? { invoice_number: Number(assignment.invoiceNumber) }
+            : {}),
           ...(assignment.invoiceDisplay
             ? { invoice_display: String(assignment.invoiceDisplay) }
             : {}),
           ...(assignment.invoicePrefix
             ? { invoice_prefix: String(assignment.invoicePrefix) }
             : {}),
+          ...(hasAutoId ? { auto_id: Math.floor(Number(assignment.autoId)) } : {}),
           updated_at: new Date().toISOString(),
         });
       }
     });
-    notifyWrite();
+    // Refresh FOH listeners without posr-posstore-write — that event schedules
+    // another full /sync push+pull right after we already applied push assignments.
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('posr-operational-orders-updated'));
+    }
   }
 
   /**

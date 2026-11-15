@@ -8,8 +8,10 @@ const {
   withRetry,
   compactChangeBatch,
   nextCursorVersionstamp,
+  compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
+  diffOrphanLocalIds,
   normalizeShowChangesResult,
   normalizeSelectPage,
   recordIdKey,
@@ -470,22 +472,22 @@ class CatalogDownloadManager {
   }
 
   /**
-   * Clear down-cursors so pollTable runs a full SELECT backfill again.
-   * Also resets the override-control cursor so patches are reloaded.
+   * Mark tables for a full SELECT backfill on Sync now.
+   * Keeps versionstamp so post-backfill SHOW CHANGES can replay DELETEs within
+   * the 14d master changefeed window. Override cache is reloaded separately.
    */
   async resetCatalogBackfillCursors(tables) {
     const names = new Set([...(tables || []), OVERRIDE_CONTROL_TABLE]);
     for (const tableName of names) {
       const state = this.ensureTableState(tableName);
       state.backfillDone = false;
-      state.versionstamp = null;
       state.blockedUntil = 0;
       state.backoffMs = 1000;
       state.lastError = null;
       try {
+        // Preserve versionstamp for changefeed replay after backfill.
         await this.saveCursor(tableName, {
           backfillDone: false,
-          versionstamp: null,
         });
       } catch (error) {
         this.logger.warn('Failed to reset catalog down cursor', {
@@ -606,7 +608,13 @@ class CatalogDownloadManager {
       if (!state.backfillDone) {
         await this.backfillTable(tableName);
       }
-      await this.tailTable(tableName);
+      // Replay master changefeed (incl. DELETEs) until the cursor stops advancing.
+      for (let i = 0; i < 1000; i += 1) {
+        const before = versionstampForStorage(state.versionstamp);
+        await this.tailTable(tableName);
+        const after = versionstampForStorage(state.versionstamp);
+        if (before === after) break;
+      }
       state.lastError = null;
       state.backoffMs = 1000;
       state.blockedUntil = 0;
@@ -616,13 +624,13 @@ class CatalogDownloadManager {
       this.stats.eventsFailed += 1;
 
       if (isChangefeedRetentionError(error)) {
-        this.logger.warn('Catalog down cursor outside retention; re-backfilling', {
+        this.logger.warn('Catalog down cursor outside retention; will reconcile on next backfill', {
           table: tableName,
           error: state.lastError,
         });
         state.backfillDone = false;
-        state.versionstamp = null;
-        await this.saveCursor(tableName, { backfillDone: false, versionstamp: null }).catch(() => {});
+        // Keep versionstamp so backfill can still detect the silent gap vs first sync.
+        await this.saveCursor(tableName, { backfillDone: false }).catch(() => {});
         return;
       }
 
@@ -663,13 +671,14 @@ class CatalogDownloadManager {
     // Shared tables (user_role, setting, …) must not use a branch_id filter —
     // ensureMasterCatalogFeeds used to DEFINE branch_id on them and empty
     // SELECT pages left branches with users but no permission modules.
+    //
+    // `user` is also unfiltered in SQL: a WHERE on branch_id / type::is_array(branch_ids)
+    // fails or returns 0 rows on masters missing those fields (or Surreal 3 path
+    // quirks), so HQ-published users never landed on branches. Scope is applied
+    // in shouldApplyCatalogRow after the page load (Phase 7 branch_ids).
     let where = '';
     const vars = { limit, start };
-    if (tableName === 'user') {
-      where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId
-            OR (type::is_array(branch_ids) AND $branchId IN branch_ids)`;
-      vars.branchId = branchId;
-    } else if (BRANCH_SCOPED_CATALOG_TABLES.has(tableName)) {
+    if (BRANCH_SCOPED_CATALOG_TABLES.has(tableName) && tableName !== 'user') {
       where = `WHERE branch_id = NONE OR branch_id = NULL OR branch_id = '' OR branch_id = $branchId`;
       vars.branchId = branchId;
     }
@@ -687,11 +696,17 @@ class CatalogDownloadManager {
 
   async backfillTable(tableName) {
     const state = this.ensureTableState(tableName);
-    this.logger.info('Starting catalog backfill', { table: tableName });
+    const priorStamp = state.versionstamp;
+    this.logger.info('Starting catalog backfill', {
+      table: tableName,
+      priorStamp: versionstampForStorage(priorStamp),
+    });
 
     const watermark = await this.readFeedWatermark(tableName);
     const pageSize = this.config.backfillPageSize;
     let start = 0;
+    /** @type {Set<string>} */
+    const remoteIds = new Set();
 
     for (;;) {
       const page = await this.selectMasterPage(tableName, pageSize, start);
@@ -702,6 +717,7 @@ class CatalogDownloadManager {
         const targetId = toAnyRecordId(row && row.id);
         if (!targetId) continue;
         const recordId = recordIdToString(targetId);
+        remoteIds.add(recordId);
         this.noteSyncing({
           table: tableName,
           recordId,
@@ -726,14 +742,122 @@ class CatalogDownloadManager {
       if (page.length < pageSize) break;
     }
 
-    await this.saveCursor(tableName, {
-      backfillDone: true,
-      versionstamp: watermark != null ? watermark : state.versionstamp,
-    });
-    this.logger.info('Catalog backfill complete', {
+    // Mark backfill done but keep prior versionstamp so tail can replay DELETEs.
+    await this.saveCursor(tableName, { backfillDone: true });
+
+    const reconcile = await this.shouldReconcileOrphans(tableName, priorStamp, watermark);
+    if (reconcile) {
+      await this.reconcileLocalOrphans(tableName, remoteIds);
+      await this.saveCursor(tableName, {
+        versionstamp: watermark != null ? watermark : priorStamp,
+      });
+      this.logger.info('Catalog backfill complete (orphan reconcile)', {
+        table: tableName,
+        rows: start,
+        remoteIds: remoteIds.size,
+        versionstamp: versionstampForStorage(state.versionstamp),
+      });
+      return;
+    }
+
+    this.logger.info('Catalog backfill complete (changefeed replay next)', {
       table: tableName,
       rows: start,
-      versionstamp: versionstampForStorage(state.versionstamp),
+      priorStamp: versionstampForStorage(priorStamp),
+      watermark: versionstampForStorage(watermark),
+    });
+  }
+
+  /**
+   * True when we cannot rely on SHOW CHANGES since priorStamp (first sync or
+   * silent gap past the 14d master catalog changefeed retention).
+   */
+  async shouldReconcileOrphans(tableName, priorStamp, watermark) {
+    if (priorStamp == null || priorStamp === 0 || priorStamp === '0') {
+      return true;
+    }
+    if (watermark == null) {
+      return false;
+    }
+    if (compareVersionstamp(watermark, priorStamp) <= 0) {
+      return false;
+    }
+
+    const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(priorStamp)} LIMIT 5;`;
+    try {
+      const result = await withTimeout(
+        this.master.query(sql),
+        20000,
+        `SHOW CHANGES.probeDown(${tableName})`
+      );
+      const entries = entriesAfterCursor(
+        normalizeShowChangesResult(result),
+        priorStamp
+      );
+      if (entries.length) {
+        return false;
+      }
+      this.logger.warn('Catalog down cursor past retention (silent gap); reconciling orphans', {
+        table: tableName,
+        priorStamp: versionstampForStorage(priorStamp),
+        watermark: versionstampForStorage(watermark),
+      });
+      return true;
+    } catch (error) {
+      if (isChangefeedRetentionError(error)) {
+        return true;
+      }
+      this.logger.warn('Catalog changefeed probe failed; reconciling orphans', {
+        table: tableName,
+        error: error.message || String(error),
+      });
+      return true;
+    }
+  }
+
+  async selectLocalIds(tableName) {
+    const result = await withRetry(
+      () => this.source.query(`SELECT id FROM ${tableName};`),
+      { label: `source.selectIds(${tableName})`, timeoutMs: 30000, retries: 3 }
+    );
+    const rows = normalizeSelectPage(result);
+    return rows
+      .map((row) => recordIdToString(row && row.id))
+      .filter(Boolean);
+  }
+
+  async reconcileLocalOrphans(tableName, remoteIds) {
+    const localIds = await this.selectLocalIds(tableName);
+    const orphans = diffOrphanLocalIds(localIds, remoteIds);
+    for (const idStr of orphans) {
+      const targetId = toAnyRecordId(idStr);
+      if (!targetId) continue;
+      this.noteSyncing({
+        table: tableName,
+        recordId: idStr,
+        action: 'DELETE',
+        phase: 'catalog-reconcile',
+      });
+      try {
+        await this.enqueueWrite(() => withRetry(
+          () => this.source.delete(targetId),
+          { label: `local.reconcileDelete(${idStr})`, retries: 5, timeoutMs: 15000 }
+        ));
+        this.stats.eventsProcessed += 1;
+        this.noteLastSynced({
+          table: tableName,
+          recordId: idStr,
+          action: 'DELETE',
+          phase: 'catalog-reconcile',
+        });
+      } finally {
+        this.noteSyncing(null);
+      }
+    }
+    this.logger.info('Catalog orphan reconcile', {
+      table: tableName,
+      deleted: orphans.length,
+      kept: remoteIds.size,
     });
   }
 

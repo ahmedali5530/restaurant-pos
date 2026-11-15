@@ -21,6 +21,8 @@ const {
  * @param {string} opts.createdAt
  * @param {Array<{ label: string, value: string }>} [opts.extraLines]
  * @param {Object} [opts.labels] - translated labels map
+ * @param {boolean} [opts.showOrderType=true] - print settings flag
+ * @param {boolean} [opts.showTableName=true] - print settings flag
  */
 function printKotHeader(printer, opts) {
   const {
@@ -33,6 +35,8 @@ function printKotHeader(printer, opts) {
     createdAt,
     extraLines = [],
     labels = {},
+    showOrderType = true,
+    showTableName = true,
   } = opts || {};
 
   const L = labels || {};
@@ -62,8 +66,10 @@ function printKotHeader(printer, opts) {
   }
 
   // Two meta lines: Table | Order Type, Order Taker | Time
-  const tableLeft = table ? `${tableLabel}: ${table}` : '';
-  const typeRight = orderType ? `${orderTypeLabel}: ${orderType}` : '';
+  const tableLeft = showTableName !== false && table ? `${tableLabel}: ${table}` : '';
+  const typeRight = showOrderType !== false && orderType
+    ? `${orderTypeLabel}: ${orderType}`
+    : '';
   if (tableLeft || typeRight) {
     printLineLeftRight(printer, tableLeft, typeRight);
   }
@@ -76,7 +82,7 @@ function printKotHeader(printer, opts) {
 
   extraLines.forEach((line) => {
     if (line && line.value) {
-      printFixedLine(printer, `${line.label}: ${String(line.value).slice(0, 40)}`, { align: 'left' });
+      printFixedLine(printer, `${line.label}: ${String(line.value)}`, { align: 'left' });
     }
   });
 

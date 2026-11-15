@@ -13,7 +13,13 @@
       "address": "Adr.",
       "secondaryAddress": "İkincil Adr.",
       "points": "Puan"
-    }
+    },
+    "save": "Kaydet",
+    "remove": "Siparişten kaldır",
+    "saved": "Müşteri kaydedildi",
+    "saveFailed": "Müşteri kaydedilemedi",
+    "attachFailed": "Müşteri bu siparişe eklenemedi",
+    "removeFailed": "Müşteri siparişten kaldırılamadı"
   },
   "filters": {
     "status": "Sipariş durumu seçin",

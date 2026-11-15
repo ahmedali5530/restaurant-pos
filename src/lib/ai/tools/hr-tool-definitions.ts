@@ -6,6 +6,9 @@ const dateParams = {
   endDate: {type: "string"},
 };
 
+const ID_NOTE =
+  " Each row includes id — use it for propose_update_* / propose_delete_* (prefer id over name/number/code).";
+
 const searchLimitProps = {
   search: {type: "string"},
   limit: {type: "number", default: 50},
@@ -18,7 +21,8 @@ export const AI_HR_READ_TOOLS: OpenAIToolDefinition[] = [
       name: "list_employees",
       description:
         "List HR employees from the Employees module (employee_number, department, position). "
-        + "NOT POS system users — use list_users only for login accounts.",
+        + "NOT POS system users — use list_users only for login accounts."
+        + ID_NOTE,
       parameters: {type: "object", properties: searchLimitProps},
     },
   },
@@ -44,7 +48,8 @@ export const AI_HR_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_departments",
-      description: "List HR departments.",
+      description: "List HR departments."
+        + ID_NOTE,
       parameters: {type: "object", properties: searchLimitProps},
     },
   },
@@ -52,7 +57,8 @@ export const AI_HR_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_positions",
-      description: "List HR job positions.",
+      description: "List HR job positions."
+        + ID_NOTE,
       parameters: {type: "object", properties: searchLimitProps},
     },
   },
@@ -60,7 +66,8 @@ export const AI_HR_READ_TOOLS: OpenAIToolDefinition[] = [
     type: "function",
     function: {
       name: "list_cost_centers",
-      description: "List HR cost centers.",
+      description: "List HR cost centers."
+        + ID_NOTE,
       parameters: {type: "object", properties: searchLimitProps},
     },
   },

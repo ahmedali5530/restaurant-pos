@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Artikelcategorieën AI-importeren",
     "smartImportLocationsTitle": "Locaties AI-importeren",
     "lastPrice": "Laatste",
-    "itemPrice": "Artikel"
+    "itemPrice": "Artikel",
+    "averagePrice": "Gem.",
+    "pricePerUom": "Prijs / {{uom}}",
+    "stockUomHint": "Voorraad: {{uom}}"
   },
   "validation": {
     "required": "Dit is verplicht",
@@ -669,5 +672,9 @@
     "toast": {
       "saved": "Eenheid {{code}} opgeslagen"
     }
+  },
+  "delete": {
+    "itemTitle": "{{name}} verwijderen",
+    "itemMessage": "Ongebruikte artikelen worden verwijderd. Staat het alleen in gerechtrecepten, dan worden die regels ook verwijderd. Bij voorraadhistorie of documenten wordt het gedeactiveerd."
   }
 }

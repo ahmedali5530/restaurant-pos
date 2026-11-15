@@ -1,11 +1,6 @@
-import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import type {TFunc} from "@/lib/ai/tools/write-tools.ts";
-import {
-  assertCsvMatchValues,
-  buildMatchConditions,
-  findCsvImportMatches,
-} from "@/utils/csv-import.ts";
+import {optionalIdField, requireUniqueMatchByIdOrKeys} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
 export type SoftDeleteImportConfigOptions = {
@@ -21,13 +16,16 @@ export type SoftDeleteImportConfigOptions = {
 export function createSoftDeleteImportConfig(opts: SoftDeleteImportConfigOptions): ImportConfiguration {
   const {db, t, table, configId, entityLabel, matchFields, matchFieldDescriptions = {}} = opts;
 
-  const fields: ImportField[] = matchFields.map(name => ({
-    name,
-    label: name,
-    type: "string" as const,
-    required: true,
-    description: matchFieldDescriptions[name],
-  }));
+  const fields: ImportField[] = [
+    optionalIdField(t),
+    ...matchFields.map(name => ({
+      name,
+      label: name,
+      type: "string" as const,
+      optional: true,
+      description: matchFieldDescriptions[name],
+    })),
+  ];
 
   return {
     id: configId,
@@ -37,30 +35,33 @@ export function createSoftDeleteImportConfig(opts: SoftDeleteImportConfigOptions
     matchFields,
     defaultMode: "update",
     db,
-    extractionInstructions: `Soft-delete ${entityLabel} records matched by ${matchFields.join(", ")}.`,
-    onImportRow: async (record: ImportRecord, ctx) => {
-      const rowData: Record<string, string> = {};
+    extractionInstructions:
+      `Soft-delete ${entityLabel} records matched by id (preferred) or ${matchFields.join(", ")}.`,
+    onImportRow: async (record: ImportRecord) => {
+      const idRaw = String(record.values.id ?? "").trim();
+      const keys: Record<string, unknown> = {};
       for (const field of matchFields) {
-        rowData[field] = String(record.values[field] ?? "").trim();
-      }
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field}),
-      );
-
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({
-        column: _field,
-        value,
-      }));
-
-      const existing = await findCsvImportMatches(db, table, conditions, {softDelete: true});
-      if (existing.length === 0) {
-        throw new Error(t("common:csvImport.recordNotFound"));
-      }
-      if (existing.length > 1) {
-        throw new Error(t("common:csvImport.multipleMatches"));
+        const value = String(record.values[field] ?? "").trim();
+        if (value) keys[field] = value;
       }
 
-      await db.merge?.(toRecordId(existing[0].id), {deleted_at: new Date().toISOString()});
+      if (!idRaw && matchFields.every((field) => !keys[field])) {
+        throw new Error(
+          t("common:csvImport.emptyMatchValue", {
+            field: "id or " + matchFields.join("/"),
+          }),
+        );
+      }
+
+      const matched = await requireUniqueMatchByIdOrKeys(db, table, {
+        id: idRaw || undefined,
+        keys,
+        softDelete: true,
+        t,
+        keyLabel: matchFields[0],
+      });
+
+      await db.merge?.(toRecordId(matched.id), {deleted_at: new Date().toISOString()});
     },
   };
 }

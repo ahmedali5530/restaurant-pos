@@ -1,8 +1,11 @@
 import {describe, expect, it} from "vitest";
-import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
+import {detectDomainsForPrompt} from "@/lib/ai/tools/select-tools.ts";
+import {AI_MANAGE_READ_TOOLS} from "@/lib/ai/tools/manage-tool-definitions.ts";
+import {MANAGE_TOOL_PERMISSION_MODULES} from "@/lib/ai/tools/manage-permissions.ts";
+import {AI_REPORT_TOOL_CATEGORIES} from "@/lib/ai/tools/categories.ts";
+import {detectWriteToolsForPrompt} from "@/lib/ai/tools/write-tool-registry.ts";
 
-const toolNames = (prompt: string, allowedModules: string[] = []) =>
-  selectAssistantToolsForPrompt(prompt, allowedModules, {compact: true}).tools.map(t => t.function.name);
+const manageToolNames = () => AI_MANAGE_READ_TOOLS.map(t => t.function.name);
 
 describe("manage parity routing", () => {
   const manageModules = [
@@ -10,22 +13,51 @@ describe("manage parity routing", () => {
     "admin.floors",
     "admin.discounts.create",
     "admin.users",
+    "admin.roles",
+    "admin.dishes",
     "admin.modifier_groups",
     "admin.coupons.create",
+    "admin.extras",
+    "admin.printers",
+    "admin.print_settings",
+    "admin.tips_definition",
     "admin.kitchens.update",
     "inventory.purchases",
   ];
 
-  it.each([
-    ["tables on Delivery floor", ["list_tables", "list_floors"]],
-    ["list active automatic discounts", ["list_discounts"]],
-    ["list users", ["list_users"]],
-    ["list modifier groups", ["list_modifier_groups"]],
-  ])("prompt %s includes %j", (prompt, expected) => {
-    const names = toolNames(prompt, manageModules);
-    for (const tool of expected) {
-      expect(names).toContain(tool);
+  it("registers enriched and detail Manage read tools", () => {
+    const names = new Set(manageToolNames());
+    for (const tool of [
+      "get_table_detail",
+      "get_dish_detail",
+      "list_dish_modifiers",
+      "get_discount_detail",
+      "get_coupon_detail",
+      "get_extra_detail",
+      "get_role_detail",
+      "get_printer_detail",
+      "get_print_settings",
+      "get_tip_distribution",
+    ]) {
+      expect(names.has(tool)).toBe(true);
+      expect(MANAGE_TOOL_PERMISSION_MODULES[tool]).toBeTruthy();
+      expect(AI_REPORT_TOOL_CATEGORIES.manage).toContain(tool);
     }
+  });
+
+  it.each([
+    ["tables on Delivery floor", "manage"],
+    ["list active automatic discounts", "manage"],
+    ["list users", "manage"],
+    ["list modifier groups", "manage"],
+    ["show discount targets for Happy Hour", "manage"],
+    ["show role modules for Manager", "manage"],
+    ["list dish modifiers for Margherita", "manage"],
+    ["show print settings", "manage"],
+    ["show tip distribution weights", "manage"],
+    ["table detail for table 12", "manage"],
+  ])("prompt %s detects manage domain", (prompt, domain) => {
+    expect(detectDomainsForPrompt(prompt)).toContain(domain);
   });
 
   it.each([
@@ -37,9 +69,9 @@ describe("manage parity routing", () => {
     ["add Pizza to Grill kitchen", "propose_update_kitchens"],
     ["record purchase 5kg flour from Supplier A to Main Store", "propose_create_purchases"],
   ])("write prompt %s includes %s", (prompt, expected) => {
-    const names = selectAssistantToolsForPrompt(prompt, manageModules, {compact: true}).writeTools.map(
-      t => t.function.name,
-    );
+    const names = detectWriteToolsForPrompt(prompt, manageModules, {
+      domains: detectDomainsForPrompt(prompt),
+    }).map(t => t.function.name);
     expect(names).toContain(expected);
   });
 });

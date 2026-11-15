@@ -14,6 +14,7 @@
     "notOwner": "Este pedido está aberto em outro terminal",
     "numbersExhausted": "Sem IDs de pedido reservados offline — reconecte-se para continuar",
     "invoicePendingSync": "O número da fatura está pendente de sincronização — aguarde o pedido ficar online antes do envio fiscal",
+    "itemsPendingSync": "Os itens do pedido ainda estão sincronizando — aguarde um momento e tente o pagamento novamente para o fiscal receber todas as linhas",
     "fiscalFailed": "Falha no envio fiscal",
     "fireFailed": "Não foi possível enviar os itens em espera"
   },
@@ -93,7 +94,8 @@
     "exactCardAmount": "Valor exato adicionado para pagamento com cartão",
     "tempAlreadyPrinted": "Conta provisória já impressa",
     "alreadyClosed": "Este pedido já está fechado.",
-    "notOwner": "Este pedido está sendo tratado por outro terminal."
+    "notOwner": "Este pedido está sendo tratado por outro terminal.",
+    "skipFinalPrint": "Pular recibo final"
   },
   "remote": {
     "remoteLabel": "{{name}} (Remoto)",
@@ -136,6 +138,7 @@
     "payWithCard": "Pagar com cartão",
     "payWithRazorpay": "Pagar com Razorpay"
   },
+  "invoiceAssigning": "Pedido salvo — número da fatura ainda sendo atribuído…",
   "quickCheckout": {
     "complete": "Concluir",
     "fullPayment": "Pagamento completo",

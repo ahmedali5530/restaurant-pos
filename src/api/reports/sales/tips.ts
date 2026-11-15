@@ -5,6 +5,7 @@ import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {
   buildBranchInsideCondition,
   buildCreatedAtDateConditions,
+  buildRecordInsideCondition,
   unwrapQueryResult,
 } from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
@@ -214,7 +215,17 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
     Object.assign(params, branchFilter.params);
   }
 
-  const orders = unwrapQueryResult<Order>(
+  if (normalizedShiftId) {
+    const cashierShift = buildRecordInsideCondition("cashier.user_shift", [normalizedShiftId], "tipCashierShiftIds");
+    const userShift = buildRecordInsideCondition("user.user_shift", [normalizedShiftId], "tipUserShiftIds");
+    const parts = [cashierShift.condition, userShift.condition].filter(Boolean);
+    Object.assign(params, cashierShift.params, userShift.params);
+    if (parts.length > 0) {
+      conditions.push(`(${parts.join(" OR ")})`);
+    }
+  }
+
+  const ordersInScope = unwrapQueryResult<Order>(
     await db.query(
       `
         SELECT * FROM ${Tables.orders}
@@ -224,10 +235,6 @@ export const getTips = async (db: DbClient, options: GetTipsOptions = {}) => {
       params,
     ),
   );
-
-  const ordersInScope = normalizedShiftId
-    ? orders.filter(order => getShiftId(order.cashier as User) === normalizedShiftId)
-    : orders;
 
   const tipsCollected = ordersInScope.reduce((sum, order) => sum + safeNumber(order.tip_amount), 0);
 

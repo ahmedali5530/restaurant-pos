@@ -47,15 +47,27 @@ export const getFiscalProviderLabel = (providerId: string): string => {
 /**
  * Receipt caption under a fiscal QR:
  * `{invoiceNumber}\nQR Code generated for {provider} verification`
+ * KRA adds CU internal data and receipt signature when present on the response.
  */
 export const getFiscalProviderPrintDescription = (
   providerId: string,
-  invoiceNumber?: string
+  invoiceNumber?: string,
+  responsePayload?: unknown
 ): string => {
   const provider = getFiscalProviderLabel(providerId);
   const verificationLine = `QR Code generated for ${provider} verification`;
   const invoice = String(invoiceNumber ?? '').trim();
-  return invoice ? `${invoice}\n${verificationLine}` : verificationLine;
+  const lines = [invoice, verificationLine].filter(Boolean);
+
+  if (providerId === 'provider:kra' && responsePayload && typeof responsePayload === 'object') {
+    const data = (responsePayload as { data?: Record<string, unknown> }).data ?? {};
+    const intrlData = String(data.intrlData ?? '').trim();
+    const rcptSign = String(data.rcptSign ?? '').trim();
+    if (intrlData) lines.push(`Internal: ${intrlData}`);
+    if (rcptSign) lines.push(`Sign: ${rcptSign}`);
+  }
+
+  return lines.join('\n');
 };
 
 export const listOrderFiscalSubmissions = async (
@@ -68,7 +80,22 @@ export const listOrderFiscalSubmissions = async (
      ORDER BY submitted_at DESC`,
     { orderId: toRecordId(orderId) }
   );
-  return rows ?? [];
+  return Array.isArray(rows) ? rows : [];
+};
+
+/** Latest completed submission with a fiscal invoice/QR for this order + provider. */
+export const findCompletedFiscalSubmission = async (
+  db: FiscalSubmissionDbClient,
+  orderId: unknown,
+  providerId: string
+): Promise<OrderFiscalSubmission | undefined> => {
+  const rows = await listOrderFiscalSubmissions(db, orderId);
+  return rows.find(
+    (row) =>
+      row.provider_id === providerId &&
+      row.status === 'completed' &&
+      Boolean(row.qrcode || row.invoice_number)
+  );
 };
 
 export const createOrderFiscalSubmission = async (
@@ -167,7 +194,8 @@ export const buildFiscalQrcodesForPrint = (
           qrPriority: row.qr_priority ?? 0,
           description: getFiscalProviderPrintDescription(
             providerId,
-            row.invoice_number ?? row.qrcode ?? undefined
+            row.invoice_number ?? row.qrcode ?? undefined,
+            row.response_payload
           ),
         },
       ])
@@ -211,6 +239,10 @@ export const persistFiscalSubmissionsForOrder = async (
   const created: OrderFiscalSubmission[] = [];
 
   for (const [providerId, result] of Object.entries(resultsByProvider)) {
+    // Do not insert another row when submit was skipped as already completed.
+    if (result.status === 'skipped' && result.error === 'already_completed') {
+      continue;
+    }
     const row = await createOrderFiscalSubmission(db, {
       orderId,
       providerId,

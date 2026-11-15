@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "AI Import item categories",
     "smartImportLocationsTitle": "AI Import locations",
     "lastPrice": "Last",
-    "itemPrice": "Item"
+    "itemPrice": "Item",
+    "averagePrice": "Avg",
+    "pricePerUom": "Price / {{uom}}",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "adjustment": {
     "reasons": {
@@ -672,5 +675,9 @@
     "toast": {
       "saved": "Unit {{code}} saved"
     }
+  },
+  "delete": {
+    "itemTitle": "Delete {{name}}",
+    "itemMessage": "If this item is unused it will be removed. If it is only on dish recipes, those recipe lines are removed too. If it has stock history or documents, it will be deactivated instead."
   }
 }

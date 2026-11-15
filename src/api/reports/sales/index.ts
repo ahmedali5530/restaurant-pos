@@ -5,7 +5,6 @@ import {
   aggregateTopSellingDishes,
 } from "@/api/reports/sales/aggregate.ts";
 import {
-  fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,
   fetchPaidOrders,
@@ -15,15 +14,25 @@ import {
 
 export {
   aggregateAccumulatedModifiersSummary,
+  aggregateDailyCategoryMix,
   aggregateModifiersSummary,
   aggregateProductMixByCategory,
   aggregateSalesSummary,
   aggregateTopSellingDishes,
   calculateOrderNetSales,
   getOrderFigures,
+  getOrderItemModifierRows,
+  sumFilteredExclusiveSales,
+  sumOrdersExclusiveSales,
+} from "@/api/reports/sales/aggregate.ts";
+export type {
+  DailyCategoryMixCategory,
+  DailyCategoryMixDish,
+  DailyCategoryMixModifier,
 } from "@/api/reports/sales/aggregate.ts";
 
 export {
+  fetchDashboardDeliveryOrders,
   fetchDashboardOrders,
   fetchOrderVoids,
   fetchOrders,

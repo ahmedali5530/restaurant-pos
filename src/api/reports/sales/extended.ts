@@ -6,7 +6,7 @@ import {recordIdToString} from "@/api/reports/shared/records.ts";
 import {buildCreatedAtDateConditions, unwrapQueryResult} from "@/api/reports/shared/query.ts";
 import type {DateRangeFilter, DbClient} from "@/api/reports/shared/types.ts";
 import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
-import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal, orderHasDiscount} from "@/lib/order.ts";
+import {getOrderFilteredItems, getOrderPaymentTotals, getOrderDiscountTotal} from "@/lib/order.ts";
 import {safeNumber} from "@/lib/utils.ts";
 import {getDayPartLabel} from "@/utils/dayParts";
 import {toJsDate} from "@/lib/datetime.ts";
@@ -114,6 +114,10 @@ export const getOrderFinanceSummary = async (
     conditions.push("coupon != NONE");
   } else if (options.metric === "tax_amount") {
     conditions.push("tax_amount > 0");
+  } else if (options.metric === "discount_amount") {
+    conditions.push(
+      "(discount != NONE OR (order_discounts != NONE AND array::len(order_discounts) > 0) OR coupon != NONE)",
+    );
   }
 
   const query = `
@@ -125,17 +129,12 @@ export const getOrderFinanceSummary = async (
   `;
 
   const orders = unwrapQueryResult<Order>(await db.query(query, params));
-  const filteredOrders = options.metric === "tax_amount"
-    ? orders.filter(order => getOrderTaxAmount(order) > 0)
-    : options.metric === "discount_amount"
-      ? orders.filter(orderHasDiscount)
-      : orders;
-  const total = filteredOrders.reduce((sum, order) => sum + getMetricAmount(order, options.metric), 0);
+  const total = orders.reduce((sum, order) => sum + getMetricAmount(order, options.metric), 0);
 
   return {
-    orderCount: filteredOrders.length,
+    orderCount: orders.length,
     total,
-    topOrders: filteredOrders.slice(0, 20).map(order => ({
+    topOrders: orders.slice(0, 20).map(order => ({
       invoiceNumber: order.invoice_number,
       amount: getMetricAmount(order, options.metric),
       createdAt: order.created_at,
@@ -286,9 +285,24 @@ export const listStaff = async (db: DbClient, options: {search?: string; limit?:
 
 export const listCategories = async (db: DbClient, options: {limit?: number} = {}) => {
   const limit = options.limit ?? 50;
-  const query = `SELECT id, name FROM ${Tables.categories} ORDER BY name ASC LIMIT ${limit}`;
-  const categories = unwrapQueryResult<{id: unknown; name?: string}>(await db.query(query));
-  return categories.map(cat => ({id: recordIdToString(cat.id), name: cat.name ?? "Unknown"}));
+  const query = `
+    SELECT id, name, priority, show_in_menu FROM ${Tables.categories}
+    WHERE deleted_at = NONE
+    ORDER BY priority ASC, name ASC
+    LIMIT ${limit}
+  `;
+  const categories = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    show_in_menu?: boolean;
+  }>(await db.query(query));
+  return categories.map(cat => ({
+    id: recordIdToString(cat.id),
+    name: cat.name ?? "Unknown",
+    priority: cat.priority ?? 0,
+    show_in_menu: cat.show_in_menu ?? false,
+  }));
 };
 
 export const getSalesDashboardSnapshot = async (db: DbClient, options: DateRangeFilter) => {
