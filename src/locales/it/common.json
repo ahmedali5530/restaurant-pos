@@ -327,5 +327,8 @@
     },
     "settingsTitle": "Impostazioni assistente",
     "analyzeAttached": "{{file}} pronto — chiedi sotto"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Salta scontrino finale"
   }
 }

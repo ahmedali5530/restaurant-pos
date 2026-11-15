@@ -5,14 +5,20 @@
     "last": "Последнее сканирование: {{code}}",
     "unknown": "Неизвестный код: {{code}}",
     "added": "Добавлено: {{name}}",
-    "placeholder": "Сканируйте код/PLU, CODE*6 или *6 и Enter",
-    "inputLabel": "Штрихкод / PLU",
-    "qtyHint": "Кол-во: CODE*6 добавляет шесть; *6 — шесть последнего",
+    "placeholder": "Сканируйте штрихкод или введите имя / PLU / CODE*6 / *6",
+    "inputLabel": "Штрихкод / имя / PLU",
+    "qtyHint": "Введите для поиска по имени, номеру или штрихкоду. Кол-во: CODE*6 или *6 для последнего",
     "invalidQty": "Неверное количество — целое после *",
     "noLastItem": "Сначала отсканируйте товар, затем *кол-во",
     "addedQty": "Добавлено {{count}} × {{name}}",
     "unknownPlu": "Неизвестный PLU весов {{plu}} ({{code}})",
-    "addedWeight": "Добавлено {{weight}} кг {{name}}"
+    "addedWeight": "Добавлено {{weight}} кг {{name}}",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Имя",
+      "number": "Номер",
+      "barcode": "Штрихкод"
+    }
   },
   "cart": {
     "title": "Корзина",

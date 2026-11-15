@@ -327,5 +327,8 @@
     },
     "settingsTitle": "Ajustes del asistente",
     "analyzeAttached": "{{file}} listo — pregunte abajo"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Omitir recibo final"
   }
 }

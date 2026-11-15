@@ -327,5 +327,8 @@
     "settingsTitle": "Assistant settings",
     "analyzeAttached": "{{file}} ready — ask below"
   },
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "toolbar": {
+    "skipFinalPrint": "Skip final receipt"
+  }
 }

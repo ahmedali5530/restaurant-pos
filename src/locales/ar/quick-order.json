@@ -5,14 +5,20 @@
     "last": "آخر مسح: {{code}}",
     "unknown": "رمز غير معروف: {{code}}",
     "added": "تمت إضافة {{name}}",
-    "placeholder": "امسح الرمز/PLU أو CODE*6 أو *6 ثم Enter",
-    "inputLabel": "باركود / PLU",
-    "qtyHint": "الكمية: CODE*6 يضيف ستة؛ *6 يضيف ستة من آخر عنصر",
+    "placeholder": "امسح الباركود أو اكتب الاسم / PLU / CODE*6 / *6",
+    "inputLabel": "باركود / اسم / PLU",
+    "qtyHint": "اكتب للبحث بالاسم أو الرقم أو الباركود. الكمية: CODE*6 أو *6 لآخر عنصر",
     "invalidQty": "كمية غير صالحة — رقم صحيح بعد *",
     "noLastItem": "امسح عنصرًا أولًا ثم *الكمية",
     "addedQty": "أُضيف {{count}} × {{name}}",
     "unknownPlu": "PLU ميزان غير معروف {{plu}} ({{code}})",
-    "addedWeight": "أُضيف {{weight}} كغ {{name}}"
+    "addedWeight": "أُضيف {{weight}} كغ {{name}}",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "الاسم",
+      "number": "الرقم",
+      "barcode": "الباركود"
+    }
   },
   "cart": {
     "title": "السلة",

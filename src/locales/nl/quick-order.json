@@ -5,14 +5,20 @@
     "last": "Laatste scan: {{code}}",
     "unknown": "Onbekende code: {{code}}",
     "added": "{{name}} toegevoegd",
-    "placeholder": "Scan barcode/PLU, CODE*6 of *6 en Enter",
-    "inputLabel": "Barcode / PLU",
-    "qtyHint": "Aantal: CODE*6 voegt zes toe; *6 voegt zes van het laatste toe",
+    "placeholder": "Scan barcode of typ naam / PLU / CODE*6 / *6",
+    "inputLabel": "Barcode / naam / PLU",
+    "qtyHint": "Typ om te zoeken op naam, nummer of barcode. Aantal: CODE*6 of *6 voor laatste item",
     "invalidQty": "Ongeldig aantal — geheel getal na *",
     "noLastItem": "Scan eerst een artikel, daarna *aantal",
     "addedQty": "{{count}} × {{name}} toegevoegd",
     "unknownPlu": "Onbekende weegschaal-PLU {{plu}} ({{code}})",
-    "addedWeight": "{{weight}} kg {{name}} toegevoegd"
+    "addedWeight": "{{weight}} kg {{name}} toegevoegd",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Naam",
+      "number": "Nummer",
+      "barcode": "Barcode"
+    }
   },
   "cart": {
     "title": "Winkelwagen",

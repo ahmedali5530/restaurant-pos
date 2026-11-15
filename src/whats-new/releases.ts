@@ -8,6 +8,29 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-15',
+    title: 'Dishes search and barcode errors',
+    items: [
+      'Saving a dish with a barcode already in use shows an error toast instead of crashing the Dishes screen.',
+      'Dishes search matches name, number, barcode (including extra barcodes), and category.',
+    ],
+  },
+  {
+    date: '2026-11-15',
+    title: 'Quick Order scan autocomplete',
+    items: [
+      'Quick Order scan field suggests dishes while you type by name, number (PLU), or barcode — arrow keys / Enter / click to add; barcode wedges and CODE*qty still work the same.',
+    ],
+  },
+  {
+    date: '2026-11-15',
+    title: 'Skip final receipt on toolbar',
+    items: [
+      'Skip final receipt moved from the payment screen to the bottom app toolbar so cashiers can set it before opening payment. The terminal still remembers the preference.',
+      'Quick Order Complete uses the same settle path as full payment: fiscal checks, sale/invoice/payment integration events, and skip/final-receipt (cash still opens the drawer when skip is on). Kitchen fire prints are skipped by default.',
+    ],
+  },
+  {
+    date: '2026-11-15',
     title: 'Quick Order minimal checkout',
     items: [
       'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',

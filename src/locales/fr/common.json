@@ -327,5 +327,8 @@
     },
     "settingsTitle": "Paramètres de l’assistant",
     "analyzeAttached": "{{file}} prêt — posez votre question"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Ignorer le reçu final"
   }
 }

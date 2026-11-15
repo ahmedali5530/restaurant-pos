@@ -8,7 +8,12 @@ import {QuickOrderCart} from "@/components/quick-order/cart.tsx";
 import {QuickOrderBrowse} from "@/components/quick-order/browse.tsx";
 import {useBarcodeScan} from "@/hooks/useBarcodeScan.ts";
 import {useQuickOrderScanFocus} from "@/hooks/useQuickOrderScanFocus.ts";
-import {findDishByScanCode, parseScanQty} from "@/lib/quick-order-scan.ts";
+import {
+  findDishByScanCode,
+  parseScanQty,
+  searchQuickOrderDishes,
+} from "@/lib/quick-order-scan.ts";
+import {QuickOrderScanSuggestions} from "@/components/quick-order/scan-suggestions.tsx";
 import {
   findDishByScalePlu,
   normalizeScaleBarcodeConfig,
@@ -61,6 +66,7 @@ export const QuickOrder = () => {
   const [qtyPromptGroups, setQtyPromptGroups] = useState<CartModifierGroup[] | undefined>(undefined);
   const [lastScan, setLastScan] = useState<string>("");
   const [scanValue, setScanValue] = useState("");
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
   const [lastAddedDishId, setLastAddedDishId] = useState<string | null>(null);
   const scanInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -118,6 +124,15 @@ export const QuickOrder = () => {
       }),
     [settings.categories, settings.dishes, settings.menus],
   );
+
+  const scanSuggestions = useMemo(
+    () => searchQuickOrderDishes(sellableDishes, scanValue, 10),
+    [sellableDishes, scanValue],
+  );
+
+  useEffect(() => {
+    setSuggestionIndex(0);
+  }, [scanValue]);
 
   const commitDish = useCallback(
     (
@@ -391,7 +406,42 @@ export const QuickOrder = () => {
     enabled: scanArmed && !pendingDish && !qtyPromptDish,
   });
 
+  const selectSuggestion = useCallback(
+    (dish: Dish) => {
+      setScanValue("");
+      setLastScan(String(dish.number || dish.barcode || dish.name || ""));
+      const willPrompt = dishAsksQuantity(dish);
+      const added = addDish(dish);
+      if (added && !willPrompt) {
+        toast.success(t("quick-order:scan.added", {name: dish.name}), {duration: 1200});
+      }
+      focusScanInput();
+    },
+    [addDish, focusScanInput, t],
+  );
+
   const submitScanValue = () => {
+    const trimmed = scanValue.trim();
+    if (!trimmed) {
+      return;
+    }
+    // Exact barcode/PLU or qty syntax always goes through the scan path.
+    if (
+      trimmed.includes("*") ||
+      findDishByScanCode(sellableDishes, parseScanQty(trimmed).code ?? trimmed)
+    ) {
+      onScan(scanValue);
+      return;
+    }
+    // Name / partial match: pick highlighted (or first) suggestion.
+    if (scanSuggestions.length > 0) {
+      const pick =
+        scanSuggestions[Math.min(suggestionIndex, scanSuggestions.length - 1)]?.dish;
+      if (pick) {
+        selectSuggestion(pick);
+        return;
+      }
+    }
     onScan(scanValue);
   };
 
@@ -422,12 +472,29 @@ export const QuickOrder = () => {
                 </div>
               </div>
             </div>
-            <div>
+            <div className="relative">
               <Input
                 ref={scanInputRef}
                 value={scanValue}
                 onChange={(e) => setScanValue(e.target.value)}
                 onKeyDown={(e) => {
+                  if (e.key === "ArrowDown" && scanSuggestions.length > 0) {
+                    e.preventDefault();
+                    setSuggestionIndex((prev) =>
+                      Math.min(prev + 1, scanSuggestions.length - 1),
+                    );
+                    return;
+                  }
+                  if (e.key === "ArrowUp" && scanSuggestions.length > 0) {
+                    e.preventDefault();
+                    setSuggestionIndex((prev) => Math.max(prev - 1, 0));
+                    return;
+                  }
+                  if (e.key === "Escape" && scanSuggestions.length > 0) {
+                    e.preventDefault();
+                    setScanValue("");
+                    return;
+                  }
                   if (e.key === "Enter") {
                     e.preventDefault();
                     submitScanValue();
@@ -442,7 +509,18 @@ export const QuickOrder = () => {
                 data-quick-order-scan="true"
                 autoComplete="off"
                 inputMode="text"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={scanSuggestions.length > 0}
               />
+              {!enforcement.orderTakingBlocked && (
+                <QuickOrderScanSuggestions
+                  suggestions={scanSuggestions}
+                  activeIndex={suggestionIndex}
+                  onHover={setSuggestionIndex}
+                  onSelect={selectSuggestion}
+                />
+              )}
               <p className="text-xs text-muted mt-1">{t("quick-order:scan.qtyHint")}</p>
             </div>
           </div>

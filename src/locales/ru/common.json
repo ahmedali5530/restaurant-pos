@@ -327,5 +327,8 @@
     },
     "settingsTitle": "Настройки ассистента",
     "analyzeAttached": "{{file}} готов — спросите ниже"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Не печатать финальный чек"
   }
 }
