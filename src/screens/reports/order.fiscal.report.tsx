@@ -5,11 +5,14 @@ import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {OrderFiscalSubmission} from "@/api/model/order_fiscal_submission.ts";
 import {Order} from "@/api/model/order.ts";
-import {formatNumber, withCurrency} from "@/lib/utils.ts";
+import {formatNumber, toRecordId, withCurrency} from "@/lib/utils.ts";
 import {toLuxonDateTime} from "@/lib/datetime.ts";
-import {getOrderSettlementFigures} from "@/lib/order.ts";
+import {getOrderPaymentTotalsForOrder, getOrderSettlementFigures} from "@/lib/order.ts";
+import {getOrderTaxBreakdown} from "@/lib/tax-calculator.ts";
 import {
   buildCreatedAtDateConditions,
+  buildNestedRecordAnyCondition,
+  buildRecordInsideCondition,
   buildStringInsideCondition,
 } from "@/api/reports/shared/query.ts";
 
@@ -37,11 +40,47 @@ const cashierName = (order?: Order): string => {
   return `${cashier.first_name ?? ''} ${cashier.last_name ?? ''}`.trim() || cashier.login || '—';
 };
 
+const formatTaxPercent = (order?: Order): string => {
+  if (!order) return '—';
+  const breakdown = getOrderTaxBreakdown(order);
+  if (breakdown.length === 0) {
+    const legacyRate = Number((order.tax as any)?.rate);
+    return Number.isFinite(legacyRate) && legacyRate > 0 ? `${legacyRate}%` : '—';
+  }
+  if (breakdown.length === 1) {
+    return `${breakdown[0].rate}%`;
+  }
+  return breakdown.map((entry) => `${entry.name} ${entry.rate}%`).join(', ');
+};
+
+const formatPaymentTypes = (order?: Order): string => {
+  if (!order) return '—';
+  const totals = getOrderPaymentTotalsForOrder(order);
+  const names: string[] = [];
+  if (totals.cashAmount > 0) {
+    names.push('Cash');
+  }
+  Object.keys(totals.nonCashBreakdown).forEach((name) => {
+    if (totals.nonCashBreakdown[name] > 0) {
+      names.push(name);
+    }
+  });
+  if (names.length === 0) {
+    const fallback = (order.payments ?? [])
+      .map((payment) => payment?.payment_type?.name)
+      .filter(Boolean) as string[];
+    return fallback.length > 0 ? [...new Set(fallback)].join(', ') : '—';
+  }
+  return names.join(', ');
+};
+
 interface ReportFilters {
   startDate?: string | null;
   endDate?: string | null;
   providerIds: string[];
   statuses: string[];
+  taxIds: string[];
+  paymentTypeIds: string[];
 }
 
 const parseFilters = (): ReportFilters => {
@@ -54,6 +93,8 @@ const parseFilters = (): ReportFilters => {
     endDate: params.get('end'),
     providerIds: parseMulti('providers'),
     statuses: parseMulti('statuses'),
+    taxIds: parseMulti('taxes'),
+    paymentTypeIds: parseMulti('payment_types'),
   };
 };
 
@@ -114,6 +155,29 @@ export const OrderFiscalReport = () => {
           Object.assign(params, statusFilter.params);
         }
 
+        if (filters.taxIds.length > 0) {
+          const taxInside = buildRecordInsideCondition('order.tax', filters.taxIds, 'taxIds');
+          const taxLines = buildNestedRecordAnyCondition('order.order_taxes.tax', filters.taxIds, 'orderTax');
+          const itemTaxes = buildNestedRecordAnyCondition('order.items.taxes', filters.taxIds, 'itemTax');
+          const taxParts = [taxInside.condition, taxLines.condition, itemTaxes.condition].filter(Boolean);
+          if (taxParts.length > 0) {
+            conditions.push(`(${taxParts.join(' OR ')})`);
+            Object.assign(params, taxInside.params, taxLines.params, itemTaxes.params);
+          }
+        }
+
+        if (filters.paymentTypeIds.length > 0) {
+          const paymentParts: string[] = [];
+          filters.paymentTypeIds.forEach((id, index) => {
+            const paramName = `paymentType${index}`;
+            params[paramName] = toRecordId(id);
+            paymentParts.push(`array::any(order.payments.payment_type.id, $${paramName})`);
+          });
+          if (paymentParts.length > 0) {
+            conditions.push(`(${paymentParts.join(' OR ')})`);
+          }
+        }
+
         if (branchScope.branchIds !== undefined) {
           if (branchScope.branchIds.length === 0) {
             setSubmissions([]);
@@ -129,7 +193,8 @@ export const OrderFiscalReport = () => {
           ORDER BY submitted_at DESC
           FETCH order, order.cashier, order.tax, order.extras, order.coupon,
             order.order_taxes, order.order_taxes.tax, order.order_discounts, order.order_discounts.discount,
-            order.items, order.items.taxes, order.items.tax_mode, order.items.modifiers
+            order.items, order.items.taxes, order.items.tax_mode, order.items.modifiers,
+            order.payments, order.payments.payment_type
         `;
 
         const result: any = await queryRef.current(query, params);
@@ -143,7 +208,16 @@ export const OrderFiscalReport = () => {
     };
 
     fetchData();
-  }, [branchScope.ready, branchScope.branchIds, filters.startDate, filters.endDate, filters.providerIds, filters.statuses]);
+  }, [
+    branchScope.ready,
+    branchScope.branchIds,
+    filters.startDate,
+    filters.endDate,
+    filters.providerIds,
+    filters.statuses,
+    filters.taxIds,
+    filters.paymentTypeIds,
+  ]);
 
 
   const rowsWithBranch = useMemo(
@@ -227,6 +301,56 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
     return Array.from(map.entries())
       .map(([status, count]) => ({status, count}))
       .sort((a, b) => b.count - a.count);
+  }, [submissions]);
+
+  const byTax = useMemo(() => {
+    const map = new Map<string, {label: string; rate: number; amount: number; count: number}>();
+    submissions.forEach((sub) => {
+      const order = getOrder(sub);
+      if (!order) return;
+      const breakdown = getOrderTaxBreakdown(order);
+      if (breakdown.length === 0) {
+        const key = 'none';
+        const existing = map.get(key) || {label: t('orderFiscal.noTax'), rate: 0, amount: 0, count: 0};
+        existing.count += 1;
+        map.set(key, existing);
+        return;
+      }
+      breakdown.forEach((entry) => {
+        const key = `${entry.name}|${entry.rate}`;
+        const existing = map.get(key) || {
+          label: `${entry.name} (${entry.rate}%)`,
+          rate: entry.rate,
+          amount: 0,
+          count: 0,
+        };
+        existing.amount += entry.amount;
+        existing.count += 1;
+        map.set(key, existing);
+      });
+    });
+    return Array.from(map.values()).sort((a, b) => b.amount - a.amount || b.count - a.count);
+  }, [submissions, t]);
+
+  const byPaymentType = useMemo(() => {
+    const map = new Map<string, {amount: number; count: number}>();
+    submissions.forEach((sub) => {
+      const order = getOrder(sub);
+      if (!order) return;
+      const totals = getOrderPaymentTotalsForOrder(order);
+      const bump = (name: string, amount: number) => {
+        if (amount <= 0) return;
+        const existing = map.get(name) || {amount: 0, count: 0};
+        existing.amount += amount;
+        existing.count += 1;
+        map.set(name, existing);
+      };
+      bump('Cash', totals.cashAmount);
+      Object.entries(totals.nonCashBreakdown).forEach(([name, amount]) => bump(name, amount));
+    });
+    return Array.from(map.entries())
+      .map(([name, data]) => ({name, ...data}))
+      .sort((a, b) => b.amount - a.amount);
   }, [submissions]);
 
   const detailTotals = useMemo(() => {
@@ -319,6 +443,72 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
               </table>
             </div>
           </div>
+
+          {/* By tax */}
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byTax')}</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-surface">
+                  <tr>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('columns.tax')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.taxPercent')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+                  {byTax.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
+                    </tr>
+                  ) : (
+                    byTax.map(item => (
+                      <tr key={item.label}>
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.label}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">
+                          {item.rate > 0 ? `${formatNumber(item.rate)}%` : '—'}
+                        </td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
+                        <td className="py-3 pr-6 text-right text-sm text-foreground">{withCurrency(item.amount)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* By payment type */}
+          <div className="overflow-hidden rounded-lg border border-border">
+            <h3 className="bg-surface px-6 py-3 text-sm font-semibold text-foreground">{t('orderFiscal.byPaymentType')}</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-surface">
+                  <tr>
+                    <th className="py-3 pl-6 pr-3 text-left text-xs font-semibold text-foreground">{t('filters.paymentType')}</th>
+                    <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('metrics.count')}</th>
+                    <th className="py-3 pr-6 text-right text-xs font-semibold text-foreground">{t('columns.amount')}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
+                  {byPaymentType.length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
+                    </tr>
+                  ) : (
+                    byPaymentType.map(item => (
+                      <tr key={item.name}>
+                        <td className="py-3 pl-6 pr-3 text-sm font-medium text-foreground">{item.name}</td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatNumber(item.count)}</td>
+                        <td className="py-3 pr-6 text-right text-sm text-foreground">{withCurrency(item.amount)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
         {/* Detail table */}
@@ -336,7 +526,9 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
                   <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('columns.status')}</th>
                   <th className="py-3 px-3 text-center text-xs font-semibold text-foreground">{t('orderFiscal.qr')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('orderFiscal.grossTotal')}</th>
+                  <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.taxPercent')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.tax')}</th>
+                  <th className="py-3 px-3 text-left text-xs font-semibold text-foreground">{t('filters.paymentType')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.discount')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.serviceCharges')}</th>
                   <th className="py-3 px-3 text-right text-xs font-semibold text-foreground">{t('columns.extras')}</th>
@@ -348,7 +540,7 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
               <tbody className="divide-y divide-neutral-100 bg-surface-elevated">
                 {submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={15} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
+                    <td colSpan={17} className="py-6 text-center text-sm text-muted">{t('orderFiscal.noRecords')}</td>
                   </tr>
                 ) : (
                   submissions.map(sub => {
@@ -376,9 +568,11 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
                         <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.itemsTotal) : '—'}
                         </td>
+                        <td className="py-3 px-3 text-right text-sm text-foreground">{formatTaxPercent(order)}</td>
                         <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.tax) : '—'}
                         </td>
+                        <td className="py-3 px-3 text-sm text-foreground">{formatPaymentTypes(order)}</td>
                         <td className="py-3 px-3 text-right text-sm text-foreground">
                           {figures ? withCurrency(figures.discounts) : '—'}
                         </td>
@@ -403,9 +597,11 @@ const OrderFiscalBody = ({submissions}: {submissions: OrderFiscalSubmission[]}) 
                   <tr>
                     <td colSpan={2} className="py-3 pl-6 pr-3 text-sm font-semibold text-foreground">{t('columns.total')}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{formatNumber(submissions.length)}</td>
-                    <td colSpan={4}></td>
+                    <td colSpan={5}></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.gross)}</td>
+                    <td></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.tax)}</td>
+                    <td></td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.discount)}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.serviceCharges)}</td>
                     <td className="py-3 px-3 text-right text-sm font-bold text-foreground">{withCurrency(detailTotals.extras)}</td>

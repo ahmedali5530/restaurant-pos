@@ -38,6 +38,7 @@ export const OrderDisplayScreen = () => {
     buildKitchenRowsMap()
   );
   const [showSidebar, setShowSidebar] = useState(false);
+  const displaySnapRef = useRef('');
   const liveOrdersRef = useRef<{ kill: () => Promise<void> } | null>(null);
   const liveKitchenRef = useRef<{ kill: () => Promise<void> } | null>(null);
 
@@ -94,6 +95,13 @@ export const OrderDisplayScreen = () => {
       return true;
     });
 
+    const snap = [
+      filtered.map((order) => `${order.id}:${order.status}:${(order as any).updated_at ?? ''}`).join(','),
+      (kitchenRows as any[]).map((row) => `${row?.id}:${row?.status}:${row?.completed_at ?? ''}`).join(','),
+    ].join('#');
+    if (snap === displaySnapRef.current) return;
+    displaySnapRef.current = snap;
+
     setOrders(filtered as unknown as OrderModel[]);
     setKitchenRowsByOrderItemId(
       buildKitchenRowsMap(kitchenRows as OrderItemKitchen[]),
@@ -120,7 +128,7 @@ export const OrderDisplayScreen = () => {
 
     const setup = async () => {
       const wake = () => {
-        void terminalSyncService.synchronize().catch(() => undefined).then(() => {
+        void terminalSyncService.scheduleSynchronize().then(() => {
           void fetchOrders();
         });
       };

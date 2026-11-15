@@ -60,6 +60,14 @@ const isAllowedFocusTarget = (
   if (el.closest?.(MODAL_SELECTOR)) {
     return true;
   }
+  // Scan autocomplete list
+  if (
+    el.closest?.(
+      '[data-testid="quick-order-scan-suggestions"], [data-quick-order-scan-suggestions="true"]',
+    )
+  ) {
+    return true;
+  }
   // Cart qty field
   if (el.closest?.('[data-testid="quick-order-cart-items"] input')) {
     return true;
@@ -90,6 +98,7 @@ const scheduleReclaim = (fn: () => void) => {
  * Keep the Quick Order barcode field armed:
  * - block focus steal from native tiles/buttons via pointerdown preventDefault
  * - avoid preventDefault on React Aria buttons (breaks onPress)
+ * - avoid preventDefault on indiana-drag-scroll / category strip (breaks sliding)
  * - reclaim after pointerup / focusin unless a modal or intentional input is active
  * - reclaim when modals unmount
  */
@@ -167,6 +176,10 @@ export function useQuickOrderScanFocus(
       }
       // React Aria usePress cancels if pointerdown default is prevented
       if (target.closest?.(".react-aria-Button, [data-rac]")) {
+        return;
+      }
+      // Category strip / drag-scroll need native pointer events to slide
+      if (target.closest?.(".indiana-scroll-container, [data-testid='menu-categories']")) {
         return;
       }
       // Stop native buttons/tiles from taking focus; click still fires.

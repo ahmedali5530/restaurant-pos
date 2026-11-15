@@ -168,7 +168,8 @@
     "smartImportIngredients": "Import IA des ingrédients",
     "smartImportModifierGroups": "Import IA des groupes de modificateurs",
     "smartImportMenuStructure": "Import IA structure du menu",
-    "syncDishCosts": "Mettre à jour les coûts depuis les articles"
+    "syncDishCosts": "Mettre à jour les coûts depuis les articles",
+    "menuTree": "Arborescence du menu"
   },
   "delete": {
     "dish": "Supprimer l'article {{name}}",
@@ -432,7 +433,7 @@
     "printModeText": "Texte (ESC/POS)",
     "printModeRaster": "Raster (image)",
     "paperWidthMm": "Largeur du papier",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Largeur physique du papier pour le raster et le centrage des images (58mm = 384 points, 72mm = 512 points, 80mm = 576 points).",
     "paperWidth58": "58 mm",
     "paperWidth80": "80 mm",
     "rasterThreshold": "Seuil raster",
@@ -465,7 +466,14 @@
     "modifierOptionAvailability": "Disponibilité du modificateur (ce plat)",
     "modifierOptionAvailable": "Disponible pour ce plat",
     "modifierOptionAvailableHint": "Gardez les valeurs par défaut pour la disponibilité globale. Désactivez ou fixez une limite pour ce plat uniquement.",
-    "modifierOptionSaleLimit": "Limite de vente (ce plat)"
+    "modifierOptionSaleLimit": "Limite de vente (ce plat)",
+    "showOrderType": "Afficher le type de commande",
+    "showCustomer": "Afficher le client",
+    "showTableName": "Afficher le nom de table",
+    "paperWidth72": "72 mm",
+    "showItemTotal": "Afficher le total de l'article",
+    "accumulateSameItems": "Cumuler les articles identiques",
+    "accumulateSameItemsHint": "Fusionner les plats identiques (mêmes modificateurs et notes) en une ligne avec quantité cumulée."
   },
   "dishView": {
     "detailsTitle": "Détails du plat",
@@ -624,6 +632,7 @@
       "reports.order_fiscal": "Fiscalisation commandes",
       "reports.expense": "Dépenses",
       "reports.activity": "Activité",
+      "reports.changefeed": "Changefeed des tables",
       "reports.product_mix_weekly": "Mix produits hebdomadaire",
       "reports.product_mix_summary": "Résumé mix produits",
       "reports.products_hourly": "Produits horaires",
@@ -831,7 +840,11 @@
       "reports": "Rapports",
       "inventory": "Inventaire",
       "settings": "Paramètres",
-      "admin.catalog_publish": "Publication catalogue"
+      "admin.catalog_publish": "Publication catalogue",
+      "settings.backup": "Sauvegarde des paramètres",
+      "settings.restore": "Restauration des paramètres",
+      "settings.database": "Sauvegarde de la base",
+      "settings.customer_display": "Écran client"
     }
   },
   "discountEngine": {
@@ -1168,5 +1181,45 @@
     "empty": "Aucun plat dans cette catégorie",
     "available": "Disponible",
     "unavailable": "Épuisé"
+  },
+  "menuTree": {
+    "title": "Arborescence du menu",
+    "search": "Rechercher",
+    "searchPlaceholder": "Filtrer par nom…",
+    "expandAll": "Tout développer",
+    "collapseAll": "Tout réduire",
+    "expand": "Développer",
+    "collapse": "Réduire",
+    "loading": "Chargement de l’arborescence du menu…",
+    "empty": "Aucun élément de menu à afficher.",
+    "uncategorized": "Sans catégorie",
+    "required": "Obligatoire",
+    "hidden": "Masqué",
+    "hiddenFromMenu": "Masqué dans le menu",
+    "kind": {
+      "category": "Catégorie",
+      "dish": "Plat",
+      "modifierGroup": "Groupe de modificateurs",
+      "modifier": "Modificateur",
+      "uncategorized": "Sans catégorie"
+    },
+    "zoomIn": "Zoom avant",
+    "zoomOut": "Zoom arrière",
+    "fit": "Ajuster à l’écran",
+    "panHint": "Glisser pour déplacer · molette pour zoomer"
+  },
+  "printers": {
+    "testPrint": "Impression test",
+    "testPrintAccess": "Impression test {{name}}",
+    "testPrintOk": "Imprimé. Le serveur a envoyé le ticket test à {{name}}{{address}}.",
+    "testPrintError": "Erreur du serveur d'impression pour {{name}}{{address}} : {{error}}",
+    "testPrintUnknownError": "Erreur inconnue du serveur d'impression",
+    "slip": {
+      "title": "IMPRESSION TEST",
+      "name": "Nom",
+      "type": "Type",
+      "address": "Adresse",
+      "ok": "Si vous pouvez lire ceci, l'imprimante est connectée."
+    }
   }
 }

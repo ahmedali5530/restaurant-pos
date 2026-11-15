@@ -140,4 +140,34 @@ describe('resolveCatalogSyncTables', () => {
       })
     ).toEqual(allowlist);
   });
+
+  it('injects menu_item_modifier_group when dishes sync without the relation table', () => {
+    expect(
+      resolveCatalogSyncTables({
+        allowlist: [
+          'menu_item',
+          'modifier_group',
+          'menu_item_modifier_group',
+          'category',
+        ],
+        localVersion: 0,
+        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
+      })
+    ).toEqual(['menu_item', 'menu_item_modifier_group', 'category']);
+  });
+
+  it('injects document when dishes sync so dish photos download with the menu', () => {
+    expect(
+      resolveCatalogSyncTables({
+        allowlist: [
+          'menu_item',
+          'document',
+          'menu_item_modifier_group',
+          'category',
+        ],
+        localVersion: 0,
+        globalRelease: { version: 2, tables: ['menu_item', 'category'] },
+      })
+    ).toEqual(['menu_item', 'document', 'menu_item_modifier_group', 'category']);
+  });
 });

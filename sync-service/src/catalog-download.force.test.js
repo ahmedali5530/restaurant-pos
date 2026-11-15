@@ -40,7 +40,7 @@ describe('CatalogDownloadManager requestForceSync', () => {
     assert.equal(mgr.stats.progress.running, true);
   });
 
-  it('resetCatalogBackfillCursors clears backfill_done in memory', async () => {
+  it('resetCatalogBackfillCursors clears backfill_done but keeps versionstamp for DELETE replay', async () => {
     const mgr = createManager();
     const saves = [];
     mgr.saveCursor = async (tableName, patch) => {
@@ -57,8 +57,12 @@ describe('CatalogDownloadManager requestForceSync', () => {
     await mgr.resetCatalogBackfillCursors(['menu_item']);
 
     assert.equal(menu.backfillDone, false);
-    assert.equal(menu.versionstamp, null);
-    assert.ok(saves.some((s) => s.tableName === 'menu_item' && s.patch.backfillDone === false));
+    assert.equal(menu.versionstamp, 42);
+    assert.ok(saves.some((s) => (
+      s.tableName === 'menu_item'
+      && s.patch.backfillDone === false
+      && s.patch.versionstamp === undefined
+    )));
     assert.ok(saves.some((s) => s.tableName === 'catalog_branch_override'));
   });
 });

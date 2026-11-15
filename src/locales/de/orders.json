@@ -13,7 +13,13 @@
       "address": "Adr.",
       "secondaryAddress": "Zweite Adr.",
       "points": "Punkte"
-    }
+    },
+    "save": "Speichern",
+    "remove": "Vom Auftrag entfernen",
+    "saved": "Kunde gespeichert",
+    "saveFailed": "Kunde konnte nicht gespeichert werden",
+    "attachFailed": "Kunde konnte dem Auftrag nicht zugewiesen werden",
+    "removeFailed": "Kunde konnte nicht vom Auftrag entfernt werden"
   },
   "filters": {
     "status": "Bestellstatus auswählen",

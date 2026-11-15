@@ -285,9 +285,24 @@ export const listStaff = async (db: DbClient, options: {search?: string; limit?:
 
 export const listCategories = async (db: DbClient, options: {limit?: number} = {}) => {
   const limit = options.limit ?? 50;
-  const query = `SELECT id, name FROM ${Tables.categories} ORDER BY name ASC LIMIT ${limit}`;
-  const categories = unwrapQueryResult<{id: unknown; name?: string}>(await db.query(query));
-  return categories.map(cat => ({id: recordIdToString(cat.id), name: cat.name ?? "Unknown"}));
+  const query = `
+    SELECT id, name, priority, show_in_menu FROM ${Tables.categories}
+    WHERE deleted_at = NONE
+    ORDER BY priority ASC, name ASC
+    LIMIT ${limit}
+  `;
+  const categories = unwrapQueryResult<{
+    id: unknown;
+    name?: string;
+    priority?: number;
+    show_in_menu?: boolean;
+  }>(await db.query(query));
+  return categories.map(cat => ({
+    id: recordIdToString(cat.id),
+    name: cat.name ?? "Unknown",
+    priority: cat.priority ?? 0,
+    show_in_menu: cat.show_in_menu ?? false,
+  }));
 };
 
 export const getSalesDashboardSnapshot = async (db: DbClient, options: DateRangeFilter) => {

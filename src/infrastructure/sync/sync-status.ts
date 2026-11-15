@@ -28,7 +28,18 @@ export function getSyncStatus(): SyncStatusState {
 }
 
 export function setSyncStatus(patch: Partial<SyncStatusState>): void {
-  state = { ...state, ...patch };
+  const next = { ...state, ...patch };
+  if (
+    next.phase === state.phase
+    && next.pendingCount === state.pendingCount
+    && next.conflictCount === state.conflictCount
+    && next.failedCount === state.failedCount
+    && next.lastError === state.lastError
+    && next.lastSyncedAt === state.lastSyncedAt
+  ) {
+    return;
+  }
+  state = next;
   for (const listener of listeners) {
     listener(state);
   }

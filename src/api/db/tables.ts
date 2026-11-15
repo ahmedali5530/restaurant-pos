@@ -105,6 +105,7 @@ export enum Tables {
   buffet_consumption_logs = 'buffet_consumption_log',
 
   settings = 'setting',
+  customer_display = 'customer_display',
   integration_providers = 'integration_provider',
   integration_provider_configs = 'integration_provider_config',
   integration_installed_providers = 'integration_installed_provider',

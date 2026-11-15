@@ -19,6 +19,7 @@ import {
   type PrintOptions,
 } from "@/api/model/print_options.ts";
 import { getAppTimezone } from "@/lib/datetime.ts";
+import { getPosStoreDatabase } from "@/infrastructure/pos-store/db.ts";
 
 
 export const PRINT_EVENT = 'posr:print';
@@ -177,27 +178,52 @@ function orderNeedsEnrichment(order: Record<string, unknown>): boolean {
   if (!order?.id) return false;
   if (isBareRecordRef(order.order_type)) return true;
   if (isBareRecordRef(order.user)) return true;
+  if (isBareRecordRef(order.customer)) return true;
   return false;
 }
 
+async function resolveLocalCustomer(customerRef: unknown): Promise<Record<string, unknown> | null> {
+  if (!isBareRecordRef(customerRef)) return null;
+  try {
+    const raw = typeof customerRef === 'object' && customerRef !== null && 'id' in customerRef
+      ? String((customerRef as { id: unknown }).id)
+      : String(customerRef);
+    const key = raw.includes(':') ? raw : `customer:${raw}`;
+    const row = await getPosStoreDatabase().customers.get(key);
+    return row && typeof row === 'object' ? (row as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
 async function enrichOrderForPrint(db: PrintDB, order: Record<string, unknown>): Promise<Record<string, unknown>> {
-  if (!orderNeedsEnrichment(order)) return order;
+  let next = order;
+  if (isBareRecordRef(order.customer)) {
+    const localCustomer = await resolveLocalCustomer(order.customer);
+    if (localCustomer) {
+      next = { ...next, customer: localCustomer };
+    }
+  }
+  if (!orderNeedsEnrichment(next)) return next;
   try {
     const [res] = await db.query(
-      `SELECT * FROM $id FETCH order_type, user, table`,
-      { id: order.id }
+      `SELECT * FROM $id FETCH order_type, user, table, customer`,
+      { id: next.id }
     );
     const rows = Array.isArray(res) ? res : [];
     const fetched = rows[0] as Record<string, unknown> | undefined;
-    if (!fetched) return order;
+    if (!fetched) return next;
     return {
-      ...order,
-      order_type: fetched.order_type ?? order.order_type,
-      user: fetched.user ?? order.user,
-      table: order.table ?? fetched.table,
+      ...next,
+      order_type: fetched.order_type ?? next.order_type,
+      user: fetched.user ?? next.user,
+      table: next.table ?? fetched.table,
+      customer: (fetched.customer && typeof fetched.customer === 'object')
+        ? fetched.customer
+        : next.customer,
     };
   } catch {
-    return order;
+    return next;
   }
 }
 
@@ -299,17 +325,70 @@ async function fetchPrintCopiesSettings(db: any): Promise<PrintOptions['copies']
   }
 }
 
-export async function dispatchPrint<Payload = any>(
+export type PrintDispatchResult = {
+  ok: boolean
+  /** Server body or network failure. Empty when the job was accepted. */
+  error?: string
+  status?: number
+}
+
+type DispatchPrintOptions = {
+  title?: string
+  copies?: number
+  userId?: string | { id?: string; toString?: () => string } | null
+  printers?: Printer[]
+}
+
+function printServerUrl(): string {
+  const baseUrl = (import.meta.env.VITE_PRINT_SERVER_URL as string) || DEFAULT_PRINT_URL;
+  return `${baseUrl.replace(/\/$/, '')}/print`;
+}
+
+/**
+ * Print server uses 207 when a printer fails. Fetch treats every 2xx as ok,
+ * so the body must be read: `{ success: false, results: [{ error }] }`.
+ */
+export function interpretPrintResponse(status: number, text: string): PrintDispatchResult {
+  let parsed: any = null;
+  try {
+    parsed = text ? JSON.parse(text) : null;
+  } catch { /* non-JSON body */ }
+
+  const results = Array.isArray(parsed?.results) ? parsed.results : [];
+  const failureLines = results
+    .filter((row: { ok?: boolean }) => row && row.ok === false)
+    .map((row: { error?: unknown; name?: unknown; target?: unknown }) => {
+      const err = row.error != null ? String(row.error).trim() : '';
+      const who = [row.name, row.target].filter((part) => part != null && String(part).trim() !== '').join(' ');
+      if (who && err) return `${who}: ${err}`;
+      return err || who || 'printer failed';
+    });
+
+  const topError = typeof parsed?.error === 'string' ? parsed.error.trim() : '';
+  const httpFailed = status < 200 || status >= 300;
+  const bodyFailed = parsed?.success === false || failureLines.length > 0;
+
+  if (!httpFailed && !bodyFailed) {
+    return { ok: true, status };
+  }
+
+  const parts = [topError, ...failureLines].filter((line) => line);
+  if (parts.length === 0 && text.trim()) parts.push(text.trim());
+  const detail = parts.join('\n');
+  return {
+    ok: false,
+    status,
+    error: detail ? `HTTP ${status}: ${detail}` : `HTTP ${status}`,
+  };
+}
+
+export async function dispatchPrintDetailed<Payload = any>(
   db: any,
   template: string,
   payload: Payload,
-  options?: {
-    title?: string; copies?: number; userId?: string | { id?: string; toString?: () => string } | null,
-    printers?: Printer[]
-  }
-): Promise<boolean> {
-  const baseUrl = (import.meta.env.VITE_PRINT_SERVER_URL as string) || DEFAULT_PRINT_URL;
-  const url = `${baseUrl.replace(/\/$/, '')}/print`;
+  options?: DispatchPrintOptions
+): Promise<PrintDispatchResult> {
+  const url = printServerUrl();
   const uid = options?.userId != null ? toIdString(options.userId) : null;
 
   const explicitPrinters = options?.printers?.length > 0 ? options.printers : null;
@@ -329,11 +408,11 @@ export async function dispatchPrint<Payload = any>(
   const driverPrinters = printers?.map(printerToDriverConfig);
   if (!driverPrinters || driverPrinters.length === 0) {
     console.error('No printers configured for this print type.');
-    return false;
+    return { ok: false, error: 'No printers configured for this print type.' };
   }
 
   let printPayload = { ...(payload as Record<string, unknown>) };
-  if (printPayload.order && (template === 'kitchen' || template === 'deletion')) {
+  if (printPayload.order) {
     printPayload.order = await enrichOrderForPrint(db, printPayload.order as Record<string, unknown>);
   }
 
@@ -372,21 +451,27 @@ export async function dispatchPrint<Payload = any>(
       body: JSON.stringify(body),
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      let msg = text;
-      try {
-        const j = JSON.parse(text);
-        msg = (j?.error as string) ?? text;
-      } catch { /* ignore */ }
-      toast.error(msg || i18n.t('common:toast.printFailed'));
-      return false;
-    }
-    return true;
+    const text = await res.text();
+    const result = interpretPrintResponse(res.status, text);
+    if (!result.ok) console.error(result.error || text);
+    return result;
   } catch (e) {
-    const msg = e && typeof e === 'object' && 'message' in e ? String((e as Error).message) : 'Print request failed';
-    console.error(msg);
-    toast.error(i18n.t('common:toast.printError'));
-    return false;
+    const detail = e && typeof e === 'object' && 'message' in e ? String((e as Error).message) : 'Print request failed';
+    const error = `${detail} (${url})`;
+    console.error(error);
+    return { ok: false, error };
   }
+}
+
+export async function dispatchPrint<Payload = any>(
+  db: any,
+  template: string,
+  payload: Payload,
+  options?: DispatchPrintOptions
+): Promise<boolean> {
+  const result = await dispatchPrintDetailed(db, template, payload, options);
+  if (!result.ok && result.error && result.error !== 'No printers configured for this print type.') {
+    toast.error(result.error || i18n.t('common:toast.printFailed'));
+  }
+  return result.ok;
 }

@@ -225,7 +225,7 @@ export const FloorTable = ({
               className="absolute -top-3 -left-3 rounded-full h-6 w-6 flex items-center justify-center bg-surface-elevated text-danger-500 shadow"
               title={t('forms.moreThanTwoHours')}
             >
-              <FontAwesomeIcon icon={faExclamationCircle} beat/>
+              <FontAwesomeIcon icon={faExclamationCircle}/>
             </span>
           )}
           <span className="text-xs font-bold rounded-2xl py-[2px] px-2 absolute -top-3 shadow-lg" style={{

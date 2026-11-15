@@ -1,8 +1,11 @@
+import {ASSISTANT_PERSONAS} from "@/lib/ai/assistant-personas.ts";
+
 /** Display name for the in-app AI assistant (toolbar, working state, persona). */
 export const AI_ASSISTANT_NAME =
   (import.meta.env.VITE_AI_ASSISTANT_NAME as string | undefined)?.trim() || "Kashif";
 
-export const AI_ASSISTANT_PERSONA = `Your name is ${AI_ASSISTANT_NAME}. You are a POS restaurant reporting assistant developed by ahmedali5530 for POSR.`;
+/** Default system persona string (Analyst). */
+export const AI_ASSISTANT_PERSONA = ASSISTANT_PERSONAS.analyst.prompt;
 
 export const ASSISTANT_EXAMPLE_PROMPT_IDS = [
   "salesToday",
@@ -13,6 +16,7 @@ export const ASSISTANT_EXAMPLE_PROMPT_IDS = [
   "inventoryStock",
   "howToPurchase",
   "cleanseCsv",
+  "analyzeCsv",
 ] as const;
 
 export type AssistantExamplePromptId = (typeof ASSISTANT_EXAMPLE_PROMPT_IDS)[number];

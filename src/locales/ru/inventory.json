@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "ИИ-импорт категорий товаров",
     "smartImportLocationsTitle": "ИИ-импорт локаций",
     "lastPrice": "Последняя",
-    "itemPrice": "Товар"
+    "itemPrice": "Товар",
+    "averagePrice": "Сред.",
+    "pricePerUom": "Цена / {{uom}}",
+    "stockUomHint": "Склад: {{uom}}"
   },
   "validation": {
     "required": "Обязательное поле",

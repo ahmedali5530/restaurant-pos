@@ -138,7 +138,7 @@ export const DeliveryOrdersProvider: React.FC<DeliveryOrdersProviderProps> = ({ 
       try {
         const result = await db.live(Tables.orders, async () => {
           if (!isMounted) return;
-          void terminalSyncService.synchronize().catch(() => undefined).then(() => {
+          void terminalSyncService.scheduleSynchronize().then(() => {
             void fetchDeliveryOrders();
           });
         });

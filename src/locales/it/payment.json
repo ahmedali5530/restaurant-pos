@@ -14,6 +14,7 @@
     "notOwner": "Questo ordine è aperto su un altro terminale",
     "numbersExhausted": "Nessun ID ordine riservato disponibile offline — riconnettiti per continuare",
     "invoicePendingSync": "Il numero fattura è in attesa di sincronizzazione — attendi che l'ordine sia online prima dell'invio fiscale",
+    "itemsPendingSync": "Gli articoli dell'ordine sono ancora in sincronizzazione — attendi un momento e riprova il pagamento così il fiscale riceve tutte le righe",
     "fiscalFailed": "Invio fiscale non riuscito",
     "fireFailed": "Impossibile inviare gli articoli in attesa"
   },
@@ -135,5 +136,16 @@
     "paymentReceived": "Pagamento {{gateway}} ricevuto.",
     "payWithCard": "Paga con carta",
     "payWithRazorpay": "Paga con Razorpay"
+  },
+  "invoiceAssigning": "Ordine salvato — numero fattura ancora in assegnazione…",
+  "quickCheckout": {
+    "complete": "Completa",
+    "fullPayment": "Pagamento completo",
+    "amount": "Importo",
+    "payable": "Da pagare",
+    "change": "Resto",
+    "noPaymentTypes": "Nessun tipo di pagamento configurato",
+    "remoteRequiresFull": "Questo tipo di pagamento richiede la schermata di pagamento completa",
+    "amountTooLow": "L’importo deve coprire il totale dovuto"
   }
 }

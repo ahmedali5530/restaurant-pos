@@ -56,7 +56,14 @@ async function withRetry(task, options = {}) {
 function isChangefeedRetentionError(error) {
   const message = error && error.message ? String(error.message) : String(error || '');
   if (/Parse error/i.test(message)) return false;
-  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing)|versionstamp.*(too old|expired)/i
+  // Cursor ahead of this table's tip is fixed by snapping down — never re-backfill
+  // (that re-uploaded HQ-complete tables in a loop when watermark borrowed
+  // another table's high-water).
+  if (/cursor ahead of live tip/i.test(message)) return false;
+  // Surreal often returns an empty SHOW CHANGES batch for a cursor older than
+  // retention instead of an explicit error — sync-manager synthesizes
+  // "silent gap" when a recent high-water probe still sees mutations.
+  return /outside.*(retention|changefeed|feed)|changefeed.*(expired|missing|silent gap)|versionstamp.*(too old|expired)|silent gap/i
     .test(message);
 }
 
@@ -72,6 +79,20 @@ function sinceLiteral(value) {
     return asString.startsWith('d"') ? asString : `d"${asString}"`;
   }
   return '0';
+}
+
+/**
+ * Datetime SINCE literal inside the usual 14d CHANGEFEED window.
+ * Used to probe for mutations when a versionstamp cursor is past retention
+ * (Surreal returns [] for too-old stamps, including the lead table whose
+ * cursor equals process feedHighWater so relative probes cannot fire).
+ */
+function retentionProbeSinceLiteral(nowMs = Date.now(), lookbackMs = 7 * 24 * 60 * 60 * 1000) {
+  const ms = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const lookback = Number.isFinite(lookbackMs) && lookbackMs > 0
+    ? lookbackMs
+    : 7 * 24 * 60 * 60 * 1000;
+  return sinceLiteral(new Date(ms - lookback).toISOString());
 }
 
 /**
@@ -214,18 +235,58 @@ function versionstampForStorage(value) {
   return value;
 }
 
+/**
+ * Local catalog ids that are missing from the master keep-set (hard-deleted on HQ
+ * or out of branch scope). Used when changefeed replay cannot cover the gap.
+ */
+function diffOrphanLocalIds(localIds, remoteIds) {
+  const remote = remoteIds instanceof Set
+    ? remoteIds
+    : new Set((remoteIds || []).map((id) => String(id || '')).filter(Boolean));
+  const orphans = [];
+  for (const raw of localIds || []) {
+    const key = String(raw || '');
+    if (!key) continue;
+    if (!remote.has(key)) orphans.push(key);
+  }
+  return orphans;
+}
+
 const USER_SECRET_FIELDS = ['password', 'pin', 'password_hash', 'pass', 'pin_code'];
+
+/**
+ * Normalize branch_ids from Surreal (array, or array-like) to string[].
+ * Empty / missing → shared (all branches).
+ */
+function normalizeBranchIdsList(raw) {
+  if (raw == null || raw === '') return [];
+  if (Array.isArray(raw)) {
+    return raw.map((id) => String(id || '').trim()).filter(Boolean);
+  }
+  // Surreal occasionally surfaces arrays as array-like objects.
+  if (typeof raw === 'object' && typeof raw.length === 'number') {
+    try {
+      return Array.from(raw)
+        .map((id) => String(id || '').trim())
+        .filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
 
 /**
  * Shared catalog rows (no branch_id) or rows for this branch apply.
  * Rows stamped for another branch are skipped.
+ * Phase 7: non-empty user.branch_ids[] must include SYNC_CLIENT_ID.
  */
 function shouldApplyCatalogRow(row, branchId) {
   if (!row || typeof row !== 'object') return false;
-  // Phase 7: users (and similar) may list multiple store client ids.
-  if (Array.isArray(row.branch_ids) && row.branch_ids.length > 0) {
-    const want = String(branchId);
-    return row.branch_ids.some((id) => String(id) === want);
+  const ids = normalizeBranchIdsList(row.branch_ids);
+  if (ids.length > 0) {
+    const want = String(branchId || '').trim();
+    return ids.some((id) => id === want);
   }
   const scoped = row.branch_id;
   if (scoped == null || scoped === '') return true;
@@ -281,6 +342,23 @@ const RELATION_CATALOG_TABLES = Object.freeze([
   'menu_item_modifier_group',
 ]);
 
+/**
+ * Local SCHEMAFULL `user` fields (see migrations/latest.surql). Extra cloud
+ * fields (e.g. accidental branch_id) must not be MERGEd or upsert fails and
+ * the whole user backfill aborts.
+ */
+const USER_LOCAL_FIELDS = new Set([
+  'deleted_at',
+  'first_name',
+  'last_name',
+  'login',
+  'login_method',
+  'password',
+  'roles',
+  'user_role',
+  'user_shift',
+]);
+
 function prepareCatalogPayload(tableName, value) {
   const raw = { ...(value || {}) };
   delete raw.id;
@@ -289,6 +367,7 @@ function prepareCatalogPayload(tableName, value) {
   for (const [key, fieldValue] of Object.entries(raw)) {
     // Explicit null/undefined become NONE under CONTENT and defeat schema DEFAULTs.
     if (fieldValue === null || fieldValue === undefined) continue;
+    if (tableName === 'user' && !USER_LOCAL_FIELDS.has(key)) continue;
     payload[key] = fieldValue;
   }
 
@@ -415,12 +494,14 @@ module.exports = {
   compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
+  diffOrphanLocalIds,
   normalizeShowChangesResult,
   normalizeSelectPage,
   recordIdKey,
   tableNameFromRecordId,
   jsonSafe,
   sinceLiteral,
+  retentionProbeSinceLiteral,
   shouldApplyCatalogRow,
   stripUserSecrets,
   prepareCatalogPayload,

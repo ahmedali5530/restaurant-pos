@@ -249,7 +249,9 @@
     "branchesHelp": "Оставьте пустым, чтобы включить все доступные вам филиалы.",
     "branchView": "Вид",
     "branchViewCombined": "Сводный",
-    "branchViewByBranch": "По филиалам"
+    "branchViewByBranch": "По филиалам",
+    "taxPercent": "Процент налога",
+    "paymentTypes": "Типы оплаты"
   },
   "datePresets": {
     "today": "Сегодня",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "У этого провайдера уже есть успешная фискальная отправка для заказа.",
     "retryInvoicePending": "Номер счёта ещё не готов — повторите после синхронизации.",
     "retryOrderNotFound": "Заказ не найден для повторной фискальной отправки.",
-    "retryProviderDisabled": "Фискальный провайдер отключён."
+    "retryProviderDisabled": "Фискальный провайдер отключён.",
+    "byTax": "По налогу",
+    "byPaymentType": "По типу оплаты",
+    "noTax": "Без налога"
   },
   "empty": {
     "noDiscountTypes": "Нет типов скидок за выбранный период.",

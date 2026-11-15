@@ -7,6 +7,10 @@ import type {
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, type TFunc} from "@/lib/data-import/helpers.ts";
 import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
+import {
   assertCsvMatchValues,
   buildMatchConditions,
   findCsvImportMatches,
@@ -21,6 +25,7 @@ export function createCategoryImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {
       name: "name",
       label: t("admin:columns.name"),
@@ -71,20 +76,26 @@ export function createCategoryImportConfig({
         priority: String(payload.priority),
       };
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (field === "priority") return {column: "priority", value: Number(value)};
-        if (field === "show_in_menu") return {column: "show_in_menu", value: parseImportBool(value)};
-        return {column: field, value};
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.categories, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
+            if (field === "priority") return {column: "priority", value: Number(value)};
+            if (field === "show_in_menu") return {column: "show_in_menu", value: parseImportBool(value)};
+            return {column: field, value};
+          });
+          return findCsvImportMatches(db, Tables.categories, conditions);
+        },
       });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.categories, conditions);
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

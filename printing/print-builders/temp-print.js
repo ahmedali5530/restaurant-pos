@@ -17,6 +17,7 @@ function build(printer, data = {}, config = {}) {
   const cfg = normalizeConfig(config);
   const bill = mapOrderToTemp(order, {
     showInclusivePrices: !!cfg.showInclusivePrices,
+    accumulateSameItems: !!cfg.accumulateSameItems,
     labels: cfg.labels,
     timezone: cfg.timezone,
     locale: cfg.locale,
@@ -56,6 +57,9 @@ function build(printer, data = {}, config = {}) {
   return printReceiptHeader(printer, cfg).then(() => {
     return printBillLayout(printer, billToPrint, cfg, {
       title: bill.title,
+      customerName: bill.customerName,
+      phone: bill.phone,
+      address: bill.address,
       qrcode: data.qrcode,
       qrcodes: data.qrcodes,
       notes: bill.note || undefined,

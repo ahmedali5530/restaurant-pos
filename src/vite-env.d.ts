@@ -23,6 +23,7 @@ interface ImportMeta {
 
 /** Injected by vite.config from VITE_APP_MODULES / VITE_APP_MODULES_EXCLUDE. */
 declare const __BUILD_MODULE_menu__: boolean;
+declare const __BUILD_MODULE_quick__: boolean;
 declare const __BUILD_MODULE_orders__: boolean;
 declare const __BUILD_MODULE_summary__: boolean;
 declare const __BUILD_MODULE_kitchen__: boolean;

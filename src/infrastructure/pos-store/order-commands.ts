@@ -4,7 +4,7 @@
  * domain operations that the gateway replays into SurrealDB (ADR 0001).
  */
 import { getPosStoreDatabase } from './db.ts';
-import { ensureTerminalIdentity, pendingCodeFromPolicy, recordId } from './identity.ts';
+import { ensureTerminalIdentity, recordId } from './identity.ts';
 import { hydrateOrderForTaxRecompute } from './catalog.ts';
 import {
   buildOrderItemRows,
@@ -83,7 +83,13 @@ export async function recomputeOrderTaxes(
   const existing = await requireLocalOrder(key, options?.seed);
   const createdAt = nowIso();
 
-  const hydrated = await hydrateOrderForTaxRecompute(existing);
+  // Apply tax (and other scalar) overrides before hydrate so payment-type auto-tax
+  // can recompute even when the draft write has not landed yet.
+  const forTax =
+    options?.extraPatch && Object.keys(options.extraPatch).length > 0
+      ? { ...existing, ...options.extraPatch }
+      : existing;
+  const hydrated = await hydrateOrderForTaxRecompute(forTax);
   const taxRows = hydrated
     ? collectOrderTaxRows(hydrated as any, (hydrated.tax as any) ?? null)
     : [];
@@ -540,17 +546,60 @@ export async function settleOrder(input: SettleOrderInput): Promise<SettleOrderR
     ...(input.coupon !== undefined ? { coupon: input.coupon } : {}),
   };
 
-  // Coupon/extras still need dedicated ops; scalars fold into the Paid MERGE below.
-  if (!input.skipDraft && hasRelationDraft && Object.keys(draftPatch).length > 0) {
+  // Extras/coupon need dedicated relation writes. Always apply when the caller
+  // supplies them — skipDraft only skips a redundant full draft after flush, and
+  // must not drop React-only extras/coupon on a fast Complete.
+  if (hasRelationDraft) {
+    await saveOrderDraft(
+      key,
+      {
+        ...(input.extras !== undefined ? { extras: input.extras } : {}),
+        ...(input.coupon !== undefined ? { coupon: input.coupon } : {}),
+        // When not skipDraft, also fold scalars here; with skipDraft they still
+        // land on the Paid MERGE via inlineDraft below.
+        ...(!input.skipDraft ? {
+          ...(input.tip !== undefined ? { tip: input.tip } : {}),
+          ...(input.tipAmount !== undefined ? { tip_amount: input.tipAmount } : {}),
+          ...(input.tipType !== undefined ? { tip_type: input.tipType } : {}),
+          ...(input.serviceCharge !== undefined ? { service_charge: input.serviceCharge } : {}),
+          ...(input.serviceChargeAmount !== undefined
+            ? { service_charge_amount: input.serviceChargeAmount }
+            : {}),
+          ...(input.serviceChargeType !== undefined
+            ? { service_charge_type: input.serviceChargeType }
+            : {}),
+          ...(input.notes !== undefined ? { notes: input.notes } : {}),
+          ...(input.taxId !== undefined ? { tax: input.taxId } : {}),
+          ...(input.discountAmount !== undefined ? { discount_amount: input.discountAmount } : {}),
+          ...(input.discountRate !== undefined ? { discount_rate: input.discountRate } : {}),
+          ...(input.discountId !== undefined ? { discount: input.discountId } : {}),
+          ...(input.discountManagerId !== undefined
+            ? { discount_manager: input.discountManagerId }
+            : {}),
+        } : {}),
+      },
+      input.seed,
+      { silent: true },
+    );
+  } else if (!input.skipDraft && Object.keys(draftPatch).length > 0) {
     await saveOrderDraft(key, draftPatch, input.seed, { silent: true });
   }
 
   // Precompute tax rows outside the write txn (catalog reads), then commit with payments.
+  // Even with keepTaxes, recompute when settle carries a taxId but the local order still
+  // has no tax amount — payment-type auto-tax can race ahead of the debounced draft save.
   let pendingTaxRows: OrderTaxRecord[] | null = null;
   let pendingTaxAmount = 0;
-  if (!input.keepTaxes) {
+  {
     const existing = await db.orders.get(key);
-    if (existing) {
+    const needsTaxRecompute =
+      !input.keepTaxes
+      || (
+        input.taxId != null
+        && existing != null
+        && !(Number(existing.tax_amount) > 0)
+      );
+    if (needsTaxRecompute && existing) {
       const forTax =
         input.taxId !== undefined ? { ...existing, tax: input.taxId } : existing;
       const hydrated = await hydrateOrderForTaxRecompute(forTax);
@@ -572,29 +621,28 @@ export async function settleOrder(input: SettleOrderInput): Promise<SettleOrderR
     }
   }
 
-  const inlineDraft =
-    !input.skipDraft && !hasRelationDraft
-      ? {
-          ...(input.tip !== undefined ? { tip: input.tip } : {}),
-          ...(input.tipAmount !== undefined ? { tip_amount: input.tipAmount } : {}),
-          ...(input.tipType !== undefined ? { tip_type: input.tipType } : {}),
-          ...(input.serviceCharge !== undefined ? { service_charge: input.serviceCharge } : {}),
-          ...(input.serviceChargeAmount !== undefined
-            ? { service_charge_amount: input.serviceChargeAmount }
-            : {}),
-          ...(input.serviceChargeType !== undefined
-            ? { service_charge_type: input.serviceChargeType }
-            : {}),
-          ...(input.notes !== undefined ? { notes: input.notes } : {}),
-          ...(input.taxId !== undefined ? { tax: input.taxId } : {}),
-          ...(input.discountAmount !== undefined ? { discount_amount: input.discountAmount } : {}),
-          ...(input.discountRate !== undefined ? { discount_rate: input.discountRate } : {}),
-          ...(input.discountId !== undefined ? { discount: input.discountId } : {}),
-          ...(input.discountManagerId !== undefined
-            ? { discount_manager: input.discountManagerId }
-            : {}),
-        }
-      : {};
+  // Always fold payment-screen scalars into the Paid MERGE. skipDraft only skips the
+  // earlier dedicated draft write — it must not drop tip/tax that still live in React.
+  const inlineDraft = {
+    ...(input.tip !== undefined ? { tip: input.tip } : {}),
+    ...(input.tipAmount !== undefined ? { tip_amount: input.tipAmount } : {}),
+    ...(input.tipType !== undefined ? { tip_type: input.tipType } : {}),
+    ...(input.serviceCharge !== undefined ? { service_charge: input.serviceCharge } : {}),
+    ...(input.serviceChargeAmount !== undefined
+      ? { service_charge_amount: input.serviceChargeAmount }
+      : {}),
+    ...(input.serviceChargeType !== undefined
+      ? { service_charge_type: input.serviceChargeType }
+      : {}),
+    ...(input.notes !== undefined ? { notes: input.notes } : {}),
+    ...(input.taxId !== undefined ? { tax: input.taxId } : {}),
+    ...(input.discountAmount !== undefined ? { discount_amount: input.discountAmount } : {}),
+    ...(input.discountRate !== undefined ? { discount_rate: input.discountRate } : {}),
+    ...(input.discountId !== undefined ? { discount: input.discountId } : {}),
+    ...(input.discountManagerId !== undefined
+      ? { discount_manager: input.discountManagerId }
+      : {}),
+  };
 
   const payments: OrderPaymentRecord[] = [];
   const order = await db.transaction(
@@ -1017,7 +1065,7 @@ export async function splitOrder(input: SplitOrderInput): Promise<{
           invoice_number: invoiceNumber,
           invoice_display: minted.invoiceDisplay,
           invoice_prefix: minted.invoicePrefix,
-          local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+          local_invoice_code: undefined,
           auto_id: group.autoId,
           items: childItemIds,
           split: index + 1,
@@ -1204,7 +1252,7 @@ export async function mergeOrders(input: MergeOrdersInput): Promise<{
         invoice_number: invoiceNumber,
         invoice_display: invoiceDisplay,
         invoice_prefix: invoicePrefix,
-        local_invoice_code: invoiceNumber == null ? pendingCodeFromPolicy(policy) : undefined,
+        local_invoice_code: undefined,
         auto_id: input.autoId,
         items: movedIds,
         tags: withTag(first.tags, 'Merged'),

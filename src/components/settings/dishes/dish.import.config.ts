@@ -51,6 +51,14 @@ export function createDishImportConfig({
 
   const fields: ImportField[] = [
     {
+      name: "id",
+      label: t("admin:columns.id", {defaultValue: "ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["ID", "Dish ID", "Record ID"],
+      description: "Existing dish record id (menu_item:…). Prefer for updates when numbers can duplicate.",
+    },
+    {
       name: "name",
       label: t("admin:columns.name"),
       type: "string",
@@ -231,6 +239,8 @@ export function createDishImportConfig({
         return toRecordId(ref.id);
       });
 
+      const idRaw = String(values.id ?? "").trim();
+
       const rowData: Record<string, string> = {
         name,
         number,
@@ -238,13 +248,26 @@ export function createDishImportConfig({
         price: String(price),
         cost: String(cost),
       };
+      if (idRaw) {
+        rowData.id = idRaw;
+      }
       if (barcodeRaw) {
         rowData.barcode = barcodeRaw;
       }
 
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      // Updates: prefer unique id; otherwise require number (name used to disambiguate).
+      const updateMatchFields = idRaw
+        ? ["id"]
+        : (ctx.matchFields?.length ? ctx.matchFields : ["number"]);
+      if (ctx.mode !== "create") {
+        assertCsvMatchValues(rowData, updateMatchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      } else {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field})
+        );
+      }
 
       const availableRaw = values.available;
       const available =
@@ -320,26 +343,51 @@ export function createDishImportConfig({
         dishData.stage_overrides = null;
       }
 
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, value) => {
-        if (field === "price") {
-          return {column: "price", value: Number(value)};
+      let existing: Array<{id: any}> = [];
+      if (ctx.mode !== "create") {
+        if (idRaw) {
+          existing = await findCsvImportMatches(db, Tables.dishes, [
+            {column: "id", value: toRecordId(idRaw)},
+          ]);
+        } else {
+          const conditions = buildMatchConditions(rowData, updateMatchFields, (field, value) => {
+            if (field === "price") {
+              return {column: "price", value: Number(value)};
+            }
+            if (field === "cost") {
+              return {column: "cost", value: Number(value)};
+            }
+            if (field === "priority") {
+              return {column: "priority", value: Number(value)};
+            }
+            if (field === "categories") {
+              throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
+            }
+            return {column: field, value};
+          });
+          existing = await findCsvImportMatches(db, Tables.dishes, conditions);
+          if (existing.length > 1 && name) {
+            const [named] = await db.query(
+              `SELECT id FROM ${Tables.dishes}
+               WHERE number = $number
+                 AND string::lowercase(name) = string::lowercase($name)
+                 AND deleted_at = none
+               LIMIT 2`,
+              {number, name},
+            );
+            existing = (named ?? []).map((row: any) => ({id: row.id}));
+          }
+          if (existing.length > 1) {
+            throw new Error(
+              t("common:csvImport.ambiguousDishNumber", {
+                number,
+                defaultValue:
+                  `Multiple dishes share number "${number}". Pass id (menu_item:…) or a unique name to update the correct dish.`,
+              }),
+            );
+          }
         }
-        if (field === "cost") {
-          return {column: "cost", value: Number(value)};
-        }
-        if (field === "priority") {
-          return {column: "priority", value: Number(value)};
-        }
-        if (field === "categories") {
-          throw new Error(t("common:csvImport.unsupportedMatchField", {field}));
-        }
-        return {column: field, value};
-      });
-
-      const existing =
-        ctx.mode === "create"
-          ? []
-          : await findCsvImportMatches(db, Tables.dishes, conditions);
+      }
 
       const codesToCheck = [
         ...(barcodeRaw ? [barcodeRaw] : []),

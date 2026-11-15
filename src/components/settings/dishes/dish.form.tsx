@@ -467,12 +467,13 @@ export const DishForm = ({
         );
         if (collisions.length > 0) {
           const hit = collisions[0];
-          throw new Error(
+          toast.error(
             t('toast:admin.barcodeInUse', {
               code: hit.code,
               name: hit.dishName,
             }),
           );
+          return;
         }
       }
       const availability = buildAvailabilityPatch({
@@ -682,8 +683,8 @@ export const DishForm = ({
           : t('toast:admin.dishSaved', { name: values.name })
       );
     } catch (e) {
-      toast.error(e);
-      console.log(e)
+      toast.error(e instanceof Error ? e.message : String(e));
+      console.log(e);
     }
   }
 

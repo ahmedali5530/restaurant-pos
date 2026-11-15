@@ -59,6 +59,10 @@ export const QuickOrderBrowse = ({onAdd}: Props) => {
     if (target?.closest(".react-aria-Button, [data-rac]")) {
       return;
     }
+    // Category strip + dish grid use indiana-drag-scroll — preventDefault kills sliding
+    if (target?.closest(".indiana-scroll-container, [data-testid='menu-categories']")) {
+      return;
+    }
     event.preventDefault();
   };
 
@@ -78,16 +82,12 @@ export const QuickOrderBrowse = ({onAdd}: Props) => {
       </div>
       {expanded && (
         <>
-          <div
-            className="mb-2 flex-shrink-0 rounded-xl"
-            onMouseDown={keepScanFocus}
-            onPointerDown={keepScanFocus}
-          >
+          <div className="mb-2 min-w-0 w-full flex-shrink-0 rounded-xl">
             <MenuCategories />
           </div>
           <ScrollContainer className="flex-1 min-h-0">
             <div
-              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1"
+              className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-1 auto-rows-fr items-stretch"
               onMouseDown={keepScanFocus}
               onPointerDown={keepScanFocus}
             >

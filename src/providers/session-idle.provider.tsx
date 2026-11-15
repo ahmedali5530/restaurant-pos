@@ -41,7 +41,8 @@ const DISCRETE_ACTIVITY_EVENTS = [
 const MOVE_ACTIVITY_EVENTS = ['pointermove', 'touchmove', 'mousemove'] as const;
 
 const MOVE_THROTTLE_MS = 300;
-const TICK_MS = 250;
+/** Idle is measured in minutes — a 1s tick still fires on time and lets the CPU sleep. */
+const TICK_MS = 1_000;
 const LISTENER_OPTS: AddEventListenerOptions = { passive: true, capture: true };
 
 interface SessionIdleProviderProps {

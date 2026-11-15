@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Importación IA de categorías de artículos",
     "smartImportLocationsTitle": "Importación IA de ubicaciones",
     "lastPrice": "Último",
-    "itemPrice": "Artículo"
+    "itemPrice": "Artículo",
+    "averagePrice": "Prom.",
+    "pricePerUom": "Precio / {{uom}}",
+    "stockUomHint": "Stock: {{uom}}"
   },
   "validation": {
     "required": "Este campo es obligatorio",

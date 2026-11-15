@@ -249,7 +249,9 @@
     "branchesHelp": "Lascia vuoto per includere tutte le sedi a cui hai accesso.",
     "branchView": "Vista",
     "branchViewCombined": "Combinata",
-    "branchViewByBranch": "Per sede"
+    "branchViewByBranch": "Per sede",
+    "taxPercent": "Percentuale tassa",
+    "paymentTypes": "Tipi di pagamento"
   },
   "datePresets": {
     "today": "Oggi",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Questo provider ha già un invio fiscale riuscito per l'ordine.",
     "retryInvoicePending": "Numero fattura non ancora pronto — riprovare dopo la sincronizzazione.",
     "retryOrderNotFound": "Ordine non trovato per il nuovo tentativo fiscale.",
-    "retryProviderDisabled": "Il provider fiscale è disabilitato."
+    "retryProviderDisabled": "Il provider fiscale è disabilitato.",
+    "byTax": "Per tassa",
+    "byPaymentType": "Per tipo di pagamento",
+    "noTax": "Nessuna tassa"
   },
   "empty": {
     "noDiscountTypes": "Nessun tipo di sconto per l'intervallo selezionato.",

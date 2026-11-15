@@ -39,11 +39,15 @@ import {DataImportModal} from "@/components/common/data-import/data-import-modal
 import {createIssueReturnImportConfig} from "@/components/inventory/issue_returns/issue-return.import.config.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
 import {
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
+import {
   lineEnteredDefaults,
   QuantityUomFields,
 } from "@/components/inventory/common/quantity.uom.fields.tsx";
 import {normalizeUom} from "@/utils/inventoryUom.ts";
-import { roundInventory } from "@/lib/inventory/rounding.ts";
+import { roundInventory, withInventoryCurrency } from "@/lib/inventory/rounding.ts";
 
 interface InventoryIssueReturnItemFormValue {
   item: { label: string; value: string } | null;
@@ -87,7 +91,7 @@ const createValidationSchema = (db: ReturnType<typeof useDB>, currentId?: string
         return true;
       }
 
-      const isUnique = await isUniqueRecordroundInventory(db,
+      const isUnique = await isUniqueRecordNumber(db,
         Tables.inventory_issue_returns,
         "invoice_number",
         value,
@@ -330,7 +334,7 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
     let isMounted = true;
 
-    fetchNextSequentialroundInventory(db, Tables.inventory_issue_returns, "invoice_number")
+    fetchNextSequentialNumber(db, Tables.inventory_issue_returns, "invoice_number")
       .then((nextNumber) => {
         if (isMounted) {
           setValue("invoice_number", nextNumber);
@@ -352,6 +356,16 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
     if (!issuanceSelection?.value) return undefined;
     return issues?.data?.find(issue => issue.id === issuanceSelection.value);
   }, [issuanceSelection, issues?.data]);
+  const resolveIssueReturnStockUom = React.useCallback(
+    (line: QuantityOnlyTotalLine) => {
+      const catalog = itemsList.find(
+        (ci) => String(ci.id) === String(line?.item?.value)
+      );
+      return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+    },
+    [itemsList]
+  );
+
   const pricedLines = useMemo(
     () =>
       (watchedItems ?? []).map((line) => {
@@ -359,7 +373,9 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
           selectedIssuance?.items?.find((issueItem) => issueItem.id === line.issued_item?.value) ||
           data?.items?.find((ri) => ri.issued_item?.id === line.issued_item?.value)?.issued_item;
         return {
+          item: line.item,
           quantity: line.quantity,
+          entered_uom: line.entered_uom,
           price: issued?.price ?? 0,
         };
       }),
@@ -610,7 +626,6 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
 
       const inventoryValue = roundInventory(
         values.items.reduce((sum, item) => {
-          const qty = Number(item.quantity || 0);
           const issuedIssueItem = selectedIssuance?.items?.find((issueItem) => {
             const issuedId = item.issued_item?.value;
             if (!issuedId || !issueItem.id) return false;
@@ -620,7 +635,21 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
             issuedIssueItem?.price ??
               (item.price != null && item.price !== "" ? item.price : 0)
           );
-          return sum + qty * price;
+          const catalog = itemsList.find(
+            (ci) => String(ci.id) === String(item.item?.value)
+          );
+          const stockUom = normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+          return (
+            sum +
+            quantityOnlyLineAmount(
+              {
+                quantity: item.quantity,
+                price,
+                entered_uom: item.entered_uom || stockUom,
+              },
+              stockUom
+            )
+          );
         }, 0)
       );
       if (inventoryValue > 0) {
@@ -796,7 +825,19 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                 {t('common:actions.smartImport', {defaultValue: 'AI Import'})}
               </Button>
             </div>
-            {fields.map((field, index) => (
+            {fields.map((field, index) => {
+              const priced = pricedLines[index];
+              const stockUomForRow = resolveIssueReturnStockUom(priced ?? {});
+              const rowMoney = quantityOnlyLineAmount(
+                {
+                  quantity: priced?.quantity,
+                  price: priced?.price,
+                  entered_uom: priced?.entered_uom || stockUomForRow,
+                },
+                stockUomForRow
+              );
+
+              return (
               <div className="flex flex-col gap-3 mb-3" key={field.id}>
                 {/* Hidden input for issued_item value */}
                 <Controller
@@ -862,6 +903,14 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                       label={t('forms.comments')}
                     />
                   </div>
+                  {rowMoney > 0 && (
+                    <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                      <div className="text-muted">{t("columns.total")}</div>
+                      <div className="font-semibold text-foreground">
+                        {withInventoryCurrency(rowMoney)}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex-0 self-end">
                     <IconTooltipButton label={t('common:actions.remove')}
                       type="button"
@@ -874,8 +923,12 @@ export const InventoryIssueReturnForm = ({open, onClose, data}: Props) => {
                   </div>
                 </div>
               </div>
-            ))}
-            <InventoryFormPricedLineTotal lines={pricedLines} />
+              );
+            })}
+            <InventoryFormPricedLineTotal
+              lines={pricedLines}
+              resolveStockUom={resolveIssueReturnStockUom}
+            />
           </fieldset>
         </div>
 

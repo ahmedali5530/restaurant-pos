@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Artikelcategorieën AI-importeren",
     "smartImportLocationsTitle": "Locaties AI-importeren",
     "lastPrice": "Laatste",
-    "itemPrice": "Artikel"
+    "itemPrice": "Artikel",
+    "averagePrice": "Gem.",
+    "pricePerUom": "Prijs / {{uom}}",
+    "stockUomHint": "Voorraad: {{uom}}"
   },
   "validation": {
     "required": "Dit is verplicht",

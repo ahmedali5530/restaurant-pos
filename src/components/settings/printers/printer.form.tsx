@@ -83,7 +83,12 @@ export const PrinterForm = ({
           : null,
         paper_width_mm: widthVal
           ? {
-              label: widthVal === '58' ? t('forms.paperWidth58') : t('forms.paperWidth80'),
+              label:
+                widthVal === '58'
+                  ? t('forms.paperWidth58')
+                  : widthVal === '72'
+                    ? t('forms.paperWidth72')
+                    : t('forms.paperWidth80'),
               value: widthVal,
             }
           : null,
@@ -314,6 +319,7 @@ export const PrinterForm = ({
                       placeholder={t('forms.usePrintSettings')}
                       options={[
                         { label: t('forms.paperWidth58'), value: '58' },
+                        { label: t('forms.paperWidth72'), value: '72' },
                         { label: t('forms.paperWidth80'), value: '80' },
                       ]}
                     />

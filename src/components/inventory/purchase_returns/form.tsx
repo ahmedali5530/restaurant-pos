@@ -38,10 +38,14 @@ import { postDocument } from "@/lib/inventory/posting.service.ts";
 import { recordIdToString } from "@/api/reports/shared/records.ts";
 import { toRecordId } from "@/lib/utils.ts";
 import { resolveCatalogUnitCost } from "@/lib/inventory/line.cost.ts";
-import { formatInventoryNumber } from "@/lib/inventory/rounding.ts";
+import { formatInventoryNumber, withInventoryCurrency } from "@/lib/inventory/rounding.ts";
 import {DataImportModal} from "@/components/common/data-import/data-import-modal.tsx";
 import {createPurchaseReturnImportConfig} from "@/components/inventory/purchase_returns/purchase-return.import.config.ts";
 import {convertQuantityOnlyLine} from "@/lib/inventory/unit.convert.ts";
+import {
+  quantityOnlyLineAmount,
+  type QuantityOnlyTotalLine,
+} from "@/lib/inventory/purchase.totals.ts";
 import {
   lineEnteredDefaults,
   QuantityUomFields,
@@ -237,6 +241,16 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
     suppliers?: { id: string; name: string }[];
   })[];
 
+  const resolveReturnStockUom = useCallback(
+    (line: QuantityOnlyTotalLine) => {
+      const catalog = itemsList.find(
+        (ci) => String(ci.id) === String(line?.item?.value)
+      );
+      return normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+    },
+    [itemsList]
+  );
+
   const pricedLines = useMemo(
     () =>
       (watchedItems ?? []).map((line) => {
@@ -256,7 +270,9 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           (ci) => String(ci.id) === String(line.item?.value)
         );
         return {
+          item: line.item,
           quantity: line.quantity,
+          entered_uom: line.entered_uom,
           price:
             resolvePurchaseLineUnitCost(matchedPurchaseItem) ||
             Number(matchedReturnItem?.price) ||
@@ -653,12 +669,23 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
         integrationManager,
       });
 
+      const lineInventoryValue = (item: PurchaseReturnItemFormValue) => {
+        const catalog = itemsList.find(
+          (ci) => String(ci.id) === String(item.item?.value)
+        );
+        const stockUom = normalizeUom(catalog?.uom) ?? catalog?.uom ?? null;
+        return quantityOnlyLineAmount(
+          {
+            quantity: item.quantity,
+            price: resolveReturnLineUnitCost(item, matchPurchaseLine(item)),
+            entered_uom: item.entered_uom || stockUom,
+          },
+          stockUom
+        );
+      };
+
       let inventoryValue = roundInventory(
-        values.items.reduce((sum, item) => {
-          const qty = Number(item.quantity || 0);
-          const price = resolveReturnLineUnitCost(item, matchPurchaseLine(item));
-          return sum + qty * price;
-        }, 0)
+        values.items.reduce((sum, item) => sum + lineInventoryValue(item), 0)
       );
 
       if (inventoryValue <= 0 && purchaseId) {
@@ -672,14 +699,7 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
           if (fetchedItems.length > 0) {
             purchaseLineItems = fetchedItems;
             inventoryValue = roundInventory(
-              values.items.reduce((sum, item) => {
-                const qty = Number(item.quantity || 0);
-                const price = resolveReturnLineUnitCost(
-                  item,
-                  matchPurchaseLine(item)
-                );
-                return sum + qty * price;
-              }, 0)
+              values.items.reduce((sum, item) => sum + lineInventoryValue(item), 0)
             );
           }
         } catch (error) {
@@ -872,6 +892,16 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
             </div>
             {fields.map((field, index) => {
               const availableQuantity = rowNetQuantities[index] ?? 0;
+              const priced = pricedLines[index];
+              const stockUomForRow = resolveReturnStockUom(priced ?? {});
+              const rowMoney = quantityOnlyLineAmount(
+                {
+                  quantity: priced?.quantity,
+                  price: priced?.price,
+                  entered_uom: priced?.entered_uom || stockUomForRow,
+                },
+                stockUomForRow
+              );
 
               return (
                 <div className="flex flex-col gap-3 mb-3" key={field.id}>
@@ -937,6 +967,14 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                         label={t('forms.comments')}
                       />
                     </div>
+                    {rowMoney > 0 && (
+                      <div className="flex-0 self-end min-w-[120px] text-right pb-1">
+                        <div className="text-muted">{t("columns.total")}</div>
+                        <div className="font-semibold text-foreground">
+                          {withInventoryCurrency(rowMoney)}
+                        </div>
+                      </div>
+                    )}
                     <div className="flex-0 self-end">
                       {data?.id === undefined && (
                         <IconTooltipButton label={t('common:actions.remove')}
@@ -952,7 +990,10 @@ export const InventoryPurchaseReturnForm = ({open, onClose, data}: Props) => {
                 </div>
               );
             })}
-            <InventoryFormPricedLineTotal lines={pricedLines} />
+            <InventoryFormPricedLineTotal
+              lines={pricedLines}
+              resolveStockUom={resolveReturnStockUom}
+            />
           </fieldset>
         </div>
 

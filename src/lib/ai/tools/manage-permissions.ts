@@ -1,22 +1,32 @@
-/** Maps manage list_* tools to admin tab permission modules. */
+/** Maps manage list_* / get_* tools to admin tab permission modules. */
 export const MANAGE_TOOL_PERMISSION_MODULES: Record<string, string> = {
   list_floors: "admin.floors",
   list_tables: "admin.tables",
+  get_table_detail: "admin.tables",
   list_modifier_groups: "admin.modifier_groups",
   list_kitchens: "admin.kitchens",
   get_kitchen_detail: "admin.kitchens",
+  get_dish_detail: "admin.dishes",
+  list_dish_modifiers: "admin.dishes",
   list_taxes: "admin.taxes",
   list_discounts: "admin.discounts",
+  get_discount_detail: "admin.discounts",
   list_order_types: "admin.order_types",
   list_payment_types: "admin.payment_types",
   list_extras: "admin.extras",
+  get_extra_detail: "admin.extras",
   list_coupons: "admin.coupons",
+  get_coupon_detail: "admin.coupons",
   list_menus: "admin.menus",
   get_menu_items: "admin.menus",
   list_workflows: "admin.workflows",
   list_printers: "admin.printers",
+  get_printer_detail: "admin.printers",
+  get_print_settings: "admin.print_settings",
+  get_tip_distribution: "admin.tips_definition",
   list_users: "admin.users",
   list_roles: "admin.roles",
+  get_role_detail: "admin.roles",
   list_shifts: "admin.shifts",
 };
 

@@ -6,7 +6,20 @@
   "thankYou": "Teşekkürler!",
   "thankYouHint": "Yine bekleriz",
   "qty": "Adet {{count}}",
+  "colItem": "Ürün",
+  "colQty": "Adet",
+  "colPrice": "Fiyat",
+  "colTotal": "Toplam",
   "total": "Toplam",
   "items": "Kalemler ({{count}})",
-  "totalWithTax": "{{name}} {{rate}}% ile toplam"
+  "totalWithTax": "{{name}} {{rate}}% ile toplam",
+  "adjTax": "{{name}}",
+  "adjTaxNamed": "{{name}} {{rate}}%",
+  "adjDiscount": "İndirim ({{name}})",
+  "adjCoupon": "Kupon ({{name}})",
+  "adjService": "Servis ücreti ({{value}}{{unit}})",
+  "adjServicePlain": "Servis ücreti",
+  "adjTip": "Bahşiş",
+  "adjTipPercent": "Bahşiş %",
+  "adjExtra": "Ekstra"
 }

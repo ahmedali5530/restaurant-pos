@@ -1,4 +1,4 @@
-import {useMemo} from "react";
+import {useMemo, useState} from "react";
 import {useTranslation} from "react-i18next";
 import * as yup from "yup";
 import {Controller, useForm} from "react-hook-form";
@@ -88,7 +88,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
   const {
     control,
     handleSubmit,
-    formState: {errors, isSubmitting},
+    formState: {errors},
   } = useForm<BuffetSessionFormValues>({
     resolver: yupResolver(validationSchema) as any,
     defaultValues: {
@@ -99,6 +99,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
       notes: "",
     },
   });
+  const [saving, setSaving] = useState(false);
 
   const onSubmit = async (values: BuffetSessionFormValues) => {
     const userId = recordToString(state?.user?.id);
@@ -107,6 +108,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
       return;
     }
 
+    setSaving(true);
     try {
       const session = await createBuffetSession(
         db,
@@ -126,6 +128,8 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
       onClose();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("buffet.sessionCreateFailed"));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -219,7 +223,7 @@ export const BuffetSessionForm = ({open, onClose, onCreated}: Props) => {
           <Button type="button" variant="neutral" onClick={onClose}>
             {t("common:actions.cancel")}
           </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+          <Button type="submit" variant="primary" isLoading={saving} disabled={saving}>
             {t("common:actions.save")}
           </Button>
         </div>

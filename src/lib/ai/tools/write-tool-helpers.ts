@@ -1,5 +1,6 @@
 import type {OpenAIToolDefinition} from "@/lib/openai.service.ts";
 import type {ImportDbLike} from "@/lib/data-import/types.ts";
+import {findRecordsByIdOrKeys, ID_WRITE_FIELD} from "@/lib/data-import/match-by-id.ts";
 
 export type WriteFieldSpec = {
   name: string;
@@ -38,7 +39,7 @@ const jsonSchemaForField = (field: WriteFieldSpec) => {
 const buildItemSchema = (
   fields: WriteFieldSpec[],
   mode: "create" | "update",
-  matchFields: string[],
+  _matchFields: string[],
 ) => {
   const properties: Record<string, unknown> = {};
   const required: string[] = [];
@@ -48,9 +49,7 @@ const buildItemSchema = (
     if (mode === "create" && field.requiredOnCreate) {
       required.push(field.name);
     }
-    if (mode === "update" && matchFields.includes(field.name)) {
-      required.push(field.name);
-    }
+    // Updates: id OR legacy match fields — validated in flagMissingMatchFields, not JSON required.
   }
 
   return {
@@ -58,6 +57,11 @@ const buildItemSchema = (
     properties,
     ...(required.length ? {required} : {}),
   };
+};
+
+const withIdField = (fields: WriteFieldSpec[]): WriteFieldSpec[] => {
+  if (fields.some((f) => f.name === "id")) return fields;
+  return [ID_WRITE_FIELD, ...fields];
 };
 
 export const buildWriteToolDefinitionsFromFields = (
@@ -75,6 +79,9 @@ export const buildWriteToolDefinitionsFromFields = (
   } = opts;
 
   const entityLower = entityLabel.toLowerCase();
+  const updateFields = withIdField(fields);
+  const preferIdHint =
+    " Prefer matching by id from list_* tools; business keys are fallback when id is unknown.";
 
   const createTool: OpenAIToolDefinition = {
     type: "function",
@@ -109,17 +116,18 @@ export const buildWriteToolDefinitionsFromFields = (
       function: {
         name: updateToolName,
         description:
-          updateDescription ??
-          `Propose updating one or more existing ${entityLower} records. This does NOT save anything — ` +
-          `it only prepares a preview for the user to review and confirm. ` +
-          `Only include fields that should change; omitted fields are left as-is.`,
+          (updateDescription ??
+            `Propose updating one or more existing ${entityLower} records. This does NOT save anything — ` +
+              `it only prepares a preview for the user to review and confirm. ` +
+              `Only include fields that should change; omitted fields are left as-is.`)
+          + preferIdHint,
         parameters: {
           type: "object",
           properties: {
             [recordsArgKey]: {
               type: "array",
               description: `One entry per ${entityLower} to update.`,
-              items: buildItemSchema(fields, "update", matchFields),
+              items: buildItemSchema(updateFields, "update", matchFields),
             },
           },
           required: [recordsArgKey],
@@ -140,21 +148,23 @@ export const buildDeleteToolDefinitionFromFields = (
   },
 ): OpenAIToolDefinition => {
   const entityLower = opts.entityLabel.toLowerCase();
+  const fields = withIdField(opts.fields);
   return {
     type: "function",
     function: {
       name: opts.deleteToolName,
       description:
-        opts.deleteDescription ??
-        `Propose soft-deleting one or more ${entityLower} records. This does NOT save anything — ` +
-        `it only prepares a preview for the user to review and confirm.`,
+        (opts.deleteDescription ??
+          `Propose soft-deleting one or more ${entityLower} records. This does NOT save anything — ` +
+            `it only prepares a preview for the user to review and confirm.`)
+        + " Prefer matching by id from list_* tools.",
       parameters: {
         type: "object",
         properties: {
           [opts.recordsArgKey]: {
             type: "array",
-            description: `One entry per ${entityLower} to delete (match fields required).`,
-            items: buildItemSchema(opts.fields, "update", opts.matchFields),
+            description: `One entry per ${entityLower} to delete (id preferred, or match fields).`,
+            items: buildItemSchema(fields, "update", opts.matchFields),
           },
         },
         required: [opts.recordsArgKey],
@@ -181,33 +191,43 @@ export const createMergeUpdatePatchesByMatchFields = (
   matchFields: string[],
   options: {
     softDelete?: boolean;
+    /** When legacy keys can collide (e.g. table number), refuse silent LIMIT 1. */
+    rejectAmbiguousKeys?: boolean;
     fetchTransform?: (row: Record<string, unknown>) => Record<string, unknown>;
   } = {},
 ) => {
   const softDelete = options.softDelete ?? true;
+  const rejectAmbiguousKeys = options.rejectAmbiguousKeys ?? false;
 
   return createMergeUpdatePatchesByFetcher(async (db, patch) => {
-    const conditions: string[] = [];
-    const params: Record<string, unknown> = {};
-
+    const hasId = String(patch.id ?? "").trim() !== "";
+    const keys: Record<string, unknown> = {};
     for (const field of matchFields) {
       const value = patchMatchValue(patch, field);
-      if (!value) return null;
-      const param = `m_${field}`;
-      conditions.push(`${field} = $${param}`);
-      params[param] = value;
+      if (!value) {
+        if (!hasId) return null;
+        continue;
+      }
+      keys[field] = value;
+    }
+    if (!hasId && Object.keys(keys).length !== matchFields.length) return null;
+
+    const rows = await findRecordsByIdOrKeys(db, table, {
+      id: hasId ? patch.id : undefined,
+      keys: hasId ? undefined : keys,
+      softDelete,
+      rejectAmbiguousKeys,
+      limit: rejectAmbiguousKeys ? 2 : 1,
+    });
+
+    if (rows.length === 0) return null;
+    if (rejectAmbiguousKeys && rows.length > 1 && !String(patch.id ?? "").trim()) {
+      return null;
     }
 
-    if (conditions.length === 0) return null;
-
-    const deletedClause = softDelete ? " AND deleted_at = none" : "";
-    const [rows] = await db.query(
-      `SELECT * FROM ${table} WHERE ${conditions.join(" AND ")}${deletedClause} LIMIT 1`,
-      params,
-    );
-    const row = rows?.[0];
-    if (!row) return null;
-
-    return options.fetchTransform ? options.fetchTransform(row as Record<string, unknown>) : row;
+    const row = rows[0] as Record<string, unknown>;
+    const base = options.fetchTransform ? options.fetchTransform(row) : row;
+    // Always surface id so subsequent commits can rematch uniquely.
+    return {...base, id: String(row.id ?? base.id ?? "")};
   });
 };

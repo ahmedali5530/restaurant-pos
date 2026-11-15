@@ -158,7 +158,10 @@
     "smartImportItemCategoriesTitle": "Artikelkategorien KI-Import",
     "smartImportLocationsTitle": "Standorte KI-Import",
     "lastPrice": "Letzter",
-    "itemPrice": "Artikel"
+    "itemPrice": "Artikel",
+    "averagePrice": "Ø",
+    "pricePerUom": "Preis / {{uom}}",
+    "stockUomHint": "Lager: {{uom}}"
   },
   "validation": {
     "required": "Pflichtfeld",

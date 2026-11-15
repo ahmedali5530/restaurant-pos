@@ -5,14 +5,20 @@
     "last": "Dernier scan : {{code}}",
     "unknown": "Code inconnu : {{code}}",
     "added": "{{name}} ajouté",
-    "placeholder": "Scanner code/PLU, CODE*6 ou *6 puis Entrée",
-    "inputLabel": "Code-barres / PLU",
-    "qtyHint": "Qté : CODE*6 ajoute six ; *6 ajoute six du dernier article",
+    "placeholder": "Scannez le code ou saisissez nom / PLU / CODE*6 / *6",
+    "inputLabel": "Code-barres / nom / PLU",
+    "qtyHint": "Tapez pour chercher par nom, numéro ou code. Qté : CODE*6 ou *6 pour le dernier article",
     "invalidQty": "Quantité invalide — entier après *",
     "noLastItem": "Scannez d’abord un article, puis *qté",
     "addedQty": "Ajouté {{count}} × {{name}}",
     "unknownPlu": "PLU balance inconnue {{plu}} ({{code}})",
-    "addedWeight": "Ajouté {{weight}} kg {{name}}"
+    "addedWeight": "Ajouté {{weight}} kg {{name}}",
+    "suggestionMeta": "{{match}} : {{meta}}",
+    "match": {
+      "name": "Nom",
+      "number": "Numéro",
+      "barcode": "Code-barres"
+    }
   },
   "cart": {
     "title": "Panier",

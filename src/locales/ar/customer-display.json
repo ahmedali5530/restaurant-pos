@@ -6,7 +6,20 @@
   "thankYou": "شكرًا لك!",
   "thankYouHint": "نراك قريبًا",
   "qty": "الكمية {{count}}",
+  "colItem": "الصنف",
+  "colQty": "الكمية",
+  "colPrice": "السعر",
+  "colTotal": "الإجمالي",
   "total": "الإجمالي",
   "items": "العناصر ({{count}})",
-  "totalWithTax": "الإجمالي مع {{name}} {{rate}}%"
+  "totalWithTax": "الإجمالي مع {{name}} {{rate}}%",
+  "adjTax": "{{name}}",
+  "adjTaxNamed": "{{name}} {{rate}}%",
+  "adjDiscount": "خصم ({{name}})",
+  "adjCoupon": "قسيمة ({{name}})",
+  "adjService": "رسوم الخدمة ({{value}}{{unit}})",
+  "adjServicePlain": "رسوم الخدمة",
+  "adjTip": "إكرامية",
+  "adjTipPercent": "إكرامية %",
+  "adjExtra": "إضافة"
 }

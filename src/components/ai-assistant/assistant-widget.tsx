@@ -1,4 +1,5 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
 import {useLocation} from "react-router";
 import {useAtom} from "jotai";
@@ -11,6 +12,7 @@ import {
   faCompress,
   faCircleQuestion,
   faDownload,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import {useDB} from "@/api/db/db.ts";
 import {appPage} from "@/store/jotai.ts";
@@ -37,7 +39,17 @@ import {
   downloadCleanseCsv,
   type CleanseResultPayload,
 } from "@/components/ai-assistant/assistant-cleanse-panel.tsx";
+import {AssistantSettingsModal} from "@/components/ai-assistant/assistant-settings-modal.tsx";
+import {
+  formatAnalyzeUserMessage,
+  type AssistantFilePreview,
+} from "@/lib/ai/assistant-file-preview.ts";
 import {AI_ASSISTANT_NAME} from "@/lib/ai/assistant-config.ts";
+import type {AssistantPersonaId} from "@/lib/ai/assistant-personas.ts";
+import {
+  loadAssistantPreferences,
+  saveAssistantPreferences,
+} from "@/lib/ai/assistant-preferences.ts";
 import {isAssistantWidgetPath} from "@/lib/ai/assistant-widget-visibility.ts";
 import {buildAssistantContextHistory} from "@/lib/ai/assistant-conversation-context.ts";
 import {LOGIN} from "@/routes/posr.ts";
@@ -48,10 +60,15 @@ import {
   saveAssistantConversation,
   type AssistantDisplayEntry,
 } from "@/lib/ai/assistant-conversation.storage.ts";
+import {
+  formatAssistantUserContext,
+  resolveAssistantUserContext,
+} from "@/lib/ai/assistant-user-context.ts";
 
 const EXPANDED_STORAGE_KEY = "ai-assistant-expanded";
 const AUTO_EXPAND_MIN_LENGTH = 800;
 const COMPLETION_PULSE_MS = 1400;
+const TOOLBAR_ASSISTANT_SLOT_ID = "app-toolbar-assistant-slot";
 
 type PendingProposal = {
   proposal: WriteProposal;
@@ -70,10 +87,10 @@ const shouldAutoExpand = (content: string): boolean =>
   content.includes("|") || content.length > AUTO_EXPAND_MIN_LENGTH;
 
 /**
- * Global floating assistant — mounted once in app.tsx. Uses the same reporting
- * persona and domain-aware prompts as Reports > AI Report (compact when enabled),
- * plus propose_* write tools via assistant-agent.ts. The dedicated AI Report
- * screen remains available during the transition.
+ * Global AI assistant — mounted once in app.tsx. Trigger lives in the app
+ * toolbar (between unit converter and sync indicator) when that bar is present;
+ * otherwise falls back to a floating button. Same reporting persona / write
+ * tools as Reports > AI Report.
  */
 export function AiAssistantWidget() {
   const {t, i18n} = useTranslation(["admin", "common", "toast"]);
@@ -87,6 +104,7 @@ export function AiAssistantWidget() {
     return isAssistantWidgetPath(location.pathname);
   }, [user?.id, location.pathname]);
 
+  const [toolbarSlot, setToolbarSlot] = useState<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(loadExpandedPreference);
   const [prompt, setPrompt] = useState("");
@@ -98,6 +116,10 @@ export function AiAssistantWidget() {
   const [hydrated, setHydrated] = useState(false);
   const [completionPulse, setCompletionPulse] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [analyzePreview, setAnalyzePreview] = useState<AssistantFilePreview | null>(null);
+  const [personaId, setPersonaId] = useState<AssistantPersonaId>("analyst");
+  const [deepResearch, setDeepResearch] = useState(false);
 
   const assistantName = AI_ASSISTANT_NAME;
 
@@ -117,6 +139,10 @@ export function AiAssistantWidget() {
       setHydrated(false);
       return;
     }
+
+    const prefs = loadAssistantPreferences(userId);
+    setPersonaId(prefs.personaId);
+    setDeepResearch(prefs.deepResearch);
 
     let cancelled = false;
     setHydrated(false);
@@ -139,6 +165,11 @@ export function AiAssistantWidget() {
   }, [userId]);
 
   useEffect(() => {
+    if (!userId) return;
+    saveAssistantPreferences(userId, {personaId, deepResearch});
+  }, [userId, personaId, deepResearch]);
+
+  useEffect(() => {
     if (!userId || !hydrated) return;
 
     const timer = window.setTimeout(() => {
@@ -153,6 +184,24 @@ export function AiAssistantWidget() {
       setOpen(false);
     }
   }, [visible]);
+
+  useLayoutEffect(() => {
+    if (!visible) {
+      setToolbarSlot(null);
+      return;
+    }
+    const syncSlot = () => {
+      setToolbarSlot(document.getElementById(TOOLBAR_ASSISTANT_SLOT_ID));
+    };
+    syncSlot();
+    // AppToolbar toggles `data-app-toolbar` when it mounts/unmounts (e.g. report detail pages).
+    const observer = new MutationObserver(syncSlot);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-app-toolbar"],
+    });
+    return () => observer.disconnect();
+  }, [visible, location.pathname]);
 
   useEffect(() => {
     try {
@@ -221,6 +270,7 @@ export function AiAssistantWidget() {
     setHistory([]);
     setPending(null);
     setError(null);
+    setAnalyzePreview(null);
     void clearAssistantConversation(userId);
   }, [entries.length, history.length, loading, userId]);
 
@@ -254,23 +304,43 @@ export function AiAssistantWidget() {
     const trimmed = prompt.trim();
     if (!trimmed || loading) return;
 
+    const modelPrompt = analyzePreview
+      ? formatAnalyzeUserMessage(trimmed, analyzePreview)
+      : trimmed;
+    const userImageUrls = analyzePreview?.imageUrls ?? [];
+    const displayContent = analyzePreview
+      ? t("common:aiAssistant.analyzeUserLabel", {
+          file: analyzePreview.fileName,
+          question: trimmed,
+          defaultValue: "[File: {{file}}]\n{{question}}",
+        })
+      : trimmed;
+
+    // History stores text only — never persist large vision data URLs.
     const conversationHistory = buildAssistantContextHistory([
       ...entries,
-      {role: "user", content: trimmed},
+      {role: "user", content: modelPrompt},
     ]);
 
-    setEntries(prev => [...prev, {role: "user", content: trimmed}]);
+    setEntries(prev => [...prev, {role: "user", content: displayContent}]);
     setPrompt("");
+    setAnalyzePreview(null);
     setLoading(true);
     setError(null);
 
     try {
-      const result = await runAiAssistantAgent(db, t, trimmed, {
+      const userContext = await resolveAssistantUserContext(db, user);
+      const userContextBlock = formatAssistantUserContext(userContext);
+      const result = await runAiAssistantAgent(db, t, modelPrompt, {
         allowedModules,
         writeContext,
         language: i18n.language,
         pathname: location.pathname,
         conversationHistory,
+        userImageUrls: userImageUrls.length ? userImageUrls : undefined,
+        personaId,
+        deepResearch,
+        userContextBlock,
       });
       applyResult(result);
     } catch (err) {
@@ -332,6 +402,8 @@ export function AiAssistantWidget() {
           writeContext,
           language: i18n.language,
           pathname: location.pathname,
+          personaId,
+          deepResearch,
         },
       );
       applyResult(result);
@@ -345,6 +417,8 @@ export function AiAssistantWidget() {
             writeContext,
             language: i18n.language,
             pathname: location.pathname,
+            personaId,
+            deepResearch,
           },
         );
         applyResult(result);
@@ -373,6 +447,8 @@ export function AiAssistantWidget() {
           writeContext,
           language: i18n.language,
           pathname: location.pathname,
+          personaId,
+          deepResearch,
         },
       );
       applyResult(result);
@@ -392,33 +468,68 @@ export function AiAssistantWidget() {
     return null;
   }
 
-  if (!open) {
-    return (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border-2 border-warning bg-neutral-900 text-warning shadow-lg transition-colors hover:bg-neutral-800"
-        aria-label={t("common:aiAssistant.open", {name: assistantName})}
-      >
-        <FontAwesomeIcon icon={faComments} />
-      </button>
-    );
-  }
+  const openLabel = t("common:aiAssistant.open", {name: assistantName});
+  const inToolbar = !!toolbarSlot;
 
-  return (
+  const triggerButton = (
+    <button
+      type="button"
+      onClick={() => setOpen(prev => !prev)}
+      title={openLabel}
+      aria-label={openLabel}
+      aria-expanded={open}
+      data-testid="ai-assistant-toolbar-open"
+      className={cn(
+        inToolbar
+          ? "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium text-foreground hover:bg-surface"
+          : "fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border-2 border-warning bg-neutral-900 text-warning shadow-lg transition-colors hover:bg-neutral-800",
+        inToolbar && open && "bg-surface text-warning-600",
+        inToolbar && loading && "animate-pulse",
+      )}
+    >
+      <FontAwesomeIcon
+        icon={loading ? faSpinner : faComments}
+        spin={loading}
+        className={inToolbar ? "text-sm text-muted" : undefined}
+      />
+      {inToolbar && (
+        <span className="hidden sm:inline">
+          {t("common:aiAssistant.title", {name: assistantName})}
+        </span>
+      )}
+    </button>
+  );
+
+  const panel = open ? (
     <div
       className={cn(
-        "fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5 z-40 flex flex-col rounded-lg border border-border bg-surface-elevated shadow-2xl transition-all duration-200",
+        "z-40 flex flex-col rounded-lg border border-border bg-surface-elevated shadow-2xl transition-all duration-200",
+        inToolbar
+          ? "absolute bottom-full right-0 mb-2"
+          : "fixed bottom-[calc(1.25rem_+_var(--app-toolbar-h))] right-5",
         expanded
           ? "h-[min(42rem,85vh)] w-[min(56rem,92vw)]"
           : "h-[32rem] w-96",
       )}
+      data-testid="ai-assistant-panel"
     >
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
         <span className="min-w-0 truncate text-sm font-semibold">
           {t("common:aiAssistant.title", {name: assistantName})}
         </span>
         <div className="flex shrink-0 items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            aria-label={t("common:aiAssistant.settingsTitle", {defaultValue: "Assistant settings"})}
+            title={t("common:aiAssistant.settingsTitle", {defaultValue: "Assistant settings"})}
+            className={cn(
+              "text-muted hover:text-foreground",
+              (deepResearch || personaId !== "analyst") && "text-warning-600",
+            )}
+          >
+            <FontAwesomeIcon icon={faGear} />
+          </button>
           <button
             type="button"
             onClick={() => setShowExamples(prev => !prev)}
@@ -569,6 +680,8 @@ export function AiAssistantWidget() {
         allowedModules={allowedModules}
         pathname={location.pathname}
         disabled={loading || !!pending}
+        analyzePreview={analyzePreview}
+        onAnalyzeReady={setAnalyzePreview}
         onCleansed={handleCleansed}
         onError={message => setError(message || null)}
       />
@@ -601,6 +714,33 @@ export function AiAssistantWidget() {
           {loading ? <FontAwesomeIcon icon={faSpinner} spin /> : t("common:send")}
         </Button>
       </div>
+
+      <AssistantSettingsModal
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+        disabled={loading || !!pending}
+        personaId={personaId}
+        onPersonaChange={setPersonaId}
+        deepResearch={deepResearch}
+        onDeepResearchChange={setDeepResearch}
+      />
     </div>
+  ) : null;
+
+  if (toolbarSlot) {
+    return createPortal(
+      <>
+        {triggerButton}
+        {panel}
+      </>,
+      toolbarSlot,
+    );
+  }
+
+  return (
+    <>
+      {triggerButton}
+      {panel}
+    </>
   );
 }

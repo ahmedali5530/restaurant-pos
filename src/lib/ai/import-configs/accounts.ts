@@ -2,6 +2,10 @@ import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import type {TFunc, WriteToolContext} from "@/lib/ai/tools/write-tools.ts";
 import {parseImportBool} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 import {
   assertCsvMatchValues,
@@ -16,6 +20,7 @@ const NORMAL_BALANCES = ["debit", "credit"];
 
 export function createAiAccountImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "code", type: "string", required: true},
     {name: "name", type: "string", required: true},
     {name: "group_code", type: "string", required: true},
@@ -72,9 +77,22 @@ export function createAiAccountImportConfig({db, t}: {db: ImportDbLike; t: TFunc
       };
 
       const rowData = {code};
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) => `Missing ${field}`);
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({column: "code", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.accounts, conditions, {softDelete: false});
+      const idRaw = String(v.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) => `Missing ${field}`);
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.accounts, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: false,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_f, value) => ({
+            column: "code",
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.accounts, conditions, {softDelete: false});
+        },
+      });
 
       await writeCsvImportRow(db as any, {
         mode: ctx.mode,

@@ -8,9 +8,12 @@ import {getOrderTaxAmount} from "@/lib/tax-calculator.ts";
 import {formatNumber, safeNumber, withCurrency} from "@/lib/utils.ts";
 import type {TFunction} from 'i18next';
 
+/** Stable sentinel while gateway assignment is pending — never a random local code. */
+export const PENDING_INVOICE_LABEL = '—';
+
 export const getInvoiceNumber = (order?: OrderModel | null) => {
   if (!order) {
-    return '-';
+    return PENDING_INVOICE_LABEL;
   }
 
   if (typeof order.invoice_display === 'string' && order.invoice_display.trim()) {
@@ -21,13 +24,15 @@ export const getInvoiceNumber = (order?: OrderModel | null) => {
     return `${order.invoice_number}${order.split ? `/${order.split}` : ''}`;
   }
 
-  const local = order.local_invoice_code;
-  if (typeof local === 'string' && local.trim()) {
-    return order.split ? `${local}/${order.split}` : local;
-  }
-
-  return '-';
+  // Do not surface local_invoice_code (random 6-char placeholders).
+  return PENDING_INVOICE_LABEL;
 }
+
+export const hasAbsoluteInvoiceNumber = (order?: OrderModel | null): boolean => {
+  if (!order) return false;
+  if (typeof order.invoice_display === 'string' && order.invoice_display.trim()) return true;
+  return order.invoice_number != null && Number.isFinite(Number(order.invoice_number));
+};
 
 export const getOrderFilteredItems = (order: OrderModel) => {
   return (order?.items ?? [])
@@ -257,10 +262,160 @@ export const getAppliedPaymentAmount = (payment?: OrderPayment) => {
   return amount;
 };
 
+const roundPaymentMoney = (value: number) => Math.round(safeNumber(value) * 100) / 100;
+
 export const isCashPaymentType = (paymentType?: {type?: string; name?: string} | null) => {
   const normalizedType = paymentType?.type?.toLowerCase()?.trim() ?? '';
   const normalizedName = paymentType?.name?.toLowerCase()?.trim() ?? '';
   return normalizedType === 'cash' || normalizedName === 'cash';
+};
+
+/** Card (exact) tenders — case-insensitive type match. */
+export const isCardPaymentType = (paymentType?: {type?: string; name?: string} | null) => {
+  const normalizedType = paymentType?.type?.toLowerCase()?.trim() ?? '';
+  return normalizedType === 'card';
+};
+
+/**
+ * Remote gateway tenders store JSON in comments (intentId / provider).
+ * Those amounts must stay sticky after capture.
+ */
+export const isRemoteCapturedDraftPayment = (payment?: {comments?: string} | null) => {
+  const raw = payment?.comments;
+  if (!raw || typeof raw !== 'string') {
+    return false;
+  }
+  try {
+    const parsed = JSON.parse(raw) as {intentId?: unknown; provider?: unknown};
+    return !!(parsed && (parsed.intentId || parsed.provider));
+  } catch {
+    return false;
+  }
+};
+
+type DraftPaymentLine = {
+  payable?: number
+  amount?: number
+  payment_type?: {type?: string; name?: string} | null
+  comments?: string
+};
+
+/**
+ * After discount/tip/service/extras change, every draft tender line should
+ * store the current check total as `payable` (cash may still over-tender).
+ */
+export const recomputeDraftPaymentPayables = <T extends {payable?: number}>(
+  payments: T[],
+  grandTotalDue: number,
+): T[] => {
+  const due = safeNumber(grandTotalDue);
+  if (!payments.length) return payments;
+  if (payments.every((p) => safeNumber(p.payable) === due)) return payments;
+  return payments.map((p) => ({...p, payable: due}));
+};
+
+/**
+ * Sync draft tenders when the check total changes:
+ * - all lines get payable = due
+ * - cash amounts stay sticky (over-tender / change)
+ * - exact (non-cash) amounts waterfall from the last line to match remaining due
+ * - remote-captured exact lines stay sticky
+ * - zero-amount exact (adjustable) lines are dropped
+ */
+export const recomputeDraftPaymentsForTotal = <T extends DraftPaymentLine>(
+  payments: T[],
+  grandTotalDue: number,
+): T[] => {
+  const due = roundPaymentMoney(grandTotalDue);
+  if (!payments.length) {
+    return payments;
+  }
+
+  const withPayable = payments.map((p) => ({...p, payable: due}));
+
+  const cashSum = withPayable
+    .filter((p) => isCashPaymentType(p.payment_type))
+    .reduce((sum, p) => sum + safeNumber(p.amount), 0);
+  const appliedCash = Math.min(Math.max(0, cashSum), due);
+
+  const stickyExactSum = withPayable
+    .filter((p) => !isCashPaymentType(p.payment_type) && isRemoteCapturedDraftPayment(p))
+    .reduce((sum, p) => sum + safeNumber(p.amount), 0);
+
+  let remainingExact = roundPaymentMoney(Math.max(0, due - appliedCash - stickyExactSum));
+
+  const adjustableIndexes: number[] = [];
+  withPayable.forEach((p, index) => {
+    if (isCashPaymentType(p.payment_type)) {
+      return;
+    }
+    if (isRemoteCapturedDraftPayment(p)) {
+      return;
+    }
+    adjustableIndexes.push(index);
+  });
+
+  if (adjustableIndexes.length === 0) {
+    return withPayable;
+  }
+
+  const next = withPayable.slice();
+  const currentSum = roundPaymentMoney(
+    adjustableIndexes.reduce((sum, index) => sum + safeNumber(next[index].amount), 0),
+  );
+
+  if (adjustableIndexes.length === 1) {
+    const index = adjustableIndexes[0];
+    next[index] = {...next[index], amount: remainingExact};
+  } else if (currentSum > remainingExact) {
+    let delta = roundPaymentMoney(currentSum - remainingExact);
+    for (let k = adjustableIndexes.length - 1; k >= 0 && delta > 0; k -= 1) {
+      const index = adjustableIndexes[k];
+      const amount = safeNumber(next[index].amount);
+      const reduceBy = Math.min(amount, delta);
+      next[index] = {...next[index], amount: roundPaymentMoney(amount - reduceBy)};
+      delta = roundPaymentMoney(delta - reduceBy);
+    }
+  } else if (currentSum < remainingExact) {
+    const lastIndex = adjustableIndexes[adjustableIndexes.length - 1];
+    const bump = roundPaymentMoney(remainingExact - currentSum);
+    next[lastIndex] = {
+      ...next[lastIndex],
+      amount: roundPaymentMoney(safeNumber(next[lastIndex].amount) + bump),
+    };
+  }
+
+  return next.filter((p) => {
+    if (isCashPaymentType(p.payment_type) || isRemoteCapturedDraftPayment(p)) {
+      return true;
+    }
+    return safeNumber(p.amount) > 0;
+  });
+};
+
+/** Change due for display: Remaining when underpaid; Change only from cash over-tender. */
+export const getDraftPaymentChangeDisplay = (
+  payments: DraftPaymentLine[],
+  grandTotalDue: number,
+): {remaining: number; change: number; displayAmount: number; isRemaining: boolean} => {
+  const due = safeNumber(grandTotalDue);
+  const cashTendered = payments
+    .filter((p) => isCashPaymentType(p.payment_type))
+    .reduce((sum, p) => sum + safeNumber(p.amount), 0);
+  const exactTendered = payments
+    .filter((p) => !isCashPaymentType(p.payment_type))
+    .reduce((sum, p) => sum + safeNumber(p.amount), 0);
+
+  const exactApplied = Math.min(Math.max(0, exactTendered), due);
+  const remainingAfterExact = Math.max(0, due - exactApplied);
+  const cashApplied = Math.min(Math.max(0, cashTendered), remainingAfterExact);
+  const remaining = roundPaymentMoney(Math.max(0, due - exactApplied - cashApplied));
+  const change = roundPaymentMoney(Math.max(0, cashTendered - cashApplied));
+
+  if (remaining > 0) {
+    return {remaining, change: 0, displayAmount: -remaining, isRemaining: true};
+  }
+  return {remaining: 0, change, displayAmount: change, isRemaining: false};
 };
 
 const isCashPayment = (payment?: OrderPayment) => isCashPaymentType(payment?.payment_type);
@@ -294,25 +449,37 @@ export interface OrderPaymentTotals {
   totalReceivedWithChange: number
 }
 
-export const getOrderPaymentTotals = (order: Pick<OrderModel, 'payments'>): OrderPaymentTotals => {
+export type GetOrderPaymentTotalsOptions = {
+  /** Cap applied amounts so stale high `payable` cannot inflate collected. */
+  maxCollectable?: number;
+};
+
+export const getOrderPaymentTotals = (
+  order: Pick<OrderModel, 'payments'>,
+  options?: GetOrderPaymentTotalsOptions,
+): OrderPaymentTotals => {
   const payments = getOrderPayments(order);
+  let remaining =
+    options?.maxCollectable != null && Number.isFinite(options.maxCollectable)
+      ? Math.max(0, safeNumber(options.maxCollectable))
+      : null;
 
-  const nonCashBreakdown = payments.reduce((acc, payment) => {
+  let cashAmount = 0;
+  const nonCashBreakdown: Record<string, number> = {};
+
+  for (const payment of payments) {
+    let applied = getAppliedPaymentAmount(payment);
+    if (remaining != null) {
+      applied = Math.min(applied, remaining);
+      remaining = Math.max(0, remaining - applied);
+    }
     if (isCashPayment(payment)) {
-      return acc;
+      cashAmount += applied;
+    } else {
+      const label = payment?.payment_type?.name || 'Other';
+      nonCashBreakdown[label] = (nonCashBreakdown[label] ?? 0) + applied;
     }
-    const label = payment?.payment_type?.name || 'Other';
-    const applied = getAppliedPaymentAmount(payment);
-    acc[label] = (acc[label] ?? 0) + applied;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const cashAmount = payments.reduce((sum, payment) => {
-    if (!isCashPayment(payment)) {
-      return sum;
-    }
-    return sum + getAppliedPaymentAmount(payment);
-  }, 0);
+  }
 
   const nonCashAmount = Object.values(nonCashBreakdown).reduce((sum, amount) => sum + amount, 0);
   const totalReceivedWithChange = payments.reduce((sum, payment) => sum + getTenderedAmount(payment), 0);
@@ -377,6 +544,12 @@ export const getOrderSettlementFigures = (order: OrderModel): OrderSettlementFig
     tips,
     grandTotalDue,
   };
+};
+
+/** Payment totals capped to the order's current settlement due (incl. tips). */
+export const getOrderPaymentTotalsForOrder = (order: OrderModel): OrderPaymentTotals => {
+  const due = getOrderSettlementFigures(order).grandTotalDue;
+  return getOrderPaymentTotals(order, {maxCollectable: due});
 };
 
 /** Amount due at checkout: max payment payable when recorded, else reconstructed settlement. */

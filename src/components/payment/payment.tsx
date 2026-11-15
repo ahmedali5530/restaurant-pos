@@ -27,22 +27,46 @@ import {DiscountType} from "@/api/model/discount.ts";
 import {MenuItemType} from "@/api/model/cart_item.ts";
 import {OrderPayment} from "@/components/orders/order.payment.tsx";
 import {OrderTotals, CartTotals} from "@/components/orders/order.totals.tsx";
+import {QuickCheckout} from "@/components/payment/quick-checkout.tsx";
+import {isRemotePaymentType} from "@/components/orders/payment/remote";
 import {useDB} from "@/api/db/db.ts";
 import {Tables} from "@/api/db/tables.ts";
 import {Order, OrderStatus} from "@/api/model/order.ts";
+import type {PaymentType} from "@/api/model/payment_type.ts";
 import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {isCashPaymentType} from "@/lib/order.ts";
+import {printFinalBillAfterSettle} from "@/lib/order-print.ts";
+import {settlePaidOrder} from "@/lib/order-settle.ts";
+import {
+  resolvePaymentTypeTax,
+  resolveQuickCheckoutPayable,
+} from "@/lib/payment-type-tax.ts";
 import {useAtom} from "jotai";
-import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {
+  appPage,
+  appSettings,
+  appState,
+  closingEnforcementAtom,
+  skipFinalPrintOnPayment,
+} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
-import {faCancel, faCheck, faCreditCard, faTimes} from "@fortawesome/free-solid-svg-icons";
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import {faCancel, faCheck, faCreditCard} from "@fortawesome/free-solid-svg-icons";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
+import {nanoid} from "nanoid";
 
 type PaymentVariant = 'restaurant' | 'quick';
 
 interface PaymentProps {
   variant?: PaymentVariant
 }
+
+const formatPayableAmount = (value: number): string => {
+  const n = Math.round((Number(value) || 0) * 100) / 100;
+  return Number.isFinite(n) ? String(n) : "0";
+};
 
 export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const {t} = useTranslation(["payment", "toast", "menu"]);
@@ -52,6 +76,9 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const [skipFinalPrint] = useAtom(skipFinalPrintOnPayment);
+  const {protectAction} = useSecurity();
+  const {manager: integrationManager} = useIntegrationManager();
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const isQuick = variant === 'quick';
 
@@ -61,6 +88,9 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [order, setOrder] = useState<Order>();
   const [paymentOrder, setPaymentOrder] = useState<Order>();
+  const [selectedPaymentTypeId, setSelectedPaymentTypeId] = useState<string | null>(null);
+  const [quickAmount, setQuickAmount] = useState("0");
+  const quickAmountTouchedRef = useRef(false);
 
   const total = useMemo(() => {
     return state.cart.reduce((prev, item) => {
@@ -74,6 +104,59 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
   const cartItemCount = useMemo(() => {
     return state.cart.filter(item => !item.deleted_at).length;
+  }, [state.cart]);
+
+  const quickPaymentTypes = useMemo(() => {
+    return (settings.payment_types ?? []).filter((pt) => !pt?.deleted_at);
+  }, [settings.payment_types]);
+
+  const selectedPaymentType = useMemo(() => {
+    if (!selectedPaymentTypeId) {
+      return null;
+    }
+    return (
+      quickPaymentTypes.find((pt) => String(pt.id) === selectedPaymentTypeId) ?? null
+    );
+  }, [quickPaymentTypes, selectedPaymentTypeId]);
+
+  const quickPayable = useMemo(() => {
+    return resolveQuickCheckoutPayable(state.cart, selectedPaymentType);
+  }, [state.cart, selectedPaymentType]);
+
+  // Default to first payment type; keep selection if still in the list.
+  useEffect(() => {
+    if (!isQuick) {
+      return;
+    }
+    if (!quickPaymentTypes.length) {
+      setSelectedPaymentTypeId(null);
+      return;
+    }
+    const stillValid =
+      selectedPaymentTypeId &&
+      quickPaymentTypes.some((pt) => String(pt.id) === selectedPaymentTypeId);
+    if (!stillValid) {
+      setSelectedPaymentTypeId(String(quickPaymentTypes[0].id));
+      quickAmountTouchedRef.current = false;
+    }
+  }, [isQuick, quickPaymentTypes, selectedPaymentTypeId]);
+
+  // Sync amount to payable unless the cashier edited it.
+  useEffect(() => {
+    if (!isQuick) {
+      return;
+    }
+    if (!quickAmountTouchedRef.current) {
+      setQuickAmount(formatPayableAmount(quickPayable));
+    }
+  }, [isQuick, quickPayable]);
+
+  const selectQuickPaymentType = useCallback((paymentType: PaymentType) => {
+    setSelectedPaymentTypeId(String(paymentType.id));
+    quickAmountTouchedRef.current = false;
+    setQuickAmount(
+      formatPayableAmount(resolveQuickCheckoutPayable(state.cart, paymentType)),
+    );
   }, [state.cart]);
 
   // PosStore hydrate first; Surreal FETCH only for orders Dexie has never seen.
@@ -130,6 +213,20 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     return selected !== current;
   };
 
+  /** True when a customer was attached/changed on an existing check (no new lines required). */
+  const hasCustomerChange = () => {
+    if (state?.order?.id === 'new') return false;
+    const selected = state?.customer?.id != null
+      ? String(state.customer.id)
+      : (state?.customer?.name ? '__new__' : null);
+    if (!selected) return false;
+    const current = state?.order?.order?.customer
+      ? String((state.order.order.customer as any)?.id ?? state.order.order.customer)
+      : null;
+    if (selected === '__new__') return true;
+    return selected !== current;
+  };
+
   const isPersistedCartItem = (item: { id?: unknown; newOrOld?: MenuItemType }) =>
     item.newOrOld === MenuItemType.old || item.id?.toString().includes('order_item:');
 
@@ -153,9 +250,10 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     const isNewOrder = state?.order?.id === 'new';
     const hasNewItems = hasNewCartItems();
     const orderTypeChanged = hasOrderTypeChange();
+    const customerChanged = hasCustomerChange();
 
     // Existing order with only old lines and no meta changes: nothing to persist.
-    if (!isNewOrder && !hasNewItems && !orderTypeChanged) {
+    if (!isNewOrder && !hasNewItems && !orderTypeChanged && !customerChanged) {
       return state?.order?.order ?? { id: state?.order?.id };
     }
 
@@ -248,13 +346,16 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
       const newLines = toCreateItems();
 
       // Group kitchen print payload from stages embedded on dishes.
-      for (const item of state.cart) {
-        if (isPersistedCartItem(item) || item.isHold) continue;
-        for (const stage of kitchenStagesFromDish(item.dish, settings.kitchens) ?? []) {
-          if (stage.status !== 'pending') continue;
-          const list = kitchenItems[stage.kitchenId] ?? [];
-          list.push({ ...item, item: item.dish });
-          kitchenItems[stage.kitchenId] = list;
+      // Quick Order skips kitchen fire prints by default (counter settle only).
+      if (!isQuick) {
+        for (const item of state.cart) {
+          if (isPersistedCartItem(item) || item.isHold) continue;
+          for (const stage of kitchenStagesFromDish(item.dish, settings.kitchens) ?? []) {
+            if (stage.status !== 'pending') continue;
+            const list = kitchenItems[stage.kitchenId] ?? [];
+            list.push({ ...item, item: item.dish });
+            kitchenItems[stage.kitchenId] = list;
+          }
         }
       }
 
@@ -295,8 +396,7 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
       }
 
       if (isNewOrder) {
-        // Allocate invoice/auto_id inside createOrderWithItems so a failed create
-        // cannot burn reserved numbers.
+        // Create locally without numbers; when online, wait for gateway mint.
         const created = await posStore.createOrderWithItems({
           covers: parseInt(state?.persons) || 1,
           floorId: state?.floor?.id ? String(state.floor.id) : null,
@@ -310,7 +410,24 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
           items: newLines,
           createdAt: date.toISOString(),
         });
-        orderObj = [created.order];
+        let orderRow = created.order;
+        if (isEffectivelyConnected && orderRow?.id) {
+          const assigned = await terminalSyncService.awaitOrderNumbers(String(orderRow.id), {
+            timeoutMs: 15_000,
+          });
+          const refreshed = await posStore.getOrder(String(orderRow.id)).catch(() => null);
+          if (refreshed) orderRow = refreshed;
+          const hasInvoice =
+            (typeof orderRow?.invoice_display === 'string' && orderRow.invoice_display.trim().length > 0)
+            || (orderRow?.invoice_number != null && Number.isFinite(Number(orderRow.invoice_number)));
+          // Only warn when invoice is still missing — never after a successful mint.
+          if (!assigned && !hasInvoice) {
+            toast.message(t('invoiceAssigning', {
+              defaultValue: 'Order saved — invoice number still assigning…',
+            }));
+          }
+        }
+        orderObj = [orderRow];
       } else {
         const orderId = String(state?.order?.id);
         const seed = {
@@ -351,8 +468,10 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
         await posStore.recomputeOrderTaxes(String(normalizedOrder.id)).catch(() => undefined);
       }
 
-      // Drain outbox in the background — never hold the cashier on gateway RTT.
-      void terminalSyncService.synchronize().catch(() => undefined);
+      // New online creates already forced a push above; otherwise drain in background.
+      if (!(isNewOrder && isEffectivelyConnected)) {
+        void terminalSyncService.synchronize().catch(() => undefined);
+      }
       postOrderTracking({
         module: isNewOrder ? t("payment:tracking.createOrder") : t("payment:tracking.appendOrder"),
         page: page?.page,
@@ -391,34 +510,70 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
       const hasKitchenPrintItems = Object.keys(kitchenItems).length > 0;
       if (hasKitchenPrintItems && isEffectivelyConnected) {
-        // Printers lookup is a side effect — do not block return-to-floor.
-        void db.query(`SELECT *
-                                                from ${Tables.kitchens}
-                                                where deleted_at = none FETCH printers`).then(([kitchens]: any) => {
-          if (!kitchens?.length) return;
-          for (const k of kitchens) {
-            if (kitchenItems[k.id.toString()]) {
-              void dispatchPrint(db, 'kitchen', {
-                items: kitchenItems[k.id.toString()],
-                order: {
-                  ...normalizedOrder,
-                  order_type: state?.orderType ?? normalizedOrder.order_type,
-                  user: page?.user ?? normalizedOrder.user,
-                },
-                kitchenName: k.name,
-                table: state?.table,
-                isAddOn: !isNewOrder,
-              }, {
-                title: t("payment:print.kitchenTitle"),
-                copies: 1,
-                userId: page?.user?.id,
-                printers: k.printers
-              }).catch((error) => {
-                console.error('Kitchen print dispatch failed', error);
+        // Printers + invoice wait are side effects — do not block return-to-floor.
+        void (async () => {
+          let printOrder = normalizedOrder;
+          // First punch: prefer absolute gateway numbers on KOT.
+          // Primary create path already awaited numbers; only poll/push if still pending.
+          if (
+            isNewOrder
+            && normalizedOrder?.id
+            && normalizedOrder.invoice_number == null
+            && !(typeof normalizedOrder.invoice_display === 'string' && normalizedOrder.invoice_display.trim())
+          ) {
+            try {
+              await terminalSyncService.awaitOrderNumbers(String(normalizedOrder.id), {
+                timeoutMs: 8_000,
               });
+            } catch {
+              // Print with pending label if sync fails.
+            }
+            try {
+              const refreshed = await posStore.getOrder(String(normalizedOrder.id));
+              if (
+                refreshed &&
+                (refreshed.invoice_number != null ||
+                  (typeof refreshed.invoice_display === 'string' && refreshed.invoice_display.trim()))
+              ) {
+                printOrder = {
+                  ...normalizedOrder,
+                  invoice_number: refreshed.invoice_number,
+                  invoice_display: refreshed.invoice_display,
+                  invoice_prefix: refreshed.invoice_prefix,
+                  auto_id: refreshed.auto_id,
+                };
+              }
+            } catch {
+              // Keep pending label on the print payload.
             }
           }
-        }).catch(() => undefined);
+
+          const [kitchens]: any = await db.query(
+            `SELECT * from ${Tables.kitchens} where deleted_at = none FETCH printers`
+          ).catch(() => [undefined]);
+          if (!kitchens?.length) return;
+          for (const k of kitchens) {
+            if (!kitchenItems[k.id.toString()]) continue;
+            void dispatchPrint(db, 'kitchen', {
+              items: kitchenItems[k.id.toString()],
+              order: {
+                ...printOrder,
+                order_type: state?.orderType ?? printOrder.order_type,
+                user: page?.user ?? printOrder.user,
+              },
+              kitchenName: k.name,
+              table: state?.table,
+              isAddOn: !isNewOrder,
+            }, {
+              title: t("payment:print.kitchenTitle"),
+              copies: 1,
+              userId: page?.user?.id,
+              printers: k.printers,
+            }).catch((error) => {
+              console.error('Kitchen print dispatch failed', error);
+            });
+          }
+        })();
       }
 
       return orderObj;
@@ -555,6 +710,158 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
     }
   }
 
+  const completeQuickCheckout = async () => {
+    if (!isQuick || !selectedPaymentType) {
+      return;
+    }
+    if (state.cart.length === 0 || orderTakingBlocked || isLoading) {
+      return;
+    }
+    if (isRemotePaymentType(selectedPaymentType)) {
+      toast.message(t("payment:quickCheckout.remoteRequiresFull"));
+      await openPayment();
+      return;
+    }
+
+    const amount = Number(quickAmount);
+    const payable = quickPayable;
+    if (!Number.isFinite(amount) || amount <= 0 || amount + 0.0001 < payable) {
+      toast.error(t("payment:quickCheckout.amountTooLow"));
+      return;
+    }
+
+    await protectAction(
+      async () => {
+        if (createInFlightRef.current) {
+          return;
+        }
+        setLoading(true);
+        try {
+          const isExistingOrderOnly =
+            state?.order?.id !== "new" && !hasNewCartItems() && !hasOrderTypeChange();
+
+          let orderId: unknown = state?.order?.id;
+          if (!isExistingOrderOnly) {
+            const result = await createOrder();
+            if (!result || result === "busy") {
+              return;
+            }
+            orderId = result?.id;
+            if (Array.isArray(result) && result[0]?.id) {
+              orderId = result[0].id;
+            }
+            // createOrder clears loading in its finally — keep the strip busy through settle.
+            setLoading(true);
+            createInFlightRef.current = true;
+          } else {
+            createInFlightRef.current = true;
+          }
+
+          if (!orderId || orderId === "new") {
+            throw new Error(t("payment:errors.createOrder"));
+          }
+
+          const settledOrderId = String(orderId);
+          // Prefer hydrated order for settle seed / fiscal (same as full payment).
+          let settleOrder =
+            (await fetchOrderForPayment(settledOrderId)) ??
+            (state?.order?.order as Order | undefined);
+          if (!settleOrder?.id) {
+            settleOrder = {id: settledOrderId} as Order;
+          }
+
+          // Apply payment-type tax on the order before settle so fiscal/print see it.
+          const tax = resolvePaymentTypeTax(selectedPaymentType);
+          let keepTaxes = false;
+          if (tax?.id) {
+            await posStore
+              .saveOrderDraft(
+                settledOrderId,
+                {tax: String(tax.id)},
+                {order: settleOrder, items: settleOrder.items},
+              )
+              .catch(() => undefined);
+            await posStore.recomputeOrderTaxes(settledOrderId).catch(() => undefined);
+            settleOrder =
+              (await fetchOrderForPayment(settledOrderId)) ?? settleOrder;
+            keepTaxes = true;
+          }
+
+          const paymentId = `order_payment:${nanoid()}`;
+          const result = await settlePaidOrder({
+            db,
+            integrationManager,
+            order: settleOrder,
+            payments: [
+              {
+                id: paymentId,
+                paymentTypeId: String(selectedPaymentType.id),
+                paymentTypeName: selectedPaymentType.name,
+                amount,
+                payable,
+                comments: null,
+              },
+            ],
+            cashierId: page?.user?.id ? String(page.user.id) : null,
+            tax: tax ?? null,
+            taxId: tax?.id ? String(tax.id) : null,
+            taxAmount: Number(settleOrder.tax_amount || 0),
+            tip: 0,
+            tipAmount: 0,
+            tipType: DiscountType.Fixed,
+            serviceCharge: 0,
+            serviceChargeAmount: 0,
+            serviceChargeType: DiscountType.Fixed,
+            notes: "",
+            discountAmount: 0,
+            keepTaxes,
+            skipDraft: true,
+            trackingPage: page?.page,
+            trackingUser: page?.user,
+            total: payable,
+            t: (key, options) => t(`payment:${key}`, options as any),
+          });
+
+          if (!result.ok) {
+            return;
+          }
+
+          // Same post-settle print path as OrderPayment (respects toolbar skip).
+          void printFinalBillAfterSettle({
+            db,
+            orderId: settledOrderId,
+            skipFinalPrint,
+            hasCashTender: isCashPaymentType(selectedPaymentType),
+            userId: page?.user?.id ? String(page.user.id) : null,
+          }).catch(() => undefined);
+          quickAmountTouchedRef.current = false;
+          await reset();
+        } catch (error) {
+          if ((error as any)?.code === "ALREADY_CLOSED") {
+            toast.error(t("payment:receiving.alreadyClosed"));
+            await reset();
+            return;
+          }
+          if ((error as any)?.code === "NOT_OWNER") {
+            toast.error(t("payment:receiving.notOwner"));
+            return;
+          }
+          const message =
+            error instanceof Error ? error.message : t("payment:errors.createOrder");
+          console.error(error);
+          toast.error(message);
+        } finally {
+          setLoading(false);
+          createInFlightRef.current = false;
+        }
+      },
+      {
+        module: "orders.complete",
+        description: "Complete quick order",
+      },
+    );
+  };
+
   const cancel = async () => {
     setState(prev => ({
       ...prev,
@@ -585,18 +892,43 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
 
 
         <div className="p-3" data-testid="cart-payment-actions">
-          <div className="flex gap-3 mt-3">
-            {!isQuick && (
+          {isQuick ? (
+            <div className="mt-3">
+              <QuickCheckout
+                paymentTypes={quickPaymentTypes}
+                selectedPaymentTypeId={selectedPaymentTypeId}
+                onSelectPaymentType={selectQuickPaymentType}
+                amount={quickAmount}
+                onAmountChange={(value) => {
+                  quickAmountTouchedRef.current = true;
+                  setQuickAmount(value);
+                }}
+                payable={quickPayable}
+                disabled={state.cart.length === 0 || orderTakingBlocked}
+                isLoading={isLoading}
+                onComplete={() => {
+                  void completeQuickCheckout();
+                }}
+                onFullPayment={() => {
+                  void openPayment();
+                }}
+                onCancel={() => {
+                  void cancel();
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex gap-3 mt-3">
               <Button variant="success" className="flex-1" size="lg" icon={faCheck} onClick={createOrderAndBack}
                       disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
                       data-testid="cart-to-kitchen">{t("payment:actions.toKitchen")}</Button>
-            )}
-            <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
-                    disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
-                    data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
-            <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
-                    disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
-          </div>
+              <Button variant="warning" filled className="flex-1" size="lg" icon={faCreditCard} onClick={openPayment}
+                      disabled={isLoading || state.cart.length === 0 || orderTakingBlocked} isLoading={isLoading}
+                      data-testid="cart-pay-now">{t("payment:actions.payNow")}</Button>
+              <Button variant="danger" className="flex-1" size="lg" icon={faCancel} onClick={cancel}
+                      disabled={isLoading} data-testid="cart-cancel">{t("payment:actions.cancel")}</Button>
+            </div>
+          )}
         </div>
       </div>
       {paymentOpen && paymentOrder && (

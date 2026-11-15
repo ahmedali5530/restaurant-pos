@@ -1,7 +1,6 @@
 import {describe, expect, it} from "vitest";
 import {WRITE_TOOL_REGISTRY} from "@/lib/ai/tools/write-tool-entries.ts";
 import {listWriteToolDefinitions} from "@/lib/ai/tools/write-tool-registry.ts";
-import {selectAssistantToolsForPrompt} from "@/lib/ai/tools/select-assistant-tools.ts";
 
 const REGISTERED_CONFIG_IDS = new Set(WRITE_TOOL_REGISTRY.map(entry => entry.configId));
 
@@ -32,13 +31,15 @@ describe("assistant import-config parity", () => {
     }
   });
 
-  it("exposes get_kitchen_detail for manage kitchen prompts", () => {
-    const names = selectAssistantToolsForPrompt(
-      "show dishes on Grill kitchen",
-      ["admin.kitchens"],
-      {compact: true},
-    ).tools.map(t => t.function.name);
-    expect(names).toContain("get_kitchen_detail");
+  it("registers kitchen and manage linked detail tools", async () => {
+    const {AI_MANAGE_READ_TOOLS} = await import("@/lib/ai/tools/manage-tool-definitions.ts");
+    const {detectDomainsForPrompt} = await import("@/lib/ai/tools/select-tools.ts");
+    const names = new Set(AI_MANAGE_READ_TOOLS.map(t => t.function.name));
+    expect(names.has("get_kitchen_detail")).toBe(true);
+    expect(names.has("list_dish_modifiers")).toBe(true);
+    expect(names.has("get_discount_detail")).toBe(true);
+    expect(detectDomainsForPrompt("show dishes on Grill kitchen")).toContain("manage");
+    expect(detectDomainsForPrompt("show dish modifiers and discount targets")).toContain("manage");
   });
 
   it("every write tool in registry has a definition", () => {

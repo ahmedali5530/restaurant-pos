@@ -13,6 +13,7 @@ import {
   resolveDishByNumberOrName,
   type TFunc,
 } from "@/lib/data-import/helpers.ts";
+import {optionalIdField} from "@/lib/data-import/match-by-id.ts";
 import {
   assertCsvMatchValues,
   buildMatchConditions,
@@ -33,12 +34,29 @@ export function createDishIngredientsImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
+    {
+      name: "dish_id",
+      label: t("admin:columns.id", {defaultValue: "Dish ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["Dish ID", "Menu item ID"],
+      description: "Existing dish record id. Prefer over dish_number when numbers collide.",
+    },
     {
       name: "dish_number",
       label: t("admin:columns.dishNameOrNumber"),
       type: "string",
       required: true,
       aliases: ["Dish number", "Dish name", "Dish #", "Dish", "Menu item", "Menu item number"],
+    },
+    {
+      name: "item_id",
+      label: t("admin:columns.id", {defaultValue: "Item ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["Item ID", "Inventory item ID"],
+      description: "Existing inventory item id. Prefer over ingredient name/code when updating.",
     },
     {
       name: "ingredient",
@@ -132,28 +150,46 @@ export function createDishIngredientsImportConfig({
     },
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
+      const recipeIdRaw = String(v.id ?? "").trim();
+      const dishIdRaw = String(v.dish_id ?? "").trim();
+      const itemIdRaw = String(v.item_id ?? "").trim();
       const dishKey = String(v.dish_number ?? "").trim();
-      if (!dishKey) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
 
       const ingredientRef = v.ingredient as ResolvedReference | null;
       const ingredientKey = String(ingredientRef?.label ?? "").trim();
-      if (!ingredientKey) throw new Error(t("toast:admin.invalidIngredient"));
 
-      const dishResult = await resolveDishByNumberOrName(db, dishKey);
-      if (dishResult.status === "ambiguous") {
-        throw new Error(t("toast:admin.ambiguousDishName"));
+      let dish: {id: any; items?: any[]} | null = null;
+      if (dishIdRaw) {
+        const [rows] = await db.query(
+          `SELECT id, items FROM ${Tables.dishes} WHERE id = $id AND deleted_at = none LIMIT 1`,
+          {id: toRecordId(dishIdRaw)},
+        );
+        dish = rows?.[0] ?? null;
+        if (!dish) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+      } else {
+        if (!dishKey) throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+        const dishResult = await resolveDishByNumberOrName(db, dishKey);
+        if (dishResult.status === "ambiguous") {
+          throw new Error(t("toast:admin.ambiguousDishName"));
+        }
+        if (dishResult.status !== "found") {
+          throw new Error(t("toast:admin.invalidDishNameOrNumber"));
+        }
+        dish = dishResult.dish;
       }
-      if (dishResult.status !== "found") {
-        throw new Error(t("toast:admin.invalidDishNameOrNumber"));
-      }
-      const dish = dishResult.dish;
-      const dishId = toRecordId(dish.id);
+      const dishId = toRecordId(dish!.id);
 
-      const itemId = requireRefId(ingredientRef, t("toast:admin.invalidIngredient"));
+      let itemId: any;
+      if (itemIdRaw) {
+        itemId = toRecordId(itemIdRaw);
+      } else {
+        if (!ingredientKey) throw new Error(t("toast:admin.invalidIngredient"));
+        itemId = requireRefId(ingredientRef, t("toast:admin.invalidIngredient"));
+      }
 
       const [itemRows] = await db.query(
         `SELECT * FROM ${Tables.inventory_items} WHERE id = $id LIMIT 1`,
-        {id: itemId}
+        {id: itemId},
       );
       const inventoryItem = itemRows?.[0];
       if (!inventoryItem) throw new Error(t("toast:admin.invalidIngredient"));
@@ -200,13 +236,32 @@ export function createDishIngredientsImportConfig({
         throw new Error(
           err instanceof Error
             ? err.message
-            : t("toast:admin.invalidQuantity", {defaultValue: "Invalid quantity or UOM"})
+            : t("toast:admin.invalidQuantity", {defaultValue: "Invalid quantity or UOM"}),
         );
+      }
+
+      const recipeUpdate = {
+        quantity: recipePayload.quantity,
+        entered_quantity: recipePayload.entered_quantity,
+        entered_uom: recipePayload.entered_uom,
+        cost: recipePayload.cost,
+        is_price_locked: recipePayload.is_price_locked,
+      };
+
+      if (ctx.mode !== "create" && recipeIdRaw) {
+        const [rows] = await db.query(
+          `SELECT id FROM ${Tables.dishes_recipes} WHERE id = $id LIMIT 1`,
+          {id: toRecordId(recipeIdRaw)},
+        );
+        if (!rows?.length) throw new Error(notFoundMessage);
+        if (!db.merge) throw new Error("Database merge is unavailable");
+        await db.merge(rows[0].id, recipeUpdate);
+        return;
       }
 
       const [existingRecipeRows] = await db.query(
         `SELECT id FROM ${Tables.dishes_recipes} WHERE menu_item = $dish AND item = $item LIMIT 2`,
-        {dish: dishId, item: itemId}
+        {dish: dishId, item: itemId},
       );
       const existingRecipes = existingRecipeRows ?? [];
 
@@ -216,7 +271,7 @@ export function createDishIngredientsImportConfig({
         }
         if (!db.create) throw new Error("Database create is unavailable");
         const [recipeRecord] = await db.create(Tables.dishes_recipes, recipePayload);
-        const existingItems = Array.isArray(dish.items) ? dish.items : [];
+        const existingItems = Array.isArray(dish!.items) ? dish!.items : [];
         if (!db.merge) throw new Error("Database merge is unavailable");
         await db.merge(dishId, {
           items: [...existingItems.map((id: any) => toRecordId(id)), toRecordId(recipeRecord.id)],
@@ -225,12 +280,14 @@ export function createDishIngredientsImportConfig({
       }
 
       const rowData: Record<string, string> = {
-        dish_number: dishKey,
-        ingredient: ingredientKey,
+        dish_number: dishKey || dishIdRaw,
+        ingredient: ingredientKey || itemIdRaw,
       };
-      assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
-        t("common:csvImport.emptyMatchValue", {field})
-      );
+      if (!recipeIdRaw && !dishIdRaw && !itemIdRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, (field) =>
+          t("common:csvImport.emptyMatchValue", {field}),
+        );
+      }
 
       const conditions = buildMatchConditions(rowData, ctx.matchFields, (field, _value) => {
         if (field === "dish_number") {
@@ -252,13 +309,7 @@ export function createDishIngredientsImportConfig({
 
       if (matched.length === 1) {
         if (!db.merge) throw new Error("Database merge is unavailable");
-        await db.merge(matched[0].id, {
-          quantity: recipePayload.quantity,
-          entered_quantity: recipePayload.entered_quantity,
-          entered_uom: recipePayload.entered_uom,
-          cost: recipePayload.cost,
-          is_price_locked: recipePayload.is_price_locked,
-        });
+        await db.merge(matched[0].id, recipeUpdate);
         return;
       }
 
@@ -268,7 +319,7 @@ export function createDishIngredientsImportConfig({
 
       if (!db.create) throw new Error("Database create is unavailable");
       const [recipeRecord] = await db.create(Tables.dishes_recipes, recipePayload);
-      const existingItems = Array.isArray(dish.items) ? dish.items : [];
+      const existingItems = Array.isArray(dish!.items) ? dish!.items : [];
       if (!db.merge) throw new Error("Database merge is unavailable");
       await db.merge(dishId, {
         items: [...existingItems.map((id: any) => toRecordId(id)), toRecordId(recipeRecord.id)],

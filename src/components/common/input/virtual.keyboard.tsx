@@ -15,6 +15,8 @@ export type VirtualKeyboardPadProps = {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  /** Optional quick phrases (e.g. dish comments) inserted as full words. */
+  quickWords?: string[];
 };
 
 /**
@@ -29,6 +31,7 @@ export function VirtualKeyboardPad(props: VirtualKeyboardPadProps) {
     value,
     onChange,
     className,
+    quickWords = [],
   } = props;
 
   const [isCaps, setIsCaps] = useState(false);
@@ -125,6 +128,20 @@ export function VirtualKeyboardPad(props: VirtualKeyboardPadProps) {
   const keyboardLayout = type === "number" ? numericLayout : alphaLayout;
   const isNumeric = type === "number";
 
+  const appendText = useCallback(
+    (text: string) => {
+      const next = String(text ?? "");
+      if (!next) return;
+      if (!value) {
+        onChange(next);
+        return;
+      }
+      const needsSpace = !/\s$/.test(value) && !/^\s/.test(next);
+      onChange(value + (needsSpace ? " " : "") + next);
+    },
+    [onChange, value],
+  );
+
   const handleKeyPress = useCallback(
     (key: string) => {
       if (key === "*bs") {
@@ -158,6 +175,14 @@ export function VirtualKeyboardPad(props: VirtualKeyboardPadProps) {
     [integerOnly, isCaps, letters, onChange, type, value],
   );
 
+  const words = useMemo(
+    () =>
+      (Array.isArray(quickWords) ? quickWords : [])
+        .map((word) => String(word ?? "").trim())
+        .filter(Boolean),
+    [quickWords],
+  );
+
   return (
     <div className={cn(className)}>
       {showValue && (
@@ -171,6 +196,25 @@ export function VirtualKeyboardPad(props: VirtualKeyboardPadProps) {
             readOnly
             data-testid="virtual-keyboard-value"
           />
+        </div>
+      )}
+      {words.length > 0 && (
+        <div
+          className="mb-3 flex flex-wrap gap-2 justify-center"
+          data-testid="virtual-keyboard-quick-words"
+        >
+          {words.map((word) => (
+            <Button
+              key={word}
+              type="button"
+              flat
+              variant="primary"
+              className="!normal-case"
+              onClick={() => appendText(word)}
+            >
+              {word}
+            </Button>
+          ))}
         </div>
       )}
       <div className="flex gap-y-2 flex-col">
@@ -227,11 +271,12 @@ interface VirtualKeyboardProps {
   value: string;
   onChange: (value: string) => void;
   integerOnly?: boolean;
+  quickWords?: string[];
 }
 
 /** Bottom-sheet / modal keyboard (cart qty, form fields). */
 export function VirtualKeyboard(props: VirtualKeyboardProps) {
-  const {open, onClose, type, placeholder, value, onChange, integerOnly} = props;
+  const {open, onClose, type, placeholder, value, onChange, integerOnly, quickWords} = props;
   const isNumeric = type === "number";
 
   return (
@@ -252,6 +297,7 @@ export function VirtualKeyboard(props: VirtualKeyboardProps) {
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          quickWords={quickWords}
         />
       </div>
     </Modal>

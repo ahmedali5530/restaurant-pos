@@ -96,7 +96,7 @@ export const Sidebar = () => {
 
   const allSidebarItems = useMemo(() => [
     { title: t('sidebar.menu'), icon: <FontAwesomeIcon icon={faBars} size="lg"/>, link: MENU, role: 'menu' },
-    { title: t('sidebar.quickOrder'), icon: <FontAwesomeIcon icon={faBarcode} size="lg"/>, link: QUICK, role: 'menu' },
+    { title: t('sidebar.quickOrder'), icon: <FontAwesomeIcon icon={faBarcode} size="lg"/>, link: QUICK, role: 'menu', buildModule: 'quick' },
     { title: t('sidebar.orders'), icon: <FontAwesomeIcon icon={faList} size="lg"/>, link: ORDERS, role: 'orders' },
     { title: t('sidebar.summary'), icon: <FontAwesomeIcon icon={faClipboardList} size="lg"/>, link: SUMMARY, role: 'summary' },
     { title: t('sidebar.kitchen'), icon: <FontAwesomeIcon icon={faUtensils} size="lg"/>, link: KITCHEN, role: 'kitchen' },
@@ -123,7 +123,7 @@ export const Sidebar = () => {
     return moduleMatchCandidates(moduleId).some((candidate) => userRoles.includes(candidate));
   };
   const sidebarItems = useMemo(
-    () => filterByBuildModule(allSidebarItems, (item) => item.role),
+    () => filterByBuildModule(allSidebarItems, (item) => item.buildModule ?? item.role),
     [allSidebarItems],
   );
   const showSettings = isBuildModuleEnabled('settings');

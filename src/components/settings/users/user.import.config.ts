@@ -1,6 +1,10 @@
 import {Tables} from "@/api/db/tables.ts";
 import type {ImportConfiguration, ImportDbLike, ImportField, ImportRecord} from "@/lib/data-import/types.ts";
 import {type TFunc} from "@/lib/data-import/helpers.ts";
+import {
+  optionalIdField,
+  resolveUpdateMatchesByIdOrLegacy,
+} from "@/lib/data-import/match-by-id.ts";
 import {assertCsvMatchValues, buildMatchConditions, findCsvImportMatches} from "@/utils/csv-import.ts";
 import {StringRecordId} from "surrealdb";
 
@@ -31,6 +35,7 @@ async function resolveShift(db: ImportDbLike, shiftName: string) {
 
 export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
     {name: "first_name", label: t("admin:columns.firstName"), type: "string", required: true},
     {name: "last_name", label: t("admin:columns.lastName"), type: "string", required: true},
     {name: "login", label: t("admin:columns.login"), type: "string", required: true},
@@ -74,9 +79,22 @@ export function createUserImportConfig({db, t}: {db: ImportDbLike; t: TFunc}): I
       }
 
       const rowData = {login};
-      assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
-      const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({column: "login", value}));
-      const existing = ctx.mode === "create" ? [] : await findCsvImportMatches(db, Tables.users, conditions);
+      const idRaw = String(values.id ?? "").trim();
+      if (!idRaw) {
+        assertCsvMatchValues(rowData, ctx.matchFields, field => t("common:csvImport.emptyMatchValue", {field}));
+      }
+      const existing = await resolveUpdateMatchesByIdOrLegacy(db, Tables.users, {
+        mode: ctx.mode,
+        id: idRaw,
+        softDelete: true,
+        legacy: async () => {
+          const conditions = buildMatchConditions(rowData, ctx.matchFields, (_field, value) => ({
+            column: "login",
+            value,
+          }));
+          return findCsvImportMatches(db, Tables.users, conditions);
+        },
+      });
 
       const params = {
         first_name: firstName,

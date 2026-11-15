@@ -8,6 +8,7 @@ import type {
   ResolvedReference,
 } from "@/lib/data-import/types.ts";
 import {parseImportBool, requireRefId, type TFunc} from "@/lib/data-import/helpers.ts";
+import {optionalIdField} from "@/lib/data-import/match-by-id.ts";
 import {toRecordId} from "@/lib/utils.ts";
 
 /** Detect Size / crust choice groups that should require exactly one selection. */
@@ -27,6 +28,54 @@ function groupLabelFromRow(row: Record<string, any>): string {
   return String(raw ?? "");
 }
 
+async function resolveDishId(
+  db: ImportDbLike,
+  t: TFunc,
+  dishIdRaw: string,
+  dishNumber: string,
+): Promise<any> {
+  if (dishIdRaw) {
+    const [rows] = await db.query(
+      `SELECT id FROM ${Tables.dishes} WHERE id = $id AND deleted_at = none LIMIT 1`,
+      {id: toRecordId(dishIdRaw)},
+    );
+    if (!rows?.length) throw new Error(t("toast:admin.invalidDishNumber"));
+    return toRecordId(rows[0].id);
+  }
+  if (!dishNumber) throw new Error(t("toast:admin.invalidDishNumber"));
+  const [dishes] = await db.query(
+    `SELECT id FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none`,
+    {number: dishNumber},
+  );
+  if (!dishes?.length) throw new Error(t("toast:admin.invalidDishNumber"));
+  if (dishes.length > 1) {
+    throw new Error(
+      t("common:csvImport.ambiguousMatch", {
+        key: `number "${dishNumber}"`,
+        defaultValue: `Multiple records match number "${dishNumber}". Pass dish_id to update the correct record.`,
+      }),
+    );
+  }
+  return toRecordId(dishes[0].id);
+}
+
+async function resolveGroupId(
+  db: ImportDbLike,
+  t: TFunc,
+  groupIdRaw: string,
+  modifierGroup: ResolvedReference | undefined,
+): Promise<any> {
+  if (groupIdRaw) {
+    const [rows] = await db.query(
+      `SELECT id FROM ${Tables.modifier_groups} WHERE id = $id AND deleted_at = none LIMIT 1`,
+      {id: toRecordId(groupIdRaw)},
+    );
+    if (!rows?.length) throw new Error(t("toast:admin.invalidModifierGroup"));
+    return toRecordId(rows[0].id);
+  }
+  return requireRefId(modifierGroup, t("toast:admin.invalidModifierGroup"));
+}
+
 export function createDishModifiersImportConfig({
   db,
   t,
@@ -35,12 +84,29 @@ export function createDishModifiersImportConfig({
   t: TFunc;
 }): ImportConfiguration {
   const fields: ImportField[] = [
+    optionalIdField(t),
+    {
+      name: "dish_id",
+      label: t("admin:columns.id", {defaultValue: "Dish ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["Dish ID", "Menu item ID"],
+      description: "Existing dish record id. Prefer over dish_number when numbers collide.",
+    },
     {
       name: "dish_number",
       label: `${t("admin:buttons.dish")} ${t("admin:columns.number")}`,
       type: "string",
       required: true,
       aliases: ["Dish number", "Dish #", "Menu item number"],
+    },
+    {
+      name: "modifier_group_id",
+      label: t("admin:columns.id", {defaultValue: "Modifier group ID"}),
+      type: "string",
+      optional: true,
+      aliases: ["Modifier group ID", "Group ID"],
+      description: "Existing modifier group record id. Prefer over group name when updating.",
     },
     {
       name: "modifier_group",
@@ -124,20 +190,10 @@ export function createDishModifiersImportConfig({
     ].join(" "),
     onImportRow: async (record: ImportRecord, ctx: ImportRowContext) => {
       const v = record.values;
+      const edgeIdRaw = String(v.id ?? "").trim();
+      const dishIdRaw = String(v.dish_id ?? "").trim();
       const dishNumber = String(v.dish_number ?? "").trim();
-      if (!dishNumber) throw new Error(t("toast:admin.invalidDishNumber"));
-
-      const [dishes] = await db.query(
-        `SELECT id FROM ${Tables.dishes} WHERE number = $number AND deleted_at = none`,
-        {number: dishNumber}
-      );
-      if (!dishes?.length) throw new Error(t("toast:admin.invalidDishNumber"));
-      const dishId = toRecordId(dishes[0].id);
-
-      const groupId = requireRefId(
-        v.modifier_group as ResolvedReference,
-        t("toast:admin.invalidModifierGroup")
-      );
+      const groupIdRaw = String(v.modifier_group_id ?? "").trim();
 
       const priority = Number(v.priority);
       if (!Number.isFinite(priority)) {
@@ -158,9 +214,27 @@ export function createDishModifiersImportConfig({
         priority,
       };
 
+      if (ctx.mode !== "create" && edgeIdRaw) {
+        const [edges] = await db.query(
+          `SELECT id FROM ${Tables.dish_modifier_groups} WHERE id = $id LIMIT 1`,
+          {id: toRecordId(edgeIdRaw)},
+        );
+        if (!edges?.length) throw new Error(notFoundMessage);
+        await db.query(`UPDATE ${edges[0].id} MERGE $payload`, {payload: edgePayload});
+        return;
+      }
+
+      const dishId = await resolveDishId(db, t, dishIdRaw, dishNumber);
+      const groupId = await resolveGroupId(
+        db,
+        t,
+        groupIdRaw,
+        v.modifier_group as ResolvedReference | undefined,
+      );
+
       const [existingEdgeRows] = await db.query(
         `SELECT id FROM ${Tables.dish_modifier_groups} WHERE in = $dish AND out = $group LIMIT 2`,
-        {dish: dishId, group: groupId}
+        {dish: dishId, group: groupId},
       );
       const existingEdges = existingEdgeRows ?? [];
 
@@ -179,7 +253,7 @@ export function createDishModifiersImportConfig({
             dish: dishId,
             group: groupId,
             ...edgePayload,
-          }
+          },
         );
         return;
       }
@@ -191,7 +265,7 @@ export function createDishModifiersImportConfig({
       if (existingEdges.length === 1) {
         await db.query(
           `UPDATE ${existingEdges[0].id} MERGE $payload`,
-          {payload: edgePayload}
+          {payload: edgePayload},
         );
         return;
       }
@@ -211,7 +285,7 @@ export function createDishModifiersImportConfig({
           dish: dishId,
           group: groupId,
           ...edgePayload,
-        }
+        },
       );
     },
   };

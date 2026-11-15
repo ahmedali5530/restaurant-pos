@@ -249,7 +249,9 @@
     "branchesHelp": "Laissez vide pour inclure tous les établissements auxquels vous avez accès.",
     "branchView": "Vue",
     "branchViewCombined": "Combinée",
-    "branchViewByBranch": "Par établissement"
+    "branchViewByBranch": "Par établissement",
+    "taxPercent": "Pourcentage de taxe",
+    "paymentTypes": "Types de paiement"
   },
   "datePresets": {
     "today": "Aujourd'hui",
@@ -720,7 +722,10 @@
     "alreadyCompleted": "Ce fournisseur a déjà une soumission fiscale réussie pour la commande.",
     "retryInvoicePending": "Le numéro de facture n'est pas encore prêt — réessayez après la synchronisation.",
     "retryOrderNotFound": "Commande introuvable pour la nouvelle tentative fiscale.",
-    "retryProviderDisabled": "Le fournisseur fiscal est désactivé."
+    "retryProviderDisabled": "Le fournisseur fiscal est désactivé.",
+    "byTax": "Par taxe",
+    "byPaymentType": "Par type de paiement",
+    "noTax": "Sans taxe"
   },
   "empty": {
     "noDiscountTypes": "Aucun type de remise pour la période sélectionnée.",

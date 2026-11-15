@@ -168,7 +168,8 @@
     "smartImportIngredients": "ИИ-импорт ингредиентов",
     "smartImportModifierGroups": "ИИ-импорт групп модификаторов",
     "smartImportMenuStructure": "ИИ-импорт структуры меню",
-    "syncDishCosts": "Обновить себестоимость из товаров"
+    "syncDishCosts": "Обновить себестоимость из товаров",
+    "menuTree": "Дерево меню"
   },
   "delete": {
     "dish": "Удалить позицию {{name}}",
@@ -432,7 +433,7 @@
     "printModeText": "Текст (ESC/POS)",
     "printModeRaster": "Растр (изображение)",
     "paperWidthMm": "Ширина бумаги",
-    "paperWidthMmHint": "Physical paper size used for raster and image centering (58mm = 384 dots, 80mm = 576 dots).",
+    "paperWidthMmHint": "Физическая ширина бумаги для растра и центрирования изображений (58мм = 384 точки, 72мм = 512 точек, 80мм = 576 точек).",
     "paperWidth58": "58 мм",
     "paperWidth80": "80 мм",
     "rasterThreshold": "Порог растра",
@@ -465,7 +466,14 @@
     "modifierOptionAvailability": "Доступность модификатора (это блюдо)",
     "modifierOptionAvailable": "Доступно для этого блюда",
     "modifierOptionAvailableHint": "Оставьте по умолчанию для глобальной доступности. Отключите или задайте лимит только для этого блюда.",
-    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)"
+    "modifierOptionSaleLimit": "Лимит продаж (это блюдо)",
+    "showOrderType": "Показывать тип заказа",
+    "showCustomer": "Показывать клиента",
+    "showTableName": "Показывать название стола",
+    "paperWidth72": "72 мм",
+    "showItemTotal": "Показать итог позиции",
+    "accumulateSameItems": "Суммировать одинаковые позиции",
+    "accumulateSameItemsHint": "Объединять одинаковые блюда (те же модификаторы и заметки) в одну строку с суммарным количеством."
   },
   "dishView": {
     "detailsTitle": "Детали блюда",
@@ -624,6 +632,7 @@
       "reports.order_fiscal": "Фискализация заказов",
       "reports.expense": "Расходы",
       "reports.activity": "Активность",
+      "reports.changefeed": "Changefeed таблиц",
       "reports.product_mix_weekly": "Ассортимент за неделю",
       "reports.product_mix_summary": "Сводка по ассортименту",
       "reports.products_hourly": "Товары по часам",
@@ -831,7 +840,11 @@
       "reports": "Отчёты",
       "inventory": "Склад",
       "settings": "Настройки",
-      "admin.catalog_publish": "Публикация каталога"
+      "admin.catalog_publish": "Публикация каталога",
+      "settings.backup": "Резервная копия настроек",
+      "settings.restore": "Восстановление настроек",
+      "settings.database": "Резервная копия базы",
+      "settings.customer_display": "Экран клиента"
     }
   },
   "discountEngine": {
@@ -1168,5 +1181,45 @@
     "empty": "В этой категории нет блюд",
     "available": "Доступно",
     "unavailable": "Нет в наличии"
+  },
+  "menuTree": {
+    "title": "Дерево меню",
+    "search": "Поиск",
+    "searchPlaceholder": "Фильтр по названию…",
+    "expandAll": "Развернуть всё",
+    "collapseAll": "Свернуть всё",
+    "expand": "Развернуть",
+    "collapse": "Свернуть",
+    "loading": "Загрузка дерева меню…",
+    "empty": "Нет элементов меню для отображения.",
+    "uncategorized": "Без категории",
+    "required": "Обязательно",
+    "hidden": "Скрыто",
+    "hiddenFromMenu": "Скрыто в меню",
+    "kind": {
+      "category": "Категория",
+      "dish": "Блюдо",
+      "modifierGroup": "Группа модификаторов",
+      "modifier": "Модификатор",
+      "uncategorized": "Без категории"
+    },
+    "zoomIn": "Увеличить",
+    "zoomOut": "Уменьшить",
+    "fit": "По размеру экрана",
+    "panHint": "Перетаскивайте · колесо для масштаба"
+  },
+  "printers": {
+    "testPrint": "Тестовая печать",
+    "testPrintAccess": "Тестовая печать {{name}}",
+    "testPrintOk": "Напечатано. Сервер отправил тестовый чек на {{name}}{{address}}.",
+    "testPrintError": "Ошибка сервера печати для {{name}}{{address}}: {{error}}",
+    "testPrintUnknownError": "Неизвестная ошибка сервера печати",
+    "slip": {
+      "title": "ТЕСТОВАЯ ПЕЧАТЬ",
+      "name": "Имя",
+      "type": "Тип",
+      "address": "Адрес",
+      "ok": "Если вы можете это прочитать, принтер подключен."
+    }
   }
 }

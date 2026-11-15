@@ -8,7 +8,11 @@ interface TableLockProviderProps {
   children: ReactNode;
 }
 
-const STALE_LOCK_THRESHOLD_MS = 15_000;
+/**
+ * Heartbeats are published about once a minute. This stays above that gap so a
+ * live table is not stolen, and a crashed terminal still gives the lock up.
+ */
+const STALE_LOCK_MS = 180_000;
 const CHECK_INTERVAL_MS = 30_000;
 
 /**
@@ -45,12 +49,12 @@ export const TableLockProvider: React.FC<TableLockProviderProps> = ({children}) 
       inFlightRef.current = true;
       try {
         const locks = await posStore.getTableLocks();
-        const staleThreshold = Date.now() - STALE_LOCK_THRESHOLD_MS;
+        const staleBefore = Date.now() - STALE_LOCK_MS;
         const stale = locks.filter((lock) => {
           if (!lock.is_locked) return false;
           if (!lock.locked_at) return true;
           const lockedAt = toJsDate(lock.locked_at as any).getTime();
-          return !Number.isFinite(lockedAt) || lockedAt < staleThreshold;
+          return !Number.isFinite(lockedAt) || lockedAt < staleBefore;
         });
 
         for (const lock of stale) {

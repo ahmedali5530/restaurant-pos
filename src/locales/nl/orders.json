@@ -13,7 +13,13 @@
       "address": "Adr.",
       "secondaryAddress": "Tweede adr.",
       "points": "Punten"
-    }
+    },
+    "save": "Opslaan",
+    "remove": "Verwijderen van bestelling",
+    "saved": "Klant opgeslagen",
+    "saveFailed": "Klant kon niet worden opgeslagen",
+    "attachFailed": "Klant kon niet aan deze bestelling worden gekoppeld",
+    "removeFailed": "Klant kon niet van deze bestelling worden verwijderd"
   },
   "filters": {
     "status": "Selecteer bestelstatus",

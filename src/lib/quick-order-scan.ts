@@ -165,6 +165,94 @@ export function findDishByScanCode(
   });
 }
 
+export type QuickOrderDishSuggestion = {
+  dish: Dish;
+  /** Lower is better (exact barcode/number first). */
+  rank: number;
+  matchedOn: "barcode" | "number" | "name";
+};
+
+const dishNumberText = (dish: Dish): string => {
+  return typeof dish.number === "string"
+    ? dish.number.trim()
+    : String(dish.number ?? "").trim();
+};
+
+/**
+ * Typeahead for Quick Order scan field: name, number (PLU), or barcode (primary/aliases).
+ * Skips qty suffixes (`CODE*6`, `*6`) — those stay on the Enter/scan path.
+ */
+export function searchQuickOrderDishes(
+  dishes: Dish[] | undefined | null,
+  rawQuery: string,
+  limit = 10,
+): QuickOrderDishSuggestion[] {
+  const query = normalizeScanCode(rawQuery);
+  if (!query || !dishes?.length || query.includes("*")) {
+    return [];
+  }
+
+  const q = query.toLowerCase();
+  const scored: QuickOrderDishSuggestion[] = [];
+
+  for (const dish of dishes) {
+    if (dish.deleted_at) {
+      continue;
+    }
+    const number = dishNumberText(dish);
+    const numberLower = number.toLowerCase();
+    const name = String(dish.name ?? "").trim();
+    const nameLower = name.toLowerCase();
+    const barcodes = dishBarcodeList(dish);
+    const barcodeExact = barcodes.find((code) => code === query);
+    const barcodePrefix = barcodes.find((code) => code.toLowerCase().startsWith(q));
+    const barcodeIncludes = barcodes.find((code) => code.toLowerCase().includes(q));
+
+    let rank: number | null = null;
+    let matchedOn: QuickOrderDishSuggestion["matchedOn"] = "name";
+
+    if (barcodeExact) {
+      rank = 0;
+      matchedOn = "barcode";
+    } else if (number && number === query) {
+      rank = 1;
+      matchedOn = "number";
+    } else if (numberLower && numberLower.startsWith(q)) {
+      rank = 2;
+      matchedOn = "number";
+    } else if (barcodePrefix) {
+      rank = 3;
+      matchedOn = "barcode";
+    } else if (nameLower && nameLower.startsWith(q)) {
+      rank = 4;
+      matchedOn = "name";
+    } else if (nameLower && nameLower.includes(q)) {
+      rank = 5;
+      matchedOn = "name";
+    } else if (barcodeIncludes) {
+      rank = 6;
+      matchedOn = "barcode";
+    } else if (numberLower && numberLower.includes(q)) {
+      rank = 7;
+      matchedOn = "number";
+    }
+
+    if (rank == null) {
+      continue;
+    }
+    scored.push({dish, rank, matchedOn});
+  }
+
+  scored.sort((a, b) => {
+    if (a.rank !== b.rank) {
+      return a.rank - b.rank;
+    }
+    return String(a.dish.name ?? "").localeCompare(String(b.dish.name ?? ""));
+  });
+
+  return scored.slice(0, Math.max(1, limit));
+}
+
 export type ParsedScanQty = {
   /** Null when using last-added dish (`*N`) or on parse error. */
   code: string | null;

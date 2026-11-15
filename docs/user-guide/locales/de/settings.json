@@ -225,19 +225,6 @@
       "caption": "Bildschirmtastatur."
     },
     {
-      "id": "table-selection",
-      "title": "Tischauswahl",
-      "intro": "Wenn aktiv, wählen Mitarbeitende vor der Bestellung einen Tisch. Wenn deaktiviert, entfällt der Raum­plan auf diesem Terminal.",
-      "steps": [
-        "Karte öffnen.",
-        "Mit der Schaltfläche ein- oder ausschalten.",
-        "Gilt sofort."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Tischauswahl ein/aus.",
-      "note": "Dokumentations­aufnahmen erfordern aktivierte Tischauswahl."
-    },
-    {
       "id": "inventory",
       "title": "Lagereinstellungen",
       "intro": "Globales Lagerverhalten: Ledger, Chargen/Ablauf, Kalkulation, Einkauf und Standardwerte.",

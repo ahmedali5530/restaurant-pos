@@ -68,3 +68,15 @@ export const qualifyRecordId = (value: unknown, table: string): string => {
   if (!normalized) return "";
   return normalized.includes(":") ? normalized : `${table}:${normalized}`;
 };
+
+/**
+ * Floor table display label — matches POS UI (`name` + `number`, e.g. "T5" / "Patio12").
+ */
+export const formatFloorTableLabel = (
+  table?: {name?: string | null; number?: string | number | null} | null,
+): string => {
+  if (!table) return "";
+  const name = table.name != null ? String(table.name) : "";
+  const number = table.number != null && table.number !== "" ? String(table.number) : "";
+  return `${name}${number}`.trim();
+};

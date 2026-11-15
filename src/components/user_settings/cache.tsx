@@ -2,24 +2,58 @@ import {useState} from "react";
 import {useSetAtom} from "jotai";
 import {toast} from "sonner";
 import {useDB} from "@/api/db/db.ts";
-import {Tables} from "@/api/db/tables.ts";
 import {appSettings} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
+import {DeleteConfirm} from "@/components/common/table/delete.confirm.tsx";
 import {useTranslation} from 'react-i18next';
-import {del, set} from 'idb-keyval';
 import {useDatabase} from "@/hooks/useDatabase.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
 import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {refreshCatalogIntoSettings} from "@/providers/pos-store.provider.tsx";
+import {refreshDocumentsIdbCache} from "@/lib/documents-cache.ts";
+import {clearDishImageCache} from "@/components/menu/dish.tsx";
 
 export const CacheSettings = () => {
   const db = useDB();
   const setSettings = useSetAtom(appSettings);
   const [busy, setBusy] = useState<'catalog' | 'full' | null>(null);
+  const [catalogConfirmOpen, setCatalogConfirmOpen] = useState(false);
+  const [fullConfirmOpen, setFullConfirmOpen] = useState(false);
+  const [fullConfirmMessage, setFullConfirmMessage] = useState('');
   const { t } = useTranslation('settings');
   const { isEffectivelyConnected } = useDatabase();
 
   const canAct = isEffectivelyConnected && busy === null;
+
+  const requestCatalogRefresh = () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+    setCatalogConfirmOpen(true);
+  };
+
+  const requestFullReload = async () => {
+    if (!isEffectivelyConnected) {
+      toast.error(t('cache.offline'));
+      return;
+    }
+
+    try {
+      const pending = await posStore.getPendingOutbox();
+      const pendingCount = pending.length;
+      setFullConfirmMessage(
+        pendingCount > 0
+          ? t('cache.confirmWithPending', { count: pendingCount })
+          : t('cache.confirm'),
+      );
+      setFullConfirmOpen(true);
+    } catch (error) {
+      console.error("Failed to check pending outbox:", error);
+      setFullConfirmMessage(t('cache.confirm'));
+      setFullConfirmOpen(true);
+    }
+  };
 
   const refreshCatalog = async () => {
     if (!isEffectivelyConnected) {
@@ -28,12 +62,15 @@ export const CacheSettings = () => {
     }
 
     try {
-      const confirmed = window.confirm(t('cache.confirmCatalog'));
-      if (!confirmed) return;
-
       setBusy('catalog');
       await terminalSyncService.rehydrateCatalogFromServer();
       await refreshCatalogIntoSettings(setSettings);
+      try {
+        await refreshDocumentsIdbCache(db);
+        clearDishImageCache();
+      } catch (docError) {
+        console.warn('Documents cache refresh skipped', docError);
+      }
       toast.success(t('cache.catalogReloaded'));
     } catch (error) {
       console.error("Failed to refresh catalog:", error);
@@ -52,27 +89,14 @@ export const CacheSettings = () => {
     }
 
     try {
-      const pending = await posStore.getPendingOutbox();
-      const pendingCount = pending.length;
-      const confirmed = window.confirm(
-        pendingCount > 0
-          ? t('cache.confirmWithPending', { count: pendingCount })
-          : t('cache.confirm'),
-      );
-      if (!confirmed) return;
-
       setBusy('full');
       await terminalSyncService.rehydrateFromServer();
       await refreshCatalogIntoSettings(setSettings);
 
       // Documents live outside PosStore (idb-keyval); best-effort refresh.
       try {
-        const documentsResult = await db.query(`SELECT id, content from ${Tables.documents}`);
-        await del(Tables.documents);
-        await set(Tables.documents, (documentsResult?.[0] ?? []).map((item: { id: { toString: () => string } }) => ({
-          ...item,
-          id: item.id.toString(),
-        })));
+        await refreshDocumentsIdbCache(db);
+        clearDishImageCache();
       } catch (docError) {
         console.warn('Documents cache refresh skipped', docError);
       }
@@ -99,7 +123,7 @@ export const CacheSettings = () => {
               variant="primary"
               size="lg"
               filled
-              onClick={refreshCatalog}
+              onClick={requestCatalogRefresh}
               isLoading={busy === 'catalog'}
               disabled={!canAct}
               data-testid="cache-refresh-catalog"
@@ -110,7 +134,7 @@ export const CacheSettings = () => {
               variant="danger"
               size="lg"
               filled
-              onClick={reloadCache}
+              onClick={() => void requestFullReload()}
               isLoading={busy === 'full'}
               disabled={!canAct}
               data-testid="cache-reload-full"
@@ -125,6 +149,22 @@ export const CacheSettings = () => {
           )}
         </div>
       </div>
+
+      <DeleteConfirm
+        open={catalogConfirmOpen}
+        onOpenChange={setCatalogConfirmOpen}
+        title={t('cache.refreshCatalog')}
+        message={t('cache.confirmCatalog')}
+        onConfirm={refreshCatalog}
+      />
+
+      <DeleteConfirm
+        open={fullConfirmOpen}
+        onOpenChange={setFullConfirmOpen}
+        title={t('cache.reload')}
+        message={fullConfirmMessage}
+        onConfirm={reloadCache}
+      />
     </div>
   );
 };

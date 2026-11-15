@@ -225,19 +225,6 @@
       "caption": "Clavier virtuel."
     },
     {
-      "id": "table-selection",
-      "title": "Sélection de table",
-      "intro": "Si activée, le personnel choisit une table avant de commander. Si désactivée, l’étape plan de salle est masquée sur ce terminal.",
-      "steps": [
-        "Ouvrez la carte.",
-        "Activez ou désactivez.",
-        "Prend effet immédiatement."
-      ],
-      "image": "settings-table-selection.png",
-      "caption": "Sélection de table.",
-      "note": "La capture doc nécessite la sélection de table activée."
-    },
-    {
       "id": "inventory",
       "title": "Paramètres inventaire",
       "intro": "Comportement stock global : ledger, lots/péremption, coût, achats.",

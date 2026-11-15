@@ -9,6 +9,7 @@ const {
   withRetry,
   compactChangeBatch,
   nextCursorVersionstamp,
+  compareVersionstamp,
   entriesAfterCursor,
   versionstampForStorage,
   normalizeShowChangesResult,
@@ -17,6 +18,7 @@ const {
   tableNameFromRecordId,
   jsonSafe,
   sinceLiteral,
+  retentionProbeSinceLiteral,
 } = require('./sync-helpers');
 
 function isRecordIdString(value) {
@@ -129,6 +131,8 @@ class SyncManager {
     this.tableState = new Map();
     this.writeChain = Promise.resolve();
     this.catalogSyncPromise = null;
+    /** Max versionstamp observed from any table's SHOW CHANGES (in-retention). */
+    this.feedHighWater = null;
     this.catalogDownload = config.downloadEnabled
       ? new CatalogDownloadManager(config, logger, () => ({
           source: this.source,
@@ -381,6 +385,8 @@ class SyncManager {
         lastError: null,
         lastEventAt: null,
         lastSynced: null,
+        /** ISO time of last durable cursor write (from sync_cloud_cursor). */
+        cursorUpdatedAt: null,
         blockedUntil: 0,
         backoffMs: 1000,
       });
@@ -390,6 +396,7 @@ class SyncManager {
 
   async loadTableStates() {
     this.tableState.clear();
+    this.feedHighWater = null;
     for (const tableName of this.config.includeTables) {
       const state = this.ensureTableState(tableName);
       try {
@@ -397,6 +404,8 @@ class SyncManager {
         if (row && typeof row === 'object') {
           state.versionstamp = row.versionstamp != null ? row.versionstamp : null;
           state.backfillDone = Boolean(row.backfill_done);
+          state.cursorUpdatedAt = row.updated_at != null ? String(row.updated_at) : null;
+          this.noteFeedHighWater(state.versionstamp);
         }
       } catch (error) {
         this.logger.warn('Failed to load sync cursor', {
@@ -412,11 +421,13 @@ class SyncManager {
     if (patch.versionstamp !== undefined) state.versionstamp = patch.versionstamp;
     if (patch.backfillDone !== undefined) state.backfillDone = patch.backfillDone;
 
+    const updatedAt = new Date().toISOString();
+    state.cursorUpdatedAt = updatedAt;
     const payload = {
       table: tableName,
       versionstamp: versionstampForStorage(state.versionstamp),
       backfill_done: state.backfillDone,
-      updated_at: new Date().toISOString(),
+      updated_at: updatedAt,
     };
 
     await withRetry(
@@ -601,20 +612,202 @@ class SyncManager {
   }
 
   async readFeedWatermark(tableName) {
+    // Use this table's own feed tip only. Borrowing process-wide feedHighWater
+    // from busier tables (e.g. order_print) parked quieter tables' cursors
+    // ahead of their tip → empty SHOW CHANGES → re-backfill forever.
+    let stamp = null;
     try {
-      // SINCE 0 returns from the start of the feed; take the last stamp as watermark.
-      const result = await this.source.query(
-        `SHOW CHANGES FOR TABLE ${tableName} SINCE 0 LIMIT 1000;`
-      );
-      const entries = normalizeShowChangesResult(result);
-      if (!entries.length) return 0;
-      return entries[entries.length - 1].versionstamp ?? 0;
+      stamp = await this.readTableFeedTip(tableName);
     } catch (error) {
-      this.logger.warn('Could not read feed watermark; starting from 0 after backfill', {
+      this.logger.warn('Could not read feed tip for watermark; trying SINCE 0', {
         table: tableName,
         error: error.message || String(error),
       });
-      return 0;
+    }
+    if (stamp == null) {
+      try {
+        const result = await this.source.query(
+          `SHOW CHANGES FOR TABLE ${tableName} SINCE 0 LIMIT 1000;`
+        );
+        const entries = normalizeShowChangesResult(result);
+        if (entries.length) {
+          stamp = entries[entries.length - 1].versionstamp ?? null;
+        }
+      } catch (error) {
+        this.logger.warn('Could not read feed watermark; starting from 0 after backfill', {
+          table: tableName,
+          error: error.message || String(error),
+        });
+      }
+    }
+    if (stamp != null) this.noteFeedHighWater(stamp);
+    return stamp != null ? stamp : 0;
+  }
+
+  /**
+   * Newest versionstamp on this table's changefeed. Prefer a short recent
+   * window (true tip with few pages); fall back to longer lookbacks when quiet.
+   */
+  async readTableFeedTip(tableName) {
+    const lookbacks = [
+      60 * 60 * 1000,
+      24 * 60 * 60 * 1000,
+      7 * 24 * 60 * 60 * 1000,
+    ];
+    let best = null;
+    for (const lookbackMs of lookbacks) {
+      const walk = await this.walkTableFeed(tableName, {
+        lookbackMs,
+        pageSize: 1000,
+        maxPages: 100,
+      });
+      if (walk.tip != null) {
+        best = nextCursorVersionstamp(best, walk.tip);
+        // A non-empty recent window already ends at the live tip.
+        if (lookbackMs === lookbacks[0] && walk.sawEntry) return walk.tip;
+      }
+    }
+    return best;
+  }
+
+  /**
+   * Page SHOW CHANGES from a datetime lookback toward the tip.
+   * @returns {{ tip: any, sawEntry: boolean, newerThanCursor: number, exhausted: boolean }}
+   */
+  async walkTableFeed(tableName, { lookbackMs, pageSize = 1000, maxPages = 100, cursor = null } = {}) {
+    const size = Math.max(Number(pageSize) || 1000, 100);
+    const pages = Math.max(Number(maxPages) || 100, 1);
+    let since = retentionProbeSinceLiteral(Date.now(), lookbackMs);
+    let tip = null;
+    let lastSeen = null;
+    let sawEntry = false;
+    let newerThanCursor = 0;
+    let exhausted = false;
+
+    for (let page = 0; page < pages; page += 1) {
+      const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${since} LIMIT ${size};`;
+      const result = await withTimeout(
+        this.source.query(sql),
+        20000,
+        `SHOW CHANGES.walk(${tableName},${page})`
+      );
+      const batch = normalizeShowChangesResult(result);
+      const forward = lastSeen == null
+        ? batch
+        : batch.filter((entry) => entry && compareVersionstamp(entry.versionstamp, lastSeen) > 0);
+      if (!forward.length) {
+        exhausted = true;
+        break;
+      }
+
+      sawEntry = true;
+      if (cursor != null) newerThanCursor += entriesAfterCursor(forward, cursor).length;
+      for (const entry of forward) {
+        this.noteFeedHighWater(entry && entry.versionstamp);
+        tip = nextCursorVersionstamp(tip, entry && entry.versionstamp);
+      }
+
+      const lastStamp = forward[forward.length - 1] && forward[forward.length - 1].versionstamp;
+      if (lastStamp == null) {
+        exhausted = true;
+        break;
+      }
+      lastSeen = lastStamp;
+      since = sinceLiteral(lastStamp);
+      if (forward.length < size) {
+        exhausted = true;
+        break;
+      }
+    }
+
+    return { tip, sawEntry, newerThanCursor, exhausted };
+  }
+
+  noteFeedHighWater(versionstamp) {
+    if (versionstamp == null) return;
+    this.feedHighWater = nextCursorVersionstamp(this.feedHighWater, versionstamp);
+  }
+
+  /**
+   * Surreal returns [] for SHOW CHANGES when the cursor is older than retention
+   * (no error). Detect holes from THIS table's feed only — never from another
+   * table's high-water (that false-triggered endless order_item_kitchen
+   * re-backfills while order starved).
+   */
+  async assertCursorInsideRetention(tableName, cursor) {
+    if (cursor == null || cursor === 0 || cursor === '0') return;
+
+    try {
+      await this.assertRecentFeedAheadOfCursor(tableName, cursor);
+    } catch (error) {
+      if (isChangefeedRetentionError(error)) throw error;
+      this.logger.warn('Datetime stale-cursor probe failed', {
+        table: tableName,
+        error: error.message || String(error),
+      });
+    }
+  }
+
+  /**
+   * Walk this table's recent feed to the tip.
+   * - Newer mutations than cursor while SINCE cursor was empty → silent gap → re-backfill.
+   * - Cursor ahead of a fully-walked tip → snap down (no re-backfill).
+   * - Incomplete walks never snap (avoids pulling a healthy cursor backwards).
+   */
+  async assertRecentFeedAheadOfCursor(tableName, cursor) {
+    const lookbacks = [
+      60 * 60 * 1000,
+      24 * 60 * 60 * 1000,
+      7 * 24 * 60 * 60 * 1000,
+    ];
+    let probeTip = null;
+    let newerCount = 0;
+    let sawEntry = false;
+    let exhausted = false;
+
+    for (const lookbackMs of lookbacks) {
+      const walk = await this.walkTableFeed(tableName, {
+        lookbackMs,
+        pageSize: 1000,
+        maxPages: 100,
+        cursor,
+      });
+      if (walk.sawEntry) sawEntry = true;
+      newerCount += walk.newerThanCursor;
+      if (walk.tip != null) probeTip = nextCursorVersionstamp(probeTip, walk.tip);
+      exhausted = walk.exhausted;
+      if (lookbackMs === lookbacks[0] && walk.sawEntry && walk.exhausted) break;
+      if (newerCount > 0 && walk.exhausted) break;
+    }
+
+    if (newerCount > 0) {
+      // Race guard: a row may have landed between the empty tail read and this walk.
+      const sql = `SHOW CHANGES FOR TABLE ${tableName} SINCE ${sinceLiteral(cursor)} LIMIT 100;`;
+      const result = await withTimeout(
+        this.source.query(sql),
+        20000,
+        `SHOW CHANGES.recheck(${tableName})`
+      );
+      const recheck = entriesAfterCursor(normalizeShowChangesResult(result), cursor);
+      if (recheck.length) return;
+
+      throw new Error(
+        `changefeed cursor outside retention (silent gap, datetime probe): table=${tableName} cursor=${versionstampForStorage(cursor)} probeEntries=${newerCount}`
+      );
+    }
+
+    if (
+      exhausted
+      && sawEntry
+      && probeTip != null
+      && compareVersionstamp(cursor, probeTip) > 0
+    ) {
+      this.logger.warn('Changefeed cursor ahead of live tip; snapping down (no re-backfill)', {
+        table: tableName,
+        cursor: versionstampForStorage(cursor),
+        tip: versionstampForStorage(probeTip),
+      });
+      await this.saveCursor(tableName, { versionstamp: probeTip });
     }
   }
 
@@ -648,11 +841,16 @@ class SyncManager {
       throw error;
     }
 
-    const entries = entriesAfterCursor(
-      normalizeShowChangesResult(result),
-      since
-    );
-    if (!entries.length) return;
+    const rawEntries = normalizeShowChangesResult(result);
+    for (const entry of rawEntries) {
+      this.noteFeedHighWater(entry && entry.versionstamp);
+    }
+
+    const entries = entriesAfterCursor(rawEntries, since);
+    if (!entries.length) {
+      await this.assertCursorInsideRetention(tableName, since);
+      return;
+    }
 
     const { operations, lastVersionstamp } = compactChangeBatch(entries);
     if (!operations.length) {

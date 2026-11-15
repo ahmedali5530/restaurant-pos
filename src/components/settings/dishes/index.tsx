@@ -4,7 +4,8 @@ import {Tables} from "@/api/db/tables.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import { IconTooltipButton } from "@/components/common/input/icon.tooltip.button.tsx";
 import {DishForm} from "@/components/settings/dishes/dish.form.tsx";
-import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye} from "@fortawesome/free-solid-svg-icons";
+import {faArrowsRotate, faPencil, faPhotoFilm, faPlus, faEye, faSitemap} from "@fortawesome/free-solid-svg-icons";
+import {MenuTreeModal} from "@/components/settings/menu_tree/menu-tree.modal.tsx";
 import {toast} from "sonner";
 import {syncAllDishRecipeCosts} from "@/lib/inventory/dish.recipe.cost.ts";
 import {createColumnHelper, RowSelectionState} from "@tanstack/react-table";
@@ -58,6 +59,7 @@ export const AdminDishes = () => {
     data: [] as Dish[]
   });
   const [syncingCosts, setSyncingCosts] = useState(false);
+  const [menuTreeModal, setMenuTreeModal] = useState(false);
 
   const smartImportConfig = useMemo(
     () => createDishImportConfig({db, t}),
@@ -114,6 +116,27 @@ export const AdminDishes = () => {
     }),
     columnHelper.accessor("number", {
       header: t('columns.number'),
+    }),
+    columnHelper.accessor("barcode", {
+      header: t('columns.barcode'),
+      cell: (info) => {
+        const primary = info.getValue();
+        const extras = info.row.original.barcodes;
+        const codes = [
+          ...(primary ? [String(primary)] : []),
+          ...((extras ?? []).map((b) => String(b)).filter(Boolean)),
+        ];
+        if (codes.length === 0) {
+          return "—";
+        }
+        return (
+          <div className="flex flex-col gap-0.5">
+            {codes.map((code) => (
+              <span key={code} className="font-mono text-sm">{code}</span>
+            ))}
+          </div>
+        );
+      },
     }),
     columnHelper.accessor("available", {
       header: t('columns.available'),
@@ -282,6 +305,15 @@ export const AdminDishes = () => {
               {t('buttons.smartImportMenuStructure')}
             </DropdownItem>
           </Dropdown>,
+          <Button
+            key="menu-tree"
+            variant="secondary"
+            icon={faSitemap}
+            onClick={() => setMenuTreeModal(true)}
+            data-testid="admin-menu-tree"
+          >
+            {t('buttons.menuTree', {defaultValue: 'Menu tree'})}
+          </Button>,
           <DeleteConfirm
             key="sync-dish-costs"
             title={t('confirm.syncDishCostsTitle', {defaultValue: 'Update dish costs'})}
@@ -337,10 +369,21 @@ export const AdminDishes = () => {
         customSearchHandler={(value) => {
           loadHook.resetFilters();
 
-          loadHook.addFilter('string::lowercase(name) contains $name or array::any(categories, |$var|string::lowercase($var.name) contains $name)', 'and');
-          loadHook.handleParameterChange({
-            name: value.toLowerCase()
-          })
+          const q = String(value ?? '').trim().toLowerCase();
+          if (!q) {
+            loadHook.handleParameterChange({});
+            return;
+          }
+
+          loadHook.addFilter(
+            `string::lowercase(name ?? '') contains $q
+             or string::lowercase(number ?? '') contains $q
+             or string::lowercase(barcode ?? '') contains $q
+             or array::any(barcodes ?? [], |$b| string::lowercase($b ?? '') contains $q)
+             or array::any(categories ?? [], |$var| string::lowercase($var.name ?? '') contains $q)`,
+            'and',
+          );
+          loadHook.handleParameterChange({q});
         }}
         enableSelection
         rowSelection={rowSelection}
@@ -508,6 +551,13 @@ export const AdminDishes = () => {
           open={true}
           onClose={() => setViewModal(false)}
           data={data}
+        />
+      )}
+
+      {menuTreeModal && (
+        <MenuTreeModal
+          open={menuTreeModal}
+          onClose={() => setMenuTreeModal(false)}
         />
       )}
 

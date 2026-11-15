@@ -17,9 +17,8 @@ import {useAtom} from "jotai";
 import {appAlert, appPage, appSettings} from "@/store/jotai.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
-import {calculateChangeDue} from "@/lib/cart.ts";
+import {getDraftPaymentChangeDisplay, isCardPaymentType} from "@/lib/order.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
-import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {
   isRemotePaymentType,
   RemotePaymentPendingSlot,
@@ -27,21 +26,11 @@ import {
   useRemotePayment,
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import { fetchOrderFull } from "@/lib/order-fetch.ts";
-import {
-  fiscalShouldBlockBeforePaid,
-  loadOrderForFiscal,
-  runFiscalSettlementForOrder,
-} from "@/integrations/providers/fiscal/settlement.ts";
-import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
-import {
-  publishInvoiceCreated,
-  publishPaymentCompleted,
-} from "@/integrations/events/publish/payments.ts";
+import {settlePaidOrder} from "@/lib/order-settle.ts";
 import {toast} from "sonner";
 
 interface Props {
@@ -77,6 +66,8 @@ interface Props {
   notes: string
   coupon?: Coupon
   couponAmount?: number
+  /** Flush React draft (tax/tip/extras) to Dexie before settle — avoids fast-tender races. */
+  flushDraft?: () => Promise<void>
 }
 
 type ContentProps = Props & {
@@ -127,6 +118,7 @@ const OrderPaymentReceivingContent = ({
   serviceChargeType,
   notes,
   coupon,
+  flushDraft,
   couponAmount,
   selectedAmount,
   setSelectedAmount,
@@ -189,92 +181,31 @@ const OrderPaymentReceivingContent = ({
     setClosing(true);
 
     try {
-      // Fiscal pre-check is an online integration concern; when the master DB is
-      // unreachable we settle locally and let the post-settle fiscal run catch up.
-      let blockBeforePaid = false;
-      let fiscalOrderSnapshot: Order | undefined;
-      let settledOrder = order;
-      try {
-        if (settledOrder.invoice_number == null) {
-          await terminalSyncService.synchronize({ force: true }).catch(() => undefined);
-          const local = await posStore.getOrder(String(settledOrder.id));
-          if (local?.invoice_number != null) {
-            settledOrder = { ...settledOrder, invoice_number: local.invoice_number } as Order;
-          }
-        }
-        blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
-        if (blockBeforePaid) {
-          fiscalOrderSnapshot = await loadOrderForFiscal(db, String(settledOrder.id));
-          if (fiscalOrderSnapshot && settledOrder.invoice_number != null) {
-            fiscalOrderSnapshot = {
-              ...fiscalOrderSnapshot,
-              invoice_number: settledOrder.invoice_number,
-            };
-          }
-        }
-      } catch (fiscalCheckError) {
-        console.warn('Fiscal pre-check skipped (offline?)', fiscalCheckError);
-        blockBeforePaid = false;
-      }
-
-      if (blockBeforePaid) {
-        if (fiscalOrderSnapshot) {
-          const preResult = await runFiscalSettlementForOrder(
-            integrationManager,
-            db,
-            {
-              ...fiscalOrderSnapshot,
-              tax: tax ?? fiscalOrderSnapshot.tax,
-              tax_amount: taxAmount ?? fiscalOrderSnapshot.tax_amount,
-              discount_amount: discountAmount ?? fiscalOrderSnapshot.discount_amount,
-              tip,
-              tip_amount: tipAmount,
-              tip_type: tipType,
-              service_charge: serviceCharge,
-              service_charge_amount: serviceChargeAmount,
-              service_charge_type: serviceChargeType,
-              payments: payments.length > 0 ? payments : fiscalOrderSnapshot.payments,
-            }
-          );
-          if (preResult.blocked) {
-            toast.error(
-              preResult.blockedCode === 'INVOICE_PENDING'
-                ? t('errors.invoicePendingSync')
-                : (preResult.blockedError ?? t('errors.fiscalFailed')),
-            );
-            return;
-          }
-          if (Object.values(preResult.resultsByProvider).some((row) => row.status === 'failed')) {
-            toast.warning('Some fiscal providers failed; check Integrations queue');
-          }
-        }
-      }
-
       const orderId = String(order.id);
-      const hasCoupon = !!(coupon && couponAmount && couponAmount > 0);
-      const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
-      const resolvedDiscountId = order.discount?.id ? String(order.discount.id) : undefined;
       const extraRows = Object.keys(extras).map((name) => ({
         id: `order_extras:${orderId.split(':')[1]}_${name.replace(/[^a-zA-Z0-9_]/g, '_')}`,
         name,
         value: extras[name],
       }));
 
-      // Local-first settlement: Dexie commit + outbox (CREATE_PAYMENT×n, MERGE order,
-      // REPLACE taxes/extras, coupon + redemption). Works offline; drains when back.
-      const settled = await posStore.settleOrder({
-        orderId,
+      const result = await settlePaidOrder({
+        db,
+        integrationManager,
+        order,
         payments: payments
           .filter((payment) => payment?.payment_type?.id && Number(payment.amount) > 0)
           .map((payment) => ({
             id: payment.id ? String(payment.id) : undefined,
             paymentTypeId: String(payment.payment_type.id),
+            paymentTypeName: payment.payment_type?.name,
             amount: Number(payment.amount),
             payable: Number(payment.payable ?? total),
             comments: payment.comments ?? null,
           })),
         cashierId: page?.user?.id ? String(page.user.id) : null,
+        tax,
         taxId: tax?.id ? String(tax.id) : null,
+        taxAmount,
         tip,
         tipAmount,
         tipType,
@@ -282,106 +213,32 @@ const OrderPaymentReceivingContent = ({
         serviceChargeAmount,
         serviceChargeType,
         notes,
-        discountAmount: resolvedDiscountAmount,
-        ...(resolvedDiscountId ? { discountId: resolvedDiscountId } : {}),
+        discountAmount: discountAmount ?? order.discount_amount ?? 0,
+        discountId: order.discount?.id ? String(order.discount.id) : undefined,
         extras: extraRows,
-        coupon: hasCoupon
-          ? {
-              id: order?.coupon?.id ? String(order.coupon.id) : undefined,
-              couponId: String(coupon!.id),
-              discount: Number(couponAmount),
-            }
-          : null,
-        couponRedemption: hasCoupon
-          ? {
-              userId: page?.user?.id ? String(page.user.id) : null,
-              discountAmount: Number(couponAmount),
-            }
-          : null,
+        coupon,
+        couponAmount,
         // Payment screen auto-saves draft + taxes — skip redundant work on settle.
         keepTaxes: true,
         skipDraft: true,
-        seed: { order, items: order.items },
+        flushDraft,
+        trackingPage: page?.page,
+        trackingUser: page?.user,
+        total,
+        t,
       });
 
-      const settledPayments = payments.map((payment) => {
-        const row = settled.payments.find(
-          (p) => p.id === payment.id || p.id === `order_payment:${payment.id}`,
-        );
-        return row ? { ...payment, id: row.id as any } : payment;
-      });
-      setPayments(settledPayments);
-
-      // Table is free once the check is settled.
-      if (order?.table?.id) {
-        void posStore.unlockTable(String(order.table.id)).catch(() => undefined);
+      if (!result.ok) {
+        return;
       }
 
-      postOrderTracking({
-        module: "orders.complete_payment",
-        page: page?.page,
-        orderId: order.id,
-        payload: {
-          payment_count: payments.length,
-          coupon: coupon?.id?.toString(),
-          total,
-        },
-        user: page?.user,
+      const settledPayments = payments.map((payment) => {
+        const row = result.payments.find(
+          (p) => p.id === payment.id || p.id === `order_payment:${payment.id}`,
+        );
+        return row ? {...payment, id: row.id as any} : payment;
       });
-
-      // Post-settle side effects (fiscal, accounting, integration events) never
-      // block the cashier; they wait for the outbox to drain so remote reads
-      // see the settled order.
-      void (async () => {
-        try {
-          await terminalSyncService.synchronize().catch(() => undefined);
-
-          if (!blockBeforePaid) {
-            const settledOrder = await loadOrderForFiscal(db, orderId);
-            if (settledOrder) {
-              const fiscalResult = await runFiscalSettlementForOrder(
-                integrationManager,
-                db,
-                settledOrder
-              );
-              if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
-                toast.warning('Some fiscal providers failed; check Integrations queue');
-              }
-            }
-          }
-
-          const saleOrder = await loadOrderForFiscal(db, orderId);
-          if (saleOrder && integrationManager) {
-            await publishSaleCompleted(integrationManager, saleOrder);
-            await publishInvoiceCreated(integrationManager, {
-              orderId: String(saleOrder.id),
-              invoiceNumber: saleOrder.invoice_number,
-              total: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-              totalCollected: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-              taxAmount: Number(saleOrder.tax_amount || taxAmount || 0),
-              customerId: saleOrder.customer?.id
-                ? String(saleOrder.customer.id)
-                : undefined,
-              completedAt: new Date().toISOString(),
-            });
-            for (const payment of settledPayments) {
-              if (!payment?.id) continue;
-              await publishPaymentCompleted(integrationManager, {
-                paymentId: String(payment.id),
-                orderId,
-                amount: Number(payment.amount || 0),
-                paymentTypeId: payment.payment_type?.id
-                  ? String(payment.payment_type.id)
-                  : undefined,
-                paymentTypeName: payment.payment_type?.name,
-                tipAmount: tipAmount,
-              });
-            }
-          }
-        } catch (sideEffectError) {
-          console.warn('Post-settlement side effects failed', sideEffectError);
-        }
-      })();
+      setPayments(settledPayments);
 
       onComplete({ settled: true });
     } catch (e) {
@@ -432,9 +289,12 @@ const OrderPaymentReceivingContent = ({
     return payments.reduce((prev, item) => prev + item.amount, 0)
   }, [payments])
 
-  const changeDue = useMemo(() => {
-    return calculateChangeDue(tendered, total);
-  }, [total, tendered]);
+  const changeDisplay = useMemo(
+    () => getDraftPaymentChangeDisplay(payments, total),
+    [payments, total],
+  );
+  /** Negative = remaining; positive = cash change only (exact tenders never invent change). */
+  const changeDue = changeDisplay.displayAmount;
 
   const addPayment = async (amount: string | number, paymentType: PaymentType, payable: number) => {
     if (amount.toString().length === 0) {
@@ -449,7 +309,7 @@ const OrderPaymentReceivingContent = ({
     // Compute change due relative to this payable (may include tax for selected payment type)
     const localChangeDue = tendered - payable;
 
-    if (paymentType.type === 'Card' && localChangeDue >= 0) {
+    if (isCardPaymentType(paymentType) && localChangeDue >= 0) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -460,7 +320,7 @@ const OrderPaymentReceivingContent = ({
       return;
     }
 
-    if (paymentType.type === 'Card' && Number(amount) > Number(-1 * localChangeDue)) {
+    if (isCardPaymentType(paymentType) && Number(amount) > Number(-1 * localChangeDue)) {
       setAlert(prev => ({
         ...prev,
         opened: true,
@@ -527,7 +387,10 @@ const OrderPaymentReceivingContent = ({
             changeDue > 0 && 'text-success-700'
           )
         }>
-          {changeDue < 0 ? t('receiving.remaining') : t('receiving.change')}: <span className="">{withCurrency(changeDue)}</span>
+          {changeDisplay.isRemaining ? t('receiving.remaining') : t('receiving.change')}:{' '}
+          <span className="">
+            {withCurrency(changeDisplay.isRemaining ? changeDisplay.remaining : changeDisplay.change)}
+          </span>
         </div>
         <div className="relative">
           <ScrollContainer className="gap-3 flex overflow-x-auto mb-5" data-testid="payment-quick-amounts">
@@ -639,9 +502,25 @@ const OrderPaymentReceivingContent = ({
                       payload: { order: order.id.toString() },
                       userId: page?.user?.id?.toString?.() ?? page?.user?.id,
                       doPrint: async () => {
-                        const full = await fetchOrderFull(db, order.id);
+                        // Flush draft first so payment-type auto-tax is on the order for the bill.
+                        if (flushDraft) {
+                          await flushDraft().catch(() => undefined);
+                        }
+                        let full = await fetchOrderFull(db, order.id);
                         if (!full) {
                           throw new Error('Failed to load order for temp bill print');
+                        }
+                        const taxRef = full.tax != null
+                          ? String((full.tax as any)?.id ?? full.tax)
+                          : (tax?.id ? String(tax.id) : '');
+                        if (taxRef && !(Number(full.tax_amount) > 0)) {
+                          await posStore.recomputeOrderTaxes(String(order.id), {
+                            extraPatch: { tax: taxRef },
+                          }).catch(() => undefined);
+                          full = await fetchOrderFull(db, order.id);
+                          if (!full) {
+                            throw new Error('Failed to load order for temp bill print');
+                          }
                         }
                         await dispatchPrint(db, PRINT_TYPE.presale_bill, {
                           order: full,
