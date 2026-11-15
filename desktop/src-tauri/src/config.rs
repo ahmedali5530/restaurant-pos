@@ -146,6 +146,46 @@ pub struct InstallerServer {
   pub host: String,
 }
 
+fn default_backup_enabled() -> bool {
+  true
+}
+
+fn default_backup_times() -> Vec<String> {
+  vec!["00:00".to_string(), "12:00".to_string()]
+}
+
+fn default_backup_keep() -> u32 {
+  14
+}
+
+/// Automatic `.surql` exports while this PC is running POSR.
+/// Times use the PC's local clock. `directory` empty means `{app data}/backups`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InstallerBackup {
+  #[serde(default = "default_backup_enabled")]
+  pub enabled: bool,
+  /// Local times as `HH:mm`, for example `["00:00", "12:00"]`.
+  #[serde(default = "default_backup_times")]
+  pub times: Vec<String>,
+  /// How many `posr-database-*.surql` files to keep. `0` keeps every file.
+  #[serde(default = "default_backup_keep")]
+  pub keep: u32,
+  /// Folder for the export files. Empty uses `{app data}/backups`.
+  #[serde(default)]
+  pub directory: String,
+}
+
+impl Default for InstallerBackup {
+  fn default() -> Self {
+    Self {
+      enabled: default_backup_enabled(),
+      times: default_backup_times(),
+      keep: default_backup_keep(),
+      directory: String::new(),
+    }
+  }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct InstallerSettings {
   #[serde(default)]
@@ -158,6 +198,8 @@ pub struct InstallerSettings {
   pub integrations: InstallerIntegrations,
   #[serde(default)]
   pub server: InstallerServer,
+  #[serde(default)]
+  pub backup: InstallerBackup,
   #[serde(default)]
   pub applied: bool,
 }

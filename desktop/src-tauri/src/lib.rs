@@ -1,3 +1,4 @@
+mod backup;
 mod config;
 mod import;
 mod lan_ui;
@@ -9,7 +10,8 @@ mod webview_cache;
 mod tray;
 
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::atomic::AtomicBool;
+use std::sync::{Arc, Mutex};
 
 use tauri::Manager;
 use tauri_plugin_log::{Target, TargetKind};
@@ -99,6 +101,7 @@ pub fn run() {
             config: cfg,
             log_hub: hub,
             statuses: Mutex::new(HashMap::new()),
+            backup_stop: Arc::new(AtomicBool::new(true)),
           });
         }
       }

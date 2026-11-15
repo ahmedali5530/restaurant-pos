@@ -8,6 +8,14 @@ export interface ReleaseNotes {
 export const RELEASES: ReleaseNotes[] = [
   {
     date: '2026-11-15',
+    title: 'Desktop database backups at midnight and noon',
+    items: [
+      'POSR Desktop writes a Surreal export at 00:00 and 12:00 local time while the app is running, into the backups folder beside the app data. The live database folder is never copied.',
+      'Change installer-settings.json backup.enabled, backup.times (HH:mm), backup.keep, or backup.directory. The schedule is read again on the next check, so a restart is not required.',
+    ],
+  },
+  {
+    date: '2026-11-15',
     title: 'Quick Order minimal checkout',
     items: [
       'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',

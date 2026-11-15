@@ -28,5 +28,11 @@
   "server": {
     "host": ""
   },
+  "backup": {
+    "enabled": true,
+    "times": ["00:00", "12:00"],
+    "keep": 14,
+    "directory": ""
+  },
   "applied": false
 }

@@ -5,7 +5,8 @@ use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::path::{Path, PathBuf};
 use std::process::{Child, Command, Stdio};
-use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -15,6 +16,7 @@ use tauri::{AppHandle, Manager};
 #[cfg(windows)]
 use std::os::windows::process::CommandExt;
 
+use crate::backup;
 use crate::config::{self, DesktopConfig, InstallerSettings};
 use crate::lan_ui;
 use crate::logging::LogHub;
@@ -29,6 +31,7 @@ pub struct SidecarSupervisor {
   pub config: DesktopConfig,
   pub log_hub: LogHub,
   pub statuses: Mutex<HashMap<String, String>>,
+  pub backup_stop: Arc<AtomicBool>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -40,6 +43,7 @@ pub struct ServiceStatusDto {
 
 impl SidecarSupervisor {
   pub fn stop_all(&self) {
+    self.backup_stop.store(true, Ordering::SeqCst);
     if let Ok(mut guard) = self.children.lock() {
       while let Some((name, mut child)) = guard.pop() {
         let pid = child.id();
@@ -506,6 +510,7 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
     config: cfg.clone(),
     log_hub: log_hub.clone(),
     statuses: Mutex::new(HashMap::new()),
+    backup_stop: Arc::new(AtomicBool::new(false)),
   };
 
   let remote_host = installer.as_ref().and_then(config::central_host);
@@ -672,5 +677,11 @@ pub fn start_all(app: &AppHandle) -> Result<SidecarSupervisor, String> {
 
   let _ = wait_health("127.0.0.1:3132", "posr-print-server", 25);
   supervisor.refresh_health();
+  backup::spawn(
+    app.clone(),
+    app_data,
+    log_hub,
+    supervisor.backup_stop.clone(),
+  );
   Ok(supervisor)
 }
