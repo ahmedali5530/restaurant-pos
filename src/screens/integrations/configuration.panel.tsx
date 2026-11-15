@@ -7,6 +7,8 @@ import { Button } from '@/components/common/input/button.tsx';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { useSecurity } from '@/hooks/useSecurity.ts';
+import { KraItemOverridesPanel } from '@/integrations/providers/fiscal/kra/item-overrides.panel.tsx';
+import { KRA_PROVIDER_ID } from '@/integrations/providers/fiscal/kra/submit.ts';
 
 type SelectOption = { label: string; value: string };
 
@@ -34,6 +36,7 @@ export const ConfigurationPanel = ({
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [kraOverridesRefreshKey, setKraOverridesRefreshKey] = useState(0);
   const oauthAppliedRef = useRef(false);
 
   const selectedProvider = useMemo(
@@ -163,6 +166,9 @@ export const ConfigurationPanel = ({
           supportsItemSync ? t('itemsRegistered') : t('syncComplete', { count: 0 })
         );
         await reloadConfig();
+        if (selectedProviderId === KRA_PROVIDER_ID) {
+          setKraOverridesRefreshKey((n) => n + 1);
+        }
       } catch (err: any) {
         toast.error(err?.message || t('syncFailed'));
       } finally {
@@ -255,6 +261,15 @@ export const ConfigurationPanel = ({
             </div>
           </div>
         </div>
+      )}
+
+      {selectedProviderId === KRA_PROVIDER_ID && (
+        <KraItemOverridesPanel
+          key={kraOverridesRefreshKey}
+          tin={String(formValues.tin ?? '')}
+          bhfId={String(formValues.bhfId ?? '')}
+          enabled
+        />
       )}
 
       <form

@@ -7,12 +7,20 @@ export interface ReleaseNotes {
 /** Newest-first release notes shown in the What's New dialog. */
 export const RELEASES: ReleaseNotes[] = [
   {
+    date: '2026-11-15',
+    title: 'KRA item overrides stay in Integrations',
+    items: [
+      'Kenya eTIMS per-dish class code and tax type are edited under Integrations → Configuration (Item fiscal overrides), not on the dish form.',
+      'Overrides are stored on integration entity mappings so catalog settings stay provider-agnostic.',
+    ],
+  },
+  {
     date: '2026-10-30',
     title: 'Kenya KRA eTIMS fiscalization',
     items: [
       'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
       'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
-      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+      'Optional KRA item class and tax type live under Integrations Configuration; Order Fiscal report filters include KRA.',
     ],
   },
   {

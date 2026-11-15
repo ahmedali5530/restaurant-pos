@@ -465,10 +465,7 @@
     "modifierOptionAvailability": "توفر المعدّل (لهذا الطبق)",
     "modifierOptionAvailable": "متاح لهذا الطبق",
     "modifierOptionAvailableHint": "اترك الافتراضي لاستخدام التوفر العام. عطّل أو ضع حد مبيعات لتجاوزه لهذا الطبق فقط.",
-    "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)",
-    "kraItemClsCd": "رمز تصنيف صنف KRA",
-    "kraTaxTyCd": "نوع ضريبة KRA (A–E)",
-    "kraFiscalHint": "تجاوزات اختيارية لـ eTIMS في كينيا. اتركها فارغة لاستخدام إعدادات مزود KRA الافتراضية."
+    "modifierOptionSaleLimit": "حد المبيعات (لهذا الطبق)"
   },
   "dishView": {
     "detailsTitle": "تفاصيل الطبق",

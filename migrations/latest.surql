@@ -1979,8 +1979,6 @@ DEFINE FIELD available_qty ON menu_item TYPE none | float | null PERMISSIONS FUL
 DEFINE FIELD available_qty_set_at ON menu_item TYPE none | datetime | null PERMISSIONS FULL;
 DEFINE FIELD barcode ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD barcodes ON menu_item TYPE none | array<string> | null PERMISSIONS FULL;
-DEFINE FIELD kra_item_cls_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
-DEFINE FIELD kra_tax_ty_cd ON menu_item TYPE none | string | null PERMISSIONS FULL;
 DEFINE FIELD name ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD number ON menu_item TYPE string PERMISSIONS FULL;
 DEFINE FIELD photo ON menu_item TYPE none | bytes | null PERMISSIONS FULL;

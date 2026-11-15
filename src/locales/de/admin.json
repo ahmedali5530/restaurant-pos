@@ -465,10 +465,7 @@
     "modifierOptionAvailability": "Modifier-Verfügbarkeit (dieses Gericht)",
     "modifierOptionAvailable": "Für dieses Gericht verfügbar",
     "modifierOptionAvailableHint": "Standard belassen = globale Verfügbarkeit. Ausschalten oder Verkaufslimit setzen = nur für dieses Gericht.",
-    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)",
-    "kraItemClsCd": "KRA-Artikelklassencode",
-    "kraTaxTyCd": "KRA-Steuertyp (A–E)",
-    "kraFiscalHint": "Optionale Kenia-eTIMS-Überschreibungen. Leer lassen, um die KRA-Provider-Standards zu verwenden."
+    "modifierOptionSaleLimit": "Verkaufslimit (dieses Gericht)"
   },
   "dishView": {
     "detailsTitle": "Gerichtdetails",

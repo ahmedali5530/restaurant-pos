@@ -139,6 +139,11 @@ const MIGRATION_PLAN = [
   { id: '2026_10_26_menu_item_modifier_availability', file: '2026_10_26_menu_item_modifier_availability.surql' },
   { id: '2026_10_29_inventory_item_deleted_at', file: '2026_10_29_inventory_item_deleted_at.surql' },
   { id: '2026_10_30_kra_etims', file: '2026_10_30_kra_etims.surql' },
+  {
+    id: '2026_11_15_kra_dish_fields_to_mapping',
+    backfill: 'backfill-kra-dish-fields-to-mapping.cjs',
+  },
+  { id: '2026_11_15_kra_remove_dish_fields', file: '2026_11_15_kra_remove_dish_fields.surql' },
 ];
 
 const rows = (result) => {

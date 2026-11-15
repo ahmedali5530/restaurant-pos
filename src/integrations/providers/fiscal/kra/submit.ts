@@ -27,6 +27,12 @@ import {
   serializeKraStockIo,
 } from '@/integrations/providers/fiscal/kra/serialize-stock.ts';
 import { listOrderFiscalSubmissions } from '@/integrations/storage/order-fiscal-repository.ts';
+import {
+  isKraItemRegistered,
+  kraItemPayload,
+  KraItemMappingView,
+  toKraItemMappingView,
+} from '@/integrations/providers/fiscal/kra/item-mapping.ts';
 
 export const KRA_PROVIDER_ID = 'provider:kra';
 
@@ -35,9 +41,7 @@ export type KraDbClient = KraCounterDb & {
   merge: (thing: unknown, data: Record<string, unknown>) => Promise<unknown>;
 };
 
-type DishKraFields = {
-  kra_item_cls_cd?: string | null;
-  kra_tax_ty_cd?: string | null;
+type DishLineFields = {
   number?: string | null;
   barcode?: string | null;
 };
@@ -64,25 +68,30 @@ const failed = (
 
 export const createItemResolver = (
   config: KraProviderConfig,
-  mappingByPosrId: Map<string, string>
+  mappingByPosrId: Map<string, KraItemMappingView>
 ) => {
   return (item: Order['items'][number]) => {
-    const dish = item?.item as DishKraFields | undefined;
+    const dish = item?.item as DishLineFields | undefined;
     const dishId =
       typeof item?.item === 'object' && item?.item
         ? String((item.item as { id?: unknown }).id ?? '')
         : String(item?.item ?? '');
-    const mapped = mappingByPosrId.get(dishId) || mappingByPosrId.get(recordIdSuffix(dishId));
+    const mapped =
+      mappingByPosrId.get(dishId) || mappingByPosrId.get(recordIdSuffix(dishId));
+    const registeredCd =
+      mapped && isKraItemRegistered(mapped) ? mapped.externalId : '';
     const fallbackCode =
-      mapped ||
+      registeredCd ||
       (dish?.number ? String(dish.number).trim() : '') ||
       recordIdSuffix(dishId) ||
       recordIdSuffix(item?.id) ||
       'ITEM';
+    const itemClsCd = String(mapped?.itemClsCd || config.itemClsCd).slice(0, 10);
+    const taxTyCdOverride = mapped?.taxTyCd ?? null;
     return {
-      itemCd: String(mapped || fallbackCode).slice(0, 20),
-      itemClsCd: String(dish?.kra_item_cls_cd || config.itemClsCd).slice(0, 10),
-      taxTyCdOverride: dish?.kra_tax_ty_cd ?? null,
+      itemCd: String(registeredCd || fallbackCode).slice(0, 20),
+      itemClsCd,
+      taxTyCdOverride,
     };
   };
 };
@@ -90,15 +99,19 @@ export const createItemResolver = (
 export const loadKraItemMappings = async (
   db: KraDbClient,
   config: KraProviderConfig
-): Promise<Map<string, string>> => {
+): Promise<Map<string, KraItemMappingView>> => {
   const repo = new EntityMappingRepository(db);
   const rows = await repo.listByProvider(KRA_PROVIDER_ID, kraTenantId(config), 'item');
-  const map = new Map<string, string>();
+  const map = new Map<string, KraItemMappingView>();
   for (const row of rows) {
-    if (row.posrId && row.externalId) {
-      map.set(String(row.posrId), String(row.externalId));
-      map.set(recordIdSuffix(row.posrId), String(row.externalId));
-    }
+    const view = toKraItemMappingView({
+      posrId: row.posrId,
+      externalId: row.externalId,
+      externalPayload: kraItemPayload(row),
+    });
+    if (!view) continue;
+    map.set(view.posrId, view);
+    map.set(recordIdSuffix(view.posrId), view);
   }
   return map;
 };
