@@ -327,6 +327,9 @@
     },
     "settingsTitle": "Asistan ayarları",
     "analyzeAttached": "{{file}} hazır — aşağıya sorun"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Son fişi yazdırma"
   }
 ,
   "desktopSetup": {

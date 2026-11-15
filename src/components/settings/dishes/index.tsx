@@ -117,6 +117,27 @@ export const AdminDishes = () => {
     columnHelper.accessor("number", {
       header: t('columns.number'),
     }),
+    columnHelper.accessor("barcode", {
+      header: t('columns.barcode'),
+      cell: (info) => {
+        const primary = info.getValue();
+        const extras = info.row.original.barcodes;
+        const codes = [
+          ...(primary ? [String(primary)] : []),
+          ...((extras ?? []).map((b) => String(b)).filter(Boolean)),
+        ];
+        if (codes.length === 0) {
+          return "—";
+        }
+        return (
+          <div className="flex flex-col gap-0.5">
+            {codes.map((code) => (
+              <span key={code} className="font-mono text-sm">{code}</span>
+            ))}
+          </div>
+        );
+      },
+    }),
     columnHelper.accessor("available", {
       header: t('columns.available'),
       cell: (info) => (info.getValue() === false ? t('common:actions.no') : t('common:actions.yes')),
@@ -348,10 +369,21 @@ export const AdminDishes = () => {
         customSearchHandler={(value) => {
           loadHook.resetFilters();
 
-          loadHook.addFilter('string::lowercase(name) contains $name or array::any(categories, |$var|string::lowercase($var.name) contains $name)', 'and');
-          loadHook.handleParameterChange({
-            name: value.toLowerCase()
-          })
+          const q = String(value ?? '').trim().toLowerCase();
+          if (!q) {
+            loadHook.handleParameterChange({});
+            return;
+          }
+
+          loadHook.addFilter(
+            `string::lowercase(name ?? '') contains $q
+             or string::lowercase(number ?? '') contains $q
+             or string::lowercase(barcode ?? '') contains $q
+             or array::any(barcodes ?? [], |$b| string::lowercase($b ?? '') contains $q)
+             or array::any(categories ?? [], |$var| string::lowercase($var.name ?? '') contains $q)`,
+            'and',
+          );
+          loadHook.handleParameterChange({q});
         }}
         enableSelection
         rowSelection={rowSelection}

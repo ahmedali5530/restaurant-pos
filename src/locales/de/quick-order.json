@@ -5,14 +5,20 @@
     "last": "Letzter Scan: {{code}}",
     "unknown": "Unbekannter Code: {{code}}",
     "added": "{{name}} hinzugefügt",
-    "placeholder": "Barcode/PLU scannen, CODE*6 oder *6, dann Enter",
-    "inputLabel": "Barcode / PLU",
-    "qtyHint": "Menge: CODE*6 fügt sechs hinzu; *6 das letzte Item ×6",
+    "placeholder": "Barcode scannen oder Name / PLU / CODE*6 / *6 eingeben",
+    "inputLabel": "Barcode / Name / PLU",
+    "qtyHint": "Tippen zum Suchen nach Name, Nummer oder Barcode. Menge: CODE*6 oder *6 für letzten Artikel",
     "invalidQty": "Ungültige Menge — ganze Zahl nach *",
     "noLastItem": "Zuerst ein Item scannen, dann *Menge",
     "addedQty": "{{count}} × {{name}} hinzugefügt",
     "unknownPlu": "Unbekannte Waagen-PLU {{plu}} ({{code}})",
-    "addedWeight": "{{weight}} kg {{name}} hinzugefügt"
+    "addedWeight": "{{weight}} kg {{name}} hinzugefügt",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Name",
+      "number": "Nummer",
+      "barcode": "Barcode"
+    }
   },
   "cart": {
     "title": "Warenkorb",

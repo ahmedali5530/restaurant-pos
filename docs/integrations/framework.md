@@ -339,7 +339,7 @@ Junction table (migration `2026_07_11_order_fiscal_fields.surql`):
 - `integration_order_fiscal`: `order`, `provider_id`, `invoice_number`, `qrcode`, `status`, `code`, `error`, `selected_for_print`, `qr_priority`, `request_payload`, `response_payload`, `submitted_at`
 - Use `setFiscalSubmissionSelectedForPrint(db, orderId, submissionId)` to mark a preferred submission for bookkeeping; all successful QRs still print.
 
-KRA also uses `integration_kra_counter` (TIN + branch sequences for `invcNo` / stock `sarNo` / item codes) and `integration_entity_mapping` for registered item codes. Device init (`connect`) and item registration (`sync`) run from Integrations → Configuration. Credit notes fire on `SaleRefunded` / paid `OrderCancelled` via `handleEvent`. Stock IO follows sales and `InventoryPosted` / `InventoryReversed` for purchase, purchase return, waste, and adjustment documents.
+KRA also uses `integration_kra_counter` (TIN + branch sequences for `invcNo` / stock `sarNo` / item codes) and `integration_entity_mapping` for registered item codes plus optional per-item `itemClsCd` / `taxTyCd` overrides in `external_payload`. Device init (`connect`), item registration (`sync`), and the Item fiscal overrides editor run from Integrations → Configuration — not from Settings → Dishes. Credit notes fire on `SaleRefunded` / paid `OrderCancelled` via `handleEvent`. Stock IO follows sales and `InventoryPosted` / `InventoryReversed` for purchase, purchase return, waste, and adjustment documents.
 
 ### Pakistan FBR/PRA config fields
 
@@ -367,7 +367,7 @@ FBR also requires `sellerNtn`. USIN uses `order.invoice_number`.
 | `apiBaseUrl` | OSCU `https://etims-api[-sbx].kra.go.ke/etims-api` or VSCU `http://127.0.0.1:…` |
 | `tin` / `bhfId` / `dvcSrlNo` | Taxpayer PIN, 2-char branch, device serial |
 | `cmcKey` | Communication key from Initialize Device |
-| `itemClsCd` / `taxTyCd` | Default item class and tax type (dishes may override) |
+| `itemClsCd` / `taxTyCd` | Default item class and tax type (per-item overrides live on entity mappings) |
 | `pkgUnitCd` / `qtyUnitCd` / `itemTyCd` | Used when minting KRA item codes (`KE2NTU0000001`) |
 
 VSCU on another LAN host (or Docker host gateway) must be listed in `FISCAL_ALLOWED_UPSTREAMS`. Docker cannot reach the host via `localhost` inside the API container.

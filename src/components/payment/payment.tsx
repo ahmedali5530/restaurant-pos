@@ -35,16 +35,26 @@ import {Order, OrderStatus} from "@/api/model/order.ts";
 import type {PaymentType} from "@/api/model/payment_type.ts";
 import {fetchOrderFull} from "@/lib/order-fetch.ts";
 import {calculateCartItemPrice} from "@/lib/cart.ts";
+import {isCashPaymentType} from "@/lib/order.ts";
+import {printFinalBillAfterSettle} from "@/lib/order-print.ts";
+import {settlePaidOrder} from "@/lib/order-settle.ts";
 import {
   resolvePaymentTypeTax,
   resolveQuickCheckoutPayable,
 } from "@/lib/payment-type-tax.ts";
 import {useAtom} from "jotai";
-import {appPage, appSettings, appState, closingEnforcementAtom} from "@/store/jotai.ts";
+import {
+  appPage,
+  appSettings,
+  appState,
+  closingEnforcementAtom,
+  skipFinalPrintOnPayment,
+} from "@/store/jotai.ts";
 import {Button} from "@/components/common/input/button.tsx";
 import {faCancel, faCheck, faCreditCard} from "@fortawesome/free-solid-svg-icons";
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useSecurity} from "@/hooks/useSecurity.ts";
+import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import {nanoid} from "nanoid";
 
 type PaymentVariant = 'restaurant' | 'quick';
@@ -66,7 +76,9 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
   const [page] = useAtom(appPage);
   const [settings] = useAtom(appSettings);
   const [enforcement] = useAtom(closingEnforcementAtom);
+  const [skipFinalPrint] = useAtom(skipFinalPrintOnPayment);
   const {protectAction} = useSecurity();
+  const {manager: integrationManager} = useIntegrationManager();
   const orderTakingBlocked = enforcement.orderTakingBlocked;
   const isQuick = variant === 'quick';
 
@@ -334,13 +346,16 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
       const newLines = toCreateItems();
 
       // Group kitchen print payload from stages embedded on dishes.
-      for (const item of state.cart) {
-        if (isPersistedCartItem(item) || item.isHold) continue;
-        for (const stage of kitchenStagesFromDish(item.dish, settings.kitchens) ?? []) {
-          if (stage.status !== 'pending') continue;
-          const list = kitchenItems[stage.kitchenId] ?? [];
-          list.push({ ...item, item: item.dish });
-          kitchenItems[stage.kitchenId] = list;
+      // Quick Order skips kitchen fire prints by default (counter settle only).
+      if (!isQuick) {
+        for (const item of state.cart) {
+          if (isPersistedCartItem(item) || item.isHold) continue;
+          for (const stage of kitchenStagesFromDish(item.dish, settings.kitchens) ?? []) {
+            if (stage.status !== 'pending') continue;
+            const list = kitchenItems[stage.kitchenId] ?? [];
+            list.push({ ...item, item: item.dish });
+            kitchenItems[stage.kitchenId] = list;
+          }
         }
       }
 
@@ -746,20 +761,51 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
             throw new Error(t("payment:errors.createOrder"));
           }
 
+          const settledOrderId = String(orderId);
+          // Prefer hydrated order for settle seed / fiscal (same as full payment).
+          let settleOrder =
+            (await fetchOrderForPayment(settledOrderId)) ??
+            (state?.order?.order as Order | undefined);
+          if (!settleOrder?.id) {
+            settleOrder = {id: settledOrderId} as Order;
+          }
+
+          // Apply payment-type tax on the order before settle so fiscal/print see it.
           const tax = resolvePaymentTypeTax(selectedPaymentType);
-          await posStore.settleOrder({
-            orderId: String(orderId),
+          let keepTaxes = false;
+          if (tax?.id) {
+            await posStore
+              .saveOrderDraft(
+                settledOrderId,
+                {tax: String(tax.id)},
+                {order: settleOrder, items: settleOrder.items},
+              )
+              .catch(() => undefined);
+            await posStore.recomputeOrderTaxes(settledOrderId).catch(() => undefined);
+            settleOrder =
+              (await fetchOrderForPayment(settledOrderId)) ?? settleOrder;
+            keepTaxes = true;
+          }
+
+          const paymentId = `order_payment:${nanoid()}`;
+          const result = await settlePaidOrder({
+            db,
+            integrationManager,
+            order: settleOrder,
             payments: [
               {
-                id: `order_payment:${nanoid()}`,
+                id: paymentId,
                 paymentTypeId: String(selectedPaymentType.id),
+                paymentTypeName: selectedPaymentType.name,
                 amount,
                 payable,
                 comments: null,
               },
             ],
             cashierId: page?.user?.id ? String(page.user.id) : null,
+            tax: tax ?? null,
             taxId: tax?.id ? String(tax.id) : null,
+            taxAmount: Number(settleOrder.tax_amount || 0),
             tip: 0,
             tipAmount: 0,
             tipType: DiscountType.Fixed,
@@ -768,12 +814,38 @@ export const Payment = ({variant = 'restaurant'}: PaymentProps) => {
             serviceChargeType: DiscountType.Fixed,
             notes: "",
             discountAmount: 0,
+            keepTaxes,
+            skipDraft: true,
+            trackingPage: page?.page,
+            trackingUser: page?.user,
+            total: payable,
+            t: (key, options) => t(`payment:${key}`, options as any),
           });
 
-          void terminalSyncService.synchronize().catch(() => undefined);
+          if (!result.ok) {
+            return;
+          }
+
+          // Same post-settle print path as OrderPayment (respects toolbar skip).
+          void printFinalBillAfterSettle({
+            db,
+            orderId: settledOrderId,
+            skipFinalPrint,
+            hasCashTender: isCashPaymentType(selectedPaymentType),
+            userId: page?.user?.id ? String(page.user.id) : null,
+          }).catch(() => undefined);
           quickAmountTouchedRef.current = false;
           await reset();
         } catch (error) {
+          if ((error as any)?.code === "ALREADY_CLOSED") {
+            toast.error(t("payment:receiving.alreadyClosed"));
+            await reset();
+            return;
+          }
+          if ((error as any)?.code === "NOT_OWNER") {
+            toast.error(t("payment:receiving.notOwner"));
+            return;
+          }
           const message =
             error instanceof Error ? error.message : t("payment:errors.createOrder");
           console.error(error);

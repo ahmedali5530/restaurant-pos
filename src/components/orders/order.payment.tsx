@@ -26,8 +26,6 @@ import {OrderPaymentTip} from "@/components/orders/payment/order.payment.tip.tsx
 import {faPencil} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {OrderPayment as OrderPaymentModal} from "@/api/model/order_payment.ts";
-import {dispatchPrint} from "@/lib/print.service.ts";
-import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {useDB} from "@/api/db/db.ts";
 import {OrderPaymentNotes} from "@/components/orders/payment/order.payment.notes.tsx";
 import {
@@ -50,13 +48,12 @@ import {Extra} from "@/api/model/extra.ts";
 import {Coupon, WeekDay} from "@/api/model/coupon.ts";
 import {isExtraApplicable as extraMatchesContext} from "@/infrastructure/pos-store/catalog.ts";
 import {OrderPaymentCoupon} from "@/components/orders/payment/order.payment.coupon.tsx";
-import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
+import { hasTempPrint, printFinalBillAfterSettle } from "@/lib/order-print.ts";
 import {toast} from "sonner";
 import {useSecurity} from "@/hooks/useSecurity.ts";
 import {nowSurrealDateTime, toJsDate} from "@/lib/datetime.ts";
 import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
-import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 import {OrderItemName} from "@/components/common/order/order.item.tsx";
 
 interface Props {
@@ -664,40 +661,6 @@ export const OrderPayment = ({
     setCouponAmount(0);
   };
 
-  const print = async () => {
-    let o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
-    if (!o) {
-      toast.error(t('payment:errors.createOrder'));
-      return;
-    }
-    // If order-level tax is set but amount hasn't landed yet (fast settle race), recompute once.
-    const taxRef = o.tax != null ? String((o.tax as any)?.id ?? o.tax) : '';
-    if (taxRef && !(Number(o.tax_amount) > 0)) {
-      await posStore.recomputeOrderTaxes(String(order.id)).catch(() => undefined);
-      o = (await posStore.getOrderHydrated(String(order.id))) as Order | null;
-      if (!o) {
-        toast.error(t('payment:errors.createOrder'));
-        return;
-      }
-    }
-    const qrcodes = await getFiscalQrcodesForOrderPrint(db, order.id).catch(() => []);
-
-    await requestBillPrint({
-      db,
-      orderId: order.id.toString(),
-      printType: 'final',
-      printModule: 'orders.print_final',
-      description: 'Print final bill',
-      userId: page?.user?.id?.toString?.() ?? page?.user?.id,
-      skipIfOverLimit: true,
-      doPrint: () => dispatchPrint(db, PRINT_TYPE.final_bill, {
-        order: o,
-        qrcodes,
-        qrcode: qrcodes[0]?.value,
-      }, {userId: page?.user?.id}),
-    });
-  }
-
   const onPayment = (opts?: { settled?: boolean }) => {
     // After settle the order is Paid — do not flush draft/tax again (blocks modal close).
     if (opts?.settled) {
@@ -707,15 +670,17 @@ export const OrderPayment = ({
       void closeModal();
     }
 
+    const hasCashTender = paymentTypes.some((p) => isCashPaymentType(p.payment_type));
+    const orderId = String(order.id);
+    const userId = page?.user?.id?.toString?.() ?? page?.user?.id;
     setTimeout(() => {
-      if (skipFinalPrint) {
-        const hasCashTender = paymentTypes.some((p) => isCashPaymentType(p.payment_type));
-        if (hasCashTender) {
-          void dispatchPrint(db, PRINT_TYPE.pulse, {}, {userId: page?.user?.id});
-        }
-        return;
-      }
-      void print();
+      void printFinalBillAfterSettle({
+        db,
+        orderId,
+        skipFinalPrint,
+        hasCashTender,
+        userId,
+      }).catch(() => undefined);
     }, 300)
   }
 

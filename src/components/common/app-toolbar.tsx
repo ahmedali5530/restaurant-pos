@@ -20,6 +20,7 @@ import { REPORTS, ADMIN } from "@/routes/posr.ts";
 import { HqCatalogBranchToolbarSlot } from "@/components/settings/hq_catalog_branch_banner.tsx";
 import { UomConverterToolbar } from "@/components/inventory/common/uom.converter.toolbar.tsx";
 import { CustomerDisplayToolbar } from "@/components/common/customer-display.toolbar.tsx";
+import { SkipFinalPrintToolbar } from "@/components/common/skip-final-print.toolbar.tsx";
 
 /** Must match `html[data-app-toolbar='1'] { --app-toolbar-h }` in app.scss. */
 export const APP_TOOLBAR_HEIGHT = "3.5rem";
@@ -244,6 +245,7 @@ export function AppToolbar() {
         {/* Future left/center slots: sync progress, printers, clock, … */}
       </div>
       <div className="relative flex items-center gap-1 shrink-0">
+        <SkipFinalPrintToolbar />
         <CustomerDisplayToolbar />
         <UomConverterToolbar />
         {/* AI assistant trigger portals here (between converter and sync indicator). */}

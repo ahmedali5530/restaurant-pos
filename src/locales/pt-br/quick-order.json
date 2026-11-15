@@ -5,14 +5,20 @@
     "last": "Última leitura: {{code}}",
     "unknown": "Código desconhecido: {{code}}",
     "added": "{{name}} adicionado",
-    "placeholder": "Escaneie código/PLU, CODE*6 ou *6 e Enter",
-    "inputLabel": "Código / PLU",
-    "qtyHint": "Qtd: CODE*6 adiciona seis; *6 adiciona seis do último",
+    "placeholder": "Escaneie o código ou digite nome / PLU / CODE*6 / *6",
+    "inputLabel": "Código / nome / PLU",
+    "qtyHint": "Digite para buscar por nome, número ou código. Qtd: CODE*6 ou *6 do último item",
     "invalidQty": "Quantidade inválida — número inteiro após *",
     "noLastItem": "Escaneie um item primeiro, depois *qtd",
     "addedQty": "Adicionado {{count}} × {{name}}",
     "unknownPlu": "PLU de balança desconhecida {{plu}} ({{code}})",
-    "addedWeight": "Adicionado {{weight}} kg {{name}}"
+    "addedWeight": "Adicionado {{weight}} kg {{name}}",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Nome",
+      "number": "Número",
+      "barcode": "Código"
+    }
   },
   "cart": {
     "title": "Carrinho",

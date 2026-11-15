@@ -328,6 +328,9 @@
     "analyzeAttached": "{{file}} ready — ask below"
   },
   "loading": "Loading...",
+  "toolbar": {
+    "skipFinalPrint": "Skip final receipt"
+  },
   "desktopSetup": {
     "title": "Desktop database setup",
     "subtitle": "Schema updates apply automatically when this app starts its own database. Use this screen to import an extra .surql file (demo data or a patch) if that did not run.",

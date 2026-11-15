@@ -16,6 +16,37 @@ export const RELEASES: ReleaseNotes[] = [
   },
   {
     date: '2026-11-15',
+    title: 'KRA item overrides stay in Integrations',
+    items: [
+      'Kenya eTIMS per-dish class code and tax type are edited under Integrations → Configuration (Item fiscal overrides), not on the dish form.',
+      'Overrides are stored on integration entity mappings so catalog settings stay provider-agnostic.',
+    ],
+  },
+  {
+    date: '2026-11-15',
+    title: 'Dishes search and barcode errors',
+    items: [
+      'Saving a dish with a barcode already in use shows an error toast instead of crashing the Dishes screen.',
+      'Dishes search matches name, number, barcode (including extra barcodes), and category.',
+    ],
+  },
+  {
+    date: '2026-11-15',
+    title: 'Quick Order scan autocomplete',
+    items: [
+      'Quick Order scan field suggests dishes while you type by name, number (PLU), or barcode — arrow keys / Enter / click to add; barcode wedges and CODE*qty still work the same.',
+    ],
+  },
+  {
+    date: '2026-11-15',
+    title: 'Skip final receipt on toolbar',
+    items: [
+      'Skip final receipt moved from the payment screen to the bottom app toolbar so cashiers can set it before opening payment. The terminal still remembers the preference.',
+      'Quick Order Complete uses the same settle path as full payment: fiscal checks, sale/invoice/payment integration events, and skip/final-receipt (cash still opens the drawer when skip is on). Kitchen fire prints are skipped by default.',
+    ],
+  },
+  {
+    date: '2026-11-15',
     title: 'Quick Order minimal checkout',
     items: [
       'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',
@@ -36,6 +67,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Post-backfill watermarks use each table’s own changefeed tip (not another table’s high-water). A cursor ahead of its tip snaps down instead of clearing and re-uploading every row HQ already has.',
       'Silent-gap detection no longer compares a table to another table’s high-water (that kept re-backfilling order_item_kitchen and starving order). Gaps are confirmed on that table’s own recent feed only.',
+      'When versionstamp SINCE is empty but the tip still has a few newer mutations, Sync applies a datetime catch-up instead of clearing the cursor and SELECT re-backfilling (full re-backfill only if the cursor has been idle over 24 hours).',
     ],
   },
   {
@@ -463,7 +495,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Integrations includes KRA eTIMS (OSCU cloud or local VSCU): initialize the device, register dishes and inventory items, submit sales at payment close, and print the eTIMS receipt QR.',
       'Paid refunds and voids send KRA credit notes; inventory purchases, returns, waste, and adjustments post stock in/out when items are registered.',
-      'Optional KRA item class and tax type on each dish; Order Fiscal report filters include KRA.',
+      'Optional KRA item class and tax type live under Integrations Configuration; Order Fiscal report filters include KRA.',
     ],
   },
   {

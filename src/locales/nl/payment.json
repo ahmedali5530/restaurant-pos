@@ -94,8 +94,7 @@
     "exactCardAmount": "Exact bedrag toegevoegd voor kaartbetaling",
     "tempAlreadyPrinted": "Tijdelijke rekening al afgedrukt",
     "alreadyClosed": "Deze bestelling is al gesloten.",
-    "notOwner": "Deze bestelling wordt door een andere terminal afgehandeld.",
-    "skipFinalPrint": "Eindbon overslaan"
+    "notOwner": "Deze bestelling wordt door een andere terminal afgehandeld."
   },
   "remote": {
     "remoteLabel": "{{name}} (Op afstand)",

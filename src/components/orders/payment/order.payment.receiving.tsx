@@ -14,13 +14,11 @@ import {OrderPayment} from "@/api/model/order_payment.ts";
 import {nanoid} from "nanoid";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {useAtom} from "jotai";
-import {appAlert, appPage, appSettings, skipFinalPrintOnPayment} from "@/store/jotai.ts";
-import {Switch} from "@/components/common/input/switch.tsx";
+import {appAlert, appPage, appSettings} from "@/store/jotai.ts";
 import {dispatchPrint} from "@/lib/print.service.ts";
 import {PRINT_TYPE} from "@/lib/print.registry.tsx";
 import {getDraftPaymentChangeDisplay, isCardPaymentType} from "@/lib/order.ts";
 import {posStore} from "@/infrastructure/pos-store/pos-store.ts";
-import {terminalSyncService} from "@/infrastructure/sync/sync-service.ts";
 import {
   isRemotePaymentType,
   RemotePaymentPendingSlot,
@@ -28,23 +26,11 @@ import {
   useRemotePayment,
 } from "@/components/orders/payment/remote";
 import {useSecurity} from "@/hooks/useSecurity.ts";
-import {postOrderTracking} from "@/lib/tracking.service.ts";
 import {useTranslation} from "react-i18next";
 import {useIntegrationManager} from "@/providers/integration.provider.tsx";
 import { hasTempPrint, requestBillPrint } from "@/lib/order-print.ts";
 import { fetchOrderFull } from "@/lib/order-fetch.ts";
-import {
-  ensureOrderSyncedForFiscal,
-  fiscalShouldBlockBeforePaid,
-  listMissingLocalFiscalItemIds,
-  loadOrderForFiscal,
-  runFiscalSettlementForOrder,
-} from "@/integrations/providers/fiscal/settlement.ts";
-import { publishSaleCompleted } from "@/integrations/accounting/events/publish.ts";
-import {
-  publishInvoiceCreated,
-  publishPaymentCompleted,
-} from "@/integrations/events/publish/payments.ts";
+import {settlePaidOrder} from "@/lib/order-settle.ts";
 import {toast} from "sonner";
 
 interface Props {
@@ -143,7 +129,6 @@ const OrderPaymentReceivingContent = ({
   const {protectAction} = useSecurity();
   const { manager: integrationManager } = useIntegrationManager();
   const [page] = useAtom(appPage);
-  const [skipFinalPrint, setSkipFinalPrint] = useAtom(skipFinalPrintOnPayment);
   const [tempPrinted, setTempPrinted] = useState(false);
 
   useEffect(() => {
@@ -196,111 +181,31 @@ const OrderPaymentReceivingContent = ({
     setClosing(true);
 
     try {
-      // Fiscal pre-check is an online integration concern; when the master DB is
-      // unreachable we settle locally and let the post-settle fiscal run catch up.
-      let blockBeforePaid = false;
-      let fiscalOrderSnapshot: Order | undefined;
-      let settledOrder = order;
-      try {
-        // Always push pending Dexie order/item ops before Surreal fiscal read so
-        // addons (e.g. water added minutes earlier) are present on the authority payload.
-        const syncState = await ensureOrderSyncedForFiscal(String(settledOrder.id));
-        if (settledOrder.invoice_number == null) {
-          const local = await posStore.getOrder(String(settledOrder.id));
-          if (local?.invoice_number != null) {
-            settledOrder = { ...settledOrder, invoice_number: local.invoice_number } as Order;
-          }
-        }
-        blockBeforePaid = await fiscalShouldBlockBeforePaid(integrationManager, db);
-        if (blockBeforePaid) {
-          fiscalOrderSnapshot = await loadOrderForFiscal(db, String(settledOrder.id));
-          if (fiscalOrderSnapshot && settledOrder.invoice_number != null) {
-            fiscalOrderSnapshot = {
-              ...fiscalOrderSnapshot,
-              invoice_number: settledOrder.invoice_number,
-            };
-          }
-          const missingItems = await listMissingLocalFiscalItemIds(
-            String(settledOrder.id),
-            fiscalOrderSnapshot,
-          );
-          if (!syncState.ok || missingItems.length > 0) {
-            toast.error(t('errors.itemsPendingSync'));
-            return;
-          }
-        }
-      } catch (fiscalCheckError) {
-        console.warn('Fiscal pre-check skipped (offline?)', fiscalCheckError);
-        blockBeforePaid = false;
-      }
-
-      if (blockBeforePaid) {
-        if (fiscalOrderSnapshot) {
-          const preResult = await runFiscalSettlementForOrder(
-            integrationManager,
-            db,
-            {
-              ...fiscalOrderSnapshot,
-              tax: tax ?? fiscalOrderSnapshot.tax,
-              tax_amount: taxAmount ?? fiscalOrderSnapshot.tax_amount,
-              discount_amount: discountAmount ?? fiscalOrderSnapshot.discount_amount,
-              tip,
-              tip_amount: tipAmount,
-              tip_type: tipType,
-              service_charge: serviceCharge,
-              service_charge_amount: serviceChargeAmount,
-              service_charge_type: serviceChargeType,
-              payments: payments.length > 0 ? payments : fiscalOrderSnapshot.payments,
-            }
-          );
-          if (preResult.blocked) {
-            toast.error(
-              preResult.blockedCode === 'INVOICE_PENDING'
-                ? t('errors.invoicePendingSync')
-                : preResult.blockedCode === 'ITEMS_PENDING_SYNC'
-                  ? t('errors.itemsPendingSync')
-                  : (preResult.blockedError ?? t('errors.fiscalFailed')),
-            );
-            return;
-          }
-          if (Object.values(preResult.resultsByProvider).some((row) => row.status === 'failed')) {
-            toast.warning('Some fiscal providers failed; check Integrations queue');
-          }
-        }
-      }
-
       const orderId = String(order.id);
-      const hasCoupon = !!(coupon && couponAmount && couponAmount > 0);
-      const resolvedDiscountAmount = discountAmount ?? order.discount_amount ?? 0;
-      const resolvedDiscountId = order.discount?.id ? String(order.discount.id) : undefined;
       const extraRows = Object.keys(extras).map((name) => ({
         id: `order_extras:${orderId.split(':')[1]}_${name.replace(/[^a-zA-Z0-9_]/g, '_')}`,
         name,
         value: extras[name],
       }));
 
-      // Draft save is debounced via React effects — flush so tax/tip/extras/coupon/
-      // discounts land in Dexie before Paid. Fail settle if flush fails; continuing
-      // would print a final bill missing those lines.
-      if (flushDraft) {
-        await flushDraft();
-      }
-
-      // Local-first settlement: Dexie commit + outbox (CREATE_PAYMENT×n, MERGE order,
-      // REPLACE taxes/extras, coupon + redemption). Works offline; drains when back.
-      const settled = await posStore.settleOrder({
-        orderId,
+      const result = await settlePaidOrder({
+        db,
+        integrationManager,
+        order,
         payments: payments
           .filter((payment) => payment?.payment_type?.id && Number(payment.amount) > 0)
           .map((payment) => ({
             id: payment.id ? String(payment.id) : undefined,
             paymentTypeId: String(payment.payment_type.id),
+            paymentTypeName: payment.payment_type?.name,
             amount: Number(payment.amount),
             payable: Number(payment.payable ?? total),
             comments: payment.comments ?? null,
           })),
         cashierId: page?.user?.id ? String(page.user.id) : null,
+        tax,
         taxId: tax?.id ? String(tax.id) : null,
+        taxAmount,
         tip,
         tipAmount,
         tipType,
@@ -308,107 +213,32 @@ const OrderPaymentReceivingContent = ({
         serviceChargeAmount,
         serviceChargeType,
         notes,
-        discountAmount: resolvedDiscountAmount,
-        ...(resolvedDiscountId ? { discountId: resolvedDiscountId } : {}),
+        discountAmount: discountAmount ?? order.discount_amount ?? 0,
+        discountId: order.discount?.id ? String(order.discount.id) : undefined,
         extras: extraRows,
-        coupon: hasCoupon
-          ? {
-              id: order?.coupon?.id ? String(order.coupon.id) : undefined,
-              couponId: String(coupon!.id),
-              discount: Number(couponAmount),
-            }
-          : null,
-        couponRedemption: hasCoupon
-          ? {
-              userId: page?.user?.id ? String(page.user.id) : null,
-              discountAmount: Number(couponAmount),
-            }
-          : null,
+        coupon,
+        couponAmount,
         // Payment screen auto-saves draft + taxes — skip redundant work on settle.
         keepTaxes: true,
         skipDraft: true,
-        seed: { order, items: order.items },
+        flushDraft,
+        trackingPage: page?.page,
+        trackingUser: page?.user,
+        total,
+        t,
       });
 
-      const settledPayments = payments.map((payment) => {
-        const row = settled.payments.find(
-          (p) => p.id === payment.id || p.id === `order_payment:${payment.id}`,
-        );
-        return row ? { ...payment, id: row.id as any } : payment;
-      });
-      setPayments(settledPayments);
-
-      // Table is free once the check is settled.
-      if (order?.table?.id) {
-        void posStore.unlockTable(String(order.table.id)).catch(() => undefined);
+      if (!result.ok) {
+        return;
       }
 
-      postOrderTracking({
-        module: "orders.complete_payment",
-        page: page?.page,
-        orderId: order.id,
-        payload: {
-          payment_count: payments.length,
-          coupon: coupon?.id?.toString(),
-          total,
-        },
-        user: page?.user,
+      const settledPayments = payments.map((payment) => {
+        const row = result.payments.find(
+          (p) => p.id === payment.id || p.id === `order_payment:${payment.id}`,
+        );
+        return row ? {...payment, id: row.id as any} : payment;
       });
-
-      // Post-settle side effects (fiscal, accounting, integration events) never
-      // block the cashier; they wait for the outbox to drain so remote reads
-      // see the settled order.
-      void (async () => {
-        try {
-          await terminalSyncService.synchronize().catch(() => undefined);
-
-          if (!blockBeforePaid) {
-            await ensureOrderSyncedForFiscal(orderId);
-            const settledForFiscal = await loadOrderForFiscal(db, orderId);
-            if (settledForFiscal) {
-              const fiscalResult = await runFiscalSettlementForOrder(
-                integrationManager,
-                db,
-                settledForFiscal
-              );
-              if (Object.values(fiscalResult.resultsByProvider).some((row) => row.status === 'failed')) {
-                toast.warning('Some fiscal providers failed; check Integrations queue');
-              }
-            }
-          }
-
-          const saleOrder = await loadOrderForFiscal(db, orderId);
-          if (saleOrder && integrationManager) {
-            await publishSaleCompleted(integrationManager, saleOrder);
-            await publishInvoiceCreated(integrationManager, {
-              orderId: String(saleOrder.id),
-              invoiceNumber: saleOrder.invoice_number,
-              total: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-              totalCollected: Number(saleOrder.payments?.reduce((s, p) => s + Number(p?.amount || 0), 0) || total),
-              taxAmount: Number(saleOrder.tax_amount || taxAmount || 0),
-              customerId: saleOrder.customer?.id
-                ? String(saleOrder.customer.id)
-                : undefined,
-              completedAt: new Date().toISOString(),
-            });
-            for (const payment of settledPayments) {
-              if (!payment?.id) continue;
-              await publishPaymentCompleted(integrationManager, {
-                paymentId: String(payment.id),
-                orderId,
-                amount: Number(payment.amount || 0),
-                paymentTypeId: payment.payment_type?.id
-                  ? String(payment.payment_type.id)
-                  : undefined,
-                paymentTypeName: payment.payment_type?.name,
-                tipAmount: tipAmount,
-              });
-            }
-          }
-        } catch (sideEffectError) {
-          console.warn('Post-settlement side effects failed', sideEffectError);
-        }
-      })();
+      setPayments(settledPayments);
 
       onComplete({ settled: true });
     } catch (e) {
@@ -651,16 +481,6 @@ const OrderPaymentReceivingContent = ({
               }}>
                 C
               </Button>
-            </div>
-            <div className="mb-3" data-testid="payment-skip-final-print">
-              <div>
-                <Switch
-                  checked={skipFinalPrint}
-                  onChange={(e) => setSkipFinalPrint(e.target.checked)}
-                >
-                  {t('receiving.skipFinalPrint')}
-                </Switch>
-              </div>
             </div>
             <div className="flex gap-5" data-testid="payment-finish-actions">
               <span title={tempPrinted ? t('receiving.tempAlreadyPrinted') : undefined} className="flex-1 flex">

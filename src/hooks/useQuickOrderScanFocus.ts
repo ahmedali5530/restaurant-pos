@@ -60,6 +60,14 @@ const isAllowedFocusTarget = (
   if (el.closest?.(MODAL_SELECTOR)) {
     return true;
   }
+  // Scan autocomplete list
+  if (
+    el.closest?.(
+      '[data-testid="quick-order-scan-suggestions"], [data-quick-order-scan-suggestions="true"]',
+    )
+  ) {
+    return true;
+  }
   // Cart qty field
   if (el.closest?.('[data-testid="quick-order-cart-items"] input')) {
     return true;

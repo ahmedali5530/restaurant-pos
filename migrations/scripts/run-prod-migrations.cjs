@@ -142,6 +142,11 @@ const MIGRATION_PLAN = [
   { id: '2026_10_31_optional_null', file: '2026_10_31_optional_null.surql' },
   { id: '2026_11_04_manage_changefeed', file: '2026_11_04_manage_changefeed.surql' },
   { id: '2026_11_05_customer_display', file: '2026_11_05_customer_display.surql' },
+  {
+    id: '2026_11_15_kra_dish_fields_to_mapping',
+    backfill: 'backfill-kra-dish-fields-to-mapping.cjs',
+  },
+  { id: '2026_11_15_kra_remove_dish_fields', file: '2026_11_15_kra_remove_dish_fields.surql' },
 ];
 
 const rows = (result) => {

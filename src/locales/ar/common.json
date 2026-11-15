@@ -327,6 +327,9 @@
     },
     "settingsTitle": "إعدادات المساعد",
     "analyzeAttached": "{{file}} جاهز — اسأل أدناه"
+  },
+  "toolbar": {
+    "skipFinalPrint": "تخطي الإيصال النهائي"
   }
 ,
   "desktopSetup": {

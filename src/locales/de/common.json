@@ -327,6 +327,9 @@
     },
     "settingsTitle": "Assistenteneinstellungen",
     "analyzeAttached": "{{file}} bereit — unten fragen"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Abschlussbeleg überspringen"
   }
 ,
   "desktopSetup": {

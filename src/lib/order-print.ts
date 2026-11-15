@@ -10,6 +10,9 @@ import i18n from "@/lib/i18n.ts";
 import { toast } from "sonner";
 import type { ProtectedActionOptions } from "@/hooks/useSecurity.ts";
 import { posStore } from "@/infrastructure/pos-store/pos-store.ts";
+import { dispatchPrint } from "@/lib/print.service.ts";
+import { PRINT_TYPE } from "@/lib/print.registry.tsx";
+import { getFiscalQrcodesForOrderPrint } from "@/integrations/providers/fiscal/settlement.ts";
 
 type PrintDB = {
   query: (sql: string, params?: Record<string, unknown>) => Promise<any>;
@@ -254,4 +257,63 @@ export async function requestBillPrint(opts: {
   );
 
   return true;
+}
+
+/**
+ * After settle: print the final bill, or only pulse the cash drawer when the
+ * terminal "Skip final receipt" preference is on.
+ */
+export async function printFinalBillAfterSettle(opts: {
+  db: PrintDB;
+  orderId: string;
+  skipFinalPrint: boolean;
+  hasCashTender: boolean;
+  userId?: string | null;
+}): Promise<void> {
+  const userId = opts.userId != null ? String(opts.userId) : undefined;
+
+  if (opts.skipFinalPrint) {
+    if (opts.hasCashTender) {
+      void dispatchPrint(opts.db as any, PRINT_TYPE.pulse, {}, { userId });
+    }
+    return;
+  }
+
+  let o = (await posStore.getOrderHydrated(String(opts.orderId))) as any;
+  if (!o) {
+    return;
+  }
+  const taxRef = o.tax != null ? String((o.tax as any)?.id ?? o.tax) : "";
+  if (taxRef && !(Number(o.tax_amount) > 0)) {
+    await posStore.recomputeOrderTaxes(String(opts.orderId)).catch(() => undefined);
+    o = (await posStore.getOrderHydrated(String(opts.orderId))) as any;
+    if (!o) {
+      return;
+    }
+  }
+
+  const qrcodes = await getFiscalQrcodesForOrderPrint(opts.db as any, opts.orderId).catch(
+    () => [],
+  );
+
+  await requestBillPrint({
+    db: opts.db,
+    orderId: String(opts.orderId),
+    printType: "final",
+    printModule: "orders.print_final",
+    description: "Print final bill",
+    userId,
+    skipIfOverLimit: true,
+    doPrint: () =>
+      dispatchPrint(
+        opts.db as any,
+        PRINT_TYPE.final_bill,
+        {
+          order: o,
+          qrcodes,
+          qrcode: qrcodes[0]?.value,
+        },
+        { userId },
+      ),
+  });
 }

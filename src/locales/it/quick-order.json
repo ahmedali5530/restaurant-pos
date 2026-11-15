@@ -5,14 +5,20 @@
     "last": "Ultima scansione: {{code}}",
     "unknown": "Codice sconosciuto: {{code}}",
     "added": "Aggiunto {{name}}",
-    "placeholder": "Scansiona codice/PLU, CODE*6 o *6 poi Invio",
-    "inputLabel": "Barcode / PLU",
-    "qtyHint": "Qtà: CODE*6 aggiunge sei; *6 aggiunge sei dell’ultimo",
+    "placeholder": "Scansiona barcode o digita nome / PLU / CODE*6 / *6",
+    "inputLabel": "Barcode / nome / PLU",
+    "qtyHint": "Digita per cercare per nome, numero o barcode. Qtà: CODE*6 o *6 per l’ultimo articolo",
     "invalidQty": "Quantità non valida — intero dopo *",
     "noLastItem": "Scansiona prima un articolo, poi *qtà",
     "addedQty": "Aggiunti {{count}} × {{name}}",
     "unknownPlu": "PLU bilancia sconosciuta {{plu}} ({{code}})",
-    "addedWeight": "Aggiunto {{weight}} kg {{name}}"
+    "addedWeight": "Aggiunto {{weight}} kg {{name}}",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Nome",
+      "number": "Numero",
+      "barcode": "Barcode"
+    }
   },
   "cart": {
     "title": "Carrello",

@@ -5,14 +5,20 @@
     "last": "Last scan: {{code}}",
     "unknown": "Unknown code: {{code}}",
     "added": "Added {{name}}",
-    "placeholder": "Scan barcode or type PLU, CODE*6, or *6 then Enter",
-    "inputLabel": "Barcode / PLU",
-    "qtyHint": "Qty tip: CODE*6 adds six; *6 adds six of the last item",
+    "placeholder": "Scan barcode, or type name / PLU / CODE*6 / *6",
+    "inputLabel": "Barcode / name / PLU",
+    "qtyHint": "Type to search by name, number, or barcode. Qty tip: CODE*6 or *6 for last item",
     "invalidQty": "Invalid quantity — use a whole number after *",
     "noLastItem": "Scan an item first, then use *qty",
     "addedQty": "Added {{count}} × {{name}}",
     "unknownPlu": "Unknown scale PLU {{plu}} ({{code}})",
-    "addedWeight": "Added {{weight}} kg {{name}}"
+    "addedWeight": "Added {{weight}} kg {{name}}",
+    "suggestionMeta": "{{match}}: {{meta}}",
+    "match": {
+      "name": "Name",
+      "number": "Number",
+      "barcode": "Barcode"
+    }
   },
   "cart": {
     "title": "Cart",

@@ -8,6 +8,26 @@ export type EntityMappingDbClient = {
   merge: (thing: string, data: Record<string, unknown>) => Promise<unknown>;
 };
 
+const normalizeEntityMapping = (row: any): EntityMapping | null => {
+  if (!row) return null;
+  const posrId = String(row.posrId ?? row.posr_id ?? '');
+  const externalId = String(row.externalId ?? row.external_id ?? '');
+  if (!posrId || !externalId) return null;
+  return {
+    id: row.id != null ? String(row.id) : undefined,
+    providerId: String(row.providerId ?? row.provider_id ?? ''),
+    tenantId: String(row.tenantId ?? row.tenant_id ?? ''),
+    entityType: (row.entityType ?? row.entity_type) as ExternalEntityType,
+    posrId,
+    externalId,
+    externalPayload: (row.externalPayload ?? row.external_payload ?? {}) as Record<string, unknown>,
+    updatedAt:
+      row.updatedAt != null || row.updated_at != null
+        ? String(row.updatedAt ?? row.updated_at)
+        : undefined,
+  };
+};
+
 export class EntityMappingRepository {
   constructor(private readonly db: EntityMappingDbClient) {}
 
@@ -17,14 +37,14 @@ export class EntityMappingRepository {
     entityType: ExternalEntityType,
     posrId: string
   ): Promise<EntityMapping | null> {
-    const [rows] = await this.db.query<EntityMapping[]>(
+    const [rows] = await this.db.query<any[]>(
       `SELECT * FROM ${Tables.integration_entity_mappings}
        WHERE provider_id = $providerId AND tenant_id = $tenantId
          AND entity_type = $entityType AND posr_id = $posrId
        LIMIT 1`,
       { providerId, tenantId, entityType, posrId }
     );
-    return rows?.[0] ?? null;
+    return normalizeEntityMapping(rows?.[0]);
   }
 
   async findByExternalId(
@@ -33,14 +53,14 @@ export class EntityMappingRepository {
     entityType: ExternalEntityType,
     externalId: string
   ): Promise<EntityMapping | null> {
-    const [rows] = await this.db.query<EntityMapping[]>(
+    const [rows] = await this.db.query<any[]>(
       `SELECT * FROM ${Tables.integration_entity_mappings}
        WHERE provider_id = $providerId AND tenant_id = $tenantId
          AND entity_type = $entityType AND external_id = $externalId
        LIMIT 1`,
       { providerId, tenantId, entityType, externalId }
     );
-    return rows?.[0] ?? null;
+    return normalizeEntityMapping(rows?.[0]);
   }
 
   async save(mapping: Omit<EntityMapping, 'id' | 'updatedAt'>): Promise<EntityMapping> {
@@ -87,8 +107,10 @@ export class EntityMappingRepository {
 
     sql += ' ORDER BY entity_type, posr_id';
 
-    const [rows] = await this.db.query<EntityMapping[]>(sql, params);
-    return rows ?? [];
+    const [rows] = await this.db.query<any[]>(sql, params);
+    return (rows ?? [])
+      .map((row) => normalizeEntityMapping(row))
+      .filter((row): row is EntityMapping => Boolean(row));
   }
 
   async delete(providerId: string, tenantId: string, entityType: ExternalEntityType, posrId: string): Promise<void> {

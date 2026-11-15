@@ -79,8 +79,6 @@ const validationSchema = yup.object({
   number: yup.string().required(i18n.t('validation:required')),
   barcode: yup.string().nullable().optional(),
   barcodes: yup.array().of(yup.string().nullable()).optional(),
-  kra_item_cls_cd: yup.string().nullable().optional(),
-  kra_tax_ty_cd: yup.string().nullable().optional(),
   available: yup.boolean().optional(),
   ask_quantity: yup.boolean().optional(),
   available_qty: yup
@@ -186,8 +184,6 @@ export const DishForm = ({
         available_qty: src.available_qty ?? null,
         barcodes: Array.isArray(src.barcodes) ? src.barcodes.map(String) : [],
         barcode: src.barcode ?? '',
-        kra_item_cls_cd: src.kra_item_cls_cd ?? '',
-        kra_tax_ty_cd: src.kra_tax_ty_cd ?? '',
         categories: (src.categories || data.categories || []).map((item: any) => ({
           label: item.name,
           value: item.id
@@ -471,12 +467,13 @@ export const DishForm = ({
         );
         if (collisions.length > 0) {
           const hit = collisions[0];
-          throw new Error(
+          toast.error(
             t('toast:admin.barcodeInUse', {
               code: hit.code,
               name: hit.dishName,
             }),
           );
+          return;
         }
       }
       const availability = buildAvailabilityPatch({
@@ -493,8 +490,6 @@ export const DishForm = ({
         number: formData.number,
         barcode: barcodeRaw || null,
         barcodes: extraBarcodes.length ? extraBarcodes : null,
-        kra_item_cls_cd: String(formData.kra_item_cls_cd ?? '').trim() || null,
-        kra_tax_ty_cd: String(formData.kra_tax_ty_cd ?? '').trim().toUpperCase() || null,
         ask_quantity: formData.ask_quantity === true,
         // position: data.position,
         priority: formData.priority,
@@ -688,8 +683,8 @@ export const DishForm = ({
           : t('toast:admin.dishSaved', { name: values.name })
       );
     } catch (e) {
-      toast.error(e);
-      console.log(e)
+      toast.error(e instanceof Error ? e.message : String(e));
+      console.log(e);
     }
   }
 
@@ -876,22 +871,6 @@ export const DishForm = ({
               }}
             />
           </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-3" data-testid="dish-form-kra-fields">
-            <InputField
-              name="kra_item_cls_cd"
-              control={control}
-              label={t('forms.kraItemClsCd')}
-              error={errors?.kra_item_cls_cd?.message}
-            />
-            <InputField
-              name="kra_tax_ty_cd"
-              control={control}
-              label={t('forms.kraTaxTyCd')}
-              error={errors?.kra_tax_ty_cd?.message}
-            />
-          </div>
-          <p className="text-sm text-muted mb-3">{t('forms.kraFiscalHint')}</p>
 
           <div className="flex gap-3 mb-3">
             <div>

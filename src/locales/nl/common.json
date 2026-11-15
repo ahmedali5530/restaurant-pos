@@ -327,6 +327,9 @@
     },
     "settingsTitle": "Assistentinstellingen",
     "analyzeAttached": "{{file}} klaar — stel hieronder uw vraag"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Eindbon overslaan"
   }
 ,
   "desktopSetup": {

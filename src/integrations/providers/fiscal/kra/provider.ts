@@ -29,6 +29,10 @@ import {
   submitKraFiscalRequest,
   submitKraStockIo,
 } from '@/integrations/providers/fiscal/kra/submit.ts';
+import {
+  isKraItemRegistered,
+  kraItemPayload,
+} from '@/integrations/providers/fiscal/kra/item-mapping.ts';
 import { recordIdToString } from '@/api/reports/shared/records.ts';
 
 const schema: ProviderConfigurationSchema = {
@@ -101,7 +105,7 @@ const schema: ProviderConfigurationSchema = {
           label: 'Default Item Classification Code',
           type: 'text',
           required: true,
-          helpText: '10-digit KRA item class code used when a dish has no override.',
+          helpText: '10-digit KRA item class code used when an item has no mapping override.',
         },
         {
           key: 'taxTyCd',
@@ -354,7 +358,9 @@ export class KraProvider implements IntegrationProvider {
     const repo = new EntityMappingRepository(db);
     const tenantId = kraTenantId(parsed);
     const existing = await repo.listByProvider(KRA_PROVIDER_ID, tenantId, 'item');
-    const mapped = new Set(existing.map((row) => String(row.posrId)));
+    const existingByPosrId = new Map(
+      existing.map((row) => [String(row.posrId), row] as const)
+    );
 
     const [dishes] = await db.query<
       Array<{
@@ -363,11 +369,9 @@ export class KraProvider implements IntegrationProvider {
         number?: string;
         price?: number;
         barcode?: string;
-        kra_item_cls_cd?: string;
-        kra_tax_ty_cd?: string;
       }>
     >(
-      `SELECT id, name, number, price, barcode, kra_item_cls_cd, kra_tax_ty_cd
+      `SELECT id, name, number, price, barcode
        FROM ${Tables.dishes}
        WHERE deleted_at = NONE
        LIMIT 5000`
@@ -395,14 +399,16 @@ export class KraProvider implements IntegrationProvider {
     const dishRows = Array.isArray(dishes) ? dishes : [];
     for (const dish of dishRows) {
       const id = String(dish.id);
-      if (mapped.has(id)) continue;
+      const existingMapping = existingByPosrId.get(id);
+      if (existingMapping && isKraItemRegistered(existingMapping)) continue;
+      const payload = kraItemPayload(existingMapping);
       candidates.push({
         posrId: id,
         name: String(dish.name || dish.number || 'Dish'),
         price: Number(dish.price) || 0,
         barcode: dish.barcode,
-        itemClsCd: dish.kra_item_cls_cd,
-        taxTyCd: dish.kra_tax_ty_cd,
+        itemClsCd: payload.itemClsCd,
+        taxTyCd: payload.taxTyCd,
         itemTyCd: '2',
       });
     }
@@ -410,23 +416,29 @@ export class KraProvider implements IntegrationProvider {
     const inventoryRows = Array.isArray(inventoryItems) ? inventoryItems : [];
     for (const item of inventoryRows) {
       const id = String(item.id);
-      if (mapped.has(id)) continue;
+      const existingMapping = existingByPosrId.get(id);
+      if (existingMapping && isKraItemRegistered(existingMapping)) continue;
+      const payload = kraItemPayload(existingMapping);
       candidates.push({
         posrId: id,
         name: String(item.name || 'Item'),
         price: Number(item.cost) || 0,
         barcode: item.barcode,
+        itemClsCd: payload.itemClsCd,
+        taxTyCd: payload.taxTyCd,
         itemTyCd: '1',
       });
     }
 
     for (const candidate of candidates) {
       const itemCd = await allocateKraItemCode(db, parsed);
+      const itemClsCd = candidate.itemClsCd || parsed.itemClsCd;
+      const taxTyCd = candidate.taxTyCd || null;
       const payload = serializeKraItemSave(parsed, {
         itemCd,
         itemNm: candidate.name,
-        itemClsCd: candidate.itemClsCd,
-        taxTyCd: candidate.taxTyCd,
+        itemClsCd,
+        taxTyCd,
         barcode: candidate.barcode,
         price: candidate.price,
         itemTyCd: candidate.itemTyCd,
@@ -445,7 +457,11 @@ export class KraProvider implements IntegrationProvider {
         entityType: 'item',
         posrId: candidate.posrId,
         externalId: itemCd,
-        externalPayload: { itemClsCd: candidate.itemClsCd || parsed.itemClsCd },
+        externalPayload: {
+          itemClsCd,
+          taxTyCd,
+          registered: true,
+        },
       });
     }
   }
@@ -584,9 +600,11 @@ export class KraProvider implements IntegrationProvider {
     const tenantId = kraTenantId(parsed);
     const lines: Array<{
       itemCd: string;
+      itemClsCd?: string;
       itemNm: string;
       qty: number;
       unitPrice?: number;
+      taxTyCd?: string;
     }> = [];
 
     for (const line of document.items) {
@@ -594,16 +612,19 @@ export class KraProvider implements IntegrationProvider {
       const itemId = String(typeof item === 'object' ? item?.id : item ?? '');
       if (!itemId) continue;
       const mapping = await repo.findByPosrId(KRA_PROVIDER_ID, tenantId, 'item', itemId);
-      if (!mapping?.externalId) continue;
+      if (!mapping?.externalId || !isKraItemRegistered(mapping)) continue;
+      const payload = kraItemPayload(mapping);
       const qty = Math.abs(Number(line.quantity) || 0);
       if (qty <= 0) continue;
       lines.push({
         itemCd: String(mapping.externalId),
+        itemClsCd: payload.itemClsCd || undefined,
         itemNm: String(
           (typeof item === 'object' && item?.name) || line.name || mapping.externalId
         ),
         qty,
         unitPrice: Number(line.unit_cost ?? line.cost ?? item?.cost ?? 0) || 0,
+        taxTyCd: payload.taxTyCd || undefined,
       });
     }
 

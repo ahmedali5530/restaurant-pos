@@ -4,6 +4,7 @@ import {
   findDishByScanCode,
   normalizeExtraBarcodes,
   parseScanQty,
+  searchQuickOrderDishes,
 } from "@/lib/quick-order-scan.ts";
 import type {Dish} from "@/api/model/dish.ts";
 
@@ -75,6 +76,44 @@ describe("parseScanQty", () => {
 
   it("rejects empty", () => {
     expect(parseScanQty("   ").mode).toBe("empty");
+  });
+});
+
+describe("searchQuickOrderDishes", () => {
+  const catalog = [
+    dish({id: "menu_item:1", name: "Cola Classic", number: "101", barcode: "8901234567890", price: 2}),
+    dish({id: "menu_item:2", name: "Diet Cola", number: "102", barcode: "8901999", price: 2}),
+    dish({id: "menu_item:3", name: "Bun", number: "202", barcode: null, price: 1}),
+    dish({
+      id: "menu_item:4",
+      name: "Whisky",
+      number: "404",
+      barcode: "7501000000001",
+      barcodes: ["7501000000002"],
+      price: 40,
+    }),
+  ];
+
+  it("matches by name substring", () => {
+    const hits = searchQuickOrderDishes(catalog, "cola");
+    expect(hits.map((h) => h.dish.id)).toEqual(["menu_item:1", "menu_item:2"]);
+    expect(hits[0].matchedOn).toBe("name");
+  });
+
+  it("matches number prefix before name includes", () => {
+    const hits = searchQuickOrderDishes(catalog, "10");
+    expect(hits[0].dish.id).toBe("menu_item:1");
+    expect(hits[0].matchedOn).toBe("number");
+  });
+
+  it("matches barcode aliases", () => {
+    expect(searchQuickOrderDishes(catalog, "7501000000002")[0]?.dish.id).toBe("menu_item:4");
+  });
+
+  it("ignores qty syntax and empty query", () => {
+    expect(searchQuickOrderDishes(catalog, "101*2")).toEqual([]);
+    expect(searchQuickOrderDishes(catalog, "*3")).toEqual([]);
+    expect(searchQuickOrderDishes(catalog, "  ")).toEqual([]);
   });
 });
 

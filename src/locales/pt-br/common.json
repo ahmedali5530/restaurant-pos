@@ -327,6 +327,9 @@
     },
     "settingsTitle": "Configurações do assistente",
     "analyzeAttached": "{{file}} pronto — pergunte abaixo"
+  },
+  "toolbar": {
+    "skipFinalPrint": "Pular recibo final"
   }
 ,
   "desktopSetup": {
