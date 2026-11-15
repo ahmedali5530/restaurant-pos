@@ -12,6 +12,7 @@ export const RELEASES: ReleaseNotes[] = [
     items: [
       'Quick Order cart footer: pick a payment type (first selected by default), edit amount, and tap Complete to settle without opening the full payment modal. Payment-type tax applies the same way as receiving.',
       'Full payment still opens the existing payment screen for split tenders, coupons, tips, and remote gateways.',
+      'Quick Order cart lines are no longer selectable; drag-scrolling the cart works from the item row itself, not only the action buttons.',
     ],
   },
   {
