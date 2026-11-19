@@ -64,7 +64,11 @@ class QboClient {
   }
 
   buildUrl(path, query) {
-    const base = path.startsWith('http') ? path : `${this.companyUrl}/${path.replace(/^\//, '')}`;
+    // SSRF guard: never allow an absolute URL to override the Intuit host.
+    // The proxy forwards a caller-supplied `path`; treat it strictly as a
+    // path segment under companyUrl so it cannot be redirected to an internal
+    // or attacker-controlled host (which would also leak the OAuth bearer token).
+    const base = `${this.companyUrl}/${String(path || '').replace(/^\/+/, '')}`;
     if (!query) return base;
     const params = new URLSearchParams(query).toString();
     return `${base}?${params}`;
